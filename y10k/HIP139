@@ -30,9 +30,13 @@
            LOCK MODE IS MANUAL.
            SELECT ERRORCOR-FILE ASSIGN TO "S75" ORGANIZATION
            LINE SEQUENTIAL.
+           SELECT ERR209 ASSIGN TO "S80" ORGANIZATION
+           LINE SEQUENTIAL.
 
        DATA DIVISION.
        FILE SECTION.
+       FD  ERR209.
+       01  ERR20901 PIC X(60).
        FD  MPLRFILE.
        01  MPLRFILE01.
            02 MPLR-KEY PIC X(8). 
@@ -571,7 +575,7 @@
            OPEN INPUT FILEIN CHARCUR GARFILE MPLRFILE PARMFILE PAYCUR.
            OPEN I-O PAYFILE 
            INPUT CAIDFILE.
-           OPEN OUTPUT ERROR-FILE ERRORCOR-FILE.
+           OPEN OUTPUT ERROR-FILE ERRORCOR-FILE err209
            MOVE SPACE TO ERRORCOR-FILE01
            MOVE "###" TO ERRORCOR-FILE01
            WRITE ERRORCOR-FILE01
@@ -749,6 +753,18 @@
            GO TO P1-SVC-LOOP.
            
            IF F1 = "CAS" 
+              MOVE SPACE TO CAS01 
+              UNSTRING FILEIN01 DELIMITED BY "*" INTO
+              CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+              CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+              CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+             IF (CAS-1 = "OA" AND CAS-2 = "209")
+               move space to err20901
+               STRING clp-1 " " SVC-TAB(SVC-CNTR)(8:5) " " dtm01(7:8)
+               DELIMITED BY SIZE INTO ERR20901
+               WRITE ERR20901
+               GO TO P1-SVC-LOOP
+             END-IF  
            ADD 1 TO CAS-CNTR
            MOVE FILEIN01 TO CAS-TAB(CAS-CNTR)
            MOVE SVC-CNTR TO CAS-SVC(CAS-CNTR)
@@ -1470,7 +1486,8 @@
              WRITE ERROR-FILE01
             END-IF
            END-PERFORM.
-           CLOSE PAYFILE GARFILE CHARCUR ERROR-FILE ERRORCOR-FILE
+           CLOSE PAYFILE GARFILE CHARCUR
+                 ERROR-FILE ERRORCOR-FILE err209
            STOP RUN.
        P999.
                IF (CAS-2 = "42 " OR "B6 ") MOVE CAS-3 TO ALF8
