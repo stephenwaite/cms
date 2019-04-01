@@ -675,14 +675,26 @@
        P000.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P9.
+           IF FILEIN01(1:5) = "N1*PR"
+              MOVE SPACE TO N101
+              UNSTRING FILEIN01 DELIMITED BY "*" INTO
+              N1-0 N1-1 N1-2 N1-3 N1-ID
+              MOVE N1-ID(1:5) TO PAYORID
+              
+               IF (PAYORID = "87726")  
+                 GO TO XX
+               ELSE 
+                 GO TO P0000  
+               END-IF
+               
+           END-IF
+           
            IF NOT (F1 = "REF" AND F21 = "*2U") GO TO P000.
            MOVE SPACE TO REF01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
            REF-0 REF-1 REF-2
            MOVE REF-2 TO PAYORID.
            IF PAYORID NOT = "87726" GO TO XX.
-           DISPLAY "PAYORID " PAYORID.
-           if payorid = "36273" go to p00.
        P0000.
            MOVE SPACE TO FILEIN01.
            READ FILEIN AT END GO TO P9.
