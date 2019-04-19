@@ -241,13 +241,25 @@
            READ CHARFILE INVALID PERFORM A3 GO TO P1.
            IF CD-DIAG NOT = "0000000" AND ALF1 = "1" GO TO P1.
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
-             IF CD-DATE-T < "20151001"
-              MOVE "V7612??" TO CD-DIAG
-             END-IF
-             IF CD-DATE-T > "20150930"
-              MOVE "R928     " TO CD-DIAG
-             END-IF
-            MOVE "52" TO CD-MOD2	  
+            MOVE "R928     " TO CD-DIAG
+            IF (CD-PAYCODE = "003")
+              IF (CD-PROC1 = "1446")
+                MOVE "LT" TO CD-MOD2
+                MOVE "10937706526" TO CD-PROC
+              ELSE IF (CD-PROC1 = "1447")
+                MOVE "RT" TO CD-MOD2
+                MOVE "10947706526" TO CD-PROC
+              ELSE IF (CD-PROC1 = "1448")
+                MOVE "  " TO CD-MOD2
+                MOVE "10957706626" TO CD-PROC
+                MOVE 184 TO CD-AMOUNT
+              END-IF
+            ELSE
+              MOVE "52" TO CD-MOD2
+              IF (CD-PROC1 = "1448")
+              MOVE "  " TO CD-MOD2
+              END-IF
+            END-IF
             REWRITE CHARFILE01 
             GO TO P1
            END-IF
@@ -363,7 +375,23 @@
              IF NOT (CD-MOD4 = "8P" OR SPACE)
                  GO TO P2-0
              END-IF
-           END-IF.    
+           END-IF. 
+
+           IF CD-PAYCODE = "012"
+             DISPLAY " MEASURE 405: TYPE 1 2 OR 3 OR ENTER FOR NO LES"
+             ACCEPT CD-MOD4
+             IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
+                 GO TO P2-0
+             END-IF
+           END-IF.
+
+           IF CD-PAYCODE = "013"
+             DISPLAY " MEASURE 406: TYPE 1 2 OR 3 OR ENTER FOR NO LES"
+             ACCEPT CD-MOD4
+             IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
+                 GO TO P2-0
+             END-IF
+           END-IF.    	
 
        P2-000.
            DISPLAY " DIAG? "
