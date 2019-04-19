@@ -137,7 +137,8 @@
            START CHARFILE KEY > CHARFILE-KEY INVALID GO TO P2.
        P1. 
            READ CHARFILE NEXT WITH LOCK AT END GO TO P2.
-           IF NOT (CD-PAYCODE = "008" OR "009" OR "010" OR "011")
+           IF NOT (CD-PAYCODE = "008" OR "009" OR "010" OR "011" 
+           OR "012" OR "013")
              GO TO P1
            END-IF
 
@@ -156,6 +157,7 @@
             PERFORM A1 THRU A1-EXIT
             GO TO P0
            END-IF.
+	
            IF  CD-PAYCODE = "009"
             MOVE SPACE TO FILEOUT01
             STRING "146 " CD-PROC1 " " CD-DATE-T " " CD-NAME
@@ -196,6 +198,38 @@
             DISPLAY "MEASURE 195"
             DISPLAY CHARFILE01
             MOVE 195 TO FLAG
+            MOVE "003" TO CD-PAYCODE
+            MOVE CHARFILE01 TO CHARBACK01
+            REWRITE CHARFILE01
+            UNLOCK CHARFILE RECORD
+            PERFORM A1 THRU A1-EXIT
+            GO TO P0
+           END-IF.
+	
+           IF  CD-PAYCODE = "012"
+            MOVE SPACE TO FILEOUT01
+            STRING "405 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+            DELIMITED BY SIZE INTO FILEOUT01
+            WRITE FILEOUT01 
+            DISPLAY "MEASURE 405"
+            DISPLAY CHARFILE01
+            MOVE 405 TO FLAG
+            MOVE "003" TO CD-PAYCODE
+            MOVE CHARFILE01 TO CHARBACK01
+            REWRITE CHARFILE01
+            UNLOCK CHARFILE RECORD
+            PERFORM A1 THRU A1-EXIT
+            GO TO P0
+           END-IF.
+	
+           IF  CD-PAYCODE = "013"
+            MOVE SPACE TO FILEOUT01
+            STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+            DELIMITED BY SIZE INTO FILEOUT01
+            WRITE FILEOUT01 
+            DISPLAY "MEASURE 406"
+            DISPLAY CHARFILE01
+            MOVE 406 TO FLAG
             MOVE "003" TO CD-PAYCODE
             MOVE CHARFILE01 TO CHARBACK01
             REWRITE CHARFILE01
@@ -274,6 +308,62 @@
             MOVE SPACE TO CHARFILE-KEY
             STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
             GO TO A1-EXIT
+           END-IF.
+	
+           IF FLAG = 405
+            IF CD-MOD4 = "1 "
+             MOVE "0000G9550  " TO CD-PROC
+             MOVE CHARFILE01 TO CHARBACK01
+             PERFORM B1 THRU B2
+           END-IF
+           IF CD-MOD4 = "2 "
+             MOVE "0000G9549  " TO CD-PROC
+             MOVE CHARFILE01 TO CHARBACK01
+             PERFORM B1 THRU B2
+           END-IF
+           IF CD-MOD4 = "3 "
+             MOVE "0000G9548  " TO CD-PROC
+             MOVE CHARFILE01 TO CHARBACK01
+             PERFORM B1 THRU B2
+           END-IF
+           IF CD-MOD4 = "1 " OR "2 " OR "3 "
+            MOVE "0000G9547  " TO CD-PROC
+           ELSE
+            MOVE "0000G9551  " TO CD-PROC
+           END-IF
+             MOVE CHARFILE01 TO CHARBACK01
+             PERFORM B1 THRU B2
+             MOVE SPACE TO CHARFILE-KEY
+             STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
+             GO TO A1-EXIT
+           END-IF.
+	
+           IF FLAG = 406
+            IF CD-MOD4 = "1 "
+             MOVE "0000G9556  " TO CD-PROC
+             MOVE CHARFILE01 TO CHARBACK01
+             PERFORM B1 THRU B2
+           END-IF
+           IF CD-MOD4 = "2 "
+             MOVE "0000G9555  " TO CD-PROC
+             MOVE CHARFILE01 TO CHARBACK01
+             PERFORM B1 THRU B2
+           END-IF
+           IF CD-MOD4 = "3 "
+             MOVE "0000G9554  " TO CD-PROC
+             MOVE CHARFILE01 TO CHARBACK01
+             PERFORM B1 THRU B2
+           END-IF
+           IF CD-MOD4 = "1 " OR "2 " OR "3 "
+            MOVE "0000G9552  " TO CD-PROC
+           ELSE
+            MOVE "0000G9557  " TO CD-PROC
+           END-IF
+             MOVE CHARFILE01 TO CHARBACK01
+             PERFORM B1 THRU B2
+             MOVE SPACE TO CHARFILE-KEY
+             STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
+             GO TO A1-EXIT
            END-IF.
 
        A1-1.
