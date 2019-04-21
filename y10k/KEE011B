@@ -1,0 +1,205 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CMS011.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILE-IN ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT BILLPARM ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT BILLDATE ASSIGN TO "S40"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT OUT-FILE ASSIGN TO "S45"
+           ORGANIZATION LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  OUT-FILE.
+       01  OUT-FILE01 PIC X(132).
+       FD  BILLPARM
+           DATA RECORD IS BILLPARM01.
+       01  BILLPARM01.
+           02 PF1 PIC S999.
+           02 PF2 PIC S999.
+           02 PF3 PIC S999.
+           02 PF4 PIC X(40).
+       FD  FILE-IN.
+       01  FILE-IN01.
+           02 G-DUNNING PIC X.
+           02 G-COLLT PIC X.
+           02 G-GARNAME PIC X(24).
+           02 G-GARNO PIC X(8).
+           02 XINS PIC S9(4)V99.
+           02 XCUR PIC S9(4)V99.
+           02 XBAL30 PIC S9(4)V99.
+           02 XBAL60 PIC S9(4)V99.
+           02 XCOL PIC S9(4)V99.
+           02 SNUM1 PIC S9(7)V99.
+           02 LB-YYYY PIC XXXX.
+           02 LB-MM PIC XX.
+           02 LB-DD PIC XX.
+           02 LB-STAT PIC X.
+       FD  BILLDATE
+           DATA RECORD IS BILLDATE01.
+       01  BILLDATE01.
+           02 BILL-DATE.
+             03 FILLER PIC X(8).
+             03 BD-1 PIC 9999.
+             03 BD-2 PIC 99.
+             03 BD-3 PIC 99.
+       WORKING-STORAGE SECTION.
+       01 LINE-10.
+           02 L10F1 PIC X(21) VALUE "    BALANCE REPORT   ".
+           02 F101 PIC X(10) VALUE SPACE.
+           02 L10F2 PIC X(40).
+           02 F102 PIC X(10).
+           02 L10F21 PIC 99.
+           02 L10F22 PIC X VALUE "/".
+           02 L10F23 PIC 99.
+           02 L10F24 PIC X VALUE "/".
+           02 L10F25 PIC 9999.
+           02 F103 PIC X(20) VALUE SPACE.
+           02 F104 PIC X(5) VALUE "PAGE ".
+           02 L10F3 PIC 999 VALUE 0.
+       01 LINE-20.
+           02 L20F0 PIC X.
+           02 L20STAT PIC X.
+           02 L20F0-1 PIC X.
+           02 FILLER PIC X VALUE SPACE.
+           02 L20F1 PIC X(23).
+           02 F201 PIC XX VALUE SPACE.
+           02 L20F2 PIC X(8).
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L20-MM PIC XX.
+           02 L20-F1 PIC X VALUE "-".
+           02 L20-DD PIC XX.
+           02 L20-F2 PIC X VALUE "-".
+           02 L20-YYYY PIC XXXX.
+           02 F202 PIC X VALUE SPACE.
+           02 L20F3 PIC $$,$$9.99CR.
+           02 F203 PIC X(3) VALUE SPACE.
+           02 L20F4 PIC $$,$$9.99CR.
+           02 F204 PIC X(3) VALUE SPACE.
+           02 L20F5 PIC $$,$$9.99CR.
+           02 F205 PIC X(3) VALUE SPACE.
+           02 L20F6 PIC $$,$$9.99CR.
+           02 F206 PIC X(3) VALUE SPACE.
+           02 L20F7 PIC $$,$$9.99CR.
+           02 F207 PIC X(3) VALUE SPACE.
+           02 L20F8 PIC $$,$$9.99CR.
+       01  LINE-30.
+           02 L30F0 PIC XXX VALUE "CAD".
+           02 L30F1 PIC X(6) VALUE "  NAME".
+           02 F301 PIC X(21) VALUE SPACE.
+           02 L30F2 PIC X(8) VALUE "ACCT. # ".
+           02 F302 PIC X(4) VALUE SPACE.
+           02 L30LB PIC X(10) VALUE "LASTBILL  ".
+           02 L30F4 PIC X(8) VALUE "INS/PEND".
+           02 F303 PIC X(7) VALUE SPACE.
+           02 L30F5 PIC X(7) VALUE "CURRENT".
+           02 F304 PIC X(6) VALUE SPACE.
+           02 L30F6 PIC X(8) VALUE "PAST DUE".
+           02 F305 PIC X(4) VALUE SPACE.
+           02 L30F7 PIC X(10) VALUE "DELINQUENT".
+           02 F306 PIC X(4) VALUE SPACE.
+           02 L30F8 PIC X(10) VALUE "COLLECTION".
+           02 F307 PIC X(5) VALUE SPACE.
+           02 L30F9 PIC X(9) VALUE "TOTAL DUE".
+       01 LINE-40.
+           02 F401 PIC X(6) VALUE "TOTALS".
+           02 F402 PIC X(29) VALUE SPACE.
+           02 L40F1 PIC $$,$$$,$$9.99CR.
+           02 F403 PIC X VALUE SPACE.
+           02 L40F2 PIC $$,$$$,$$9.99CR.
+           02 F404 PIC X VALUE SPACE.
+           02 L40F3 PIC $$,$$$,$$9.99CR.
+           02 F405 PIC X VALUE SPACE.
+           02 L40F4 PIC $$,$$$,$$9.99CR.
+           02 F406 PIC X VALUE SPACE.
+           02 L40F5 PIC $$,$$$,$$9.99CR.
+           02 F407 PIC X VALUE SPACE.
+           02 L40F6 PIC $$,$$$,$$9.99CR.
+       01   CLAIM-TOT PIC S9(5)V99.
+       01   LINE-CTR PIC 999.
+       01   XX PIC 9999 VALUE 0.
+       01   SNUM7 PIC S9(7)V99.
+       01   SNUM72 PIC S9(7)V99 VALUE 0.
+       01   SNUM73 PIC S9(7)V99 VALUE 0.
+       01   SNUM74 PIC S9(7)V99 VALUE 0.
+       01   SNUM75 PIC S9(7)V99 VALUE 0.
+       01   SNUM76 PIC S9(7)V99 VALUE 0.
+       01   INS PIC S9(6)V99 VALUE 0.
+       01   L30 PIC S9(6)V99 VALUE 0.
+       01   L60 PIC S9(6)V99 VALUE 0.
+       01   COL-X PIC S9(6)V99 VALUE 0.
+       01   CUR PIC S9(6)V99 VALUE 0.
+       01   TOT PIC S9(6)V99 VALUE 0.
+       01  X PIC 999.
+       01  HOLD-DUNNING PIC X.
+       01  HOLD-COLLT PIC X.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT BILLDATE FILE-IN BILLPARM OUTPUT OUT-FILE.
+           READ BILLPARM AT END DISPLAY "NO BILLPARM" GO TO P20.
+           MOVE PF4 TO L10F2.
+           MOVE 0 TO X.
+           READ BILLDATE AT END DISPLAY "NO BILLDATE" GO TO P20.
+           MOVE BD-1 TO L10F25.
+           MOVE BD-2 TO L10F21
+           MOVE BD-3 TO L10F23.
+           MOVE 1 TO L10F3.
+           WRITE OUT-FILE01 FROM LINE-10 AFTER PAGE.
+           MOVE SPACES TO OUT-FILE01.
+           WRITE OUT-FILE01 FROM LINE-30 AFTER 2.
+       P00.
+           READ FILE-IN AT END PERFORM P3 GO TO P20.
+      *     IF G-DUNNING < "2" GO TO P00.
+           MOVE G-COLLT TO HOLD-COLLT
+           MOVE G-DUNNING TO HOLD-DUNNING
+           GO TO P1-1.
+       P1. READ FILE-IN AT END PERFORM P3 GO TO P20.
+       P1-1.
+      *     IF G-DUNNING < "2" GO TO P1.
+           MOVE G-COLLT TO L20F0.
+           MOVE LB-STAT TO L20STAT
+           MOVE G-DUNNING TO L20F0-1.
+           MOVE G-GARNAME TO L20F1.
+           MOVE G-GARNO TO L20F2.
+           MOVE LB-DD TO L20-DD
+           MOVE LB-MM TO L20-MM
+           MOVE LB-YYYY TO L20-YYYY
+           MOVE XINS TO L20F3.
+           MOVE XCUR TO L20F4.
+           MOVE XBAL30 TO L20F5.
+           MOVE XBAL60 TO L20F6.
+           MOVE XCOL TO L20F7.
+           MOVE SNUM1 TO L20F8.
+           IF XX > 55 MOVE 0 TO XX
+           ADD 1 TO L10F3
+           WRITE OUT-FILE01 FROM LINE-10 AFTER PAGE
+           MOVE SPACE TO OUT-FILE01
+           WRITE OUT-FILE01 FROM LINE-30 AFTER 2.
+           MOVE SPACE TO OUT-FILE01.
+           WRITE OUT-FILE01 FROM LINE-20.
+           ADD 1 TO XX.
+           ADD XINS TO INS.
+           ADD XCUR TO CUR.
+           ADD XBAL30 TO L30.
+           ADD XBAL60 TO L60.
+           ADD XCOL TO COL-X.
+           ADD SNUM1 TO TOT.
+           GO TO P1.
+       P3.
+           MOVE INS TO L40F1.
+           MOVE CUR TO L40F2.
+           MOVE L30 TO L40F3.
+           MOVE L60 TO L40F4.
+           MOVE COL-X TO L40F5.
+           MOVE TOT TO L40F6.
+           MOVE SPACE TO OUT-FILE01.
+           WRITE OUT-FILE01 FROM LINE-40 AFTER 3
+           MOVE 0 TO INS CUR L30 L60 COL-X TOT
+           MOVE 77 TO XX.
+       P20. CLOSE OUT-FILE. STOP RUN.

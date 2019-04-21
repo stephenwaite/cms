@@ -1,0 +1,19 @@
+we are running ACCUCOBOL on a linux box.
+one file is 1.2m records with 1 alternate key with duplicates.
+
+one of the duplicate keys has 48K entries
+when read along this keypath the accucobol performs in 13 secs.
+
+
+one our other linux box the keypath takes 15mins.!
+
+the alternate key was created using db_load and the input file
+was sorted in alternate key order, and sub-sorted by the primary key.
+
+that load took less than 30 secs.
+
+
+what am i missing in db isam file construction that can inprove
+performance when reading along the alternate record key path?
+
+or is 48k too big for efficiency?

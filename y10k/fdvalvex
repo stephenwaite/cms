@@ -1,0 +1,57 @@
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01.
+           02 ASSET-ID PIC 9(7).
+           02 VL-QUAD PIC X(4).
+           02 VL-COF PIC 9.
+           02 VL-REDUN PIC 999.
+           02 VL-FACTOR PIC 9V9.
+           02 VL-POF PIC 9.
+       FD  FILEIN.
+       01  FILEIN01 PIC X(600).
+       WORKING-STORAGE SECTION.
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       01  NUM1 PIC 9.
+       01  NUM1X PIC 9.
+
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+           MOVE 0 TO ASSET-ID.
+       P1.
+           MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P2.
+           ADD 1 TO ASSET-ID
+           IF FILEIN01(17:6) NOT = "System" GO TO P1.
+           MOVE SPACE TO RIGHT-3
+           UNSTRING FILEIN01(3:3) DELIMITED BY " " INTO RIGHT-3
+           INSPECT RIGHT-3 REPLACING LEADING " " BY "0"
+           MOVE FILEIN01(3:4) TO VL-QUAD
+           COMPUTE VL-REDUN = 100
+           IF FILEIN01(183:3) NOT NUMERIC
+             COMPUTE VL-REDUN = 0
+           END-IF
+           MOVE FILEIN01(232:1) TO VL-POF
+           MOVE FILEIN01(172:1) TO VL-COF
+           MOVE FILEIN01(195:1) TO NUM1
+           MOVE FILEIN01(197:1) TO NUM1X
+           COMPUTE VL-FACTOR = NUM1 + (NUM1X / 10)
+           WRITE FILEOUT01             
+           GO TO P1.
+       P2.
+           CLOSE FILEIN FILEOUT.
+           STOP RUN.

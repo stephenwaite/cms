@@ -1,0 +1,103 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RRI168.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT PROCHIS ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS RANDOM RECORD KEY IS PROCHIS-KEY.
+           SELECT PROCFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS PROC-KEY.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PROCFILE
+           DATA RECORD PROCFILE01.
+       01  PROCFILE01.
+           02 PROC-KEY PIC X(11).
+           02 PROC-TYPE PIC X.
+           02 PROC-TITLE PIC X(28).
+           02 PROC-AMOUNT PIC 9(4)V99.
+       FD  PROCHIS.
+       01  PROCHIS01.
+           02 PROCHIS-KEY.
+             03 PROC-PROC1 PIC X(11).
+             03 PROC-YY PIC XXXX.
+             03 PROC-MM PIC XX.
+             03 PROC-PL PIC X.
+           02 PROC-UNITS PIC 9(6).
+           02 PROCHIS-TITLE PIC X(28).
+           02 PROCHIS-AMOUNT PIC S9(8)V99.
+       FD  FILEIN
+           DATA RECORD IS FILEIN01.
+       01  FILEIN01.
+           02 F-PROCHIS-KEY.
+             03 F-PROC-PROC1 PIC X(11).
+             03 F-PROC-YY PIC XXXX.
+             03 F-PROC-MM PIC XX.
+             03 F-PROC-PL PIC X.
+           02 F-PROC-UNITS PIC 9.
+           02 F-PROCHIS-AMOUNT PIC S9(4)V99.
+       WORKING-STORAGE SECTION.
+       01  HOLDKEY.
+             03 H-PROC1 PIC X(11).
+             03 H-YY PIC XXXX.
+             03 H-MM PIC XX.
+             03 H-PL PIC X.
+       01  TOT-AMT PIC S9(8)V99.
+       01  TOT-UNITS PIC 9(6).
+       01  ALF1 PIC X.
+       PROCEDURE DIVISION.
+       P0. OPEN INPUT PROCFILE FILEIN I-O PROCHIS.
+           READ FILEIN AT END GO P2.
+           compute tot-amt = f-prochis-amount
+           compute tot-units = f-proc-units
+           MOVE F-PROCHIS-KEY TO HOLDKEY.
+       P1. READ FILEIN AT END GO TO P2.
+            IF F-PROCHIS-KEY = HOLDKEY
+            compute tot-units = tot-units + f-proc-units
+            compute tot-amt = tot-amt + f-prochis-amount
+           GO TO P1.
+           MOVE H-PROC1 TO PROC-KEY
+           READ PROCFILE INVALID DISPLAY "BAD KEY " HOLDKEY
+           ACCEPT ALF1.
+      *     GO TO P3.
+           MOVE HOLDKEY TO PROCHIS-KEY
+           READ PROCHIS INVALID MOVE PROC-TITLE
+           TO PROCHIS-TITLE
+           compute proc-units = tot-units
+           compute prochis-amount = tot-amt
+           compute tot-amt = f-prochis-amount
+           compute tot-units = f-proc-units
+           MOVE F-PROCHIS-KEY TO HOLDKEY
+           WRITE PROCHIS01 GO TO P1.
+           DISPLAY "A LATE RECORD " PROCHIS-KEY
+           compute prochis-amount = prochis-amount + tot-amt
+           compute proc-units = proc-units + tot-units
+           REWRITE PROCHIS01.
+           compute tot-amt = f-prochis-amount
+           compute tot-units = f-proc-units
+           MOVE F-PROCHIS-KEY TO HOLDKEY
+           GO TO P1.
+       P2.
+           MOVE H-PROC1 TO PROC-KEY
+           READ PROCFILE INVALID DISPLAY "BAD KEY " HOLDKEY
+           accept omitted
+           GO TO P3.
+           MOVE HOLDKEY TO PROCHIS-KEY
+           READ PROCHIS INVALID MOVE PROC-TITLE
+           TO PROCHIS-TITLE
+           compute proc-units = TOT-UNITS 
+           compute PROCHIS-AMOUNT =  TOT-AMT 
+           WRITE PROCHIS01
+           GO TO P3
+           end-read
+           DISPLAY "A LATE RECORD " PROCHIS-KEY
+           accept omitted
+           compute PROCHIS-AMOUNT =  proc-amount + TOT-AMT 
+           compute proc-units = proc-units +  TOT-UNITS 
+           REWRITE PROCHIS01.
+       P3. CLOSE PROCHIS.
+           STOP RUN.

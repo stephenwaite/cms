@@ -1,0 +1,182 @@
+  asset file index  
+----------
+
+    as-KEY    9(6).  system generated(starts at 1).
+*   as-type   x(3).  from asset table
+*   as-date   x(8). yyyymmdd.  date activated
+*   as-manu   9(5). from manu table
+    as-life  9(3).
+    as-active    x.  0 = inactive 1=active.
+    as-biil-acct pic x(?) from billing file
+
+    as-long  x(14).
+    as-lat   x(14).
+*   as-alt   x(14).
+
+manufacture-file
+----------------
+  manu-key pic 9(4).
+* manu-name pic x(50).
+  manu-phone pic x(12).
+asset-type-table
+----------------
+cs curb-stop 
+hy hydrant
+vl valve
+pm pump
+mt meter
+st storage-tank
+pi pipe
+jt joint-couple
+
+others may be added...
+
+
+
+meter-table(mt)
+--------
+asset number from asset file 9(6)
+maunfacturer 
+service date x(8)
+cost of item   9(6)
+serial number
+type
+life-expectancy 9(3)
+condition  x
+redundancy x
+as-911add
+as-life  9(3).
+as-long  x(14).
+as-lat   x(14).
+as-alt   x(14).
+
+hydrant-table(hy)
+-------
+asset number from asset file 9(6)
+maunfacturer
+date acq.
+cost
+life-expectancy
+condition
+cost of item   9(6)
+as-911add
+as-long  x(14).
+as-lat   x(14).
+as-alt   x(14).
+
+valve-table(vl)
+-------
+asset number from asset file 9(6)
+maunfacturer
+date acq.
+cost
+life-expectancy
+condition
+cost of item   9(6)
+type1
+type2
+valve-id
+as-911add
+as-long  x(14).
+as-lat   x(14).
+as-alt   x(14).
+
+pump-table(pm)
+-------
+asset number from asset file 9(6)
+maunfacturer
+date acq.
+life-expectancy
+condition
+cost of item   9(6)
+as-911add
+as-long  x(14).
+as-lat   x(14).
+as-alt   x(14).
+
+curbstop-table(cs)
+-------
+asset number from asset file 9(6)
+maunfacturer
+date acq.
+type
+life-expectancy
+condition
+cost of item   9(6)
+as-911add
+as-long  x(14).
+as-lat   x(14).
+as-alt   x(14).
+
+
+soragetank-table(st)
+-------
+asset number from asset file 9(6)
+maunfacturer
+date acq.
+cost
+life-expectancy
+condition
+volume
+cost of item   9(6)
+as-911add
+as-long  x(14).
+as-lat   x(14).
+as-alt   x(14).
+
+
+
+
+pip-etable(pi)
+--------
+asset number from asset file 9(6)
+length
+date acq.
+life-expectantcy
+type
+c-factor
+diameter
+redundant
+active
+maunfacturer
+cost of item   9(6)
+as-911add
+as-long  x(14). taken at mid-pt
+as-lat   x(14).    ""
+as-alt   x(14).    ""
+
+joint-table(jt)
+--------
+asset number from asset file 9(6)
+length
+maunfacturer
+date acq.
+life-exspectancy
+cost of item   9(6)
+as-911add
+as-long  x(14).
+as-lat   x(14).
+as-alt   x(14).
+
+repair-replace-maintenance file
+-------------------------------
+repair-number pic 9(7)  system generated(stars at 10 
+asset number from asset file 9(6)
+asset-partnum   from asset-part file
+action-type   p,l,m for rePair,repLace or Maintenance
+date
+cost
+description of service pic x(???)
+as-911add
+as-long  x(14). taken at mid-pt
+as-lat   x(14).    ""
+as-alt   x(14).    ""
+
+asset-part file(for multi-part assets)
+the key here is both the asset number,partnumber combination
+only 99 parts fpr any asset should be satisfactory
+---------------
+asset number from asset file 9(6)
+as-partnumber pic 99.
+manu-key pic 9(4).
+

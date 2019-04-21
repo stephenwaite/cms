@@ -1,0 +1,1883 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. REPR001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ACTFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS A-ACTNO
+           ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
+           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
+           SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
+           SELECT TOWNADDR ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS TOWN-KEY.
+           SELECT ORDFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS ORDNO
+           ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES
+           STATUS IS ORD-STAT.
+           SELECT REFPHY ASSIGN TO "S50" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS REF-KEY
+           ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-CRNUM WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-UPIN  WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES
+           STATUS IS REF-STAT.
+           SELECT INSFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS INS-KEY
+           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES.
+           SELECT GAPFILE ASSIGN TO "S160" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS GAPKEY
+           ALTERNATE RECORD KEY IS GAP-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS GAP-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS GAP-STATE WITH DUPLICATES.
+       DATA DIVISION.
+       FILE SECTION.
+       FD GAPFILE.
+       01 GAPFILE01.
+           02 GAPKEY PIC X(7).
+           02 GAP-NAME PIC X(25).
+           02 GAP-ADDR PIC X(22).
+           02 GAP-CITY PIC X(15).
+           02 GAP-STATE PIC XX.
+           02 GAP-ZIP PIC X(9).
+           02 GAP-TYPE PIC X.
+           02 GAP-FUTURE PIC X(40).
+       FD  GARFILE
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS G-MASTER.
+       01  G-MASTER.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(10).
+           02 G-PRIPOL PIC X(16).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(10).
+           02 G-SECPOL PIC X(16).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-INSPEND PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+       FD  INSFILE
+     *     BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS INSFILE01.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+       FD  REFPHY
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS REFPHY01.
+       01  REFPHY01.
+           02 REF-KEY.
+             03 REF1 PIC X.
+             03 REF2 PIC XX.
+           02 REF-BSNUM PIC X(5).
+           02 REF-CRNUM PIC X(6).
+           02 REF-UPIN PIC X(6).
+           02 REF-CDNUM PIC X(7).
+           02 REF-NAME PIC X(24).
+           02 REF-KP PIC X(7).
+           02 REF-FUTURE PIC XXX.
+       FD ORDFILE
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS ORDFILE01.
+       01 ORDFILE01.
+           02 ORDNO.
+             03 ORD8 PIC X(8).
+             03 ORD3 PIC XXX.
+           02 C-CHARGE PIC X(5).
+           02 C-REF PIC XXX.
+           02 C-IOPAT PIC X.
+           02 C-DATE-A PIC X(8).
+           02 C-DATE-T PIC X(8).
+           02 C-DATE-ADMIT PIC X(8).
+           02 C-ORDER PIC XXXX.
+           02 C-CLINICAL PIC X(40).
+           02 C-ADMIT-DIAG PIC X(30).
+           02 C-DATE-E PIC X(8).
+           02 C-CPT PIC X(5).
+       FD  TOWNADDR
+           DATA RECORD IS TOWNADDR01.
+       01  TOWNADDR01.
+           02 TOWN-KEY PIC XX.
+           02 TOWN-CITY PIC X(18).
+           02 TOWN-STATE PIC XX.
+           02 TOWN-ZIP PIC X(5).
+       FD ACTFILE
+           BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS ACTFILE01.
+       01 ACTFILE01.
+           02 A-ACTNO PIC X(8).
+           02 A-GARNAME.
+             03 A-GN1 PIC XXX.
+             03 A-GN2 PIC X(21).
+           02 A-BILLADD PIC X(22).
+           02 A-STREET PIC X(22).
+           02 A-CITY PIC X(18).
+           02 A-STATE PIC X(2).
+           02 A-ZIP PIC X(9).
+           02 A-COLLT PIC X.
+           02 A-PHONE.
+             03 A-PHONE1 PIC XXX.
+             03 A-PHONE2 PIC XXX.
+             03 A-PHONE3 PIC X(4).
+           02 A-SEX PIC X.
+           02 A-RELATE PIC X.
+           02 A-MSTAT PIC X.
+           02 A-DOB PIC X(8).
+           02 A-DUNNING PIC X.
+           02 A-ACCTSTAT PIC X.
+           02 A-PR-MPLR PIC X(4).
+           02 A-PRINS PIC XXX.
+           02 A-PR-ASSIGN PIC X.
+           02 A-PR-OFFICE PIC X(4).
+           02 A-PR-GROUP PIC X(10).
+           02 A-PRIPOL.
+             03 A-PRIPOL1 PIC X(9).
+             03 A-PRIPOL2 PIC XXX.
+             03 A-PR-FILLER PIC X(4).
+           02 A-PRNAME PIC X(24).
+           02 A-PR-RELATE PIC X.
+           02 A-SE-MPLR PIC X(4).
+           02 A-SEINS PIC XXX.
+           02 A-SE-ASSIGN PIC X.
+           02 A-SE-OFFICE PIC X(4).
+           02 A-SE-GROUP PIC X(10).
+           02 A-SECPOL.
+             03 A-SECPOL1 PIC X(9).
+             03 A-SECPOL2 PIC XXX.
+             02 A-SE-FILLER PIC X(4).
+           02 A-SENAME PIC X(24).
+           02 A-SE-RELATE PIC X.
+           02 A-INSPEND PIC X(7).
+           02 A-LASTBILL PIC X(8).
+           02 A-ASSIGNM PIC X.
+           02 A-PRIVATE PIC X.
+           02 A-BILLCYCLE PIC X.
+           02 A-DELETE PIC X.
+           02 A-FILLER PIC XXX.
+           02 A-GARNO PIC X(8).
+           02 A-PRGRPNAME PIC X(15).
+           02 A-SEGRPNAME PIC X(15).
+           02 NAME-KEY PIC XXX.
+       WORKING-STORAGE SECTION.
+       01  NUM-2 PIC 99.
+       01  ORD-STAT PIC XX.
+       01  REF-STAT PIC XX.
+       01  ORDBACK PIC X(126).
+       01  ANS          PIC XXX.
+       01  ACTION.
+           02 ACT-1 PIC X.
+           02 ACT-2 PIC XX.
+       01  DATAIN       PIC X(30).
+       01  STATX               PIC XXX VALUE "O-K".
+       01  IN-FIELD.
+           02  IN-FIELD-20.
+             03  IN-FIELD-15.
+               04 IN-FIELD-10.
+               05  IN-FIELD-9.
+           06 IN-FIELD-8.
+                 07  IN-FIELD-7.
+                   08  IN-FIELD-6.
+                     09  IN-FIELD-5.
+                       10  IN-FIELD-4.
+                         11  IN-FIELD-3.
+                           12  IN-FIELD-2.
+                             13  IN-FIELD-1  PIC X.
+                             13  FILLER PIC X.
+                           12  FILLER  PIC X.
+                         11  FILLER    PIC X.
+                       10  FILLER      PIC X.
+                     09  FILLER        PIC X.
+                   08  FILLER          PIC X.
+           07 FILLER  PIC X.
+           06 FILLER PIC X.
+           05 FILLER PIC X.
+               04  FILLER              PIC X(5).
+             03  FILLER                PIC X(5).
+           02  FILLER                  PIC X(5).
+       01 IN-FIELD-TAB01 REDEFINES IN-FIELD.
+           02 IN-FIELD-TAB   PIC X OCCURS 25 TIMES.
+       01 LEN-TAB01-RE.
+           02 FILLER PIC X(28) VALUE "0824221802090101010108010103".
+           02 FILLER PIC X(32) VALUE "10160403101604100909090924012401".
+           02 FILLER PIC X(16) VALUE "2201010404151508".
+       01 LEN-TAB01 REDEFINES LEN-TAB01-RE.
+           02 LEN-TAB   PIC 99 OCCURS 38 TIMES.
+       01  Q           PIC 99 VALUE ZERO.
+      * NUMERIC FIELD TESTS
+       01  FIELD-CODE          PIC XX JUST RIGHT.
+      * HOLDS THE POSITION OF A FIELD WITHIN IT'S DATA SET
+       01  GD-TABLE.
+           05  DES-CONSTANT.
+               10 FIL PIC X(24) VALUE "GARNO   GARNAME STREET  ".
+               10 FIL PIC X(24) VALUE "CITY    STATE   ZIP     ".
+               10 FIL PIC X(16) VALUE "COLLT   SEX     ".
+               10 FIL PIC X(24) VALUE "RELATE  MARITAL BIRTH   ".
+               10 FIL PIC X(16) VALUE "DUNNING ACCTSTAT".
+               10 FIL PIC X(24) VALUE "PRI-INS PRIGROUPPOLICY #".
+               10 FIL PIC X(24) VALUE "PR-MPLR SEC-INS SECGROUP".
+               10 FIL PIC X(16) VALUE "SEC-POL#SE-MPLR ".
+               10 FIL PIC X(24) VALUE "PHONE   BAL30   BAL60   ".
+               10 FIL PIC X(24) VALUE "BALCOL  INSTALL PRNAME ".
+               10 FIL PIC X(24) VALUE "PR-RELATSE-NAME SE-RELAT".
+               10 FIL PIC X(24) VALUE "BILLADRSPR-ASGM.SE-ASGM.".
+               10 FILLER PIC X(16) VALUE "PR-OFF. SE-OFF. ".
+              10 FILLER PIC X(24) VALUE "PRGRPNMESEGRPNMEGARNO   ".
+           05 DESC-FLD REDEFINES DES-CONSTANT
+              OCCURS 38 TIMES INDEXED BY INDX.
+               10 DES-KEY  PIC X(8).
+       01  ADD-FIELD-TABLE.
+             05 ADD-CON.
+             10 FILLER PIC X(26) VALUE "01023103040506080911221714".
+             10 FILLER PIC X(26) VALUE "34151636272821183519203729".
+             10 FILLER PIC X(2) VALUE "30".
+             05 ADD-FLD REDEFINES ADD-CON
+                PIC 99 OCCURS 27 TIMES INDEXED BY ADD-KEY.
+       01 ORDLEN-TAB01-RE.
+           02 FILLER PIC X(20) VALUE "11050301080808043040".
+       01 ORDLEN-TAB01 REDEFINES ORDLEN-TAB01-RE.
+           02 ORD-LEN-TAB   PIC 99 OCCURS 10 TIMES.
+       01  MPRL-GD-TABLE.
+           05  ORD-DES-CONSTANT.
+               10 FIL PIC X(24) VALUE "ORDKEY  CHARGE  REFPHY  ".
+               10 FIL PIC X(24) VALUE "PLACE   ACCDATE TRANDATE".
+               10 FIL PIC X(24) VALUE "ORDERNUMADMITDTECLINICAL".
+               10 FIL PIC X(8)  VALUE "ADM-DIAG".
+           05 ORD-DESC-FLD REDEFINES ORD-DES-CONSTANT
+              OCCURS 9 TIMES INDEXED BY ORD-INDX.
+               10 ORD-DES-KEY  PIC X(8).
+       01  ORD-ADD-FIELD-TABLE.
+             05 ORD-ADD-CON.
+             10 FILLER PIC X(14) VALUE "01020304050607".
+             05 ORD-A-FLD REDEFINES ORD-ADD-CON
+                PIC 99 OCCURS 7 TIMES INDEXED BY ORD-A-KEY.
+       01 NAME-TEST.
+            02 NT-3 PIC XXX.
+            02 NT-21 PIC X(21).
+       01  NAME-LAST.
+           02 NL-3 PIC XXX.
+           02 NL-21 PIC X(21).
+       01  NAME-FIRST          PIC X(24).
+       01  NAME-MIDDLE         PIC X(24).
+       01  STATE-TABLE-CONSTANT.
+           05  FILLER   PIC X(26) VALUE "AKALARAZCACNCOCTDCDEFLGAHI".
+           05  FILLER   PIC X(24) VALUE "IAIDILINKSKYLAMAMDMEMIMN".
+           05  FILLER   PIC X(24) VALUE "MOMSMTNCNDNENHNJNMNVNYOH".
+           05  FILLER   PIC X(24) VALUE "OKORPAPRRISCSDTNTXUTVAVT".
+           05  FILLER   PIC X(8)  VALUE "WAWIWVWY".
+       01  STATE-TABLE REDEFINES STATE-TABLE-CONSTANT.
+           05  STATE-2  PIC XX OCCURS 53 TIMES 
+               ASCENDING KEY STATE-2 INDEXED BY S-2.
+       01  INPUT-DATE.
+           05  T-MM          PIC 99.
+           05  T-DD          PIC 99.
+           05  T-CC          PIC 99.
+           05  T-YY          PIC 99.
+          
+       01  TEST-DATE.
+           05 T-CC  PIC 99.
+           05 T-YY  PIC 99.
+           05 T-MM  PIC 99.
+           05 T-DD  PIC 99.
+       01  MONTH-TABLE-CONS.
+           05  FILLER PIC X(24) VALUE "312931303130313130313031".
+       01  MONTH-TABLE REDEFINES MONTH-TABLE-CONS.
+           05  DAYS-IN-MONTH OCCURS 12 TIMES PIC 99.
+
+       01 NUM-EDIT-FIELDS.
+           02  NEF-1    PIC ZZ.9  .
+           02  NEF-2    PIC ZZZ.9  .
+           02  NEF-3    PIC ZZZ.99  .
+           02  NEF-4    PIC Z,ZZZ.99  .
+           02  NEF-5    PIC Z,ZZZ.99-.
+           02 NEF-A PIC Z,ZZZ.99-.
+           02 NEF-B PIC Z,ZZZ.99-.
+           02 NEF-C PIC Z,ZZZ.99-.
+           02 NEF-D PIC Z,ZZZ.99-.
+
+       01  HOLD-ACTFILE01  .
+           02 HOLD-ACTNO PIC X(8).
+           02 FILLER PIC X(310).
+       01 GARBACKDATA PIC X(318).
+       01     TOWN-FLAG PIC 9.
+       01     BUSNAME.
+           03 BUSNAME1 PIC X.
+           03 BUSNAME23 PIC X(23).
+       01     RIGHT-2 PIC XX JUST RIGHT.
+       01     ALF-1 PIC X.
+       01  ALF-10.
+           02 ALF-10-1 PIC XXX.
+           02 ALF-10-2 PIC X(7).
+       01     XALF-1 PIC X.
+       01  ALF-3 PIC XXX.
+       01   ALF-4 PIC XXXX.
+       01     ALF-5 PIC X(5).
+       01     ALF-7 PIC X(7).
+       01   ALF-8 PIC X(8).
+       01     ALF-13 PIC X(13).
+       01     PART24.
+             03 THREEPARTID PIC XXX.
+             03 FILLER PIC X(21).
+       01     PART24TEST.
+             03 TEST3 PIC XXX.
+             03 FILLER PIC X(21).
+       01     SIXPARTID PIC X(6).
+       01     EIGHTPARTID PIC X(8).
+       01     YEARDAY.
+             03 YEAR-1.
+               04 YD1 PIC X.
+               04 YD2 PIC X.
+             03 DAY3 PIC XXX.
+       01     ABC PIC X.
+       01     XYZ PIC 999.
+       01  NUMCHARGE PIC 9 VALUE 0.
+       01     RIGHT-4 PIC X(4) JUST RIGHT.
+       01     SIGN-DOLLAR PIC X(4).
+       01     CENTS PIC XX.
+       01 NUM-6 PIC 9(6).
+       01 ALF-6 PIC X(6).
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       01     RIGHT-5 PIC X(5) JUST RIGHT.
+       01     RIGHT-7 PIC X(7) JUST RIGHT.
+       01  RIGHT-8 PIC X(8) JUST RIGHT.
+       01     NUM-3 PIC 999.
+       01     NUM-9 PIC 9(9).
+       01     NUM-7 PIC S9(7).
+       01     A PIC 99.
+       01     B PIC 99.
+       01     C PIC 99.
+       01     D PIC 99.
+       01     X PIC 99.
+       01     Y PIC 99.
+       01     FLAG   PIC 9.
+       01  FLAGX PIC 9.
+       01     WORK1  PIC X(20) JUST RIGHT.
+       01     NAME-CYCLE.
+             03 NC1 PIC X.
+             03 NC2 PIC X.
+             03 FILLER PIC X(22).
+       01 TEMP-FIELD01 PIC X(80).
+       01 LLTAB2401.
+           02 LLTAB24 PIC X OCCURS 24 TIMES.
+       01 FFTAB1001.
+           02 FFTAB10 PIC X OCCURS 10 TIMES.
+       01  FF PIC 99.
+       01 LL PIC 99.
+       01 XLLTAB2401.
+           02 XLLTAB24 PIC X OCCURS 24 TIMES.
+       01 XFFTAB1001.
+           02 XFFTAB10 PIC X OCCURS 10 TIMES.
+       01 NP PIC S9 VALUE -1.
+       01  DATE-X PIC X(8).
+       01  REF-BACK PIC X(54).
+       01  ACTTAB01.
+           02 ACTTAB PIC X(8) OCCURS 9 TIMES.
+       01  NUM-1 PIC 9.
+       01 CHARGETAB01.
+           02 CHARGETAB PIC X(11) OCCURS 9 TIMES.
+       01  ALF20 PIC X(20).
+       01  ALF20A PIC X(20).
+       01  BELL0 USAGE INDEX.
+       01  DISPLAY-DATE.
+           02 DD-MM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 DD-DD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 DD-CC PIC XX.
+           02 DD-YY PIC XX.
+      *
+       PROCEDURE DIVISION.
+       0005-START.
+           SET INDX TO 35
+           MOVE "SE-OFF. " TO DESC-FLD( 35 ).
+           SET INDX TO 36
+           MOVE "PRGRPNME" TO DESC-FLD( 36 )
+           SET INDX TO 37
+           MOVE "SEGRPNME" TO DESC-FLD( 37 ).
+           SET INDX TO 38
+           MOVE "GARNO   " TO DESC-FLD( 38 ).
+           OPEN I-O ACTFILE.
+           OPEN I-O ORDFILE.
+           OPEN I-O REFPHY.
+           OPEN INPUT TOWNADDR GARFILE GAPFILE INSFILE.
+           MOVE SPACE TO A-ACTNO ACTION.
+       10-ACTION.
+           DISPLAY "REPORT DATE, MMDDYYYY".
+           ACCEPT IN-FIELD-6.
+           IF IN-FIELD = SPACE ACCEPT DATE-X FROM CENTURY-DATE 
+           GO TO 1000-ACTION.
+           IF IN-FIELD-8 NOT NUMERIC DISPLAY "NOT NUMERIC" GO TO
+           10-ACTION.
+           MOVE IN-FIELD-8 TO INPUT-DATE
+           IF T-MM OF INPUT-DATE < 01 OR > 12
+               DISPLAY "BAD MONTH"
+               GO TO 10-ACTION.
+           IF T-DD OF INPUT-DATE > DAYS-IN-MONTH(T-MM OF INPUT-DATE)
+               DISPLAY "DATE MUST BE NUMERIC"
+               GO TO 10-ACTION.
+           MOVE CORR INPUT-DATE TO TEST-DATE
+           MOVE TEST-DATE TO DATE-X.
+           IF DATE-X < "19991231" DISPLAY "BAD DATE" GO TO 10-ACTION.
+       1000-ACTION.
+           MOVE SPACES TO ACTION A-ACTNO.
+           MOVE 0 TO TOWN-FLAG.
+           DISPLAY "OPTION,ID#?"
+           ACCEPT DATAIN.
+           IF DATAIN = "END" GO TO 9100CMF.
+           IF DATAIN = "?"
+           DISPLAY "CD = CHANGE REPORT DATE"
+           DISPLAY "ACCT RTNE. <SA,FA,LA,AA,CA,DA>,<ACCT #>"
+           DISPLAY "CHGR. RTNE. <FC,AC,CC,DC>,<ACCT #>"
+           DISPLAY "GARNO RTNE. <SG,FG,LG),<GARNO>"
+           DISPLAY "INSURANCE ROUTINE <FI>."
+           DISPLAY "MEDIGAP LOOKUP, <GAP>."
+           DISPLAY "RD = LIST REPORT DATE"
+           DISPLAY "AR = ADD A NEW REFFERING PHYSICIAN"
+           DISPLAY "END = END PROGRAM"
+           GO TO 1000-ACTION.
+           IF DATAIN = "GAP" PERFORM GAP-1 THRU GAP-1-EXIT
+           GO TO 1000-ACTION.
+           IF DATAIN = "FI" PERFORM INS-1 THRU INS-1-EXIT
+           GO TO 1000-ACTION.
+           UNSTRING DATAIN DELIMITED BY "," INTO ACTION A-ACTNO.
+           IF ACTION = "RD" DISPLAY "REPORT DATE = " DATE-X
+           GO TO 1000-ACTION.
+           IF ACTION = "AR" PERFORM AR-1 THRU AR-1-EXIT
+           GO TO 1000-ACTION.
+           IF ACTION = "CD" GO TO 10-ACTION.
+           IF ACTION = "AA" GO TO 1200-AA.
+           IF ACTION = "FC" OR "AC" OR "CC" OR "DC" GO TO 1000-CHARGE.
+           IF ACTION = "FG" OR "LG" OR "SG" GO TO 1000-GARNO.
+           IF ACTION = "SA" OR "FA"
+           PERFORM 3600-ACT  THRU 3600-ACT-EXIT
+           GO TO 1000-ACTION.
+           IF A-ACTNO = "1" OR "2" OR "3" OR "4" OR "5" OR "6" OR "7"
+           OR "8" OR "9" MOVE A-ACTNO TO ALF-1 MOVE ALF-1
+           TO NUM-1 MOVE ACTTAB(NUM-1) TO A-ACTNO.
+           READ ACTFILE INVALID DISPLAY "NOT ON FILE" GO TO 1000-ACTION.
+           IF ACTION = "CA" GO TO 1399-CP.
+           IF ACTION = "DA" GO TO 1300-DA.
+           IF ACTION = "LA" PERFORM LA-1 THRU LA-1-EXIT
+           GO TO 1000-ACTION.
+           DISPLAY "WHAT?". GO TO 1000-ACTION.
+       1000-GARNO.
+           IF ACTION = "SG" OR "FG"
+           PERFORM 2400-FIND THRU 2400-FIND-EXIT
+           GO TO 1000-ACTION.
+           MOVE A-ACTNO TO G-GARNO
+           IF A-ACTNO = "1" OR "2" OR "3" OR "4" OR "5" OR "6" OR "7"
+           OR "8" OR "9" MOVE A-ACTNO TO ALF-1 MOVE ALF-1
+           TO NUM-1 MOVE ACTTAB(NUM-1) TO G-GARNO.
+           IF ACTION = "LG" PERFORM LG-1 THRU LG-1-EXIT.
+           GO TO 1000-ACTION.
+       1000-CHARGE.
+           IF ACTION = "CC" OR "DC" GO TO CC-DC.
+           IF ACTION = "AC" GO TO 1200-AC.
+           IF A-ACTNO = "1" OR "2" OR "3" OR "4" OR "5" OR "6" OR "7"
+           OR "8" OR "9" MOVE A-ACTNO TO ALF-1 MOVE ALF-1
+           TO NUM-1 MOVE ACTTAB(NUM-1) TO A-ACTNO.
+           PERFORM FC-1 THRU FC-1-EXIT
+           GO TO 1000-ACTION.
+       1200-AA.
+           MOVE SPACE TO ACTFILE01
+               MOVE "000000" TO A-LASTBILL
+               MOVE "0000000" TO A-INSPEND
+               MOVE "1" TO A-DUNNING A-ACCTSTAT
+               MOVE "0" TO A-COLLT.
+           PERFORM 1205-ADD-LOOP VARYING ADD-KEY FROM 1 BY 1
+             UNTIL ADD-KEY > 27.
+           IF IN-FIELD = "X" DISPLAY "NO UPDATE" GO TO 1000-ACTION.
+           MOVE A-ACTNO TO ORD8.
+           MOVE A-GN1 TO NAME-KEY.
+           WRITE ACTFILE01 INVALID KEY DISPLAY "NO UPDATE"
+           DISPLAY "THIS SHOULD NOT HAVE HAPPENED! CONTACT DATA CENTER."
+           DISPLAY "THIS PROGRAM HAS BEEN TERMINATED"
+           GO TO 9100CMF.
+           DISPLAY "RECORD IS ADDED " A-ACTNO " " A-GARNAME.
+           MOVE SPACE TO ORDFILE01
+           MOVE "0001" TO C-ORDER
+           MOVE DATE-X TO C-DATE-E
+           MOVE SPACE TO C-CLINICAL C-ADMIT-DIAG.
+           MOVE A-ACTNO TO ORD8
+           PERFORM ORD-ADD-LOOP VARYING ORD-A-KEY FROM 2 BY 1
+             UNTIL ORD-A-KEY > 6
+           GO TO 1201-AC.
+       1200-AC.
+           MOVE SPACE TO ORDFILE01
+           MOVE "0001" TO C-ORDER
+           MOVE DATE-X TO C-DATE-E
+           MOVE SPACE TO C-CLINICAL C-ADMIT-DIAG.
+           PERFORM ORD-ADD-LOOP VARYING ORD-A-KEY FROM 1 BY 1
+             UNTIL ORD-A-KEY > 6.
+       1201-AC.
+           IF IN-FIELD = "X" DISPLAY "NO UPDATE" GO TO 1000-ACTION.
+           MOVE 0 TO XYZ.
+       1-WRITE-ORDFILE.
+           MOVE ORDFILE01 TO ORDBACK.
+       2-WRITE-ORDFILE. ADD 1 TO XYZ MOVE XYZ TO ORD3.
+           READ ORDFILE INVALID GO TO 3-WRITE-ORDFILE.
+           GO TO 2-WRITE-ORDFILE.
+       3-WRITE-ORDFILE.
+           MOVE ORDBACK TO ORDFILE01 MOVE XYZ TO ORD3
+           WRITE ORDFILE01.
+           DISPLAY C-CHARGE " " C-REF " " C-DATE-T " " C-IOPAT " "
+           C-DATE-A
+           DISPLAY " ".
+       1220-ORDER. DISPLAY "CHARGE".
+           ACCEPT IN-FIELD
+           IF IN-FIELD = SPACE GO TO 1000-ACTION.
+           IF IN-FIELD-5 = "?"
+           DISPLAY "CHARGE.     USE - SYMBOL FOR CREDITS"
+           GO TO 1220-ORDER.
+           MOVE IN-FIELD-5 TO ALF-4 ALF-5
+           IF ALF-4 NOT NUMERIC DISPLAY "BAD #" GO TO 1220-ORDER.
+           IF IN-FIELD-TAB(5) = " " OR "-" MOVE ALF-5 TO C-CHARGE
+           GO TO 1-WRITE-ORDFILE.
+           DISPLAY "BAD FORMAT " GO TO 1220-ORDER.
+       1205-ADD-LOOP.
+           SET INDX TO ADD-FLD(ADD-KEY).
+           PERFORM 2050-DISPLAY THRU 4910DEE.
+       1300-DA.
+           READ ACTFILE  WITH LOCK INVALID DISPLAY "BAD"
+           GO TO 1000-ACTION.
+           PERFORM LA-1 THRU LA-1-EXIT.
+           MOVE A-ACTNO TO ORD8 MOVE "000" TO ORD3 ALF-3.
+           START ORDFILE KEY NOT < ORDNO INVALID GO TO 1300DA2.
+       1300DA1. READ ORDFILE NEXT AT END GO TO 1300DA2.
+           IF ORD8 NOT = A-ACTNO GO TO 1300DA2 ELSE
+           DISPLAY C-ORDER " " C-CHARGE " " C-REF " " C-IOPAT " "
+           C-DATE-T
+           " " C-DATE-A MOVE ORD3 TO ALF-3 GO TO 1300DA1.
+       1300DA2. DISPLAY " DELETE ACCOUNT INFO? Y/N".
+           ACCEPT ANS. IF ANS = "N" GO TO 1000-ACTION.
+           IF ANS NOT = "Y" DISPLAY "WHAT?" GO TO 1300DA2.
+           DELETE ACTFILE RECORD INVALID KEY
+               DISPLAY "ACTFILE01 RECORD NOT DELETED " A-ACTNO                                                                                                                                  
+               GO TO 1000-ACTION.
+           DISPLAY "ACCT # DELETED".
+           IF ALF-3 = "000" GO TO 1000-ACTION.
+           MOVE 1 TO XYZ.
+       1300DA3. MOVE XYZ TO ORD3 MOVE A-ACTNO TO ORD8. DELETE ORDFILE
+           RECORD INVALID GO TO 1300DA4.
+       1300DA4. IF ORD3 > ALF-3 GO TO 1000-ACTION.
+           ADD 1 TO XYZ GO TO 1300DA3.
+       2400-FIND.
+           MOVE SPACES TO  FFTAB1001 ACTION NAME-LAST.
+           UNSTRING DATAIN DELIMITED BY "," INTO ACTION NAME-LAST
+           FFTAB1001.
+           MOVE NAME-LAST TO LLTAB2401.
+           MOVE 0 TO FF LL.
+           PERFORM FF-NAME VARYING X FROM 10 BY -1 UNTIL X < 1.
+           PERFORM LL-NAME VARYING X FROM 24 BY -1 UNTIL X < 1.
+           IF LL = 0 MOVE 1 TO LL.
+           IF LLTAB24(LL) = "/"
+           MOVE " " TO LLTAB24(LL) MOVE 24 TO LL.
+           MOVE SPACE TO G-GARNO.
+           IF ACTION = "SG" MOVE NAME-LAST TO G-GARNO
+           ELSE MOVE NL-3 TO G-GARNO.
+           START GARFILE KEY > G-GARNO INVALID
+           DISPLAY " END OF FILE" GO TO 2400-FIND-EXIT.
+       2400-FIND-20.
+           MOVE 0 TO X.
+           MOVE 0 TO FLAG.
+           PERFORM 2400-SEARCH THRU 2400-SEARCH-EXIT.
+           IF FLAG = 0 GO TO 2400-FIND-QUES.
+           IF FLAG = 1 DISPLAY "END OF FILE FOUND"
+           ELSE DISPLAY "NO MORE MATCHES ON NAME".
+           DISPLAY "END OF SEARCH"
+           GO TO 2400-FIND-EXIT.
+       2400-FIND-QUES.
+           DISPLAY "?".
+           ACCEPT ANS.
+           IF ANS = SPACES GO TO 2400-FIND-20.
+           IF ANS = "?"
+           DISPLAY "A <CR> WILL PRODUCE 10 MORE NAMES"
+           DISPLAY "ANYTHING ELSE WILL RETURN YOU TO THE OPTION COMMAND"
+           GO TO 2400-FIND-QUES.
+           GO TO 2400-FIND-EXIT.
+       2400-SEARCH.
+           IF X > 8 GO TO 2400-SEARCH-EXIT.
+           READ GARFILE NEXT AT END MOVE 1 TO FLAG
+           GO TO 2400-SEARCH-EXIT.
+           IF ACTION = "SG" GO TO 2400-S.
+           MOVE SPACE TO NAME-TEST XFFTAB1001.
+           UNSTRING G-GARNAME DELIMITED BY ";" INTO NAME-TEST
+           XFFTAB1001.
+           IF NT-3 = NL-3 NEXT SENTENCE
+           ELSE MOVE 2 TO FLAG GO TO 2400-SEARCH-EXIT.
+           MOVE NAME-TEST TO XLLTAB2401.
+           MOVE 0 TO FLAGX PERFORM AQ1 VARYING Y FROM 1 BY 1 UNTIL
+           Y > LL.
+           IF FLAGX = 1 GO TO 2400-SEARCH.
+           PERFORM AQ2 VARYING Y FROM 1 BY 1 UNTIL Y > FF.
+           IF FLAGX = 1 GO TO 2400-SEARCH.
+       2400-S.
+           ADD 1 TO X
+           MOVE G-GARNO TO ACTTAB(X)
+           DISPLAY X " " G-GARNAME " " G-GARNO " " G-ACCT
+           " " G-PRINS "/" G-SEINS " " G-DOB " " G-CITY
+           GO TO 2400-SEARCH.
+       2400-SEARCH-EXIT.
+           EXIT.
+       2400-FIND-EXIT. EXIT.
+       3600-ACT.
+           MOVE SPACES TO  ACTION NAME-LAST FFTAB1001.
+           UNSTRING DATAIN DELIMITED BY "," INTO ACTION NAME-LAST
+           FFTAB1001.
+           MOVE NAME-LAST TO LLTAB2401.
+           MOVE 0 TO FF LL.
+           PERFORM FF-NAME VARYING X FROM 10 BY -1 UNTIL X < 1.
+           PERFORM LL-NAME VARYING X FROM 24 BY -1 UNTIL X < 1.
+           IF LL = 0 MOVE 1 TO LL.
+           IF LLTAB24(LL) = "/"
+           MOVE " " TO LLTAB24(LL) MOVE 24 TO LL.
+           MOVE SPACE TO NAME-KEY
+           IF ACTION = "SA" MOVE NAME-LAST TO NAME-KEY
+           ELSE MOVE NL-3 TO NAME-KEY.
+           START ACTFILE KEY NOT < NAME-KEY INVALID
+           DISPLAY " END OF FILE" GO TO 3600-ACT-EXIT.
+       3600-FIND-20.
+           MOVE 0 TO X.
+           MOVE 0 TO FLAG.
+           PERFORM 3600-SEARCH THRU 3600-SEARCH-EXIT.
+           IF FLAG = 0 GO TO 3600-FIND-QUES.
+           IF FLAG = 1 DISPLAY "END OF FILE FOUND"
+           ELSE DISPLAY "NO MORE MATCHES ON NAMES".
+           DISPLAY "END OF SEARCH"
+           GO TO 3600-ACT-EXIT.
+       3600-FIND-QUES.
+           DISPLAY "?".
+           ACCEPT ANS.
+           IF ANS = SPACES GO TO 3600-FIND-20.
+           IF ANS = "?"
+           DISPLAY "A <CR> WILL PRODUCE 10 MORE NAMES"
+           DISPLAY "ANYTHING ELSE WILL END THE SEARCH"
+           GO TO 3600-FIND-QUES.
+           GO TO 3600-ACT-EXIT.
+       3600-SEARCH.
+           IF X > 8 GO TO 3600-SEARCH-EXIT.
+           READ ACTFILE NEXT AT END MOVE 1 TO FLAG
+           GO TO 3600-SEARCH-EXIT.
+           IF ACTION = "SA" GO TO 3600-S.
+           MOVE SPACE TO NAME-TEST XFFTAB1001.
+           UNSTRING A-GARNAME DELIMITED BY ";" INTO NAME-TEST
+           XFFTAB1001.
+           IF NAME-KEY = NL-3 NEXT SENTENCE
+           ELSE MOVE 2 TO FLAG GO TO 3600-SEARCH-EXIT.
+           MOVE NAME-TEST TO XLLTAB2401.
+           MOVE 0 TO FLAGX PERFORM AQ1 VARYING Y FROM 1 BY 1 UNTIL
+           Y > LL.
+           IF FLAGX = 1 GO TO 3600-SEARCH.
+           PERFORM AQ2 VARYING Y FROM 1 BY 1 UNTIL Y > FF.
+           IF FLAGX = 1 GO TO 3600-SEARCH.
+       3600-S.
+           ADD 1 TO X
+           MOVE A-ACTNO TO ACTTAB(X)
+           DISPLAY X " " A-GARNAME " " A-ACTNO " " A-GARNO
+           " " A-PRINS "/" A-SEINS " " A-DOB " " A-CITY
+           GO TO 3600-SEARCH.
+       3600-SEARCH-EXIT.
+           EXIT.
+       3600-ACT-EXIT. EXIT.
+       1399-CP.
+           READ ACTFILE WITH LOCK INVALID GO TO 1000-ACTION.
+       1400-CP.
+           MOVE SPACES TO FIELD-CODE IN-FIELD.
+           DISPLAY "FIELD CODE,DATA?".
+           ACCEPT DATAIN.
+           IF DATAIN = "REVINS"
+           MOVE A-PRINS TO IN-FIELD-3
+           MOVE A-SEINS TO A-PRINS
+           MOVE IN-FIELD-3 TO A-SEINS
+           MOVE A-PRIPOL TO IN-FIELD-20
+           MOVE A-SECPOL TO A-PRIPOL
+           MOVE IN-FIELD-20 TO A-SECPOL
+           MOVE A-PR-GROUP TO IN-FIELD-15
+           MOVE A-SE-GROUP TO A-PR-GROUP
+           MOVE IN-FIELD-15 TO A-SE-GROUP
+           MOVE A-PR-MPLR TO IN-FIELD-4
+           MOVE A-SE-MPLR TO A-PR-MPLR
+           MOVE IN-FIELD-4 TO A-SE-MPLR
+           MOVE A-PRNAME TO NAME-FIRST
+           MOVE A-SENAME TO A-PRNAME
+           MOVE NAME-FIRST TO A-SENAME
+           MOVE A-PRGRPNAME TO IN-FIELD
+           MOVE A-SEGRPNAME TO A-PRGRPNAME
+           MOVE IN-FIELD TO A-SEGRPNAME
+           MOVE A-PR-RELATE TO IN-FIELD-1
+           MOVE A-SE-RELATE TO A-PR-RELATE
+           MOVE IN-FIELD-1 TO A-SE-RELATE
+           MOVE A-PR-ASSIGN TO IN-FIELD-1
+           MOVE A-SE-ASSIGN TO A-PR-ASSIGN
+           MOVE IN-FIELD-1 TO A-SE-ASSIGN
+           DISPLAY "INSURANCES REVERSED"
+           GO TO 5-WRITE-ACTFILE.
+           IF DATAIN = "????CG" GO TO 2750-GARNO.
+           IF DATAIN = "X"
+               DISPLAY "NO CHANGE"  GO TO 1000-ACTION.
+           IF DATAIN = "UP"  GO TO 5-WRITE-ACTFILE.
+           IF DATAIN = "LA"
+           PERFORM LA-1 THRU LA-1-EXIT GO TO 1400-CP.
+           IF DATAIN = "?"
+           DISPLAY "ENTER A FIELD CODE <COMMA> AND NEW DATA."
+               DISPLAY "UP = UPDATE CHANGES"
+           DISPLAY " X = NO CHANGE"
+           DISPLAY "LG = LIST "
+           DISPLAY "FIELD CODES: 2=GARNAME 3=STREET  4=CITY"
+           DISPLAY " 5=STATE     6=ZIP     7=COLLT   8=SEX"
+           DISPLAY " 9=RELAT    11=DOB    12=DUN    13=ACCSTAT"
+           DISPLAY "14=PRINS    15=PR-GRP 16=PRIPOL 17=PR-MPLR"
+           DISPLAY "18=SEINS    19=SE-GRP 20=SECPOL 21=SE-MPLR"
+           DISPLAY "22=PHONE    26=INSTL. 27=PR-NAM 28= A-PR-RELATE"
+           DISPLAY "29=SE-NAME  30=SE-RELATE        31=BILADRS"
+           DISPLAY "32=PR-ASGN  33=SE-ASGN 34=PR-OFF 35=SE-OFF"
+           DISPLAY "36=PRGRPNME 37=SEGRPNME 38=GARNO"
+           GO TO 1400-CP.
+           UNSTRING DATAIN DELIMITED BY "," INTO FIELD-CODE IN-FIELD.
+           INSPECT FIELD-CODE REPLACING LEADING SPACE BY "0".
+           IF FIELD-CODE NOT NUMERIC
+               DISPLAY "FIELD-CODE MUST BE 2 DIGITS AND NUMERIC"
+               GO TO 1400-CP.
+           IF FIELD-CODE = "00"
+               DISPLAY "FIELD CODE CANNOT BE ZERO OR BLANK"
+               GO TO 1400-CP.
+           IF ( FIELD-CODE > "01" AND  < "23" )
+           OR  ( FIELD-CODE > "25" AND < "39" )
+           MOVE FIELD-CODE TO NUM-2
+           SET INDX TO NUM-2
+           GO TO 2060-GO-TO.
+           DISPLAY "FIELD # MUST BE FROM 2-38".
+           GO TO 1400-CP.
+       2050-DISPLAY.
+           DISPLAY DESC-FLD(INDX) "?".
+       2051-INPUT.
+           ACCEPT IN-FIELD.
+           IF IN-FIELD = "??"
+           DISPLAY "LG = LIST RECORD BUILT SO FAR"
+           DISPLAY "X = CANCEL ADD OF THIS RECORD"
+           DISPLAY "BK = BACK TO PREVIOUS PROMPT"
+           DISPLAY "? = DATA NEEDED FOR PROMPT"
+           DISPLAY "OR ENTER DATA NEEDED"
+           GO TO 2050-DISPLAY.
+           IF IN-FIELD = "BK" AND ADD-KEY = 1 MOVE "X" TO IN-FIELD
+           SET ADD-KEY TO 38 GO TO 4910DEE.
+           IF IN-FIELD = "BK" GO TO 2060-BACK.
+           IF IN-FIELD = "LA" PERFORM LA-1 THRU LA-1-EXIT
+           GO TO 2050-DISPLAY.
+           IF IN-FIELD = "X" SET ADD-KEY TO 38
+             GO TO 4910DEE
+           ELSE GO TO 2060-GO-TO.
+       2060-BACK.
+           SET ADD-KEY DOWN BY 1
+           SET INDX TO ADD-FLD(ADD-KEY)
+           GO TO 2050-DISPLAY.
+       2060-GO-TO.
+           MOVE 0 TO FLAG.
+           MOVE LEN-TAB(INDX) TO Q ADD 1 TO Q.
+           IF IN-FIELD-TAB(Q) NOT = " " MOVE "1" TO FLAG.
+           IF FLAG = 1 DISPLAY "DATA TOO LONG, MUST NOT BE GREATER "
+             "THAN " LEN-TAB(INDX) ".".
+           IF FLAG = 1 AND ACT-1 = "C" GO TO 1400-CP.
+           IF FLAG = 1 AND ACT-1 = "A" GO TO 2050-DISPLAY.
+           GO TO 1-ACCOUNT
+            2120-GARNAME 2130-STREET 2140-CITY 2150-STATE
+             2160-ZIP 2170-COLLT 2740-SEX 2750-RELATE  2190-MSTAT
+           2450-DOB  2210-DUNNING 2220-ACCTSTAT
+           2230-PRINS 2240-PR-GROUP 2245-PRIPOL 2-PRMPLR     3230-SEINS
+           3240-SE-GROUP 3245-SECPOL 2-SEMPLR
+           2170-PHONE 4900DEE 4900DEE 4900DEE 2200-AMOUNT
+           2-PRNAME 2-PRRELATE 2-SENAME 2-SERELATE 3250-BILLADD
+           2-PR-ASGM 2-SE-ASGM 2-PR-OFF 2-SE-OFF 2-PR-GRPNME 2-SE-GRPNME
+           2750-GARNO
+           DEPENDING ON INDX.
+       2000TI.
+           IF ACTION = "AA" GO TO 2050-DISPLAY.
+           IF ACTION = "CA" GO TO 1400-CP.
+           IF ACTION = "FA" OR "SA" OR "FG" OR "SG" GO TO 1000-ACTION.
+       1-ACCOUNT.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER RED-REC NUMBER" GO TO 2000TI.
+           MOVE SPACE TO RIGHT-8
+           UNSTRING IN-FIELD-8 DELIMITED BY " " INTO RIGHT-8
+           INSPECT RIGHT-8 REPLACING ALL " " BY "0"
+           IF RIGHT-8 NOT NUMERIC DISPLAY "BAD" GO TO 2000TI.
+           MOVE RIGHT-8 TO A-ACTNO
+           READ ACTFILE INVALID GO TO 4900DEE.
+           DISPLAY "ALREADY ON FILE"
+           PERFORM LA-1 THRU LA-1-EXIT
+           GO TO 2000TI.
+       2120-GARNAME.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER THE FULL NAME OF THE GUARANTOR"
+               DISPLAY "LAST NAME  FIRST NAME  MIDDLE NAME"
+               DISPLAY "SEPARATING EACH MAJOR PORTION OF THE NAME BY "
+               DISPLAY "A SEMICOLON, IF THE GUAR. IS NOT A BUSINESS. "
+           DISPLAY "EXAMPLE: ROBERT E. ST JOHN JR"
+           DISPLAY "IS ENTERED AS"
+               DISPLAY "ST JOHN JR;ROBERT;E."
+           DISPLAY "FOR A BUSINESS THE 1ST CHARACTER MUST(!) BE A 1"
+           DISPLAY "THE REST OF THE NAME IS ENTERED AS IT IS WRITTEN"
+           DISPLAY "NORMALLY IN LEFT TO RIGHT ORDER"
+           DISPLAY "MEDICAL SERVICES,  LTD."
+           DISPLAY "MUST BE ENTERED AS"
+           DISPLAY "1MEDICAL SERVICES, LTD."
+               GO TO 2000TI.
+           MOVE SPACE TO BUSNAME.
+           IF IN-FIELD-1 = SPACE DISPLAY "LEADING BLANKS NOT ALLOWED"
+           " IN LAST NAME" GO TO 2000TI.
+           IF IN-FIELD-1 = "1" MOVE IN-FIELD TO BUSNAME
+           MOVE BUSNAME23 TO NAME-TEST GO TO 2125-NAME-TEST.
+           MOVE SPACES TO NAME-LAST NAME-MIDDLE NAME-FIRST.
+           UNSTRING IN-FIELD DELIMITED BY ";" INTO
+               NAME-LAST NAME-FIRST NAME-MIDDLE.
+           IF NAME-FIRST = SPACES OR IN-FIELD = SPACES
+           DISPLAY "A FIRST NAME IS REQUIRED" GO TO 2000TI.
+           MOVE SPACES TO NAME-TEST.
+           IF NAME-MIDDLE = " " STRING NAME-FIRST " " NAME-LAST
+               DELIMITED BY "  " INTO NAME-TEST GO TO 2125-NAME-TEST.
+           STRING NAME-FIRST " " NAME-MIDDLE " " NAME-LAST " "
+               DELIMITED BY "  " INTO NAME-TEST.
+       2125-NAME-TEST.
+           DISPLAY "OK? Y/N " NAME-TEST.
+           ACCEPT ANS.
+           IF ANS   = "N"   GO TO 2000TI.
+           IF ANS = "Y"  GO TO 2126-GARNAME
+           ELSE GO TO 2125-NAME-TEST.
+       2126-GARNAME.
+           IF ACT-1 = "A" GO TO 2127-GARNAME.
+           MOVE IN-FIELD TO PART24TEST.
+           MOVE A-GARNAME TO PART24.
+           IF THREEPARTID NOT = TEST3
+           DISPLAY "FIRST THREE LETTERS OF LAST NAME ARE NOT"
+           DISPLAY "THE SAME. THIS NAME CHANGE MUST BE DONE"
+           DISPLAY "USING THE BATCH NAME CHANGE ROUTINE RUN BY"
+           DISPLAY "THE DATA CENTER AS IT EFFECTS ACCOUNT NUMBERS!"
+           GO TO 2000TI.
+       2127-GARNAME.
+           MOVE IN-FIELD TO A-GARNAME  .
+           MOVE A-GARNAME TO NAME-CYCLE.
+           IF NC1 = "1" GO TO 2320-BILLCYCLE.
+           IF NC1 < "G" MOVE "1" TO A-BILLCYCLE GO TO 4900DEE.
+           IF NC1 < "N" MOVE "2" TO A-BILLCYCLE GO TO 4900DEE.
+           IF NC1 < "T" MOVE "3" TO A-BILLCYCLE GO TO 4900DEE.
+           MOVE "4" TO A-BILLCYCLE GO TO 4900DEE.
+       2320-BILLCYCLE. IF NC2 < "G" MOVE "1" TO A-BILLCYCLE
+           GO TO 4900DEE.
+           IF NC2 < "N" MOVE "2" TO A-BILLCYCLE GO TO 4900DEE.
+           IF NC2 < "T" MOVE "3" TO A-BILLCYCLE GO TO 4900DEE.
+           MOVE "4" TO A-BILLCYCLE GO TO 4900DEE.
+       3250-BILLADD.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER APT # ETC, OR C/0 NAME"
+              DISPLAY "FOR 1ST LINE OF ADDRESS"
+              DISPLAY "OR LEAVE BLANK IF NOT NEEDED"
+               GO TO 2000TI.
+           MOVE IN-FIELD TO A-BILLADD
+           GO TO 4900DEE.
+       2130-STREET.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER A-STREET ADDRESS OR  <CR> "
+               GO TO 2000TI.
+           MOVE IN-FIELD TO A-STREET  .
+           GO TO 4900DEE.
+       2140-CITY.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER A 2-LETTER CODE IF IN TABLE"
+           DISPLAY "ENTER F TO SEARCH TABLE FOR A TOWN CODE"
+           DISPLAY "OR ENTER THE FULL TOWN NAME"
+               GO TO 2000TI.
+           IF IN-FIELD = SPACES
+               DISPLAY "CANNOT ENTER A BLANK A-CITY"
+               GO TO 2000TI.
+           IF IN-FIELD = "F" GO TO 2141-CITY.
+           MOVE IN-FIELD TO NAME-TEST.
+           IF NT-21 NOT = SPACES MOVE IN-FIELD TO A-CITY
+           MOVE 0 TO TOWN-FLAG
+           GO TO 4900DEE.
+           MOVE IN-FIELD-2 TO TOWN-KEY
+           READ TOWNADDR INVALID DISPLAY IN-FIELD-2 " NOT IN FILE"
+           GO TO 2000TI.
+           MOVE 1 TO TOWN-FLAG.
+           MOVE TOWN-CITY TO A-CITY
+           MOVE TOWN-STATE TO A-STATE
+           MOVE TOWN-ZIP TO A-ZIP
+           SET ADD-KEY UP BY 2 GO TO 4900DEE.
+       2141-CITY.
+           DISPLAY "SEARCH KEY".
+           ACCEPT ALF-1.
+           IF ALF-1 = "?"
+           DISPLAY "ENTER A FIRST LETTER IN TOWN NAME"
+           DISPLAY "TO START SEARCH" GO TO 2141-CITY.
+           MOVE SPACES TO TOWN-KEY. MOVE ALF-1 TO TOWN-KEY.
+           START TOWNADDR KEY > TOWN-KEY INVALID
+           DISPLAY "END OF FILE" GO TO 2000TI.
+           MOVE 0 TO X.
+       2142-CITY.
+           READ TOWNADDR NEXT AT END DISPLAY "END OF FILE"
+           GO TO 2000TI.
+           IF X > 4
+           MOVE 0 TO X
+           DISPLAY "?"
+           ACCEPT ANS
+           IF ANS NOT = SPACE GO TO 2000TI.
+           DISPLAY TOWN-KEY " " TOWN-CITY
+           ADD 1 TO X GO TO 2142-CITY.
+       2150-STATE.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER THE OFFICIAL POSTAL  STATE CODE"
+           DISPLAY "<CR> = VT"
+               DISPLAY "SEE POSTAL STATE CODES"
+               GO TO 2000TI.
+           IF IN-FIELD = SPACE MOVE "VT" TO A-STATE GO TO 4900DEE.
+           SEARCH ALL STATE-2   AT END
+               DISPLAY "NOT A STATE CODE"
+           MOVE IN-FIELD-2 TO A-STATE GO TO 4900DEE
+           WHEN STATE-2(S-2) = IN-FIELD NEXT SENTENCE.
+           MOVE IN-FIELD-2 TO A-STATE.
+           GO TO 4900DEE.
+       2160-ZIP.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER ZIP CODE OF GUARANTORS MAILING ADDRESS"
+               DISPLAY "OR PUSH RETURN IF THE ZIP IS UNKNOWN"
+               GO TO 2000TI.
+           IF IN-FIELD-9 = SPACES MOVE ZEROS TO IN-FIELD-9.
+           IF IN-FIELD-5 NOT NUMERIC
+              DISPLAY "1ST 5 POSITIONS NOT NUMERIC; THERFORE,"
+               DISPLAY "ZIP CODE ASSUMED TO BE INTERNATIONALE!".
+           MOVE IN-FIELD TO A-ZIP GO TO 4900DEE.
+       2170-COLLT.
+           IF IN-FIELD = "?"
+           DISPLAY "0-9 TO DEFINE A COLLECTION AGENCY."
+           DISPLAY "A 0 MEANS NOT IN COLLECTION"
+           DISPLAY "1-9 USER DEFINED COLLECTION AGENCIES."
+           GO TO 2000TI.
+           IF IN-FIELD-1 NOT NUMERIC DISPLAY "INVALID" GO TO 2000TI.
+           MOVE IN-FIELD-1 TO A-COLLT GO TO 4900DEE.
+       2170-PHONE.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER 10 DIGIT A-PHONE NUMBER OF GUARANTOR"
+               DISPLAY "OR <CR> IF NOT KNOWN"
+               GO TO 2000TI.
+           IF IN-FIELD-10 NUMERIC OR IN-FIELD-10 = SPACES
+           MOVE IN-FIELD-10 TO A-PHONE GO TO 4900DEE.
+           IF IN-FIELD-7 NUMERIC AND IN-FIELD-TAB(8) = " "
+           AND IN-FIELD-TAB(9) = " " AND IN-FIELD-TAB(10) = " "
+           MOVE IN-FIELD-7 TO ALF-10-2
+           MOVE "802" TO ALF-10-1
+           MOVE ALF-10 TO A-PHONE GO TO 4900DEE.
+           DISPLAY "INVALID" GO TO 2000TI.
+       2740-SEX.
+           IF IN-FIELD = "?"
+               DISPLAY "BUT TRY M=MALE OR F=FEMALE."
+               GO TO 2000TI.
+           IF IN-FIELD = "M" OR "F" NEXT SENTENCE ELSE
+               DISPLAY "GUESS AGAIN" GO TO 2000TI.
+           MOVE IN-FIELD-1 TO A-SEX  GO TO 4900DEE.
+       2750-RELATE.
+           IF IN-FIELD = "?"
+           DISPLAY "2=MALE ADULT  4=MALE CHILD  5=MALE STEPCHILD"
+           DISPLAY "K=FEMALE ADULT  M=FEMALE CHILD N=FEMALE STEPCHILD"
+           GO TO 2000TI.
+           IF IN-FIELD = "2" OR "4" OR "5" OR "K" OR "M" OR "N"
+           MOVE IN-FIELD-1 TO A-RELATE GO TO 4900DEE
+           ELSE DISPLAY "INVALID" GO TO 2000TI.
+       2450-DOB.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER THE GUAR. DOB MMDDYYYY FORMAT"
+               DISPLAY "EXAMPLE  NOV 8,1960 = 11081960"
+               GO TO 2000TI.
+           IF IN-FIELD-8 = SPACES MOVE ZEROS TO A-DOB
+                GO TO 4900DEE.
+           IF IN-FIELD-8 NOT NUMERIC
+               DISPLAY "DATE MUST BE NUMERIC"
+               GO TO 2000TI.
+           MOVE IN-FIELD-8 TO INPUT-DATE.
+           IF T-MM OF INPUT-DATE < 01 OR > 12
+               DISPLAY "DATE MUST BE NUMERIC"
+               GO TO 2000TI.
+           IF T-DD OF INPUT-DATE > DAYS-IN-MONTH(T-MM OF INPUT-DATE)
+               DISPLAY "DATE MUST BE NUMERIC"
+               GO TO 2000TI.
+           MOVE CORR INPUT-DATE TO TEST-DATE.
+           MOVE TEST-DATE TO A-DOB.
+           GO TO 4900DEE.
+       2190-MSTAT.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER M IF GUARANTOR IS MARRIED"
+               DISPLAY "ENTER S IF GUARANTOR IS SINGLE"
+               GO TO 2000TI.
+           IF IN-FIELD = "M" OR "S" NEXT SENTENCE ELSE
+               DISPLAY "INVALID" GO TO 2000TI.
+           MOVE IN-FIELD-1 TO A-MSTAT.
+           GO TO 4900DEE.
+       2210-DUNNING.
+           IF IN-FIELD = "?"
+           DISPLAY "1= NORMAL 2=NEW COLLECT 3=COLLECTION"
+               GO TO 2000TI.
+           IF IN-FIELD-1 < "1" OR IN-FIELD-1 > "4"
+           DISPLAY "INVALID" GO TO 2000TI.
+           MOVE IN-FIELD-1 TO A-DUNNING.
+           GO TO 4900DEE.
+       2220-ACCTSTAT.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER A DIGIT FROM 0-9"
+               DISPLAY "FOR ACCOUNT STATUS"
+           DISPLAY "0 = DISALLOW NEW CHARGES TO BE ADDED TO THE ACCT"
+           DISPLAY "1 = NORMAL CYCLE BILLING  2-6 = # OF MONTHS HELD"
+           DISPLAY "7 = DEMAND BILLING EVERY CYCLE 8 = BILL THIS TIME"
+           DISPLAY "9 = DO NOT BILL EVER"
+               GO TO 2000TI.
+           IF IN-FIELD-1 < "0" OR IN-FIELD-1 > "9"
+               DISPLAY "INVALID" GO TO 2000TI.
+           MOVE IN-FIELD-1 TO A-ACCTSTAT.
+           IF A-ACCTSTAT > "1" AND < "7" DISPLAY "RE-AGEING NEEDED!!".
+           GO TO 4900DEE.
+       2230-PRINS.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE PRIMARY INSURANCE CODE (3-DIGITS)"
+           DISPLAY "OR F TO SEARCH FOR A PROPER CODE"
+               GO TO 2000TI.
+           IF IN-FIELD = "F" PERFORM INS-1 THRU INS-1-EXIT GO TO 2000TI.
+           MOVE SPACE TO RIGHT-3.
+           UNSTRING IN-FIELD-3 DELIMITED BY " " INTO RIGHT-3.
+           INSPECT RIGHT-3 REPLACING LEADING " " BY "0".
+           MOVE RIGHT-3 TO IN-FIELD-3.
+           IF IN-FIELD-3 = "062" DISPLAY "MEDIGAP MUST BE SECONDARY"
+           GO TO 2000TI.
+           MOVE RIGHT-3 TO INS-KEY
+           READ INSFILE INVALID DISPLAY "INVALID" GO TO 2000TI.
+           DISPLAY INS-ASSIGN " " INS-NEIC " " INS-NAME
+           IF INS-STATUS = "1"
+           DISPLAY "THIS INSURANCE IS CLOSED FOR USE" GO TO 2000TI.
+           MOVE IN-FIELD-3 TO A-PRINS.
+           MOVE INS-ASSIGN TO A-PR-ASSIGN
+           IF A-PRINS = "001" AND ACTION = "AG" MOVE "001" TO A-SEINS
+           MOVE "1" TO A-ASSIGNM
+           SET ADD-KEY TO 98.
+           GO TO 4900DEE.
+       2240-PR-GROUP.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE PRIMARY GROUP #"
+           GO TO 2000TI.
+           IF A-SEINS NOT = "062"
+           MOVE IN-FIELD TO A-PR-GROUP
+           GO TO 4900DEE.
+           DISPLAY "MEDIGAP ACCT" BELL0
+           MOVE IN-FIELD TO GAPKEY
+           READ GAPFILE INVALID DISPLAY "INVALID CODE"
+           GO TO 2000TI.
+           DISPLAY GAP-NAME " " GAP-ADDR " " GAP-CITY " " GAP-STATE
+           " " GAP-ZIP
+           MOVE IN-FIELD TO A-PR-GROUP
+           GO TO 4900DEE.
+       2245-PRIPOL.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE PRIMARY POLICY #"
+           GO TO 2000TI.
+           MOVE IN-FIELD TO A-PRIPOL.
+           IF (A-PRINS = "003" OR "093") AND (IN-FIELD-TAB(10)
+           = SPACE) DISPLAY "MEDICARE ACCTS NEED A SUFFIX" BELL0
+           GO TO 2000TI.
+           IF (A-PRINS = "002" OR "003") AND (IN-FIELD-9 NOT
+            NUMERIC) DISPLAY "POLICY MUST BE A 9-DIGIT NUMBER"
+            DISPLAY "THIS OUGHT TO BE CORRECTED IMMEDIATELY" BELL0.
+           GO TO 4900DEE.
+           IF A-PRINS = "004" AND IN-FIELD-9 NUMERIC
+            DISPLAY "POLICY MUST NOT BE A 9-DIGIT NUMBER"
+            DISPLAY "THIS OUGHT TO BE CORRECTED IMMEDIATELY" BELL0.
+           GO TO 4900DEE.
+
+       3230-SEINS.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE SECONDARY INSURANCE CODE (3-DIGITS)"
+           DISPLAY "OR F TO SEARCH FOR A PROPER CODE."
+           DISPLAY "062 = A MEDIGAP INSURER"
+           DISPLAY "OTHER THAN VT MEDICAID OR MEDICOMP."
+               GO TO 2000TI.
+           IF IN-FIELD = "F" PERFORM INS-1 THRU INS-1-EXIT GO TO 2000TI.
+           MOVE SPACE TO RIGHT-3.
+           UNSTRING IN-FIELD-3 DELIMITED BY " " INTO RIGHT-3.
+           INSPECT RIGHT-3 REPLACING LEADING " " BY "0".
+           MOVE RIGHT-3 TO IN-FIELD-3.
+           MOVE RIGHT-3 TO INS-KEY
+           READ INSFILE INVALID DISPLAY "INVALID" GO TO 2000TI.
+           DISPLAY INS-ASSIGN " " INS-NEIC " " INS-NAME
+           IF INS-STATUS = "1"
+           DISPLAY "THIS INSURANCE IS CLOSED FOR USE" GO TO 2000TI.
+           IF (A-PRINS = "003" OR "028" OR "093" OR "098")
+           AND (INS-KEY > "099" AND < "200")
+           DISPLAY "CANT BILL NEIC WITH PRIMARY MEDICARE"
+           GO TO 2000TI.
+           IF (A-PRINS = IN-FIELD-3) AND (A-PRINS NOT = "001")
+           AND (A-PRINS NOT = "024" AND A-PRINS NOT = "059")
+           DISPLAY A-PRINS "/" IN-FIELD-2 " IS AN INVALID COMBINATION"
+           GO TO 2000TI.
+           MOVE IN-FIELD-3 TO A-SEINS.
+           MOVE INS-ASSIGN TO A-SE-ASSIGN
+           IF A-SE-ASSIGN = "S"
+           MOVE "A" TO A-SE-ASSIGN.
+           IF A-SEINS = "001" SET ADD-KEY TO 98 GO TO 4900DEE.
+           IF A-SEINS NOT = "062" GO TO 4900DEE.
+           IF INS-NAME = SPACE
+           DISPLAY "MEDIGAP VALID FOR PARTICIPATING PROVIDERS ONLY"
+           GO TO 2000TI.
+           IF (A-PRINS NOT = "003" AND NOT = "028")
+           DISPLAY "MEDIGAP VALID ONLY FOR PRIMARY ASSIGNED MEDICARE"
+           GO TO 2000TI.
+           IF A-PR-GROUP = SPACE NEXT SENTENCE
+           ELSE MOVE A-PR-GROUP TO GAPKEY
+           READ GAPFILE INVALID DISPLAY "MEDIGAP CODE IS INVALID"
+           MOVE SPACE TO GAPFILE01.
+           DISPLAY A-PR-GROUP
+           DISPLAY GAP-NAME " " GAP-ADDR " " GAP-CITY " " GAP-STATE
+           " " GAP-ZIP.
+           MOVE 1 TO FLAG
+           PERFORM SELECT-GAP THRU SELECT-EXIT.
+           IF FLAG = 1 GO TO 2000TI.
+           MOVE GAPKEY TO A-PR-GROUP
+           GO TO 4900DEE.
+       3240-SE-GROUP.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE SECONDARY GROUP #"
+           GO TO 2000TI.
+           MOVE IN-FIELD TO A-SE-GROUP.
+           GO TO 4900DEE.
+       3245-SECPOL.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE SECONDARY POLICY #"
+           GO TO 2000TI.
+           IF IN-FIELD = "S" MOVE A-PRIPOL TO A-SECPOL
+           DISPLAY "SAME AS PRIMARY" GO TO 4900DEE.
+           MOVE IN-FIELD TO A-SECPOL.
+           IF (A-SEINS = "002" OR "003") AND (IN-FIELD-9 NOT
+            NUMERIC) DISPLAY "POLICY MUST BE A 9-DIGIT NUMBER"
+            DISPLAY "THIS OUGHT TO BE CORRECTED IMMEDIATELY".
+           GO TO 4900DEE.
+           IF A-SEINS = "004" AND IN-FIELD-9 NUMERIC
+            DISPLAY "POLICY MUST NOT BE A 9-DIGIT NUMBER"
+            DISPLAY "THIS OUGHT TO BE CORRECTED IMMEDIATELY" BELL0.
+           GO TO 4900DEE.
+           IF A-SECPOL = SPACE AND A-SE-ASSIGN NOT = "A"
+            DISPLAY "ASSIGNED CODES SHOULD HAVE POLICY NUMBERS".
+           GO TO 4900DEE.
+       4010-PRIVATE.
+           DISPLAY "YEAR ACCT ADDED TO SYSTEM"
+           GO TO 2000TI.
+       4000-ASSIGNM.
+           IF IN-FIELD = "?"
+           DISPLAY "1 = NO ZERO BAL. DETAIL"
+           DISPLAY "2 = PRINT 0 BAL. DETAIL ON NEXT BILL ONLY"
+           DISPLAY "3 = ALWAYS PRINT 0 BAL. DETAIL" GO TO 2000TI.
+           IF IN-FIELD-1 = "1" OR "2" OR "3" NEXT SENTENCE
+           ELSE DISPLAY "INVALID" GO TO 2000TI.
+           MOVE IN-FIELD-1 TO A-ASSIGNM.
+           GO TO 4900DEE.
+       2310-BILLCYCLE.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER A ONE DIGIT BILLING CYCLE CODE"
+           GO TO 2000TI.
+           IF IN-FIELD-1 < "1" OR > "4"
+           GO TO 2000TI.
+            MOVE IN-FIELD-1 TO A-BILLCYCLE
+           GO TO 4900DEE.
+       2200-AMOUNT.
+           GO TO 4900DEE.
+       2-PRMPLR.
+           GO TO 4900DEE.
+       2-SEMPLR.
+           GO TO 4900DEE.
+       2-PRNAME.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER THE NAME OF THE PRIMARY INSURED"
+           DISPLAY "FOR NON MEDICARE,NON MEDICAID INSURANCES."
+               DISPLAY "LAST NAME;FIRST NAME;MIDDLE INITIAL"
+               DISPLAY "SEPARATING EACH MAJOR PORTION OF THE NAME BY "
+               DISPLAY "A SEMICOLON. USE ONLY LASTNAME;FIRSTNAME;M.I."
+           DISPLAY "DO NOT USE JR ,SR ,III ! NO IMBEDDED BLANKS EITHER!"
+           DISPLAY "NAMES LIKE ROBERT E ST JOHN JR MUST BE ENTERED"
+               DISPLAY "ONLY LIKE THIS... STJOHN;ROBERT;E"
+           DISPLAY "ANYTHING ELSE WILL RESULT IN A REJECTION"
+           DISPLAY "S = SAME NAME AS GUARANTOR"
+               GO TO 2000TI.
+           IF IN-FIELD = "S" MOVE A-GARNAME TO A-PRNAME
+           MOVE A-RELATE TO  A-PR-RELATE
+           SET ADD-KEY UP BY 1
+           DISPLAY "SAME AS GUARANTOR " A-PRNAME GO TO 4900DEE.
+           IF IN-FIELD-1 = SPACE DISPLAY "LEADING BLANKS NOT ALLOWED"
+           " IN LAST NAME" GO TO 2000TI.
+           MOVE SPACES TO NAME-LAST NAME-MIDDLE NAME-FIRST.
+           UNSTRING IN-FIELD DELIMITED BY ";" INTO
+               NAME-LAST NAME-FIRST NAME-MIDDLE.
+           IF NAME-FIRST = SPACES OR IN-FIELD = SPACES
+           DISPLAY "A FIRST NAME IS REQUIRED" GO TO 2000TI.
+           MOVE SPACES TO NAME-TEST.
+           IF NAME-MIDDLE = " " STRING NAME-FIRST " " NAME-LAST
+               DELIMITED BY "  " INTO NAME-TEST GO TO 2-PRNAME-TEST.
+           STRING NAME-FIRST " " NAME-MIDDLE " " NAME-LAST " "
+               DELIMITED BY "  " INTO NAME-TEST.
+       2-PRNAME-TEST.
+           DISPLAY "OK? Y/N " NAME-TEST.
+           ACCEPT ANS.
+           IF ANS   = "N"   GO TO 2000TI.
+           IF ANS = "Y"  MOVE IN-FIELD TO A-PRNAME GO TO 4900DEE
+           ELSE GO TO 2-PRNAME-TEST.
+       2-PRRELATE.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE CODE FOR THE PRIMARY INSURED"
+           DISPLAY "2=MALE ADULT  4=MALE CHILD  5=MALE STEPCHILD"
+           DISPLAY "K=FEMALE ADULT  M=FEMALE CHILD N=FEMALE STEPCHILD"
+           GO TO 2000TI.
+           IF IN-FIELD = "2" OR "4" OR "5" OR "K" OR "M" OR "N"
+           MOVE IN-FIELD-1 TO  A-PR-RELATE GO TO 4900DEE
+           ELSE DISPLAY "INVALID" GO TO 2000TI.
+       2-SENAME.
+           IF IN-FIELD = "?"
+               DISPLAY "ENTER THE NAME OF THE SECONDARY INSURED"
+           DISPLAY "FOR NON MEDICARE,NON MEDICAID INSURANCES."
+               DISPLAY "LAST NAME;FIRST NAME;MIDDLE INITIAL"
+               DISPLAY "SEPARATING EACH MAJOR PORTION OF THE NAME BY "
+               DISPLAY "A SEMICOLON. USE ONLY LASTNAME;FIRSTNAME;M.I."
+           DISPLAY "DO NOT USE JR ,SR ,III ! NO IMBEDDED BLANKS EITHER!"
+           DISPLAY "NAMES LIKE ROBERT E ST JOHN JR MUST BE ENTERED"
+               DISPLAY "ONLY LIKE THIS... STJOHN;ROBERT;E"
+           DISPLAY "ANYTHING ELSE WILL RESULT IN A REJECTION"
+           DISPLAY "S = SAME NAME AS GUARANTOR"
+           DISPLAY "S1 = SAME NAME AS PRIMARY INSURED"
+               GO TO 2000TI.
+           IF IN-FIELD = "S" MOVE A-GARNAME TO A-SENAME
+           MOVE A-RELATE TO A-SE-RELATE
+           SET ADD-KEY UP BY 1
+           DISPLAY "SAME AS GUARANTOR " A-SENAME GO TO 4900DEE.
+           IF IN-FIELD = "S1" MOVE A-PRNAME TO A-SENAME
+           MOVE  A-PR-RELATE TO A-SE-RELATE
+           SET ADD-KEY UP BY 1
+           DISPLAY "SAME AS PR-INSURED " A-SENAME GO TO 4900DEE.
+           IF IN-FIELD-1 = SPACE DISPLAY "LEADING BLANKS NOT ALLOWED"
+           " IN LAST NAME" GO TO 2000TI.
+           MOVE SPACES TO NAME-LAST NAME-MIDDLE NAME-FIRST.
+           UNSTRING IN-FIELD DELIMITED BY ";" INTO
+               NAME-LAST NAME-FIRST NAME-MIDDLE.
+           IF NAME-FIRST = SPACES OR IN-FIELD = SPACES
+           DISPLAY "A FIRST NAME IS REQUIRED" GO TO 2000TI.
+           MOVE SPACES TO NAME-TEST.
+           IF NAME-MIDDLE = " " STRING NAME-FIRST " " NAME-LAST
+               DELIMITED BY "  " INTO NAME-TEST GO TO 2-SENAME-TEST.
+           STRING NAME-FIRST " " NAME-MIDDLE " " NAME-LAST " "
+               DELIMITED BY "  " INTO NAME-TEST.
+       2-SENAME-TEST.
+           DISPLAY "OK? Y/N " NAME-TEST.
+           ACCEPT ANS.
+           IF ANS   = "N"   GO TO 2000TI.
+           IF ANS = "Y"  MOVE IN-FIELD TO A-SENAME GO TO 4900DEE
+           ELSE GO TO 2-SENAME-TEST.
+       2-SERELATE.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE CODE FOR THE SECONDARY INSURED"
+           DISPLAY "2=MALE ADULT  4=MALE CHILD  5=MALE STEPCHILD"
+           DISPLAY "K=FEMALE ADULT  M=FEMALE CHILD N=FEMALE STEPCHILD"
+           GO TO 2000TI.
+           IF IN-FIELD = "2" OR "4" OR "5" OR "K" OR "M" OR "N"
+           MOVE IN-FIELD-1 TO A-SE-RELATE GO TO 4900DEE
+           ELSE DISPLAY "INVALID" GO TO 2000TI.
+       2-PR-ASGM.
+           IF IN-FIELD = "?"
+           DISPLAY "A=ASSIGNED  S=SOMETIMES ASSIGNED  U=UN-ASSIGNED"
+           DISPLAY "S WILL ALLOW A CHOICE OF ASSIGNMENT FOR EACH CHARGE"
+           DISPLAY "A AND U ARE WHAT WILL BE CODES ON EACH CHARGE"
+           GO TO 2000TI.
+           IF IN-FIELD-1 = "U" OR "S" OR "A" MOVE IN-FIELD-1 TO
+           A-PR-ASSIGN GO TO 4900DEE.
+           DISPLAY "INVALID" GO TO 2000TI.
+       2-SE-ASGM.
+           IF IN-FIELD = "?"
+           DISPLAY "A=ASSIGNED  OR U=UN-ASSIGNED"
+           DISPLAY "S IS NOT ALLOWED AS CHOICE FOR SECONDARY"
+           GO TO 2000TI.
+           IF IN-FIELD-1 = "U" OR "A" MOVE IN-FIELD-1 TO
+           A-SE-ASSIGN GO TO 4900DEE.
+           DISPLAY "INVALID" GO TO 2000TI.
+       2-PR-OFF.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE PRIMARY INSURANCE OFFICE NUMBER"
+           GO TO 2000TI.
+           MOVE SPACES TO RIGHT-4.
+           UNSTRING IN-FIELD-4 DELIMITED BY " " INTO RIGHT-4
+           INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
+           IF RIGHT-4 NOT NUMERIC DISPLAY "NOT NUMERIC: WARNING".
+           MOVE RIGHT-4 TO A-PR-OFFICE GO TO 4900DEE.
+       2-SE-OFF.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE SECONDARY INSURANCE OFFICE NUMBER"
+           GO TO 2000TI.
+           MOVE SPACES TO RIGHT-4.
+           UNSTRING IN-FIELD-4 DELIMITED BY " " INTO RIGHT-4
+           INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
+           IF RIGHT-4 NOT NUMERIC DISPLAY "NOT NUMERIC: WARNING".
+           MOVE RIGHT-4 TO A-SE-OFFICE GO TO 4900DEE.
+       2-PR-GRPNME.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE GROUP NAME OF THE PRIMARY INSURANCE"
+           GO TO 2000TI.
+           MOVE IN-FIELD-15 TO A-PRGRPNAME GO TO 4900DEE.
+       2-SE-GRPNME.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER THE GROUP NAME OF THE SECONDARY INSURANCE"
+           GO TO 2000TI.
+           MOVE IN-FIELD-15 TO A-SEGRPNAME GO TO 4900DEE.
+       2750-GARNO.
+           DISPLAY "NEW GARNO OR XXX TO BLANK PRESENT ONE".
+           ACCEPT DATAIN.
+           IF DATAIN = "X" DISPLAY "NO ACTION" GO TO 1400-CP.
+           IF DATAIN = "XXX" MOVE SPACE TO A-GARNO DISPLAY "BLANKED"
+           GO TO 4900DEE.
+           MOVE DATAIN TO G-GARNO
+           READ GARFILE INVALID DISPLAY "INVALID" GO TO 1400-CP.
+           DISPLAY G-GARNAME " " G-PRINS "/" G-SEINS " " G-DOB
+           MOVE G-GARNO TO A-GARNO GO TO 1400-CP.
+           GO TO 1400-CP.
+       4900DEE.
+           IF ACTION  = "CA" GO TO 1400-CP.
+       4910DEE.
+           EXIT.
+       5-WRITE-ACTFILE.
+           REWRITE ACTFILE01 INVALID KEY DISPLAY "NO UPDATE."
+           DISPLAY "THIS SHOULD NOT HAPPEN! CONTACT THE DATA CENTER."
+           DISPLAY "THIS PROGRAM IS TERMINATED!"
+           GO TO 9100CMF.
+           CLOSE ACTFILE. OPEN I-O ACTFILE
+           DISPLAY "UPDATE MADE"  GO TO 1000-ACTION.
+
+      * BEGIN HOSPITAL CHARGE ROUTINE *
+
+       ORD-ADD-LOOP.
+           SET ORD-INDX TO ORD-A-FLD(ORD-A-KEY).
+           PERFORM ORD-DISPLAY THRU ORDDEEX.
+       CC-DC.
+           IF A-ACTNO = "1" OR "2" OR "3" OR "4" OR "5" OR "6" OR "7"
+           OR "8" OR "9" MOVE A-ACTNO TO ALF-1 MOVE ALF-1 TO NUM-1
+           MOVE CHARGETAB(NUM-1) TO ORDNO
+           ELSE DISPLAY "FIND CHARGE TO BE DELETED FIRST"
+           GO TO 1000-ACTION.
+           READ ORDFILE WITH LOCK INVALID DISPLAY "INVALID"
+           GO TO 1000-ACTION.
+           IF ACTION = "DC" GO TO DC-1.
+       ORD-CP.
+           MOVE SPACES TO FIELD-CODE IN-FIELD.
+           DISPLAY "FIELD CODE,DATA? HOSP CHARGES".
+           ACCEPT DATAIN.
+           IF DATAIN = "X"
+               DISPLAY "NO CHANGE"  GO TO 1000-ACTION.
+           IF DATAIN = "UP"  GO TO 5000-WRITE-ORDFILE.
+           IF DATAIN = "LC" PERFORM LC-1 GO TO ORD-CP.
+           IF DATAIN = "?"
+           DISPLAY "ENTER A FIELD CODE <COMMA> AND NEW DATA."
+               DISPLAY "UP = UPDATE CHANGES"
+           DISPLAY " X = NO CHANGE"
+           DISPLAY "L = LIST "
+           DISPLAY "FIELD CODES: 2=CHARGE  3=REFPHY  4=PLACE"
+           DISPLAY " 5=ACCDATE   6=TRANDATE"
+           GO TO ORD-CP.
+           UNSTRING DATAIN DELIMITED BY "," INTO FIELD-CODE IN-FIELD.
+           INSPECT FIELD-CODE REPLACING LEADING SPACE BY "0".
+           IF FIELD-CODE NOT NUMERIC
+               DISPLAY "FIELD-CODE MUST BE 2 DIGITS AND NUMERIC"
+               GO TO ORD-CP.
+           IF FIELD-CODE = "00"
+               DISPLAY "FIELD CODE CANNOT BE ZERO OR BLANK"
+               GO TO ORD-CP.
+           IF ( FIELD-CODE > "01" AND  < "08" )
+           MOVE FIELD-CODE TO NUM-2
+           SET ORD-INDX TO NUM-2
+           GO TO ORD-GO-TO.
+           DISPLAY "FIELD # MUST BE FROM 2-7".
+           GO TO ORD-CP.
+       ORD-DISPLAY.
+           DISPLAY ORD-DESC-FLD(ORD-INDX) "?".
+       ORD-INPUT.
+           ACCEPT IN-FIELD.
+           IF IN-FIELD = "??"
+           DISPLAY "L = LIST CHARGE RECORD BUILT SO FAR"
+           DISPLAY "X = CANCEL ADD OF THIS RECORD"
+           DISPLAY "BK = BACK TO PREVIOUS PROMPT"
+           DISPLAY "? = DATA NEEDED FOR PROMPT"
+           DISPLAY "OR ENTER DATA NEEDED"
+           GO TO ORD-DISPLAY.
+           IF IN-FIELD = "BK" AND ORD-A-KEY = 1 MOVE "X" TO IN-FIELD
+           SET ORD-A-KEY TO 9 GO TO ORDDEEX.
+           IF IN-FIELD = "BK" GO TO ORD-BACK.
+           IF IN-FIELD = "L" PERFORM LC-1 GO TO ORD-DISPLAY.
+           IF IN-FIELD = "X" SET ORD-A-KEY TO 9
+           GO TO ORDDEEX.
+           GO TO ORD-GO-TO.
+       ORD-BACK.
+           SET ORD-A-KEY DOWN BY 1
+           SET ORD-INDX TO ORD-A-FLD(ORD-A-KEY)
+           GO TO ORD-DISPLAY.
+       ORD-GO-TO.
+           MOVE 0 TO FLAG.
+           MOVE ORD-LEN-TAB(ORD-INDX) TO Q ADD 1 TO Q.
+           IF IN-FIELD-TAB(Q) NOT = " " MOVE 1 TO FLAG.
+           IF FLAG = 1 DISPLAY "DATA TOO LONG, MUST NOT BE GREATER "
+             "THAN " ORD-LEN-TAB(ORD-INDX) ".".
+           IF FLAG = 1 AND ACT-1 = "C" GO TO ORD-CP.
+           IF FLAG = 1 AND ACT-1 = "A" GO TO ORD-DISPLAY.
+           GO TO 1-ORD
+            2-ORD 3-ORD 4-ORD 5-ORD 6-ORD 7-ORD 
+           DEPENDING ON ORD-INDX.
+       ORD-TI.
+           IF ACT-1 = "A" GO TO ORD-DISPLAY.
+           IF ACT-1 = "C" GO TO ORD-CP.
+           IF ACT-1 = "S" OR "F" GO TO 1000-ACTION.
+       1-ORD.
+           IF IN-FIELD = "?" DISPLAY "ENTER RED-REC NUMBER"
+           GO TO ORD-TI.
+           IF IN-FIELD = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
+           OR "7" OR "8" OR "9" MOVE IN-FIELD-1 TO ALF-1
+           MOVE ALF-1 TO NUM-1 MOVE ACTTAB(NUM-1) TO IN-FIELD-8
+           ELSE MOVE SPACE TO RIGHT-8
+           UNSTRING IN-FIELD-8 DELIMITED BY " " INTO RIGHT-8
+           INSPECT RIGHT-8 REPLACING ALL " " BY "0"
+           MOVE RIGHT-8 TO IN-FIELD-8.
+           MOVE IN-FIELD-8 TO A-ACTNO
+           READ ACTFILE INVALID DISPLAY "INVALID" GO TO ORD-TI.
+           DISPLAY A-ACTNO " " A-PRINS "/" A-SEINS " " A-DOB " "
+           A-GARNAME " " A-CITY
+           MOVE A-ACTNO TO ORD8 GO TO ORDDEEX.
+       2-ORD.
+           IF IN-FIELD-10 = "?"
+           DISPLAY "CHARGE.     USE - SYMBOL FOR CREDITS"
+           GO TO ORD-TI.
+           MOVE IN-FIELD-5 TO ALF-4 ALF-5
+           IF ALF-4 NOT NUMERIC DISPLAY "BAD #" GO TO ORD-TI.
+           IF IN-FIELD-TAB(5) = " " OR "-" MOVE ALF-5 TO C-CHARGE
+           GO TO ORDDEEX.
+           DISPLAY "BAD FORMAT " GO TO ORD-TI.
+       3-ORD.
+           IF IN-FIELD-4 = "?"
+           DISPLAY "ENTER F TO SEARCH FOR REF PHYS ALFA CODE"
+           DISPLAY "AR TO ADD A REF PHYS."
+           GO TO ORD-TI.
+           IF IN-FIELD-4 = "F" GO TO 1REF-SEARCH.
+           IF IN-FIELD-4 = "AR" PERFORM AR-1 THRU AR-1-EXIT
+           GO TO ORD-TI.
+           MOVE IN-FIELD-3 TO REF-KEY.
+           READ REFPHY INVALID DISPLAY "NOT ON FILE"
+           GO TO ORD-TI.
+           DISPLAY REF-KEY " " REF-CRNUM " " REF-UPIN " " REF-CDNUM
+           " " REF-NAME
+           MOVE REF-KEY TO C-REF GO TO ORDDEEX.
+       1REF-SEARCH.
+           DISPLAY "SEARCH KEY ?".
+           ACCEPT ANS.
+           IF ANS = "?"
+           DISPLAY "TYPE IN THE FIRST LETTER OF DESCRIPTION"
+           DISPLAY "OR A <CR> TO END THE SEARCH"
+           GO TO 1REF-SEARCH.
+           STRING ANS "00" DELIMITED BY " " INTO REF-KEY.
+           START REFPHY KEY > REF-KEY INVALID
+           DISPLAY "END OF FILE" GO TO ORD-TI.
+           MOVE 0 TO X.
+       3-REF. READ REFPHY NEXT AT END
+           DISPLAY "END OF FILE" GO TO ORD-TI.
+           ADD 1 TO X.
+           IF X > 5
+           ACCEPT ANS
+           MOVE 0 TO X
+           IF ANS NOT = SPACE GO TO ORD-TI.
+           DISPLAY REF-KEY " " REF-CRNUM " " REF-UPIN " " REF-CDNUM
+           " " REF-NAME
+           GO TO 3-REF.
+       4-ORD.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER PLACE OF SERVICE CODE 3,5,E "
+           GO TO ORD-TI.
+           IF IN-FIELD-1 = "3" OR "5" OR "E" NEXT SENTENCE
+           ELSE DISPLAY "BAD" GO TO ORD-TI.
+           MOVE IN-FIELD-1 TO C-IOPAT
+           GO TO ORDDEEX.
+       5-ORD.
+           IF IN-FIELD-8 = "?"
+           DISPLAY "ENTER ACCIDENT DATE IN MMDDYYYY FORMAT"
+           DISPLAY "<CR> IF NOT AN ACCIDENT OR DATE NOT KNOWN"
+           DISPLAY "R = ACCIDENT DATE SAME AS REPORT DATE"
+           GO TO ORD-TI.
+           IF IN-FIELD-8 = SPACE MOVE "00000000" TO C-DATE-A
+           GO TO ORDDEEX.
+           IF IN-FIELD-8 NUMERIC NEXT SENTENCE
+           ELSE DISPLAY "INVALID" GO TO ORD-TI.
+           MOVE IN-FIELD-8 TO INPUT-DATE.
+           IF T-MM OF INPUT-DATE < 01 OR > 12
+              DISPLAY "INVALID" GO TO ORD-TI.
+           IF T-DD OF INPUT-DATE > DAYS-IN-MONTH(T-MM OF INPUT-DATE)
+               DISPLAY "INVALID" GO TO ORD-TI.
+           MOVE CORR INPUT-DATE TO TEST-DATE
+           MOVE TEST-DATE TO C-DATE-A
+           GO TO ORDDEEX.
+       6-ORD.
+           IF IN-FIELD-8 = "?"
+           DISPLAY "ENTER SERVICE DATE IN MMDDYYYY FORMAT"
+           GO TO ORD-TI.
+           IF IN-FIELD-8 NUMERIC NEXT SENTENCE
+           ELSE DISPLAY "INVALID" GO TO ORD-TI.
+           MOVE IN-FIELD-8 TO INPUT-DATE.
+           IF T-MM OF INPUT-DATE < 01 OR > 12
+              DISPLAY "INVALID" GO TO ORD-TI.
+           IF T-DD OF INPUT-DATE > DAYS-IN-MONTH(T-MM OF INPUT-DATE)
+               DISPLAY "INVALID" GO TO ORD-TI.
+           MOVE CORR INPUT-DATE TO TEST-DATE
+           MOVE TEST-DATE TO C-DATE-T
+           GO TO ORDDEEX.
+       7-ORD.
+           IF IN-FIELD-8 = "?"
+           DISPLAY "ENTER IN-PAT ADMIT DATE IN MMDDYYYY FORMAT"
+           GO TO ORD-TI.
+           IF IN-FIELD-8 NUMERIC NEXT SENTENCE
+           ELSE DISPLAY "INVALID" GO TO ORD-TI.
+           MOVE IN-FIELD-8 TO INPUT-DATE.
+           IF T-MM OF INPUT-DATE < 01 OR > 12
+              DISPLAY "INVALID" GO TO ORD-TI.
+           IF T-DD OF INPUT-DATE > DAYS-IN-MONTH(T-MM OF INPUT-DATE)
+               DISPLAY "INVALID" GO TO ORD-TI.
+           MOVE CORR INPUT-DATE TO TEST-DATE
+           MOVE TEST-DATE TO C-DATE-ADMIT
+           GO TO ORDDEEX.
+
+       ORDDEE. IF ACT-1 = "C" GO TO ORD-CP.
+       ORDDEEX. EXIT.
+       5000-WRITE-ORDFILE.
+           REWRITE ORDFILE01 INVALID KEY DISPLAY "NO UPDATE."
+           DISPLAY "THIS SHOULD NOT HAPPEN! CONTACT THE DATA CENTER."
+           DISPLAY "THIS PROGRAM IS TERMINATED!"
+           GO TO 9100CMF.
+           UNLOCK ORDFILE RECORD
+           DISPLAY "UPDATE MADE"  GO TO 1000-ACTION.
+       FC-1. MOVE A-ACTNO TO ORD8
+           MOVE 0 TO X
+             MOVE SPACE TO ORD3
+             START ORDFILE KEY NOT < ORDNO INVALID GO TO FC-1-EXIT.
+       FC-2. READ ORDFILE NEXT AT END GO TO FC-1-EXIT.
+           IF  ORD8 > A-ACTNO GO TO FC-1-EXIT.
+             MOVE ORD8 TO A-ACTNO
+             READ ACTFILE INVALID GO TO FC-2.
+             ADD 1 TO X
+             MOVE ORDNO  TO CHARGETAB(X)
+             DISPLAY X " " C-CHARGE " " C-DATE-T " " C-REF " " C-DATE-A
+             " " C-DATE-E " " A-GARNAME
+             IF X > 8 MOVE 0 TO X
+             ACCEPT DATAIN
+             IF DATAIN NOT = SPACE GO TO FC-1-EXIT.
+           GO TO FC-2.
+       FC-1-EXIT. EXIT.
+       DC-1.
+           PERFORM LC-1
+           DISPLAY "DELETE Y/N".
+           ACCEPT IN-FIELD-1.
+           IF IN-FIELD-1 = "Y" OR "N" NEXT SENTENCE ELSE
+           GO TO DC-1.
+           IF IN-FIELD-1 = "N" GO TO 1000-ACTION.
+           DELETE ORDFILE RECORD. DISPLAY "RECORD DELETED".
+           GO TO 1000-ACTION.
+       LA-1.
+           MOVE A-DOB TO TEST-DATE
+           MOVE T-MM OF TEST-DATE TO DD-MM
+           MOVE T-DD OF TEST-DATE TO DD-DD
+           MOVE T-YY OF TEST-DATE TO DD-YY
+           INSPECT DD-MM REPLACING LEADING "0" BY " "
+           INSPECT DD-DD REPLACING LEADING "0" BY " "
+      *    INSPECT DD-YY REPLACING LEADING "0" BY " "
+           DISPLAY  A-ACTNO  " " DISPLAY-DATE " " A-GARNAME " " A-GARNO
+           DISPLAY A-BILLADD
+           DISPLAY A-STREET
+           DISPLAY A-CITY " " A-STATE " " A-ZIP
+           DISPLAY A-PHONE
+           DISPLAY A-PRINS " " A-PR-ASSIGN " " A-PRIPOL " " A-PR-GROUP
+           " " A-PR-MPLR " " A-PR-OFFICE " " A-PR-RELATE " " A-PRNAME
+           IF A-PRGRPNAME NOT = SPACE DISPLAY A-PRGRPNAME.
+           DISPLAY A-SEINS " " A-SE-ASSIGN " " A-SECPOL " " A-SE-GROUP
+           " " A-SE-MPLR " " A-SE-OFFICE " " A-SE-RELATE " " A-SENAME
+           IF A-SEGRPNAME NOT = SPACE DISPLAY A-SEGRPNAME.
+           MOVE A-PR-GROUP TO GAPKEY
+           READ GAPFILE INVALID
+           MOVE SPACE TO GAP-NAME GAP-ADDR GAP-CITY GAP-STATE GAP-ZIP.
+           IF A-SEINS = "062"
+           DISPLAY GAP-NAME " " GAP-ADDR " " GAP-CITY " " GAP-STATE
+           " " GAP-ZIP.
+           DISPLAY "SEX  " A-SEX  " RELATE " A-RELATE.
+           MOVE "000" TO ORD3 MOVE A-ACTNO TO ORD8
+           START ORDFILE KEY NOT < ORDNO INVALID GO TO LA-1-EXIT.
+       LA-2. READ ORDFILE NEXT AT END GO TO LA-1-EXIT.
+           IF ORD8 NOT = A-ACTNO MOVE A-ACTNO TO ORD8 GO TO  LA-1-EXIT
+           ELSE PERFORM LC-1 GO TO LA-2.
+       LA-1-EXIT. EXIT.
+       LC-1. DISPLAY ORDNO " " C-ORDER " " C-CHARGE " " C-REF
+           " " C-IOPAT " SERV " C-DATE-T " ACC " C-DATE-A.
+       LG-1.
+           READ GARFILE INVALID DISPLAY "INVALID" GO TO LG-1-EXIT.
+       LG-1-0.
+           MOVE G-DOB TO TEST-DATE
+           MOVE T-MM OF TEST-DATE TO DD-MM
+           MOVE T-DD OF TEST-DATE TO DD-DD
+           MOVE T-YY OF TEST-DATE TO DD-YY
+           INSPECT DD-MM REPLACING LEADING "0" BY " "
+           INSPECT DD-DD REPLACING LEADING "0" BY " "
+      *    INSPECT DD-YY REPLACING LEADING "0" BY " "
+           DISPLAY  G-GARNO  " " DISPLAY-DATE " " G-GARNAME " " G-ACCT
+           DISPLAY G-BILLADD
+           DISPLAY G-STREET
+           DISPLAY G-CITY " " G-STATE " " G-ZIP
+           DISPLAY G-PHONE
+           DISPLAY G-PRINS " " G-PR-ASSIGN " " G-PRIPOL " " G-PR-GROUP
+           " " G-PR-MPLR " " G-PR-OFFICE " " G-PR-RELATE " " G-PRNAME
+           " " G-PRGRPNAME
+           DISPLAY G-SEINS " " G-SE-ASSIGN " " G-SECPOL " " G-SE-GROUP
+           " " G-SE-MPLR "       "  G-SE-RELATE " " G-SENAME
+           " " G-SEGRPNAME
+           MOVE G-PR-GROUP TO GAPKEY
+           READ GAPFILE INVALID
+           MOVE SPACE TO GAP-NAME GAP-ADDR GAP-CITY GAP-STATE GAP-ZIP.
+           IF G-SEINS = "062"
+           DISPLAY GAP-NAME " " GAP-ADDR " " GAP-CITY " " GAP-STATE
+           " " GAP-ZIP.
+           MOVE G-LASTBILL TO TEST-DATE
+           MOVE T-MM OF TEST-DATE TO DD-MM
+           MOVE T-DD OF TEST-DATE TO DD-DD
+           MOVE T-CC OF TEST-DATE TO DD-CC
+           MOVE T-YY OF TEST-DATE TO DD-YY
+           IF G-LASTBILL NOT = "00000000"
+           INSPECT DD-MM REPLACING LEADING "0" BY " "
+           INSPECT DD-DD REPLACING LEADING "0" BY " ".
+           DISPLAY "COLLT GENDER RELATE DUNNING ACCSTAT LASTBILL"
+           DISPLAY "  " G-COLLT "     " G-SEX "       " G-RELATE
+           "      " G-DUNNING "        " G-ACCTSTAT
+           "   " DISPLAY-DATE.
+           IF G-INSPEND NOT = 0 MOVE G-INSPEND TO NEF-D
+           DISPLAY " INSTALLMENT =" NEF-D.
+       LG-1-EXIT. EXIT.
+       FF-NAME. IF FFTAB10(X) NOT = SPACE MOVE X TO FF MOVE 1 TO X.
+       LL-NAME. IF LLTAB24(X) NOT = SPACE MOVE X TO LL MOVE 1 TO X.
+       AQ1. IF LLTAB24(Y) NOT = XLLTAB24(Y) MOVE 1 TO FLAGX.
+       AQ2. IF XFFTAB10(Y) NOT = FFTAB10(Y) MOVE 1 TO FLAGX.
+       AR-1. DISPLAY "LASTNAME, FIRST NAME"
+           ACCEPT REF-NAME.
+           IF REF-NAME = "X" GO TO AR-1-EXIT.
+           MOVE REF-NAME TO REF1.
+       AR-2. DISPLAY "CARE-NUM.  VT OR VN FOLLOWED BY 4-DIGITS"
+           ACCEPT REF-CRNUM
+           IF REF-CRNUM = "X" GO TO AR-1-EXIT.
+           IF REF-CRNUM = "BK" GO TO AR-1.
+       AR-3. DISPLAY "CAID-NUM.  000 OR 0VN FOLLOWED BY 4-DIGITS"
+           ACCEPT REF-CDNUM
+           IF REF-CDNUM = "X" GO TO AR-1-EXIT.
+           IF REF-CDNUM = "BK" GO TO AR-2.
+       AR-4. DISPLAY "B/S-NUM.  5 DIGIT NUMBER"
+           ACCEPT REF-BSNUM
+           IF REF-BSNUM = "X" GO TO AR-1-EXIT.
+           IF REF-BSNUM = "BK" GO TO AR-3.
+           DISPLAY REF-CRNUM " " REF-CDNUM " " REF-BSNUM " " REF-NAME
+           DISPLAY "ADD  Y/N".
+           ACCEPT ANS. IF ANS NOT = "Y" GO TO AR-1.
+           MOVE REFPHY01 TO REF-BACK.
+       AR-31. MOVE REF-BACK TO REFPHY01.
+       AR-5. ADD 1 TO X MOVE X TO REF2.
+           READ REFPHY INVALID GO TO AR-6.
+           GO TO AR-5.
+       AR-6.
+             MOVE REF-BACK TO REFPHY01.
+           MOVE X TO REF2. WRITE REFPHY01.
+           IF REF-STAT = "61" GO TO AR-3.
+           DISPLAY "RECORDED ADD " REF-KEY " " REF-NAME.
+      *    CLOSE REFPHY OPEN INPUT REFPHY.
+       AR-1-EXIT. EXIT.
+       GAP-1. DISPLAY "SEARCH TYPE"
+           DISPLAY "1 = BY NUMBER "
+           DISPLAY "2 = BY NAME"
+           DISPLAY "3 = BY A-CITY"
+           DISPLAY "4 = BY STATE".
+       GAP-2.  ACCEPT IN-FIELD.
+           IF IN-FIELD = "?"
+           DISPLAY "X = BACK OR 1-4 SEARCH METHOD"
+           GO TO GAP-2.
+           IF IN-FIELD = "X" DISPLAY "END SEARCH" GO TO GAP-1-EXIT.
+           IF IN-FIELD = "1" OR "2" OR "3" OR "4" NEXT SENTENCE
+           ELSE DISPLAY "BAD" GO TO GAP-2.
+           MOVE IN-FIELD-1 TO ALF-1.
+       GAP-3. DISPLAY "STARTING POINT?".
+           ACCEPT IN-FIELD.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER WHERE TO START LOOKING"
+           DISPLAY "BK = BACK TO SEARCH METHOD"
+           DISPLAY "OR X = BACK TO OPTION" GO TO GAP-3.
+           IF IN-FIELD = "X" GO TO GAP-1-EXIT.
+           IF IN-FIELD = "BK" GO TO GAP-1.
+           MOVE 0 TO X
+           IF ALF-1 = "1" MOVE SPACE TO RIGHT-7
+           UNSTRING IN-FIELD DELIMITED BY " " INTO RIGHT-7
+           INSPECT RIGHT-7 REPLACING LEADING " " BY "0"
+           MOVE RIGHT-7 TO GAPKEY
+           MOVE "NUMBER" TO ALF-6
+           START GAPFILE KEY NOT < GAPKEY GO TO GAP-4.
+           IF ALF-1 = "2" MOVE IN-FIELD TO GAP-NAME
+           MOVE "TITLE " TO ALF-6
+           START GAPFILE KEY NOT < GAP-NAME GO TO GAP-4.
+           IF ALF-1 = "3" MOVE IN-FIELD TO GAP-CITY
+           MOVE "CITY  " TO ALF-6
+           START GAPFILE KEY NOT < GAP-CITY GO TO GAP-4.
+           MOVE IN-FIELD TO GAP-STATE
+           MOVE "STATE " TO ALF-6
+           START GAPFILE KEY NOT < GAP-STATE.
+       GAP-4. READ GAPFILE NEXT AT END DISPLAY "END OF FILE"
+           GO TO GAP-1-EXIT.
+           MOVE GAPKEY TO ALF-7
+           INSPECT ALF-7 REPLACING LEADING "0" BY " "
+           MOVE GAP-NAME TO ALF20
+           MOVE GAP-ADDR TO ALF20A
+           DISPLAY ALF-7 " " ALF20 " " ALF20A " " GAP-CITY " " GAP-STATE
+           " " GAP-ZIP
+           ADD 1 TO X
+           IF X > 8 MOVE 0 TO X DISPLAY "BY " ALF-6 ACCEPT ANS
+           IF ANS NOT = SPACE GO TO GAP-1-EXIT.
+           GO TO GAP-4.
+       GAP-1-EXIT. EXIT.
+       SELECT-GAP. DISPLAY "MEDIGAP CODE".
+           ACCEPT IN-FIELD
+           IF IN-FIELD = "F" PERFORM GAP-1 THRU GAP-1-EXIT
+           GO TO SELECT-GAP.
+           IF IN-FIELD = "BK" GO TO SELECT-EXIT.
+           IF IN-FIELD = "?" DISPLAY "F = SEARCH FOR A CODE"
+           DISPLAY "BK = END SEARCHING" GO TO SELECT-GAP.
+           MOVE SPACE TO RIGHT-7
+           UNSTRING IN-FIELD DELIMITED BY " " INTO RIGHT-7
+           INSPECT RIGHT-7 REPLACING LEADING " "  BY "0"
+           MOVE RIGHT-7 TO GAPKEY
+           READ GAPFILE INVALID DISPLAY "INVALID" GO TO SELECT-GAP.
+           MOVE GAP-NAME TO ALF20
+           MOVE GAP-ADDR TO ALF20A
+           DISPLAY ALF20 " " ALF20A " " GAP-CITY " " GAP-STATE " "
+           GAP-ZIP
+           DISPLAY "OK Y/N".
+           ACCEPT ANS
+           IF ANS NOT = "Y" GO TO SELECT-GAP.
+           MOVE 0 TO FLAG.
+       SELECT-EXIT.  EXIT.
+       INS-1. DISPLAY "SEARCH TYPE"
+           DISPLAY "1 = BY NUMBER "
+           DISPLAY "2 = BY NAME"
+           DISPLAY "3 = BY ASSIGNMENT CODE"
+           DISPLAY "4 = BY NEIC CODE"
+           DISPLAY "5 = BY NEIC ASSIGNM CODE"
+           DISPLAY "6 = BY CLAIM-TYPE".
+       INS-2.  ACCEPT IN-FIELD.
+           IF IN-FIELD = "?"
+           DISPLAY "X = BACK OR 1-6 SEARCH METHOD"
+           GO TO INS-2.
+           IF IN-FIELD = "X" DISPLAY "END SEARCH" GO TO INS-1-EXIT.
+           IF IN-FIELD = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
+           NEXT SENTENCE ELSE DISPLAY "BAD" GO TO INS-2.
+           MOVE IN-FIELD-1 TO ALF-1.
+       INS-3. DISPLAY "STARTING POINT?".
+           ACCEPT IN-FIELD.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER WHERE TO START LOOKING"
+           DISPLAY "BK = BACK TO SEARCH METHOD"
+           DISPLAY "OR X = BACK TO OPTION" GO TO INS-3.
+           IF IN-FIELD = "X" GO TO INS-1-EXIT.
+           IF IN-FIELD = "BK" GO TO INS-1.
+           MOVE 0 TO X
+           IF ALF-1 = "1" MOVE SPACE TO RIGHT-3
+           UNSTRING IN-FIELD DELIMITED BY " " INTO RIGHT-3
+           INSPECT RIGHT-3 REPLACING LEADING " " BY "0"
+           MOVE RIGHT-3 TO INS-KEY
+           MOVE "NUMBER  " TO ALF-8
+           START INSFILE KEY NOT < INS-KEY INVALID GO TO INS-1-END.
+           IF ALF-1 = "2" MOVE IN-FIELD TO INS-NAME
+           MOVE "NAME    " TO ALF-8
+           START INSFILE KEY NOT < INS-NAME INVALID GO TO INS-1-END.
+           IF ALF-1 = "3" MOVE IN-FIELD TO INS-ASSIGN
+           MOVE "ASSIGNMT" TO ALF-8
+           START INSFILE KEY NOT < INS-ASSIGN INVALID GO TO INS-1-END.
+           IF ALF-1 = "4" MOVE IN-FIELD TO INS-NEIC
+           MOVE "NEICCODE" TO ALF-8
+           START INSFILE KEY NOT < INS-NEIC INVALID GO TO INS-1-END.
+           IF ALF-1 = "5" MOVE IN-FIELD TO INS-NEIC-ASSIGN
+           MOVE "NEICASGM" TO ALF-8
+           START INSFILE KEY NOT < INS-NEIC-ASSIGN INVALID 
+           GO TO INS-1-END.
+           IF ALF-1 = "6" 
+           MOVE IN-FIELD TO INS-CLAIMTYPE
+           MOVE "CLM-TYPE" TO ALF-8
+           START INSFILE KEY NOT < INS-CLAIMTYPE INVALID 
+           GO TO INS-1-END.
+       INS-4. READ INSFILE NEXT AT END DISPLAY "END OF FILE"
+           GO TO INS-1-EXIT.
+           DISPLAY INS-KEY " " INS-NAME " " INS-ASSIGN " " INS-CLAIMTYPE
+           " " INS-NEIC " " INS-NEIC-ASSIGN
+           " " INS-STATUS
+           ADD 1 TO X
+           IF X < 9 GO TO INS-4.
+           MOVE 0 TO X DISPLAY "BY " ALF-8 ACCEPT ANS
+           IF ANS NOT = SPACE GO TO INS-1-EXIT.
+           GO TO INS-4.
+       INS-1-END. DISPLAY "END OF FILE".
+       INS-1-EXIT. EXIT.
+       9100CMF.
+           CLOSE ACTFILE ORDFILE REFPHY GARFILE.
+           DISPLAY "REPORT DATA ENTRY PROGRAM HAS ENDED".
+           STOP RUN.

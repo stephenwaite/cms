@@ -1,0 +1,275 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RRR253.
+       AUTHOR. SID WAITE.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD FILEOUT.
+       01 FILEOUT01 PIC X(30).
+       FD  CHARFILE
+      *    BLOCK CONTAINS 2 RECORDS
+           DATA RECORD IS CHARFILE01.
+       01  CHARFILE01.
+           02 CHARFILE-KEY.
+             03 CD-KEY8 PIC X(8).
+             03 CD-KEY3 PIC XXX.
+           02 CD-PATID PIC X(8).
+           02 CD-CLAIM PIC X(6).
+           02 CD-SERVICE PIC X.
+           02 CD-DIAG PIC X(7).
+           02 CD-PROC. 
+               03 CD-PROC0 PIC X(4).
+               03 CD-PROC1 PIC X(5).
+               03 CD-PROC3 PIC XX.
+           02 CD-MOD2 PIC XX.
+           02 CD-MOD3 PIC XX.
+           02 CD-MOD4 PIC XX.
+           02 CD-AMOUNT PIC S9(4)V99.
+           02 CD-DOCR PIC X(3).
+           02 CD-DOCP PIC X(2).
+           02 CD-PAYCODE PIC XXX.
+           02 CD-STAT PIC X.
+           02 CD-WORK PIC XX.
+           02 CD-DAT1 PIC X(8).
+           02 CD-RESULT PIC X.
+           02 CD-ACT PIC X.
+           02 CD-SORCREF PIC X.
+           02 CD-COLLT PIC X.
+           02 CD-AUTH PIC X.
+           02 CD-PAPER PIC X.
+           02 CD-PLACE PIC X.
+           02 CD-NAME PIC X(24).
+           02 CD-ESPDT PIC X.
+           02 CD-DATE-T PIC X(8).
+           02 CD-DATE-E PIC X(8).
+           02 CD-ORDER PIC X(6).
+           02 CD-DX2 PIC X(7).
+           02 CD-DX3 PIC X(7).
+           02 CD-DATE-A PIC X(8).
+           02 CD-ACC-TYPE PIC X.
+           02 CD-DATE-M PIC X(8).
+           02 CD-ASSIGN PIC X.
+           02 CD-NEIC-ASSIGN PIC X.
+           02 CD-DX4 PIC X(7).
+           02 CD-DX5 PIC X(7).
+           02 CD-DX6 PIC X(7).
+           02 CD-FUTURE PIC X(6).
+       WORKING-STORAGE SECTION.
+       01  CHARBACK PIC X(11).
+       01  DATE-TAB01.
+            02 DATE-TAB PIC 9(8) OCCURS 90 TIMES.
+            02 KEY-TAB PIC X(11) OCCURS 90 TIMES.
+            02 PROC-TAB PIC X(5) OCCURS 90 TIMES.
+            02 SERVICE-TAB PIC X OCCURS 90 TIMES.
+       01  X PIC 99.
+       01  Y PIC 99.
+       01  Z PIC 99.
+       01  T PIC 99.
+       01  A PIC 99.
+       01  B PIC 99.
+       01  c pic 99.
+       01  FLAGX PIC 9 VALUE 0.
+       01  HOLDIT PIC X(8).
+       01  FLAG59 PIC 9.
+       01  FLAG76 PIC 9.
+       01  alf1 pic x.
+       01  alf5 pic x(5).
+       01  alf8 pic x(8).
+       01  alf11 pic x(11).
+      *
+       PROCEDURE DIVISION.
+       P0.
+           OPEN I-O CHARFILE OUTPUT FILEOUT.
+           MOVE SPACE TO CHARFILE-KEY.
+       P0-1.
+           START CHARFILE KEY NOT < CHARFILE-KEY INVALID GO TO P4.
+           MOVE 0 TO FLAG59 FLAG76.
+       P1.
+           READ CHARFILE NEXT AT END GO TO P4.
+           IF CD-AMOUNT = 0 GO TO P1.
+           IF CD-WORK NOT = "01" GO TO P1.
+           IF CD-MOD2 = "59" GO TO P1.
+           IF CD-MOD3 = "59" GO TO P1.
+           IF CD-PROC1(5:1) = "F" GO TO P1.
+       P1-1.
+           MOVE CD-KEY8 TO HOLDIT
+           MOVE 1 TO X
+           MOVE CHARFILE-KEY TO KEY-TAB(X)
+           MOVE CD-PROC1 TO PROC-TAB(X)
+           MOVE CD-SERVICE TO SERVICE-TAB(X)
+           MOVE CD-DATE-T TO DATE-TAB(X).
+       P2.
+           READ CHARFILE NEXT AT END GO TO P4.
+           IF CD-KEY8 NOT = HOLDIT GO TO P14.
+           IF CD-WORK NOT = "01" GO TO P2.
+           IF CD-MOD2 = "59" GO TO P2.
+           IF CD-MOD3 = "59" GO TO P2.
+           IF CD-PROC1(5:1) = "F" GO TO P2.
+
+           ADD 1 TO X
+           MOVE CHARFILE-KEY TO KEY-TAB(X)
+           MOVE CD-PROC1 TO PROC-TAB(X)
+           MOVE CD-SERVICE TO SERVICE-TAB(X)
+           MOVE CD-DATE-T TO DATE-TAB(X)
+           GO TO P2.
+       P14.
+           IF X < 2 GO TO P1-1.
+           COMPUTE Y = X - 1
+           perform SORT-IT THRU SORT-IT-EXIT
+            varying a from 1 by 1 until a > y.
+           MOVE CD-KEY8 TO CHARBACK
+           COMPUTE Y = X - 1
+           PERFORM P15 THRU P17 VARYING Z FROM 1 BY 1 UNTIL Z > Y.
+           PERFORM P18 THRU P20 VARYING Z FROM 1 BY 1 UNTIL Z > Y.
+           PERFORM VARYING A FROM 1 BY 1 UNTIL A > X
+            MOVE KEY-TAB(A) TO CHARFILE-KEY
+            READ CHARFILE WITH LOCK INVALID
+            DISPLAY KEY-TAB(A) " " DATE-TAB(A)
+            ACCEPT ALF1
+            END-READ
+
+             IF CD-MOD2 = SPACE
+              MOVE "59" TO CD-MOD2
+              REWRITE CHARFILE01
+             END-IF
+           END-PERFORM
+           MOVE CHARBACK TO CHARFILE-KEY
+           GO TO P0-1.
+       P15.
+            IF DATE-TAB(Z) NOT = 0
+           ADD 1 TO Z GIVING B
+           PERFORM P16 THRU P16-EXIT VARYING A FROM B BY 1 UNTIL A > X
+           GO TO P17.
+       P16.
+           IF (DATE-TAB(A) = DATE-TAB(Z))
+            AND (PROC-TAB(A) = PROC-TAB(Z)) 
+            AND (DATE-TAB(Z) NOT = 0)
+            MOVE KEY-TAB(Z) TO CHARFILE-KEY
+            READ CHARFILE WITH LOCK
+             INVALID CONTINUE
+             NOT INVALID
+              IF CD-MOD2 = SPACE
+               MOVE "76" TO CD-MOD2
+               MOVE 1 TO FLAG76
+              END-IF
+              IF (CD-MOD2 NOT = "76")
+               AND (CD-MOD3 = SPACE )
+               MOVE "76" TO CD-MOD3
+               MOVE 1 TO FLAG76
+              END-IF
+             REWRITE CHARFILE01
+             WRITE FILEOUT01 FROM CHARFILE01
+             MOVE 0 TO DATE-TAB(Z)
+            END-READ
+
+            MOVE KEY-TAB(A) TO CHARFILE-KEY
+            READ CHARFILE WITH LOCK
+             INVALID CONTINUE
+             NOT INVALID
+              IF CD-MOD2 = SPACE
+               MOVE "76" TO CD-MOD2
+              END-IF
+              IF CD-MOD2 not = "76"
+               MOVE "76" TO CD-MOD3
+              END-IF
+  
+              REWRITE CHARFILE01
+              WRITE FILEOUT01 FROM CHARFILE01
+              MOVE 0 TO DATE-TAB(A)
+            END-READ
+           END-IF.
+       P16-EXIT.
+           EXIT.
+       P17.
+           EXIT.
+       P18.
+            IF DATE-TAB(Z) NOT = 0
+           ADD 1 TO Z GIVING B
+           PERFORM P19 THRU P19-EXIT VARYING A FROM B BY 1 UNTIL A > X
+           GO TO P20.
+       P19.
+           IF (DATE-TAB(A) = DATE-TAB(Z))
+            AND (PROC-TAB(A) NOT = PROC-TAB(Z) )
+            AND (DATE-TAB(Z) NOT = 0)
+            MOVE KEY-TAB(Z) TO CHARFILE-KEY
+             READ CHARFILE WITH LOCK
+             INVALID CONTINUE
+             NOT INVALID
+              IF CD-MOD2 = SPACE
+               MOVE "59" TO CD-MOD2
+               MOVE 1 TO FLAG59
+              END-IF
+              IF CD-MOD2 NOT = "59"
+               MOVE "59" TO CD-MOD3
+              END-IF
+              IF CD-MOD2 = "59" AND CD-MOD3 = "59"
+               MOVE SPACE TO CD-MOD3
+               MOVE 1 TO FLAG59
+              END-IF
+              REWRITE CHARFILE01
+              MOVE 0 TO DATE-TAB(Z)
+              WRITE FILEOUT01 FROM CHARFILE01
+             END-READ
+
+
+             MOVE KEY-TAB(A) TO CHARFILE-KEY
+             READ CHARFILE WITH LOCK
+             INVALID CONTINUE
+             NOT INVALID
+              IF CD-MOD2 = SPACE
+               MOVE "59" TO CD-MOD2
+               MOVE 1 TO FLAG59
+              END-IF
+              IF CD-MOD2 NOT = "59"
+               MOVE "59" TO CD-MOD3
+              END-IF
+              IF CD-MOD2 = "59" AND CD-MOD3 = "59"
+               MOVE SPACE TO CD-MOD3
+               MOVE 1 TO FLAG59
+              END-IF
+              REWRITE CHARFILE01
+              MOVE 0 TO DATE-TAB(A)
+              WRITE FILEOUT01 FROM CHARFILE01
+             END-READ
+           END-IF.
+       P19-EXIT.
+           EXIT.
+       P20.
+           EXIT.
+       SORT-IT.
+           add 1 to a giving b
+           perform varying c from b by 1 until c > x
+            if proc-tab(a) < proc-tab(c)
+
+             move proc-tab(c) to alf5
+             move proc-tab(a) to proc-tab(c)
+             move alf5 to proc-tab(a)
+
+             move service-tab(c) to alf1
+             move service-tab(a) to service-tab(c)
+             move alf1 to service-tab(a)
+
+             move date-tab(c) to alf8
+             move date-tab(a) to date-tab(c)
+             move alf8 to date-tab(a)
+
+             move key-tab(c) to alf11
+             move key-tab(a) to key-tab(c)
+             move alf11 to key-tab(a)
+            end-if
+           end-perform.
+       SORT-IT-EXIT.
+           EXIT.
+       P4.
+           IF X > 1
+           COMPUTE Y = X - 1
+           PERFORM P15 THRU P17 VARYING Z FROM 1 BY 1 UNTIL Z > Y.
+           CLOSE CHARFILE FILEOUT. 
+           STOP RUN.

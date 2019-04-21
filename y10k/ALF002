@@ -1,0 +1,96 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. GARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+
+       FD FILEIN.
+       01  FILEin01 PIC X(323).
+       FD FILEOUT.
+       01  FILEOUT01 PIC X(323).
+
+       WORKING-STORAGE SECTION.
+       01 TAB101.
+          02 TAB1 PIC X OCCURS 400 TIMES.
+       01 TAB201.
+          02 TAB2 PIC X OCCURS 400 TIMES.
+       01 TAB301.
+          02 TAB3 PIC X OCCURS 400 TIMES.
+       01  ALF1 PIC X.
+       01  X PIC 999.
+       01  Y PIC 999.
+       01  Z PIC 999.
+       01  A PIC 999.
+       01  B PIC 999.
+       01  C PIC 999.
+       01  ENDFLAG PIC 999.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+       P1.
+           move space to filein01
+           READ FILEIN AT END GO TO P99.
+           MOVE FILEIN01 TO TAB101
+           MOVE SPACE TO TAB201 TAB301 FILEOUT01
+           MOVE 0 TO Y
+           MOVE 0 TO A
+           MOVE SPACE TO TAB301
+           PERFORM A1 THRU A3 VARYING X FROM 1 BY 1 UNTIL X > 400
+           WRITE FILEOUT01 FROM TAB201.
+           GO TO P1.
+       A1.
+           IF TAB1(X) NOT = ";"
+           ADD 1 TO A
+           MOVE TAB1(X) TO TAB3(A)
+           GO TO A3.
+
+           IF TAB1(X) = ";"
+             IF A = 0
+               ADD 1 TO Y
+               MOVE ";" TO TAB2(Y)
+               GO TO A3
+             END-IF
+      *       DISPLAY A
+      *       DISPLAY TAB301
+      *       ACCEPT ALF1
+             IF TAB301 = SPACE
+               ADD 1 TO Y
+               MOVE ";" TO TAB2(Y)
+               GO TO A3
+             END-IF
+             PERFORM VARYING Z FROM A BY -1 UNTIL Z < 1
+              IF TAB3(Z) NOT = SPACE
+               PERFORM VARYING A FROM 1 BY 1 UNTIL A > Z
+                IF TAB3(A) NOT = " "
+                 MOVE A TO B
+                 PERFORM VARYING C FROM B BY 1 UNTIL C > Z
+                  ADD 1 TO Y
+                  MOVE TAB3(C) TO TAB2(Y)
+                 END-PERFORM
+                 ADD 1 TO Y
+                 MOVE ";" TO TAB2(Y)
+                MOVE Z TO A
+                END-IF
+               END-PERFORM
+      *         ADD 1 TO Y
+      *         MOVE ";" TO TAB2(Y)
+               MOVE SPACE TO TAB301
+               MOVE 0 TO A
+               MOVE 0 TO Z
+              END-IF
+             END-PERFORM
+           END-IF.
+      *     DISPLAY TAB201
+      *     ACCEPT ALF1.
+       A3.
+           EXIT.
+       P99. CLOSE FILEOUT 
+           STOP RUN.

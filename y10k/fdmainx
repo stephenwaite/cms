@@ -1,0 +1,69 @@
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01.
+           02 ASSET-ID PIC 9(7).
+           02 MN-QUAD PIC X(4).
+           02 MN-COF PIC 9.
+           02 MN-REDUN PIC 999.
+           02 MN-FACTOR PIC 9V9.
+           02 MN-POF PIC 9.
+       FD  FILEIN.
+       01  FILEIN01 PIC X(600).
+       WORKING-STORAGE SECTION.
+       01  ALF2 PIC XX.
+       01  ALF3 PIC XXX.
+       01  ALF3X PIC XXX.
+       01  ALF4 PIC XXXX.
+       01  ALF7 PIC X(7).
+       01  NUM1 PIC 9.
+       01  NUM1X PIC 9.
+       01  NUM3 PIC 999.
+       01  NUM3X PIC 999.
+       01  NUM4 PIC 9999.
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  TAB4001.
+           02 TAB40 PIC X OCCURS 39 TIMES.
+       01  A PIC 99.
+       01  B PIC 99.
+       01  C PIC 99.
+       01  D PIC 99.
+       01  X PIC 99.
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+           MOVE 0 TO ASSET-ID.
+       P1.
+           MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P2.
+           ADD 1 TO ASSET-ID
+           IF FILEIN01(4:1) NOT = "-" GO TO P1.
+           MOVE FILEIN01(186:1) TO MN-COF
+           MOVe FILEIN01(256:1) TO MN-POF
+           IF FILEIN01(199:1) = "N" MOVE "000" TO FILEIN01(199:3).
+           IF FILEIN01(199:1) = " " MOVE "0" TO FILEIN01(199:1).
+           IF FILEIN01(199:3) NOT NUMERIC MOVE "000" TO FILEIN01(199:3). 
+           MOVE FILEIN01(199:3) TO MN-REDUN
+           MOVE FILEIN01(213:1) TO NUM1
+           MOVE FILEIN01(215:1) TO NUM1X
+           COMPUTE MN-FACTOR = NUM1 + (NUM1X / 10)
+           MOVE FILEIN01(2:4) to MN-QUAD
+           WRITE FILEOUT01
+           GO TO P1.
+       P2.
+           CLOSE FILEIN FILEOUT.
+           STOP RUN.

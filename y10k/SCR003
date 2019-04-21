@@ -1,0 +1,172 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CHARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT AGEDATE ASSIGN TO "S25"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S40"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  AGEDATE.
+       01  AGEDATE01.
+           02 DATE-LOW PIC X(8).
+           02 DATE-HIGH PIC X(8).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(90).
+       FD GARFILE.
+       01 GARFILE01.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP. 
+              03 GZIP5 PIC X(5).
+              03 GZIP4 PIC X(4).
+           02 G-COLLT PIC X.
+           02 G-PHONE.
+              03 G-PH1 PIC XXX.
+              03 G-PH2 PIC XXX.
+              03 G-PH3 PIC XXXX.
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB. 
+              03 G-DOBYY PIC X(4).
+              03 G-DOBMM PIC XX.
+              03 G-DOBDD PIC XX.
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP. 
+              03 PR-GROUP10 PIC X(10).
+           02 G-PRIPOL. 
+              03 G-PRIPOL2 PIC XX.
+              03 G-PRIPOL3 PIC X.
+              03 G-PRIPOL4 PIC X.
+              03 FILLER PIC X(12).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP. 
+              03 SE-GROUP10 PIC X(10).
+           02 G-SECPOL. 
+              03 G-SE-GROUP2 PIC XX.
+              03 G-SECPOL14 PIC X(14).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-COPAY PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+       FD  CHARCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC 9(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC. 
+               03 CC-PROC1 PIC X(5).
+               03 CC-PROC2 PIC XX.
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1. 
+              03 CC-DAT1YYYY PIC X(4).
+              03 CC-DAT1MM PIC XX.
+              03 CC-DAT1DD PIC XX.
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T. 
+              03 CC-DATE-TYY PIC XXXX.
+              03 CC-DATE-TMM PIC XX.
+              03 CC-DATE-TDD PIC XX.
+           02 CC-DATE-A.
+              03 CC-DATE-ACC PIC XX.
+              03 CC-DATE-AYY PIC XX.
+              03 CC-DATE-AMM PIC XX.
+              03 CC-DATE-ADD PIC XX.
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       WORKING-STORAGE SECTION.
+       01  NAMEF PIC X(24).
+       01  NAMEL PIC X(24).
+       01  HOLD8 PIC X(8).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT GARFILE CHARCUR AGEDATE OUTPUT FILEOUT.
+           MOVE SPACE TO HOLD8.
+           READ AGEDATE AT END CONTINUE.
+       P1.
+           READ CHARCUR NEXT AT END GO TO P99.
+           IF CC-KEY8(1:1) NUMERIC GO TO P1.
+           IF CC-KEY8 = HOLD8 GO TO P1.
+           IF CC-DATE-T < DATE-LOW OR > DATE-HIGH GO TO P1.
+           IF CC-DATE-T > "20090331" GO TO P1.
+           IF CC-PLACE NOT = "1"  GO TO P1.
+           IF CC-PROC(1:5) < "00100" GO TO P1.
+           MOVE CC-KEY8 TO G-GARNO
+           READ GARFILE INVALID GO TO P1.
+           MOVE SPACE TO FILEOUT01 NAMEL NAMEF
+           UNSTRING G-GARNAME DELIMITED BY ";" INTO NAMEL NAMEF.
+           STRING NAMEF" " NAMEL " " G-BILLADD " " G-STREET
+           " " G-CITY " " G-STATE " " G-DOB " " G-SEX
+           " " GZIP5 " " G-PH1 "-" G-PH2 "-" G-PH3 DELIMITED BY SIZE
+           INTO FILEOUT01.
+           WRITE FILEOUT01
+           MOVE G-GARNO TO HOLD8
+           GO TO P1.
+
+       P99. 
+           CLOSE FILEOUT CHARCUR GARFILE.
+           STOP RUN.

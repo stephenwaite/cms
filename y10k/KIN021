@@ -1,0 +1,210 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RRR816.
+       AUTHOR. SID WAITE.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           
+
+           SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEIN ASSIGN TO "S35" ORGANIZATION 
+           LINE SEQUENTIAL.
+           SELECT FILEOUT1 ASSIGN TO "S40" ORGANIZATION 
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       
+       FD  FILEOUT1.
+       01  FILEOUT101 PIC X(480).
+
+       FD  CHARCUR
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(11).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC 999.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AGE PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       FD  FILEIN.
+       01  FILEIN01 pic x(480).
+       WORKING-STORAGE SECTION.
+       01  kinne01.
+           02 FO-GARNO PIC X(8).
+           02 TAB-Y1 PIC X VALUE ",".
+           02 FO-NAMEL PIC X(24).
+           02 TAB-Y2 PIC X VALUE ",".
+           02 FO-NAMEF PIC X(24).
+           02 TAB-Y3 PIC X VALUE ",".
+           02 FO-STREET1 PIC X(22).
+           02 TAB-Y4 PIC X VALUE ",".
+           02 FO-STREET2 PIC X(22).
+           02 TAB-Y5 PIC X VALUE ",".
+           02 FO-CITY PIC X(15).
+           02 TAB-Y6 PIC X VALUE ",".
+           02 FO-STATE PIC XX.
+           02 TAB-Y7 PIC X VALUE ",".
+           02 FO-ZIP PIC X(9).
+           02 TAB-Y8 PIC X VALUE ",".
+           02 FO-PHONE PIC X(12).
+           02 TAB-Y9 PIC X VALUE ",".
+           02 FO-SSN PIC X VALUE "*".
+           02 TAB-Y10 PIC X VALUE ",".
+           02 FO-DOB PIC X VALUE"*".
+           02 TAB-Y11 PIC X VALUE ",".
+           02 FO-EMP PIC X VALUE "*".
+           02 TAB-Y12 PIC X VALUE ",".
+           02 FO-ST  PIC X VALUE "*".
+           02 TAB-Y13 PIC X VALUE ",".
+           02 FO-CTY PIC X VALUE "*".
+           02 TAB-Y14 PIC X VALUE ",".
+           02 FO-STAT PIC X VALUE "*".
+           02 TAB-Y15 PIC X VALUE ",".
+           02 FO-ZP PIC X VALUE "*".
+           02 TAB-Y16 PIC X VALUE ",".
+           02 FO-ADMIT PIC X VALUE "*".
+           02 TAB-Y17 PIC X VALUE ",".
+           02 FO-DISCHR PIC X(10).
+           02 TAB-Y18 PIC X VALUE ",".
+           02 FO-FINAL PIC X VALUE "*".
+           02 TAB-Y19 PIC X VALUE ",".
+           02 FO-PATSTAT PIC X VALUE "*".
+           02 TAB-Y20 PIC X VALUE ",".
+           02 FO-INSNAME PIC X(22).
+           02 TAB-Y21 PIC X VALUE ",".
+           02 FO-INSSTREET PIC X(22).
+           02 TAB-Y22 PIC X VALUE ",".
+           02 FO-INSCITY PIC X(15).
+           02 TAB-Y23 PIC X VALUE ",".
+           02 FO-INSSTATE PIC XX.
+           02 TAB-Y24 PIC X VALUE ",".
+           02 FO-INSZIP PIC X(9).
+           02 TAB-Y25 PIC X VALUE ",".
+           02 FO-GARNAME PIC X(24).
+           02 TAB-Y26 PIC X VALUE ",".
+           02 FO-FINCLASS PIC X VALUE "*".
+           02 TAB-Y27 PIC X VALUE ",".
+           02 FO-POLICY PIC X(16).
+           02 TAB-Y28 PIC X VALUE ",".
+           02 FO-GARLAST PIC X(24).
+           02 TAB-Y29 PIC X VALUE ",".
+           02 FO-GARFIRST PIC X(24).
+           02 TAB-Y30 PIC X VALUE ",".
+           02 FO-GARSTREET1 PIC X(22).
+           02 TAB-Y31 PIC X VALUE ",".
+           02 FO-GARSTREET2 PIC X(22).
+           02 TAB-Y32 PIC X VALUE ",".
+           02 FO-GARCITY PIC X(15).
+           02 TAB-Y33 PIC X VALUE ",".
+           02 FO-GARSTATE PIC XX.
+           02 TAB-Y34 PIC X VALUE ",".
+           02 FO-GARZIP PIC X(9).
+           02 TAB-Y35 PIC X VALUE ",".
+           02 FO-GARPHONE PIC X(12).
+           02 TAB-Y36 PIC X VALUE ",".
+           02 FO-GARSS PIC X.
+           02 TAB-Y37 PIC X VALUE ",".
+           02 FO-GARDOB PIC X(10).
+           02 TAB-Y38 PIC X VALUE ",".
+           02 FO-SERVICE PIC X(9) VALUE "RADIOLOGY".
+           02 TAB-Y39 PIC X VALUE ",".
+           02 FO-MEDREC PIC X(8).
+           02 TAB-Y40 PIC X VALUE ",".
+           02 FO-ORIG PIC X.
+           02 TAB-Y41 PIC X VALUE ",".
+           02 FO-PAY PIC X.
+           02 TAB-Y42 PIC X VALUE ",".
+           02 FO-ADJ PIC X.
+           02 TAB-Y43 PIC X VALUE ",".
+           02 FO-BAL PIC ZZZZ.99.
+
+       01  ALF1 PIC X.
+       01  INPUT-DATE.
+           05 T-MMI  PIC XX.
+           05 T-DDI  PIC XX.
+           05 T-YYI  PIC XXXX.
+       01  TEST-DATE.
+           05 T-YY  PIC XXXX.
+           05 T-MM  PIC XX.
+           05 T-DD  PIC XX.
+       01  LASTDATE PIC X(8) VALUE "00000000".
+       01  DATE-PLACED PIC X(8).
+       01  DATE-PAID PIC X(8).
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  FLAG PIC 9.
+       01  LOW-DATE PIC X(8).
+       01  HIGH-DATE PIC X(8).
+       01  TOT-PLACED PIC 9(4)V99.
+       01  CLAIM-TOT PIC S9(4)V99.
+       01  DATE-X PIC X(8).
+       01  HOLD8 PIC X(8).
+       01  ENDFLAG PIC 9 VALUE 0.
+       01  NUM4-1 PIC 9999.
+       01  NUM4-2 PIC 9999.
+       01  NUM3 PIC 999.
+
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN CHARCUR.
+           OPEN OUTPUT FILEOUT1.
+       P1.
+           READ FILEIN AT END GO TO P99.
+           move filein01 to kinne01
+           MOVE FO-GARNO TO CC-KEY8
+           MOVE SPACE TO CC-KEY3
+           MOVE "00000000" TO LASTDATE
+           START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO P5.
+       P1-1.
+           READ CHARCUR NEXT AT END GO TO P5.
+           IF CC-KEY8 NOT = FO-GARNO GO TO P5.
+           IF CC-PAYCODE NOT = "018" GO TO P1-1.
+           IF CC-DATE-T > LASTDATE
+           MOVE CC-DATE-T TO LASTDATE.
+           GO TO P1-1.
+       P5.
+           MOVE LASTDATE TO TEST-DATE
+           STRING T-MM "/" T-DD "/" T-YY DELIMITED BY SIZE
+             INTO FO-DISCHR
+           WRITE FILEOUT101 FROM kinne01
+           go to p1.
+       P99. CLOSE CHARCUR FILEOUT1. 
+           STOP RUN.

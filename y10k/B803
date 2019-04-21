@@ -1,0 +1,97 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT2 ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT3 ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FI-1 PIC X(20000).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(2000).
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(2000).
+       FD  FILEOUT3.
+       01  FILEOUT301 PIC X(2000).
+
+       WORKING-STORAGE SECTION.
+       01  HOLDKEY PIC X(807) VALUE SPACE.
+       01  alf4 pic xxxx.
+       01  alf4x pic xxxx.
+       01  startpt pic xxxx just right.
+       01  endpt pic xxxx just right.
+       01  numl pic 9999.
+       01  numh pic 9999.
+       01  ans pic x(15).
+       01  right-4 pic xxxx just right.
+       01  flag pic 9.
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT FILEIN OUTPUT FILEOUT FILEOUT2 fileout3.
+       p0.                                              
+           display "this program omits duplicate records"
+           display "found in the range selected".
+           display "and produces an ouput file without"
+           display "those dupilcates."
+           display " and produces an output file with those pairs"
+           display "the input file must be sorted first"
+           display " on the files range selected"
+           display "or this program is useless."
+           display " "
+           display "start pt. end pt."
+           display "format 9999 TO 9999"
+           accept ans
+           if ans = "?" go to p0.
+
+           move space to alf4 alf4x
+           unstring ans delimited by " TO " into alf4 alf4x
+           move space to right-4
+           unstring alf4 delimited by " " into right-4
+           inspect right-4 replacing leading " " by "0"
+           if right-4 not numeric go to p0.
+           move right-4 to numl
+
+           move space to right-4
+           unstring alf4x delimited by " " into right-4
+           inspect right-4 replacing leading " " by "0"
+           if right-4 not numeric go to p0.
+           move right-4 to numh
+           COMPUTE NUMH = NUMH - NUML + 1.
+       P1.
+           MOVE SPACE TO FI-1
+           READ FILEIN AT END GO TO P3.
+           MOVE FI-1 TO HOLDKEY.
+
+       P2.
+           READ FILEIN AT END GO TO P3.
+
+           IF  FI-1(numl:numh) = HOLDKEY(numl:numh)
+             WRITE FILEOUT01 FROM HOLDKEY
+             WRITE FILEOUT01 FROM FI-1
+             WRITE FILEOUT301 FROM FI-1
+             move 2 to flag
+           go to p1
+           end-if.
+             write fileout201 from holdkey
+             MOVE FI-1 TO HOLDKEY
+             move 1 to flag
+            GO TO P2.
+
+           
+       P3. 
+           if flag = 1
+           write fileout201 from holdkey.
+           CLOSE FILEOUT FILEOUT2 fileout3
+           STOP RUN.

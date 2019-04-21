@@ -1,0 +1,59 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. fd1001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FDREAD ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS FR-READKEY
+           ALTERNATE RECORD KEY IS FR-NAME WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FOREAD ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS FO-READKEY
+           ALTERNATE RECORD KEY IS FO-NAME WITH DUPLICATES
+           LOCK MODE MANUAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+
+       FD  FDREAD.
+       01  FDREAD01.
+              02 FR-READKEY.
+                 03 FR-KEY13 PIC X(13).
+                 03 FR-KEY10 PIC X(10).
+                 03 FR-KEY6  PIC X(6).
+              02 FR-USAGE PIC 9(8).
+              02 FR-PREV-READ PIC 9(8).
+              02 FR-NAME PIC X(25).
+              02 FR-STREET PIC X(28).
+              02 FR-COMMENT PIC X(33).
+       FD  FOREAD.
+       01  FOREAD01.
+              02 FO-READKEY.
+                 03 FO-KEY13 PIC X(13).
+                 03 FO-KEY10 PIC X(10).
+                 03 FO-KEY6  PIC X(6).
+              02 FO-USAGE PIC 9(10).
+              02 FO-PREV-READ PIC 9(12).
+              02 FO-NAME PIC X(25).
+              02 FO-STREET PIC X(28).
+              02 FO-COMMENT PIC X(33).
+       WORKING-STORAGE SECTION.
+       01  NEW-USAGE PIC 9(8).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FDREAD OPEN OUTPUT FOREAD.
+       P1.
+           READ FDREAD NEXT AT END GO TO P99.
+           COMPUTE FO-USAGE = FR-USAGE
+           COMPUTE FO-PREV-READ = FR-PREV-READ
+           MOVE FDREAD-KEY TO FO-READKEY
+           MOVE FR-NAME TO FO-NAME
+           MOVE FR-STREET FO FO-STREET
+           MOVE FR-COMMENT TO FO-COMMENT
+           WRITE FO-READ01
+           GO TO P1.
+       P99.
+           CLOSE FOREAD FDREAD.
+           STOP RUN.

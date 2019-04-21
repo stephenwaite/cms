@@ -1,0 +1,100 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. fd1001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION IS LINE
+           SEQUENTIAL.
+           SELECT FDREAD ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS FR-READKEY
+           ALTERNATE RECORD KEY IS FR-NAME WITH DUPLICATES
+           LOCK MODE MANUAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FDREAD.
+       01  FDREAD01.
+              02 FR-READKEY.
+                 03 FR-KEY13 PIC X(13).
+                 03 FR-KEY10 PIC X(10).
+                 03 FR-KEY6  PIC X(6).
+              02 FR-USAGE PIC 9(10).
+              02 FR-PREV-READ PIC 9(12).
+              02 FR-NAME PIC X(25).
+              02 FR-STREET PIC X(28).
+              02 FR-COMMENT PIC X(33).
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-ACCT PIC X(13).
+           02 FILLER PIC XX.
+           02 FI-NAME PIC X(25).
+           02 FI-STREET PIC X(28).
+           02 FILLER PIC X(233).
+           02 FI-METERNUM PIC X(10).
+           02 filler pic x(12).
+           02 FI-CURR-READ PIC X(12).
+           02 FI-CURR-DATE PIC X(8).
+           02 FILLER PIC X(13).
+           02 FI-CURR-COMMENT PIC X(29).
+           02 FI-PREV-READ PIC X(12).
+       WORKING-STORAGE SECTION.
+       01  NUM12 PIC 9(12).
+       01  NUM12X PIC 9(12).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN I-O FDREAD INPUT FILEIN.
+       P1.
+           READ FILEIN AT END GO TO P99.
+           MOVE SPACE TO FR-KEY6
+           STRING  FI-CURR-DATE(7:2) FI-CURR-DATE(1:2)
+                   FI-CURR-DATE(4:2) DELIMITED BY SIZE
+            INTO FR-KEY6
+            IF FI-CURR-READ(1:1) NOT NUMERIC
+              MOVE SPACE TO FI-CURR-READ(1:1)
+            END-IF
+            IF FI-CURR-READ(2:1) NOT NUMERIC
+              MOVE SPACE TO FI-CURR-READ(2:1)
+            END-IF
+            IF FI-CURR-READ(3:1) NOT NUMERIC
+              MOVE SPACE TO FI-CURR-READ(3:1)
+            END-IF
+            IF FI-PREV-READ(1:1) NOT NUMERIC
+              MOVE SPACE TO FI-PREV-READ(1:1)
+            END-IF
+            IF FI-PREV-READ(2:1) NOT NUMERIC
+              MOVE SPACE TO FI-PREV-READ(2:1)
+            END-IF
+            IF FI-PREV-READ(3:1) NOT NUMERIC
+              MOVE SPACE TO FI-PREV-READ(3:1)
+            END-IF
+
+            INSPECT FI-CURR-READ REPLACING LEADING " " BY "0"
+            INSPECT FI-PREV-READ REPLACING LEADING " " BY "0"
+            MOVE FI-CURR-READ TO NUM12
+            MOVE FI-PREV-READ TO NUM12X
+            COMPUTE FR-USAGE = NUM12 - NUM12X
+            MOVE NUM12 TO FR-PREV-READ
+            MOVE FI-ACCT TO FR-KEY13
+            MOVE FI-METERNUM TO FR-KEY10
+            MOVE FI-NAME TO FR-NAME
+            MOVE FI-STREET TO FR-STREET
+            MOVE FI-CURR-COMMENT TO FR-COMMENT
+            WRITE FDREAD01 INVALID
+            DISPLAY FR-READKEY
+            ACCEPT OMITTED
+            END-WRITE
+            GO TO P1.
+       B1.
+            DISPLAY FI-ACCT
+            DISPLAY FI-NAME
+            DISPLAY FI-STREET
+            DISPLAY FI-METERNUM
+            DISPLAY FI-CURR-READ
+            DISPLAY FI-CURR-DATE
+            DISPLAY FI-CURR-COMMENT
+            DISPLAY FI-PREV-READ.
+           
+       P99.
+           CLOSE FILEIN FDREAD.
+           STOP RUN.

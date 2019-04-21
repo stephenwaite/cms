@@ -1,0 +1,97 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. HVRCN08.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PAYCUR ASSIGN  TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS SEQUENTIAL RECORD KEY IS PAYCUR-KEY
+           LOCK MODE MANUAL.
+           SELECT CHARCUR ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S40"
+           ORGANIZATION LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  CHARCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(11).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+
+       FD  PAYCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS PAYCUR01.
+       01  PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC XXX.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC X(6).
+           02 PC-DATE-T PIC X(8).
+           02 PC-DATE-E PIC X(8).
+           02 PC-BATCH PIC X(6).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(80).
+       WORKING-STORAGE SECTION.
+       01 ALF20 PIC X(20).
+       01   NEF-5    PIC Z,ZZZ.99CR.
+       PROCEDURE DIVISION.
+       P0. OPEN INPUT CHARCUR PAYCUR.
+           OPEN OUTPUT FILEOUT.
+       P1. READ PAYCUR AT END GO TO P2.
+           MOVE PC-KEY8 TO CC-KEY8 MOVE "000" TO CC-KEY3.
+           START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO P1-1.
+       FC5. READ CHARCUR NEXT AT END GO TO P1-1.
+           IF CC-KEY8 NOT = PC-KEY8 GO TO P1-1.
+           IF CC-CLAIM NOT = PC-CLAIM GO TO FC5.
+           GO TO P1.
+       P1-1.
+           WRITE FILEOUT01 FROM PAYCUR01
+           GO TO P1.
+       P2. CLOSE CHARCUR PAYCUR FILEOUT.
+           STOP RUN.

@@ -1,0 +1,919 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RPG002.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT NEWINS ASSIGN TO "S20" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS NEW-KEY
+           LOCK MODE MANUAL.
+
+           SELECT DIAGFILE ASSIGN TO "S25" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS DIAG-KEY
+           ALTERNATE RECORD KEY IS DIAG-TITLE WITH DUPLICATES
+           LOCK MODE MANUAL.
+
+           SELECT RPGACTFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC        RECORD KEY IS RPG-ACTNO
+           ALTERNATE RECORD KEY IS RPG-GARNO WITH DUPLICATES
+           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT RPGCHARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS RPGCHARFILE-KEY
+           LOCK MODE MANUAL.
+           
+           SELECT RPGINSFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS RPGINS-KEY
+           ALTERNATE RECORD KEY IS RPGINS-TITLE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS RPGINS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS RPGINS-STATE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS RPGINS-CMS WITH DUPLICATES
+           ALTERNATE RECORD KEY IS RPGINS-GAP WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT RPGPROCFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS RPGPROC-KEY
+           LOCK MODE MANUAL.
+
+           SELECT FILEIN ASSIGN TO "S50"
+           ORGANIZATION LINE SEQUENTIAL.
+
+           SELECT FILEOUT ASSIGN TO "S55"
+           ORGANIZATION LINE SEQUENTIAL.
+
+           SELECT INSFILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS INS-KEY
+           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT REFPHY ASSIGN TO "S65" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS REF-KEY
+           ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-CRNUM WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-UPIN  WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEOUT2 ASSIGN TO "S70"
+           ORGANIZATION LINE SEQUENTIAL.
+
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  NEWINS.
+       01  NEWINS01.
+           02 NEW-KEY PIC X(32).
+           02 NEW-GARNAME PIC X(24).
+           02 NEW-BILLADD PIC X(22).
+           02 NEW-STREET PIC X(22).
+           02 NEW-CITY PIC X(18).
+           02 NEW-STATE PIC X(2).
+           02 NEW-ZIP PIC X(9).
+           02 NEW-COLLT PIC X.
+           02 NEW-PHONE.
+             03 NEW-PHONE1 PIC XXX.
+             03 NEW-PHONE2 PIC XXX.
+             03 NEW-PHONE3 PIC X(4).
+           02 NEW-SEX PIC X.
+           02 NEW-RELATE PIC X.
+           02 NEW-MSTAT PIC X.
+           02 NEW-DOB PIC X(8).
+           02 NEW-DUNNING PIC X.
+           02 NEW-ACCTSTAT PIC X.
+           02 NEW-PR-MPLR PIC X(4).
+           02 NEW-PRINS PIC XXX.
+           02 NEW-PR-ASSIGN PIC X.
+           02 NEW-PR-OFFICE PIC X(4).
+           02 NEW-PR-GROUP PIC X(10).
+           02 NEW-PRIPOL.
+             03 NEW-PRIPOL1 PIC X(9).
+             03 NEW-PRIPOL2 PIC XXX.
+             03 NEW-PR-FILLER PIC X(4).
+           02 NEW-PRNAME PIC X(24).
+           02 NEW-PR-RELATE PIC X.
+           02 NEW-SE-MPLR PIC X(4).
+           02 NEW-SEINS PIC XXX.
+           02 NEW-SE-ASSIGN PIC X.
+           02 NEW-TRINSIND PIC X.
+           02 NEW-TRINS PIC XXX.
+           02 NEW-SE-GROUP PIC X(10).
+           02 NEW-SECPOL.
+             03 NEW-SECPOL1 PIC X(9).
+             03 NEW-SECPOL2 PIC XXX.
+             03 NEW-SE-FILLER PIC X(4).
+           02 NEW-SENAME PIC X(24).
+           02 NEW-SE-RELATE PIC X.
+           02 NEW-INSPEND PIC X(7).
+           02 NEW-LASTBILL PIC X(8).
+           02 NEW-ASSIGNM PIC X.
+           02 NEW-PRIVATE PIC X.
+           02 NEW-BILLCYCLE PIC X.
+           02 NEW-DELETE PIC X.
+           02 NEW-FILLER PIC XXX.
+           02 NEW-GARNO PIC X(8).
+           02 NEW-PRGRPNAME PIC X(15).
+           02 NEW-SEGRPNAME PIC X(15).
+           02 NEW-NAME-KEY PIC XXX.
+           
+       FD  DIAGFILE.
+       01  DIAG01.
+           02 DIAG-KEY.
+              03 diag-9 PIC X(5).
+              03 diag-10 pic xx.
+           02 DIAG-TITLE.
+             03 DIAG-T1 PIC XXXXX.
+             03 DIAG-T2 PIC X(56).
+           02 DIAG-MEDB PIC X(5).
+       FD  RPGPROCFILE.
+       01  RPGPROCFILE01.
+           02 RPGPROC-KEY.
+             03 RPGPROC-KEY1 PIC X(7).
+             03 RPGPROC-KEY2 PIC X(4).
+           02 RPGPROC-TYPE PIC X.
+           02 RPGPROC-TITLE. 
+              03 RPG-NT1 PIC X(4).
+              03 RPG-NT2 PIC X(24).
+           02 RPGPROC-AMOUNT PIC 9(4)V99.
+       
+       FD  RPGCHARFILE.
+       01  RPGCHARFILE01.
+           02 RPGCHARFILE-KEY.
+             03 RPG-KEY8 PIC X(32).
+             03 RPG-KEY3 PIC XXX.
+           02 RPG-PATID PIC X(8).
+           02 RPG-CLAIM PIC X(6).
+           02 RPG-SERVICE PIC X.
+           02 RPG-DIAG PIC X(7).
+           02 RPG-PROC. 
+              03 RPG-PROC1 PIC X(4).
+              03 RPG-PROC2 PIC X(7).
+           02 RPG-MOD2 PIC XX.
+           02 RPG-MOD3 PIC XX.
+           02 RPG-MOD4 PIC XX.
+           02 RPG-AMOUNT PIC X(6).
+           02 RPG-DOCR PIC X(3).
+           02 RPG-DOCP PIC X(2).
+           02 RPG-PAYCODE PIC XXX.
+           02 RPG-STAT PIC X.
+           02 RPG-WORK PIC XX.
+           02 RPG-DAT1 PIC X(8).
+           02 RPG-RESULT PIC X.
+           02 RPG-ACT PIC X.
+           02 RPG-SORCREF PIC X.
+           02 RPG-COLLECT PIC X.
+           02 RPG-AUTH PIC X.
+           02 RPG-PAPER PIC X.
+           02 RPG-PLACE PIC X.
+           02 RPG-NAME PIC X(24).
+           02 RPG-EPSDT PIC X.
+           02 RPG-DATE-T PIC X(8).
+           02 RPG-DATE-E PIC X(8).
+           02 RPG-ORDER PIC X(6).
+           02 RPG-DX2 PIC X(7).
+           02 RPG-DX3 PIC X(7).
+           02 RPG-DATE-A PIC X(8).
+           02 RPG-ACC-TYPE PIC X.
+           02 RPG-DATE-M PIC X(8).
+           02 RPG-ASSIGN PIC X.
+           02 RPG-NEIC-ASSIGN PIC X.
+           02 RPG-DX4 PIC X(7).
+           02 RPG-DX5 PIC X(7).
+           02 RPG-DX6 PIC X(7).
+           02 RPG-FUTURE PIC X(6).
+       FD  RPGACTFILE.
+       01  RPGACTFILE01.
+           02 RPG-ACTNO PIC X(32).
+           02 RPG-GARNAME PIC X(24).
+           02 RPG-BILLADD PIC X(22).
+           02 RPG-STREET PIC X(22).
+           02 RPG-CITY PIC X(18).
+           02 RPG-STATE PIC X(2).
+           02 RPG-ZIP PIC X(9).
+           02 RPG-COLLT PIC X.
+           02 RPG-PHONE.
+             03 RPG-PHONE1 PIC XXX.
+             03 RPG-PHONE2 PIC XXX.
+             03 RPG-PHONE3 PIC X(4).
+           02 RPG-SEX PIC X.
+           02 RPG-RELATE PIC X.
+           02 RPG-MSTAT PIC X.
+           02 RPG-DOB PIC X(8).
+           02 RPG-DUNNING PIC X.
+           02 RPG-ACCTSTAT PIC X.
+           02 RPG-PR-MPLR PIC X(4).
+           02 RPG-PRINS PIC XXX.
+           02 RPG-PR-ASSIGN PIC X.
+           02 RPG-PR-OFFICE PIC X(4).
+           02 RPG-PR-GROUP PIC X(10).
+           02 RPG-PRIPOL.
+             03 RPG-PRIPOL1 PIC X(9).
+             03 RPG-PRIPOL2 PIC XXX.
+             03 RPG-PR-FILLER PIC X(4).
+           02 RPG-PRNAME PIC X(24).
+           02 RPG-PR-RELATE PIC X.
+           02 RPG-SE-MPLR PIC X(4).
+           02 RPG-SEINS PIC XXX.
+           02 RPG-SE-ASSIGN PIC X.
+           02 RPG-TRINSIND PIC X.
+           02 RPG-TRINS PIC XXX.
+           02 RPG-SE-GROUP PIC X(10).
+           02 RPG-SECPOL.
+             03 RPG-SECPOL1 PIC X(9).
+             03 RPG-SECPOL2 PIC XXX.
+             03 RPG-SE-FILLER PIC X(4).
+           02 RPG-SENAME PIC X(24).
+           02 RPG-SE-RELATE PIC X.
+           02 RPG-INSPEND PIC X(7).
+           02 RPG-LASTBILL PIC X(8).
+           02 RPG-ASSIGNM PIC X.
+           02 RPG-PRIVATE PIC X.
+           02 RPG-BILLCYCLE PIC X.
+           02 RPG-DELETE PIC X.
+           02 RPG-FILLER PIC XXX.
+           02 RPG-GARNO PIC X(8).
+           02 RPG-PRGRPNAME PIC X(15).
+           02 RPG-SEGRPNAME PIC X(15).
+           02 NAME-KEY PIC XXX.
+
+       FD  RPGINSFILE.
+       01  RPGINSFILE01.   
+           02 RPGINS-KEY.  
+              03 RPGINS-KEY10 PIC X(10).
+              03 RPGINS-KEY2 PIC XX.
+           02 RPGINS-TITLE PIC X(40).
+           02 RPGINS-BOX PIC X(40).
+           02 RPGINS-STREET PIC X(40).
+           02 RPGINS-CITY PIC X(20).
+           02 RPGINS-STATE PIC XX.
+           02 RPGINS-ZIP PIC X(9).
+           02 RPGINS-PHONE PIC X(10).
+           02 RPGINS-CMS PIC XXX.
+           02 RPGINS-GAP PIC X(7).
+           02 RPGINS-FUTURE PIC X.
+       
+       FD  INSFILE.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(80).
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(846).
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-PATNAMEL PIC X(24).
+           02 FI-PATNAMEF PIC X(24).
+           02 FI-PATNAMEMI PIC X.
+           02 FI-PATNAMESUFX PIC X(4).
+           02 FI-PAT-STR1 PIC X(22).
+           02 FI-PAT-STR2 PIC X(22).
+           02 FI-PAT-CITY PIC X(18).
+           02 FI-PAT-STATE PIC XX.
+           02 FI-PAT-ZIP PIC X(9).
+           02 FI-PAT-DOB PIC X(10).
+      *     02 FILLER PIC XX.
+           02 FI-PAT-SEX PIC X.
+           02 FI-GARNAMEL PIC X(24).
+           02 FI-GARNAMEF PIC X(24).
+           02 FI-GARNAMEMI PIC X.
+           02 FI-GARNAMESUFX PIC X(4).
+           02 FI-GAR-STR1 PIC X(22).
+           02 FI-GAR-STR2 PIC X(22).
+           02 FI-GAR-CITY PIC X(18).
+           02 FI-GAR-STATE PIC XX.
+           02 FI-GAR-ZIP PIC X(9).
+           02 FI-GAR-DOB PIC X(10).
+           02 FI-GAR-SEX PIC X.
+           02 FI-PRIM-ALFA PIC X(10).
+           02 FI-PRIM-NAME PIC X(30).
+           02 FI-PRIM-STR1 PIC X(22).
+           02 FI-PRIM-STR2 PIC X(22).
+           02 FI-PRIM-CITY PIC X(18).
+           02 FI-PRIM-STATE PIC XX.
+           02 FI-PRIM-ZIP PIC X(9).
+           02 FI-PRIM-GRP PIC X(10).
+           02 FI-PRIM-POL PIC X(16).
+           02 FI-PRIM-SUFX PIC XX.
+           02 FILLER PIC X.
+           02 FI-PRIM-NAMEL PIC X(24).
+           02 FI-PRIM-NAMEF PIC X(24).
+           02 FI-PRIM-NAMEMI PIC X.
+           02 FI-PRIM-NAMESUFX PIC X(4).
+           02 FI-PRIM-SUBDOB PIC X(10).
+           02 FI-PRIM-SUBSEX PIC X(10).
+           02 FI-PRIM-SUBRELATE PIC XX.
+           02 FI-SEC-ALFA PIC X(10).
+           02 FI-SEC-NAME PIC X(30).
+           02 FI-SEC-STR1 PIC X(22).
+           02 FI-SEC-STR2 PIC X(22).
+           02 FI-SEC-CITY PIC X(18).
+           02 FI-SEC-STATE PIC XX.
+           02 FI-SEC-ZIP PIC X(9).
+           02 FI-SEC-GRP PIC X(10).
+           02 FI-SEC-POL PIC X(16).
+           02 FI-SEC-SUFX PIC XXX.
+           02 FI-SEC-NAMEL PIC X(24).
+           02 FI-SEC-NAMEF PIC X(24).
+           02 FI-SEC-NAMEMI PIC X.
+           02 FI-SEC-NAMESUFX PIC X(4).
+           02 FI-SEC-SUBDOB PIC X(10).
+           02 FI-SEC-SUBSEX PIC X(10).
+           02 FI-SEC-SUBRELATE PIC XX.
+           02 FI-PROC. 
+              03 FI-PROC1 PIC X(5).
+              03 FI-MOD1 PIC XX.
+           02 FI-MOD PIC XX.
+           02 FI-DX1 PIC X(8).
+           02 FI-DX2 PIC X(8).
+           02 FI-DX3 PIC X(8).
+           02 FI-DX4 PIC X(8).
+           02 FI-DATE-T PIC X(10).
+           02 FI-PROVNAMEL PIC X(24).
+           02 FI-PROVNAMEF PIC X(24).
+           02 FI-PROVNAMEMI PIC X.
+           02 FI-PROVNAMESUFX PIC X(4).
+           02 FI-PLACE PIC X(6).
+           02 FI-DAT1 PIC X(10).
+
+       FD  REFPHY
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS REFPHY01.
+       01  REFPHY01.
+           02 REF-KEY PIC XXX.
+           02 REF-BSNUM PIC X(5).
+           02 REF-CRNUM PIC X(6).
+           02 REF-UPIN PIC X(6).
+           02 REF-CDNUM PIC X(7).
+           02 REF-NAME.
+             03 REF-TITLE4 PIC XXXX.
+             03 FILLER PIC X(20).
+           02 REF-KP PIC X(7).
+           02 REF-FUTURE PIC XXX.
+       WORKING-STORAGE SECTION.
+
+       01 XXXPOL.
+          02 XXXPOL-1 PIC XXX.
+          02 XXXPOL-2 PIC X(11).
+       01  NAME-TEST  PIC X(25).
+       01  NAME-LAST  PIC X(24).
+       01  NAME-FIRST  PIC X(24).
+       01  NAME-MIDDLE PIC X(24).
+       01  TEST-DATE.
+           02 T-YYYY PIC XXXX.
+           02 T-MM PIC XX.
+           02 T-DD PIC XX.
+       01  DISPLAY-DATE.
+           02 DD-MM PIC XX.
+           02 FILLER PIC X.
+           02 DD-DD PIC XX.
+           02 FILLER PIC X.
+           02 DD-YYYY PIC XXXX.
+       01  DOB-DATE.
+           02 DD-YYYY PIC XXXX.
+           02 DD-MM PIC XX.
+           02 DD-DD PIC XX.
+       01  DATE-TODAY PIC X(8).
+       01  SAVEMASTER.
+           02 S-ACTNO PIC X(32).
+           02 S-GARNAME PIC X(24).
+           02 S-BILLADD PIC X(22).
+           02 S-STREET PIC X(22).
+           02 S-CITY PIC X(18).
+           02 S-STATE PIC X(2).
+           02 S-ZIP PIC X(9).
+           02 S-COLLT PIC X.
+           02 S-PHONE PIC X(10).
+           02 S-SEX PIC X.
+           02 S-RELATE PIC X.
+           02 S-MSTAT PIC X.
+           02 S-DOB PIC X(8).
+           02 S-DUNNING PIC X.
+           02 S-ACCTSTAT PIC X.
+           02 S-PR-MPLR PIC X(4).
+           02 S-PRINS PIC XXX.
+           02 S-PR-ASSIGN PIC X.
+           02 S-PR-OFFICE PIC X(4).
+           02 S-PR-GROUP PIC X(10).
+           02 S-PRIPOL PIC X(16).
+           02 S-PRNAME PIC X(24).
+           02 S-PR-RELATE PIC X.
+           02 S-SE-MPLR PIC X(4).
+           02 S-SEINS PIC XXX.
+           02 S-SE-ASSIGN PIC X.
+           02 S-TRINSIND PIC X.
+           02 S-TRINS PIC XXX.
+           02 S-SE-GROUP PIC X(10).
+           02 S-SECPOL PIC X(16).
+           02 S-SENAME PIC X(24).
+           02 S-SE-RELATE PIC X.
+           02 S-INSPEND PIC X(7).
+           02 S-LASTBILL PIC X(8).
+           02 S-ASSIGNM PIC X.
+           02 S-PRIVATE PIC X.
+           02 S-BILLCYCLE PIC X.
+           02 S-DELETE PIC X.
+           02 S-FILLER PIC XXX.
+           02 S-GARNO PIC X(8).
+           02 S-PRGRPNAME PIC X(15).
+           02 S-SEGRPNAME PIC X(15).
+           02 S-NAME-KEY PIC XXX.
+       01  SAVE-RPGCHARFILE PIC X(213).
+       01     RIGHT-2 PIC XX JUST RIGHT.
+       01     ALF-1 PIC X.
+       01     XALF-1 PIC X.
+       01  ALF-3 PIC XXX.
+       01  ALF-4 PIC XXXX.
+       01     ALF-5 PIC X(5).
+       01     ALF-7 PIC X(7).
+       01     ALF-7X. 
+              02 ALF-7X1 PIC X(5).
+              02 ALF-7X2 PIC XX.
+       01  ALF-8 PIC X(8).
+       01  ALF-9.
+           02 ALF-9-1.
+             03 ALF-9-11 PIC X.
+             03 FILLER PIC X.
+           02 ALF-9-2 PIC X(7).
+       01     ALF-13 PIC X(13).
+       01     YEARDAY.
+             03 YEAR-1.
+               04 YD1 PIC X.
+               04 YD2 PIC X.
+             03 DAY3 PIC XXX.
+       01     ABC PIC X.
+       01     XYZ PIC 999.
+       01     RIGHT-4 PIC X(4) JUST RIGHT.
+       01  ALF-6 PIC X(6).
+       01   RIGHT-3 PIC XXX JUST RIGHT.
+       01     RIGHT-5 PIC X(5) JUST RIGHT.
+       01     RIGHT-7 PIC X(7) JUST RIGHT.
+       01     RIGHT-8 PIC X(8) JUST RIGHT.
+       01     A PIC 99.
+       01     B PIC 99.
+       01     C PIC 99.
+       01     D PIC 99.
+       01     X PIC 99.
+       01     Y PIC 99.
+       01  Z PIC 999.
+       01     FLAG   PIC 9.
+       01  FLAGX PIC 9.
+       01  ENDFLAG PIC 9 VALUE 0.
+       01  DATE-X PIC X(8).
+       01  IN-FIELD-8 PIC X(8).
+       01  IN-FIELD PIC X(15).
+       01  IN-FIELD-6 PIC X(6).
+       01  NAME1.
+           02 NAME11 PIC X.
+           02 NAME12 PIC X(23).
+       01  HOLDGARNO PIC X(8).
+       01  NAMETAB01.
+           02 NAMETAB PIC X(24) OCCURS 90 TIMES.
+       01  NAMEKEYTAB01.
+           02 NAMEKEYTAB PIC XXX OCCURS 90 TIMES.
+       01  NUMKEYTAB01.
+           02 NUMKEYTAB PIC X(4) OCCURS 90 TIMES.
+       01  ALF-1X PIC X.
+       01  ALF-2 PIC XX.
+       01  REFFLAG PIC 9.
+       01  X-IP PIC X(8).
+       01  X-LASTNAME PIC X(16).
+       01  X-FIRSTNAME PIC X(9).
+       01  X-SUBNAME PIC X(30).
+       01  X-SSN PIC X(9).
+       01  X-RELATE PIC XX.
+       01  Y-RELATE PIC XX.
+       01  RELATECODE PIC X.
+       01  GARRELATE PIC X.
+       01  POLTEST.
+           02 POLTEST1.
+             03 POLTEST1-1 PIC X.
+             03 POLTEST1-2 PIC X.
+           02 FILLER PIC X(7).
+           02 POLTEST2 PIC XX.
+           02 FILLER PIC XXX.
+       01  ALF4 PIC X(4).
+       01  ALF6 PIC X(6).
+       01  ALF8TEST.
+           02 ALF8TEST1 PIC XX.
+           02 FILLER PIC X(6).
+       01  ALF8 PIC X(8).
+       01  ALF8X PIC X(8).
+
+       01  MONTH-TABLE-CONS.
+           05  FILLER PIC X(24) VALUE "312931303130313130313031".
+       01  MONTH-TABLE REDEFINES MONTH-TABLE-CONS.
+           05  DAYS-IN-MONTH OCCURS 12 TIMES PIC 99.
+       01  SERVDATE PIC X(8).
+       01  REF PIC XXX.
+       01  IOPAT PIC X.
+       01  PLANNUM PIC 9.
+       01  TAB1601.
+           02 TAB16 PIC X OCCURS 16 TIMES.
+       01  NEWTAB01.
+           02 NEWTAB PIC X OCCURS 16 TIMES.
+       01  YNDX USAGE IS INDEX.
+       01  IN-FIELD-1 PIC X.
+       01  IN-FIELD-3 PIC XXX.
+       01  IN-FIELD-4 PIC X(4).
+       01  IN-FIELD-15 PIC X(15).
+       01  IN-FIELD-14 PIC X(14).
+       01  X-MEDREC.
+              02 X-MEDREC0 PIC XX VALUE "00".
+              02 X-MEDREC1 PIC XX.
+              02 X-MEDREC2 PIC XX.
+              02 X-MEDREC3 PIC XX.
+       01  ALF5 PIC X(5).
+       01  alf7 pic x(7).
+       01  ALF-14.
+           02 ALF-14-1.
+              03 ALF-14-11 PIC X.
+              03 ALF-14-12 PIC X.
+              03 ALF-14-13 PIC X.
+           02 ALF-14-2 PIC X(9).
+           02 ALF-14-3 PIC XX.
+       01  ALF14X.
+           02 ALF14X-12 PIC X(12).
+           02 ALF14X-2 PIC XX.
+       01  ZIPCODE.
+           02 ZIPCODE-1-5 PIC X(5).
+           02 ZIPCODE-6 PIC X.
+           02 ZIPCODE-7-10 PIC X(4).
+       01  ANS PIC XXX.
+       01  ALFATAB01.
+           02 ALFATAB PIC X OCCURS 8 TIMES.
+       01  DIAGTAB01.
+           02 DIAGTAB PIC X OCCURS 7 TIMES.
+       01  DIAG-ARRAY01.
+           02 DIAG-ARRAY PIC X(7) OCCURS 4 TIMES.
+       01  CNTR PIC 99.
+       01  CNTR-X PIC 9.
+       01  CNTR-Y PIC 9.
+       01  NUM6 PIC 9(6).
+       01  ALF22 PIC X(22).
+       01  ALF22X PIC X(22).
+       01  INSTAB01.
+           02 INSTAB PIC X(12) OCCURS 50 TIMES.
+       01  INSCMS01.
+           02 INSCMS PIC XXX OCCURS 50 TIMES.
+       01  TALLYX PIC 9.
+       01  TALLYRT PIC 9.
+       01  TALLYlT PIC 9.
+       01  TALLYRIT PIC 9.
+       01  TALLYLIT PIC 9.
+       01  TALLYR PIC 9.
+       01  TALLYL PIC 9.
+
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN OUTPUT NEWINS
+           CLOSE NEWINS.
+           OPEN I-O NEWINS
+           OPEN I-O RPGACTFILE.
+           OPEN I-O RPGCHARFILE RPGINSFILE.
+           OPEN INPUT RPGPROCFILE REFPHY INSFILE FILEIN DIAGFILE.
+           OPEN OUTPUT FILEOUT FILEOUT2.
+           ACCEPT DATE-TODAY  FROM CENTURY-DATE.
+       P1. 
+           READ FILEIN AT END GO TO P99.
+           IF FI-PROC1 = "76499" GO TO P1.
+           IF FI-MOD1 = "BA" GO TO P1.
+           MOVE SPACE TO NAME-LAST NAME-FIRST RPG-GARNAME 
+           IF FI-PATNAMESUFX = "SR" OR "JR" OR "III"
+            STRING FI-PATNAMEL " " FI-PATNAMESUFX DELIMITED BY "  "
+            INTO NAME-LAST
+            MOVE SPACE TO FI-PATNAMEL
+            MOVE NAME-LAST TO FI-PATNAMEL
+           END-IF
+           IF FI-PATNAMEMI = SPACE
+            STRING FI-PATNAMEL ";" FI-PATNAMEF DELIMITED BY "  " INTO
+            RPG-GARNAME
+           ELSE
+            STRING FI-PATNAMEL ";" FI-PATNAMEF ";" FI-PATNAMEMI 
+               DELIMITED BY "  " INTO RPG-GARNAME
+           END-IF.
+           MOVE RPG-GARNAME(1:3) TO NAME-KEY
+
+           MOVE SPACE TO RPG-DOB
+           STRING FI-PAT-DOB(7:4)  FI-PAT-DOB(1:2) FI-PAT-DOB(4:2)
+           DELIMITED BY SIZE  INTO RPG-DOB
+
+           MOVE SPACE TO ALF8 
+           STRING FI-PRIM-SUBDOB(7:4)  FI-PRIM-SUBDOB(1:2)
+           FI-PRIM-SUBDOB(4:2)
+           DELIMITED BY SIZE  INTO ALF8
+
+
+           MOVE SPACE TO ALF8X 
+           STRING FI-SEC-SUBDOB(7:4)  FI-SEC-SUBDOB(1:2)
+           FI-SEC-SUBDOB(4:2)
+           DELIMITED BY SIZE  INTO ALF8X
+
+
+
+
+           MOVE SPACE TO RPG-ACTNO
+           STRING RPG-GARNAME RPG-DOB DELIMITED BY SIZE INTO RPG-ACTNO.
+           READ RPGACTFILE WITH LOCK
+           INVALID
+           DISPLAY RPG-ACTNO
+           ACCEPT OMITTED.
+
+       SEC-1.    
+           IF FI-PRIM-ALFA = SPACE
+           DISPLAY "NO INSURANCE"
+           DISPLAY RPG-ACTNO
+           ACCEPT OMITTED
+           GO TO P1.
+
+
+           IF FI-PRIM-NAMESUFX = "SR" OR "JR" OR "III"
+            MOVE SPACE TO NAME-LAST
+            STRING FI-PRIM-NAMEL " " FI-PRIM-NAMESUFX DELIMITED BY "  "
+            INTO NAME-LAST
+            MOVE NAME-LAST TO FI-SEC-NAMEL
+           END-IF
+           IF FI-PRIM-NAMEMI = SPACE
+            STRING FI-PRIM-NAMEL ";" FI-PRIM-NAMEF 
+            DELIMITED BY "  " INTO RPG-SENAME
+           ELSE
+            STRING FI-PRIM-NAMEL ";" FI-PRIM-NAMEF ";" FI-PRIM-NAMEMI 
+               DELIMITED BY "  " INTO RPG-SENAME
+           END-IF.
+           IF FI-PRIM-SUBRELATE = "C"
+              MOVE "4" TO RPG-RELATE
+              IF RPG-SEX = "F" MOVE "M" TO RPG-RELATE
+              END-IF
+           END-IF.
+           MOVE FI-PRIM-GRP TO RPG-SE-GROUP
+           MOVE SPACE TO TAB1601
+           MOVE FI-PRIM-POL TO TAB1601
+           MOVE 0 TO CNTR
+           PERFORM VARYING X FROM 1 BY 1 UNTIL X > 16
+           IF TAB16(X) NOT = "-"
+             ADD 1 TO CNTR
+             MOVE TAB16(X) TO TAB16(CNTR)
+           END-IF
+           END-PERFORM
+           ADD 1 TO CNTR
+           PERFORM VARYING X FROM CNTR BY 1 UNTIL X >16
+           MOVE SPACE TO TAB16(X)
+           END-PERFORM
+           MOVE TAB1601 TO FI-SEC-POL
+           IF FI-PRIM-SUFX NOT = SPACE
+            IF FI-PRIM-SUFX(1:1) NUMERIC
+              AND FI-PRIM-SUFX(2:1) = SPACE
+              MOVE FI-PRIM-SUFX(1:1) TO FI-SEC-SUFX(2:1)
+              MOVE "0" TO FI-SEC-SUFX(1:1)
+            END-IF
+            IF FI-PRIM-SUFX(1:1) = SPACE
+              AND  FI-PRIM-SUFX(2:1) NUMERIC
+              MOVE "0" TO FI-SEC-SUFX(1:1)
+            END-IF
+
+            MOVE SPACE TO RPG-SECPOL
+            IF RPG-SEINS = "003" OR "004" MOVE SPACE TO FI-SEC-SUFX.
+            STRING FI-PRIM-POL FI-PRIM-SUFX DELIMITED BY " " INTO
+            RPG-SECPOL
+           IF FI-PAT-DOB = FI-PRIM-SUBDOB
+           MOVE RPG-RELATE TO RPG-SE-RELATE
+           MOVE RPG-GARNAME TO RPG-SENAME
+           GO TO SE-RPGINS-1.
+           MOVE "2" TO RPG-SE-RELATE
+           IF FI-PRIM-SUBRELATE = " " MOVE RPG-RELATE TO RPG-SE-RELATE.
+           IF FI-PRIM-SUBRELATE = "P" AND RPG-SEX = "M" 
+           MOVE "K" TO RPG-SE-RELATE.
+
+
+       SE-RPGINS-1.
+           IF FI-PRIM-ALFA = SPACE
+           DISPLAY "NO INSURANCE CODE"
+           DISPLAY RPG-ACTNO
+           ACCEPT OMITTED
+           GO TO P1.
+           MOVE 0 TO CNTR
+           MOVE SPACE TO RPGINS-KEY
+           MOVE FI-PRIM-ALFA TO RPGINS-KEY10
+           
+           START RPGINSFILE KEY NOT < RPGINS-KEY
+                     INVALID GO TO SE-RPGINS-3.
+       SE-RPGINS-2.
+           READ RPGINSFILE NEXT AT END GO TO SE-RPGINS-3.
+           IF RPGINS-KEY10 > FI-PRIM-ALFA GO TO SE-RPGINS-3.
+           ADD 1 TO CNTR
+
+           MOVE RPGINS-KEY TO INSTAB(CNTR)
+           MOVE RPGINS-CMS TO INSCMS(CNTR)
+           IF (RPGINS-CITY = FI-PRIM-CITY)
+            AND (RPGINS-STREET = FI-PRIM-STR1 OR FI-PRIM-STR2)
+            COMPUTE CNTR = 1
+            MOVE RPGINS-KEY TO INSTAB(CNTR)
+            MOVE RPGINS-CMS TO INSCMS(CNTR)
+            GO TO SE-RPGINS-3
+           END-IF
+           
+           IF CNTR > 14
+            ACCEPT ANS
+            IF ANS = "BK" 
+             GO TO SE-RPGINS-1
+            END-IF
+            IF ANS = SPACE 
+             MOVE 0 TO CNTR
+             GO TO SE-RPGINS-2
+            END-IF
+           MOVE SPACE TO RIGHT-2
+           UNSTRING ANS DELIMITED BY " " INTO RIGHT-2
+           INSPECT RIGHT-2 REPLACING ALL " " BY "0"
+            IF RIGHT-2 NUMERIC AND RIGHT-2 NOT = "00"
+             GO TO SE-RPGINS-1
+            END-IF
+           MOVE RIGHT-2 TO X
+           MOVE INSCMS(X) TO RPG-SEINS
+           MOVE INSTAB(X) TO RPGINS-KEY
+           GO TO SE-RPGINS-4
+           END-IF.
+           GO TO SE-RPGINS-2.
+       SE-RPGINS-3.
+           IF CNTR = 1
+            MOVE INSCMS(1) TO RPG-SEINS
+            MOVE INSTAB(1) TO RPGINS-KEY
+            GO TO SE-RPGINS-4.
+           IF CNTR = 0 
+           PERFORM SE-ADD-INS THRU SE-ADD-INS-EXIT
+           GO TO P1-1.
+           DISPLAY "NO SELECTION WAS MADE"
+           DISPLAY "DO YOU WISH TO ADD AS A NEW INSURANCE?  Y"
+           
+           DISPLAY FI-PRIM-ALFA " " FI-SEC-NAME
+           DISPLAY FI-PRIM-STR1 
+           DISPLAY FI-PRIM-STR2 
+           DISPLAY FI-PRIM-CITY " " FI-PRIM-STATE " " FI-PRIM-ZIP 
+           DISPLAY " "
+           ACCEPT ANS
+           IF ANS = "Y" MOVE 0 TO CNTR GO TO SE-RPGINS-3.
+           GO TO SE-RPGINS-1.
+       SE-RPGINS-4.
+           MOVE RPG-SEINS TO INS-KEY
+           READ INSFILE INVALID 
+              DISPLAY RPGINS-KEY " HAS A BAD 3-DIGIT CODE " RPG-SEINS
+              DISPLAY "FIX IT AND RESTART PROGRAM"
+              ACCEPT ANS
+              GO TO P99
+           END-READ
+           MOVE INS-ASSIGN TO RPG-SE-ASSIGN
+           MOVE INS-KEY TO RPG-SEINS
+           IF RPG-SEINS = "003" OR "004"
+             MOVE SPACE TO FI-SEC-SUFX.
+       P1-1.      
+             IF RPG-SEINS = "076" OR "091"
+              MOVE RPGINS-KEY TO RPG-SE-GROUP
+              MOVE "A" TO RPG-SE-ASSIGN 
+             END-IF.
+              REWRITE RPGACTFILE01
+              END-REWRITE
+              GO TO P1.
+       INS-1. DISPLAY "SEARCH TYPE"
+           DISPLAY "1 = BY NUMBER "
+           DISPLAY "2 = BY NAME"
+           DISPLAY "3 = BY ASSIGNMENT CODE"
+           DISPLAY "4 = BY NEIC CODE"
+           DISPLAY "5 = BY NEIC ASSIGNM CODE"
+           DISPLAY "6 = BY CLAIM-TYPE"
+           DISPLAY "7 = BY CITY".
+       INS-2.  ACCEPT IN-FIELD.
+           IF IN-FIELD = "?"
+           DISPLAY "X = BACK OR 1-6 SEARCH METHOD"
+           GO TO INS-2.
+           IF IN-FIELD = "X" DISPLAY "END SEARCH" GO TO INS-1-EXIT.
+           IF IN-FIELD = "1" OR "2" OR "3" OR "4" OR "5" OR "6" OR "7"
+           NEXT SENTENCE ELSE DISPLAY "BAD" GO TO INS-2.
+           MOVE IN-FIELD TO ALF-1.
+       INS-3. DISPLAY "STARTING POINT?".
+           ACCEPT IN-FIELD.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER WHERE TO START LOOKING"
+           DISPLAY "BK = BACK TO SEARCH METHOD"
+           DISPLAY "OR X = BACK TO OPTION" GO TO INS-3.
+           IF IN-FIELD = "X" GO TO INS-1-EXIT.
+           IF IN-FIELD = "BK" GO TO INS-1.
+           MOVE 0 TO X
+           IF ALF-1 = "1" MOVE SPACE TO RIGHT-3
+           UNSTRING IN-FIELD DELIMITED BY " " INTO RIGHT-3
+           INSPECT RIGHT-3 REPLACING LEADING " " BY "0"
+           MOVE RIGHT-3 TO INS-KEY
+           MOVE "NUMBER  " TO ALF-8
+           START INSFILE KEY NOT < INS-KEY INVALID GO TO INS-1-END.
+           IF ALF-1 = "2" MOVE IN-FIELD TO INS-NAME
+           MOVE "NAME    " TO ALF-8
+           START INSFILE KEY NOT < INS-NAME INVALID GO TO INS-1-END.
+           IF ALF-1 = "3" MOVE IN-FIELD TO INS-ASSIGN
+           MOVE "ASSIGNMT" TO ALF-8
+           START INSFILE KEY NOT < INS-ASSIGN INVALID GO TO INS-1-END.
+           IF ALF-1 = "4" MOVE IN-FIELD TO INS-NEIC
+           MOVE "NEICCODE" TO ALF-8
+           START INSFILE KEY NOT < INS-NEIC INVALID GO TO INS-1-END.
+           IF ALF-1 = "5" MOVE IN-FIELD TO INS-NEIC-ASSIGN
+           MOVE "NEICASGM" TO ALF-8
+           START INSFILE KEY NOT < INS-NEIC-ASSIGN INVALID 
+           GO TO INS-1-END.
+           IF ALF-1 = "6" 
+           MOVE IN-FIELD TO INS-CLAIMTYPE
+           MOVE "CLM-TYPE" TO ALF-8
+           START INSFILE KEY NOT < INS-CLAIMTYPE INVALID 
+           GO TO INS-1-END.
+           IF ALF-1 = "7" 
+           MOVE IN-FIELD TO INS-CITY
+           MOVE "CITY    " TO ALF-8
+           START INSFILE KEY NOT < INS-CITY INVALID 
+           GO TO INS-1-END.
+       INS-4. READ INSFILE NEXT AT END DISPLAY "END OF FILE"
+           GO TO INS-1-EXIT.
+           DISPLAY INS-KEY " " INS-NAME " " INS-STREET 
+           " " INS-CITY " " INS-STATE " " INS-CLAIMTYPE 
+           ADD 1 TO X
+           IF X > 8 MOVE 0 TO X DISPLAY "BY " ALF-8 ACCEPT ANS
+           IF ANS NOT = SPACE GO TO INS-1-EXIT.
+           GO TO INS-4.
+       INS-1-END. DISPLAY "END OF FILE".
+       INS-1-EXIT. EXIT.
+
+       SE-ADD-INS.
+           MOVE FI-PRIM-ALFA TO RPGINS-KEY10
+           MOVE SPACE TO RPGINS-KEY2
+           MOVE 0 TO CNTR
+           PERFORM SE-ADD-1 THRU SE-ADD-1-EXIT.
+       SE-ADD-INS-EXIT.
+           EXIT.
+       SE-ADD-1.
+           READ RPGINSFILE INVALID GO TO SE-ADD-2.
+            ADD 1 TO CNTR
+            MOVE CNTR TO RPGINS-KEY2
+            GO TO SE-ADD-1.
+       SE-ADD-2. 
+           MOVE FI-PRIM-NAME TO RPGINS-TITLE
+           MOVE FI-PRIM-STR1 TO RPGINS-BOX
+           MOVE FI-PRIM-STR2 TO RPGINS-STREET
+           MOVE FI-PRIM-CITY TO RPGINS-CITY
+           MOVE FI-PRIM-STATE TO RPGINS-STATE
+           MOVE FI-PRIM-ZIP TO RPGINS-ZIP
+           IF RPGINS-ZIP(1:5) = " "
+            MOVE SPACE TO ALF5
+            STRING "0" RPGINS-ZIP(1:4) DELIMITED BY SIZE INTO ALF5
+            MOVE SPACE TO RPGINS-ZIP
+            MOVE ALF5 TO RPGINS-ZIP
+           END-IF
+           MOVE SPACE TO RPGINS-FUTURE
+           DISPLAY RPGINS-TITLE.
+           
+       SE-ADD-3.
+           DISPLAY "076 OR 091 PAYCODE OR FI TO SEARCH".
+           ACCEPT ANS
+           IF ANS = "FI" GO TO SE-ADD-4.
+           IF NOT (ANS = "076" OR "091") GO TO SE-ADD-3.
+           MOVE ANS TO RPGINS-CMS
+           MOVE SPACE TO RPGINS-GAP
+           WRITE RPGINSFILE01.
+           MOVE RPGINS-CMS TO RPG-SEINS
+           MOVE RPGINS-KEY TO RPG-SE-GROUP
+           GO TO SE-ADD-1-EXIT.
+       SE-ADD-4. 
+           PERFORM INS-1 THRU INS-1-EXIT
+           DISPLAY "ENTER A FOUND CODE OR BK TO RE-LOOK" 
+           ACCEPT ANS
+           IF ANS = "BK" GO TO SE-ADD-3.
+           IF ANS NOT NUMERIC  DISPLAY "BAD CODE" GO TO SE-ADD-4.
+           MOVE ANS TO INS-KEY
+           READ INSFILE INVALID DISPLAY "BAD CODE" GO TO SE-ADD-4.
+           MOVE INS-KEY TO RPG-SEINS
+           MOVE INS-KEY TO RPGINS-CMS
+           MOVE SPACE TO RPGINS-GAP
+           WRITE RPGINSFILE01.
+       SE-ADD-1-EXIT.
+           EXIT.
+
+
+
+       P99.
+           CLOSE NEWINS RPGACTFILE RPGCHARFILE RPGPROCFILE RPGINSFILE
+           REFPHY INSFILE FILEOUT FILEOUT2.
+           DISPLAY "RPG XRAY DATA ENTRY PROGRAM HAS ENDED".
+           STOP RUN.

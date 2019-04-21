@@ -1,0 +1,340 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. MCC015.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT TB-BILL ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT PAYCUR ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY.
+           SELECT CHARCUR ASSIGN TO "S40"     ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC        RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES.
+           SELECT OUT-FILE ASSIGN TO "S45" ORGANIZATION 
+           LINE SEQUENTIAL.
+           SELECT BILLDATE ASSIGN TO "S50" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  CHARCUR.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(7).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+
+       FD  PAYCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS PAYCUR01.
+       01  PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC XXX.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC X(6).
+           02 PC-DATE-T PIC X(8).
+           02 PC-DATE-E PIC X(8).
+           02 PC-BATCH PIC X(6).
+       FD  TB-BILL
+           DATA RECORD IS TB-BILL01.
+       01  TB-BILL01.
+           02 TB-1 PIC X(8).
+           02 TB-2 PIC X(24).
+           02 TB-3 PIC X(9).
+           02 TB-4 PIC X.
+           02 TB-6 PIC X.
+           02 TB-5 PIC S9(5)V99.
+           02 TB-DOC PIC XX.
+           02 TB-NAME PIC X(24).
+       FD OUT-FILE.
+       01  OUT01. 
+           02 TO-1 PIC X(76).
+           02 TO-2 PIC X.
+       FD  BILLDATE
+           DATA RECORD IS BILLDATE01.
+       01  BILLDATE01.
+           02 BILL-DATE PIC X(8).
+           02 THIS-CYCLE PIC X(4).
+           02 FILLER PIC X.
+           02 DD-0 PIC X.
+           02 DD-1 PIC X.
+           02 DD-2 PIC X.
+           02 DD-3 PIC X.
+           02 DD-4 PIC X.
+           02 DD-5 PIC X.
+           02 DD-6 PIC X.
+
+       WORKING-STORAGE SECTION.
+       01  CHR01.
+           02 CHR02 OCCURS 800 TIMES.
+             03 CHR-DATE-T PIC X(8).
+             03 CHR-DATE-A PIC X(8).
+             03 CHR-CLAIM PIC X(6).
+             03 CHR-AMOUNT PIC S9(4)V99.
+             03 CHR-PAYCODE PIC X(3).
+             03 CHR-PROC PIC X(7).
+             03 CHR-DIAG PIC X(5).
+             03 CHR-DOCR PIC XXX.
+             03 CHR-PATID PIC X(8).
+             03 CHR-REC-STAT PIC X.
+             03 CHR-ASSIGN PIC X.
+       01  PHR01.
+           02 PHR02 OCCURS 900 TIMES.
+             03 PHR-DATE PIC X(8).
+             03 PHR-CLAIM PIC X(6).
+             03 PHR-AMOUNT PIC S9(4)V99.
+             03 PHR-PAYCODE PIC XXX.
+             03 PHR-DENIAL PIC XX.
+             03 PHR-STAT PIC 9.
+       01  DAY-TEST-1.
+           02 DY1 PIC 9999.
+           02 DM1 PIC 99.
+           02 DD1 PIC 99.
+       01  DAY-TEST-2.
+           02 DY2 PIC 9999.
+           02 DM2 PIC 99.
+           02 DD2 PIC 99.
+       01 FLAGP PIC 9.
+       01  SUM-DATE PIC X(8).
+       01     BILL-COUNT PIC 9(5) VALUE 0.
+       01     QY1 PIC S9999.
+       01     QY2 PIC S9999.
+       01     QDAY1 PIC S999.
+       01     QDAY2 PIC S999.
+       01     DAY1 PIC S999.
+       01     DAY2 PIC S999.
+       01     FLAG PIC 9.
+       01     SNUM-6 PIC S9(4)V99.
+       01     CLAIM-TOT PIC S9(5)V99.
+       01     REF-IND PIC 999.
+       01     LINE-CTR PIC 99.
+       01     BILL-PAGE PIC 99.
+       01     AMOUNT-DUE PIC S9(5)V99.
+       01     BAL-FWD PIC S9(5)V99.
+       01     DAYS PIC S9999.
+       01     AT-3.
+             03 AT-3-1 PIC XX.
+             03 AT-3-2 PIC X.
+       01     PHR-IND PIC 999.
+       01     CHR-IND PIC 999.
+       01     TOTCHAR PIC S9(4)V99.
+       01     TOTPAY PIC S9(4)V99.
+       01     RIGHT-8 PIC X(8) JUST RIGHT.
+       01 LLLL PIC X(8).
+       01     RIGHT-2 PIC XX JUST RIGHT.
+       01     RIGHT-3 PIC XXX JUST RIGHT.
+       01     RIGHT-4 PIC X(4) JUST RIGHT.
+       01     ALF-1 PIC X.
+       01     ALF-2 PIC XX.
+       01     ALF-3 PIC XXX.
+       01     ALF-4 PIC XXXX.
+       01  ALF-5 PIC X(5).
+       01     ALF-9 PIC X(9).
+       01     ALF-6 PIC X(6).
+       01     ALF-7 PIC X(7).
+       01     ALF-8 PIC X(8).
+       01     ALF-11 PIC X(11).
+       01     ALF-13 PIC X(13).
+       01     ALF-14 PIC X(14).
+       01     EIGHTPARTID.
+             03 FILLER PIC X(7).
+             03 PART-8 PIC X.
+       01     ABC PIC XXX.
+       01     XYZ PIC 999.
+       01     RIGHT-5 PIC X(5) JUST RIGHT.
+       01     RIGHT-7 PIC X(7) JUST RIGHT.
+       01     NUM-2 PIC 99.
+       01     NUM-3 PIC 999.
+       01     NUM-9 PIC 9(9).
+       01     NUM-6 PIC 9(6).
+       01     A PIC 999.
+       01     B PIC 999.
+       01     C PIC S999.
+       01     D PIC 999.
+       01     X PIC 999.
+       01     Y PIC 999.
+       01     Z PIC 999.
+       01     ANS PIC X.
+       01    X-INSPEND PIC S9(5)V99.
+       01     G-BALCUR PIC S9(5)V99.
+       01     G-BAL30  PIC S9(5)V99.
+       01     G-BAL60  PIC S9(5)V99.
+       01     G-BALCOL  PIC S9(5)V99.
+       01  TMC PIC S9(5)V99.
+       01  TMP PIC S9(5)V99.
+       01  PAB PIC S9(5)V99.
+       01  BILLDATE6 PIC XXXXXX.
+       01  DATE6 PIC XXXXXX.
+       01  RUNBAL PIC S9(5)V99.
+       01  PAYFLAG PIC 9 VALUE 0.
+       01  L6F7 PIC ZZZ9.99CR.
+       01  CHNL-X PIC X VALUE H"1A".
+       01  CHNL-Y PIC X VALUE H"1C".
+       01  FLAG-PAY PIC 9.
+       01  PAYDATE6 PIC X(6).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN OUTPUT OUT-FILE.
+           OPEN INPUT CHARCUR PAYCUR TB-BILL BILLDATE.
+           READ BILLDATE AT END DISPLAY "NO BILLDATE" GO TO R20.
+           MOVE BILL-DATE TO BILLDATE6.
+           MOVE BILL-DATE TO DAY-TEST-1 MOVE 0 TO DD1
+           MOVE DAY-TEST-1 TO SUM-DATE.
+       R1.  READ TB-BILL AT END GO TO R20.
+           MOVE TB-BILL01 TO TO-1
+           IF TB-4 > "1" MOVE "3" TO TO-2
+           WRITE OUT01 GO TO R1.
+           MOVE 0 TO TO-2 CHR-IND PHR-IND LINE-CTR AMOUNT-DUE
+           G-BALCUR G-BAL30 G-BAL60 G-BALCOL
+           MOVE TB-1 TO CC-KEY8
+           MOVE SPACE TO CC-KEY3
+           START CHARCUR KEY > CHARCUR-KEY INVALID GO TO R7.
+       R6. READ CHARCUR NEXT AT END GO TO R7.
+           IF TB-1 NOT = CC-KEY8 GO TO R7.
+           ADD 1 TO CHR-IND.
+           IF CHR-IND > 500 DISPLAY TB-1  " CHRS"
+           GO TO R1.
+           IF CC-DATE-A = "00000000" MOVE BILL-DATE TO
+           CHR-DATE-A(CHR-IND)
+           ELSE MOVE CC-DATE-A TO CHR-DATE-A(CHR-IND).
+           MOVE CC-DIAG TO CHR-DIAG(CHR-IND)
+           MOVE CC-DATE-T TO CHR-DATE-T(CHR-IND)
+           MOVE CC-CLAIM TO CHR-CLAIM(CHR-IND)
+           MOVE CC-AMOUNT TO CHR-AMOUNT(CHR-IND)
+           MOVE CC-PAYCODE TO CHR-PAYCODE(CHR-IND)
+           MOVE CC-DOCR TO CHR-DOCR(CHR-IND)
+           MOVE CC-PROC TO CHR-PROC(CHR-IND)
+           MOVE CC-PATID TO CHR-PATID(CHR-IND)
+           MOVE CC-REC-STAT TO CHR-REC-STAT(CHR-IND)
+           MOVE CC-ASSIGN TO CHR-ASSIGN(CHR-IND)
+           GO TO R6.
+       R7. 
+           MOVE TB-1 TO PC-KEY8
+           MOVE SPACE TO PC-KEY3
+           START PAYCUR KEY > PAYCUR-KEY INVALID GO TO R9.
+       R8. READ PAYCUR NEXT AT END GO TO R9.
+           IF TB-1 NOT = PC-KEY8 GO TO R9.
+           ADD 1 TO PHR-IND.
+           IF PHR-IND > 800 DISPLAY TB-1 " PAY"
+           GO TO R1.
+           MOVE PC-DATE-T TO PHR-DATE(PHR-IND)
+           MOVE PC-CLAIM TO PHR-CLAIM(PHR-IND)
+           MOVE PC-AMOUNT TO PHR-AMOUNT(PHR-IND)
+           MOVE PC-PAYCODE TO PHR-PAYCODE(PHR-IND)
+           MOVE 0 TO PHR-STAT(PHR-IND)
+           MOVE PC-DENIAL TO PHR-DENIAL(PHR-IND).
+           GO TO R8.
+
+******* START HERE TO DETERMINE AMOUNT DUE AND INSURANCE PENDING *******
+******* AND AGING ON CURRENT,PAST DUE AND DELINQUENT *******
+       R9.
+           PERFORM CC1 THRU CC-EXIT VARYING X FROM 1 BY 1 UNTIL
+           X > CHR-IND.
+
+       R15. PERFORM Q2 THRU Q10 VARYING A FROM 1 BY 1 UNTIL A >
+           CHR-IND.
+           WRITE OUT01 
+           GO TO R1.
+       R20.
+           CLOSE OUT-FILE 
+           STOP RUN.
+       Q2. IF CHR-REC-STAT(A) NOT = "X" GO TO Q10.
+           IF CHR-ASSIGN(A) = "A" 
+           MOVE 0 TO FLAG
+           PERFORM PH5 VARYING Y FROM 1 BY 1 UNTIL Y > PHR-IND
+            IF FLAG = 0 
+             GO TO Q10
+            END-IF
+           END-IF
+           MOVE 0 TO FLAG.
+           IF LINE-CTR >  14
+           MOVE 1 TO TO-2
+           MOVE CHR-IND TO A
+           GO TO Q10.
+
+      *     IF CHR-ASSIGN(A) = "A"
+      *     GO TO Q90.
+      *     MOVE CHR-AMOUNT(A) TO CLAIM-TOT
+      *     PERFORM PH4 VARYING Y FROM 1 BY 1 UNTIL Y > PHR-IND.
+
+       Q90.
+           ADD 1 TO LINE-CTR.
+           PERFORM T24 THRU Z10 VARYING B FROM 1 BY 1 UNTIL B >
+           PHR-IND.
+       Q10. EXIT.
+       T24. IF PHR-CLAIM(B) NOT = CHR-CLAIM(A) GO TO Z10.
+       Z2-1.
+           IF LINE-CTR >  14
+           MOVE 1 TO TO-2
+           MOVE CHR-IND TO A
+           MOVE PHR-IND TO B
+           GO TO Z10.
+           ADD 1 TO LINE-CTR.
+       Z10. EXIT.
+       CC1.
+           MOVE CHR-AMOUNT(X) TO CLAIM-TOT.
+           MOVE CHR-DATE-T(X) TO DATE6
+           MOVE "X" TO CHR-REC-STAT(X).
+           MOVE 0 TO FLAG-PAY
+           PERFORM PH2 THRU PH2-EXIT VARYING Y FROM 1 BY 1 UNTIL Y >
+           PHR-IND.
+           MOVE CHR-DATE-T(X) TO DATE6
+           IF (CLAIM-TOT = 0) AND (DATE6 < BILLDATE6)
+           AND (FLAG-PAY = 0)
+           MOVE "3" TO CHR-REC-STAT(X).
+       CC-EXIT. EXIT.
+       PH2. IF CHR-CLAIM(X) NOT = PHR-CLAIM(Y)
+           GO TO PH2-EXIT.
+           ADD PHR-AMOUNT(Y) CLAIM-TOT GIVING CLAIM-TOT.
+           MOVE PHR-DATE(Y) TO PAYDATE6
+           IF PAYDATE6 NOT < BILLDATE6 MOVE 1 TO FLAG-PAY.
+       PH2-EXIT. EXIT.
+       PH4. IF CHR-CLAIM(A) = PHR-CLAIM(Y)
+           ADD PHR-AMOUNT(Y) TO CLAIM-TOT.
+       
+       PH5. IF (CHR-CLAIM(A) = PHR-CLAIM(Y))
+            AND (PHR-PAYCODE(Y) = "001" OR "021" OR "022")
+            MOVE 1 TO FLAG
+            MOVE PHR-IND TO Y.

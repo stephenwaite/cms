@@ -1,0 +1,75 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RPG052.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FILEIN01.
+           02 PROC-KEY.
+             03 PROC-KEY1 PIC X(4).
+             03 PROC-KEY2 PIC X(7).
+           02 PROC-TYPE PIC X.
+           02 PROC-TITLE PIC X(28).
+           02 PROC-AMOUNT PIC 9(4)V99.
+       
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(46).
+       WORKING-STORAGE SECTION.
+       01  TABIN01.
+           02 TABIN OCCURS 70 TIMES.
+             03 PROC-KEYX.
+               04 PROC-KEY1X PIC X(4).
+               04 PROC-KEY2X PIC X(7).
+             03 PROC-TYPEX PIC X.
+             03 PROC-TITLEX PIC X(28).
+             03 PROC-AMOUNTX PIC 9(4)V99.
+             
+       01  X PIC 99.
+       01  Y PIC 99.
+       01  A PIC 99.
+       01  HOLDAMT PIC 9(4)V99.
+       01  HOLDPROC PIC X(7).
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN INPUT FILEIN.
+           OPEN OUTPUT FILEOUT.
+           READ FILEIN NEXT AT END CONTINUE.
+       P0.
+           MOVE PROC-KEY2 TO HOLDPROC.
+           MOVE PROC-AMOUNT TO HOLDAMT
+           MOVE 0 TO X.
+           PERFORM ST1.
+       P1.
+           READ FILEIN NEXT AT END GO TO P4.
+           IF PROC-KEY2 = HOLDPROC
+             PERFORM ST1
+             GO TO P1
+           END-IF.
+           IF X = 1 GO TO P0.
+           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > X
+             IF PROC-AMOUNTX(Y) NOT = HOLDAMT
+               PERFORM ST2
+               MOVE Y TO X
+             END-IF
+           END-PERFORM
+           GO TO P0.
+       ST1.
+           ADD 1 TO X
+           MOVE FILEIN01 TO TABIN(X).
+       ST2.
+           MOVE SPACE TO FILEOUT01
+           WRITE FILEOUT01
+           PERFORM VARYING A FROM 1 BY 1 UNTIL A > X
+           WRITE FILEOUT01 FROM TABIN(A)
+           END-PERFORM.
+       P4.
+           CLOSE FILEIN FILEOUT.
+           STOP RUN.

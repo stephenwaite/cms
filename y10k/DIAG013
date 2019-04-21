@@ -1,0 +1,94 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BBB816.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ICD10FILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS ICD10-KEY
+           ALTERNATE RECORD KEY IS ICD10-TITLE WITH DUPLICATES.
+           SELECT ISAMFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS ISAM-KEY.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  ICD10FILE.
+       01  ICD10FILE01.
+           02 ICD10-KEY PIC X(7).
+           02 ICD10-TITLE PIC X(61).
+           02 ICD10-MEDB PIC X(5).
+       FD  ISAMFILE.
+       01  ISAMFILE01.
+           02 ISAM-KEY PIC X(5).
+           02 ISAM-num PIC 9(7).
+
+       WORKING-STORAGE SECTION.
+       01 CNTR PIC 9.
+       01  FLD1 PIC X(10).
+       01  tab6101.
+           02 tab61 pic x occurs 61 times.
+       01  x pic 99 value 0.
+       01  y pic 99 VALUE 0.
+       01  z pic 99.
+       01  a pic 99.
+       01  b pic 99.
+       01  alf5 pic x(5).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT ICD10FILE OUTPUT ISAMFILE.
+           close isamfile.
+           open i-o isamfile.
+       P1.
+           READ ICD10FILE NEXT AT END GO TO P99.
+           if x > 99 go to p99.
+           add 1 to x
+           MOVE SPACE TO tab6101
+           move icd10-title TO tab6101
+           move 0 to b
+           move 0 to y
+           perform s1 thru s1-exit VARYING a from 1 by 1 until a > 61
+           go to p1.
+       s1.
+           IF TAB61(A) NOT = SPACE AND Y = 0 GO TO S1-EXIT.
+           IF TAB61(A) = SPACE AND Y = 0
+            MOVE 1 TO Y GO TO S1-EXIT.
+
+           if tab61(a) not alphabetic go to s1-exit.
+           if tab61(a) = space
+              if b < 5
+                move 0 to b
+                go to s1-exit
+              end-if
+            go to s1-exit
+           end-if
+
+           if b < 5
+            add 1 to b
+            move tab61(a) to alf5(b:1)
+            go to s1-exit
+           end-if
+
+           move alf5 to isam-key
+           read isamfile with lock
+            invalid
+             move 1 to isam-num
+             write isamfile01
+             end-write
+            not invalid
+             add 1 to isam-num
+             rewrite isamfile01
+           end-read
+           move 0 to b.
+           perform varying z from a by 1 until z > 61
+           if tab61(z) = space
+             compute a = a + z - 1
+             move 61 to z
+           end-if
+           end-perform.
+       s1-exit.
+           exit.
+
+       P99.
+           CLOSE ISAMFILE.
+           STOP RUN.

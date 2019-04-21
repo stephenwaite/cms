@@ -1,0 +1,97 @@
+       01  MD01.
+           02 MD1 PIC X.
+           02 MD2 PIC X.
+           02 MD3 PIC X.
+           02 MD4 PIC X.
+           02 MD5 PIC X.
+           02 MD6 PIC X.
+           02 MD7 PIC X.
+           02 MD8 PIC X.
+           02 MD9 PIC X.
+           02 MD10 PIC X.
+           02 MD11 PIC X.
+       IF PRINS = "003"
+          MOVE 0 TO FLAG
+          PERFORM MPI-CHECK
+           IF FLAG = 1
+               DISPLAY "RE-ENTER THE COMPLETE POLICY NUMBER"
+               GO TO WHERE-YOU-CAME-FROM 
+           END-IF
+           
+       END-IF.
+
+       
+       MPI-CHECK.    
+           MOVE G-PRIPOL0(1:11) TO MD01
+           MOVE 0 TO FLAG
+           IF (MD1 NOT NUMERIC) OR (MD1 = "0")
+              DISPLAY "1ST POSITION NOT NUMERIC  " MD1
+              MOVE 1 TO FLAG
+           END-IF
+           IF (MD2 NUMERIC) 
+             OR ((MD2 ALPHABETIC) AND 
+                (MD2 = "S" OR "L" OR "O" OR "I" OR "B" OR "Z"))
+             OR NOT (MD2 ALPHABETIC  OR MD2 NUMERIC)
+             DISPLAY "2ND POSITION IS INVALID  " MD2
+             MOVE 1 TO FLAG
+           END-IF             
+           
+           IF (MD3 NUMERIC) 
+             OR ((MD3 ALPHABETIC) AND 
+                (MD3 = "S" OR "L" OR "O" OR "I" OR "B" OR "Z"))
+             OR NOT (MD3 ALPHABETIC  OR MD3 NUMERIC)
+             DISPLAY "3RD POSITION IS INVALID  " MD3
+             MOVE 1 TO FLAG
+           END-IF           
+            IF MD4 NOT NUMERIC
+              DISPLAY "4TH POSITION NOT NUMERIC  " MD4
+              MOVE 1 TO FLAG
+           END-IF   
+
+           
+           IF (MD5 NUMERIC) 
+             OR ((MD5 ALPHABETIC) AND 
+                (MD5 = "S" OR "L" OR "O" OR "I" OR "B" OR "Z"))
+             OR NOT (MD5 ALPHABETIC  OR MD5 NUMERIC)
+             DISPLAY "5TH POSITION IS INVALID  " MD5
+             MOVE 1 TO FLAG
+           END-IF        
+           
+
+             IF (MD6 NUMERIC) 
+             OR ((MD6 ALPHABETIC) AND 
+                (MD6 = "S" OR "L" OR "O" OR "I" OR "B" OR "Z"))
+             OR NOT (MD6 ALPHABETIC  OR MD6 NUMERIC)
+             DISPLAY "6TH POSITION IS INVALID  " MD6
+             MOVE 1 TO FLAG
+           END-IF 
+           
+             IF MD7 NOT NUMERIC
+              DISPLAY "7TH POSITION NOT NUMERIC  " MD7
+              MOVE 1 TO FLAG
+           END-IF   
+           
+           IF (MD8 NUMERIC) 
+             OR ((MD8 ALPHABETIC) AND 
+                (MD8 = "S" OR "L" OR "O" OR "I" OR "B" OR "Z"))
+             OR NOT (MD8 ALPHABETIC  OR MD8 NUMERIC)
+             DISPLAY "8TH POSITION IS INVALID  " MD8
+             MOVE 1 TO FLAG
+           END-IF  
+           IF (MD9 NUMERIC) 
+             OR ((MD9 ALPHABETIC) AND 
+                (MD9 = "S" OR "L" OR "O" OR "I" OR "B" OR "Z"))
+             OR NOT (MD9 ALPHABETIC  OR MD9 NUMERIC)
+             DISPLAY "9TH POSITION IS INVALID  " MD9
+             MOVE 1 TO FLAG
+           END-IF  
+             IF MD10 NOT NUMERIC
+              DISPLAY "10TH POSITION NOT NUMERIC  " MD10
+              MOVE 1 TO FLAG
+           END-IF   
+             IF MD11 NOT NUMERIC
+              DISPLAY "11TH POSITION NOT NUMERIC  " MD11
+              MOVE 1 TO FLAG
+        
+        END-IF.   
+      

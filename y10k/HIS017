@@ -1,0 +1,266 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. HIS017.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CHAROUT ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT PAYCUR  ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY
+           LOCK MODE MANUAL.
+           SELECT HISFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS HISFILE-KEY
+           LOCK MODE MANUAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  HISFILE
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS HISFILE01.
+       01  HISFILE01.
+           02 HISFILE-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-CLAIM PIC X(6).
+             03 CC-REC-TYPE PIC X.
+             03 CC-KEY4 PIC XXXX.
+           02 CC-PATID PIC X(8).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(7).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC X(6).
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AGE PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-E PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       FD  CHAROUT.
+       01  CHAROUT01.
+           02 CHAROUT-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(7).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC X(6).
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+
+       FD  PAYCUR
+           DATA RECORD IS PAYCUR01.
+       01  PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC X(6).
+           02 PC-PAYCODE PIC XXX.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC X(6).
+           02 PC-DATE-T PIC X(8).
+           02 PC-DATE-E PIC X(8).
+           02 PC-BATCH PIC X(6).
+       WORKING-STORAGE SECTION.
+       01 PAYHIS01.
+           02 PAYHIS-KEY.
+             03 PH-KEY8 PIC X(8).
+             03 PH-CLAIM PIC X(6).
+             03 PH-REC-TYPE PIC X.
+             03 PH-KEY4 PIC XXXX.
+           02 PC1-IND PIC 9.
+           02 PC1-AMOUNT PIC X(6).
+           02 PC1-PAYCODE PIC XXX.
+           02 PC1-DENIAL PIC XX.
+           02 PC1-DATE-T PIC X(8).
+           02 PC1-DATE-E PIC X(8).
+           02 PC1-BATCH  PIC X(6).
+           02 PC1-FUTURE PIC X(10).
+           02 PC2-IND PIC 9.
+           02 PC2-AMOUNT PIC X(6).
+           02 PC2-PAYCODE PIC XXX.
+           02 PC2-DENIAL PIC XX.
+           02 PC2-DATE-T PIC X(8).
+           02 PC2-DATE-E PIC X(8).
+           02 PC2-BATCH  PIC X(6).
+           02 PC2-FUTURE PIC X(10).
+           02 PH-FUTURE PIC X(51).
+       01  PHR01.
+           02 PHR02 OCCURS 1000 TIMES INDEXED BY PHR.
+             03 PHR-CLAIM PIC 9(6).
+             03 PHR-AMOUNT PIC X(6).
+             03 PHR-PAYCODE PIC 999.
+             03 PHR-DENIAL PIC XX.
+             03 PHR-DATE-T PIC 9(8).
+             03 PHR-DATE-E PIC 9(8).
+             03 PHR-BATCH PIC X(6).
+       01  CLAIM-TOT PIC S9(6)V99.
+       01  X USAGE IS INDEX.
+       01  HOLD8 PIC X(8).
+       01  CNTR PIC 9(4).
+       01  NUM3 PIC 999 VALUE 0.
+       01  PCNTR PIC 9.
+       01  alf1 pic x.
+       01  hisback01 pic x(131).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT CHAROUT PAYCUR I-O HISFILE.
+           MOVE SPACE TO CC-FUTURE OF HISFILE01
+           PERFORM A2
+           MOVE SPACE TO HOLD8.
+       R0. READ CHAROUT AT END GO TO P20.
+      *    IF NUM3 > 50 GO TO P20.
+      *    ADD 1 TO NUM3
+           IF CC-KEY8 OF CHAROUT01 NOT = HOLD8
+           MOVE 0 TO CNTR
+           MOVE CC-KEY8 OF CHAROUT01 TO HOLD8
+           PERFORM R5 THRU R8.
+           MOVE CORR CHAROUT01 TO HISFILE01
+           MOVE CC-CLAIM OF CHAROUT01 TO CC-CLAIM OF HISFILE01
+           MOVE CC-KEY8 OF CHAROUT01 TO CC-KEY8 OF HISFILE01
+           MOVE "1" TO CC-REC-TYPE.
+           move hisfile01 to hisback01.
+       R0-1.
+           ADD 1 TO CNTR
+           MOVE CNTR TO CC-KEY4
+           read HISFILE INVALID go to r0-2. 
+           GO TO R0-1.
+       r0-2.
+           move hisback01 to hisfile01
+           move cntr to cc-key4
+           write hisfile01.
+
+           PERFORM R9 THRU R10 VARYING X FROM 1 BY 1 UNTIL X > PHR
+           IF PCNTR NOT = 0 PERFORM A1 thru a1-exit
+           ELSE PERFORM A2.
+           GO TO R0.
+       R9.
+           IF CC-CLAIM OF CHAROUT01 NOT = PHR-CLAIM(X) GO TO R10.
+           IF PCNTR = 0 GO TO B0.
+           IF PCNTR = 1 GO TO B1.
+       B0. MOVE 1 TO PC1-IND
+           MOVE PHR-AMOUNT(X) TO PC1-AMOUNT
+           MOVE PHR-PAYCODE(X) TO PC1-PAYCODE
+           MOVE PHR-DENIAL(X) TO PC1-DENIAL
+           MOVE PHR-DATE-T(X) TO PC1-DATE-T
+           MOVE PHR-DATE-E(X) TO PC1-DATE-E
+           MOVE PHR-BATCH(X) TO PC1-BATCH
+           ADD 1 TO PCNTR
+           GO TO R10.
+       B1. MOVE 2 TO PC2-IND
+           MOVE PHR-AMOUNT(X) TO PC2-AMOUNT
+           MOVE PHR-PAYCODE(X) TO PC2-PAYCODE
+           MOVE PHR-DENIAL(X) TO PC2-DENIAL
+           MOVE PHR-DATE-T(X) TO PC2-DATE-T
+           MOVE PHR-DATE-E(X) TO PC2-DATE-E
+           MOVE PHR-BATCH(X) TO PC2-BATCH
+           ADD 1 TO PCNTR
+           PERFORM A1 thru a1-exit
+           GO TO R10.
+       R10. EXIT.
+       A1. MOVE CC-KEY8 OF CHAROUT-KEY TO PH-KEY8
+           MOVE CC-CLAIM OF CHAROUT01   TO PH-CLAIM
+           MOVE "2" TO PH-REC-TYPE
+           MOVE SPACE TO PC1-FUTURE PC2-FUTURE PH-FUTURE
+           MOVE PAYHIS01 TO HISFILE01
+           move hisfile01 to hisback01.
+       a1-1.
+           ADD 1 TO CNTR
+           MOVE CNTR TO CC-KEY4
+           read  HISFILE invalid  go to a1-2.
+           go to a1-1.
+       a1-2.
+           move hisback01 to hisfile01
+           move cntr to cc-key4
+           write hisfile01
+           PERFORM A2.
+       a1-exit.
+           exit.
+       A2.
+           MOVE 0 TO PCNTR
+           PC1-IND PC2-IND 
+           PC1-AMOUNT PC2-AMOUNT 
+           MOVE SPACE TO
+           PC1-BATCH PC2-BATCH
+           PC1-DENIAL PC2-DENIAL 
+           PC1-DATE-T PC2-DATE-T 
+           PC1-DATE-E PC2-DATE-E.
+       R5.
+           SET PHR TO 1
+           MOVE HOLD8 TO PC-KEY8
+           MOVE SPACE TO PC-KEY3
+           START PAYCUR KEY > PAYCUR-KEY INVALID GO TO R7.
+       R6. READ PAYCUR NEXT AT END GO TO R7.
+           IF HOLD8 NOT = PC-KEY8 GO TO R7.
+           IF PHR > 1000 DISPLAY CHAROUT01
+           GO TO R7.
+           MOVE PC-CLAIM TO PHR-CLAIM(PHR)
+           MOVE PC-AMOUNT TO PHR-AMOUNT(PHR)
+           MOVE PC-PAYCODE TO PHR-PAYCODE(PHR)
+           MOVE PC-DATE-T TO PHR-DATE-T(PHR)
+           MOVE PC-DENIAL TO PHR-DENIAL(PHR)
+           MOVE PC-DATE-E TO PHR-DATE-E(PHR)
+           MOVE PC-BATCH TO PHR-BATCH(PHR)
+           SET PHR UP BY 1
+           GO TO R6.
+       R7. SET PHR DOWN BY 1.
+       R8. EXIT.
+       P20. IF PCNTR NOT = 0 PERFORM A1 thru a1-exit.
+            CLOSE HISFILE
+           STOP RUN.

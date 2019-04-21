@@ -1,0 +1,72 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DES025.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT DIAGFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS DIAG-KEY
+           ALTERNATE RECORD KEY IS DIAG-TITLE WITH DUPLICATES
+           LOCK MODE MANUAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+
+       FD  DIAGFILE.
+       01  DIAG01.
+           02 DIAG-KEY.
+              03 diag-9 PIC X(5).
+              03 diag-10 pic xx.
+           02 DIAG-TITLE.
+             03 DIAG-T1 PIC XXXXX.
+             03 DIAG-T2 PIC X(56).
+           02 DIAG-MEDB PIC X(5).
+       WORKING-STORAGE SECTION.
+       01  TALLYX PIC 9.
+       01  TALLYRT PIC 9.
+       01  TALLYlT PIC 9.
+       01  TALLYRIT PIC 9.
+       01  TALLYLIT PIC 9.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN INPUT diagFILE.
+       P1. 
+           READ DIAGFILE NEXT AT END GO TO P99.
+           MOVE 0 TO TALLYRIT tallylit tallyrt tallylt
+
+
+           INSPECT diag-title TALLYING TALLYRIT FOR ALL " RIGHT "
+
+           INSPECT diag-title TALLYING TALLYLIT FOR ALL " LEFT "
+
+           INSPECT diag-title TALLYING TALLYRT FOR ALL " RT "
+
+           INSPECT diag-title TALLYING TALLYLT FOR ALL " LT "
+
+           compute tallyx = tallyrit + tallylit + tallyrt + tallylt
+           if tallyx = 0 go to p1.
+           if tallyx > 1
+            IF TALLYRIT = 1
+             DISPLAY diag-title
+            end-if
+            IF TALLYLIT = 1
+             DISPLAY diag-key " " diag-title
+            end-if
+    
+     
+            IF TALLYRT = 1
+             DISPLAY diag-title
+            end-if
+            
+          
+            IF TALLYLT = 1
+             DISPLAY diag-title
+            end-if
+           accept omitted
+           end-if
+           
+           go to p1.
+       P99.
+           close diagfile
+           STOP RUN.

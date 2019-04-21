@@ -1,0 +1,110 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. COMA004.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FILEIN01 PIC X(999).
+       FD  FILEOUT.
+       01  FILEOUT01 pic x(5).
+
+
+
+       WORKING-STORAGE SECTION.
+       01  FO-1 PIC X(5).
+       01  FO-2 PIC X(5).
+       01  FO-3 PIC X(5).
+       01  FO-4 PIC X(5).
+       01  FO-5 PIC X(5).
+       01  FO-6 PIC X(5).
+       01  FO-7 PIC X(5).
+       01  FO-8 PIC X(5).
+       01  FO-9 PIC X(5).
+       01  FO-10 PIC X(5).
+       01  FO-11 PIC X(5).
+       01  FO-12 PIC X(5).
+       01  FO-13 PIC X(5).
+       01  FO-14 PIC X(5).
+       01  FO-15 PIC X(5).
+       01  FO-16 PIC X(5).
+       01  FO-17 PIC X(5).
+       01  FO-18 PIC X(5).
+       01  FO-19 PIC X(5).
+       01  FO-20 PIC X(5).
+       01  FO-21 PIC X(5).
+       01  FO-22 PIC X(5).
+       01  FO-23 PIC X(5).
+       01  FO-24 PIC X(5).
+       01  FO-25 PIC X(5).
+       01  FO-26 PIC X(5).
+       01  FO-27 PIC X(5).
+       01  FO-28 PIC X(5).
+       01  FO-29 PIC X(5).
+       01  FO-30 PIC X(5).
+       01  FO-31 PIC X(5).
+       01  FO-32 PIC X(5).
+       01  FO-33 PIC X(5).
+       01  FO-34 PIC X(5).
+       01  FO-35 PIC X(5).
+       01  FO-36 PIC X(5).
+       01  FO-37 PIC X(5).
+       01  FO-38 PIC X(5).
+       01  FO-39 PIC X(5).
+       01  FO-40 PIC X(5).
+       01  FO-41 PIC X(5).
+       01  FO-42 PIC X(5).
+       01  FO-43 PIC X(5).
+       01  FO-44 PIC X(5).
+       01  FO-45 PIC X(8).
+       01  FO-46 PIC X(5).
+       01  FO-47 PIC X(5).
+       01  FO-48 PIC X(8).
+       01  FO-49 PIC X(5).
+       01  FO-50 PIC X(6).
+       01  FO-51 PIC X(5).
+       01  FO-52 PIC X(5).
+       01  FO-53 PIC X(5).
+       01  FO-54 PIC X(6).
+       01  fo-55  pic x.       
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+       P1.
+           move space to 
+           fo-1 fo-2 fo-3 fo-4 fo-5 fo-6 fo-7
+           fo-8 fo-9 fo-10 fo-11
+           fo-12 fo-13 fo-14 fo-15 fo-16 fo-17 fo-18 fo-19
+           fo-20 fo-21 fo-22 fo-23 fo-24 fo-25 fo-26 fo-27
+           fo-28 fo-29 fo-30 fo-31 fo-32 fo-33 fo-34 fo-35
+           fo-36 fo-37 fo-38 fo-39 fo-40 fo-41 fo-42 fo-43
+           fo-44 fo-45 fo-36 fo-47 fo-48 fo-49 fo-50 fo-51
+           fo-42 fo-53 fo-54	
+           READ FILEIN AT END GO TO P2.
+           MOVE SPACE TO FILEOUT01
+           UNSTRING FILEIN01 DELIMITED BY "," INTO
+           fo-1 fo-2 fo-3 fo-4 fo-5 fo-6 fo-7
+           fo-8 fo-9 fo-10 fo-11
+           fo-12 fo-13 fo-14 fo-15 fo-16 fo-17 fo-18 fo-19
+           fo-20 fo-21 fo-22 fo-23 fo-24 fo-25 fo-26 fo-27
+           fo-28 fo-29 fo-30 fo-31 fo-32 fo-33 fo-34 fo-35
+           fo-36 fo-37 fo-38 fo-39 fo-40 fo-41 fo-42 fo-43
+           fo-44 fo-45 fo-36 fo-47 fo-48 fo-49 fo-50 fo-51
+           fo-42 fo-53 fo-54	
+           display fo-12
+           display fo-45
+           display fo-50
+           accept omitted	
+           GO TO P1.
+       P2.
+           CLOSE FILEIN FILEOUT
+           STOP RUN.
+

@@ -1,0 +1,102 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DES014.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S25" 
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT1 ASSIGN TO "S30" 
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT2 ASSIGN TO "S35" 
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT REFCHCRR ASSIGN TO "S40" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS REFCHCRR-KEY
+             ALTERNATE RECORD KEY IS REFCHCRR-BSNUM  WITH DUPLICATES
+             ALTERNATE RECORD KEY IS REFCHCRR-CRNUM WITH DUPLICATES
+             ALTERNATE RECORD KEY IS REFCHCRR-UPIN  WITH DUPLICATES
+             ALTERNATE RECORD KEY IS REFCHCRR-CDNUM WITH DUPLICATES
+             ALTERNATE RECORD KEY IS REFCHCRR-NAME  WITH DUPLICATES
+             LOCK MODE MANUAL.
+
+           
+       DATA DIVISION.
+       FILE SECTION.
+       FD FILEOUT1.
+       01  FILEOUT101 PIC X(160).
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(160).
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FILEIN-KEY.
+             03 FI-KEY8 PIC X(8).
+             03 FI-KEY3 PIC XXX.
+           02 FI-PATID PIC X(8).
+           02 FI-CLAIM PIC X(6).
+           02 FI-SERVICE PIC X.
+           02 FI-DIAG PIC X(7).
+           02 FI-PROC PIC X(11).
+           02 FI-MOD2 PIC XX.
+           02 FI-MOD3 PIC XX.
+           02 FI-MOD4 PIC XX.
+           02 FI-AMOUNT PIC S9(4)V99.
+           02 FI-DOCR PIC X(3).
+           02 FI-DOCP PIC X(2).
+           02 FI-PAYCODE PIC XXX.
+           02 FI-STUD PIC X.
+           02 FI-WORK PIC XX.
+           02 FI-DAT1 PIC X(8).
+           02 FI-RESULT PIC X.
+           02 FI-ACT PIC X.
+           02 FI-SORCREF PIC X.
+           02 FI-COLLT PIC X.
+           02 FI-AUTH PIC X.
+           02 FI-PAPER PIC X.
+           02 FI-PLACE PIC X.
+           02 FI-EPSDT PIC X.
+           02 FI-DATE-T PIC X(8).
+           02 FI-DATE-A PIC X(8).
+           02 FI-DATE-P PIC X(8).
+           02 FI-REC-STAT PIC X.
+           02 FI-DX2 PIC X(7).
+           02 FI-DX3 PIC X(7).
+           02 FI-AFI-TYPE PIC X.
+           02 FI-DATE-M PIC X(8).
+           02 FI-ASSIGN PIC X.
+           02 FI-NEIC-ASSIGN PIC X.
+           02 FI-DX4 PIC X(7).
+           02 FI-DX5 PIC X(7).
+           02 FI-DX6 PIC X(7).
+           02 FI-FUTURE PIC X(6).
+       FD  REFCHCRR.
+       01  REFCHCRR01.
+           02 REFCHCRR-KEY PIC XXX.
+           02 REFCHCRR-BSNUM PIC X(5).
+           02 REFCHCRR-CRNUM PIC X(6).
+           02 REFCHCRR-UPIN PIC X(6).
+           02 REFCHCRR-CDNUM PIC X(7).
+           02 REFCHCRR-NAME PIC X(24).
+           02 REFCHCRR-NPI PIC X(10).
+           
+       WORKING-STORAGE SECTION.
+
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN REFCHCRR
+           OUTPUT FILEOUT1 FILEOUT2.
+       P1.
+           READ FILEIN AT END GO TO P99.
+           MOVE FI-DOCR TO REFCHCRR-KEY
+           READ REFCHCRR 
+              INVALID
+                MOVE FILEIN01 TO FILEOUT201
+                WRITE FILEOUT201
+              NOT INVALID
+                MOVE FILEIN01 TO FILEOUT101              
+                WRITE FILEOUT101
+           END-READ
+           GO TO P1.           
+       P99.
+           CLOSE FILEOUT1 FILEOUT2 REFCHCRR FILEIN.
+           STOP RUN.

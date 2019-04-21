@@ -1,0 +1,54 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01.
+           02 ASSET-ID PIC 9(7).
+           02 HY-QUAD PIC X(4).
+           02 HY-COF PIC 9.
+           02 HY-REDUN PIC 999.
+           02 HY-FACTOR PIC 9V9.
+           02 HY-POF PIC 9.
+       FD  FILEIN.
+       01  FILEIN01 PIC X(600).
+       WORKING-STORAGE SECTION.
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+           MOVE 0 TO ASSET-ID.
+       P1.
+           MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P2.
+           ADD 1 TO ASSET-ID
+           IF FILEIN01(34:6) NOT = "System" GO TO P1.
+           MOVE SPACE TO RIGHT-3
+           MOVE FILEIN01(305:3) TO RIGHT-3
+           INSPECT RIGHT-3 REPLACING LEADING " " BY "0"
+           IF RIGHT-3 NOT NUMERIC
+             MOVE 0 TO HY-REDUN
+           ELSE
+             MOVE RIGHT-3 TO HY-REDUN
+           END-IF
+           DISPLAY HY-REDUN
+           ACCEPT OMITTED.
+           MOVE FILEIN01(4:4) TO HY-QUAD
+           MOVE FILEIN01(362:1) TO HY-POF
+           MOVE FILEIN01(292:1) TO HY-COF
+           COMPUTE HY-FACTOR = 0.4
+           WRITE FILEOUT01
+           GO TO P1.
+       P2.
+           CLOSE FILEIN FILEOUT.
+           STOP RUN.

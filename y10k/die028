@@ -1,0 +1,733 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DIE010.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT TAGFILE ASSIGN TO "S15" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS TAG-garno
+           ALTERNATE RECORD KEY IS TAG-en with duplicates 
+           LOCK MODE MANUAL.
+           SELECT ACCTGARFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS AG-KEY
+           ALTERNATE RECORD KEY IS ACCT-KEY with duplicates
+           LOCK MODE MANUAL.
+           SELECT FILEVITALS ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT ERRORFILE ASSIGN TO "S50" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEFORMS ASSIGN TO "S65" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEIN ASSIGN TO "S70" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT ERRFILE ASSIGN TO "S75" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S80" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEENCOUNTER ASSIGN TO "S85" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEsoap ASSIGN TO "S90" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT soapfile ASSIGN TO "S95" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS soap-KEY
+           LOCK MODE MANUAL.
+           SELECT vitalfile ASSIGN TO "S100" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS vital-KEY
+           LOCK MODE MANUAL.
+           SELECT enctrfile ASSIGN TO "S105" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS enctr-KEY
+           LOCK MODE MANUAL.
+           SELECT formsfile ASSIGN TO "S110" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS forms-KEY
+           LOCK MODE MANUAL.
+           SELECT med123 ASSIGN TO "S115" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS MED123-KEY
+           LOCK MODE MANUAL.
+           SELECT TAGERRFILE ASSIGN TO "S120" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT enctrisam ASSIGN TO "S125" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS enctrisam-KEY
+           LOCK MODE MANUAL.
+           SELECT CHARCUR ASSIGN TO "S130" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  CHARCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(5).
+           02 CC-PROC PIC X(7).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(5).
+           02 CC-DX3 PIC X(5).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-FUTURE PIC X(6).
+       FD  enctrisam.
+       01  enctrisam01.
+           02 enctrisam-key.
+             03 enctrisam-date PIC X(8).
+             03 enctrisam-emr PIC X(5).
+           02 enctrisam-value pic x(7).
+       FD  enctrFILE.
+       01  enctrFILE01.
+           02 enctr-KEY PIC X.
+           02 enctr-NUM PIC 9(7).
+       FD  formsFILE.
+       01  formsFILE01.
+           02 forms-KEY PIC X.
+           02 forms-NUM PIC 9(7).
+       FD  vitalFILE.
+       01  vitalFILE01.
+           02 vital-KEY PIC X.
+           02 vital-NUM PIC 9(7).
+       FD  SOAPFILE.
+       01  SOAPFILE01.
+           02 SOAP-KEY PIC X.
+           02 SOAP-NUM PIC 9(7).
+       FD  med123.
+       01  med12301.
+           02 med123-KEY PIC X.
+           02 med123-NUM PIC 9(7).
+       FD  TAGFILE.
+       01  TAGFILE01.
+           02 TAG-GARNO PIC X(8).
+           02 TAG-EN PIC X(5).
+       FD  ERRFILE.
+       01  ERRFILE01 PIC X(168).
+       FD  ERRORFILE.
+       01  ERRORFILE01 PIC X(80).
+       FD  ACCTGARFILE.
+       01  ACCTGARFILE01.
+           02 AG-KEY PIC X(8).
+           02 ACCT-KEY PIC X(5).
+       FD FILEIN.
+       01  FILEIN01.
+           02 fi-garno pic x(8).
+           02 fi-date pic x(8).
+           02 filler pic x.
+           02 fi-category pic x(15).
+           02 fi-data PIC X(1920).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(1000).
+       FD  FILEVITALS.
+       01  FILEVITALS01 PIC X(200).
+       FD  FILEFORMS.
+       01  FILEFORMS01 PIC X(200).
+       FD  FILEENCOUNTER.
+       01  FILEENCOUNTER01 PIC X(220).
+       FD  FILESoap.
+       01  FILESoap01 PIC X(7800).
+       FD  TAGERRFILE.
+       01  TAGERRFILE01 PIC X(120).
+
+       WORKING-STORAGE SECTION.
+
+       01     cal-meds.
+              02 m-id pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-date pic x(8).
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-type pic x(15).
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-title pic x(75).
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-begdate pic x(8).
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-enddate pic x(8).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 m-returndate pic X(8).
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-occurance pic X value " ".
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-classification pic X VALUE "0".
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 m-referredby pic x.
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 m-extrainfo pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-diagnosis pic x(15).
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-activity pic x value "1".
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-comments pic x(40).
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-pid pic x(5).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 m-user pic x(3).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 m-groupname pic x VALUE "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-outcome pic x VALUE "0". 
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 m-destination pic x.
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-reinjury-id pic x VALUE "0".
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 m-injury-part pic x(8).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 m-injury-type pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 m-injury-grade pic x(169).
+              02 FILLER PIC X VALUE H"5C". 
+      *       02 m-reaction pic x(12).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 m-external-allergy-id pic x(50).
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-erx-source pic x VALUE "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 m-erx-uploaded pic x VALUE "0".
+
+
+
+       01    cal-encounter.
+             02 en-id pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-date pic x(8).
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-reason pic x(50).
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-facility pic x(50).
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-facility-id pic x.
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-pid pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-encounter pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+      *       02 en-onset-date
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-sensitivity pic x(6) value "normal".
+              02 FILLER PIC X VALUE H"5C". 
+      *       02 en-billing-note
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-pc-catid pic x value "5".
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-last-level-billed pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-last-level-closed pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+      *       02 en-last-stmt-date
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-stmt-count pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-provider-id pic x value "2".
+              02 FILLER PIC X VALUE H"5C". 
+             02 en-supervisor pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+      *       02 en-invoice-refno
+               02 FILLER PIC X VALUE H"5C". 
+      *       02 en-referral-source
+               02 FILLER PIC X VALUE H"5C". 
+             02 en-billing-facility pic x value "3".
+               02 FILLER PIC X VALUE H"5C". 
+       01     cal-events.
+              02 pc-eid pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-catid pic x value "5".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-multiple pic x value "0" .
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-aid pic x value "2".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-pid pic x(11).
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-title pic X(12).
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-datetime pic x(19).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 pc-hometext pic X(50).
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-comments pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-counter pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-topic pic x value "1".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-informant pic x value "1".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-eventdate pic x(10).
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-enddate pic x(10).
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-duration pic x(3) VALUE "900".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-recurtype pic x VALUE "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-recurrspec pic x(191). 
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-recurfreq pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-starttime pic x(8).
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-endtime pic x(8).
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-alldayevent pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-location pic x(169).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 pc-conttel pic x(12).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 pc-contname pic x(50).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 pc-contemail pic x(255).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 pc-website pic x(255).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 pc-fee pic x(50).
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-eventstatus pic x value "1".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-sharing pic x(11) value "1".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-language pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-apptstatus pic x value "-".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-prefcatid pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-facility pic x value "3".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-sendalertsmc pic xx value "NO".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-sendalertemail pic xx VALUE "NO".
+              02 FILLER PIC X VALUE H"5C". 
+              02 pc-billinglocation pic x.
+              02 FILLER PIC X VALUE H"5C". 
+       01   cal-forms.
+            02 f-id pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+            02 f-date pic x(8).
+              02 FILLER PIC X VALUE H"5C". 
+            02 f-encounter pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+            02 f-form-name pic x(21) value "Vitals".
+              02 FILLER PIC X VALUE H"5C". 
+            02 f-form-id piC x(7).
+              02 FILLER PIC X VALUE H"5C". 
+            02 f-pid pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+            02 f-user pic x(5) value "admin".
+              02 FILLER PIC X VALUE H"5C". 
+            02 f-groupname PIC X(7) VALUE "Default".
+              02 FILLER PIC X VALUE H"5C". 
+            02 f-authorized pic x value "1".
+              02 FILLER PIC X VALUE H"5C". 
+            02 f-deleted pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+            02 f-formdir pic x(10) value "vitals".
+              02 FILLER PIC X VALUE H"5C". 
+       01     cal-vitals.
+              02 v-id pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-date pic x(10).
+              02 FILLER PIC X VALUE H"5C".
+              02 v-pid pic x(10).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 v-user pic x(10).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 v-groupname pic x(10).
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-authorized pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-activity pic x value "1".
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-bps pic X(4).
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-bpd pic X(4).
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-weight pic X(4).
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-height pic X(4).
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-temperature pic x(4).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 v-temp-method pic x.
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-pulse pic x(4).
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-respiration pic x(4).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 v-note pic x(10).
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-bmi pic x(3).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 v-bmi-status pic x(3).
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-waist-circ pic x(3).
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-head-circ pic x(3). 
+              02 FILLER PIC X VALUE H"5C". 
+              02 v-oxygen-saturation pic x(3).
+
+       01     cal-soap.
+              02 s-id pic x(7).
+              02 FILLER PIC X VALUE H"5C". 
+              02 s-date pic x(10).
+              02 FILLER PIC X VALUE H"5C".
+              02 s-pid pic x(10).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 s-user pic x(10).
+              02 FILLER PIC X VALUE H"5C". 
+      *        02 s-groupname pic x(10).
+              02 FILLER PIC X VALUE H"5C". 
+              02 s-authorized pic x value "0".
+              02 FILLER PIC X VALUE H"5C". 
+              02 s-activity pic x value "1".
+              02 FILLER PIC X VALUE H"5C". 
+              02 s-subjective pic X(1920).
+              02 FILLER PIC X VALUE H"5C". 
+              02 s-objective pic X(1920).
+              02 FILLER PIC X VALUE H"5C". 
+              02 s-assessment pic X(1920).
+              02 FILLER PIC X VALUE H"5C". 
+              02 s-plan pic x(1920).
+              02 FILLER PIC X VALUE H"5C". 
+       01  CNTR-OBJ PIC 9.
+       01  CNTR-E PIC 9(7) VALUE 99.
+       01  CNTR-V PIC 9(7) VALUE 0.
+       01  CNTR-S PIC 9(7) VALUE 0.
+       01  CNTR-F PIC 9(7) VALUE 0.
+       01  CNTR-EN PIC 9(7) VALUE 0.
+       01  CNTR-N PIC 9(7) VALUE 0.
+       01  flag-obj pic 9.
+       01  NAMEF PIC X(24).
+       01  NAMEM PIC X(24).
+       01  NAMEL PIC X(24).
+       01  TEST-DATE.
+           02 D-YYYY PIC X(4).
+           02 D-MM PIC XX.
+           02 D-DD PIC XX.
+       01  DISPLAY-DATE.
+           02 D-MM PIC XX.
+           02 FILLER PIC X VALUE "-".
+           02 D-DD PIC XX.
+           02 FILLER PIC X VALUE "-".
+           02 D-YYYY PIC X(4).
+       01  DATE-TODAY PIC X(8).
+       01  sched-stat pic xx.
+       01  alf1 pic x.
+       01  num2 pic 99.
+       01  FLAG PIC 9.
+       01  SAVE-MEDREC PIC X(9).
+       01  ehr-stat pic xx.
+       01  med-stat pic xx.
+       01  recordsfile-stat pic xx.
+       01  narr-stat pic xx.
+       01  save-date pic x(8).
+       01  ALF1920 PIC X(1920).
+       01  ALF1921 PIC X(1920).
+       01  alf4 pic x(4).
+       01  alf10 pic x(10).
+       01  alf11 pic x(10).
+       01  NULL-X pic x value H"00".
+       PROCEDURE DIVISION.
+
+       P0.
+           OPEN OUTPUT
+           FILEOUT ERRFILE FILEVITALS FILEFORMS ERRORFILE FILEENCOUNTER
+                   filesoap TAGERRFILE
+           OPEN INPUT FILEIN ACCTGARFILE TAGFILE enctrisam charcur
+           open i-o soapfile vitalfile formsfile MED123 ENCTRFILE.
+           MOVE "A" TO MED123-KEY
+           READ MED123 WITH LOCK INVALID
+             DISPLAY "BAD MED123"
+             ACCEPT ALF1
+             GO TO P99
+           END-READ.
+           MOVE "A" TO SOAP-KEY
+           READ SOAPFILE WITH LOCK INVALID
+             DISPLAY "BAD SOAPFILE"
+             ACCEPT ALF1
+             GO TO P99
+           END-READ.
+           MOVE "A" TO vital-KEY
+           READ vitalFILE WITH LOCK INVALID
+             DISPLAY "BAD vitalFILE"
+             ACCEPT ALF1
+             GO TO P99
+           END-READ.
+           MOVE "A" TO forms-KEY
+           READ FORMSFILE WITH LOCK INVALID
+             DISPLAY "BAD formsFILE"
+             ACCEPT ALF1
+             GO TO P99
+           END-READ.
+           MOVE "A" TO ENCTR-KEY
+           READ ENCTRFILE WITH LOCK INVALID
+             DISPLAY "BAD ENCTRFILE"
+             ACCEPT ALF1
+             GO TO P99
+           END-READ.
+           ACCEPT DATE-TODAY FROM CENTURY-DATE.
+           MOVE "99999" TO TAG-EN
+           START TAGFILE KEY < TAG-EN
+           INVALID DISPLAY " NO RECORDS IN TAGFILE"
+            ACCEPT ALF1
+            GO TO P99
+            END-START
+            READ TAGFILE PREVIOUS AT END
+             DISPLAY " NO RECORDS IN TAGFILE"
+             ACCEPT ALF1
+             GO TO P99
+            END-READ.
+            DISPLAY TAG-EN
+            ACCEPT ALF1.
+            
+       P1.
+           move space to filein01
+           READ FILEIN AT END go to P99.
+           if fi-data = space go to p1.
+       P1-1.
+           move fi-garno to tag-garno
+           READ tagfile invalid
+           MOVE SPACE TO TAGERRFILE01
+           STRING  "no tagfile record for " fi-garno" " tag-garno 
+           delimited by size into tagerrfile01
+           write tagerrfile01
+            go to P1
+           END-READ
+           MOVE FI-GARNO TO AG-KEY
+           READ ACCTGARFILE INVALID
+           DISPLAY fi-GARNO " HAS NO ACCTGARFILE RECORD"
+           ACCEPT ALF1
+           GO TO P1
+           END-READ.
+           move 0 to cntr-obj flag-obj.
+           perform cal-ENCTR
+           go to p2-1.
+       P2.
+           MOVE SPACE TO FILEIN01
+           read filein at end
+             PERFORM WRITE-IT GO TO P99
+           END-READ
+           IF fi-garno not = Tag-GARNO
+             PERFORM WRITE-IT GO TO P1-1
+           END-IF
+           if fi-data = space go to p2.
+       P2-1.
+           if  ((fI-category =    "History:       ")
+               OR  (fi-category = "PMH:           ")
+               OR  (fi-category = "Personal:      ")
+               or  (fi-category = "Family Hx:     "))
+             move space to fileout01
+             move filein01 to fileout01
+             move "Subjective     " to fo-category
+             write fileout01
+             GO TO P2
+           end-if
+
+           if  ((fI-category =    "Data:          ")
+               OR  (fi-category = "ROS:           ")
+               OR  (fi-category = "Exam:          "))
+             move space to fileout01
+             move filein01 to fileout01
+             move "Objective      " to fo-category
+             write fileout01
+             GO TO P2
+           end-if
+
+           if  ((fI-category =    "Assessment:    ")
+             move space to fileout01
+             move filein01 to fileout01
+             move "Assessment     " to fo-category
+             write fileout01
+             GO TO P2
+           end-if
+
+           if  ((fI-category =    "Plan:          ")
+             move space to fileout01
+             move filein01 to fileout01
+             move "Plan           " to fo-category
+             write fileout01
+             GO TO P2
+           end-if
+
+           move space to fileout01
+           move fi-garno to fo-garno
+           move fi-date to fo-date
+           move fi-category to fo-category
+      *     if fo-category = "Objective:     "
+      *       move "Vitals:        " to fo-category
+      *     end-if
+
+
+       P3.
+           if fI-category = "Diagnoses - "
+            move "medical_problem" to m-type
+            perform write-calmed
+            go to p2
+           end-if
+
+           if fI-category = "Medications - "
+            move "medication     " to m-type
+            perform write-calmed
+            go to p2
+           end-if
+
+           if fI-category = "Subjective:   "
+            move fi-data to s-subjective
+           GO TO P2
+           end-if
+           if fI-category = "Objective:    "
+            move fi-data to s-objective
+           GO TO P2
+           end-if
+
+           if fI-category = "Assessment:   "
+            move fi-data to s-assessment
+           GO TO P2
+           end-if
+           if fI-category = "Plan:         "
+            move fi-data to s-objective
+           GO TO P2
+           end-if
+
+           go to p2.
+       write-calmed.
+           add 1 to med123-num
+           move med123-num to m-id
+           MOVE fi-date TO m-date
+           MOVE SPACE TO m-title
+           MOVE  NULL-X TO m-begdate
+           MOVE  NULL-X TO m-enddate
+           MOVE SPACE TO m-diagnosis
+           move fi-data(1:75) to m-title
+           move space to m-comments
+           write FILEENCOUNTER01 from cal-meds.
+       write-it.
+            MOVE SPACE TO FILEVITALS01
+            ADD 1 TO vital-num
+            MOVE vital-num TO v-id
+            MOVE ACCT-KEY TO v-pid
+            MOVE fi-DATE TO v-date
+            MOVE CAL-VITALS TO FILEVITALS01
+            WRITE FILEVITALS01
+
+            ADD 1 TO forms-num
+            MOVE forms-num TO f-id
+            MOVE fi-DATE  TO f-date
+            MOVE SPACE TO f-form-name
+            MOVE "Vitals" to f-form-name
+            MOVE SPACE TO f-formdir
+            MOVE "vitals" to f-formdir
+            MOVE enctrisam-value TO f-encounter
+            MOVE V-PID TO f-pid
+            MOVE acct-key TO f-form-id
+            WRITE FILEFORMS01 FROM CAL-FORMS.
+
+            MOVE SPACE TO FILEsoap01
+            ADD 1 TO soap-num
+            MOVE soap-num TO S-id
+            MOVE ACCT-KEY TO S-pid
+            MOVE fi-DATE TO s-date
+            MOVE CAL-SOAP TO FILESOAP01
+            WRITE FILESOAP01
+
+            ADD 1 TO forms-num
+            MOVE forms-num TO f-id
+            MOVE fi-DATE  TO f-date
+            MOVE SPACE TO f-form-name
+            MOVE "SOAP  " to f-form-name
+            MOVE SPACE TO f-formdir
+            MOVE "soap" to f-formdir
+            MOVE enctrisam-value TO f-encounter
+            MOVE acct-key TO f-pid
+            MOVE soap-num TO f-form-id
+            WRITE FILEFORMS01 FROM CAL-FORMS.
+        CAL-ENCTR.
+           perform p3-0 thru p4
+           move fi-date to enctrisam-date
+           move acct-key to enctrisam-emr
+           read enctrisam invalid
+            ADD 1 TO enctr-NUM
+            MOVE enctr-NUM TO enctrisam-value
+            MOVE enctr-NUM TO en-ID
+            move fi-date to en-date
+            MOVE "OFFICE VISIT" TO EN-REASON
+            MOVE ACCT-KEY TO EN-PID
+            MOVE ENCTR-NUM TO EN-ENCOUNTER
+            WRITE FILEOUT01 FROM CAL-encounter
+
+             ADD 1 TO FORMS-NUM
+             MOVE FORMS-NUM TO f-id
+             MOVE FI-DATE  TO f-date
+             MOVE SPACE TO f-form-name
+             MOVE "New Patient Encounter" to f-form-name
+             move space to f-formdir
+             MOVE "newpatient" to f-formdir
+             MOVE enctrisam-value TO f-encounter
+             MOVE ACCT-KEY TO f-pid
+             MOVE ACCT-KEY TO f-form-id
+             DISPLAY "NEW ENCOUNTER " FILEIN01(1:50)
+             ACCEPT ALF1
+             WRITE FILEFORMS01 FROM CAL-FORMS
+           END-READ.
+
+       p3-0.
+           move space to en-facility
+           MOVE "3" TO en-facility-id
+             MOVE "Rutland Office" TO en-facility
+
+           move fi-garno to cc-key8
+           move space to cc-key3
+           start charcur key not < charcur-key
+           invalid go to p4.
+       p3-1.
+           read charcur next at end go to p4.
+           if cc-key8 not = fi-garno go to p4.
+           if cc-date-t not = fi-date go to p3-1.
+           IF cc-PLACE = "M"
+             MOVE "4" TO en-facility-id
+             MOVE "Middlebury Office" TO en-facility
+             DISPLAY "M"
+             ACCEPT ALF1
+           end-if.
+        p4.
+           exit.
+
+       P99.
+      *     REWRITE SOAPFILE01
+      *     REWRITE FORMSFILE01
+      *     REWRITE ENCTRFILE01
+      *     REWRITE VITALFILE01
+      *     REWRITE MED12301
+           CLOSE SOAPFILE TAGFILE vitalfile enctrfile med123
+           FILEVITALS ERRORFILE FILEFORMS FILEOUT ERRFILE FILEENCOUNTER
+           filesoap formsfile TAGERRFILE
+           STOP RUN.
+            

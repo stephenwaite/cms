@@ -1,0 +1,61 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. AAA816.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PAYCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC    RECORD KEY IS PAYCUR-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PAYCUR
+           BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS PAYCUR01.
+       01  PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC XXX.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC X(6).
+           02 PC-DATE-T PIC X(8).
+           02 PC-DATE-E PIC 9(8).
+           02 PC-BATCH PIC X(6).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(50).
+       WORKING-STORAGE SECTION.
+       01  NEF-7 PIC Z,ZZ9.99DB.
+       01  NEF-7X PIC Z,ZZ9.99CR.
+       01  ANS PIC X.
+       01  A2A PIC S9(4)V99.
+
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT PAYCUR INPUT FILEOUT.
+       P1.
+           READ PAYCUR NEXT AT END GO TO P99.
+           MOVE PC-AMOUNT TO A2A
+           MOVE A2A TO NEF-7
+           MOVE A2A TO NEF-7X
+
+           DISPLAY A2A
+           DISPLAY NEF-7
+           DISPLAY NEF-7X
+           ACCEPT ANS
+           COMPUTE A2A = A2A + A2A
+           MOVE A2A TO NEF-7
+           MOVE A2A TO NEF-7X
+
+           DISPLAY A2A
+           DISPLAY NEF-7
+           DISPLAY NEF-7X
+           ACCEPT ANS.
+
+       P99.
+           CLOSE PAYCUR FILEOUT.
+           STOP RUN.

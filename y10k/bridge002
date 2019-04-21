@@ -1,0 +1,269 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CHARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEOUT ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(129). 
+       WORKING-STORAGE SECTION.
+       01  CARD01.
+           02 FILLER PIC X(26) VALUE "C2C3C4C5C6C7C8C9CTCJCQCKCA".
+           02 FILLER PIC X(26) VALUE "DADKDQDJD6D7D8D9DTD5D4D3D2".
+           02 FILLER PIC X(26) VALUE "H2H3H4H5H6H7H8H9HTHJHQHKHA".
+           02 FILLER PIC X(26) VALUE "SASKSQSJS6S7S8S9STS2S3S4S5".
+       01  CARDNAME01 REDEFINES CARD01.
+           02 CARDNAME PIC XX OCCURS 52 TIMES.
+
+       01  RNDTAB01.
+           02 RNDTAB PIC 99 OCCURS 52 TIMES.
+       01  TIME-X PIC X(8).
+       01  NUM8 PIC 9(8).
+       01  ALF2 PIC XX.
+       01  ALF8 PIC X(8).
+       01  NUMX PIC 9(7).
+       01  MOD52 PIC 99.
+       01  X PIC 99.
+       01  Y PIC 99.
+       01  Z PIC 9.
+       01  PTS-E PIC 99.
+       01  PTS-S PIC 99.
+       01  PTS-W PIC 99.
+       01  PTS-N PIC 99.
+       01  EW-PTS PIC 99.
+       01  NS-PTS PIC 99.
+       01  NEF2 PIC Z9.
+       01  HANDS PIC 99.
+       01  GAMEHANDS PIC 99.
+       01  SLAMHANDS PIC 99.
+       01  FLATHANDS PIC 99.
+       01  HANDSX PIC 99.
+       01  GAMEX PIC 99.
+       01  SLAMX PIC 99.
+       01  FLATX PIC 99.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN OUTPUT FILEOUT.
+           MOVE ALL ZEROES TO RNDTAB01.
+           MOVE 0 TO X.
+           DISPLAY "HOW MANY HAND? < 96".
+           ACCEPT HANDS.
+           DISPLAY "AT LEAST HOW NAME HANDS WITH GAME POTENTIAL?".
+           ACCEPT GAMEHANDS
+           DISPLAY "AT LEAST HOW NAME SLAM HANDS POTENITAL?".
+           ACCEPT SLAMHANDS.
+           COMPUTE FLATHANDS = HANDS - GAMEHANDS - SLAMHANDS
+           MOVE 0 TO HANDSX FLATX GAMEX SLAMX.
+       P1.
+           ACCEPT TIME-X FROM TIME.
+           MOVE SPACE TO ALF8
+           STRING TIME-X(7:1) TIME-X(8:1) TIME-X(3:2) TIME-X(5:2)
+                  TIME-X(8:1) TIME-X(7:1)
+           DELIMITED BY SIZE INTO ALF8
+           MOVE ALF8 TO NUM8
+           DIVIDE NUM8 BY 52 GIVING NUMX REMAINDER MOD52
+      *     DISPLAY TIME-X " " NUM8 " " MOD52
+           ADD 1 TO MOD52
+           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > X
+            IF RNDTAB(Y) = MOD52
+               GO TO P1
+            END-IF
+           END-PERFORM
+           ADD 1 TO X
+           MOVE MOD52 TO RNDTAB(X)
+
+            IF X < 52  GO TO P1.
+
+             DISPLAY RNDTAB01
+               MOVE 0 TO PTS-E
+               PERFORM VARYING X FROM 1 BY 1 UNTIL X > 13
+                MOVE RNDTAB(X) TO Y
+                MOVE CARDNAME(Y) TO ALF2
+                IF ALF2(2:1) = "J" ADD 1 TO PTS-E
+                END-IF
+                IF ALF2(2:1) = "Q" ADD 2 TO PTS-E
+                END-IF
+                IF ALF2(2:1) = "K" ADD 3 TO PTS-E
+                END-IF
+                IF ALF2(2:1) = "A" ADD 4 TO PTS-E
+                END-IF
+               END-PERFORM
+
+                MOVE 0 TO PTS-S
+               PERFORM VARYING X FROM 14 BY 1 UNTIL X > 26
+                MOVE RNDTAB(X) TO Y
+                MOVE CARDNAME(Y) TO ALF2
+                IF ALF2(2:1) = "J" ADD 1 TO PTS-S
+                END-IF
+                IF ALF2(2:1) = "Q" ADD 2 TO PTS-S
+                END-IF
+                IF ALF2(2:1) = "K" ADD 3 TO PTS-S
+                END-IF
+                IF ALF2(2:1) = "A" ADD 4 TO PTS-S
+                END-IF
+               END-PERFORM
+
+
+               MOVE 0 TO PTS-W
+               PERFORM VARYING X FROM 27 BY 1 UNTIL X > 39
+                MOVE RNDTAB(X) TO Y
+                MOVE CARDNAME(Y) TO ALF2
+
+                IF ALF2(2:1) = "J" ADD 1 TO PTS-W
+                END-IF
+                IF ALF2(2:1) = "Q" ADD 2 TO PTS-W
+                END-IF
+                IF ALF2(2:1) = "K" ADD 3 TO PTS-W
+                END-IF
+                IF ALF2(2:1) = "A" ADD 4 TO PTS-W
+                END-IF
+               END-PERFORM
+
+               MOVE 0 TO PTS-N
+               PERFORM VARYING X FROM 40 BY 1 UNTIL X > 52
+                MOVE RNDTAB(X) TO Y
+                MOVE CARDNAME(Y) TO ALF2
+
+                IF ALF2(2:1) = "J" ADD 1 TO PTS-N
+                END-IF
+                IF ALF2(2:1) = "Q" ADD 2 TO PTS-N
+                END-IF
+                IF ALF2(2:1) = "K" ADD 3 TO PTS-N
+                END-IF
+                IF ALF2(2:1) = "A" ADD 4 TO PTS-N
+                END-IF
+               END-PERFORM
+
+
+               MOVE 0 TO EW-PTS NS-PTS
+               COMPUTE EW-PTS = PTS-E + PTS-W
+               COMPUTE NS-PTS = PTS-N + PTS-S
+
+               IF (NS-PTS > 30) OR (EW-PTS > 30)
+                  ADD 1 TO SLAMX
+                  IF SLAMX >= SLAMHANDS
+                    MOVE ALL ZEROES TO RNDTAB01
+                    MOVE 0 TO X
+                    GO TO P1
+                  ELSE
+                    DISPLAY "SLAM"
+                    GO TO P2
+                  END-IF
+               END-IF
+
+               IF (EW-PTS <= 30 AND > 24)
+                OR (NS-PTS <= 30 AND > 24)
+                 ADD 1 TO GAMEX
+                 IF GAMEX >= GAMEHANDS
+                    MOVE ALL ZEROES TO RNDTAB01
+                    MOVE 0 TO X
+                    GO TO P1
+                 ELSE
+                    display "GAME"
+                    GO TO P2
+                 END-IF
+               END-IF
+
+               IF   (PTS-E < 13)
+                AND (PTS-W < 13)
+                AND (PTS-S < 13)
+                AND (PTS-N < 13)
+                   MOVE ALL ZEROES TO RNDTAB01
+                   MOVE 0 TO X
+                   GO TO P1.
+
+                 ADD 1 TO FLATX
+                 IF FLATX >= FLATHANDS
+                    MOVE ALL ZEROES TO RNDTAB01
+                    MOVE 0 TO X
+                    GO TO P1
+                 ELSE
+                    display "FLAT"
+                    GO TO P2
+                 END-IF.
+
+         P2.
+               MOVE "NEW HAND" TO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+               MOVE "EAST HAND" TO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01     
+               PERFORM VARYING X FROM 1 BY 1 UNTIL X > 13
+                MOVE RNDTAB(X) TO Y
+                WRITE FILEOUT01 FROM  CARDNAME(Y)
+               END-PERFORM
+
+               MOVE SPACE TO FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+               MOVE "SOUTH HAND" TO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01
+               PERFORM VARYING X FROM 14 BY 1 UNTIL X > 26
+                MOVE RNDTAB(X) TO Y
+                WRITE FILEOUT01 FROM  CARDNAME(Y)
+               END-PERFORM
+
+
+               MOVE SPACE TO FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+               MOVE "WEST HAND" TO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01
+               PERFORM VARYING X FROM 27 BY 1 UNTIL X > 39
+                MOVE RNDTAB(X) TO Y
+                WRITE FILEOUT01 FROM  CARDNAME(Y)
+               END-PERFORM
+
+
+               MOVE SPACE TO FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+               MOVE "NORTH HAND" TO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01
+               PERFORM VARYING X FROM 40 BY 1 UNTIL X > 52
+                MOVE RNDTAB(X) TO Y
+                WRITE FILEOUT01 FROM  CARDNAME(Y)
+               END-PERFORM
+
+               MOVE SPACE TO FILEOUT01
+             MOVE PTS-E TO NEF2
+             STRING "EAST PTS " NEF2 DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE PTS-W TO NEF2
+             STRING "WEST PTS  " NEF2 DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE PTS-N TO NEF2
+             STRING "NORTH PTS  " NEF2 DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE PTS-S TO NEF2
+             STRING "SOUTH PTS  " NEF2 DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             ADD 1 TO HANDSX
+             IF HANDSX = HANDS
+               GO TO P99
+             END-IF
+             MOVE ALL ZEROES TO RNDTAB01
+             MOVE 0 TO X
+           GO TO P1.
+       P99.
+           CLOSE FILEOUT
+           STOP RUN.

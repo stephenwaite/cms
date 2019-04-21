@@ -1,0 +1,91 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SID812.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(185).
+       FD  CHARFILE.
+       01  CHARFILE01.
+           02 CHARFILE-KEY.
+             03 CD-KEY8 PIC X(8).
+             03 CD-KEY3 PIC XXX.
+           02 CD-PATID PIC X(8).
+           02 CD-CLAIM PIC X(6).
+           02 CD-SERVICE PIC X.
+           02 CD-DIAG PIC X(7).
+           02  PROC.
+             03 CD-PROC1 PIC X(5).
+             03 CD-PROC2 PIC XX.
+           02 CD-MOD2 PIC XX.
+           02 CD-MOD3 PIC XX.
+           02 CD-MOD4 PIC XX.
+           02 CD-AMOUNT PIC S9(4)V99.
+           02 CD-DOCR PIC X(3).
+           02 CD-DOCP PIC X(2).
+           02 CD-PAYCODE PIC XXX.
+           02 CD-STAT PIC X.
+           02 CD-WORK PIC 99.
+           02 CD-DAT1 PIC X(8).
+           02 CD-RESULT PIC X.
+           02 CD-ACT PIC X.
+           02 CD-SORCREF PIC X.
+           02 CD-COLLT PIC X.
+           02 CD-AUTH PIC X.
+           02 CD-PAPER PIC X.
+           02 CD-PLACE PIC X.
+           02 CD-NAME PIC X(24).
+           02 CD-ESPDT PIC X.
+           02 CD-DATE-T PIC X(8).
+           02 CD-DATE-E PIC X(8).
+           02 CD-ORDER PIC X(6).
+           02 CD-DX2 PIC X(7).
+           02 CD-DX3 PIC X(7).
+           02 CD-DATE-A PIC X(8).
+           02 CD-ACC-TYPE PIC X.
+           02 CD-DATE-M PIC X(8).
+           02 CD-ASSIGN PIC X.
+           02 CD-NEIC-ASSIGN PIC X.
+           02 CD-DX4 PIC X(7).
+           02 CD-DX5 PIC X(7).
+           02 CD-DX6 PIC X(7).
+           02 CD-FUTURE PIC X(6).
+       WORKING-STORAGE SECTION.
+       01  CNTR PIC 9(6) VALUE 0.
+       01  DATE-X PIC X(6).
+       01  TOT PIC 9(5)V99 VALUE 0.
+       01  NEF PIC ZZ,ZZ9.99.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN I-O CHARFILE OUTPUT FILEOUT.
+       P1. READ CHARFILE NEXT WITH LOCK AT END GO TO P2.
+           IF CD-PAYCODE = "003" OR "028" GO TO P1.
+           IF CD-PROC1 < "90471" OR > "90749" GO TO P1.
+           PERFORM A1
+           IF CD-PROC1 = "90657" OR "90658" GO TO P1.
+           IF CD-AMOUNT > 24.98 
+           DISPLAY CD-KEY8 " " CD-NAME " " CD-PROC1 " " CD-AMOUNT
+           GO TO P1.
+
+           IF CD-PROC1 = "90471" OR "90472" OR "90473"
+                         OR "90467" GO TO P1.
+           IF (CD-PAYCODE = "002" OR "006" OR "074" OR "268"
+           OR "304" OR "397" OR "407") 
+           MOVE "SL" TO CD-MOD2.
+           MOVE 0 TO CD-AMOUNT
+           REWRITE CHARFILE01.
+           GO TO P1.
+       A1. 
+           WRITE FILEOUT01 FROM CHARFILE01.       
+           
+       P2. CLOSE CHARFILE FILEOUT.
+           STOP RUN.

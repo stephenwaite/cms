@@ -1,0 +1,90 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RPG002.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT RPGACTFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC        RECORD KEY IS RPG-ACTNO
+           ALTERNATE RECORD KEY IS RPG-GARNO WITH DUPLICATES
+           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD RPGACTFILE
+           BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS RPGACTFILE01.
+       01 RPGACTFILE01.
+           02 RPG-ACTNO PIC X(32).
+           02 RPG-GARNAME PIC X(24).
+           02 RPG-BILLADD PIC X(22).
+           02 RPG-STREET PIC X(22).
+           02 RPG-CITY PIC X(18).
+           02 RPG-STATE PIC X(2).
+           02 RPG-ZIP PIC X(9).
+           02 RPG-COLLT PIC X.
+           02 RPG-PHONE.
+             03 RPG-PHONE1 PIC XXX.
+             03 RPG-PHONE2 PIC XXX.
+             03 RPG-PHONE3 PIC X(4).
+           02 RPG-SEX PIC X.
+           02 RPG-RELATE PIC X.
+           02 RPG-MSTAT PIC X.
+           02 RPG-DOB PIC X(8).
+           02 RPG-DUNNING PIC X.
+           02 RPG-ACCTSTAT PIC X.
+           02 RPG-PR-MPLR PIC X(4).
+           02 RPG-PRINS PIC XXX.
+           02 RPG-PR-ASSIGN PIC X.
+           02 RPG-PR-OFFICE PIC X(4).
+           02 RPG-PR-GROUP PIC X(10).
+           02 RPG-PRIPOL.
+             03 RPG-PRIPOL1 PIC X(9).
+             03 RPG-PRIPOL2 PIC XXX.
+             03 RPG-PR-FILLER PIC X(4).
+           02 RPG-PRNAME PIC X(24).
+           02 RPG-PR-RELATE PIC X.
+           02 RPG-SE-MPLR PIC X(4).
+           02 RPG-SEINS PIC XXX.
+           02 RPG-SE-ASSIGN PIC X.
+           02 RPG-TRINSIND PIC X.
+           02 RPG-TRINS PIC XXX.
+           02 RPG-SE-GROUP PIC X(10).
+           02 RPG-SECPOL.
+             03 RPG-SECPOL1 PIC X(9).
+             03 RPG-SECPOL2 PIC XXX.
+             03 RPG-SE-FILLER PIC X(4).
+           02 RPG-SENAME PIC X(24).
+           02 RPG-SE-RELATE PIC X.
+           02 RPG-INSPEND PIC X(7).
+           02 RPG-LASTBILL PIC X(8).
+           02 RPG-ASSIGNM PIC X.
+           02 RPG-PRIVATE PIC X.
+           02 RPG-BILLCYCLE PIC X.
+           02 RPG-DELETE PIC X.
+           02 RPG-FILLER PIC XXX.
+           02 RPG-GARNO PIC X(8).
+           02 RPG-PRGRPNAME PIC X(15).
+           02 RPG-SEGRPNAME PIC X(15).
+           02 NAME-KEY PIC XXX.
+       FD FILEOUT.
+       01  FILEOUT01 PIC X(345).
+       WORKING-STORAGE SECTION.
+
+       01 ALF22X PIC X(22).
+
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN I-O RPGACTFILE OUTPUT FILEOUT.
+       P1. 
+            READ RPGACTFILE NEXT WITH LOCK AT END GO TO P99.
+            IF (RPG-DOB NOT NUMERIC)
+            DELETE RPGACTFILE RECORD.
+            GO TO P1.
+       P99.
+           CLOSE RPGACTFILE FILEOUT.
+           STOP RUN.

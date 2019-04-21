@@ -1,0 +1,40 @@
+
+     CURRENT MONTH 04-2018
+     NAME                      STREET                          CURRENT   PREVIOUS
+   0 AMERY JAMES               MAIN ST 01565                         0          0
+   0 CARPENTER HORACE AND BETH CASTLETON TOWN OFFICE                 0          0
+   0 CASTLETON HISTORICAL SOCI MAIN ST/TOWN OFFICE 00556             0          0
+   0 CASTLETON STATE COLLEGE   COLLEGE DRIVE/HASKELL HALL 0          0          0
+   0 CASTLETON STATE COLLEGE   SOUTH ST/ELLIS HALL 00314             0          0
+   0 CASTLETON STATE COLLEGE   SOUTH ST/IRRIGATION 00432             0          0
+   0 CASTLETON STATE COLLEGE   SOUTH ST/WHITE HOUSE 00119            0          0
+   0 CASTLETON TOWN OF         NORTH RD/DEWEY FIELD 00164            0          0
+   0 CFD #1 SPIGOT             NORTH ROAD/PUMP #2 00182              0          0
+   0 DAVIS EDWARD              SAND HILL RD 00097                    0          0
+   0 MITCHELL THOMAS S         GLENBROOK RD 00051                    0          0
+   0 PELLEGRINO WILLIAM & MARI MAIN ST 00651                         0          0
+   0 REHLEN JOHN W & PAMELA    MAIN ST 00629                         0          0
+   0 RILEY TERRANCE JR & JOANN SOUTH ST 00042                        0          0
+   0 SAVAGE FAMILY DEVELOPMENT SAVAGE RD 00018                       0          0
+   0 SUGARMAN RISA             MAIN ST 01077                         0          3
+   0 VERMONT STATE COLLEGES    SEMINARY LANE 00030                   0          0
+   0 VERMONT STATE COLLEGES    SEMINARY LN 00036                     0          1
+   4 BARBER CERISE             SOUTH ST 00698                      183      4,186 3-7 Days
+  18 AMERY JAMES               MAIN ST 01565                     1,963     10,784 22-34 Days
+  19 1499 CASTLETON LLC C/O EF MAIN ST 01429                     1,571      8,023
+ 204 WYMAN GERALDINE F         MEADOW LN 00044                   2,316      1,131 1-2 Days
+ 209 GROCHOT FRANK             GLENBROOK RD 00065                3,016      1,440
+ 270 CASTLETON STATE COLLEGE   SOUTH ST/SPARTAN STADIUM 004      1,148        424
+ 280 CASTLETON FEDERATED CHURC MAIN ST/FEDERATED CHURCH 005        800        285
+ 322 CASTLETON STATE COLLEGE   SOUTH ST/SPARTAN STADIUM 004        709        220
+ 454 MORAN, TERENCE C/O WAYNE  MAIN ST 00202                       963        212
+ 577 FABIAN RONALD             DEVON LANE 00029                    612        106
+ 581 MORRILL HOUSE             DEVON LANE 00041                    611        105
+1550 CASTLETON HISTORICAL SOC  MAIN ST 00407                       217         14
+5650 SMITH HOWARD              SOUTH ST 00676                      113          2
+8266 LORD LAWRENCE A           SUNCREST TERR 00129               3,224         39
+9600 PARIDON HOLLY ET AL       MAIN ST 01036                       480          5
+9999 CASTLETON STATE COLLEGE   COLLEGE DRIVE/CAMPUS CENTER       4,196          0 1-2 Days
+9999 CASTLETON STATE COLLEGE   HOFF HALL                        13,247          0 15-21 Days No Leak Now
+9999 JOFI LLC                  MAIN ST 00749                     1,263          0
+9999 UNION SCHOOL DISTRICT CAS MECHANIC ST 00047                 2,191          0

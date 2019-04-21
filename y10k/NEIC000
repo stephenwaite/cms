@@ -1,0 +1,72 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CHARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PARMFILE ASSIGN TO "S25"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEIN ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEX ASSIGN TO "S40"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PARMFILE.
+       01  PARMFILE01 PIC X(45).
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-1 PIC X(59).
+           02 FI-2 PIC X(133).
+       FD  FILEOUT.
+       01  FILEOUT01. 
+           02 FO-1 PIC X(133).
+       FD  FILEX.
+       01  FILEX01 PIC X(133).
+
+       WORKING-STORAGE SECTION.
+       01 flag PIC 9 value 0.
+       01 FILEX PIC X(133).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT PARMFILE FILEIN OUTPUT FILEOUT.
+           READ PARMFILE AT END CONTINUE.
+       P1.
+           READ FILEIN AT END GO TO P2.
+           IF FI-1(29:4) NOT = PARMFILE01(1:4) GO TO P1.
+           MOVE FI-2 TO FO-1
+           WRITE FILEOUT01
+           GO TO P1.
+       P2.
+           CLOSE FILEOUT.
+           OPEN INPUT FILEOUT OUTPUT FILEx.
+       P3.
+           READ FILEOUT AT END GO TO P99.
+           IF NOT (FO-1(12:6) = "RPT-35" OR "RPT-41") GO TO P3.
+       P3-1.
+           MOVE SPACE TO FILEX01
+           if flag = 0
+             move 1 to flag
+             WRITE FILEX01 FROM parmfile01(5:40) AFTER PAGE
+           end-if
+           WRITE FILEX01 FROM FILEOUT01.
+       P4.
+           READ FILEOUT AT END GO TO P99.
+           IF FO-1(1:1) = "1"
+              MOVE SPACE TO FILEX01
+              WRITE FILEX01
+              WRITE FILEX01
+            GO TO P3
+           end-if.
+           IF FO-1(12:6) = "RPT-35" OR "RPT-41" GO TO P3-1.
+           IF (FO-1(2:6) = "      " OR "======" OR "******")
+             GO TO P4.
+           WRITE FILEX01 FROM FILEOUT01
+           GO TO P4.
+       P99.
+           CLOSE FILEX FILEOUT.
+           STOP RUN

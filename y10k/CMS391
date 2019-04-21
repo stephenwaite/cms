@@ -1,0 +1,117 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CMS391.
+       AUTHOR. SID WAITE.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" 
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT AGEDATE ASSIGN TO "S40"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT PARMNAME ASSIGN TO "S45"
+           ORGANIZATION LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PARMNAME.
+       01  PARMNAME01 PIC X(40).
+       FD  AGEDATE.
+       01  AGEDATE01.
+           02 AGEYY PIC XXXX.
+           02 AGEMM PIC XX.
+           02 AGEDD PIC XX.
+           02 FILLER PIC X.
+           02 FI-PAYCODE PIC XXX.
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FO-PAYCODE PIC XXX.
+           02 FILLER PIC X.
+           02 I-PYY PIC XXXX.
+           02 I-PMM PIC XX.
+           02 I-PDD PIC XX.
+           02 FILLER PIC X VALUE SPACE.
+           02 I-2 PIC ZZZ9.99CR.
+           02 FILLER PIC X VALUE SPACE.
+           02 I-CYY PIC XXXX.
+           02 I-CMM PIC XX.
+           02 I-CDD PIC XX.
+           02 FILLER PIC X VALUE SPACE.
+           02 I-3 PIC X(24).
+           02 FILLER PIC X VALUE SPACE.
+           02 I-4 PIC X(11).
+           02 FILLER PIC X VALUE SPACE.
+           02 I-5 PIC X(16).
+           02 FILLER PIC X VALUE SPACE.
+           02 I-6 PIC X(16).
+           02 I-PROC PIC X(7).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(133).
+       WORKING-STORAGE SECTION.
+       01  LINE-1.
+           02 FO-PAYCODE PIC XXX.
+           02 FILLER PIC X VALUE SPACE.
+           02 I-PMM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 I-PDD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 I-PYY PIC XXXX.
+           02 FILLER PIC X VALUE SPACE.
+           02 I-2 PIC ZZZ9.99CR.
+           02 FILLER PIC XX VALUE SPACE.
+           02 I-PROC PIC X(7).
+           02 FILLER PIC X VALUE SPACE.
+           02 I-CMM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 I-CDD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 I-CYY PIC XXXX.
+           02 FILLER PIC X VALUE SPACE.
+           02 I-3 PIC X(24).
+           02 FILLER PIC X VALUE SPACE.
+           02 I-4 PIC X(11).
+           02 FILLER PIC X VALUE SPACE.
+           02 I-5 PIC X(16).
+           02 FILLER PIC X VALUE SPACE.
+           02 I-6 PIC X(16).
+       01  LINE-0.
+           02 FILLER PIC XXX VALUE "PC ".
+           02 FILLER PIC X(10) VALUE "PAYDATE   ".
+           02 FILLER PIC X(10) VALUE "PAYED AMT.".
+           02 FILLER PIC X(9) VALUE "    PROC ".
+           02 FILLER PIC X(12) VALUE " CHRG DATE  ".
+           02 FILLER PIC X(5) VALUE " NAME".
+           02 FILLER PIC X(20) VALUE SPACE.
+           02 FILLER PIC X(4) VALUE " KEY".
+           02 FILLER PIC X(6) VALUE SPACE.
+           02 FILLER PIC X(13) VALUE " PRIMARY  #  ".
+           02 L0F9   PIC X(16).
+       01 LINE-00.
+          02 L00F1 PIC X(40).
+          02 FILLER PIC X(23) VALUE " PRIMARY  PAYDATE THRU ".
+          02 L00F2 PIC XX.
+          02 FILLER PIC X VALUE "/".
+          02 L00F3 PIC XX.
+          02 FILLER PIC X VALUE "/".
+          02 L00F4 PIC XXXX.
+      *
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT AGEDATE FILEIN OUTPUT FILEOUT.
+           OPEN INPUT PARMNAME.
+           READ AGEDATE AT END GO TO P2.
+           READ PARMNAME AT END GO TO P2.
+           MOVE PARMNAME01 TO L00F1
+           MOVE AGEMM TO L00F2
+           MOVE AGEDD TO L00F3
+           MOVE AGEYY TO L00F4
+           WRITE FILEOUT01 FROM LINE-00 AFTER PAGE.
+           MOVE SPACE TO FILEOUT01.
+           MOVE " SECONDARY # " TO L0F9.
+           WRITE FILEOUT01 FROM LINE-0.
+       P1. 
+           READ FILEIN AT END GO TO P2.
+           MOVE CORR FILEIN01 TO LINE-1
+           WRITE FILEOUT01 FROM LINE-1 AFTER 2.
+           GO TO P1.
+       P2. CLOSE FILEOUT. STOP RUN.

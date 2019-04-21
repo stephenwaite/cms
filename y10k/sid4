@@ -1,0 +1,46 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CHARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  filein01.
+	   02 TR-RT PIC 9.
+	   02 TR-PL PIC 9.
+	   02 TR-YY PIC 9999.
+	   02 TR-MM PIC 99.
+	   02 TR-PC PIC 999.
+	   02 TR-NUM PIC 9(5).
+	   02 TR-AMT PIC S9(9)V99.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(80). 
+       working-storage section.
+       01  x pic 9(6) value 0.
+       01  alf3 pic xxx.
+       01  num3 pic 999.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+       P1. READ FILEIN AT END GO TO P2.
+           IF (TR-RT NOT NUMERIC)
+           OR (TR-PL NOT NUMERIC)
+           OR (TR-YY NOT NUMERIC)
+           OR (TR-MM NOT NUMERIC)
+           OR (TR-PC NOT NUMERIC)
+           OR (TR-NUM NOT NUMERIC)
+           OR (TR-AMT NOT NUMERIC)
+           WRITE FIlEOUT01 FROM FILEIN01
+           END-IF
+           GO TO P1.
+       p2.
+           CLOSE FILEIN FILEOUT
+           STOP RUN.

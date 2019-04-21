@@ -1,0 +1,118 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BBB816.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARfile-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(185).
+       FD  CHARFILE
+      *    BLOCK CONTAINS 2 RECORDS
+           DATA RECORD IS CHARFILE01.
+       01  CHARFILE01.
+           02 CHARFILE-KEY.
+             03 CD-KEY8 PIC X(8).
+             03 CD-KEY3 PIC XXX.
+           02 CD-PATID PIC X(8).
+           02 CD-CLAIM PIC X(6).
+           02 CD-SERVICE PIC X.
+           02 CD-DIAG PIC X(7).
+           02 CD-PROC PIC X(11).
+           02 CD-MOD2 PIC XX.
+           02 CD-MOD3 PIC XX.
+           02 CD-MOD4 PIC XX.
+           02 CD-AMOUNT PIC S9(4)V99.
+           02 CD-DOCR PIC X(3).
+           02 CD-DOCP PIC X(2).
+           02 CD-PAYCODE PIC XXX.
+           02 CD-STAT PIC X.
+           02 CD-WORK PIC XX.
+           02 CD-DAT1 PIC X(8).
+           02 CD-RESULT PIC X.
+           02 CD-ACT PIC X.
+           02 CD-SORCREF PIC X.
+           02 CD-COLLT PIC X.
+           02 CD-AUTH PIC X.
+           02 CD-PAPER PIC X.
+           02 CD-PLACE PIC X.
+           02 CD-NAME PIC X(24).
+           02 CD-ESPDT PIC X.
+           02 CD-DATE-T PIC X(8).
+           02 CD-DATE-E PIC X(8).
+           02 CD-ORDER PIC X(6).
+           02 CD-DX2 PIC X(7).
+           02 CD-DX3 PIC X(7).
+           02 CD-DATE-A PIC X(8).
+           02 CD-ACC-TYPE PIC X.
+           02 CD-DATE-M PIC X(8).
+           02 CD-ASSIGN PIC X.
+           02 CD-NEIC-ASSIGN PIC X.
+           02 CD-DX4 PIC X(7).
+           02 CD-DX5 PIC X(7).
+           02 CD-DX6 PIC X(7).
+           02 CD-FUTURE PIC X(6).
+       WORKING-STORAGE SECTION.
+       01 FLAG PIC 9.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN I-O CHARFILE OUTPUT FILEOUT.
+       P1.
+           READ CHARFILE NEXT WITH LOCK AT END GO TO P2.
+           MOVE CHARFILE01 TO FILEOUT01
+           MOVE 0 TO FLAG
+           IF CD-DIAG(6:2) = "0 "
+           MOVE "??" TO CD-DIAG
+           MOVE 1 TO FLAG
+           END-IF
+           IF FLAG = 1
+           DISPLAY CHARFILE01
+           ACCEPT OMITTED
+           WRITE FILEOUT01
+           REWRITE CHARFILE01.
+           GO TO P1.
+
+
+
+       P2.
+           CLOSE CHARFILE FILEOUT.
+           STOP RUN.
+
+           IF CD-DIAG = "000000"
+              or space 
+              move "0000000" to CD-diag
+              MOVE 1 TO FLAG
+           END-IF
+
+           IF CD-DX2 = "000000"
+              or space 
+
+              move "0000000" to CD-DX2
+              MOVE 1 TO FLAG
+           END-IF
+
+           IF CD-DX3 = "000000"
+              or space 
+              move "0000000" to CD-dX3
+              MOVE 1 TO FLAG
+           END-IF
+           IF CD-DX4 = SPACE
+            MOVE ZEROES TO CD-DX4
+            MOVE 1 TO FLAG
+           END-IF
+           IF CD-DX5 = SPACE
+            MOVE ZEROES TO CD-DX5
+            MOVE 1 TO FLAG
+           END-IF
+           IF CD-DX6 = SPACE
+            MOVE ZEROES TO CD-DX6
+            MOVE 1 TO FLAG
+           END-IF

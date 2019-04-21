@@ -1,0 +1,60 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FILEIN01 PIC X(120).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(120).
+
+       WORKING-STORAGE SECTION.
+       01  TALLYX PIC 9.
+       01  alf1 pic x(60).
+       01  alf2 pic x(60).
+       01  X PIC 999.
+       PROCEDURE DIVISION.
+       P0.
+           
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+       P1.
+           READ FILEIN AT END GO TO P99.
+
+           MOVE 0 TO TALLYX
+           INSPECT FILEIN01 TALLYING TALLYX FOR ALL "/home/sidw/"
+           IF TALLYX > 0
+            MOVE SPACE TO ALF1 ALF2
+            UNSTRING FILEIN01 DELIMITED BY "/home/sidw/"
+                  INTO ALF1 ALF2
+            MOVE SPACE TO FILEIN01
+            PERFORM VARYING X FROM 120 BY -1 UNTIL X < 1
+            IF ALF1(1:X) NOT = " "
+             STRING ALF1(1:X) "/home/gnucobol/" ALF2 DELIMITED BY SIZE
+                  INTO FILEIN01
+            MOVE 1 TO X
+            end-if
+            END-PERFORM
+            IF FILEIN01(1:8) = "$RUNCBL "
+            MOVE SPACE TO ALF1
+            MOVE FILEIN01(9:111) TO ALF1
+            MOVE SPACE TO FILEIN01
+            MOVE ALF1 TO FILEIN01
+           END-IF
+
+           INSPECT FILEIN01 REPLACING ALL ".b" by ".c"
+           
+           WRITE FILEOUT01 FROM FILEIN01
+           GO TO P1.
+       P2.
+
+           
+       P99. 
+           CLOSE FILEIN FILEOUT 
+           STOP RUN.

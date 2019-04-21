@@ -1,0 +1,126 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. mbi001.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT MBIFILE ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC        RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT MBIERROR ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD GARFILE
+           BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS G-MASTER.
+       01 G-MASTER.
+           02 G-GARNO.
+             03 ID1 PIC XXX.
+             03 ID2 PIC XXX.
+             03 ID3 PIC XX.
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-PR-GROUP PIC X(10).
+           02 G-PRIPOL0.
+             03 G-PRIPOL PIC X(9).
+             03 G-PR-SUFX PIC XXX.
+             03 G-PR-FILLER PIC X(4).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-SE-OFFICE PIC X(4).
+           02 G-SE-GROUP PIC X(10).
+           02 G-SECPOL0. 
+              03 G-SECPOL PIC X(9).
+              03 G-SE-FILLER PIC X(7).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-INSPEND PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+       FD  MBIFILE.
+       01  MBI01.
+           02 MBI-1 PIC X(8).
+           02 MBI-2 PIC X.
+           02 MBI-3 PIC X(11).
+       FD  MBIERROR.
+       01  MBIERR01 PIC X(50).
+
+       PROCEDURE DIVISION.
+       P1.
+           OPEN INPUT MBIFILE.
+           OPEN OUTPUT MBIERROR.
+           OPEN I-O GARFILE.
+       P2.
+           READ MBIFILE AT END GO TO P99.
+           MOVE MBI-1 TO G-GARNO
+           READ GARFILE WITH LOCK
+             INVALID
+               MOVE SPACES TO MBIERR01
+               STRING "BAD GARNO " MBI01 DELIMITED BY SIZE 
+                 INTO MBIERR01
+               WRITE MBIERR01
+               DISPLAY "BAD GARNO " MBI01
+               GO TO P2
+           END-READ
+           
+           IF (MBI-3 = SPACES) OR (MBI-3(11:1) = SPACES)
+             MOVE SPACES TO MBIERR01
+               STRING "BAD MBI " MBI01 DELIMITED BY SIZE 
+                 INTO MBIERR01
+               WRITE MBIERR01
+               DISPLAY "BAD MBI " MBI01
+               GO TO P2
+           END-IF
+
+           IF G-PRINS = "003" 
+             MOVE SPACES TO G-PRIPOL0
+             MOVE MBI-3 TO G-PRIPOL0
+             REWRITE G-MASTER
+      *       DISPLAY G-PRIPOL0 " " MBI-3
+      *       ACCEPT OMITTED
+             GO TO P2
+           END-IF
+           
+           IF G-SEINS = "003"
+             MOVE SPACES TO G-SECPOL0     
+             MOVE MBI-3 TO G-SECPOL0
+             REWRITE G-MASTER
+      *       DISPLAY "SECONDARY " G-SECPOL0 " " MBI-3
+      *       ACCEPT OMITTED
+              
+           END-IF.
+           GO TO P2.
+       P99.
+           CLOSE GARFILE MBIFILE MBIERROR.
+       
+                      

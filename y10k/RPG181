@@ -1,0 +1,268 @@
+       IDENTIFICATION  DIVISION.
+       PROGRAM-ID. RRR812.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT NEWINS ASSIGN TO "S25" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS NEW-KEY
+           LOCK MODE MANUAL.
+           SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+             LOCK MODE MANUAL.
+           SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT CHARBK ASSIGN TO "S40" ORGANIZATION
+             LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  NEWINS.
+       01  NEWINS01.
+           02 NEW-KEY PIC X(32).
+           02 NEW-GARNAME PIC X(24).
+           02 NEW-BILLADD PIC X(22).
+           02 NEW-STREET PIC X(22).
+           02 NEW-CITY PIC X(18).
+           02 NEW-STATE PIC X(2).
+           02 NEW-ZIP PIC X(9).
+           02 NEW-COLLT PIC X.
+           02 NEW-PHONE.
+             03 NEW-PHONE1 PIC XXX.
+             03 NEW-PHONE2 PIC XXX.
+             03 NEW-PHONE3 PIC X(4).
+           02 NEW-SEX PIC X.
+           02 NEW-RELATE PIC X.
+           02 NEW-MSTAT PIC X.
+           02 NEW-DOB PIC X(8).
+           02 NEW-DUNNING PIC X.
+           02 NEW-ACCTSTAT PIC X.
+           02 NEW-PR-MPLR PIC X(4).
+           02 NEW-PRINS PIC XXX.
+           02 NEW-PR-ASSIGN PIC X.
+           02 NEW-PR-OFFICE PIC X(4).
+           02 NEW-PR-GROUP PIC X(10).
+           02 NEW-PRIPOL.
+             03 NEW-PRIPOL1 PIC X(9).
+             03 NEW-PRIPOL2 PIC XXX.
+             03 NEW-PR-FILLER PIC X(4).
+           02 NEW-PRNAME PIC X(24).
+           02 NEW-PR-RELATE PIC X.
+           02 NEW-SE-MPLR PIC X(4).
+           02 NEW-SEINS PIC XXX.
+           02 NEW-SE-ASSIGN PIC X.
+           02 NEW-TRINSIND PIC X.
+           02 NEW-TRINS PIC XXX.
+           02 NEW-SE-GROUP PIC X(10).
+           02 NEW-SECPOL.
+             03 NEW-SECPOL1 PIC X(9).
+             03 NEW-SECPOL2 PIC XXX.
+             03 NEW-SE-FILLER PIC X(4).
+           02 NEW-SENAME PIC X(24).
+           02 NEW-SE-RELATE PIC X.
+           02 NEW-INSPEND PIC X(7).
+           02 NEW-LASTBILL PIC X(8).
+           02 NEW-ASSIGNM PIC X.
+           02 NEW-PRIVATE PIC X.
+           02 NEW-BILLCYCLE PIC X.
+           02 NEW-DELETE PIC X.
+           02 NEW-FILLER PIC XXX.
+           02 NEW-GARNO PIC X(8).
+           02 NEW-PRGRPNAME PIC X(15).
+           02 NEW-SEGRPNAME PIC X(15).
+           02 NEW-NAME-KEY PIC XXX.
+       FD  GARFILE.
+       01  GARFILE01.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(10).
+           02 G-PRIPOL PIC X(16).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(10).
+           02 G-SECPOL PIC X(16).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-COPAY PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+       FD CHARBK.
+       01  CHARBK01.
+           02 CHARBK-KEY.
+             03 CB-KEY8 PIC X(8).
+             03 CB-KEY3 PIC XXX.
+           02 CB-PATID PIC X(8).
+           02 CB-CLAIM PIC X(6).
+           02 CB-SERVICE PIC X.
+           02 CB-DIAG PIC X(7).
+           02 CB-PROC PIC X(11).
+           02 CB-MOD2 PIC XX.
+           02 CB-MOD3 PIC XX.
+           02 CB-MOD4 PIC XX.
+           02 CB-AMOUNT PIC S9(4)V99.
+           02 CB-DOCR PIC X(3).
+           02 CB-DOCP PIC X(2).
+           02 CB-PAYCODE PIC XXX.
+           02 CB-STAT PIC X.
+           02 CB-WORK PIC XX.
+           02 CB-DAT1 PIC X(8).
+           02 CB-RESULT PIC X.
+           02 CB-ACT PIC X.
+           02 CB-SORCREF PIC X.
+           02 CB-COLLT PIC X.
+           02 CB-AGE PIC X.
+           02 CB-PAPER PIC X.
+           02 CB-PLACE PIC X.
+           02 CB-NAME PIC X(24).
+           02 CB-EPSDT PIC X.
+           02 CB-DATE-T PIC X(8).
+           02 CB-DATE-E PIC X(8).
+           02 CB-ORDER PIC X(6).
+           02 CB-DX2 PIC X(7).
+           02 CB-DX3 PIC X(7).
+           02 CB-DATE-A PIC X(8).
+           02 CB-ACC-TYPE PIC X.
+           02 CB-DATE-M PIC X(8).
+           02 CB-ASSIGN PIC X.
+           02 CB-NEIC-ASSIGN PIC X.
+           02 CB-DX4 PIC X(7).
+           02 CB-DX5 PIC X(7).
+           02 CB-DX6 PIC X(7).
+           02 CB-FUTURE PIC X(6).
+       FD  CHARFILE
+           BLOCK CONTAINS 4 RECORDS
+           DATA RECORD IS CHARFILE01.
+       01  CHARFILE01.
+           02 CHARFILE-KEY.
+             03 CD-KEY8 PIC X(8).
+             03 CD-KEY3 PIC XXX.
+           02 CD-PATID PIC X(8).
+           02 CD-CLAIM PIC X(6).
+           02 CD-SERVICE PIC X.
+           02 CD-DIAG PIC X(7).
+           02 CD-PROC. 
+              03 CD-PROC1 PIC X(4).
+              03 CD-PROC2 PIC X(7).
+           02 CD-MOD2 PIC XX.
+           02 CD-MOD3 PIC XX.
+           02 CD-MOD4 PIC XX.
+           02 CD-AMOUNT PIC S9(4)V99.
+           02 CD-DOCR PIC X(3).
+           02 CD-DOCP PIC X(2).
+           02 CD-PAYCODE PIC XXX.
+           02 CD-STAT PIC X.
+           02 CD-WORK PIC XX.
+           02 CD-DAT1 PIC X(8).
+           02 CD-RESULT PIC X.
+           02 CD-ACT PIC X.
+           02 CD-SORCREF PIC X.
+           02 CD-COLLT PIC X.
+           02 CD-AGE PIC X.
+           02 CD-PAPER PIC X.
+           02 CD-PLACE PIC X.
+           02 CD-NAME PIC X(24).
+           02 CD-EPSDT PIC X.
+           02 CD-DATE-T PIC X(8).
+           02 CD-DATE-E PIC X(8).
+           02 CD-ORDER PIC X(6).
+           02 CD-DX2 PIC X(7).
+           02 CD-DX3 PIC X(7).
+           02 CD-DATE-A PIC X(8).
+           02 CD-ACC-TYPE PIC X.
+           02 CD-DATE-M PIC X(8).
+           02 CD-ASSIGN PIC X.
+           02 CD-NEIC-ASSIGN PIC X.
+           02 CD-DX4 PIC X(7).
+           02 CD-DX5 PIC X(7).
+           02 CD-DX6 PIC X(7).
+           02 CD-FUTURE PIC X(6).
+       WORKING-STORAGE SECTION.
+       01  TEST-DATE.
+           05  T-CC            PIC 99.
+           05  T-YY            PIC 99.
+           05  T-MM            PIC 99.
+           05  T-DD            PIC 99.
+       01  DISPLAY-DATE.
+           02 T-MM PIC XX.
+           02 FILLER PIC X VALUE "-".
+           02 T-DD PIC XX.
+           02 FILLER PIC X VALUE "-".
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
+       01 ALF3 PIC XXX.  
+       01 HOLD8 PIC X(8) VALUE SPACE.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN I-O CHARFILE GARFILE
+                INPUT  NEWINS
+                OUTPUT CHARBK.
+       P1. READ CHARFILE NEXT WITH LOCK AT END GO TO P2.
+           MOVE CD-KEY8 TO G-GARNO
+           READ GARFILE WITH LOCK INVALID GO TO P1.
+           IF CD-PAYCODE = G-PRINS GO P1.
+           MOVE SPACE TO NEW-KEY
+           STRING G-GARNAME G-DOB DELIMITED BY SIZE INTO NEW-KEY
+           READ NEWINS INVALID
+           DISPLAY NEW-KEY " BAD NEWINS KEY"
+           ACCEPT OMITTED
+           GO TO P1.
+           MOVE NEW-PRINS TO G-PRINS
+           MOVE NEW-PR-GROUP TO G-PR-GROUP
+           MOVE NEW-PR-ASSIGN TO G-PR-ASSIGN
+           MOVE NEW-PR-OFFICE TO G-PR-OFFICE
+           MOVE NEW-PRIPOL TO G-PRIPOL
+           MOVE NEW-PRNAME TO G-PRNAME
+           MOVE NEW-PR-RELATE TO G-PR-RELATE
+
+           MOVE NEW-SEINS TO G-SEINS
+           MOVE NEW-SE-GROUP TO G-SE-GROUP
+           MOVE NEW-SE-ASSIGN TO G-SE-ASSIGN
+           MOVE NEW-SECPOL TO G-SECPOL
+           MOVE NEW-SENAME TO G-SENAME
+           MOVE NEW-SE-RELATE TO G-SE-RELATE
+
+           REWRITE GARFILE01
+
+           MOVE G-PRINS TO CD-PAYCODE
+           MOVE G-PR-ASSIGN TO CD-ASSIGN
+           MOVE G-PR-ASSIGN TO CD-NEIC-ASSIGN
+
+           REWRITE CHARFILE01
+
+           GO TO P1.
+
+       P2.
+           CLOSE GARFILE CHARFILE.
+           STOP RUN.
+

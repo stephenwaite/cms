@@ -1,0 +1,672 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. NNN153.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT INSFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS INS-KEY
+           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES.
+           SELECT OUT ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT PAYBACK ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT INFILE ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  INSFILE
+     *     BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS INSFILE01.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+       FD  INFILE.
+       01  INFILE01.
+           02 INF1 PIC XXX.
+           02 FILLER PIC X(10).
+       FD OUT.
+       01  OUT01 PIC X(80).
+       FD  PAYBACK
+           DATA RECORD IS PAYBACK01.
+       01  PAYBACK01.
+           02 PART2.
+           03 PAYBACK-KEY.
+             04 PD-KEY8 PIC X(8).
+             04 PD-KEY3 PIC XXX.
+           03 PD-NAME PIC X(24).
+           03 PD-AMOUNT PIC S9(4)V99.
+           03 PD-PAYCODE PIC 999.
+           03 PD-DENIAL PIC XX.
+           03 CLAIM PIC X(6).
+           03 PD-DATE-T PIC 9(8).
+           02 PD-DATE-E PIC 9(8).
+           02 PD-ORDER PIC X(6).
+           02 PD-BATCH PIC X(6).
+       WORKING-STORAGE SECTION.
+       01  HOLDBACK01.
+           02 HBPART2.
+           03 HBPAYBACK-KEY.
+             04 HB-KEY8 PIC X(8).
+             04 HB-KEY3 PIC XXX.
+           03 HB-NAME PIC X(24).
+           03 HB-AMOUNT PIC S9(4)V99.
+           03 HB-PAYCODE PIC 999.
+           03 HB-DENIAL PIC XX.
+           03 HB-CLAIM PIC X(6).
+           03 HB-DATE-T PIC 9(8).
+           02 HB-DATE-E PIC 9(8).
+           02 HB-ORDER PIC X(6).
+           02 HB-BATCH PIC X(6).
+
+       01  TITLE01 PIC X(80) VALUE SPACE.
+       01  T101.
+           02 T11 PIC X(8) VALUE "GARNO   ".
+           02 T12 PIC X(4) VALUE "  PC".
+           02 T13 PIC X(11) VALUE "   AMOUNT  ".
+       01  T201.
+           02 T21 PIC X(8) VALUE "GARNO   ".
+           02 T22 PIC X(4) VALUE "  PC".
+           02 T23 PIC X(11) VALUE "   AMOUNT  ".
+           02 T24 PIC X(17) VALUE " NAME            ".
+       01  T301.
+           02 T31 PIC X(8) VALUE "GARNO   ".
+           02 T32 PIC X(4) VALUE "  PC".
+           02 T33 PIC X(11) VALUE "   AMOUNT  ".
+           02 T34 PIC X(9) VALUE " TRN DATE".
+           02 T35 PIC X(3) VALUE " DN".
+       01  T401.
+           02 T41 PIC X(8) VALUE "GARNO   ".
+           02 T42 PIC X(11) VALUE "   AMOUNT  ".
+           02 T43 PIC X(4) VALUE "  PC".
+           02 T44 PIC X(9) VALUE " TRN DATE".
+           02 T45 PIC X(9) VALUE " ENTRY   ".
+       01  T501.
+           02 T51 PIC X(8) VALUE "GARNO   ".
+           02 T52 PIC X(4) VALUE "  PC".
+           02 T53 PIC X(11) VALUE "   AMOUNT  ".
+           02 T54 PIC X(7) VALUE " CLAIM ".
+           02 T56 PIC X(9) VALUE " TRN DATE".
+           02 T57 PIC X(9) VALUE " ENTRY   ".
+       01  T601.
+           02 T61 PIC X(8) VALUE "GARNO   ".
+           02 T62 PIC X(17) VALUE " NAME            ".
+           02 T63 PIC X(4) VALUE "  PC".
+           02 TDN PIC X(4) VALUE " DN ".
+           02 T64 PIC X(11) VALUE "   AMOUNT  ".
+           02 T65 PIC X(7) VALUE " CLAIM ".
+           02 T66 PIC X(9) VALUE " TRN DATE".
+           02 T67 PIC X(9) VALUE "   ENTRY ".
+       01  T701.
+           02 T71 PIC X(8) VALUE "GARNO   ".
+           02 T72 PIC X(17) VALUE " NAME            ".
+           02 T73 PIC X(12) VALUE "     DEPOSIT".
+       01  T801.
+           02 T71 PIC X(8) VALUE "GARNO   ".
+           02 T72 PIC X(17) VALUE "                 ".
+           02 T73 PIC X(12) VALUE "     DEPOSIT".
+
+       01  L101.
+           02 L11 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L12 PIC X(3).
+           02 FILLER PIC X VALUE SPACE.
+           02 L13 PIC Z,ZZ9.99CR.
+       01  L201.
+           02 L21 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L22 PIC X(3).
+           02 FILLER PIC X VALUE SPACE.
+           02 L23 PIC Z,ZZ9.99CR.
+           02 FILLER PIC X VALUE SPACE.
+           02 L24 PIC X(16).
+       01  L301.
+           02 L31 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L32 PIC X(3).
+           02 FILLER PIC X VALUE SPACE.
+           02 L33 PIC Z,ZZ9.99CR.
+           02 FILLER PIC X VALUE SPACE.
+           02 L34 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L35 PIC XX.
+       01  L401.
+           02 L41 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L42 PIC Z,ZZ9.99CR.
+           02 FILLER PIC X VALUE SPACE.
+           02 L43 PIC XXX.
+           02 FILLER PIC X VALUE SPACE.
+           02 L44 PIC X(8).
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L45 PIC X(8).
+       01  L501.
+           02 L51 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L52 PIC X(3).
+           02 FILLER PIC X VALUE SPACE.
+           02 L53 PIC Z,ZZ9.99CR.
+           02 FILLER PIC X VALUE SPACE.
+           02 L54 PIC X(6).
+           02 FILLER PIC X VALUE SPACE.
+           02 L55 PIC X(8).
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L56 PIC X(8).
+       01  L601.
+           02 L61 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L62 PIC X(16).
+           02 FILLER PIC X VALUE SPACE.
+           02 L63 PIC X(3).
+           02 FILLER PIC X VALUE SPACE.
+           02 LDN PIC XX.
+           02 FILLER PIC XX VALUE SPACE.
+           02 L64 PIC Z,ZZ9.99CR.
+           02 FILLER PIC X VALUE SPACE.
+           02 L65 PIC X(6).
+           02 FILLER PIC X VALUE SPACE.
+           02 L66 PIC X(8).
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L67 PIC X(8).
+       01  L701.
+           02 L71 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L72 PIC X(16).
+           02 FILLER PIC XX VALUE SPACE.
+           02 L73 PIC Z,ZZ9.ZZCR.
+       01  CHAR-CNT01.
+           02 CHAR-CNT PIC 99999 OCCURS 999 TIMES.
+       01  CHAR-AMT01.
+           02 CHAR-AMT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  REDU-CNT01.
+           02 REDU-CNT PIC 99999 OCCURS 999 TIMES.
+       01  REDU-AMT01.
+           02 REDU-AMT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  CNT-TOT01.
+           02 CNT-TOT PIC 99999 OCCURS 999 TIMES.
+       01  AMT-TOT01.
+           02 AMT-TOT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  REDUCNT-TOT01.
+           02 REDUCNT-TOT PIC 99999 OCCURS 999 TIMES.
+       01  REDUAMT-TOT01.
+           02 REDUAMT-TOT PIC S9(8)V99 OCCURS 999 TIMES.
+       01 LINE-3.
+           02 F31 PIC X VALUE "(".
+           02 L3F1 PIC ZZZ.
+           02 F32 PIC XX VALUE ") ".
+           02 L3F2 PIC X(18).
+           02 F23 PIC X(12) VALUE SPACE.
+           02 L3F3 PIC ZZZ9.
+           02 F24 PIC XXX VALUE SPACE.
+           02 L3F4 PIC ZZ,ZZZ,ZZ9.99CR.
+       01  LINE-4.
+           02 F41 PIC X(11) VALUE SPACE.
+           02 L4F1 PIC X(18) VALUE SPACE.
+           02 F42 PIC X(5) VALUE SPACE.
+           02 L4F2 PIC ZZ,ZZ9.
+           02 F43 PIC XXX VALUE SPACE.
+           02 L4F3 PIC ZZ,ZZZ,ZZ9.99CR.
+       01 LINE-5.
+           05 F51 PIC X(4) VALUE SPACE.
+           05 L5F1 PIC X(17) VALUE "PAYORCODE        ".
+           05 F52 PIC X(14) VALUE SPACE.
+           05 L5F3 PIC X(6) VALUE "NUMBER".
+           05 F54 PIC X(10) VALUE SPACE.
+           05 L5F4 PIC X(6) VALUE "AMOUNT".
+       01  LINE-6.
+           02 F61 PIC X(8) VALUE "ACCT. # ".
+           02 F62 PIC X(16) VALUE "  GUARANTOR NAME".
+           02 F64 PIC X(6) VALUE " CLAIM".
+           02 F65 PIC X(4) VALUE "  PC".
+           02 F651 PIC X(4) VALUE "  DR".
+           02 F652 PIC X(5) VALUE " PROC".
+           02 F66 PIC X(13) VALUE "       AMOUNT".
+           02 FILLER PIC X VALUE SPACE.
+           02 F67 PIC X(8) VALUE "CHR DATE".
+           02 FILLER PIC X VALUE SPACE.
+           02 F68 PIC X(10) VALUE "BATCH NUM ".
+           02 FILLER PIC X VALUE SPACE.
+           02 F69 PIC X(4) VALUE "TIME".
+       01  LINE-7.
+           02 F71 PIC X(8) VALUE "ACCT. # ".
+           02 F72 PIC X(16) VALUE "  GUARANTOR NAME".
+           02 FILLER PIC X(4) VALUE SPACE.
+           02 F73 PIC X(13) VALUE "     TOT CASH".
+       01  HOLD-DATE PIC X(8).
+       01  TEST-DATE.
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
+           02 T-MM PIC XX.
+           02 T-DD PIC XX.
+       01  INPUT-DATE.
+           02 T-MM PIC XX.
+           02 T-DD PIC XX.
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
+       01  INPUT-DATE-S.
+           02 T-MM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-DD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
+       01  X PIC 999.
+       01  Y PIC 9999.
+       01  NUM3 PIC 999.
+       01  Z PIC 999.
+       01  PARTCNT PIC 9999 VALUE 0.
+       01  PARTCHAR PIC S9(8)V99 VALUE 0.
+       01  ADJ-CNT PIC 9999.
+       01  ANS PIC X(20).
+       01  ADJ-AMT PIC S9(8)V99.
+       01  DI-CNTR PIC 9999 VALUE 0.
+       01  DI-AMT PIC S9(8)V99 VALUE 0.
+       01  DATE-S.
+           02 S-CC PIC XX.
+           02 S-YY PIC XX.
+           02 S-MM PIC XX.
+           02 S-DD PIC XX.
+       01  TODAY-T.
+           02 TT-CC PIC XX.
+           02 TT-YY PIC XX.
+           02 TT-MM PIC XX.
+           02 TT-DD PIC XX.
+       01  ENTER01.
+           02 LOW-ENTER PIC 9(8).
+           02 HIGH-ENTER PIC 9(8).
+       01  DATE01.
+           02 LOW-DATE PIC 9(8).
+           02 HIGH-DATE PIC 9(8).
+       01  PCNUM PIC 999.
+       01  LISTIT PIC X.
+       01  FORMOUT PIC 9.
+       01  FLAG PIC 9.
+       01  CNTR PIC 99 VALUE 0.
+       01  DOT-LINE.
+           02 DOT1 PIC X(30) VALUE "------------------------------".
+           02 DOT2 PIC X(30) VALUE "------------------------------".
+       01  BIGINS PIC 999 VALUE 1.
+       01  TOT-CASH PIC S9(5)V99.
+       01  DAILY-CASH PIC S9(5)V99.
+       01  GRAND-CASH PIC S9(5)V99.
+       01  TOT-01 PIC S9(5)V99.
+       01  TOT-21 PIC S9(5)V99.
+       01  TOT-22 PIC S9(5)V99.
+
+       PROCEDURE DIVISION.
+       0005-START.
+           MOVE ALL ZEROES TO CHAR-CNT01 CHAR-AMT01 REDU-CNT01
+           REDU-AMT01 CNT-TOT01 AMT-TOT01 REDUCNT-TOT01
+           REDUAMT-TOT01.
+      *    PERFORM B1 VARYING Y FROM 1 BY 1 UNTIL Y > 999.
+           OPEN INPUT PAYBACK INSFILE INFILE.
+           OPEN OUTPUT OUT.
+           MOVE ZERO  TO PD-DATE-E.
+       A1.
+           READ INFILE AT END GO TO R20.
+           IF INFILE01 = "1" MOVE "1" TO LISTIT
+           ELSE MOVE "0" TO LISTIT.
+           READ INFILE AT END GO TO R20.
+           IF LISTIT = "1" MOVE INFILE01 TO FORMOUT
+           ELSE MOVE 0 TO FORMOUT.
+           IF FORMOUT = 1 MOVE T101 TO TITLE01.
+           IF FORMOUT = 2 MOVE T201 TO TITLE01.
+           IF FORMOUT = 3 MOVE T301 TO TITLE01.
+           IF FORMOUT = 4 MOVE T401 TO TITLE01.
+           IF FORMOUT = 5 MOVE T501 TO TITLE01.
+           IF FORMOUT = 6 MOVE T601 TO TITLE01.
+           IF FORMOUT = 7 MOVE T701 TO TITLE01.
+           IF FORMOUT = 8 MOVE T801 TO TITLE01. 
+       P1.
+           READ PAYBACK AT END GO TO P5.
+           IF FORMOUT = 7 OR 8
+             IF (PD-PAYCODE > 6 AND < 18)
+              OR (PD-DENIAL = "07" OR "08" OR "14" OR "15")
+              OR (PD-AMOUNT = 0)
+              GO TO P1
+             END-IF
+            MOVE PAYBACK01 TO HOLDBACK01
+            MOVE 0 TO TOT-CASH DAILY-CASH GRAND-CASH
+                       TOT-01 TOT-21 TOT-22
+           END-IF.
+           MOVE PD-DATE-E TO HOLD-DATE
+           WRITE OUT01 FROM TITLE01.
+           GO TO P4.
+       P2.
+           READ PAYBACK AT END GO TO P5.
+       P4.
+           IF PD-DATE-E NOT = HOLD-DATE
+            PERFORM A3 THRU A3-EXIT
+            WRITE OUT01 FROM TITLE01 AFTER 2
+           END-IF.
+           MOVE PD-PAYCODE TO X.
+           IF X > BIGINS MOVE X TO BIGINS.
+           IF PD-DENIAL = "14" ADD 1 TO REDU-CNT(X)
+           ADD PD-AMOUNT TO REDU-AMT(X) ELSE
+           ADD 1 TO CHAR-CNT(X) ADD PD-AMOUNT TO CHAR-AMT(X).
+           IF PD-DENIAL = "DI" ADD PD-AMOUNT TO DI-AMT
+           ADD 1 TO DI-CNTR.
+           IF FORMOUT = 0 GO TO P2.
+           IF (FORMOUT = 7 OR 8)
+               AND (PD-PAYCODE = 1 OR 21 OR 22)
+               AND  NOT (PD-DENIAL = "07" OR "08" OR "14" OR "15")
+
+                    IF PD-PAYCODE = 1
+                      ADD PD-AMOUNT TO TOT-01
+                    END-IF
+                    IF PD-PAYCODE = 21
+                      ADD PD-AMOUNT TO TOT-21
+                    END-IF
+                    IF PD-PAYCODE = 22
+                      ADD PD-AMOUNT TO TOT-22
+                    END-IF
+           END-IF
+           GO TO L1 L2 L3 L4 L5 L6 L7 L7 DEPENDING ON FORMOUT.
+       L1.
+           MOVE PD-KEY8 TO L11
+           MOVE PD-PAYCODE TO L12
+           MOVE PD-AMOUNT TO L13
+           WRITE OUT01 FROM L101
+           GO TO P7.
+       L2.
+           MOVE PD-KEY8 TO L21
+           MOVE PD-PAYCODE TO L22
+           MOVE PD-AMOUNT TO L23
+           MOVE PD-NAME TO L24
+           WRITE OUT01 FROM L201
+           GO TO P7.
+       L3.
+           MOVE PD-KEY8 TO L31
+           MOVE PD-PAYCODE TO L32
+           MOVE PD-AMOUNT TO L33
+           MOVE PD-DATE-T TO TEST-DATE
+           MOVE CORR TEST-DATE TO INPUT-DATE
+           MOVE INPUT-DATE TO L34
+           MOVE PD-DENIAL TO L35
+           WRITE OUT01 FROM L301
+           GO TO P7.
+       L4.
+           MOVE PD-KEY8 TO L41
+           MOVE PD-AMOUNT TO L42
+           MOVE PD-PAYCODE TO L43
+           MOVE PD-DATE-T TO TEST-DATE
+           MOVE CORR TEST-DATE TO INPUT-DATE
+           MOVE INPUT-DATE TO L44
+           MOVE PD-DATE-E TO TEST-DATE
+           MOVE CORR TEST-DATE TO INPUT-DATE
+           MOVE INPUT-DATE TO L45
+           WRITE OUT01 FROM L401
+           GO TO P7.
+       L5.
+           MOVE PD-KEY8 TO L51
+           MOVE PD-PAYCODE TO L52
+           MOVE PD-AMOUNT TO L53
+           MOVE CLAIM TO L54
+           MOVE PD-DATE-T TO TEST-DATE
+           MOVE CORR TEST-DATE TO INPUT-DATE
+           MOVE INPUT-DATE TO L55
+           MOVE PD-DATE-E TO TEST-DATE
+           MOVE CORR TEST-DATE TO INPUT-DATE
+           MOVE INPUT-DATE TO L56
+           WRITE OUT01 FROM L501
+           GO TO P7.
+       L6.
+           MOVE PD-KEY8 TO L61
+           MOVE PD-NAME TO L62
+           MOVE PD-PAYCODE TO L63
+           MOVE PD-DENIAL TO LDN
+           MOVE PD-AMOUNT TO L64
+           MOVE CLAIM TO L65
+           MOVE PD-DATE-T TO TEST-DATE
+           MOVE CORR TEST-DATE TO INPUT-DATE
+           MOVE INPUT-DATE TO L66
+           MOVE PD-DATE-E TO TEST-DATE
+           MOVE CORR TEST-DATE TO INPUT-DATE
+           MOVE INPUT-DATE TO L67
+           WRITE OUT01 FROM L601
+           GO TO P7.
+       L7.
+           IF PD-KEY8 NOT = HB-KEY8
+             MOVE HB-KEY8 TO L71
+             MOVE HB-NAME TO L72
+             MOVE TOT-CASH TO L73
+              IF FORMOUT = 8
+                MOVE SPACE TO L72
+              END-IF
+              IF TOT-CASH NOT = 0
+               COMPUTE DAILY-CASH = DAILY-CASH + TOT-CASH
+                WRITE OUT01 FROM L701
+              END-IF
+             MOVE PAYBACK01 TO HOLDBACK01
+             MOVE 0 TO TOT-CASH
+              IF NOT ((PD-PAYCODE > 6 AND < 18 )
+                OR (PD-DENIAL = "07" OR "08" OR "14" OR "15"))
+               COMPUTE TOT-CASH = PD-AMOUNT
+              END-IF
+             GO TO P2
+           END-IF
+
+              IF NOT ((PD-PAYCODE > 6 AND < 18 )
+                OR  (PD-DENIAL = "07" OR "08" OR "14" OR "15"))
+               COMPUTE TOT-CASH = TOT-CASH + PD-AMOUNT
+              END-IF
+             MOVE PAYBACK01 TO HOLDBACK01
+             GO TO P2.
+       P7. ADD 1 TO CNTR.
+           IF CNTR > 15 WRITE OUT01 FROM TITLE01 AFTER 2
+           MOVE 0 TO CNTR. GO TO P2.
+       A3.
+           IF FORMOUT = 7 OR 8
+              IF TOT-CASH NOT = 0
+                MOVE HB-KEY8 TO L71
+                MOVE HB-NAME TO L72
+                MOVE TOT-CASH TO L73
+                IF FORMOUT = 8
+                 MOVE SPACE TO L72
+                END-IF
+                WRITE OUT01 FROM L701
+                COMPUTE DAILY-CASH = DAILY-CASH + TOT-CASH
+              END-IF
+
+             MOVE HOLD-DATE TO L71
+             MOVE "DEPOSIT AMOUNT  " TO L72
+             MOVE DAILY-CASH TO L73
+             WRITE OUT01 FROM L701 AFTER 2
+             COMPUTE GRAND-CASH = GRAND-CASH + DAILY-CASH
+             MOVE 0 TO TOT-CASH DAILY-CASH
+             MOVE PD-DATE-E TO HOLD-DATE
+             GO TO A3-EXIT
+           END-IF.
+
+           WRITE OUT01 FROM LINE-5 AFTER 2.
+           MOVE 0 TO ADJ-CNT ADJ-AMT.
+           MOVE HOLD-DATE TO L4F1.
+           PERFORM B3 VARYING Y FROM 1 BY 1 UNTIL Y > BIGINS
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE "TOTAL ADJ." TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           COMPUTE ADJ-CNT = PARTCNT - ADJ-CNT.
+           COMPUTE ADJ-AMT = PARTCHAR - ADJ-AMT.
+           MOVE "TOTAL CASH" TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE PARTCNT TO L4F2
+           MOVE PARTCHAR TO L4F3
+           MOVE "TOTALS FOR" TO F41
+           WRITE OUT01 FROM LINE-4
+           WRITE OUT01 FROM DOT-LINE.
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE PD-DATE-E TO HOLD-DATE.
+           MOVE 0 TO PARTCNT PARTCHAR ADJ-CNT ADJ-AMT.
+       A3-EXIT.
+           EXIT.
+
+       B1.
+           MOVE 0 TO CHAR-CNT(Y) CHAR-AMT(Y) CNT-TOT(Y) AMT-TOT(Y)
+           REDU-CNT(Y) REDU-AMT(Y) REDUCNT-TOT(Y) REDUAMT-TOT(Y).
+       B2.
+           MOVE 0 TO CHAR-CNT(Y) CHAR-AMT(Y) REDU-CNT(Y) REDU-AMT(Y).
+       B3.
+           IF CHAR-CNT(Y) > 0 OR REDU-CNT(Y) > 0
+           MOVE CHAR-CNT(Y) TO L3F3
+           MOVE CHAR-AMT(Y) TO L3F4
+           MOVE Y TO L3F1
+           COMPUTE NUM3 = Y
+           MOVE NUM3 TO INS-KEY
+           MOVE "***BAD CODE***" TO INS-NAME
+           READ INSFILE
+           MOVE INS-NAME TO L3F2
+           ADD CHAR-CNT(Y) TO PARTCNT CNT-TOT(Y)
+           ADD CHAR-AMT(Y) TO PARTCHAR AMT-TOT(Y)
+           ADD REDU-CNT(Y) TO PARTCNT REDUCNT-TOT(Y)
+           ADD REDU-AMT(Y) TO PARTCHAR REDUAMT-TOT(Y)
+           WRITE OUT01 FROM LINE-3.
+           IF REDU-CNT(Y) > 0
+           MOVE REDU-CNT(Y) TO L3F3
+           MOVE REDU-AMT(Y) TO L3F4
+           MOVE "REDUCTION" TO L3F2
+           ADD REDU-CNT(Y) TO ADJ-CNT
+           ADD REDU-AMT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+           IF (Y > 6 AND < 20 ) AND ( Y NOT = 18 )
+           ADD CHAR-CNT(Y) TO ADJ-CNT
+           ADD CHAR-AMT(Y) TO ADJ-AMT.
+           MOVE 0 TO CHAR-CNT(Y) CHAR-AMT(Y) REDU-CNT(Y) REDU-AMT(Y).
+       B4.
+           IF CNT-TOT(Y) > 0 OR REDUCNT-TOT(Y) > 0
+           ADD CNT-TOT(Y) TO PARTCNT ADD AMT-TOT(Y) TO PARTCHAR
+           ADD REDUCNT-TOT(Y) TO PARTCNT ADD REDUAMT-TOT(Y) TO PARTCHAR
+           MOVE CNT-TOT(Y) TO L3F3
+           MOVE AMT-TOT(Y) TO L3F4
+           MOVE Y TO L3F1
+           COMPUTE NUM3 = Y
+           MOVE NUM3 TO INS-KEY
+           MOVE "***BAD CODE***" TO INS-NAME
+           READ INSFILE
+           MOVE INS-NAME TO L3F2
+           WRITE OUT01 FROM LINE-3.
+           IF REDUCNT-TOT(Y) > 0
+           MOVE REDUCNT-TOT(Y) TO L3F3
+           MOVE REDUAMT-TOT(Y) TO L3F4
+           MOVE "REDUCTION" TO L3F2
+           ADD REDUCNT-TOT(Y) TO ADJ-CNT
+           ADD REDUAMT-TOT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+           IF (Y > 6 AND < 20 ) AND ( Y NOT = 18 )
+           ADD CNT-TOT(Y) TO ADJ-CNT
+           ADD AMT-TOT(Y) TO ADJ-AMT.
+       P5.
+           IF FORMOUT = 7 OR 8
+             MOVE HB-KEY8 TO L71
+             MOVE HB-NAME TO L72
+             MOVE TOT-CASH TO L73
+                IF FORMOUT = 8
+                 MOVE SPACE TO L72
+                END-IF
+                WRITE OUT01 FROM L701
+              COMPUTE DAILY-CASH = DAILY-CASH + TOT-CASH
+             MOVE HOLD-DATE  TO L71
+             MOVE "DAILY AMOUNT    " TO L72
+             MOVE DAILY-CASH TO L73
+             WRITE OUT01 FROM L701 AFTER 2
+
+             MOVE "COMPLETE" TO L71
+             MOVE "CASH    AMOUNT  " TO L72
+             COMPUTE GRAND-CASH = GRAND-CASH + DAILY-CASH
+             MOVE GRAND-CASH TO L73
+             WRITE OUT01 FROM L701 AFTER 2
+
+             MOVE SPACE TO L71
+             MOVE "CASH DEPOSIT    " TO L72
+             MOVE TOT-01 TO L73
+             WRITE OUT01 FROM L701 AFTER 2
+
+             MOVE SPACE TO L71
+             MOVE "PERSONAL CHECKS " TO L72
+             MOVE TOT-21 TO L73
+             WRITE OUT01 FROM L701 AFTER 2
+
+            COMPUTE TOT-CASH = GRAND-CASH - TOT-01 - TOT-21 - TOT-22
+             MOVE SPACE TO L71
+             MOVE "INSURANCE CHECKS" TO L72
+             MOVE TOT-CASH TO L73
+             WRITE OUT01 FROM L701 AFTER 2
+
+             MOVE SPACE TO L71
+             MOVE "CREDIT CARD TOT " TO L72
+             MOVE TOT-22 TO L73
+             WRITE OUT01 FROM L701 AFTER 2
+
+            COMPUTE TOT-CASH = GRAND-CASH - TOT-22
+             MOVE SPACE TO L71
+             MOVE "BANK DEPOSIT    " TO L72
+             MOVE TOT-CASH TO L73
+             WRITE OUT01 FROM L701 AFTER 2
+             GO TO R20
+           END-IF.
+           PERFORM A3 THRU A3-EXIT.
+           WRITE OUT01 FROM LINE-5 AFTER 2.
+           MOVE 0  TO ADJ-CNT ADJ-AMT PARTCNT PARTCHAR.
+           MOVE "BATCHES " TO L4F1.
+           PERFORM B4 VARYING Y FROM 1 BY 1 UNTIL Y > BIGINS
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE "TOTAL ADJ." TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           COMPUTE ADJ-CNT = PARTCNT - ADJ-CNT.
+           COMPUTE ADJ-AMT = PARTCHAR - ADJ-AMT.
+           MOVE "TOTAL CASH" TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE PARTCNT TO L4F2
+           MOVE PARTCHAR TO L4F3
+           MOVE "TOTALS FOR" TO F41
+           WRITE OUT01 FROM LINE-4
+           WRITE OUT01 FROM DOT-LINE.
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE "TOTAL DEF." TO F41
+           MOVE DI-CNTR TO L4F2
+           MOVE DI-AMT TO L4F3
+           WRITE OUT01 FROM LINE-4 AFTER 2.
+       R20.
+           CLOSE INSFILE OUT PAYBACK INFILE
+           STOP RUN.

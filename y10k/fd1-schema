@@ -1,0 +1,282 @@
+
+
+  asset file (used to access the asset-part file   
+              and the maintenance file for reporting purposes
+              using the alternate keys for efficient processing.
+              the * indicates alternate key.))
+  ----------
+    as-key   9(7)  system generated(starts at 1).
+*   as-type   xx from asset table
+*   as-date   x(8) yyyymmdd.  date activated
+*   as-manu   9(5) from  manu table
+*   as-life   9(3)
+*   as-911num pic 9(5)
+*   as-911-street pic x(5 0)
+*   as-active   x.  (0 = inactive 1 = active. 3 = SPOILED)
+*   as-user pic x only fd1 = 0, only fd3 = 1 or both = 2
+
+
+asset-part file(for multi-part assets)
+the key here is both the asset-number/part-number combination
+only 99 parts for any asset should be satisfactory.
+this file will be a current condition file for all assets and
+their individual parts. the maintenance file will auto-update
+when any maintenance is done on the assets and their parts
+
+ asset-part file
+ --------------
+    sb-asset-key
+        sb-asset pic 9(7) 
+        sb-num pic 99
+    sb-type pic xx    
+    sb-manu 9(4)
+    sb-desc pic x(50)
+    sb-date x(8)
+    sb-cost 9(7)
+    sb-life 9(3)
+    sb-cond  x
+    sb-redun x
+    sb-conseq x
+     
+  asset-locate picture, gps and 911 adress of the asset.
+  -----------
+    al-key pic 9(7).
+    al-video  pic (jpeg)
+*   al-911num pic 9(5).
+*   al-911-street pic x(30).
+    al-long  x(14).
+    al-lat   x(14).
+    al-alt   x(14).
+    
+     
+meter-table(mt)
+--------
+mt-asset 9(7). 
+mt-number pic x(12)
+mt-manu pic 9(4)
+mt-type pic x(5).
+mt-date x(8)
+mt-cost 9(6)
+mt-life-9(3)
+mt-cond  x
+mt-redun x
+mt-conseq x
+
+hydrant-table(hy)
+------------
+hy-asset 9(7).
+hy-manu 9(5).
+hy-date  x(8)
+hy-cost  9(7)v99
+hy-life  9(3)
+hy-cond  x
+hy-redun x
+hy-conseq x
+
+valve-table(vl)
+-------------
+vl-asset PIC 9(7).
+vl-id PIC X(6).
+vl-manu PIC X(4).
+vl-date PIC X(8).
+vl-cost PIC S9(6)99.
+vl-life PIC 999.
+vl-cond PIC 9.
+vl-redun PIC X
+vl-conseq PIC 9.
+vl-size PIC 99.
+vl-type1 PIC XXX.
+vl-type2 PIC XXX.
+
+pump-table(pm)
+------------
+pm-asset 9(7)
+pm-manu 9(4)
+pm-date x(8)
+pm-cost 9(7)v99.
+pm-life 9(3)
+pm-cond x
+pm-redun x
+pm-conseq x
+
+curbstop-table(cs)
+-------------
+cs-asset pic 9(7)
+cs-manu 9(4)
+cs-type x(6)
+cs-date x(8)
+cs-cost 9(7)v99
+cs-life 9(3)
+cs-cond x
+cs-redun x
+cs-conseq x
+
+
+sorage-tank
+-----------
+st-asset 9(7)
+st-manu 9(4)
+st-cost 9(7)v99
+st-life pic 999
+st-vol pic 9(7)
+ 
+pipe-table(pi)
+--------
+pi-asset 9(7)
+pi-length 9(3)
+pi-manu 9(4) 
+p1-type x(4)
+p1-diameter 9(2)
+p1-date x(8)
+pi-cost 9(7)v99.
+pi-life 9(3)
+pi-cond x
+pi-redun x
+pi-conseq x
+
+joint-table(jt)
+----------
+ft-asset 9(7)
+jt-length 9(2)
+jt-manu 9(4)
+jt-date x(8)
+jt-cost 9(7)v99.
+jt-life 9(3)
+jt-cond x
+jt-redun x
+jt-conseq x
+
+
+backflow preventor file
+
+----------
+bf-asset 9(7)
+bf-manu 9(4)
+bf-date x(8)
+bf-cost 9(7)v99.
+bf-life 9(3)
+bf-cond x
+bf-redun x
+bf-conseq x
+
+expansion tank file
+
+----------
+et`-asset 9(7)
+et1-manu 9(4)
+et-date x(8)
+et-cost 9(7)v99.
+et-life 9(3)
+et-cond x
+rt-redun x
+et-conseq x
+
+
+
+repair-replace-mainenance file
+-------------------------
+  px-key pic 9(7)  (system generated starting at 1)
+  px-sb-asset-key
+   px-asset  9(7)
+   px-asset-partnum 9(2)
+*  px-operator number 99 (assigned to operators and board members
+                       and anyone else who can "work" on the assets)
+* px-type pic xx (from asset-type file)
+  px-action  x   (0 = submitted for authorization; 1 = repair
+                2 = replace or 3 = maintenance)   
+*  px-date-start x(8)
+  px-date-end pic x(8)
+  px-partcost 9(7)v99.
+  px-estimate-cost (7)v99
+* px-laborcost 9(7)v99
+  px-life 9(3)
+  px-cond x
+  px-redun x
+  px-conseq x
+  px-desc pic x(??)   (narrative of what was done)
+
+
+manufacturer-file
+-----------------
+  manu-key pic 9(4).
+* manu-name pic x(50).
+  manu-phone pic x(12). (used for ordering)
+
+    
+  asset-type/activity file
+----------------
+cs curb-stop 
+hy hydrant
+vl valve
+pm pump
+mt meter
+st storage-tank
+pi pipe
+jt joint-couple
+bf backflow preventor
+et expansion tank
+01 flushing     
+
+others may be added...
+
+
+[i am assuming that all 
+ initial condition values have been loaded
+ taken from the asset management excel files]
+  
+opening day scenio #1:
+
+a pipe has broken the previous night.
+
+the operator visits the site, diagnoses the problem
+and calls for a repair order for authorization to
+fix the problem.
+
+remote access to the office computer allows the USER
+to create a new repair-replace-maintenance-file record.
+to do this the USER MUST know the asset number of the
+pipe in question. this is done using the 911 address in
+the asset file that is closest to the break.
+
+(the asset number for the pipes will be pre-loaded with
+ the nearest 911 adress for the location. it is
+ true that a complete 911 adress may have two or more pipe
+ segments assigned to it, only because it is probably
+ impossible to get an gps location for each seqment of pipe .)
+ 
+if  the exact pipe is not known a quess is allowed; 
+but MUST be changed to the exact asset when determined
+by the operator. 
+
+the px-action code is a  0 until authorization is granted
+ by the user, not the operator)
+ 
+ when authorization is granted for work the two date values
+ and the two costs will be entered, the part cost should come
+ from the preloaded part cost from the asset-part file.
+ the esimate cost will be an estimate from an  operarator/user
+discusion.  
+
+the labor cost will be entered when an invoice is approved by the
+board. until then the cost will be zero.
+
+this form will be printed and/or sent to the operator via e-mail.
+
+this method will obviate the need for a separate purchase order
+file.
+
+the px-cond , px-redun , and px-conseq  value get loaded from
+the asset-part file automatically. the px-cond value will be
+affected when a replacement is warranted. the px-redun and px-conseq
+value don't change. the sb-date field for each part replaced must
+be modified with the repair date.
+ all changes made must be made in the asset-part.
+file automatically, in order to maintain the asset-part file in acurrent
+status mode. (this allows for reading the asset-part file to get
+current-conditions-of-the-complete-system reports.)
+ 
+
+the description field is completed by the operator 
+to describe the process, denoting any "special" complications
+that seem important for future reference.
+

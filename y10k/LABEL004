@@ -1,0 +1,567 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. KRUR135.
+       AUTHOR. SID WAITE.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT GAPFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS GAPKEY
+           ALTERNATE RECORD KEY IS GAP-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS GAP-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS GAP-STATE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT MPLRFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY
+           LOCK MODE MANUAL.
+           SELECT INSFILE ASSIGN TO "S40"    ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC        RECORD KEY IS INS-KEY
+           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
+           LOCK MODE MANUAL.
+
+           SELECT FILEIN ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S50" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT GARFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT PARMFILE ASSIGN TO "S60" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT ADDRFILE ASSIGN TO "S65" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS ADDR-KEY
+           ALTERNATE RECORD KEY IS ADDR-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS ADDR-STREET WITH DUPLICATES
+           ALTERNATE RECORD KEY IS ADDR-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS ADDR-STATE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS ADDR-ZIP WITH DUPLICATES
+           LOCK MODE IS MANUAL.
+           SELECT HOSPFILE ASSIGN TO "S70" ORGANIZATION INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS HOSP-KEY
+           ALTERNATE RECORD KEY IS HOSP-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS HOSP-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS HOSP-STATE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS HOSP-INS-KEY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS HOSP-GAP WITH DUPLICATES
+           LOCK MODE IS MANUAL.
+           SELECT COMPFILE ASSIGN TO "S75" ORGANIZATION IS INDEXED
+           ACCESS MODE DYNAMIC RECORD KEY IS COMP-KEY
+           LOCK MODE MANUAL.
+           SELECT CHARCUR ASSIGN TO "S80" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD COMPFILE.
+       01  COMPFILE01.
+           02 COMP-KEY.
+             03 COMP-MEDREC PIC X(8).
+             03 COMP-DATE PIC X(8).
+             03 COMP-PROC PIC X(4).
+           02 COMP-INSNAME PIC X(25).
+           02 COMP-CONTACT PIC X(25).
+           02 COMP-INSADDR1 PIC X(20).
+           02 COMP-INSADDR2 PIC X(15).
+           02 COMP-INSCITY PIC X(20).
+           02 COMP-INSSTATE PIC XX.
+           02 COMP-INSZIP PIC X(10).
+           02 COMP-INSPHONE PIC X(12).
+       FD  CHARCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC.
+              03 CC-PROC0  PIC X(4).
+              03 CC-PROC1 PIC X(7).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+
+       FD  HOSPFILE.
+       01  HOSPFILE01.   
+           02 HOSP-KEY  PIC X(12).
+           02 HOSP-NAME PIC X(40).
+           02 HOSP-BOX PIC X(40).
+           02 HOSP-STREET PIC X(40).
+           02 HOSP-CITY PIC X(20).
+           02 HOSP-STATE PIC XX.
+           02 HOSP-ZIP PIC X(9).
+           02 HOSP-PHONE PIC X(10).
+           02 HOSP-INS-KEY PIC XXX.
+           02 HOSP-GAP PIC X(7).
+           02 HOSP-FUTURE PIC X.
+       
+       FD  ADDRFILE.
+       01  ADDRFILE01.
+           02 ADDR-KEY PIC X(4). 
+           02 ADDR-NAME PIC X(22).
+           02 ADDR-STREET PIC X(24).
+           02 ADDR-CITY PIC X(15).
+           02 ADDR-STATE PIC XX.
+           02 ADDR-ZIP. 
+              03 ADDR-ZIP5 PIC X(5).
+              03 ADDR-ZIP4 PIC X(4).
+           02 ADDR-FUTURE PIC X(6).
+
+       
+       FD  PARMFILE.
+       01  PARMFILE01.
+           02 FILLER PIC X(7).
+           02 PM-1 PIC XXX.
+       FD  GARFILE
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS G-MASTER.
+       01  G-MASTER.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(10).
+           02 G-PRIPOL PIC X(16).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-ADDRCODE PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(10).
+           02 G-SECPOL PIC X(16).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-COPAY PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+       FD  MPLRFILE.
+       01  MPLRFILE01.
+           02 MPLR-KEY PIC X(8). 
+           02 MPLR-NAME PIC X(22).
+           02 MPLR-STREET PIC X(24).
+           02 MPLR-CITY PIC X(15).
+           02 MPLR-STATE PIC XX.
+           02 MPLR-ZIP. 
+              03 MPLR-ZIP5 PIC X(5).
+              03 MPLR-ZIP4 PIC X(4).
+           02 MPLR-CLAIMNO PIC X(15).
+           02 MPLR-TRINS PIC XXX.
+           02 MPLR-TR-ASSIGN PIC X.
+           02 MPLR-TR-GROUP PIC X(10).
+           02 MPLR-TRIPOL PIC X(16).
+           02 MPLR-TR-NAME PIC X(24).
+           02 MPLR-TR-RELATE PIC X.
+           02 MPLR-FUTURE PIC X(6).
+       FD GAPFILE.
+       01 GAPFILE01.
+           02 GAPKEY PIC X(7).
+           02 GAP-NAME PIC X(25).
+           02 GAP-STREET PIC X(22).
+           02 GAP-CITY PIC X(15).
+           02 GAP-STATE PIC XX.
+           02 GAP-ZIP. 
+              03 GAP-ZIP5 PIC X(5).
+              03 GAP-ZIP4 PIC X(4).
+           02 GAP-TYPE PIC X.
+           02 GAP-FUTURE PIC X(40).
+       FD  INSFILE
+     *     BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS INSFILE01.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP. 
+              03 INS-ZIP5 PIC X(5).
+              03 INS-ZIP4 PIC X(4).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+       FD  FILEIN.
+       01  FILEIN01.
+           02  FI-PC PIC XXX.
+           02 FI-PATID.
+             03 FI-PATID7 PIC X(7).
+             03 FI-PATID8 PIC X.
+           02 FI-KEY8 PIC X(8).
+           02 FI-KEY3 PIC X(3).
+           02 FILLER PIC X(9).
+           02 FI-PLACE PIC X.
+           02 FILLER PIC XX.
+           02 FI-CHCRR PIC X(12).
+           02 FILLER PIC X(5).
+           02 FI-GAP PIC X(8).
+       FD FILEOUT.
+       01  FILEOUT01 PIC X(36).
+           
+       WORKING-STORAGE SECTION.
+       01  HOLDIN01.
+           02 HD-PC PIC XXX.
+           02 HD-PATID.
+             03 HD-PATID7 PIC X(7).
+             03 HD-PATID8 PIC X.
+           02 HD-KEY8 PIC X(8).
+           02 FILLER PIC X(15).
+           02 HD-CHCRR PIC X(12).
+           02 FILLER PIC X(5).
+           02 HD-GAP PIC X(8).
+       01  ALF36.
+           02 ALF33 PIC X(30).
+           02 ALF-INS PIC XXX.
+           02 ALF-PM PIC XXX.
+
+       01  HOLDINS PIC XXX.
+       01  ENDFLAG PIC 9 VALUE 0.
+       01  FLAG PIC 9.
+       01  MPLR-FLAG PIC 9.
+       01  ADDR-FLAG PIC 9.
+       01  HOLDGAP PIC X(9) VALUE SPACE.
+       01  HOLDWORK PIC X(9) VALUE SPACE.
+       01  ALF1 PIC X.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN EXTEND FILEOUT 
+           INPUT INSFILE MPLRFILE GAPFILE FILEIN GARFILE PARMFILE
+           ADDRFILE HOSPFILE COMPFILE CHARCUR.
+           READ PARMFILE AT END GO TO P99.
+           READ FILEIN AT END GO TO P99.
+           MOVE SPACE TO ALF36
+           MOVE PM-1 TO ALF-PM
+      *     MOVE FILEIN01 TO HOLDIN01.
+           IF (FI-PLACE = "C" OR "M" OR "R")
+             AND (FI-PC = "076" OR "091")
+           PERFORM CHC-1 GO TO P1.
+           IF FI-PC = "091" OR "095" GO TO P91.
+
+       P1. READ FILEIN AT END GO TO P98.
+           IF (FI-PLACE = "C" OR "M" OR "R")
+             AND (FI-PC = "076" OR "091")
+           PERFORM CHC-1 GO TO P1.
+           IF (FI-PC = "091" OR "095") GO TO P91.
+           PERFORM A1 THRU A2
+           MOVE FILEIN01 TO HOLDIN01
+           GO TO P1.
+       A1. 
+           IF FI-PC = "062" PERFORM GAP-1
+             IF (FLAG = 0)  
+              MOVE FILEIN01 TO HOLDIN01
+              GO TO A2
+             END-IF
+           END-IF.
+           MOVE FI-PC TO ALF-INS
+           MOVE SPACE TO FILEOUT01
+           MOVE ALF36 TO FILEOUT01
+           WRITE FILEOUT01.
+           IF FI-PC = "002" 
+            MOVE SPACE TO FILEOUT01
+            MOVE "ATTN: BASIC CLAIMS" TO FILEOUT01
+            WRITE FILEOUT01.
+           IF FI-PC = "074"
+            MOVE SPACE TO FILEOUT01
+            MOVE "ATTN: NATIONAL ACCOUNTS        " TO FILEOUT01
+            WRITE FILEOUT01.
+           IF FI-PC = "268"
+            MOVE SPACE TO FILEOUT01
+            MOVE "ATTN: OUT-OF-AREA              " TO FILEOUT01
+            WRITE FILEOUT01.
+           IF NOT (FI-PC = "002" OR "074" OR "268")
+            MOVE SPACE TO FILEOUT01
+            WRITE FILEOUT01.
+           IF FI-PC = "062" PERFORM P-062.
+           IF NOT (FI-PC = "062") PERFORM P-DIFF.
+           MOVE FILEIN01 TO HOLDIN01.
+       A2. EXIT.
+       P-DIFF.
+           MOVE FI-PC TO INS-KEY
+           READ INSFILE 
+           INVALID 
+             MOVE SPACE TO FILEOUT01
+             WRITE FILEOUT01 FROM ALF36
+             PERFORM 4 TIMES
+             WRITE FILEOUT01
+             END-PERFORM
+           NOT INVALID
+             MOVE SPACE TO FILEOUT01
+             MOVE INS-NAME TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE INS-STREET TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             STRING INS-CITY ", " INS-STATE DELIMITED BY "  "
+             INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             IF INS-ZIP4 = SPACE
+             MOVE INS-ZIP TO FILEOUT01
+             ELSE 
+             STRING INS-ZIP5 "-" INS-ZIP4 DELIMITED BY SIZE
+             INTO FILEOUT01
+             END-IF
+             WRITE FILEOUT01
+           END-READ.
+
+       P91.
+           MOVE FI-KEY8 TO G-GARNO
+           READ GARFILE INVALID GO TO P91-2.
+           MOVE FI-KEY8 TO CC-KEY8
+           MOVE FI-KEY3 TO CC-KEY3
+           READ CHARCUR INVALID GO TO P91-2.
+           MOVE G-ACCT TO COMP-MEDREC
+           MOVE CC-DATE-T TO COMP-DATE
+           MOVE CC-PROC0 TO COMP-PROC
+           READ COMPFILE INVALID GO TO P91-2.
+           MOVE SPACE TO FILEOUT01
+             MOVE FI-PC TO ALF-INS
+             MOVE SPACE TO FILEOUT01
+             MOVE ALF36 TO FILEOUT01
+             WRITE FILEOUT01
+           MOVE COMP-INSNAME TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE COMP-CONTACT TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE COMP-INSADDR1 TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE COMP-INSADDR2 TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             STRING COMP-INSCITY ", " COMP-INSSTATE ";" COMP-INSZIP
+                    DELIMITED BY "  "
+             INTO FILEOUT01
+             INSPECT FILEOUT01 REPLACING ALL ";" BY " "
+             WRITE FILEOUT01.
+             IF ENDFLAG = 1 GO TO P99.
+             GO TO P1.
+       P91-2.
+            PERFORM WORK-1 THRU WORK-1-EXIT
+            IF FLAG = 0 AND ENDFLAG = 0 GO TO P1.
+            PERFORM P-091 THRU P-091-EXIT.
+            IF ENDFLAG = 1 GO TO P99.
+            GO TO P1.
+       P-091.
+             MOVE FI-GAP TO MPLR-KEY
+             READ MPLRFILE INVALID GO TO P-091-1. 
+             MOVE FI-PC TO ALF-INS
+             MOVE SPACE TO FILEOUT01
+             MOVE ALF36 TO FILEOUT01
+             WRITE FILEOUT01.
+           
+             MOVE SPACE TO FILEOUT01
+             MOVE MPLR-NAME TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE MPLR-STREET TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             STRING MPLR-CITY ", " MPLR-STATE DELIMITED BY "  "
+             INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             IF MPLR-ZIP4 = SPACE
+             MOVE MPLR-ZIP TO FILEOUT01
+             ELSE 
+             STRING MPLR-ZIP5 "-" MPLR-ZIP4 DELIMITED BY SIZE
+             INTO FILEOUT01
+             END-IF
+             WRITE FILEOUT01
+             GO TO P-091-EXIT.
+       P-091-1.
+            MOVE FI-GAP TO ADDR-KEY
+            READ ADDRFILE
+             INVALID  GO TO P-091-EXIT
+             NOT INVALID
+              MOVE FI-PC TO ALF-INS
+              MOVE SPACE TO FILEOUT01
+              MOVE ALF36 TO FILEOUT01
+              WRITE FILEOUT01.
+
+             MOVE SPACE TO FILEOUT01
+             MOVE ADDR-NAME TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE ADDR-STREET TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             STRING ADDR-CITY ", " ADDR-STATE DELIMITED BY "  "
+             INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             IF ADDR-ZIP4 = SPACE
+              MOVE ADDR-ZIP TO FILEOUT01
+             ELSE 
+              STRING ADDR-ZIP5 "-" ADDR-ZIP4 DELIMITED BY SIZE
+              INTO FILEOUT01
+             END-IF
+             WRITE FILEOUT01.
+       P-091-EXIT. EXIT.
+
+       P-062.
+           MOVE FI-KEY8 TO G-GARNO
+           READ GARFILE INVALID MOVE SPACE TO G-PR-GROUP.
+           MOVE G-PR-GROUP TO GAPKEY
+           READ GAPFILE 
+           INVALID 
+             MOVE SPACE TO FILEOUT01
+             PERFORM 4 TIMES
+             WRITE FILEOUT01
+             END-PERFORM
+           NOT INVALID
+             MOVE SPACE TO FILEOUT01
+             MOVE GAP-NAME TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE GAP-STREET TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             STRING GAP-CITY ", " GAP-STATE DELIMITED BY "  "
+             INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             IF GAP-ZIP4 = SPACE
+             MOVE GAP-ZIP TO FILEOUT01
+             ELSE 
+             STRING GAP-ZIP5 "-" GAP-ZIP4 DELIMITED BY SIZE
+             INTO FILEOUT01
+             END-IF
+             WRITE FILEOUT01
+             END-READ.
+       GAP-1.
+           MOVE FI-KEY8 TO G-GARNO
+           READ GARFILE INVALID MOVE SPACE TO G-PR-GROUP.
+           MOVE 0 TO FLAG
+           MOVE G-PR-GROUP TO GAPKEY
+           READ GAPFILE INVALID MOVE 0 TO FLAG
+           NOT INVALID MOVE 1 TO FLAG.
+       WORK-1.
+           MOVE 0 TO FLAG
+           MOVE FI-GAP TO MPLR-KEY
+           READ MPLRFILE INVALID GO TO WORK-2.
+           IF (MPLR-NAME = SPACE)
+           OR (MPLR-CITY = SPACE) GO TO WORK-2.
+           MOVE 1 TO FLAG
+           GO TO WORK-1-EXIT.
+       WORK-2.
+           MOVE FI-GAP TO ADDR-KEY
+           READ ADDRFILE INVALID GO TO WORK-1-EXIT.
+           MOVE 1 TO FLAG.
+       WORK-1-EXIT. EXIT.
+       CHC-1.
+           MOVE FI-PC TO ALF-INS
+           MOVE SPACE TO FILEOUT01
+           MOVE ALF36 TO FILEOUT01
+           WRITE FILEOUT01.
+           MOVE FI-KEY8 TO G-GARNO
+           READ GARFILE INVALID CONTINUE.
+           MOVE G-PR-GROUP TO HOSP-KEY
+           READ HOSPFILE INVALID
+              DISPLAY G-PR-GROUP " "  G-GARNO
+              ACCEPT ALF1
+            MOVE SPACE TO HOSPFILE01
+           END-READ
+             MOVE SPACE TO FILEOUT01
+             MOVE HOSP-NAME TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE HOSP-BOX TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE HOSP-STREET TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             STRING HOSP-CITY ", " HOSP-STATE DELIMITED BY "  "
+             INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE HOSP-ZIP TO FILEOUT01
+             WRITE FILEOUT01.
+       P98.
+            MOVE 1 TO ENDFLAG
+            IF  (FI-PC = "091" OR "095") GO TO P91.
+            PERFORM A1 THRU A2.
+       PLACE-1.
+            MOVE FI-KEY3 TO CC-KEY3
+            MOVE FI-KEY8 TO CC-KEY8
+            READ CHARCUR INVALID EXIT PARAGRAPH.
+            IF CC-PLACE = "C"  OR "M" OR "R"
+            MOVE CC-PLACE TO FI-PLACE.
+       P99. CLOSE FILEIN FILEOUT GAPFILE INSFILE MPLRFILE GARFILE
+            PARMFILE.
+           STOP RUN.

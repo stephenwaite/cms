@@ -1,0 +1,239 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PED750.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT GAROUT ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT CHAROUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT PAYOUT ASSIGN TO "S40"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT PAYCUR ASSIGN TO "S45" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY.
+           SELECT CHARCUR ASSIGN TO "S50" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES.
+           SELECT GARFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO.
+           SELECT PARMFILE ASSIGN TO "S60"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT CHARNEW ASSIGN TO "S65"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT PAYNEW ASSIGN TO "S70"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEIN ASSIGN TO "S75"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FILEIN01 PIC X(8).
+       FD  GARFILE
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS GARFILE01.
+       01  GARFILE01.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(12).
+           02 G-PRIPOL PIC X(14).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(12).
+           02 G-SECPOL PIC X(14).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-COPAY PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+       FD  CHARCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC 9(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(7).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC 999.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC 9(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+
+       FD  PAYCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS PAYCUR01.
+       01  PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC 999.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC 9(6).
+           02 PC-DATE-T PIC 9(8).
+           02 PC-DATE-E PIC X(8).
+           02 PC-BATCH PIC X(6).
+       FD  GAROUT.
+       01  GAROUT01 PIC X(277).
+       FD  CHAROUT.
+       01  CHAROUT01 PIC X(156).
+       FD  PAYOUT.
+       01  PAYOUT01 PIC X(50).
+       FD  CHARNEW.
+       01  CHARNEW01 PIC X(156).
+       FD  PAYNEW.
+       01  PAYNEW01 PIC X(50).
+       FD  PARMFILE
+           DATA RECORD IS PARMFILE01.
+       01  PARMFILE01.
+           02 PF1 PIC 9(8).
+           02 PF2 PIC 9(8).
+       WORKING-STORAGE SECTION.
+       01  PHR01.
+           02 PHR02 OCCURS 999 TIMES INDEXED BY PHR.
+             03 PHR-KEY8 PIC X(8).
+             03 PHR-KEY3 PIC 999.
+             03 PHR-AMOUNT PIC S9(4)V99.
+             03 PHR-PAYCODE PIC 999.
+             03 PHR-DENIAL PIC XX.
+             03 PHR-CLAIM PIC 9(6).
+             03 PHR-DATE-T PIC 9(8).
+             03 PHR-DATE-E PIC 9(8).
+             03 PHR-BATCH PIC X(6).
+       01  CLAIM-TOT PIC S9(6)V99.
+       01  X USAGE IS INDEX.
+       01  FLAGX PIC 9.
+       01  GARFLAG PIC 9.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT GARFILE PARMFILE FILEIN.
+           OPEN OUTPUT GAROUT PAYOUT CHAROUT CHARNEW PAYNEW.
+           OPEN INPUT PAYCUR CHARCUR.
+           READ PARMFILE AT END DISPLAY "NO DELETE RANGE" GO TO R20.
+       P1.
+           READ FILEIN AT END GO TO R20.
+           MOVE FILEIN01 TO G-GARNO
+           START GARFILE KEY NOT < G-GARNO INVALID GO TO P1..
+       R0. READ GARFILE NEXT AT END GO TO P1.
+           IF G-GARNO NOT = FILEIN01 GO TO P1.
+           SET PHR TO 1
+           MOVE 0 TO GARFLAG
+           MOVE G-GARNO TO PC-KEY8 MOVE 000 TO PC-KEY3
+           START PAYCUR KEY > PAYCUR-KEY INVALID GO TO R2.
+       R5. READ PAYCUR NEXT AT END GO TO R2.
+           IF G-GARNO NOT = PC-KEY8 GO TO R2.
+           IF PHR > 999 DISPLAY G-GARNO " " G-GARNAME
+           GO TO R0.
+           MOVE PC-KEY8 TO PHR-KEY8(PHR)
+           MOVE PC-KEY3 TO PHR-KEY3(PHR)
+           MOVE PC-AMOUNT TO PHR-AMOUNT(PHR)
+           MOVE PC-PAYCODE TO PHR-PAYCODE(PHR)
+           MOVE PC-DENIAL TO PHR-DENIAL(PHR)
+           MOVE PC-CLAIM TO PHR-CLAIM(PHR)
+           MOVE PC-DATE-T TO PHR-DATE-T(PHR)
+           MOVE PC-DATE-E TO PHR-DATE-E(PHR)
+           MOVE PC-BATCH TO PHR-BATCH(PHR)
+           SET PHR UP BY 1
+           GO TO R5.
+       R2.  SET PHR DOWN BY 1.
+           MOVE G-GARNO TO CC-KEY8 MOVE "000" TO CC-KEY3.
+           START CHARCUR KEY > CHARCUR-KEY INVALID GO TO R30.
+       R6. READ CHARCUR NEXT AT END GO TO R30.
+           IF G-GARNO NOT = CC-KEY8 GO TO R30.
+
+           IF CC-DATE-T > PF1
+           WRITE CHARNEW01 FROM CHARCUR01
+           PERFORM A6 THRU A6-EXIT VARYING X FROM 1 BY 1 UNTIL X > PHR
+           GO TO R6.
+
+           COMPUTE CLAIM-TOT = CC-AMOUNT
+           MOVE 0 TO FLAGX
+           PERFORM PH3 VARYING X FROM 1 BY 1 UNTIL X > PHR
+
+
+           IF ( CLAIM-TOT NOT = 0 ) OR ( FLAGX NOT = 0 )
+           WRITE CHARNEW01 FROM CHARCUR01
+           PERFORM A6 THRU A6-EXIT VARYING X FROM 1 BY 1 UNTIL X > PHR
+           GO TO R6.
+
+           PERFORM A5 THRU A5-EXIT VARYING X FROM 1 BY 1 UNTIL X > PHR
+           MOVE 1 TO GARFLAG
+           WRITE CHAROUT01 FROM CHARCUR01
+           GO TO R6.
+       PH3. IF CC-CLAIM = PHR-CLAIM(X)
+           ADD PHR-AMOUNT(X) CLAIM-TOT GIVING CLAIM-TOT
+           IF PHR-DATE-T(X) > PF2
+           MOVE 1 TO FLAGX.
+       A5. IF PHR-CLAIM(X) NOT = CC-CLAIM GO TO A5-EXIT.
+           WRITE PAYOUT01 FROM PHR02(X).
+       A5-EXIT. EXIT.
+       A6. IF PHR-CLAIM(X) NOT = CC-CLAIM GO TO A6-EXIT.
+           WRITE PAYNEW01 FROM PHR02(X).
+       A6-EXIT. EXIT.
+       R30.
+           IF GARFLAG = 1
+           WRITE GAROUT01 FROM GARFILE01.
+           GO TO P1.
+
+       R20. CLOSE GAROUT CHARCUR PAYCUR CHAROUT PAYOUT CHARNEW PAYNEW.
+           STOP RUN.

@@ -1,0 +1,272 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. NNN152.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PAYFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS PAYFILE-KEY.
+           SELECT BATCHFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS BATCH-KEY
+           ALTERNATE RECORD KEY IS BA-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS BA-DATE-A WITH DUPLICATES
+           ALTERNATE RECORD KEY IS BA-STAT WITH DUPLICATES.
+           SELECT PAYOUT ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT OUT ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PAYOUT.
+       01  PAYOUT01 PIC X(80).
+       FD  PAYFILE
+           BLOCK CONTAINS 4 RECORDS
+           DATA RECORD IS PAYFILE01.
+       01  PAYFILE01.
+           02 PAYFILE-KEY.
+             03 PD-KEY8 PIC X(8).
+             03 PD-KEY3 PIC XXX.
+           02 PD-NAME PIC X(24).
+           02 PD-AMOUNT PIC S9(4)V99.
+           02 PD-PAYCODE PIC XXX.
+           02 PD-DENIAL PIC XX.
+           02 PD-CLAIM PIC X(6).
+           02 PD-DATE-T PIC X(8).
+           02 PD-DATE-E PIC X(8).
+           02 PD-ORDER PIC X(6).
+           02 PD-BATCH PIC X(6).
+       FD  BATCHFILE
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS BATCHFILE01.
+       01  BATCHFILE01.
+           02 BATCH-KEY.
+             03 BA-YMM.
+               04 BA-Y PIC X.
+               04 BA-MM PIC XX.
+             03 BA-NUM PIC XXX.
+           02 BA-NAME PIC X(10).
+           02 BA-DATE-A PIC X(6).
+           02 BA-DATE-C PIC X(6).
+           02 BA-AMT PIC S9(8)V99.
+           02 BA-STAT  PIC X.
+       FD OUT.
+       01  OUT01 PIC X(12).
+       WORKING-STORAGE SECTION.
+       01  INPUT-DATE-S.
+           02 T-MM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-DD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
+       01  DATE-S.
+           02 S-CC PIC XX.
+           02 S-YY PIC XX.
+           02 S-MM PIC XX.
+           02 S-DD PIC XX.
+       01  TODAY-T.
+           02 TT-CC PIC XX.
+           02 TT-YY PIC XX.
+           02 TT-MM PIC XX.
+           02 TT-DD PIC XX.
+       01  ENTER01.
+           02 LOW-ENTER PIC X(8).
+           02 HIGH-ENTER PIC X(8).
+       01  DATE01.
+           02 LOW-DATE PIC X(8).
+           02 HIGH-DATE PIC X(8).
+       01  RT-3 PIC XXX JUST RIGHT.
+       01  ALF81 PIC X(8).
+       01  ALF82 PIC X(8).
+       01  ALF-T PIC X(8).
+       01  RT-8 PIC X(8) JUST RIGHT.
+       01  RT-81 PIC X(8) JUST RIGHT.
+       01  FLAG PIC 9.
+       01  PCNUM PIC XXX.
+       01 LISTVALUE PIC X.
+       01  FORMOUT PIC X.
+       01  ANS PIC X(20).
+       01 ALF8 PIC X(8).
+       01  CNTR PIC 9(8).
+       01  ALF-6.
+           02 ALF-61 PIC X.
+           02 ALF-62 PIC X(5).
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN OUTPUT OUT PAYOUT INPUT BATCHFILE PAYFILE.
+       A1. DISPLAY "BATCH DATE/NUMBER"
+           ACCEPT ANS.
+           IF ANS = "END" MOVE "Z" TO OUT01 WRITE OUT01
+           GO TO R22.
+           IF ANS = "?"
+           DISPLAY "T TO SELECT TODAY''S ENTRIES"
+      *     DISPLAY "L TO LIST BATCHES"
+           DISPLAY "ALL = SELECT ALL RECORDS IN THE DAILY FILE"
+      *     DISPLAY "ENTER A BATCH NUMBER YMM###"
+           DISPLAY "OR AN ENTRY DATE IN CCYYMMDD FORMAT"
+           DISPLAY "END = QUIT WITHOUT PRINTING REPORT"
+           GO TO A1.
+           IF ANS = "ALL" MOVE ZERO TO LOW-ENTER MOVE "99999999" 
+           TO HIGH-ENTER GO TO A2.
+           IF ANS = "T" ACCEPT LOW-ENTER FROM CENTURY-DATE
+           MOVE LOW-ENTER TO HIGH-ENTER GO TO A2.
+      *     IF ANS = "L" PERFORM L1 THRU L1-EXIT GO TO A1.
+      *     MOVE ANS TO ALF-8.
+      *     IF ALF-81 = "3" OR "4" OR "5" OR "6" OR "7" OR "8"
+      *     GO TO A1-2.
+       A1-1.
+           MOVE 0 TO FLAG.
+           PERFORM D1 THRU D1-EXIT.
+           IF FLAG = 1 DISPLAY "INVALID" GO TO A1.
+           MOVE ALF81 TO LOW-ENTER.
+           MOVE ALF82 TO HIGH-ENTER.
+           GO TO A2.
+       A1-2.
+           MOVE ANS TO BATCH-KEY
+           READ BATCHFILE INVALID DISPLAY "NO SUCH BATCH" GO TO A1.
+           MOVE BA-DATE-A TO DATE-S
+           MOVE S-YY TO T-YY
+           MOVE S-MM TO T-MM
+           MOVE S-DD TO T-DD
+           DISPLAY BATCH-KEY " " BA-NAME " DATE-ADDED " INPUT-DATE-S
+           MOVE BATCH-KEY TO LOW-ENTER HIGH-ENTER.
+       A2. DISPLAY "TRANSACTION DATE RANGE".
+           ACCEPT ANS.
+           IF ANS = "?"
+           DISPLAY "ENTER RANGE OF DATES ON TRANSACTIONS"
+           DISPLAY "SAME RULES APPLY AS FOR DATE ENTERED"
+           DISPLAY "BK = BACK TO DATE ENTERED RANGE"
+           GO TO A2.
+           IF ANS = "BK" GO TO A1.
+           IF ANS = "ALL" MOVE ZERO TO LOW-DATE MOVE "99999999" 
+           TO HIGH-DATE GO TO A3.
+           IF ANS = "T" ACCEPT LOW-DATE FROM CENTURY-DATE
+           MOVE LOW-DATE TO HIGH-DATE GO TO A3.
+           MOVE 0 TO FLAG.
+           PERFORM D1 THRU D1-EXIT.
+           IF FLAG = 1 DISPLAY "INVALID" GO TO A2.
+           MOVE ALF81 TO LOW-DATE.
+           MOVE ALF82 TO HIGH-DATE.
+       A3. DISPLAY "PAYORCODE".
+           ACCEPT ANS
+           IF ANS = "?"
+           DISPLAY "<CR> TO INCLUDE ALL PAYORCODES"
+           DISPLAY "ANY PAYORCODE"
+           DISPLAY "BK = BACK TO TRANSACTION DATE RANGE"
+           GO TO A3.
+           IF ANS = "BK" GO TO A2.
+           IF ANS = SPACE MOVE "000" TO PCNUM GO TO A4.
+           UNSTRING ANS DELIMITED BY " " INTO RT-3.
+           INSPECT RT-3 REPLACING ALL " " BY "0".
+           IF (RT-3 NOT NUMERIC ) OR ( RT-3 = "000" )
+           DISPLAY "INVALID" GO TO A3.
+           MOVE RT-3 TO PCNUM.
+       A4. DISPLAY "LIST DETAIL Y/N".
+           ACCEPT ANS.
+           IF ANS = "?"
+           DISPLAY "N = PRINT TOTALS FOR REQUESTED RECORDS"
+           DISPLAY "Y = DISPLAY BOTH TOTALS AND DETAIL"
+           DISPLAY "BK = BACK TO PAYORCODE"
+           GO TO A4.
+           IF ANS = "BK" GO TO A3.
+           IF ANS = "N" MOVE "0" TO LISTVALUE ANS GO TO A6.
+           IF ANS NOT = "Y" GO TO A4.
+           MOVE "1" TO LISTVALUE.
+       A5. DISPLAY "FORMAT FOR PRINTING".
+           ACCEPT ANS.
+           IF ANS = "?"
+           DISPLAY "1 = GARNO PAYCODE $ "
+           DISPLAY "2 = GARNO PAYCODE $ NAME"
+           DISPLAY "3 = GARNO PAYCODE $ TRANS DATE DENY"
+           DISPLAY "4 = GARNO $ PAYCODE TRANS DATE ENTRY DATE"
+           DISPLAY "5 = GARNO PAYCODE $ CLAIM TRANS DATE ENTRY DATE"
+           DISPLAY "6 = GARNO NAME PAYCODE $ CLAIM TRNS DATE ENTRY DATE"
+           DISPLAY "7 = GARNO NAME CASH-DEPOSIT"
+           DISPLAY "8 = GARNO      CASH-DEPOSIT"
+
+           DISPLAY "SELECT NUMBER OF PRINTED FORMAT DESIRED"
+           GO TO A5.
+           IF ANS = "BK" GO TO A4.
+           IF ANS < "1" OR > "8" DISPLAY "INVALID " GO TO A5.
+           MOVE ANS TO FORMOUT
+           GO TO A6.
+       D1. IF ANS = "TO" OR "-"
+           ACCEPT ALF81 FROM CENTURY-DATE MOVE ALF81 TO ALF82
+           GO TO D1-EXIT.
+           MOVE SPACE TO ALF81 ALF82.
+           UNSTRING ANS DELIMITED BY " TO " OR " - " OR "TO" OR "-"
+           INTO ALF81 ALF82.
+           IF ALF81 = SPACE MOVE ZEROES TO ALF81.
+           IF ALF82 = SPACE MOVE ALL "9" TO ALF82.
+           IF ALF81 = "T" ACCEPT ALF81 FROM CENTURY-DATE
+           MOVE ALF81 TO ALF82 GO TO D1-EXIT.
+           IF ALF82 = "T" ACCEPT ALF82 FROM CENTURY-DATE.
+           MOVE ALF81 TO ALF-T
+           PERFORM D3 THRU D3-EXIT.
+           IF FLAG = 1 GO TO D1-EXIT.
+           MOVE ALF-T TO ALF81.
+           MOVE ALF82 TO ALF-T.
+           PERFORM D3 THRU D3-EXIT.
+           MOVE ALF-T TO ALF82.
+       D1-EXIT. EXIT.
+       D3. MOVE SPACE TO RT-8 RT-81.
+           UNSTRING ALF-T DELIMITED BY " " INTO RT-8 RT-81.
+           IF RT-81 NOT = SPACE MOVE RT-81 TO RT-8.
+           INSPECT RT-8 REPLACING ALL " " BY "0".
+           IF RT-8 NOT NUMERIC MOVE 1 TO FLAG GO TO D3-EXIT.
+           IF RT-8 = ZERO  OR RT-8 = "99999999" GO TO D3-EXIT.
+           MOVE RT-8 TO DATE-S.
+           ACCEPT TODAY-T FROM CENTURY-DATE.
+           IF S-CC = "00" MOVE TT-CC TO S-CC
+           IF S-YY = "00" MOVE TT-YY TO S-YY.
+           IF S-MM = "00" MOVE TT-MM TO S-MM.
+           IF S-MM > "12" MOVE 1 TO FLAG GO TO D3-EXIT.
+           IF S-DD > "31" MOVE 1 TO FLAG GO TO D3-EXIT.
+           MOVE DATE-S TO ALF-T.
+       D3-EXIT. EXIT.
+       L1. DISPLAY "STARTING POINT?"
+           ACCEPT ANS
+           IF ANS = "?"
+           DISPLAY "ENTER YMM### TO SEARCH FOR A BATCH #"
+           DISPLAY "X TO RETURN TO COMMAND LINE"
+           GO TO L1.
+           IF ANS = "X" GO TO L1-EXIT.
+           MOVE ANS TO BATCH-KEY
+           START BATCHFILE KEY NOT < BATCH-KEY INVALID
+           DISPLAY "END OF BATCHES" GO TO L1.
+       L2. READ BATCHFILE NEXT AT END DISPLAY "END OF BATCHES"
+           GO TO L1-EXIT.
+           MOVE BA-DATE-A TO DATE-S
+           MOVE S-YY TO T-YY
+           MOVE S-MM TO T-MM
+           MOVE S-DD TO T-DD
+           MOVE INPUT-DATE-S TO ALF8
+           MOVE BA-DATE-C TO DATE-S
+           MOVE S-YY TO T-YY
+           MOVE S-MM TO T-MM
+           MOVE S-DD TO T-DD
+           DISPLAY BATCH-KEY " " BA-NAME " " ALF8 " " INPUT-DATE-S
+           GO TO L2.
+       L1-EXIT. EXIT.
+       A6.
+           MOVE 0 TO CNTR
+           MOVE SPACE TO PAYFILE-KEY
+           START PAYFILE KEY NOT < PAYFILE-KEY INVALID GO TO R21.
+       A7. READ PAYFILE NEXT AT END GO TO R20.
+           IF ( PD-DATE-E < LOW-ENTER OR > HIGH-ENTER )
+           OR ( PD-DATE-T < LOW-DATE OR > HIGH-DATE )
+           OR ( PCNUM NOT = "000" AND PD-PAYCODE NOT = PCNUM ) GO TO A7.
+           ADD 1 TO CNTR
+           WRITE PAYOUT01 FROM PAYFILE01
+           GO TO A7.
+       R21. DISPLAY "NO RECORDS WERE SELECTED. TRY AGAIN?"
+            GO TO A1.
+       R20. IF CNTR = 0 GO TO R21.
+           MOVE CNTR TO ALF8
+           INSPECT ALF8 REPLACING LEADING "0" BY " "
+           DISPLAY "THERE WERE " ALF8 " RECORDS SELECTED"
+           WRITE OUT01 FROM LISTVALUE.
+           WRITE OUT01 FROM FORMOUT.
+       R22.
+            CLOSE OUT PAYOUT BATCHFILE PAYFILE. STOP RUN.

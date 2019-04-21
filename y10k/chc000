@@ -1,0 +1,59 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CHC001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+      *    SPECIAL-NAMES.
+      *    "OPCOM" IS OPCOM.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  F1 PIC X(128).
+       FD  FILEOUT.
+       01  FILEOUT01.   
+           02 HOSP-KEY  PIC X(12).
+           02 HOSP-NAME PIC X(40).
+           02 HOSP-BOX PIC X(40).
+           02 HOSP-STREET PIC X(40).
+           02 HOSP-CITY PIC X(20).
+           02 HOSP-STATE PIC XX.
+           02 HOSP-ZIP PIC X(9).
+           02 HOSP-PHONE PIC X(10).
+           02 HOSP-INS-KEY PIC XXX.
+           02 HOSP-GAP PIC X(7).
+           02 HOSP-FUTURE PIC X.
+       WORKING-STORAGE SECTION.
+       01  ANS          PIC XXX.
+       01  ACTION.
+           02 ACT-1 PIC X.
+           02 ACT-2 PIC XX.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN  INPUT FILEIN OUTPUT FILEOUT.
+       P1.
+           READ FILEIN AT END GO TO P99.
+           MOVE SPACE TO FILEOUT01
+           MOVE F1(1:4) TO HOSP-KEY
+           MOVE F1(5:25) TO HOSP-NAME
+           MOVE F1(31:40) TO HOSP-BOX
+           MOVE F1(79:25) TO HOSP-CITY
+           MOVE F1(103:2) TO HOSP-STATE
+           MOVE F1(106:9) TO HOSP-ZIP
+           STRING F1(116:3) F1(121:3) F1(125:4) DELIMITED BY SIZE
+            INTO HOSP-ZIP
+           MOVE "AAA" TO HOSP-INS-KEY
+           WRITE FILEOUT01
+           GO TO P1.
+
+       P99.
+           CLOSE FILEIN FILEOUT
+           STOP RUN.
+

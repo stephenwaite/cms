@@ -1,0 +1,69 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT MAINISAM ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS MAIN-KEY
+           LOCK MODE MANUAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FILEIN01.
+       
+           02 MN-ASSET-ID PIC 9(7).
+           02 MN-BILLACCT PIC X(9).
+           02 MN-ID PIC X(3).
+           02 MN-MANU PIC X(4).
+           02 MN-DATE-ACQ PIC X(8).
+           02 MN-INITCOST PIC S9(6)V99.
+           02 MN-PRESVALUE PIC S9(7)V99.
+           02 MN-LIFE PIC 999.
+           02 MN-TYPE PIC XX.           
+           02 MN-REPLACE PIC S9(6)V99. 
+           02 MN-CONDITION PIC 9.
+           02 MN-QUAD PIC X(4).
+           02 MN-COF PIC 9.
+           02 MN-REDUN PIC 999.
+           02 MN-FACTOR PIC 9V9.
+           02 MN-POF PIC 9.
+           02 MN-SOIL PIC 9.
+           02 MN-SIZE PIC 99.
+           02 MN-UNIT PIC 999.
+           02 MN-UNITCOST PIC S9(6)V99.
+           02 MN-LENGTH PIC 999.
+           02 MN-HAZ-WIL PIC 999.
+           02 MN-STREET PIC  X(30).
+           02 MN-ACTIVE PIC 9.
+           02 MN-LONG PIC 9(3).9(11).
+           02 MN-LAT PIC 9(3).9(11).
+           02 MN-ALT PIC 9(3).9(11).
+           02 MN-REMARKS PIC X(70).
+
+
+		   
+       FD  MAINISAM.
+       01  MAINISAM01.
+	02 MAIN-KEY PIC X(7).
+           02 FILLER PIC X(229).
+       WORKING-STORAGE SECTION.
+       01  ALF2 PIC XX.
+       01  X PIC 99.
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT FILEIN OUTPUT MAINISAM.
+       P1.
+           MOVE SPACE TO MAINISAM01
+           MOVE SPACE TO FILEIN01	
+           READ FILEIN AT END GO TO P99.
+           MOVE FILEIN01 TO MAINISAM01
+           WRITE MAINISAM01
+           GO TO P1.
+       P99.
+           CLOSE  FILEIN MAINISAM.
+           STOP RUN.

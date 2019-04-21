@@ -1,0 +1,434 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CHARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT RNDFILE ASSIGN TO "S25" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS RND-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEIN ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FI-1 PIC X(5).
+       FD  RNDFILE.
+       01  RNDFILE01.
+           02 RND-KEY PIC X(104).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(129). 
+       WORKING-STORAGE SECTION.
+       01  CARD01.
+
+
+      *     02 FILLER PIC X(26) VALUE "CTDTHTSTCADAHASAC2D2H2S2C3".
+      *     02 FILLER PIC X(26) VALUE "D3H3S3CKDKHKSKC4D4H4S4CQDQ".
+      *     02 FILLER PIC X(26) VALUE "HQSQC5D5H5S5C6D6H6S6CJDJHJ".
+      *     02 FILLER PIC X(26) VALUE "SJC7D7H7S7C8D8H8S8C9D9H9S9".
+
+           02 FILLER PIC X(26) VALUE "C2C3C4C5C6C7C8C9CTCJCQCKCA".
+           02 FILLER PIC X(26) VALUE "D6D7D8D9DADKDQDJDTD5D4D3D2".
+           02 FILLER PIC X(26) VALUE "H2H3H4H5H6H7H8H9HTHJHQHKHA".
+           02 FILLER PIC X(26) VALUE "SASKSQSJS6S7S8S9STS2S3S4S5".
+
+       01  CARDNAME01 REDEFINES CARD01.
+           02 CARDNAME PIC XX OCCURS 52 TIMES.
+
+       01  RNDTAB01.
+           02 RNDTAB PIC 99 OCCURS 52 TIMES.
+       01  EASTC PIC 99.
+       01  EASTD PIC 99.
+       01  EASTH PIC 99.
+       01  EASTS PIC 99.
+       01  WESTC PIC 99.
+       01  WESTD PIC 99.
+       01  WESTH PIC 99.
+       01  WESTS PIC 99.
+       01  NORTHC PIC 99.
+       01  NORTHD PIC 99.
+       01  NORTHH PIC 99.
+       01  NORTHS PIC 99.
+       01  SOUTHC PIC 99.
+       01  SOUTHD PIC 99.
+       01  SOUTHH PIC 99.
+       01  SOUTHS PIC 99.
+       01  TIME-X PIC X(8).
+       01  SFENUM8 PIC 9(8).
+       01  ALF2 PIC XX.
+       01  ALF8 PIC X(8).
+       01  NUM5 PIC 9(8).
+       01  NUMX PIC 9(7).
+       01  MOD52 PIC 99.
+       01  A PIC 99.
+       01  X PIC 99.
+       01  Y PIC 99.
+       01  Z PIC 99.
+       01  PTS-E PIC 99.
+       01  PTS-S PIC 99.
+       01  PTS-W PIC 99.
+       01  PTS-N PIC 99.
+       01  EW-PTS PIC 99.
+       01  NS-PTS PIC 99.
+       01  NEF2 PIC Z9.
+       01  NEFC PIC Z9.
+       01  NEFD PIC Z9.
+       01  NEFH PIC Z9.
+       01  NEFS PIC Z9.
+       01  HANDS PIC 99.
+       01  GAMEHANDS PIC 99.
+       01  SLAMHANDS PIC 99.
+       01  FLATHANDS PIC 99.
+       01  HANDSX PIC 99.
+       01  GAMEX PIC 99.
+       01  SLAMX PIC 99.
+       01  FLATX PIC 99.
+       01  LASTNUM PIC 99.
+       01  RIGHT5 PIC X(5) JUST RIGHT.
+       01  cntr pic 9999 value 0.
+       01  tab1301.
+           02 tab13 pic xxx occurs 13 times.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN OUTPUT RNDFILE
+           CLOSE RNDFILE
+           OPEN I-O RNDFILE.
+           OPEN OUTPUT FILEOUT
+            CALL "SYSTEM" USING "rand-1"
+           OPEN INPUT FILEIN.
+           MOVE ALL ZEROES TO RNDTAB01.
+           MOVE 0 TO X LASTNUM.
+           DISPLAY "HOW MANY HAND? < 96".
+           ACCEPT HANDS.
+           DISPLAY "AT LEAST HOW NAME HANDS WITH GAME POTENTIAL?".
+           ACCEPT GAMEHANDS
+           DISPLAY "AT LEAST HOW NAME SLAM HANDS POTENITAL?".
+           ACCEPT SLAMHANDS.
+           COMPUTE FLATHANDS = HANDS - GAMEHANDS - SLAMHANDS
+           MOVE 0 TO HANDSX FLATX GAMEX SLAMX.
+       P1.
+           READ FILEIN AT END
+            close filein
+            CALL "SYSTEM" USING "unset S30"
+            CALL "SYSTEM" USING "rand-1"
+            CALL "SYSTEM" USING "S30=w11"
+            CALL "SYSTEM" USING "export S30"
+            open input filein
+            add 1 to cntr
+            display cntr
+            go to p1
+
+           END-READ
+           MOVE SPACE TO right5
+           unstring fi-1 delimited by " " into right5
+           inspect right5 replacing all " " by "0"
+           move right5 to num5
+           DIVIDE NUM5 BY 52 GIVING NUMX REMAINDER MOD52
+           ADD 1 TO MOD52
+           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > X
+
+            IF RNDTAB(Y) = MOD52
+               GO TO P1
+            END-IF
+           END-PERFORM
+           ADD 1 TO X
+           MOVE MOD52 TO RNDTAB(X)
+            IF X < 52
+              GO TO P1
+            END-IF
+            MOVE RNDTAB01 TO RND-KEY
+            READ RNDFILE
+              INVALID
+               WRITE RNDFILE01
+               END-WRITE
+                CLOSE RNDFILE
+                OPEN I-O RNDFILE
+               GO TO P1-1
+            END-READ
+              GO TO P1.
+       P1-1.
+               MOVE 0 TO PTS-E EASTC EASTD EASTH EASTS
+               PERFORM VARYING X FROM 1 BY 4 UNTIL X > 52
+                MOVE RNDTAB(X) TO Y
+                MOVE CARDNAME(Y) TO ALF2
+                IF ALF2(1:1) = "C" ADD 1 TO EASTC
+                END-IF
+                IF ALF2(1:1) = "D" ADD 1 TO EASTD
+                END-IF
+                IF ALF2(1:1) = "H" ADD 1 TO EASTH
+                END-IF
+                IF ALF2(1:1) = "S" ADD 1 TO EASTS
+                END-IF
+                IF ALF2(2:1) = "J" ADD 1 TO PTS-E
+                END-IF
+                IF ALF2(2:1) = "Q" ADD 2 TO PTS-E
+                END-IF
+                IF ALF2(2:1) = "K" ADD 3 TO PTS-E
+                END-IF
+                IF ALF2(2:1) = "A" ADD 4 TO PTS-E
+                END-IF
+               END-PERFORM
+
+
+
+               MOVE 0 TO PTS-W WESTC WESTD WESTH WESTS
+               PERFORM VARYING X FROM 3 BY 4 UNTIL X > 52
+                MOVE RNDTAB(X) TO Y
+                MOVE CARDNAME(Y) TO ALF2
+                IF ALF2(1:1) = "C" ADD 1 TO WESTC
+                END-IF
+                IF ALF2(1:1) = "D" ADD 1 TO WESTD
+                END-IF
+                IF ALF2(1:1) = "H" ADD 1 TO WESTH
+                END-IF
+                IF ALF2(1:1) = "S" ADD 1 TO WESTS
+                END-IF
+                IF ALF2(2:1) = "J" ADD 1 TO PTS-W
+                END-IF
+                IF ALF2(2:1) = "Q" ADD 2 TO PTS-W
+                END-IF
+                IF ALF2(2:1) = "K" ADD 3 TO PTS-W
+                END-IF
+                IF ALF2(2:1) = "A" ADD 4 TO PTS-W
+                END-IF
+               END-PERFORM
+
+               MOVE 0 TO PTS-N NORTHC NORTHD NORTHH NORTHS
+               PERFORM VARYING X FROM 4 BY 4 UNTIL X > 52
+                MOVE RNDTAB(X) TO Y
+                MOVE CARDNAME(Y) TO ALF2
+                IF ALF2(1:1) = "C" ADD 1 TO NORTHC
+                END-IF
+                IF ALF2(1:1) = "D" ADD 1 TO NORTHD
+                END-IF
+                IF ALF2(1:1) = "H" ADD 1 TO NORTHH
+                END-IF
+                IF ALF2(1:1) = "S" ADD 1 TO NORTHS
+                END-IF
+                IF ALF2(2:1) = "J" ADD 1 TO PTS-N
+                END-IF
+                IF ALF2(2:1) = "Q" ADD 2 TO PTS-N
+                END-IF
+                IF ALF2(2:1) = "K" ADD 3 TO PTS-N
+                END-IF
+                IF ALF2(2:1) = "A" ADD 4 TO PTS-N
+                END-IF
+               END-PERFORM
+
+                MOVE 0 TO PTS-S SOUTHC SOUTHD SOUTHH SOUTHS
+               PERFORM VARYING X FROM 2 BY 4 UNTIL X > 52
+                MOVE RNDTAB(X) TO Y
+                MOVE CARDNAME(Y) TO ALF2
+                IF ALF2(1:1) = "C" ADD 1 TO SOUTHC
+                END-IF
+                IF ALF2(1:1) = "D" ADD 1 TO SOUTHD
+                END-IF
+                IF ALF2(1:1) = "H" ADD 1 TO SOUTHH
+                END-IF
+                IF ALF2(1:1) = "S" ADD 1 TO SOUTHS
+                END-IF
+                IF ALF2(2:1) = "J" ADD 1 TO PTS-S
+                END-IF
+                IF ALF2(2:1) = "Q" ADD 2 TO PTS-S
+                END-IF
+                IF ALF2(2:1) = "K" ADD 3 TO PTS-S
+                END-IF
+                IF ALF2(2:1) = "A" ADD 4 TO PTS-S
+                END-IF
+               END-PERFORM
+      *         GO TO P2.
+               MOVE 0 TO EW-PTS NS-PTS
+               COMPUTE EW-PTS = PTS-E + PTS-W
+               COMPUTE NS-PTS = PTS-N + PTS-S
+
+               IF (NS-PTS > 30) OR (EW-PTS > 30)
+                  ADD 1 TO SLAMX
+                  IF SLAMX >= SLAMHANDS
+                    MOVE ALL ZEROES TO RNDTAB01
+                    MOVE 0 TO X
+                    GO TO P1
+                  ELSE
+                    DISPLAY "SLAM"
+                    GO TO P2
+                  END-IF
+               END-IF
+
+               IF (EW-PTS <= 30 AND > 24)
+                OR (NS-PTS <= 30 AND > 24)
+                 ADD 1 TO GAMEX
+                 IF GAMEX >= GAMEHANDS
+                    MOVE ALL ZEROES TO RNDTAB01
+                    MOVE 0 TO X
+                    GO TO P1
+                 ELSE
+                    display "GAME"
+                    GO TO P2
+                 END-IF
+               END-IF
+
+               IF   (PTS-E < 13)
+                AND (PTS-W < 13)
+                AND (PTS-S < 13)
+                AND (PTS-N < 13)
+                   MOVE ALL ZEROES TO RNDTAB01
+                   MOVE 0 TO X
+                   GO TO P1.
+
+                 ADD 1 TO FLATX
+                 IF FLATX >= FLATHANDS
+                    MOVE ALL ZEROES TO RNDTAB01
+                    MOVE 0 TO X
+                    GO TO P1
+                 ELSE
+                    display "FLAT"
+                    GO TO P2
+                 END-IF.
+
+         P2.
+               ADD 1 TO HANDSX
+               MOVE HANDSX TO NEF2
+               MOVE SPACE TO FILEOUT01
+
+               STRING  "NEW HAND  " NEF2 DELIMITED BY SIZE
+               INTO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+               MOVE "EAST HAND" TO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01
+               MOVE 0 TO Y
+               PERFORM VARYING X FROM 1 BY 4 UNTIL X > 52
+                ADD 1 TO Y
+                MOVE RNDTAB(X) TO A
+                MOVE CARDNAME(A) TO TAB13(Y)
+               END-PERFORM
+                PERFORM SORT-1
+                WRITE FILEOUT01 FROM  TAB1301
+
+
+               MOVE SPACE TO FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+               MOVE "WEST HAND" TO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01
+               MOVE 0 TO Y
+               PERFORM VARYING X FROM 3 BY 4 UNTIL X > 52
+                ADD 1 TO Y
+                MOVE RNDTAB(X) TO A
+                MOVE CARDNAME(A) TO TAB13(Y)
+               END-PERFORM
+                PERFORM SORT-1
+                WRITE FILEOUT01 FROM  TAB1301
+
+
+               MOVE SPACE TO FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+               MOVE "NORTH HAND" TO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01
+               MOVE 0 TO Y
+               PERFORM VARYING X FROM 4 BY 4 UNTIL X > 52
+                ADD 1 TO Y
+                MOVE RNDTAB(X) TO A
+                MOVE CARDNAME(A) TO TAB13(Y)
+               END-PERFORM
+                PERFORM SORT-1
+                WRITE FILEOUT01 FROM  TAB1301
+
+               MOVE SPACE TO FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+               MOVE "SOUTH HAND" TO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01
+               MOVE 0 TO Y
+               PERFORM VARYING X FROM 2 BY 4 UNTIL X > 52
+                ADD 1 TO Y
+                MOVE RNDTAB(X) TO A
+                MOVE CARDNAME(A) TO TAB13(Y)
+               END-PERFORM
+                PERFORM SORT-1
+                WRITE FILEOUT01 FROM  TAB1301
+
+
+               MOVE SPACE TO FILEOUT01
+               WRITE FILEOUT01
+               WRITE FILEOUT01
+
+             MOVE PTS-E TO NEF2
+             MOVE EASTC TO NEFC
+             MOVE EASTD TO NEFD
+             MOVE EASTH TO NEFH
+             MOVE EASTS TO NEFS
+             STRING "EAST PTS " NEF2 "    " NEFC "C" " " NEFD "D"
+                    " " NEFH "H" " " NEFS "S"
+             DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE PTS-W TO NEF2
+             MOVE WESTC TO NEFC
+             MOVE WESTD TO NEFD
+             MOVE WESTH TO NEFH
+             MOVE WESTS TO NEFS
+
+             STRING "WEST PTS " NEF2 "    " NEFC "C" " " NEFD "D"
+                    " " NEFH "H" " " NEFS "S"
+             DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE PTS-N TO NEF2
+             MOVE NORTHC TO NEFC
+             MOVE NORTHD TO NEFD
+             MOVE NORTHH TO NEFH
+             MOVE NORTHS TO NEFS
+             STRING "NORTH PTS " NEF2 "   " NEFC "C" " " NEFD "D"
+                    " " NEFH "H" " " NEFS "S"
+             DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE PTS-S TO NEF2
+             MOVE SOUTHC TO NEFC
+             MOVE SOUTHD TO NEFD
+             MOVE SOUTHH TO NEFH
+             MOVE SOUTHS TO NEFS
+
+             STRING "SOUTH PTS " NEF2 "   " NEFC "C" " " NEFD "D"
+                    " " NEFH "H" " " NEFS "S"
+             DELIMITED BY SIZE INTO FILEOUT01
+
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             WRITE FILEOUT01
+             WRITE FILEOUT01
+             WRITE FILEOUT01
+             IF HANDSX = HANDS
+               GO TO P99
+             END-IF
+             MOVE ALL ZEROES TO RNDTAB01
+             MOVE 0 TO X
+           GO TO P1.
+       SORT-1.
+              PERFORM VARYING X FROM 1 BY 1 UNTIL X > 12
+               ADD 1 TO X GIVING Y
+               PERFORM  VARYING Z FROM Y BY 1 UNTIL Z > 13
+                  IF TAB13(X) > TAB13(Z)
+                    MOVE TAB13(X) TO ALF2
+                    MOVE TAB13(Z) TO TAB13(X)
+                    MOVE ALF2 TO TAB13(Z)
+                  END-IF
+               END-PERFORM
+              END-PERFORM.
+       P99.
+           DISPLAY "RETURN TO FINISH"
+           ACCEPT OMITTED
+           CLOSE filein FILEOUT RNDFILE
+           STOP RUN.
