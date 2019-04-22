@@ -1,0 +1,47 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. UP001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(999).
+       FD  FILEIN.
+       01  FILEIN01 PIC X(999).
+       WORKING-STORAGE SECTION.
+       01  QTQ PIC X VALUE H"22".
+       01  X PIC 9999.
+       01  Y PIC 9999.
+       01  TABIN01.
+           02 TABIN PIC X OCCURS 9999 TIMES.
+       01  TABOUT01.
+           02 TABOUT PIC X OCCURS 9999 TIMES.
+       PROCEDURE DIVISION.
+       0005-S0TART.
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+           read filein at end continue.
+       P1. MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P2.
+           MOVE FILEIN01 TO TABIN01
+           MOVE SPACE TO TABOUT01
+           MOVE 0 TO Y
+           PERFORM VARYING X FROM 1 BY 1 UNTIL X > 999
+             IF TABIN(X) NOT = QTQ
+               ADD 1 TO Y
+               MOVE TABIN(X) TO TABOUT(Y)
+               END-IF
+           END-PERFORM
+           WRITE FILEOUT01 FROM TABOUT01
+           GO TO P1.
+       P2.
+           CLOSE FILEOUT.
+           STOP RUN.
+

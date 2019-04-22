@@ -1,0 +1,614 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. NEI011.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT INSFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC        RECORD KEY IS INS-KEY
+           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES.
+           SELECT OUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT POSTDATE ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT PAYBACK ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT PARMFILE ASSIGN TO "S50" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  INSFILE
+     *     BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS INSFILE01.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+
+       FD OUT.
+       01  OUT01 PIC X(132).
+       FD  POSTDATE.
+       01 POSTDATE01 PIC X(8).
+       FD  PAYBACK
+           DATA RECORD IS PAYBACK01.
+       01  PAYBACK01.
+           02 PAYBACK-KEY.
+             04 PD-KEY8 PIC X(8).
+             04 PD-KEY3 PIC XXX.
+           02 NAME PIC X(24).
+           02 PD-AMOUNT PIC S9(4)V99.
+           02 PD-PAYCODE PIC XXX.
+           02 PD-DENIAL PIC XX.
+           02 CLAIM PIC X(6).
+           02 DATE-T PIC X(8).
+           02 PD-DATE-E PIC X(8).
+           02 PD-ORDER PIC X(6).
+           02 PD-BATCH PIC X(6).
+           02 PD-CHKNO PIC X(30).
+       FD  PARMFILE.
+       01  PARMFILE01.
+           02 PF1 PIC X(9).
+           02 PF2 PIC X(40).
+       WORKING-STORAGE SECTION.
+       01  CHAR-CNT01.
+           02 CHAR-CNT PIC 99999 OCCURS 999 TIMES.
+       01  CHAR-AMT01.
+           02 CHAR-AMT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  CNT-TOT01.
+           02 CNT-TOT PIC 99999 OCCURS 999 TIMES.
+       01  AMT-TOT01.
+           02 AMT-TOT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  REDU-CNT01.
+           02 REDU-CNT PIC 99999 OCCURS 999 TIMES.
+       01  REDU-AMT01.
+           02 REDU-AMT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  REDUCNT-TOT01.
+           02 REDUCNT-TOT PIC 99999 OCCURS 999 TIMES.
+       01  REDUAMT-TOT01.
+           02 REDUAMT-TOT PIC S9(8)V99 OCCURS 999 TIMES.
+
+       01  DEFR-CNT01.
+           02 DEFR-CNT PIC 99999 OCCURS 999 TIMES.
+       01  DEFR-AMT01.
+           02 DEFR-AMT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  DEFRCNT-TOT01.
+           02 DEFRCNT-TOT PIC 99999 OCCURS 999 TIMES.
+       01  DEFRAMT-TOT01.
+           02 DEFRAMT-TOT PIC S9(8)V99 OCCURS 999 TIMES.
+
+       01  NCASH-CNT01.
+           02 NCASH-CNT PIC 99999 OCCURS 999 TIMES.
+       01  NCASH-AMT01.
+           02 NCASH-AMT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  NCASHCNT-TOT01.
+           02 NCASHCNT-TOT PIC 99999 OCCURS 999 TIMES.
+       01  NCASHAMT-TOT01.
+           02 NCASHAMT-TOT PIC S9(8)V99 OCCURS 999 TIMES.
+
+       01  CASHC-CNT01.
+           02 CASHC-CNT PIC 99999 OCCURS 999 TIMES.
+       01  CASHC-AMT01.
+           02 CASHC-AMT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  CASHCCNT-TOT01.
+           02 CASHCCNT-TOT PIC 99999 OCCURS 999 TIMES.
+       01  CASHCAMT-TOT01.
+           02 CASHCAMT-TOT PIC S9(8)V99 OCCURS 999 TIMES.
+       
+
+       01  CASHD-CNT01.
+           02 CASHD-CNT PIC 99999 OCCURS 999 TIMES.
+       01  CASHD-AMT01.
+           02 CASHD-AMT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  CASHDCNT-TOT01.
+           02 CASHDCNT-TOT PIC 99999 OCCURS 999 TIMES.
+       01  CASHDAMT-TOT01.
+           02 CASHDAMT-TOT PIC S9(8)V99 OCCURS 999 TIMES.
+
+       01  ADJ-CNT PIC 9999.
+       01  ANS PIC X(20).
+       01  ADJ-TOT PIC 9999.
+       01  ADJ-AMT PIC S9(8)V99.
+       01  AMT-14 PIC S9(8)V99 VALUE 0.
+       01  CNTR-14 PIC 9999 VALUE 0.
+       01  AMT-DI PIC S9(8)V99 VALUE 0.
+       01  CNTR-DI PIC 9999 VALUE 0.
+       01  AMT-07 PIC S9(8)V99 VALUE 0.
+       01  CNTR-07 PIC 9999 VALUE 0.
+       01  AMT-08 PIC S9(8)V99 VALUE 0.
+       01  CNTR-08 PIC 9999 VALUE 0.
+       01  AMT-15 PIC S9(8)V99 VALUE 0.
+       01  CNTR-15 PIC 9999 VALUE 0.
+
+       01  LINE-1.
+           02 L1F1 PIC X(40).
+           02 FILLER PIC XX VALUE SPACE.
+           02 L1F2 PIC X(19) VALUE "PAYMENT DETAIL FOR ".
+           02 L1F3 PIC X(14) VALUE "POSTING DATE  ".
+           02 L1F4 PIC X(10).
+           02 L1F5 PIC X(23) VALUE " FOR DATA BATCH DATE   ".
+           02 L1F6 PIC X(10).
+       01  LINE-2.
+           02 L2F1 PIC X(8).
+           02 FILLER PIC XX VALUE SPACE.
+           02 L2F2 PIC X(24).
+           02 FILLER PIC X VALUE SPACE.
+           02 L2F3 PIC X(6).
+           02 FILLER PIC X VALUE SPACE.
+           02 L2F4 PIC XXX.
+           02 FILLER PIC XX VALUE SPACE.
+           02 L2F41 PIC XX.
+           02 FILLER PIC XX VALUE SPACE.
+           02 L2F5 PIC ZZ,ZZZ.99CR.
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L2F51 PIC X(10).
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L2F6 PIC X(10).
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L2F7 PIC X(6).
+       01 LINE-3.
+           02 F31 PIC X VALUE "(".
+           02 L3F1 PIC ZZZ.
+           02 F32 PIC XX VALUE ") ".
+           02 L3F2 PIC X(18).
+           02 F23 PIC X(12) VALUE SPACE.
+           02 L3F3 PIC ZZZ9.
+           02 F24 PIC XXX VALUE SPACE.
+           02 L3F4 PIC ZZ,ZZZ,ZZ9.99CR.
+       01  LINE-4.
+           02 F41 PIC X(11).
+           02 L4F1 PIC X(10).
+           02 F42 PIC X(13) VALUE SPACE.
+           02 L4F2 PIC ZZ,ZZ9.
+           02 F43 PIC XXX VALUE SPACE.
+           02 L4F3 PIC ZZ,ZZZ,ZZ9.99CR.
+       01  LINE-CHKNO.
+           02 L4-CHKNO PIC X(50).
+       01 LINE-5.
+           05 F51 PIC X(4) VALUE SPACE.
+           05 L5F1 PIC X(9) VALUE "PAYORCODE".
+           05 F52 PIC X(22) VALUE SPACE.
+           05 L5F3 PIC X(6) VALUE "NUMBER".
+           05 F54 PIC X(10) VALUE SPACE.
+           05 L5F4 PIC X(6) VALUE "AMOUNT".
+           05 F55 PIC XX VALUE SPACE.
+           05 L5F5 PIC XX/XX/XX.
+       01  LINE-6.
+           02 F61 PIC X(8) VALUE "ACCT. # ".
+           02 F62 PIC X(16) VALUE "  GUARANTOR NAME".
+           02 F63 PIC X(11) VALUE SPACE.
+           02 F64 PIC X(5) VALUE "CLAIM".
+           02 F65 PIC X(4) VALUE "  PC".
+           02 F651 PIC X(5) VALUE "   DN".
+           02 F66 PIC X(11) VALUE "     AMOUNT".
+           02 FILLER PIC XXX VALUE SPACE.
+           02 F67 PIC X(12) VALUE "  PAY DATE  ".
+           02 FILLER PIC XXX VALUE SPACE.
+           02 F68 PIC X(12) VALUE "BATCH DATE  ".
+           02 FILLER PIC XXX VALUE SPACE.
+           02 F69 PIC X(4) VALUE "TIME".
+       01  HOLD-CHKNO PIC X(30).
+       01  HOLD-DATE PIC X(8).
+       01  TEST-DATE-S.
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
+           02 T-MM PIC XX.
+           02 T-DD PIC XX.
+       01  INPUT-DATE-S.
+           02 T-MM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-DD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
+       01  X PIC 999.
+       01  Y PIC 9999.
+       01  NUM3 PIC 999.
+       01  Z PIC 999.
+       01  PARTCNT PIC 9999 VALUE 0.
+       01  PARTPAY PIC S9(8)V99 VALUE 0.
+       01  START-DATE PIC X(8).
+       01  DOT-LINE.
+           02 DOT1 PIC X(30) VALUE "------------------------------".
+           02 DOT2 PIC X(30) VALUE "------------------------------".
+       01  ALF-8.
+           02 ALF-81 PIC XX.
+           02 ALF-82 PIC X(6).
+       01  BIGINS PIC 999 VALUE 0.
+       01  CK1 PIC X(15).
+       01  CK2 PIC X(8).
+       01  CK3 PIC X(15).
+       01  CK4 PIC X(15).
+       01  ALF1 PIC X VALUE SPACE.
+       PROCEDURE DIVISION.
+       0005-START.
+           PERFORM B1 VARYING Y FROM 1 BY 1 UNTIL Y > 999.
+           OPEN INPUT POSTDATE PAYBACK PARMFILE INSFILE.
+           OPEN OUTPUT OUT.
+           READ PARMFILE.
+           MOVE PF2 TO L1F1.
+           READ POSTDATE.
+           MOVE POSTDATE01 TO TEST-DATE-S
+           MOVE CORR TEST-DATE-S TO INPUT-DATE-S
+           MOVE INPUT-DATE-S TO L1F4.
+       P1-0. READ PAYBACK AT END 
+           MOVE SPACE TO L1F6 L2F6 HOLD-DATE START-DATE HOLD-CHKNO
+           MOVE L1F4 TO L1F6 L2F6
+           WRITE OUT01 FROM LINE-1 AFTER PAGE
+           WRITE OUT01 FROM LINE-6 AFTER 2
+           GO TO P5.
+           MOVE DATE-T TO START-DATE
+           GO TO P1-1.
+       P1. READ PAYBACK AT END GO TO P5.
+       P1-1.
+           MOVE DATE-T TO HOLD-DATE
+           MOVE PD-CHKNO TO HOLD-CHKNO
+           MOVE PD-PAYCODE TO BIGINS
+           MOVE SPACE TO L1F6 L2F6
+      *     MOVE PD-DATE-E TO ALF-8
+      *     IF ALF-81 NOT = "19"
+      *     MOVE PD-DATE-E TO L1F6 L2F6 ELSE
+           MOVE DATE-T TO TEST-DATE-S
+           MOVE CORR TEST-DATE-S TO INPUT-DATE-S
+           MOVE INPUT-DATE-S TO L1F6 L2F6.
+           WRITE OUT01 FROM LINE-1 AFTER PAGE
+           WRITE OUT01 FROM LINE-6 AFTER 2
+           GO TO P4.
+       P2. READ PAYBACK AT END GO TO P5.
+       P4.
+           IF PD-CHKNO NOT = HOLD-CHKNO PERFORM A3
+           WRITE OUT01 FROM LINE-1 AFTER 3
+           WRITE OUT01 FROM LINE-6 AFTER 2.
+           MOVE PD-PAYCODE TO X.
+           IF X > BIGINS MOVE X TO BIGINS.
+
+           IF PD-DENIAL = "14" 
+              ADD 1 TO REDU-CNT(X) ADD PD-AMOUNT TO REDU-AMT(X) 
+           
+            ELSE IF PD-DENIAL = "DI" 
+               ADD 1 TO DEFR-CNT(X) ADD PD-AMOUNT TO DEFR-AMT(X) 
+            ELSE IF PD-DENIAL = "07" 
+               ADD 1 TO CASHC-CNT(X) ADD PD-AMOUNT TO CASHC-AMT(X) 
+            ELSE IF PD-DENIAL = "08" 
+               ADD 1 TO CASHD-CNT(X) ADD PD-AMOUNT TO CASHD-AMT(X) 
+            ELSE IF PD-DENIAL = "15" 
+               ADD 1 TO NCASH-CNT(X) ADD PD-AMOUNT TO NCASH-AMT(X) 
+
+
+           ELSE
+           ADD 1 TO CHAR-CNT(X) ADD PD-AMOUNT TO CHAR-AMT(X).
+           IF PD-DENIAL = "DI" ADD PD-AMOUNT TO AMT-DI
+           ADD 1 TO CNTR-DI.
+           IF PD-DENIAL = "14" ADD PD-AMOUNT TO AMT-14
+           ADD 1 TO CNTR-14.
+           IF PD-DENIAL = "15" ADD PD-AMOUNT TO AMT-15
+           ADD 1 TO CNTR-15.
+           IF PD-DENIAL = "07" ADD PD-AMOUNT TO AMT-07
+           ADD 1 TO CNTR-07.
+           IF PD-DENIAL = "08" ADD PD-AMOUNT TO AMT-08
+           ADD 1 TO CNTR-08.
+           
+           IF (PD-PAYCODE > 6 AND < 20) AND (PD-PAYCODE NOT = 18)
+           ADD PD-AMOUNT TO ADJ-TOT
+           ADD 1 TO ADJ-CNT.
+           MOVE PD-KEY8 TO L2F1
+           MOVE NAME TO L2F2
+           MOVE CLAIM TO L2F3
+           MOVE PD-PAYCODE TO L2F4
+           MOVE PD-DENIAL TO L2F41
+           MOVE PD-AMOUNT TO L2F5
+           MOVE DATE-T TO TEST-DATE-S
+           MOVE CORR TEST-DATE-S TO INPUT-DATE-S.
+           MOVE INPUT-DATE-S TO L2F51
+           MOVE PD-ORDER TO L2F7.
+           WRITE OUT01 FROM LINE-2. GO TO P2.
+           MOVE 0 TO PARTPAY PARTCNT.
+       A3.
+           WRITE OUT01 FROM LINE-5 AFTER 2.
+           MOVE 0 TO ADJ-CNT ADJ-AMT.
+           MOVE HOLD-DATE TO TEST-DATE-S
+           MOVE CORR TEST-DATE-S TO INPUT-DATE-S
+           MOVE INPUT-DATE-S TO L4F1.
+           PERFORM B3 VARYING Y FROM 1 BY 1 UNTIL Y > BIGINS
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE "TOTAL ADJ." TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           COMPUTE ADJ-CNT = PARTCNT - ADJ-CNT.
+           COMPUTE ADJ-AMT = PARTPAY - ADJ-AMT.
+           MOVE "TOTAL CASH" TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           MOVE SPACE TO CK1 CK2 CK3 CK4
+           UNSTRING HOLD-CHKNO DELIMITED BY " " INTO
+           CK1 CK2 CK3 CK4
+           MOVE CK3 TO CK4
+           MOVE SPACE TO CK3
+           MOVE SPACE TO L4-CHKNO
+           STRING CK1 ALF1 CK2 ALF1 CK3 CK4
+           DELIMITED BY SIZE INTO L4-CHKNO
+           WRITE OUT01 FROM LINE-CHKNO
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE PARTCNT TO L4F2
+           MOVE PARTPAY TO L4F3
+           MOVE "TOTALS FOR" TO F41
+           WRITE OUT01 FROM LINE-4
+           WRITE OUT01 FROM DOT-LINE.
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE DATE-T TO HOLD-DATE.
+           MOVE PD-CHKNO TO HOLD-CHKNO
+           MOVE 0 TO PARTCNT PARTPAY ADJ-CNT ADJ-AMT.
+       B1. MOVE 0 TO CHAR-CNT(Y) CHAR-AMT(Y) CNT-TOT(Y) AMT-TOT(Y)
+           REDU-CNT(Y) REDU-AMT(Y) REDUCNT-TOT(Y) REDUAMT-TOT(Y)
+           DEFR-CNT(Y) DEFR-AMT(Y) DEFRCNT-TOT(Y) DEFRAMT-TOT(Y)
+           CASHC-CNT(Y) CASHC-AMT(Y) CASHCCNT-TOT(Y) CASHCAMT-TOT(Y)
+           CASHD-CNT(Y) CASHD-AMT(Y) CASHDCNT-TOT(Y) CASHDAMT-TOT(Y)
+           NCASH-CNT(Y) NCASH-AMT(Y) NCASHCNT-TOT(Y) NCASHAMT-TOT(Y).
+      * B2. MOVE 0 TO CHAR-CNT(Y) CHAR-AMT(Y) REDU-CNT(Y) REDU-AMT(Y).
+       B3. IF 
+           CHAR-CNT(Y) > 0 OR REDU-CNT(Y) > 0
+           OR DEFR-CNT(Y) > 0 OR CASHC-CNT(Y) > 0
+           OR CASHD-CNT(Y) > 0 OR NCASH-CNT(Y) > 0
+           MOVE CHAR-CNT(Y) TO L3F3
+           MOVE CHAR-AMT(Y) TO L3F4
+           MOVE Y TO L3F1
+           COMPUTE NUM3 = Y
+           MOVE NUM3 TO INS-KEY
+           MOVE "***BAD CODE***" TO INS-NAME
+           READ INSFILE
+           MOVE INS-NAME TO L3F2
+           ADD CHAR-CNT(Y) TO PARTCNT CNT-TOT(Y)
+           ADD CHAR-AMT(Y) TO PARTPAY AMT-TOT(Y)
+           ADD REDU-CNT(Y) TO PARTCNT REDUCNT-TOT(Y)
+           ADD REDU-AMT(Y) TO PARTPAY REDUAMT-TOT(Y)
+           ADD DEFR-CNT(Y) TO PARTCNT DEFRCNT-TOT(Y)
+           ADD DEFR-AMT(Y) TO PARTPAY DEFRAMT-TOT(Y)
+           ADD CASHC-CNT(Y) TO PARTCNT CASHCCNT-TOT(Y)
+           ADD CASHC-AMT(Y) TO PARTPAY CASHCAMT-TOT(Y)
+           ADD CASHD-CNT(Y) TO PARTCNT CASHDCNT-TOT(Y)
+           ADD CASHD-AMT(Y) TO PARTPAY CASHDAMT-TOT(Y)
+           ADD NCASH-CNT(Y) TO PARTCNT NCASHCNT-TOT(Y)
+           ADD NCASH-AMT(Y) TO PARTPAY NCASHAMT-TOT(Y)
+           WRITE OUT01 FROM LINE-3.
+           IF REDU-CNT(Y) > 0
+           MOVE REDU-CNT(Y) TO L3F3
+           MOVE REDU-AMT(Y) TO L3F4
+           MOVE "REDUCTION" TO L3F2
+           ADD REDU-CNT(Y) TO ADJ-CNT
+           ADD REDU-AMT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+
+           IF DEFR-CNT(Y) > 0
+           MOVE DEFR-CNT(Y) TO L3F3
+           MOVE DEFR-AMT(Y) TO L3F4
+           MOVE "DEFERRED INCOME" TO L3F2
+           ADD DEFR-CNT(Y) TO ADJ-CNT
+           ADD DEFR-AMT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+
+           IF CASHC-CNT(Y) > 0
+           MOVE CASHC-CNT(Y) TO L3F3
+           MOVE CASHC-AMT(Y) TO L3F4
+           MOVE "CASH CREDIT" TO L3F2
+           ADD CASHC-CNT(Y) TO ADJ-CNT
+           ADD CASHC-AMT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+
+           IF CASHD-CNT(Y) > 0
+           MOVE CASHD-CNT(Y) TO L3F3
+           MOVE CASHD-AMT(Y) TO L3F4
+           MOVE "CASH DEBIT" TO L3F2
+           ADD CASHD-CNT(Y) TO ADJ-CNT
+           ADD CASHD-AMT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+
+           IF NCASH-CNT(Y) > 0
+           MOVE NCASH-CNT(Y) TO L3F3
+           MOVE NCASH-AMT(Y) TO L3F4
+           MOVE "NON-CASH DEBIT" TO L3F2
+           ADD NCASH-CNT(Y) TO ADJ-CNT
+           ADD NCASH-AMT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+
+
+           IF (Y > 6 AND < 20 ) AND ( Y NOT = 18 )
+           ADD CHAR-CNT(Y) TO ADJ-CNT
+           ADD CHAR-AMT(Y) TO ADJ-AMT.
+           MOVE 0 TO CHAR-CNT(Y) CHAR-AMT(Y) 
+           REDU-CNT(Y) REDU-AMT(Y)
+           DEFR-CNT(Y) DEFR-AMT(Y)
+           CASHC-CNT(Y) CASHC-AMT(Y)
+           CASHD-CNT(Y) CASHD-AMT(Y)
+           NCASH-CNT(Y) NCASH-AMT(Y).
+       B4. IF CNT-TOT(Y) > 0 
+           OR REDUCNT-TOT(Y) > 0
+           OR DEFRCNT-TOT(Y) > 0
+           OR CASHCCNT-TOT(Y) > 0
+           OR CASHDCNT-TOT(Y) > 0
+           OR NCASHCNT-TOT(Y) > 0
+           ADD CNT-TOT(Y) TO PARTCNT ADD AMT-TOT(Y) TO PARTPAY
+           ADD REDUCNT-TOT(Y) TO PARTCNT ADD REDUAMT-TOT(Y) TO PARTPAY
+           ADD DEFRCNT-TOT(Y) TO PARTCNT ADD DEFRAMT-TOT(Y) TO PARTPAY
+           ADD CASHCCNT-TOT(Y) TO PARTCNT 
+           ADD CASHCAMT-TOT(Y) TO PARTPAY
+           ADD CASHDCNT-TOT(Y) TO PARTCNT 
+           ADD CASHDAMT-TOT(Y) TO PARTPAY
+           ADD NCASHCNT-TOT(Y) TO PARTCNT 
+           ADD NCASHAMT-TOT(Y) TO PARTPAY
+           MOVE CNT-TOT(Y) TO L3F3
+           MOVE AMT-TOT(Y) TO L3F4
+           MOVE Y TO L3F1
+           COMPUTE NUM3 = Y
+           MOVE NUM3 TO INS-KEY
+           MOVE "***BAD CODE***" TO INS-NAME
+           READ INSFILE
+           MOVE INS-NAME TO L3F2
+           WRITE OUT01 FROM LINE-3.
+           IF REDUCNT-TOT(Y) > 0
+           MOVE REDUCNT-TOT(Y) TO L3F3
+           MOVE REDUAMT-TOT(Y) TO L3F4
+           MOVE "REDUCTION" TO L3F2
+           ADD REDUCNT-TOT(Y) TO ADJ-CNT
+           ADD REDUAMT-TOT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+           
+           IF DEFRCNT-TOT(Y) > 0
+           MOVE DEFRCNT-TOT(Y) TO L3F3
+           MOVE DEFRAMT-TOT(Y) TO L3F4
+           MOVE "DEFERRED INCOME" TO L3F2
+           ADD DEFRCNT-TOT(Y) TO ADJ-CNT
+           ADD DEFRAMT-TOT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+
+           IF CASHCCNT-TOT(Y) > 0
+           MOVE CASHCCNT-TOT(Y) TO L3F3
+           MOVE CASHCAMT-TOT(Y) TO L3F4
+           MOVE "CASH CREDIT" TO L3F2
+           ADD CASHCCNT-TOT(Y) TO ADJ-CNT
+           ADD CASHCAMT-TOT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+
+           IF CASHDCNT-TOT(Y) > 0
+           MOVE CASHDCNT-TOT(Y) TO L3F3
+           MOVE CASHDAMT-TOT(Y) TO L3F4
+           MOVE "CASH DEBIT" TO L3F2
+           ADD CASHDCNT-TOT(Y) TO ADJ-CNT
+           ADD CASHDAMT-TOT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+
+           IF NCASHCNT-TOT(Y) > 0
+           MOVE NCASHCNT-TOT(Y) TO L3F3
+           MOVE NCASHAMT-TOT(Y) TO L3F4
+           MOVE "NON-CASH DEBIT" TO L3F2
+           ADD NCASHCNT-TOT(Y) TO ADJ-CNT
+           ADD NCASHAMT-TOT(Y) TO ADJ-AMT
+           MOVE SPACE TO F31 F32
+           MOVE 0 TO L3F1
+           WRITE OUT01 FROM LINE-3
+           MOVE "(" TO F31
+           MOVE ")" TO F32.
+
+           IF (Y > 6 AND < 20 ) AND ( Y NOT = 18 )
+           ADD CNT-TOT(Y) TO ADJ-CNT
+           ADD AMT-TOT(Y) TO ADJ-AMT.
+       P5. PERFORM A3.
+           WRITE OUT01 FROM LINE-5 AFTER 2.
+           MOVE 0 TO ADJ-CNT ADJ-AMT PARTCNT PARTPAY.
+           MOVE "BATCHES " TO L4F1.
+           PERFORM B4 VARYING Y FROM 1 BY 1 UNTIL Y > BIGINS
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE "TOTAL ADJ." TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           MOVE SPACE TO OUT01
+           WRITE OUT01 FROM LINE-4.
+           COMPUTE ADJ-CNT = PARTCNT - ADJ-CNT.
+           COMPUTE ADJ-AMT = PARTPAY - ADJ-AMT.
+           MOVE "DEPOSIT    " TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE PARTCNT TO L4F2
+           MOVE PARTPAY TO L4F3
+           MOVE "TOTALS FOR" TO F41
+           WRITE OUT01 FROM LINE-4
+           WRITE OUT01 FROM DOT-LINE.
+           WRITE OUT01 FROM DOT-LINE.
+           MOVE SPACE TO L4F1
+           IF CNTR-DI NOT = 0
+           MOVE "DEF INCOME " TO F41
+           MOVE CNTR-DI TO L4F2
+           MOVE AMT-DI TO L4F3
+           WRITE OUT01 FROM LINE-4 AFTER 2.
+           IF CNTR-07 NOT = 0
+           MOVE "CASH CREDIT" TO F41
+           MOVE CNTR-07 TO L4F2
+           MOVE AMT-07 TO L4F3
+           WRITE OUT01 FROM LINE-4.
+           IF CNTR-08 NOT = 0
+           MOVE "CASH DEBIT " TO F41
+           MOVE CNTR-08 TO L4F2
+           MOVE AMT-08 TO L4F3
+           WRITE OUT01 FROM LINE-4.
+           IF CNTR-15 NOT = 0
+           MOVE "NONCASH DBT" TO F41
+           MOVE CNTR-15 TO L4F2
+           MOVE AMT-15 TO L4F3
+           WRITE OUT01 FROM LINE-4.
+           IF CNTR-14 NOT = 0
+           MOVE "REDUCTIONS " TO F41
+           MOVE CNTR-14 TO L4F2
+           MOVE AMT-14 TO L4F3
+           WRITE OUT01 FROM LINE-4.
+      *     MOVE "CASH DEPOSIT" TO F41
+      *     COMPUTE PARTCNT = ADJ-CNT + CNTR-07 + CNTR-08
+      *     COMPUTE PARTPAY = ADJ-AMT + AMT-07 - AMT-08
+      *     MOVE PARTCNT TO L4F2
+      *     MOVE PARTPAY TO L4F3
+      *     WRITE OUT01 FROM LINE-4 AFTER 2.
+       R20.
+           CLOSE INSFILE POSTDATE PARMFILE PAYBACK OUT
+           STOP RUN.
+       P6.
+           CLOSE OUT. STOP RUN.

@@ -1,0 +1,117 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. R801.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT GARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEIN ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-1 PIC X(342).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(342).
+       FD GARFILE
+           BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS GARFILE01.
+       01 GARFILE01.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOBCC PIC XX.
+           02 G-DOBYY PIC XX.
+           02 G-DOBMM PIC XX.
+           02 G-DOBDD PIC XX.
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(10).
+           02 G-PRIPOL.
+              03 G-PRIPOL2 PIC XX.
+              03 FILLER PIC X(14).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-SE-OFFICE PIC X(4).
+           02 G-SE-GROUP PIC X(10).
+           02 G-SECPOL PIC X(16).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-INSPEND PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+       WORKING-STORAGE SECTION.
+       01 ALF12.
+           02 ALF7 PIC X(7).
+           02 ALF8 PIC X.
+           02 ALF0910 PIC XX.
+           02 ALF1112 PIC XX.
+       01  ALF12X.
+           02 ALF9X PIC X(9).
+           02 ALF10X PIC X.
+           02 ALF1112X PIC XX.
+       01  FLAG PIC 9 VALUE 0.
+       01  ALF1 PIC X.
+       01  ALF9 PIC X(9).
+
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN I-O GARFILE INPUT FILEIN
+            OUTPUT FILEOUT.
+           
+       P1. READ FILEIN AT END GO TO P99.
+           IF FI-1(221:3) = "001" OR "076" OR "091"
+             GO TO P1.
+           IF FI-1(239:16) = SPACE GO TO P1.
+
+           MOVE FI-1(302:8) TO G-GARNO
+           READ GARFILE WITH LOCK INVALID
+              DISPLAY "NO LOCK"
+              GO TO P1
+           END-READ
+           IF G-SECPOL NOT = SPACE GO TO P1.
+           MOVE FI-1(239:16) TO G-SECPOL
+           REWRITE GARFILE01
+              INVALID
+                DISPLAY "NO REWRITE"
+                GO TO P1
+           END-REWRITE
+           WRITE FILEOUT01 FROM FILEIN01
+           GO TO P1.
+           
+       P99.
+           CLOSE GARFILE FILEIN FILEOUT 
+           STOP RUN.
+
+

@@ -1,0 +1,262 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RRR002C.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT TAGDIAG ASSIGN TO "S25" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS TAG-KEY
+           ALTERNATE RECORD KEY IS TAG-ICD9 WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT ALLOWFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC  RECORD KEY IS ALW-KEY.
+           SELECT DIAGFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS DIAG-KEY
+           ALTERNATE RECORD KEY IS DIAG-TITLE WITH DUPLICATES.
+           SELECT PROCFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS PROC-KEY.
+           SELECT GARFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT DIAG9FILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS DIAG9-KEY
+           ALTERNATE RECORD KEY IS DIAG9-TITLE WITH DUPLICATES.
+
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  TAGDIAG.
+       01  TAGDIAG01.
+           02 TAG-KEY.
+              03 TAG-7 PIC X(7).
+              03 TAG-5 PIC X(5).
+           02 TAG-ICD9.
+              03 tag-icd9-5 PIC X(5).
+              03 tag-icd9-7 PIC X(7).
+       FD  GARFILE
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS G-MASTER.
+       01  G-MASTER.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(10).
+           02 G-PRIPOL PIC X(16).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(10).
+           02 G-SECPOL PIC X(16).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-COPAY PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+
+       FD ALLOWFILE
+           DATA RECORD ALLOWFILE01.
+       01 ALLOWFILE01.
+           02 ALW-KEY.
+             03 ALW-PROC PIC X(7).
+             03 ALW-DIAG PIC X(7).
+           02 ALW-FLAG PIC X.
+       FD  PROCFILE
+           DATA RECORD IS PROC01.
+       01  PROC01.
+           02 PROC-KEY PIC X(11).
+           02 PROC-TYPE PIC X.
+           02 PROC-TITLE PIC X(28).
+           02 PROC-AMOUNT PIC S9(4)V99.
+       FD  DIAGFILE
+           BLOCK CONTAINS 8 RECORDS
+           DATA RECORD IS DIAG01.
+       01  DIAG01.
+           02 DIAG-KEY PIC X(7).
+           02 DIAG-TITLE.
+             03 DIAG-T1 PIC XXX.
+             03 DIAG-T2 PIC X(58).
+           02 DIAG-MEDB PIC X(5).
+       FD  DIAG9FILE.
+       01  DIAG901.
+           02 DIAG9-KEY PIC X(5).
+           02 DIAG9-TITLE PIC X(25).
+           02 DIAG9-MEDB PIC X(5).
+       FD  CHARFILE
+           BLOCK CONTAINS 2 RECORDS
+           DATA RECORD IS CHARFILE01.
+       01  CHARFILE01.
+           02 CHARFILE-KEY.
+             03 CD-KEY8 PIC X(8).
+             03 CD-KEY3 PIC XXX.
+           02 CD-PATID PIC X(8).
+           02 CD-CLAIM PIC X(6).
+           02 CD-SERVICE PIC X.
+           02 CD-DIAG PIC X(7).
+           02 CD-PROC.
+             03 CD-PROC1 PIC X(4).
+             03 CD-PROC2 PIC X(7).
+           02 CD-MOD2 PIC XX.
+           02 CD-MOD3 PIC XX.
+           02 CD-MOD4 PIC XX.
+           02 CD-AMOUNT PIC S9(4)V99.
+           02 CD-DOCR PIC X(3).
+           02 CD-DOCP PIC X(2).
+           02 CD-PAYCODE PIC XXX.
+           02 CD-STAT PIC X.
+           02 CD-WORK PIC XX.
+           02 CD-DAT1 PIC X(8).
+           02 CD-RESULT PIC X.
+           02 CD-ACT PIC X.
+           02 CD-SORCREF PIC X.
+           02 CD-COLLT PIC X.
+           02 CD-AGE PIC X.
+           02 CD-PAPER PIC X.
+           02 CD-PLACE PIC X.
+           02 CD-NAME PIC X(24).
+           02 CD-ESPDT PIC X.
+           02 CD-DATE-T PIC X(8).
+           02 CD-DATE-E PIC X(8).
+           02 CD-ORDER PIC X(6).
+           02 CD-DX2 PIC X(7).
+           02 CD-DX3 PIC X(7).
+           02 CD-DATE-A PIC X(8).
+           02 CD-ACC-TYPE PIC X.
+           02 CD-DATE-M PIC X(8).
+           02 CD-ASSIGN PIC X.
+           02 CD-NEIC-ASSIGN PIC X.
+           02 CD-DX4 PIC X(7).
+           02 CD-DX5 PIC X(7).
+           02 CD-DX6 PIC X(7).
+           02 CD-CLINICAL PIC X(40).
+           02 CD-ADMIT-DIAG PIC X(30).
+       FD FILEOUT.
+       01 FILEOUT01 PIC X(80).
+       
+       WORKING-STORAGE SECTION.
+       01  BELL0 USAGE INDEX.
+       01  HOLD8 PIC X(8) VALUE SPACE.
+       01  HOLD7 PIC X(7).
+       01 XX PIC 9 VALUE 0.
+       01  IN-FIELD.
+               04 IN-FIELD-10.
+               05  IN-FIELD-9.
+           06 IN-FIELD-8.
+                 07  IN-FIELD-7.
+                   08  IN-FIELD-6.
+                     09  IN-FIELD-5.
+                       10  IN-FIELD-4.
+                         11  IN-FIELD-3.
+                           12  IN-FIELD-2.
+                             13  IN-FIELD-1  PIC X.
+                             13  FILLER PIC X.
+                           12  FILLER  PIC X.
+                         11  FILLER    PIC X.
+                       10  FILLER      PIC X.
+                     09  FILLER        PIC X.
+                   08  FILLER          PIC X.
+           07 FILLER  PIC X.
+           06 FILLER PIC X.
+           05 FILLER PIC X.
+               04  FILLER              PIC X(5).
+       01 IN-FIELD-TAB01 REDEFINES IN-FIELD.
+           02 IN-FIELD-TAB   PIC X OCCURS 15 TIMES.
+       01     X PIC 99.
+       01  ANS. 
+           02 ANS1 PIC X.
+           02 FILLER PIC XX.
+       01  FLAG PIC 9 VALUE 0.
+       01  ALF1 PIC X.
+       01  ALF-2 PIC XX.
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  NEF2 PIC Z9.
+       01  ALF-5 PIC X(5).
+       01  ALF-7 PIC X(7).
+       01  ALF8 PIC X(8).
+       01  ALF6 PIC X(6).
+       01  DIAG-FLAG PIC 9.
+       01  TAGTAB01.
+           02 TAGTAB PIC X(7) OCCURS 20 TIMES.
+       01  Y PIC 99.
+       01  NUM-2 PIC 99.
+       01  HOLD-DIAG PIC X(7).
+       PROCEDURE DIVISION.
+
+       P0.
+           OPEN INPUT DIAGFILE PROCFILE GARFILE
+                      CHARFILE TAGDIAG DIAG9FILE.
+           OPEN OUTPUT FILEOUT.
+       P1.
+           READ CHARFILE NEXT AT END GO TO P99.
+           MOVE CD-DIAG TO DIAG-KEY
+           READ DIAGFILE INVALID
+             MOVE SPACE TO DIAG-TITLE
+             MOVE "BAD DIAG" TO DIAG-TITLE
+           END-READ.
+           MOVE CD-PROC TO PROC-KEY
+           READ PROCFILE INVALID
+             MOVE SPACE TO PROC-TITLE
+             MOVE "BAD PROC" TO PROC-TITLE
+           END-READ.
+           MOVE CD-KEY8 TO G-GARNO
+           READ GARFILE INVALID
+             MOVE SPACE TO G-GARNAME
+             MOVE "BAD GARNO" TO G-GARNAME
+           END-READ.
+
+           MOVE SPACE TO FILEOUT01
+           STRING G-GARNO " " G-ACCT " " G-GARNAME
+            DELIMITED BY SIZE INTO FILEOUT01
+           WRITE FILEOUT01
+           MOVE SPACE TO FILEOUT01
+           WRITE FILEOUT01
+
+           STRING CD-PROC " " CD-DATE-T " " PROC-TITLE
+            DELIMITED BY SIZE INTO FILEOUT01
+           WRITE FILEOUT01
+           MOVE SPACE TO FILEOUT01
+           WRITE FILEOUT01
+
+           STRING CD-DIAG " " DIAG-TITLE DELIMITED BY SIZE
+           INTO FILEOUT01
+           WRITE FILEOUT01
+           MOVE SPACE TO FILEOUT01
+           WRITE FILEOUT01
+           WRITE FILEOUT01
+           WRITE FILEOUT01
+           GO TO P1.
+       P99.
+           CLOSE FILEOUT CHARFILE PROCFILE GARFILE DIAGFILE.
+           STOP RUN.

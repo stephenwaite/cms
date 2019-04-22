@@ -1,0 +1,180 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. XXX168.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PROCHIS ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS SEQUENTIAL RECORD KEY IS PROCHIS-KEY.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION 
+           LINE SEQUENTIAL.
+           SELECT DATEOUT ASSIGN TO "S40" ORGANIZATION 
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  DATEOUT.
+       01  DATEOUT01 PIC X(6).
+       FD  PROCHIS.
+       01  PROCHIS01.
+           02 PROCHIS-KEY.
+             03 PROC-PROC1.
+               05 PROC-PROC11 PIC X.
+               05 PROC-PROC12 PIC XXX.
+             03 PROC-PROC2 PIC X(7).
+             03 PROC-YY PIC XXXX.
+             03 PROC-MM PIC XX.
+             03 PROC-PL PIC X.
+           02 PROC-UNITS PIC 9(6).
+           02 PROCHIS-TITLE PIC X(28).
+           02 PROCHIS-AMOUNT PIC S9(8)V99.
+       FD FILEOUT.
+       01  FILEOUT01. 
+           02 PROC-DEPT PIC XX.
+           02 FILEOUT-KEY.
+             03 PROC-PROC1.
+               05 PROC-PROC11 PIC X.
+               05 PROC-PROC12 PIC XXX.
+             03 PROC-PROC2 PIC X(7).
+             03 PROC-YY PIC XXXX.
+             03 PROC-MM PIC XX.
+             03 PROC-PL PIC X.
+           02 PROC-UNITS PIC 9(6).
+           02 PROCHIS-TITLE PIC X(28).
+           02 PROCHIS-AMOUNT PIC S9(8)V99.
+
+       WORKING-STORAGE SECTION.
+       01  AGEDATE01.
+           02 AGD1 PIC 9999.
+           02 AGD2 PIC 99.
+       01  PAGE-X PIC 9999 VALUE 0.
+       01  YY PIC 9999.
+       01  MM PIC 99.
+       01  PL PIC 9.
+       01  MMTODATE PIC 99.
+       01  YYTODATE PIC 9999.
+       01  LOWDATE PIC 9(6).
+       01  THISDATE PIC 9(6).
+       01  HIGHDATE PIC 9(6).
+       01  LYLOW PIC 9(6).
+       01  LYHI PIC 9(6).
+       01  HIGHYY PIC XXXX.
+       01  LOWYY PIC 9999.
+       01  LOWYYX PIC XXXX.
+       01  ALF4 PIC X(4).
+       PROCEDURE DIVISION.
+       P00.
+           OPEN INPUT PROCHIS OUTPUT FILEOUT DATEOUT.
+       P000-00.
+           DISPLAY "YYYYMM".
+           ACCEPT AGEDATE01.
+           WRITE DATEOUT01 FROM AGEDATE01
+           MOVE AGD2 TO MMTODATE
+           MOVE AGD1 TO HIGHYY
+           SUBTRACT 1 FROM AGD1 GIVING LOWYY
+           MOVE LOWYY TO LOWYYX.
+       P1. READ PROCHIS AT END GO TO P3.
+           IF PROCHIS01(9:1) = "F" GO TO P1.
+           MOVE PROC-YY OF PROCHIS01 TO YY
+           MOVE PROC-MM OF PROCHIS01 TO MM
+           MOVE PROC-PL OF PROCHIS01 TO PL
+           IF PROC-YY OF PROCHIS01 < LOWYYX OR > HIGHYY GO TO P1.
+           IF PROC-MM OF PROCHIS01 > MMTODATE GO TO P1.
+           MOVE CORR PROCHIS01 TO FILEOUT01
+           MOVE PROCHIS-KEY TO FILEOUT-KEY
+           MOVE SPACE TO PROC-DEPT
+           STRING "0" PROC-PROC11 OF PROCHIS01 DELIMITED BY "!"
+           INTO PROC-DEPT.
+           MOVE "01" TO PROC-DEPT.
+           IF PROC-PROC11 OF PROCHIS01 = "3" MOVE "01" TO PROC-DEPT
+           GO TO P2.
+           IF (PROC-PROC1 OF PROCHIS01 >= "0100" and <= "0126")
+           MOVE "01" TO PROC-DEPT 
+           GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 = "6004" or "6005" or "6006"
+           MOVE "01" TO PROC-DEPT 
+           GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 = "5089" OR "5086" OR "5197"
+                                     OR "5064" OR "5198" OR "9196"
+           MOVE "05" TO PROC-DEPT 
+           GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 = "1069" OR "1085" OR "0133"
+                                     OR "5028" OR "5029"
+           MOVE "07" TO PROC-DEPT 
+           GO TO P2.
+           IF PROC-PROC1 OF PROCHIS01 = "5196" OR "5197" OR "5198"
+           MOVE "01" TO PROC-DEPT 
+           GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 = "8355"
+           MOVE "06" TO PROC-DEPT 
+           GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 = "8295" OR "8315" OR "8316"
+           MOVE "05" TO PROC-DEPT 
+           GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 =
+           "9050" OR "9051" OR "7023" OR "7025" OR "7026" 
+           OR "7053" OR "7056" OR "7096" OR "7150" OR "7156"
+           OR "7157" OR "8277" OR "0000"
+           MOVE "01" TO PROC-DEPT 
+           GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 = 
+           "8258" OR "8261" OR "8269" OR "7209" OR "7214" 
+           OR "7215" OR "7217" OR "7222" 
+           MOVE "02" TO PROC-DEPT 
+           GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 = 
+           "1052" OR "1793" OR "1795" OR "1796" OR "1799" OR "1803"
+           OR "1893" OR "1896" OR "1897" OR "1898" OR "1922"
+           OR "1960" OR "1964" OR "1978" OR "8252"
+           MOVE "07" TO PROC-DEPT 
+           GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 = "1424" OR "1425" OR "1426" 
+           OR "1427" OR "1428" OR "1429" OR "1431" OR "1434" 
+           OR "1435" OR "1436" OR "1437" OR "1438" OR "1439" OR "1440"
+           OR "1442" OR "1502" OR "1917" OR "1918" OR "1940"
+           OR "1941" OR "2037" OR "2051" OR "2052" OR "2055"
+           OR "7004" OR "7005" OR "7006" OR "7007" OR "7008"
+           OR "7010" OR "1090" OR "1091" OR "1092" OR "1093"
+           OR "1094" OR "1095" OR "1096" OR "1097" OR "1099"
+           OR "1441" OR "1098"
+           MOVE "09" TO PROC-DEPT GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 = "8254" OR "8257" OR "8264" 
+           OR "8298" OR "1968" OR "7021" OR "7027" OR "7049"
+           OR "7073" OR "7091" OR "7092" OR "7402" OR "7408"
+           OR "7413" OR "7415" OR "7416" OR "7418" OR "7419"
+           OR "7420" MOVE "05" TO PROC-DEPT GO TO P2.
+
+           IF PROC-PROC1 OF PROCHIS01 = 
+           "7504" OR "7505" OR "7510" 
+           MOVE "06" TO PROC-DEPT 
+           GO TO P2.
+           
+           IF (PROC-PROC1 OF PROCHIS01 < "1100" AND >"0009")
+           MOVE "04" TO PROC-DEPT GO TO P2.
+           
+           IF PROC-PROC11 OF PROCHIS01 = "9" 
+           MOVE "07" TO PROC-DEPT GO TO P2.   
+           
+           IF (PROC-PROC1 OF PROCHIS01 > "1803" AND < "1893")
+           OR (PROC-PROC1 OF PROCHIS01 > "1967" AND < "1973")
+           OR (PROC-PROC1 OF PROCHIS01 = "1965" OR "1966" OR "1976" 
+                         OR "1981" OR "1982" OR "1983")
+           MOVE "07" TO PROC-DEPT GO TO P2.
+
+       P2. WRITE FILEOUT01
+           GO TO P1.
+       P3.
+           CLOSE FILEOUT PROCHIS  DATEOUT
+           STOP RUN.

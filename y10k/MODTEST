@@ -1,0 +1,70 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ZZZR803.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD FILEOUT.
+       01  FILEOUT01 PIC X(80).
+       FD FILEIN.
+       01  FILEIN01.
+           02 F-1 PIC XX.
+           02 F-2 PIC XX.
+           02 F-3 PIC XX.
+           02 F-4 PIC XX.
+
+       WORKING-STORAGE SECTION.
+       01 ANS PIC X.
+       01  MOD-ARRAY01.
+           02 MOD-ARRAY OCCURS 4 TIMES.
+              03 MOD-C PIC X.
+              03 MOD-CODE PIC XX.
+       01  SV1-MOD-FILLER PIC X(33).
+       01  X PIC 9.
+       01  A PIC 9.
+       01  B PIC 9.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+
+         
+       P1.
+           READ FILEIN AT END GO TO P99.
+       
+           MOVE SPACE TO SV1-MOD-FILLER MOD-ARRAY01
+           MOVE F-1 TO MOD-CODE(1)
+           MOVE F-2 TO MOD-CODE(2)
+           MOVE F-3 TO MOD-CODE(3)
+           MOVE F-4 TO MOD-CODE(4)
+
+           PERFORM VARYING X FROM 1 BY 1 UNTIL X > 3
+             IF MOD-CODE(X) = SPACE
+               COMPUTE A = X + 1
+                PERFORM VARYING B FROM A BY 1 UNTIL B > 4
+                  IF MOD-CODE(B) NOT = SPACE
+                    MOVE MOD-CODE(B) TO MOD-CODE(X)
+                    MOVE SPACE TO MOD-CODE(B)
+                    MOVE 4 TO B
+                  END-IF
+                END-PERFORM
+             END-IF
+           END-PERFORM.
+           PERFORM VARYING X FROM 1 BY 1 UNTIL X > 4
+             IF MOD-CODE(X) NOT = SPACE
+               MOVE ":" TO MOD-C(X)
+             END-IF
+           END-PERFORM
+
+           WRITE FILEOUT01 FROM MOD-ARRAY01.
+           GO TO P1.
+
+       P99. 
+           CLOSE FILEIN FILEOUT. 
+           STOP RUN.

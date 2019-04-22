@@ -1,0 +1,59 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. ZZZR803.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN1 ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEIN2 ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD FILEIN1.
+       01  FILEIN101.
+           02 FI-1 PIC X(32).
+       FD FILEIN2.
+       01  FILEIN201.
+           02 FI-2 PIC X(32).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(32).
+       WORKING-STORAGE SECTION.
+       01  FLAG PIC 9.
+       01  ANS PIC X.
+       01  A PIC 9999.
+       01  B PIC 9999.
+       01  X PIC 9999.
+       01  Y PIC 9999.
+       01  Z PIC 9999.
+       01  TAB01.
+           02 TAB1 PIC X(32) OCCURS 1700 TIMES.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN INPUT FILEIN1 FILEIN2.
+           OPEN OUTPUT FILEOUT.
+           MOVE 0 TO A.
+       P1. READ FILEIN1 AT END MOVE A TO Z GO TO P2.
+           ADD 1 TO A
+           MOVE FI-1 TO TAB1(A)
+           GO TO P1.
+       P2. READ FILEIN2 AT END GO TO P3.
+           MOVE Z TO A
+           MOVE 0 TO FLAG
+           PERFORM VARYING X FROM 1 BY 1 UNTIL X > A
+             IF TAB1(X) = FI-2
+               MOVE 1 TO FLAG
+               MOVE A TO X
+             END-IF
+           END-PERFORM
+             IF FLAG = 0
+               MOVE FILEIN201 TO FILEOUT01
+               WRITE FILEOUT01
+             END-IF
+           GO TO P2.
+       P3.
+           CLOSE FILEOUT
+           STOP RUN.

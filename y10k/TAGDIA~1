@@ -1,0 +1,39 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. R801.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT TAGDIAG ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS TAG-KEY
+           ALTERNATE RECORD KEY IS TAG-ICD9 WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEIN ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FILEIN01 PIC X(24).
+       FD  TAGDIAG.
+       01  TAGDIAG01.
+           02 TAG-KEY.
+              03 TAG-7 PIC X(7).
+              03 TAG-5 PIC X(5).
+           02 TAG-ICD9.
+              03 tag-icd9-5 PIC X(5).
+              03 tag-icd9-7 PIC X(7).
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN INPUT FILEIN.
+           OPEN OUTPUT TAGDIAG.
+       P1.
+           READ FILEIN AT END GO TO P2.
+           MOVE FILEIN01 TO TAGDIAG01
+           WRITE TAGDIAG01
+           GO TO P1.
+
+       P2.
+           CLOSE TAGDIAG FILEIN.
+           STOP RUN.

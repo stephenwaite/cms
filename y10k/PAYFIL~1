@@ -1,0 +1,84 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. R801.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PAYFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS PAYFILE-KEY
+           LOCK MODE MANUAL.
+           SELECT PAYSID ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS PAYSID-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT2 ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(80).
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(80).
+
+       FD  PAYFILE.
+       01  PAYFILE01.
+           02 PAYFILE-KEY.
+             03 PD-KEY8 PIC X(8).
+             03 PD-KEY3 PIC XXX.
+           02 PD-NAME PIC X(24).
+           02 PD-AMOUNT PIC S9(4)V99.
+           02 PD-PAYCODE PIC XXX.
+           02 PD-DENIAL PIC XX.
+           02 PD-CLAIM PIC X(6).
+           02 PD-DATE-T PIC X(8).
+           02 PD-DATE-E PIC X(8).
+           02 PD-ORDER PIC X(6).
+           02 PD-BATCH PIC X(6).
+       FD  PAYSID.
+       01  PAYSID01.
+           02 PAYSID-KEY.
+             03 SD-KEY8 PIC X(8).
+             03 SD-KEY3 PIC XXX.
+           02 SD-NAME PIC X(24).
+           02 SD-AMOUNT PIC S9(4)V99.
+           02 SD-PAYCODE PIC XXX.
+           02 SD-DENIAL PIC XX.
+           02 SD-CLAIM PIC X(6).
+           02 SD-DATE-T PIC X(8).
+           02 SD-DATE-E PIC X(8).
+           02 SD-ORDER PIC X(6).
+           02 SD-BATCH PIC X(6).
+
+
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN OUTPUT FILEOUT FILEOUT2.
+           OPEN INPUT PAYFILE PAYSID.
+       P1.
+           READ PAYSID NEXT AT END GO TO P99.
+
+           MOVE SD-KEY8 TO PD-KEY8
+           MOVE SPACE TO PD-KEY3.
+           START PAYFILE KEY NOT < PAYFILE-KEY
+           INVALID GO TO P3.
+       P2.
+           READ PAYFILE NEXT AT END GO TO P3.
+           IF PD-KEY8 NOT = SD-KEY8 GO TO P3.
+           IF
+                 PD-CLAIM = SD-CLAIM
+             AND PD-AMOUNT = SD-AMOUNT
+             WRITE FILEOUT01 FROM PAYSID01
+             GO TO P1
+           END-IF.
+           GO TO P2.
+       P3.
+           WRITE FILEOUT201 FROM PAYSID01
+           GO TO P1.
+        
+
+       P99.
+           CLOSE PAYFILE PAYSID FILEOUT FILEOUT2.
+           STOP RUN.

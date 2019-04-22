@@ -1,0 +1,80 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RRR062.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT REFPHY ASSIGN TO "S25" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS REF-KEY
+             ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
+             ALTERNATE RECORD KEY IS REF-CRNUM WITH DUPLICATES
+             ALTERNATE RECORD KEY IS REF-UPIN  WITH DUPLICATES
+             ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
+             ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES
+             LOCK MODE MANUAL.
+           SELECT PROVCAID ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS PROV-KEY
+           ALTERNATE RECORD KEY IS PROV-NPI WITH DUPLICATES
+           ALTERNATE RECORD KEY IS PROV-TAX WITH DUPLICATES
+           ALTERNATE RECORD KEY IS PROV-NAME WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT REFX ASSIGN TO "S35" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS REFX-KEY
+              LOCK MODE MANUAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  REFX.
+       01  REFX01.
+           02 REFX-KEY PIC XXX.
+           02 fil1 pic x.
+           02 REFX-NUM PIC 999.
+           02 fil2 pic x.
+           02 refx-npi pic x(10).
+           02 fil3 pic x.
+           02 refx-tax pic x(10).
+           02 fil4 pic x.
+           02 refx-name pic x(24).
+
+       FD  REFPHY
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS REFPHY01.
+       01  REFPHY01.
+           02 REF-KEY PIC XXX.
+           02 REF-BSNUM PIC X(5).
+           02 REF-CRNUM PIC X(6).
+           02 REF-UPIN PIC X(6).
+           02 REF-CDNUM PIC X(7).
+           02 REF-NAME PIC X(24).
+           02 REF-npi PIC X(10).
+       FD  PROVCAID.
+       01  PROVCAID01.
+           02 PROV-KEY PIC X(7).
+           02 PROV-NAME PIC X(24).
+           02 PROV-NPI PIC X(10).
+           02 PROV-TAX PIC X(10).
+           02 PROV-STREET PIC X(20).
+           02 PROV-CITY PIC X(20).
+           02 PROV-STATE PIC XX.
+           02 PROV-ZIP PIC X(5).
+       WORKING-STORAGE SECTION.
+       01 cntr PIC 999 value 9.
+       PROCEDURE DIVISION.
+       P0. OPEN output refx input PROVCAID refphy.
+       P1.
+           READ refphy next AT END GO TO P99.
+           IF REF-NPI NOT NUMERIC GO TO P1.
+           MOVE ref-CDNUM TO PROV-KEY
+           READ PROVCAID INVALID move space to prov-tax.
+           move ref-key to refx-key
+           add 1 to cntr
+           move cntr to refx-num
+           move ref-npi to refx-npi
+           move prov-tax to refx-tax
+           move "," to fil1 fil2 fil3 fil4
+           move ref-name to refx-name
+           inspect ref-name replacing all ";" by ","
+           write refx01
+           GO TO P1.
+       P99. CLOSE refx.
+           STOP RUN.

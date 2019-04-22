@@ -1,0 +1,81 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. fd1001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FDREAD ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS FR-READKEY
+           ALTERNATE RECORD KEY IS FR-NAME WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION IS LINE
+           SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(132).
+       FD  FDREAD.
+       01  FDREAD01.
+              02 FR-READKEY.
+                 03 FR-KEY13 PIC X(13).
+                 03 FR-KEY10 PIC X(10).
+                 03 FR-KEY6  PIC X(6).
+              02 FR-USAGE PIC 9(10).
+              02 FR-CURR-READ PIC 9(12).
+              02 FR-NAME PIC X(25).
+              02 FR-STREET PIC X(28).
+              02 FR-COMMENT PIC X(33).
+       WORKING-STORAGE SECTION.
+       01  NEF-CURR PIC Z,ZZZ,ZZZ,ZZ9.
+       01  NEF-PREV PIC Z,ZZZ,ZZZ,ZZ9.
+       01  NEF-RATIOX PIC ZZZ9.
+       01  RATIOX PIC 9999.
+       01  RATIOY PIC 9(10).
+       01  SAVE01 PIC X(137).
+       01  DATEX PIC X(6).
+       01  NEW-USAGE PIC 9(10).
+       01  NUM12 PIC 9(12).
+       01  NUM12X PIC 9(12).
+       01  HOLDID PIC X(23).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN I-O FDREAD OUTPUT FILEOUT.
+       P1.
+           DISPLAY "ENTER DATE YYMMDD,   END TO QUIT".
+           ACCEPT DATEX
+           IF DATEX = "END" GO TO P99.
+           MOVE SPACE TO HOLDID.
+
+           MOVE SPACE TO FR-READKEY
+           START FDREAD KEY NOT < FR-READKEY INVALID GO TO P1.
+       P2.
+           READ FDREAD NEXT AT END GO TO P99.
+           IF  FDREAD01(1:23) = HOLDID GO TO P2.
+           
+       P2-1.
+           IF FR-KEY6(1:4) NOT = DATEX(1:4) GO TO P2.
+           MOVE FDREAD01(1:23) TO HOLDID
+           MOVE FDREAD01 TO SAVE01
+           READ FDREAD PREVIOUS AT END continue
+           END-READ
+           IF (FR-READKEY(1:23) NOT = SAVE01(1:23))
+             DISPLAY SAVE01(52:25)
+             ACCEPT OMITTED
+             GO TO P2
+           END-IF
+           MOVE FR-CURR-READ TO NUM12
+           MOVE SAVE01(40:12) TO  NUM12X
+           COMPUTE NEW-USAGE = NUM12X - NUM12
+           MOVE SAVE01(1:29) TO FR-READKEY
+           READ FDREAD WITH LOCK
+           INVALID DISPLAY "BAD LOCK  " SAVE01(1:29)
+           ACCEPT OMITTED
+           GO TO P2.
+           COMPUTE FR-USAGE = NEW-USAGE
+           REWRITE FDREAD01
+           GO TO P2.
+       P99.
+           CLOSE FILEOUT FDREAD.
+           STOP RUN.

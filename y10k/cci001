@@ -1,0 +1,37 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  F1 PIC X(67).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(11).
+
+       WORKING-STORAGE SECTION.
+       01  HOLDKEY PIC X(807) VALUE SPACE.
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+       P2.
+           READ FILEIN AT END GO TO P3.
+           move space to fileout01
+           string f1(1:5) f1(11:5) f1(67:1) into
+           fileout01
+           WRITE FILEOUT01
+           GO TO P2.
+
+           
+       P3. 
+           CLOSE FILEOUT 
+           STOP RUN.

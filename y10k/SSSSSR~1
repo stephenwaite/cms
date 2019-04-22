@@ -1,0 +1,120 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RRI803.
+       AUTHOR. SID WAITE.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEin ASSIGN TO "S25" ORGANIZATION LINE
+           SEQUENTIAL.
+           SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION LINE
+           SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       fd  filein.
+       01  filein01.
+           02 fi-1 pic x(5).
+
+       FD FILEOUT.
+       01  FILEOUT01 PIC X(160).
+       FD  CHARCUR
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC. 
+               03 CC-PROC0 PIC X(4).
+               03 CC-PROC1 PIC X(5).
+               03 CC-PROC2 PIC XX.
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC 9(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AGE PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-IOPAT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       WORKING-STORAGE SECTION.
+       01  HOLD6 PIC X(6) VALUE SPACE.
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  ANS1 PIC X(3).
+       01  ANS2 PIC X(5).
+       01  AGEDATE.
+           02 DATELOW PIC X(8).
+           02 FILLER PIC X.
+           02 DATEHIGH PIC X(8).
+       01  x pic 99.
+       01  tab01.
+           02 tab02 pic x(5) occurs 17 times.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN OUTPUT FILEOUT INPUT filein CHARCUR.
+           perform varying x from 1 by 1 until x >17
+           read filein
+           end-read
+           move fi-1 to tab02(x)
+           end-perform
+
+           DISPLAY "CPT CODE --  5-DIGITS"
+           ACCEPT ANS2.
+           DISPLAY "PAY CODE --  3-DIGITS"
+           ACCEPT ANS1.
+           IF ANS1 = "ALL" MOVE "001" TO CC-PAYCODE
+           ELSE MOVE ANS1 TO CC-PAYCODE.
+           DISPLAY "DATE RANGE YYYYMMDD YYYYMMDD"
+           ACCEPT AGEDATE
+           IF AGEDATE = "ALL"
+           MOVE "00000000" TO DATELOW
+           MOVE "99999999" TO DATEHIGH
+           END-IF
+           START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P99.
+       P1. READ CHARCUR NEXT AT END GO TO P99.
+
+           IF CC-DATE-T < DATELOW OR > DATEHIGH GO TO P1.
+
+           IF NOT (CC-PAYCODE = ANS1 OR ANS1 = "ALL") GO TO P99.
+
+           perform varying x from 1 by 1 until x > 17
+           if cc-proc1  = tab02(x)
+            WRITE FILEOUT01 FROM CHARCUR01
+            move 17 to x
+           end-if
+           end-perform
+           go to p1.
+       P99. 
+           CLOSE CHARCUR FILEOUT
+           STOP RUN.
+

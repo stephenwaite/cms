@@ -1,0 +1,33 @@
+       SV-MOD.
+           MOVE SPACE TO SV1-MOD-FILLER MOD-ARRAY01
+           MOVE FI-PROC2 TO MOD-CODE(1)
+           MOVE FI-MOD2 TO MOD-CODE(2)
+           MOVE FI-MOD3 TO MOD-CODE(3).
+           IF FI-DOCP = "07" MOVE "Q6" TO MOD-CODE(4).
+
+           PERFORM A1 VARYING X FROM 1 BY 1 UNTIL X > 3
+             IF MOD-CODE(X) = SPACE
+               COMPUTE A = X + 1
+                PERFORM VARYING B FROM A BY 1 UNTIL B > 4
+                  IF MOD-CODE(B) NOT = SPACE
+                    MOVE MOD-CODE(B) TO MOD-CODE(X)
+                    MOVE SPACE TO MOD-CODE(B)
+                    MOVE 4 TO B
+                  END-IF
+                END-PERFORM
+             END-IF
+           END-PERFORM.
+           IF X-MOD1 NOT = SPACE
+           MOVE ":" TO MOD-C(1)
+           MOVE X-MOD1 TO MOD-CODE(1).
+           IF X-MOD2 NOT = SPACE
+           MOVE ":" TO MOD-C(2)
+           MOVE X-MOD2 TO MOD-CODE(2).
+           IF X-MOD3 NOT = SPACE
+           MOVE ":" TO MOD-C(3)
+           MOVE X-MOD3 TO MOD-CODE(3).
+           IF X-MOD4 NOT = SPACE
+           MOVE ":" TO MOD-C(4)
+           MOVE X-MOD4 TO MOD-CODE(4).
+
+           MOVE MOD-ARRAY01 TO SV1-MOD-FILLER.

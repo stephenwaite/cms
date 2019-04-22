@@ -1,0 +1,156 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PARMFILE ASSIGN TO "S25" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PARMFILE.
+       01  PARMFILE01.
+           02 PM-ID PIC 9(7).
+           02 PM-QUAD PIC X(4).
+           02 PM-COF PIC 9.
+           02 PM-REDUN PIC 999.
+           02 PM-FACTOR PIC 9V9.
+           02 PM-POF PIC 9.
+       FD  FILEOUT.
+       01  FILEOUT01.
+           02 ASSET-ID PIC 9(7).
+           02 CB-BILLACCT PIC X(9).
+           02 CB-ID PIC X(3).
+           02 CB-MANU PIC X(4).
+           02 CB-DATE-ACQ PIC X(8).
+           02 CB-COST PIC S9(6)99.
+		   02 CB-INITVALUE PIC 9(6)V99.
+           02 CB-LIFE PIC 999.
+           02 CB-TYPE PIC X.		   
+           02 CB-CONDITION PIC 9.
+           02 CB-QUAD PIC X(4).
+           02 CB-COF PIC 9.
+           02 CB-REDUN PIC 999.
+           02 CB-FACTOR PIC 9V9.
+           02 CB-POF PIC 9.
+           02 CB-SIZE PIC 9V99.
+           02 CB-GRADE PIC XX.
+           02 CB-911ADD PIC 9(5).
+           02 CB-STREET PIC  X(30).
+           02 CB-ACTIVE PIC X.
+           02 CB-LONG PIC 9(3).9(11).
+           02 CB-LAT PIC 9(3).9(11).
+           02 CB-ALT PIC 9(3).9(11).
+           02 CB-REMARKS PIC X(70).
+		   
+       FD  FILEIN.
+       01  FILEIN01 PIC X(600).
+       WORKING-STORAGE SECTION.
+       01  ALF2 PIC XX.
+       01  ALF4 PIC XXXX.
+       01  NUM4 PIC 9999.
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  TAB4001.
+           02 TAB40 PIC X OCCURS 39 TIMES.
+       01  A PIC 99.
+       01  B PIC 99.
+       01  C PIC 99.
+       01  D PIC 99.
+       01  X PIC 99.
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT PARMFILE FILEIN OUTPUT FILEOUT.
+           MOVE 0 TO ASSET-ID.
+           PERFORM PM-1.
+
+       P1.
+           MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P2.
+           IF FILEIN01(29:4) = "Syst"
+             PERFORM PM-1
+             GO TO P1
+           END-IF.
+           ADD 1 TO ASSET-ID
+           MOVE FILEIN01(18:9) TO CB-BILLACCT
+           MOVE SPACE TO RIGHT-3
+           UNSTRING FILEIN01(4:3) DELIMITED BY SPACE INTO RIGHT-3
+           INSPECT  RIGHT-3 REPLACING ALL " " BY "0"
+           MOVE RIGHT-3 TO CB-ID
+           MOVE SPACE TO CB-MANU
+           INSPECT FILEIN01(192:4) REPLACING ALL "  " BY "19"
+           STRING FILEIN01(192:4) "0101" DELIMITED BY SIZE
+              INTO CB-DATE-ACQ
+           MOVE 0 TO CB-COST
+		   MOVE 0 TO CB-INITVALUE.
+		   MOVE 50 TO CB-LIFE
+		   MOVE SPACE TO CB-TYPE
+           MOVE 0 TO CB-CONDITION
+           IF FILEIN01(200:4) = "Poor" MOVE "1" TO CB-CONDITION.
+           IF FILEIN01(200:4) = "Fair" MOVE "2" TO CB-CONDITION.
+           IF FILEIN01(200:4) = "Good" MOVE "3" TO CB-CONDITION.
+           MOVE SPACE TO CB-MANU
+           MOVE "19660101" TO CB-DATE-ACQ
+           IF FILEIN01(157:4) NOT = SPACE
+             MOVE SPACE TO CB-DATE-ACQ
+               STRING FILEIN01(157:4) "0101" DELIMITED BY SIZE
+               INTO CB-DATE-ACQ
+           END-IF
+           MOVE FILEIN01(102:2) TO CB-GRADE
+           MOVE FILEIN01(28:40) TO TAB4001
+           MOVE 0.75 TO CB-SIZE
+           IF  FILEIN01(87:4) = "1   " MOVE 1.00 TO CB-SIZE.
+           IF  FILEIN01(87:4) = "6   " MOVE 6.00 TO CB-SIZE.
+           IF  FILEIN01(87:5) = "1 1/2)" MOVE 1.50 TO CB-SIZE.
+           PERFORM VARYING X FROM 39 BY -1 UNTIL X < 1
+            IF TAB40(X) NOT = SPACE
+             COMPUTE A = X - 4
+             COMPUTE B = X - 3
+             COMPUTE C = X - 2
+             COMPUTE D = X - 1
+             STRING TAB40(A) TAB40(B) TAB40(C) TAB40(D) TAB40(X)
+             DELIMITED BY SIZE INTO CB-911ADD
+             IF CB-911ADD NOT NUMERIC
+                MOVE SPACE TO CB-911ADD
+             END-IF
+                 IF TAB40(X) NUMERIC
+                    MOVE SPACE TO TAB40(X)
+                 END-IF
+                 IF TAB40(D) NUMERIC
+                    MOVE SPACE TO TAB40(D)
+                 END-IF
+                 IF TAB40(C) NUMERIC
+                    MOVE SPACE TO TAB40(C)
+                 END-IF
+                 IF TAB40(B) NUMERIC
+                    MOVE SPACE TO TAB40(B)
+                 END-IF
+                 IF TAB40(A) NUMERIC
+                    MOVE SPACE TO TAB40(A)
+                 END-IF
+             MOVE TAB4001 TO CB-STREET
+             MOVE 1 TO X
+            END-IF
+           END-PERFORM
+           MOVE "1" TO CB-ACTIVE
+           MOVE 0 TO CB-LONG CB-LAT CB-ALT
+           MOVE FILEIN01(418:70) TO CB-REMARKS
+           MOVE PM-QUAD TO CB-QUAD
+           MOVE PM-COF TO CB-COF
+           MOVE PM-POF TO CB-POF
+           MOVE PM-REDUN TO CB-REDUN
+           MOVE PM-FACTOR TO CB-FACTOR
+
+           WRITE FILEOUT01
+           GO TO P1.
+       PM-1.
+           READ PARMFILE AT END CONTINUE.
+       P2. 
+           CLOSE FILEIN FILEOUT.
+           STOP RUN.

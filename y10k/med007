@@ -1,0 +1,80 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SSS052.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT MEDFILE2018 ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS MED-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEIN ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD FILEIN.
+       01  FILEIN01 PIC X(50). 
+       FD MEDFILE2018.
+       01 MEDFILE201801.
+           02 MED-KEY.
+             03 MED-KEY1 PIC X(5).
+             03 MED-KEY2 PIC XX.
+           02 MED-AMT PIC 9(4)V99.
+           
+       WORKING-STORAGE SECTION.
+       01  FI-1 PIC X.
+       01  FI-CPT PIC X(5).
+       01  FI-MOD PIC XX.
+       01  FI-AMT PIC X(7).
+       01  NUM2 PIC 99.
+       01  NUM4 PIC 9999.
+       01  ALF2 PIC XX.
+       01  ALF5 PIC X(5).
+       01  DOLLARX PIC X(4).
+       01  CENTX PIC XX.
+       01  right-4 pic xxxx just right.
+       PROCEDURE DIVISION.
+       P0.
+           open output medfile2018
+           close medfile2018
+           OPEN INPUT FILEIN.
+           OPEN I-O MEDFILE2018.
+
+       P1.
+           MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P99.
+           MOVE SPACE TO FI-1 FI-CPT FI-MOD FI-AMT
+           UNSTRING FILEIN01 DELIMITED BY "," INTO
+           FI-1 FI-CPT FI-MOD FI-AMT
+           IF FI-1 NOT = SPACE GO TO P1.
+           IF FI-MOD = "TC" GO TO P1.
+
+           MOVE SPACE TO RIGHT-4 CENTX
+           UNSTRING FI-AMT DELIMITED BY "." INTO right-4 CENTX
+           move FI-CPT TO MED-KEY1
+           MOVE FI-MOD TO MED-KEY2
+           INSPECT RIGHT-4 REPLACING ALL " " BY "0".
+           INSPECT CENTX REPLACING  ALL " " BY "0".
+           IF CENTX NOT NUMERIC
+             DISPLAY FI-CPT " CENTX NOT NUM " CENTX
+             ACCEPT OMITTED
+           END-IF
+           IF RIGHT-4 NOT NUMERIC
+             DISPLAY FI-CPT " RIGHT-4 NOT NUM " RIGHT-4
+             ACCEPT OMITTED
+           END-IF
+
+           MOVE RIGHT-4 TO NUM4
+           move CENTX to num2
+      *     display right-4
+      *     display centx
+           COMPUTE MED-AMT = num4 + (num2 / 100)
+           WRITE MEDFILE201801
+             INVALID
+              DISPLAY FILEIN01
+              ACCEPT OMITTED
+           END-WRITE
+           GO TO P1.
+       P99.
+           CLOSE MEDFILE2018 FILEIN.
+           STOP RUN.

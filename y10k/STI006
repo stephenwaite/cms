@@ -1,0 +1,43 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. GARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT GARacct ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS a-garno
+           alternate record key is a-acct with duplicates
+           LOCK MODE MANUAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       fd  garacct.
+       01  garacct01.
+           02 a-garno pic x(8).
+           02 a-acct pic x(5).
+       FD FILEIN.
+       01  FILEIN01.
+           02 FILLER PIC XX.
+           02 FI-ACCT PIC X(5).
+           02 FILLER PIC X(243).
+           02 FI-GARNO PIC X(8).
+       WORKING-STORAGE SECTION.
+       01  ALF1 PIC X.
+       01  cntr pic 9(5) value 0.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN output garacct.
+       P1. READ FILEIN AT END GO TO P99.
+           MOVE FI-ACCT TO a-acct
+           inspect a-acct replacing leading " " by "0".
+           MOVE fi-garno to A-garno
+           WRITE garacct01 INVALID
+            DISPLAY FILEIN01
+            ACCEPT ALF1.
+           GO TO P1.
+       P99.
+           CLOSE garacct.
+           STOP RUN.

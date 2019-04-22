@@ -1,0 +1,58 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BBB816.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(73).
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-1 PIC X(7).
+           02 FI-2 PIC X(61).
+
+       WORKING-STORAGE SECTION.
+       01  X PIC 9.
+       01  Y PIC 9.
+       01  HOLD7 PIC X(7).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN
+           OUTPUT FILEOUT.
+       P1.
+           READ FILEIN AT END GO TO P99.
+           MOVE FI-1 TO HOLD7.
+       P1-1.
+           IF HOLD7(3:1) = SPACE MOVE 3 TO X.
+           GO TO P2.
+           IF HOLD7(4:1) = SPACE MOVE 4 TO X.
+           GO TO P2.
+           IF HOLD7(5:1) = SPACE MOVE 5 TO X.
+           GO TO P2.
+           IF HOLD7(6:1) = SPACE MOVE 6 TO X.
+           GO TO P2.
+           IF HOLD7(7:1) = SPACE MOVE 7 TO X.
+           GO TO P2.
+           GO TO P1.
+       P2.
+           READ FILEIN AT END GO TO P99.
+           IF FI-1(1:X) = HOLD7(1:X)
+             COMPUTE Y = X + 1
+              IF FI-1(Y:1) NOT = SPACE
+             WRITE FILEOUT01 FROM HOLD7
+              END-IF
+           END-IF
+           MOVE FI-1 TO HOLD7
+           GO TO P1-1.
+       P99.
+           CLOSE FILEOUT FILEIN.
+           STOP RUN.

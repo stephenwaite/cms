@@ -1,0 +1,32 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. DDD813.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT filein ASSIGN TO "S30"
+           ORGANIZATION line sequential.
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEin.
+       01  FILEin01 PIC X(50). 
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(50). 
+
+       WORKING-STORAGE SECTION.
+       01  CONSTANTS.
+           02 CNTR PIC 999999 VALUE 0.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN INPUT filein OUTPUT FILEOUT.
+       P1.
+           read filein at end go to p99.
+           move filein01(29:8) to filein01(37:8)
+            WRITE FILEOUT01 FROm filein01
+           GO TO P1.
+       P99.
+           CLOSE FILEOUT filein.
+           STOP RUN.

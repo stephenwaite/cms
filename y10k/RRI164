@@ -1,0 +1,183 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RRI164.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PAYCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS SEQUENTIAL RECORD KEY IS PAYCUR-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT OUT ASSIGN TO "S45"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT AGEDATE ASSIGN TO "S50"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT CHARCUR ASSIGN TO "S55" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT ERROUT ASSIGN TO "S60"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT2 ASSIGN TO "S65"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(61).
+       FD  AGEDATE.
+       01  AGEDATE01.
+           02 AGD1 PIC 9(6).
+           02 FILLER PIC XX.
+       FD  OUT.
+       01  OUT01 PIC X(12).
+       FD  ERROUT.
+       01  ERROUT01 PIC X(50).
+
+       FD  PAYCUR
+           BLOCK CONTAINS 7 RECORDS
+           DATA RECORD IS PAYCUR01.
+       01  PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC 999.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC X(6).
+           02 PC-DATE-TYY PIC 9999.
+           02 PC-DATE-TMM PIC 99.
+           02 PC-DATE-TDD PIC 99.
+           02 PC-DATE-P PIC X(8).
+           02 PC-BATCH PIC X(6).
+       FD  FILEOUT
+           DATA RECORD IS FILEOUT01.
+       01  FILEOUT01.
+           02 FO-RT PIC 9.
+           02 FO-PL PIC 9.
+           02 FO-DATE PIC 9(6).
+           02 FO-PC PIC 999.
+           02 FO-NUM PIC 9(5).
+           02 FO-AMT PIC S9(9)V99.
+       FD  CHARCUR
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(11).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+
+       WORKING-STORAGE SECTION.
+       01  A PIC 9999.
+       01  B PIC 9999.
+       01  C PIC 9999.
+       01  D PIC 999.
+       01  E PIC 999.
+       01   X PIC 9999.
+       01   Y PIC 9999 VALUE 0.
+       01  NUMTAB01.
+             03 NUMTAB03 OCCURS 999 TIMES.
+                04 NUMTAB PIC 9(5) OCCURS 2 TIMES.
+       01  AMTTAB01.
+             03 AMTTAB03 OCCURS 999 TIMES.
+               04 AMTTAB PIC S9(9)V99 OCCURS 2 TIMES.
+       01  NUM6 PIC 9(6).
+       01  FLAG PIC 9.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN OUTPUT OUT ERROUT FILEOUT2.
+           OPEN INPUT AGEDATE CHARCUR.
+           OPEN INPUT PAYCUR OUTPUT FILEOUT.
+           READ AGEDATE AT END GO TO P2.
+       A1. PERFORM A2 VARYING B FROM 1 BY 1 UNTIL B > 999.
+           GO TO P1.
+       A2. PERFORM A3 VARYING C FROM 1 BY 1 UNTIL C > 2.
+       A3. MOVE 0 TO NUMTAB(B C) AMTTAB(B C).
+       P1.  READ PAYCUR AT END GO TO P2.
+           IF PC-DATE-TMM = 00 MOVE 01 TO PC-DATE-TMM.
+           COMPUTE NUM6 = 100 * PC-DATE-TYY + PC-DATE-TMM.
+           IF NUM6 NOT = AGD1 GO TO P1.
+           MOVE 0 TO FLAG
+           PERFORM CC1 THRU CC1-EXIT
+           IF FLAG = 1 GO TO P1.
+           IF PC-DENIAL = "14" MOVE 014 TO PC-PAYCODE.
+           IF PC-DENIAL = "DI" MOVE 014 TO PC-PAYCODE.
+           IF PC-DENIAL = "15" MOVE 015 TO PC-PAYCODE.
+           MOVE PC-PAYCODE  TO B
+           IF PC-PAYCODE NOT NUMERIC WRITE OUT01 FROM PAYCUR-KEY
+           MOVE 01 TO B.
+           MOVE 1 TO C
+           ADD 1 TO NUMTAB(B C) ADD PC-AMOUNT TO AMTTAB(B C)
+           STRING CHARCUR-KEY PAYCUR01 DELIMITED BY SIZE
+           INTO FILEOUT201
+           WRITE FILEOUT201 
+           GO TO P1.
+       B2. PERFORM B3 THRU B3-EXIT VARYING C FROM 1 BY 1 UNTIL C > 2.
+       B3. IF NUMTAB(B C) = 0 GO TO B3-EXIT.
+           MOVE AGD1 TO FO-DATE
+           MOVE B TO FO-PC
+           MOVE NUMTAB(B C) TO FO-NUM
+           MOVE AMTTAB(B C) TO FO-AMT
+           MOVE 03 TO FO-RT
+           MOVE C TO FO-PL
+           WRITE FILEOUT01.
+       B3-EXIT. EXIT.
+       CC1. MOVE PC-KEY8 TO CC-KEY8
+            MOVE SPACE TO CC-KEY3
+            START CHARCUR KEY NOT < CHARCUR-KEY INVALID
+            WRITE ERROUT01 FROM PAYCUR01
+            MOVE 1 TO FLAG
+            GO TO CC1-EXIT.
+       CC2. READ CHARCUR NEXT AT END
+            WRITE ERROUT01 FROM PAYCUR01
+            MOVE 1 TO FLAG
+            GO TO CC1-EXIT.
+            IF CC-KEY8 NOT = PC-KEY8
+            WRITE ERROUT01 FROM PAYCUR01
+            MOVE 1 TO FLAG
+            GO TO CC1-EXIT.
+            IF CC-CLAIM NOT = PC-CLAIM GO TO CC2.
+            IF NOT (CC-PLACE = "3" OR "5" OR "E") 
+            MOVE 1 TO FLAG.
+       CC1-EXIT. EXIT.
+       P2. PERFORM B2 VARYING B FROM 1 BY 1 UNTIL B > 999.
+           CLOSE FILEOUT ERROUT PAYCUR CHARCUR FILEOUT2.
+           STOP RUN.

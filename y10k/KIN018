@@ -1,0 +1,463 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RRR816.
+       AUTHOR. SID WAITE.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           
+           SELECT GARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+           LOCK MODE MANUAL.
+
+           SELECT CHARCUR ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+
+
+           SELECT PAYCUR ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY
+           LOCK MODE MANUAL.
+
+
+           SELECT INSFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS INS-KEY
+           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
+           LOCK MODE MANUAL.
+
+           SELECT FILEIN ASSIGN TO "S50" ORGANIZATION 
+           LINE SEQUENTIAL.
+           SELECT FILEOUT1 ASSIGN TO "S55" ORGANIZATION 
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  INSFILE
+     *     BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS INSFILE01.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+            
+       FD  GARFILE
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS G-MASTER.
+       01  G-MASTER.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE.
+              03 G-PH1 PIC XXX.
+              03 G-PH2 PIC XXX.
+              03 G-PH3 PIC X(4).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB.
+              03 G-DOBYY PIC X(4).
+              03 G-DOBMM PIC XX.
+              03 G-DOBDD PIC XX.
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(10).
+           02 G-PRIPOL PIC X(16).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(10).
+           02 G-SECPOL PIC X(16).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-COPAY PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+       
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FILEIN-KEY.
+             03 FI-KEY8 PIC X(8).
+             03 FI-KEY3 PIC XXX.
+           02 FI-PATID PIC X(8).
+           02 FI-CLAIM PIC X(6).
+           02 FI-SERVICE PIC X.
+           02 FI-DIAG PIC X(7).
+           02 FI-PROC PIC X(11).
+           02 FI-MOD2 PIC XX.
+           02 FI-MOD3 PIC XX.
+           02 FI-MOD4 PIC XX.
+           02 FI-AMOUNT PIC S9(4)V99.
+           02 FI-DOCR PIC X(3).
+           02 FI-DOCP PIC X(2).
+           02 FI-PAYCODE PIC 999.
+           02 FI-STUD PIC X.
+           02 FI-WORK PIC XX.
+           02 FI-DAT1 PIC X(8).
+           02 FI-RESULT PIC X.
+           02 FI-ACT PIC X.
+           02 FI-SORCREF PIC X.
+           02 FI-COLLT PIC X.
+           02 FI-AGE PIC X.
+           02 FI-PAPER PIC X.
+           02 FI-PLACE PIC X.
+           02 FI-EPSDT PIC X.
+           02 FI-DATE-T PIC X(8).
+           02 FI-DATE-A PIC X(8).
+           02 FI-DATE-P PIC X(8).
+           02 FI-REC-STAT PIC X.
+           02 FI-DX2 PIC X(7).
+           02 FI-DX3 PIC X(7).
+           02 FI-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 FI-ASSIGN PIC X.
+           02 FI-NEIC-ASSIGN PIC X.
+           02 FI-DX4 PIC X(7).
+           02 FI-DX5 PIC X(7).
+           02 FI-DX6 PIC X(7).
+           02 FI-FUTURE PIC X(6).
+       FD  FILEOUT1.
+       01  FILEOUT101 PIC X(480).
+
+       FD  PAYCUR
+           BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS PAYCUR01.
+       01  PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC XXX.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC X(6).
+           02 PC-DATE-T PIC X(8).
+           02 PC-DATE-E PIC X(8).
+           02 PC-BATCH PIC X(6).
+       FD  CHARCUR
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(11).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC 999.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AGE PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       WORKING-STORAGE SECTION.
+       01  FILEOUT01.
+           02 FO-GARNO PIC X(8).
+           02 TAB-Y1 PIC X VALUE ",".
+           02 FO-NAMEL PIC X(24).
+           02 TAB-Y2 PIC X VALUE ",".
+           02 FO-NAMEF PIC X(24).
+           02 TAB-Y3 PIC X VALUE ",".
+           02 FO-STREET1 PIC X(22).
+           02 TAB-Y4 PIC X VALUE ",".
+           02 FO-STREET2 PIC X(22).
+           02 TAB-Y5 PIC X VALUE ",".
+           02 FO-CITY PIC X(15).
+           02 TAB-Y6 PIC X VALUE ",".
+           02 FO-STATE PIC XX.
+           02 TAB-Y7 PIC X VALUE ",".
+           02 FO-ZIP PIC X(9).
+           02 TAB-Y8 PIC X VALUE ",".
+           02 FO-PHONE PIC X(12).
+           02 TAB-Y9 PIC X VALUE ",".
+           02 FO-SSN PIC X VALUE "*".
+           02 TAB-Y10 PIC X VALUE ",".
+           02 FO-DOB PIC X VALUE"*".
+           02 TAB-Y11 PIC X VALUE ",".
+           02 FO-EMP PIC X VALUE "*".
+           02 TAB-Y12 PIC X VALUE ",".
+           02 FO-ST  PIC X VALUE "*".
+           02 TAB-Y13 PIC X VALUE ",".
+           02 FO-CTY PIC X VALUE "*".
+           02 TAB-Y14 PIC X VALUE ",".
+           02 FO-STAT PIC X VALUE "*".
+           02 TAB-Y15 PIC X VALUE ",".
+           02 FO-ZP PIC X VALUE "*".
+           02 TAB-Y16 PIC X VALUE ",".
+           02 FO-ADMIT PIC X VALUE "*".
+           02 TAB-Y17 PIC X VALUE ",".
+           02 FO-DISCHR PIC X(10).
+           02 TAB-Y18 PIC X VALUE ",".
+           02 FO-FINAL PIC X VALUE "*".
+           02 TAB-Y19 PIC X VALUE ",".
+           02 FO-PATSTAT PIC X VALUE "*".
+           02 TAB-Y20 PIC X VALUE ",".
+           02 FO-INSNAME PIC X(22).
+           02 TAB-Y21 PIC X VALUE ",".
+           02 FO-INSSTREET PIC X(22).
+           02 TAB-Y22 PIC X VALUE ",".
+           02 FO-INSCITY PIC X(15).
+           02 TAB-Y23 PIC X VALUE ",".
+           02 FO-INSSTATE PIC XX.
+           02 TAB-Y24 PIC X VALUE ",".
+           02 FO-INSZIP PIC X(9).
+           02 TAB-Y25 PIC X VALUE ",".
+           02 FO-GARNAME PIC X(24).
+           02 TAB-Y26 PIC X VALUE ",".
+           02 FO-FINCLASS PIC X VALUE "*".
+           02 TAB-Y27 PIC X VALUE ",".
+           02 FO-POLICY PIC X(16).
+           02 TAB-Y28 PIC X VALUE ",".
+           02 FO-GARLAST PIC X(24).
+           02 TAB-Y29 PIC X VALUE ",".
+           02 FO-GARFIRST PIC X(24).
+           02 TAB-Y30 PIC X VALUE ",".
+           02 FO-GARSTREET1 PIC X(22).
+           02 TAB-Y31 PIC X VALUE ",".
+           02 FO-GARSTREET2 PIC X(22).
+           02 TAB-Y32 PIC X VALUE ",".
+           02 FO-GARCITY PIC X(15).
+           02 TAB-Y33 PIC X VALUE ",".
+           02 FO-GARSTATE PIC XX.
+           02 TAB-Y34 PIC X VALUE ",".
+           02 FO-GARZIP PIC X(9).
+           02 TAB-Y35 PIC X VALUE ",".
+           02 FO-GARPHONE PIC X(12).
+           02 TAB-Y36 PIC X VALUE ",".
+           02 FO-GARSS PIC X.
+           02 TAB-Y37 PIC X VALUE ",".
+           02 FO-GARDOB PIC X(10).
+           02 TAB-Y38 PIC X VALUE ",".
+           02 FO-SERVICE PIC X(9) VALUE "RADIOLOGY".
+           02 TAB-Y39 PIC X VALUE ",".
+           02 FO-MEDREC PIC X(8).
+           02 TAB-Y40 PIC X VALUE ",".
+           02 FO-ORIG PIC X.
+           02 TAB-Y41 PIC X VALUE ",".
+           02 FO-PAY PIC X.
+           02 TAB-Y42 PIC X VALUE ",".
+           02 FO-ADJ PIC X.
+           02 TAB-Y43 PIC X VALUE ",".
+           02 FO-BAL PIC ZZZZ.99.
+
+       01  ALF1 PIC X.
+       01  INPUT-DATE.
+           05 T-MMI  PIC XX.
+           05 T-DDI  PIC XX.
+           05 T-YYI  PIC XXXX.
+       01  TEST-DATE.
+           05 T-YY  PIC XXXX.
+           05 T-MM  PIC XX.
+           05 T-DD  PIC XX.
+       01  LASTDATE PIC X(8) VALUE "00000000".
+       01  DATE-PLACED PIC X(8).
+       01  DATE-PAID PIC X(8).
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  FLAG PIC 9.
+       01  LOW-DATE PIC X(8).
+       01  HIGH-DATE PIC X(8).
+       01  TOT-PLACED PIC 9(4)V99.
+       01  CLAIM-TOT PIC S9(4)V99.
+       01  DATE-X PIC X(8).
+       01  HOLD8 PIC X(8).
+       01  ENDFLAG PIC 9 VALUE 0.
+       01  NUM4-1 PIC 9999.
+       01  NUM4-2 PIC 9999.
+       01  NUM3 PIC 999.
+
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT  PAYCUR FILEIN GARFILE INSFILE.
+           OPEN OUTPUT FILEOUT1.
+           OPEN I-O CHARCUR.
+           MOVE 0 TO TOT-PLACED.
+           ACCEPT DATE-X FROM CENTURY-DATE.
+           READ FILEIN AT END GO TO P99.
+           MOVE FI-DATE-T TO LASTDATE
+           MOVE FI-KEY8 TO HOLD8 GO TO P1-1.
+       P1.
+           READ FILEIN AT END MOVE 1 TO ENDFLAG GO TO P5.
+           IF FI-KEY8 NOT = HOLD8 GO TO P5.
+       P1-1.
+           IF FI-DATE-T > LASTDATE MOVE FI-DATE-T TO LASTDATE.
+           MOVE FILEIN-KEY TO CHARCUR-KEY
+           READ CHARCUR WITH LOCK INVALID GO TO P1.
+      *     IF CC-COLLT = "1" GO TO P1.
+           MOVE "018" TO CC-PAYCODE
+           MOVE DATE-X TO CC-DATE-A
+           MOVE "2" TO CC-REC-STAT
+           MOVE "A" TO CC-ASSIGN CC-NEIC-ASSIGN
+           MOVE "1" TO CC-COLLT
+           PERFORM P3 THRU P4.
+           IF CLAIM-TOT = 0 GO TO P1.
+           REWRITE CHARCUR01.
+           ADD CLAIM-TOT TO TOT-PLACED.
+           GO TO P1.
+       P3.
+           COMPUTE CLAIM-TOT = CC-AMOUNT
+           MOVE SPACE TO PC-KEY3
+           MOVE CC-KEY8 TO PC-KEY8
+           START PAYCUR KEY NOT < PAYCUR-KEY INVALID GO TO P4.
+       P3-1.
+           READ PAYCUR NEXT AT END GO TO P4.
+           IF PC-KEY8 NOT = CC-KEY8 GO TO P4.
+           IF PC-CLAIM = CC-CLAIM 
+            COMPUTE CLAIM-TOT = CLAIM-TOT + PC-AMOUNT
+           END-IF
+           GO TO P3-1.
+       P4.
+           EXIT.
+       P5.
+           IF TOT-PLACED = 0 AND ENDFLAG = 0
+           MOVE 0 TO TOT-PLACED
+           MOVE "00000000" TO LASTDATE
+           MOVE FI-KEY8 TO HOLD8
+           GO TO P1-1.
+           IF TOT-PLACED = 0 AND ENDFLAG = 1 GO TO P99.
+
+           MOVE HOLD8 TO G-GARNO
+           READ GARFILE INVALID DISPLAY FI-KEY8 " BAD" GO TO P1-1.
+           MOVE G-GARNO TO FO-GARNO.
+           MOVE SPACE TO FO-NAMEL FO-NAMEF
+           UNSTRING G-GARNAME DELIMITED BY ";" INTO
+           FO-NAMEL  FO-NAMEF
+           MOVE G-BILLADD TO FO-STREET1.
+           IF FO-STREET1 = SPACE MOVE SPACE TO FO-STREET1.
+           MOVE G-STREET TO FO-STREET2.
+           IF FO-STREET2 = SPACE MOVE SPACE TO FO-STREET2.
+           MOVE G-CITY TO FO-CITY.
+           MOVE G-STATE TO FO-STATE.
+           MOVE G-ZIP TO FO-ZIP.
+           MOVE SPACE TO FO-PHONE.
+           STRING G-PH1 "-" G-PH2 "-" G-PH3 DELIMITED BY SIZE
+           INTO FO-PHONE
+           MOVE SPACE TO FO-GARDOB
+           STRING G-DOBMM "/" G-DOBDD "/" G-DOBYY DELIMITED BY SIZE
+           INTO FO-GARDOB.
+           
+           MOVE "*" TO FO-SSN.
+
+           MOVE "*" TO FO-EMP FO-ST FO-CTY FO-STAT FO-ZP.
+           MOVE "*" TO FO-ADMIT.
+           MOVE "*" TO FO-FINAL.
+           MOVE "*" TO FO-PATSTAT.
+           MOVE G-PRINS TO INS-KEY
+           READ INSFILE INVALID CONTINUE.
+           IF G-PRINS = "001"
+             MOVE "NO INSURANCE" TO FO-INSNAME
+             MOVE "*" TO FO-POLICY
+           ELSE
+             MOVE INS-NAME TO FO-INSNAME
+             MOVE G-PRIPOL TO FO-POLICY
+           END-IF.
+           MOVE G-PRNAME TO FO-GARNAME
+           IF FO-GARNAME = SPACE MOVE G-GARNAME TO FO-GARNAME.
+           MOVE DATE-X(1:4) TO NUM4-1
+           MOVE G-DOB(1:4) TO NUM4-2
+           COMPUTE NUM3 = NUM4-1 - NUM4-2
+           IF NUM3 > 18 MOVE G-GARNAME TO FO-GARNAME.
+           MOVE SPACE TO FO-GARLAST FO-GARFIRST
+           UNSTRING G-PRNAME DELIMITED BY ";" INTO
+            FO-GARLAST FO-GARFIRST.
+           IF FO-GARLAST = SPACE MOVE FO-NAMEL TO FO-GARLAST.
+           IF FO-GARFIRST = SPACE MOVE FO-NAMEF TO FO-GARFIRST.
+           MOVE FO-STREET1 TO FO-GARSTREET1
+           MOVE FO-STREET2 TO FO-GARSTREET2
+           MOVE FO-CITY TO FO-GARCITY
+           MOVE FO-STATE TO FO-GARSTATE
+           MOVE FO-ZIP TO FO-GARZIP
+           IF G-PRINS = "001"
+           MOVE "*" TO FO-INSNAME FO-INSSTREET FO-INSCITY FO-INSSTATE
+                           FO-INSZIP
+           ELSE
+           MOVE INS-STREET TO FO-INSSTREET
+           MOVE INS-CITY TO FO-INSCITY
+           MOVE INS-STATE TO FO-INSSTATE
+           MOVE INS-ZIP TO FO-INSZIP
+           END-IF.
+           MOVE "*" TO FO-FINCLASS FO-GARSS.
+           
+           MOVE FO-PHONE TO FO-GARPHONE.
+           MOVE "RADIOLOGY" TO FO-SERVICE.
+           MOVE G-ACCT TO FO-MEDREC.
+           MOVE "*" TO FO-ORIG FO-PAY FO-ADJ.
+           MOVE TOT-PLACED TO FO-BAL.
+           MOVE LASTDATE TO TEST-DATE
+           STRING T-MM "/" T-DD "/" T-YY DELIMITED BY SIZE
+             INTO FO-DISCHR
+           WRITE FILEOUT101 FROM FILEOUT01
+           MOVE 0 TO TOT-PLACED
+           MOVE "00000000" TO LASTDATE
+           MOVE FI-KEY8 TO HOLD8
+           IF ENDFLAG = 0 GO TO P1-1.
+       P99. CLOSE CHARCUR PAYCUR FILEOUT1. 
+           STOP RUN.

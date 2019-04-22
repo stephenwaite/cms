@@ -1,0 +1,334 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. NEI008.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT INSFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC        RECORD KEY IS INS-KEY
+           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES.
+           SELECT OUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT POSTDATE ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT CHARFILE ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT PARMFILE ASSIGN TO "S50" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  INSFILE
+     *     BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS INSFILE01.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+
+       FD  CHARFILE
+      *    BLOCK CONTAINS 2 RECORDS
+           DATA RECORD IS CHARFILE01.
+       01  CHARFILE01.
+           02 CHARFILE-KEY.
+             03 CD-KEY8 PIC X(8).
+             03 CD-KEY3 PIC XXX.
+           02 CD-PATID PIC X(8).
+           02 CD-CLAIM PIC X(6).
+           02 CD-SERVICE PIC X.
+           02 CD-DIAG PIC X(7).
+           02 CD-PROC PIC X(11).
+           02 CD-MOD2 PIC XX.
+           02 CD-MOD3 PIC XX.
+           02 CD-MOD4 PIC XX.
+           02 CD-AMOUNT PIC S9(4)V99.
+           02 CD-DOCR PIC X(3).
+           02 CD-DOCP PIC X(2).
+           02 CD-PAYCODE PIC XXX.
+           02 CD-STAT PIC X.
+           02 CD-WORK PIC XX.
+           02 CD-DAT1 PIC X(8).
+           02 CD-RESULT PIC X.
+           02 CD-ACT PIC X.
+           02 CD-SORCREF PIC X.
+           02 CD-COLLT PIC X.
+           02 CD-AUTH PIC X.
+           02 CD-PAPER PIC X.
+           02 CD-PLACE PIC X.
+           02 CD-NAME PIC X(24).
+           02 CD-ESPDT PIC X.
+           02 CD-DATE-T PIC X(8).
+           02 CD-DATE-E PIC X(8).
+           02 CD-ORDER PIC X(6).
+           02 CD-DX2 PIC X(7).
+           02 CD-DX3 PIC X(7).
+           02 CD-DATE-A PIC X(8).
+           02 CD-ACC-TYPE PIC X.
+           02 CD-DATE-M PIC X(8).
+           02 CD-ASSIGN PIC X.
+           02 CD-NEIC-ASSIGN PIC X.
+           02 CD-DX4 PIC X(7).
+           02 CD-DX5 PIC X(7).
+           02 CD-DX6 PIC X(7).
+           02 CD-FUTURE PIC X(6).
+       FD OUT.
+       01  OUT01 PIC X(133).
+       FD  POSTDATE.
+       01 POSTDATE01 PIC X(8).
+       FD  PARMFILE.
+       01  PARMFILE01.
+           02 PF1 PIC X(9).
+           02 PF2 PIC X(40).
+       WORKING-STORAGE SECTION.
+       01  CHAR-CNT01.
+           02 CHAR-CNT PIC 99999 OCCURS 999 TIMES.
+       01  CHAR-AMT01.
+           02 CHAR-AMT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  CNT-TOT01.
+           02 CNT-TOT PIC 99999 OCCURS 999 TIMES.
+       01  AMT-TOT01.
+           02 AMT-TOT PIC S9(8)V99 OCCURS 999 TIMES.
+       01  LINE-1.
+           02 L1F1 PIC X(40).
+           02 FILLER PIC XX VALUE SPACE.
+           02 L1F2 PIC X(20) VALUE "CHARGE   DETAIL FOR ".
+           02 L1F3 PIC X(16) VALUE "POSTING DATE    ".
+           02 L1F4 PIC X(10).
+           02 L1F5 PIC X(25) VALUE " FOR DATA ENTRY DATE     ".
+           02 L1F6 PIC X(10).
+       01  LINE-2.
+           02 L2F1 PIC X(8).
+           02 FILLER PIC XX VALUE SPACE.
+           02 L2F2 PIC X(24).
+           02 FILLER PIC X VALUE SPACE.
+           02 L2F3 PIC X(6).
+           02 FILLER PIC X VALUE SPACE.
+           02 L2F4 PIC XXX.
+           02 FILLER PIC XX VALUE SPACE.
+           02 L2F41 PIC XX.
+           02 FILLER PIC XX VALUE SPACE.
+           02 L2F50 PIC X.
+           02 L2F501 PIC X.
+           02 FILLER PIC X VALUE SPACE.
+           02 L2F42 PIC X(11).
+           02 FILLER PIC XX VALUE SPACE.
+           02 L2F5 PIC ZZ,ZZZ.99CR.
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L2F51 PIC X(10).
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L2F6 PIC X(10).
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L2F7 PIC X(6).
+       01 LINE-3.
+           02 F31 PIC X VALUE "(".
+           02 L3F1 PIC ZZZ.
+           02 F32 PIC XX VALUE ") ".
+           02 L3F2 PIC X(18).
+           02 F23 PIC X(12) VALUE SPACE.
+           02 L3F3 PIC ZZZ9.
+           02 F24 PIC XXX VALUE SPACE.
+           02 L3F4 PIC ZZ,ZZZ,ZZ9.99CR.
+       01  LINE-4.
+           02 F41 PIC X(11).
+           02 L4F1 PIC X(19) VALUE SPACE.
+           02 F42 PIC X(4) VALUE SPACE.
+           02 L4F2 PIC ZZ,ZZ9.
+           02 F43 PIC XXX VALUE SPACE.
+           02 L4F3 PIC ZZ,ZZZ,ZZ9.99CR.
+       01 LINE-5.
+           05 F51 PIC X(4) VALUE SPACE.
+           05 L5F1 PIC X(9) VALUE "PAYORCODE".
+           05 F52 PIC X(14) VALUE SPACE.
+           05 L5F3 PIC X(6) VALUE "NUMBER".
+           05 F54 PIC X(10) VALUE SPACE.
+           05 L5F4 PIC X(6) VALUE "AMOUNT".
+           05 F55 PIC XX VALUE SPACE.
+           05 L5F5 PIC XX/XX/XX.
+       01  LINE-6.
+           02 F61 PIC X(8) VALUE "ACCT. # ".
+           02 F62 PIC X(16) VALUE "  GUARANTOR NAME".
+           02 F63 PIC X(11) VALUE SPACE.
+           02 F64 PIC X(6) VALUE " CLAIM".
+           02 F65 PIC X(3) VALUE " PC".
+           02 F651 PIC X(5) VALUE "   DR".
+           02 FILLER PIC X(4) VALUE " P/T".
+           02 FILLER PIC XX VALUE SPACE.
+           02 F652 PIC X(9) VALUE "   PROC  ".
+           02 F66 PIC X(13) VALUE "      AMOUNT ".
+           02 FILLER PIC X(4) VALUE SPACE.
+           02 F67 PIC X(10) VALUE "CHR DATE  ".
+           02 FILLER PIC XXX VALUE SPACE.
+           02 F68 PIC X(12) VALUE "ENTRY DATE  ".
+           02 FILLER PIC X VALUE SPACE.
+           02 F69 PIC X(4) VALUE "TIME".
+       01  HOLD-DATE PIC X(8).
+       01  TEST-DATE.
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
+           02 T-MM PIC XX.
+           02 T-DD PIC XX.
+       01  DISPLAY-DATE.
+           02 T-MM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-DD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
+       01  X PIC 999.
+       01  Y PIC 9999.
+       01  NUM3 PIC 999.
+       01  Z PIC 999.
+       01  PARTCNT PIC 9999 VALUE 0.
+       01  PARTCHAR PIC S9(8)V99 VALUE 0.
+       01  ADJ-CNT PIC 9999.
+       01  ADJ-AMT PIC S9(8)V99.
+       01  DOT01 PIC X(48).
+       PROCEDURE DIVISION.
+       0005-START.
+           MOVE ALL " -" TO DOT01.
+           MOVE ALL ZEROES TO CHAR-CNT01 CHAR-AMT01 CNT-TOT01
+           AMT-TOT01.
+      *    PERFORM B1 VARYING Y FROM 1 BY 1 UNTIL Y > 999.
+           OPEN INPUT POSTDATE CHARFILE PARMFILE INSFILE.
+           OPEN OUTPUT OUT.
+           READ PARMFILE.
+           MOVE PF2 TO L1F1.
+           READ POSTDATE.
+           MOVE POSTDATE01 TO TEST-DATE
+           MOVE CORR TEST-DATE TO DISPLAY-DATE
+           MOVE DISPLAY-DATE TO L1F4.
+       P1. READ CHARFILE AT END GO TO P5.
+           MOVE CD-DATE-E TO TEST-DATE HOLD-DATE
+           MOVE CORR TEST-DATE TO DISPLAY-DATE
+           MOVE DISPLAY-DATE TO L1F6 L2F6
+           WRITE OUT01 FROM LINE-1 AFTER PAGE
+           WRITE OUT01 FROM LINE-6 AFTER 2
+           GO TO P4.
+       P2. READ CHARFILE AT END GO TO P5.
+       P4. IF CD-DATE-E NOT = HOLD-DATE PERFORM A3
+           WRITE OUT01 FROM LINE-1 AFTER PAGE
+           WRITE OUT01 FROM LINE-6 AFTER 2.
+           MOVE CD-PAYCODE TO X.
+           ADD 1 TO CHAR-CNT(X) ADD CD-AMOUNT TO CHAR-AMT(X).
+           MOVE CD-KEY8 TO L2F1
+           MOVE CD-NAME TO L2F2
+           MOVE CD-CLAIM TO L2F3
+           MOVE CD-PAYCODE TO L2F4
+           MOVE CD-DOCP TO L2F41
+           MOVE CD-PLACE TO L2F50
+           MOVE CD-SERVICE TO L2F501
+           MOVE CD-PROC TO L2F42
+           MOVE CD-AMOUNT TO L2F5
+           MOVE CD-DATE-T TO TEST-DATE
+           MOVE CORR TEST-DATE TO DISPLAY-DATE.
+           MOVE DISPLAY-DATE TO L2F51
+           MOVE CD-ORDER TO L2F7.
+           WRITE OUT01 FROM LINE-2. GO TO P2.
+           MOVE 0 TO PARTCHAR PARTCNT.
+       A3. WRITE OUT01 FROM LINE-1 AFTER PAGE.
+           WRITE OUT01 FROM LINE-5 AFTER 2.
+           MOVE 0 TO ADJ-CNT ADJ-AMT.
+           MOVE L2F6 TO L4F1.
+           PERFORM B3 VARYING Y FROM 1 BY 1 UNTIL Y > 999.
+           WRITE OUT01 FROM DOT01.
+           MOVE "TOTAL ADJ." TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           COMPUTE ADJ-CNT = PARTCNT - ADJ-CNT.
+           COMPUTE ADJ-AMT = PARTCHAR - ADJ-AMT.
+           MOVE "TOTAL CASH" TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           WRITE OUT01 FROM DOT01.
+           MOVE PARTCNT TO L4F2
+           MOVE PARTCHAR TO L4F3
+           MOVE "TOTALS FOR" TO F41
+           WRITE OUT01 FROM LINE-4
+           WRITE OUT01 FROM DOT01.
+           WRITE OUT01 FROM DOT01.
+           MOVE CD-DATE-E TO HOLD-DATE TEST-DATE
+           MOVE CORR TEST-DATE TO DISPLAY-DATE
+           MOVE DISPLAY-DATE TO L1F6 L2F6.
+           MOVE 0 TO PARTCNT PARTCHAR ADJ-CNT ADJ-AMT.
+       B1. MOVE 0 TO CHAR-CNT(Y) CHAR-AMT(Y) CNT-TOT(Y) AMT-TOT(Y).
+       B2. MOVE 0 TO CHAR-CNT(Y) CHAR-AMT(Y).
+       B3. IF CHAR-CNT(Y) > 0
+           MOVE CHAR-CNT(Y) TO L3F3
+           MOVE CHAR-AMT(Y) TO L3F4
+           MOVE Y TO L3F1
+           COMPUTE NUM3 = Y
+           MOVE NUM3 TO INS-KEY
+           MOVE "***BAD CODE***" TO INS-NAME
+           READ INSFILE
+           MOVE INS-NAME TO L3F2
+           ADD CHAR-CNT(Y) TO PARTCNT CNT-TOT(Y)
+           ADD CHAR-AMT(Y) TO PARTCHAR AMT-TOT(Y)
+           WRITE OUT01 FROM LINE-3.
+           IF Y > 9 AND < 18
+           ADD CHAR-CNT(Y) TO ADJ-CNT
+           ADD CHAR-AMT(Y) TO ADJ-AMT.
+           MOVE 0 TO CHAR-CNT(Y) CHAR-AMT(Y).
+       B4. IF CNT-TOT(Y) > 0
+           ADD CNT-TOT(Y) TO PARTCNT ADD AMT-TOT(Y) TO PARTCHAR
+           MOVE CNT-TOT(Y) TO L3F3
+           MOVE AMT-TOT(Y) TO L3F4
+           MOVE Y TO L3F1
+           COMPUTE NUM3 = Y
+           MOVE NUM3 TO INS-KEY
+           MOVE "***BAD CODE***" TO INS-NAME
+           READ INSFILE
+           MOVE INS-NAME TO L3F2
+           WRITE OUT01 FROM LINE-3.
+           IF (Y > 9 AND < 20 ) AND ( Y NOT = 18 )
+           ADD CNT-TOT(Y) TO ADJ-CNT
+           ADD AMT-TOT(Y) TO ADJ-AMT.
+       P5. PERFORM A3.
+           MOVE "TOTALS  " TO L1F6.
+           WRITE OUT01 FROM LINE-1 AFTER PAGE.
+           WRITE OUT01 FROM LINE-5 AFTER 2.
+           MOVE 0 TO ADJ-CNT ADJ-AMT PARTCNT PARTCHAR.
+           MOVE "POSTING " TO L4F1.
+           PERFORM B4 VARYING Y FROM 1 BY 1 UNTIL Y > 999.
+           WRITE OUT01 FROM DOT01.
+           MOVE "TOTAL ADJ." TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           COMPUTE ADJ-CNT = PARTCNT - ADJ-CNT.
+           COMPUTE ADJ-AMT = PARTCHAR - ADJ-AMT.
+           MOVE "TOTAL CASH" TO F41.
+           MOVE ADJ-CNT TO L4F2
+           MOVE ADJ-AMT TO L4F3.
+           WRITE OUT01 FROM LINE-4.
+           WRITE OUT01 FROM DOT01.
+           MOVE PARTCNT TO L4F2
+           MOVE PARTCHAR TO L4F3
+           MOVE "TOTALS FOR" TO F41
+           WRITE OUT01 FROM LINE-4
+           WRITE OUT01 FROM DOT01.
+           WRITE OUT01 FROM DOT01.
+           CLOSE OUT. STOP RUN.

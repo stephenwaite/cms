@@ -1,0 +1,43 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. NEI038.
+       AUTHOR. SID WAITE.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT COLFILE ASSIGN TO "S25" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS COL-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  COLFILE.
+       01  COLFILE01.
+           02 COL-KEY PIC X(8).
+           02 COL-NAME PIC X(30).
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FILLER PIC X(8).
+           02 FI-GARNO PIC X(8).
+           02 FILLER PIC X(13).
+           02 FI-NAME PIC X(30).
+           02 FILLER PIC X(31).
+           02 FI-AMT PIC X(7).
+           02 FILLER PIC X(6).
+       WORKING-STORAGE SECTION.
+       01  RIGHT4 PIC X(4) JUST RIGHT.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN INPUT FILEIN 
+           OPEN OUTPUT COLFILE.
+       P1.
+           READ FILEIN AT END GO TO P99.
+           MOVE FI-GARNO TO COL-KEY
+           MOVE FI-NAME TO COL-NAME
+           WRITE COLFILE01 INVALID CONTINUE
+           END-WRITE
+           GO TO P1.
+       P99.
+           CLOSE FILEIN COLFILE.
+           STOP RUN.

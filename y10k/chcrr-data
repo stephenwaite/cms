@@ -1,0 +1,83 @@
+FIRST REPORT (37 FIELDS)
+           02 UNIQUE-INDENTIFIER FOR PATIENT( MEDREC OR SS#)
+                (MATCHING IDENTIFIER IN THE SECOND RECORD)
+
+           02 FO-PATNAMEL 
+           02 FO-PATNAMEF 
+           02 FO-PAT-STR1 
+           02 FO-PAT-CITY 
+           02 FO-PAT-STATE
+           02 FO-PAT-ZIP 
+           02 FO-PAT-DOB 
+           02 FO-PAT-SEX 
+           02 FO-GARNAMEL 
+           02 FO-GARNAMEF 
+
+           02 FO-PRIM-INS-CODE
+           02 FO-PRIM-NAME
+           02 FO-PRIM-STR1
+           02 FO-PRIM-CITY
+           02 FO-PRIM-STATE
+           02 FO-PRIM-ZIP 
+           02 FO-PRIM-GRP 
+           02 FO-PRIM-POL 
+           02 FO-PRIM-SUFX
+           02 FO-PRIM-NAMEL
+           02 FO-PRIM-NAMEF
+           02 FO-PRIM-SUBSEX
+           02 FO-PRIM-SUBRELATE
+
+           02 FO-SEC-INS-CODE 
+           02 FO-SEC-NAME
+           02 FO-SEC-STR1
+           02 FO-SEC-CITY 
+           02 FO-SEC-STATE 
+           02 FO-SEC-ZIP 
+           02 FO-SEC-GRP 
+           02 FO-SEC-POL 
+           02 FO-SEC-SUFX 
+           02 FO-SEC-NAMEL
+           02 FO-SEC-NAMEF
+           02 FO-SEC-SUBSEX
+           02 FO-SEC-SUBRELATE
+
+SECOND REPORT (36 FIELDS)
+
+           02 UNIQUE-INDENTIFIER FOR PATIENT( MEDREC OR SS#)
+                (MATCHING IDENTIFIER IN THE FIRST RECORD)
+           02 FO-3RD-INS-CODE  
+           02 FO-3RD-NAME  
+           02 FO-3RD-STR1  
+           02 FO-3RD-CITY  
+           02 FO-3RD-STATE 
+           02 FO-3RD-ZIP  
+           02 FO-3RD-GRP  
+           02 FO-3RD-POL  
+           02 FO-3RD-SUFX 
+           02 FO-3RD-NAMEL 
+           02 FO-3RD-NAMEF 
+           02 FO-3RD-SUBSEX 
+           02 FO-3RD-SUBRELATE
+
+           02 FO-4TH-INS-CODE
+           02 FO-4TH-NAME 
+           02 FO-4TH-STR1 
+           02 FO-4TH-CITY 
+           02 FO-4TH-STATE 
+           02 FO-4TH-ZIP 
+           02 FO-4TH-GRP 
+           02 FO-4TH-POL 
+           02 FO-4TH-SUFX 
+           02 FO-4TH-NAMEL 
+           02 FO-4TH-NAMEF 
+           02 FO-4TH-SUBSEX 
+           02 FO-PROC 
+           02 FO-MOD 
+           02 FO-DATE-T (CHARGE DATE)
+           02 FO-PROV-NPI
+           02 FO-DAT-ACC (ACCIDENT,SYMPTOM DATE)
+           02 FO-4TH-SUBRELATE 
+           02 FO-DX1  
+           02 FO-DX2  
+           02 FO-DX3 
+           02 FO-DX4 

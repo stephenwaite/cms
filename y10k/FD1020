@@ -1,0 +1,185 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. fd1001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION IS LINE
+           SEQUENTIAL.
+           SELECT FDREAD ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS FR-READKEY
+           ALTERNATE RECORD KEY IS FR-NAME WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION IS LINE
+           SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+
+       FD  FDREAD.
+       01  FDREAD01.
+              02 FR-READKEY.
+                 03 FR-KEY13 PIC X(13).
+                 03 FR-KEY10 PIC X(10).
+                 03 FR-KEY6  PIC X(6).
+              02 FR-USAGE PIC 9(10).
+              02 FR-PREV-READ PIC 9(12).
+              02 FR-NAME PIC X(25).
+              02 FR-STREET PIC X(28).
+              02 FR-COMMENT PIC X(33).
+
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-ACCT PIC X(13).
+           02 FILLER PIC XX.
+           02 FI-NAME PIC X(25).
+            02 FI-STREET PIC X(28).
+           02 FILLER PIC X(231).
+           02 FI-METERNUM PIC X(10).
+           02 FILLER PIC X(28).
+           02 FI-CURR-READ PIC X(12).
+           02 FI-CURR-DATE PIC X(8).
+           02 FILLER PIC X(13).
+           02 FI-CURR-COMMENT PIC X(29).
+           02 FI-PREV-READ PIC X(12).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(400).
+       WORKING-STORAGE SECTION.
+       01  HOLDKEY PIC X(29).
+       01  FLAG PIC 9.
+       01  NEW-USAGE PIC 9(10).
+       01  NUM12 PIC 9(12).
+       01  NUM12X PIC 9(12).
+
+       01  NUM11 PIC 9(11).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN I-O FDREAD INPUT FILEIN OPEN OUTPUT FILEOUT.
+       P1.
+           READ FILEIN AT END GO TO P99.
+           INSPECT FI-CURR-READ REPLACING LEADING " " BY "0"
+           MOVE FI-CURR-READ TO NUM12
+
+           MOVE SPACE TO FR-KEY6
+           STRING  FI-CURR-DATE(7:2) FI-CURR-DATE(1:2)
+                   FI-CURR-DATE(4:2) DELIMITED BY SIZE
+            INTO FR-KEY6
+           MOVE FI-ACCT TO FR-KEY13
+           MOVE FI-METERNUM TO FR-KEY10
+           MOVE FR-READKEY TO HOLDKEY
+           DISPLAY FR-READKEY
+           START FDREAD KEY < FR-READKEY
+            INVALID 
+             DISPLAY "NO PRIOR RECORD"
+             DISPLAY FR-READKEY
+             ACCEPT OMITTED
+             WRITE FILEOUT01 FROM FILEIN01
+             PERFORM ADD-IT
+             GO TO P1
+           END-START
+           READ FDREAD PREVIOUS AT END
+            DISPLAY "NO PRIOR RECORD READ PREV."
+            DISPLAY FR-READKEY
+            ACCEPT OMITTED
+            WRITE FILEOUT01 FROM FILEIN01
+            PERFORM ADD-IT
+            GO TO P1
+           END-READ
+           IF FR-READKEY(1:23) NOT = HOLDKEY(1:23)
+            DISPLAY "NO PRIOR RECORD DIFF. KEYS"
+            DISPLAY FR-READKEY
+            ACCEPT OMITTED
+            WRITE FILEOUT01 FROM FILEIN01
+            PERFORM ADD-IT
+            GO TO P1
+           END-IF
+      *     MOVE 0 TO FLAG
+      *     PERFORM A1 THRU A2
+      *     IF FLAG = 1
+      *      DISPLAY FILEIN01
+      *      ACCEPT OMITTED
+      *      GO TO P1
+      *     END-IF
+           MOVE FR-PREV-READ TO NUM12X
+           COMPUTE  NEW-USAGE = NUM12 - NUM12X
+           MOVE NEW-USAGE TO FR-USAGE.
+           MOVE NUM12 TO FR-PREV-READ
+            MOVE HOLDKEY TO FR-READKEY
+            MOVE FI-NAME TO FR-NAME
+            MOVE FI-STREET TO FR-STREET
+            MOVE SPACE TO FR-COMMENT
+            MOVE FI-CURR-COMMENT TO FR-COMMENT
+            WRITE FDREAD01 INVALID
+             DISPLAY FR-READKEY
+             WRITE FILEOUT01 FROM FILEIN01
+             DISPLAY "BAD WRITE OF RECORD ON KNOWN ACCT"
+             ACCEPT OMITTED
+            END-WRITE.
+            GO TO P1.
+       A1.
+           START FDREAD KEY < FR-READKEY INVALID
+            DISPLAY FR-READKEY " BAD START"
+            DISPLAY FR-READKEY
+            WRITE FILEOUT01 FROM FILEIN01
+            ACCEPT OMITTED
+            MOVE 1 TO FLAG
+            GO TO A2
+           END-START
+           READ FDREAD PREVIOUS AT END
+            DISPLAY FR-READKEY " BAD READ PREVIOUS RECORD"
+            WRITE FILEOUT01 FROM FILEIN01
+            ACCEPT OMITTED
+            MOVE 1 TO FLAG
+            GO TO A2
+           END-READ
+           IF FR-READKEY(1:23) NOT = HOLDKEY(1:23)
+            DISPLAY FR-READKEY " NO PREVIOUS RECORD"
+            ACCEPT OMITTED
+            MOVE 1 TO FLAG
+            GO TO A2
+           END-IF
+
+           INSPECT FI-CURR-READ REPLACING LEADING " " BY "0"
+           MOVE SPACE TO FI-PREV-READ(1:1)
+           INSPECT FI-PREV-READ REPLACING LEADING " " BY "0"
+
+           MOVE FI-CURR-READ TO NUM12
+           MOVE FI-PREV-READ TO NUM12X
+           COMPUTE  NEW-USAGE = NUM12 - NUM12X
+           MOVE NEW-USAGE TO FR-USAGE.
+       A2.
+           EXIT.
+
+       B1.
+            DISPLAY FI-ACCT
+            DISPLAY FI-NAME
+            DISPLAY FI-STREET
+            DISPLAY FI-METERNUM
+            DISPLAY FI-CURR-READ
+            DISPLAY FI-CURR-DATE
+            DISPLAY FI-CURR-COMMENT.
+       ADD-IT.
+           MOVE HOLDKEY TO FR-READKEY
+           MOVE FI-NAME TO FR-NAME
+           MOVE FI-STREET TO FR-STREET
+           MOVE SPACE TO FR-COMMENT
+           MOVE FI-CURR-COMMENT TO FR-COMMENT
+           INSPECT FI-PREV-READ REPLACING LEADING " " BY "0"
+           MOVE FI-PREV-READ TO NUM11
+           INSPECT FI-CURR-READ REPLACING LEADING " " BY "0"
+           MOVE FI-CURR-READ TO NUM12
+           COMPUTE  NEW-USAGE = NUM12 - NUM11
+           MOVE NEW-USAGE TO FR-USAGE.
+           MOVE NUM12 TO FR-PREV-READ
+           WRITE FDREAD01 INVALID
+             DISPLAY "BAD ADD NEW ACCOUNT"
+             DISPLAY FR-READKEY
+             WRITE FILEOUT01 FROM FILEIN01
+             ACCEPT OMITTED
+            END-WRITE.
+            DISPLAY "ADDED   " FR-NAME.
+
+       P99.
+           CLOSE FILEIN FILEOUT FDREAD.
+           STOP RUN.

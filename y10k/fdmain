@@ -1,0 +1,157 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PARMFILE ASSIGN TO "S25" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PARMFILE.
+       01  PARMFILE01.
+           02 PM-ID PIC 9(7).
+           02 PM-QUAD PIC X(4).
+           02 PM-COF PIC 9.
+           02 PM-REDUN PIC 999.
+           02 PM-FACTOR PIC 9V9.
+           02 PM-POF PIC 9.
+
+       FD  FILEOUT.
+       01  FILEOUT01.
+           02 ASSET-ID PIC 9(7).
+           02 MN-BILLACCT PIC X(9).
+           02 MN-ID PIC X(3).
+           02 MN-MANU PIC X(4).
+           02 MN-DATE-ACQ PIC X(8).
+           02 MN-INITCOST PIC S9(6)V99.
+           02 MN-PRESVALUE PIC S9(7)V99.
+           02 MN-LIFE PIC 999.
+           02 MN-TYPE PIC XX.           
+           02 MN-REPLACE PIC S9(6)V99. 
+           02 MN-CONDITION PIC 9.
+           02 MN-QUAD PIC X(4).
+           02 MN-COF PIC 9.
+           02 MN-REDUN PIC 999.
+           02 MN-FACTOR PIC 9V9.
+           02 MN-POF PIC 9.
+           02 MN-SOIL PIC 9.
+           02 MN-SIZE PIC 99.
+           02 MN-UNIT PIC 999.
+           02 MN-UNITCOST PIC S9(6)V99.
+           02 MN-LENGTH PIC 999.
+           02 MN-HAZ-WIL PIC 999.
+           02 MN-STREET PIC  X(30).
+           02 MN-ACTIVE PIC 9.
+           02 MN-LONG PIC 9(3).9(11).
+           02 MN-LAT PIC 9(3).9(11).
+           02 MN-ALT PIC 9(3).9(11).
+           02 MN-REMARKS PIC X(70).
+           
+       FD  FILEIN.
+       01  FILEIN01 PIC X(600).
+       WORKING-STORAGE SECTION.
+       01  ALF1 PIC X.
+       01  ALF2 PIC XX.
+       01  ALF3 PIC XXX.
+       01  ALF3X PIC XXX.
+       01  ALF4 PIC XXXX.
+       01  ALF7 PIC X(7).
+       01  NUM1 PIC 9.
+       01  NUM1X PIC 9.
+       01  NUM3 PIC 999.
+       01  NUM3X PIC 999.
+       01  NUM4 PIC 9999.
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  TAB4001.
+           02 TAB40 PIC X OCCURS 39 TIMES.
+       01  A PIC 99.
+       01  B PIC 99.
+       01  C PIC 99.
+       01  D PIC 99.
+       01  X PIC 99.
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT PARMFILE FILEIN OUTPUT FILEOUT.
+           MOVE 0 TO ASSET-ID.
+           PERFORM PM-1.
+       P1.
+           MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P2.
+           IF FILEIN01(4:1) = "-"
+            PERFORM PM-1
+            GO TO P1
+           END-IF
+           MOVE "000000000" TO MN-BILLACCT
+           MOVE SPACE TO RIGHT-3
+
+           UNSTRING FILEIN01(3:3) DELIMITED BY SPACE INTO RIGHT-3
+           INSPECT  RIGHT-3 REPLACING ALL " " BY "0"
+           MOVE RIGHT-3 TO MN-ID
+           MOVE SPACE TO MN-MANU
+           IF FILEIN01(98:4) NUMERIC
+             STRING FILEIN01(98:4) "0101" DELIMITED BY SIZE
+             INTO MN-DATE-ACQ
+           ELSE
+             MOVE SPACE TO MN-DATE-ACQ
+           END-IF.
+           MOVE FILEIN01(73:3) TO RIGHT-3
+           INSPECT RIGHT-3 REPLACING LEADING " " BY "0"
+           MOVE RIGHT-3 TO MN-LENGTH
+           MOVE FILEIN01(344:3) TO ALF3
+           INSPECT ALF3 REPLACING ALL " " BY "0"
+           INSPECT ALF3 REPLACING ALL "$" BY "0"
+           MOVE ALF3 TO MN-UNITCOST
+           COMPUTE MN-INITCOST = MN-LENGTH * MN-UNITCOST
+           MOVE FILEIN01(394:1) TO ALF1
+           INSPECT ALF1 REPLACING ALL " " BY "0"
+           INSPECT ALF1 REPLACING ALL "$" BY "0"
+           MOVE FILEIN01(396:3) TO ALF3
+           INSPECT ALF3 REPLACING ALL "$" BY "0"
+           INSPECT ALF3 REPLACING ALL " " BY "0"
+           MOVE FILEIN01(400:3) TO ALF3X
+           INSPECT ALF3X REPLACING ALL "$" BY "0"
+           INSPECT ALF3X REPLACING ALL " " BY "0"
+           MOVE ALF1 TO NUM1
+           MOVE ALF3 TO NUM3
+           MOVE ALF3X TO NUM3X
+           COMPUTE MN-PRESVALUE = 
+                    (NUM1 * 1000000) + (NUM3 * 10000) + NUM3X.
+           MOVE 0 TO MN-REPLACE
+           MOVE FILEIN01(56:2) TO MN-TYPE
+		   DISPLAY " "
+           MOVE 80 TO MN-LIFE
+           MOVE 3 TO MN-CONDITION
+           IF FILEIN01(157:1) = "P" MOVE 1 TO MN-CONDITION.
+           IF FILEIN01(157:1) = "F" MOVE 2 TO MN-CONDITION.
+           IF FILEIN01(157:1) = "k" MOVE 0 TO MN-CONDITION.
+           MOVE PM-QUAD TO MN-QUAD
+           MOVE PM-COF TO MN-COF
+           MOVE PM-POF TO MN-POF
+           MOVE PM-REDUN TO MN-REDUN
+           MOVE PM-FACTOR TO MN-FACTOR
+           UNSTRING FILEIN01(49:2) INTO RIGHT-2
+           INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
+           MOVE RIGHT-2 TO MN-SIZE.
+           MOVE FILEIN01(15:24) TO MN-STREET
+           MOVE "1" TO MN-ACTIVE
+           MOVE 0 TO MN-LONG MN-LAT MN-ALT
+           MOVE FILEIN01(531:70) TO MN-REMARKS
+           MOVE 3 TO MN-SOIL
+           INSPECT FILEIN01(88:3) REPLACING ALL " " BY "0"
+           MOVE FILEIN01(88:3) TO MN-HAZ-WIL
+           ADD 1 TO ASSET-ID
+           WRITE FILEOUT01
+           GO TO P1.
+       PM-1.
+           READ PARMFILE AT END GO TO P1.
+       P2.
+           CLOSE FILEIN FILEOUT.
+           STOP RUN.

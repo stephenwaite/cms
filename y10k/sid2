@@ -1,0 +1,125 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CHARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FILLER PIC X.
+           02 FI-PROC.
+             03 FI-PROC1 PIC X(4).
+             03 FI-PROC2 PIC X(5).
+             03 FI-PROC3 PIC XX.
+           02 FILLER PIC XXX.
+           02 FI-TITLE PIC X(28).
+           02 FILLER PIC X(9).
+           02 fi-num pic x(4).
+           02 FILLER PIC X(6).
+           02 FI-AMT PIC X(7).
+           02 FILLER PIC X.
+           02 FI-CENTS PIC XX.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(92). 
+       WORKING-STORAGE SECTION.
+       01  CENTS PIC XX.
+       01  HUNDREDS PIC XXX.
+       01  THOUSANDS PIC X.
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       01  NUM1 PIC 9.
+       01  NUM3 PIC 999.
+       01  NUM3X PIC 999.
+       01  NUM4 PIC 9(4).
+       01  NUM2 PIC 99.
+       01  ALF1 PIC X.
+       01  ALF3 PIC XXX just right.
+       01  ALF3X PIC XXX just right.
+       01  AMTX PIC 9(6)V99.
+       01  HOLDKEY PIC X(5).
+       01  TOTAMT PIC 9(6)V99.
+       01  TOTCNTR PIC 9(4).
+       01  RIGHT-4 PIC X(4) JUST RIGHT.
+       01  NEF-11 PIC ZZZ,ZZ9.99.
+       01  NEF-4 PIC Z,ZZ9.
+       01  tab01.
+           02 tab1 occurs 15 times.
+              03 tab2 pic x(81).
+              03 tab3 pic x(10).
+       01  X PIC 99.
+       01  Y PIC 99.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+       P1.
+           READ FILEIN AT END PERFORM GO TO P99.
+       P1-1.
+           move space to tab01
+           MOVE FI-PROC2 TO HOLDKEY
+           PERFORM A1.
+           MOVE AMTX TO TOTAMT.
+           MOVE SPACE TO RIGHT-4
+           MOVE FI-NUM TO RIGHT-4
+           INSPECT RIGHT-4 REPLACING LEADING " " BY "0".
+           MOVE RIGHT-4 TO NUM4
+           MOVE NUM4 TO TOTCNTR.
+           MOVE 1 TO X
+           MOVE FILEIN01 TO TAB2(X)
+           MOVE SPACE TO TAB3(X).
+       P2.
+           READ FILEIN AT END GO TO P99.
+           IF FI-PROC2 = HOLDKEY
+           PERFORM A1
+           COMPUTE TOTAMT = TOTAMT + AMTX
+           MOVE SPACE TO RIGHT-4
+           MOVE FI-NUM TO RIGHT-4
+           INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
+           MOVE RIGHT-4 TO NUM4
+           COMPUTE TOTCNTR = TOTCNTR + NUM4
+           ADD 1 TO X
+           MOVE FILEIN01 TO TAB2(X)
+           MOVE SPACE TO TAB3(X)
+           GO TO P2
+           END-IF.
+           MOVE TOTCNTR TO NEF-4
+           MOVE TOTAMT TO NEF-11
+           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > X
+            MOVE TOTAMT TO NEF-11
+            MOVE NEF-11 TO TAB3(Y)
+            MOVE SPACE TO FILEOUT01
+            MOVE TAB1(Y) TO FILEOUT01
+            WRITE FILEOUT01
+           END-PERFORM
+           GO TO P1-1.
+       A1.
+           MOVE SPACE TO ALF3X ALF3
+           UNSTRING FI-AMT DELIMITED BY "," INTO ALF3X ALF3
+           IF ALF3 = SPACE
+            MOVE ALF3X TO ALF3
+            MOVE "000" TO ALF3X
+           END-IF
+           INSPECT ALF3 REPLACING LEADING " " BY "0"
+           MOVE ALF3 TO NUM3
+           MOVE ALF3X TO ALF3
+           INSPECT ALF3 REPLACING LEADING " " BY "0"
+           MOVE ALF3 TO NUM3X
+           MOVE FI-CENTS TO NUM2
+           COMPUTE AMTX = 1000 * NUM3X + NUM3 + (NUM2 / 100).
+       P99.
+           MOVE TOTAMT TO NEF-11
+           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > X
+           MOVE TOTAMT TO NEF-11
+           MOVE NEF-11 TO TAB3(Y)
+           MOVE SPACE TO FILEOUT01
+           MOVE TAB1(Y) TO FILEOUT01
+           WRITE FILEOUT01
+           END-PERFORM
+           CLOSE FILEIN FILEOUT
+           STOP RUN.

@@ -1,0 +1,101 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. fd1001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION IS LINE
+           SEQUENTIAL.
+           SELECT FDREAD ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS FR-READKEY
+           ALTERNATE RECORD KEY IS FR-NAME WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION IS LINE
+           SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(451).
+       FD  FDREAD.
+       01  FDREAD01.
+              02 FR-READKEY.
+                 03 FR-KEY13 PIC X(13).
+                 03 FR-KEY10 PIC X(10).
+                 03 FR-KEY6  PIC X(6).
+              02 FR-USAGE PIC 9(8).
+              02 FR-PREV-READ PIC 9(8).
+              02 FR-NAME PIC X(25).
+              02 FR-STREET PIC X(28).
+              02 FR-COMMENT PIC X(33).
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-ACCT PIC X(13).
+           02 FILLER PIC XX.
+           02 FI-NAME PIC X(25).
+           02 FI-STREET PIC X(28).
+           02 FILLER PIC X(233).
+           02 FI-METERNUM PIC X(10).
+           02 filler pic x(16).
+           02 FI-CURR-READ PIC X(8).
+           02 FI-CURR-DATE PIC X(8).
+           02 FILLER PIC X(13).
+           02 FI-CURR-COMMENT PIC X(33).
+           02 FI-PREV-READ PIC X(8).
+           02 FI-PREV-DATE PIC X(8).
+           02 FILLER PIC X(13).
+           02 FI-PREV-COMMENT PIC X(33).
+       WORKING-STORAGE SECTION.
+       01  CNTR PIC 9.
+       01  HOLDKEY PIC X(29).
+       01  FLAG PIC 9.
+       01  NEW-USAGE PIC 9(8).
+       01  NUM8CURR PIC 9(8).
+       01  NUM8PREV PIC 9(8).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FDREAD FILEIN OUTPUT FILEOUT.
+       P1.
+           READ FILEIN AT END GO TO P99.
+           INSPECT FI-CURR-READ REPLACING LEADING " " BY "0"
+           MOVE FI-CURR-READ TO NUM8CURR
+           MOVE SPACE TO FR-KEY6
+           STRING  FI-CURR-DATE(7:2) FI-CURR-DATE(1:2)
+                   FI-CURR-DATE(4:2) DELIMITED BY SIZE
+            INTO FR-KEY6
+           MOVE FI-ACCT TO FR-KEY13
+           MOVE FI-METERNUM TO FR-KEY10
+           MOVE FR-READKEY TO HOLDkey
+           MOVE SPACE TO FR-KEY6
+           START FDREAD KEY NOT < FR-READKEY INVALID
+           DISPLAY HOLDkey " BAD START"
+           ACCEPT OMITTED
+           GO TO P1
+           END-START.
+           MOVE 0 TO CNTR.
+       P2.
+           READ FDREAD NEXT AT END GO TO P99.
+           IF FR-READKEY(1:23) = HOLDKEY(1:23)
+           ADD 1 TO CNTR GO TO P2.
+           IF CNTR < 4
+           PERFORM B1
+           WRITE FILEOUT01 FROM FILEIN01
+           END-IF
+           GO TO P1.
+       B1.
+            DISPLAY FI-ACCT
+            DISPLAY FI-NAME
+            DISPLAY FI-STREET
+            DISPLAY FI-METERNUM
+            DISPLAY FI-CURR-READ
+            DISPLAY FI-CURR-DATE
+            DISPLAY FI-CURR-COMMENT
+            DISPLAY FI-PREV-READ
+            DISPLAY FI-PREV-DATE
+            DISPLAY FI-PREV-COMMENT.
+            ACCEPT OMITTED.
+           
+       P99.
+           CLOSE FILEIN FDREAD FILEOUT.
+           STOP RUN.

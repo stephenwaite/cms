@@ -1,0 +1,44 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CHARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35".
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FI-1 PIC X(80).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X.
+       WORKING-STORAGE SECTION.
+       01  X PIC 99 VALUE 0.
+       01  Y PIC 99.
+       01 TAB01.
+         02 TAB2 PIC X OCCURS 80 TIMES.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+       p1.
+           MOVE SPACE TO FI-1
+           READ FILEIN AT END go to p99.
+           move space to tab01
+           move fi-1 to tab01
+           perform varying x from 80 by -1 until x < 1
+            IF TAB2(X) NOT = SPACE
+             move x to y
+             move 1 to x
+            end-if
+           end-perform
+            PERFORM VARYING x FROM 1 BY 1 UNTIL x > y
+             move tab2(x) to fileout01
+             write fileout01
+            end-perform
+           go to p1.
+       P99.
+           CLOSE FILEOUT
+           STOP RUN.

@@ -1,0 +1,93 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. YYY168.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PROCFILE ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT CHARCUR ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS SEQUENTIAL RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES.
+           SELECT AGEFILE ASSIGN TO "S40"
+           ORGANIZATION LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  AGEFILE.
+       01  AGEFILE01.
+           02 AGD1 PIC 9(6).
+           02 AGD2 PIC XX.
+       FD  CHARCUR
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(11).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK1 PIC X.
+           02 CC-WORK2 PIC X.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AGE PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T1 PIC 9(6).
+           02 CC-DATE-T2 PIC XX.
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       FD  PROCFILE.
+       01  PROCFILE01.
+           02 PROC-KEY.
+             03 PROC-PROC1 PIC X(11).
+             03 PROC-YY PIC X(6).
+             03 PROC-PL PIC X.
+           02 PROC-UNITS PIC X.
+           02 PROC-AMOUNT PIC S9(4)V99.
+       WORKING-STORAGE SECTION.
+       01  CHARCUR-STAT PIC XX.
+       PROCEDURE DIVISION.
+       P00.
+           OPEN INPUT AGEFILE CHARCUR OUTPUT PROCFILE.
+           READ AGEFILE AT END DISPLAY "NO AGEFILE" GO TO P2.
+       P1. READ CHARCUR  AT END GO TO P2.
+           IF CC-DATE-T1 NOT = AGD1 GO TO P1.
+           IF NOT (CC-PLACE = "3" OR "5" OR "E") 
+           GO TO P1.
+      *     IF CC-PAYCODE = "021" GO TO P1.
+           MOVE "1" TO PROC-PL.
+           MOVE CC-PROC TO PROC-PROC1
+           MOVE CC-WORK2 TO PROC-UNITS
+           MOVE CC-AMOUNT TO PROC-AMOUNT
+           MOVE CC-DATE-T1 TO PROC-YY
+           WRITE PROCFILE01 GO TO P1.
+       P2. CLOSE PROCFILE. STOP RUN.

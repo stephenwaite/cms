@@ -1,0 +1,202 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PARMFILE ASSIGN TO "S25" ORGANIZATION
+           LINE SEQUENTIAL.
+
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PARMFILE.
+       01  PARMFILE01.
+           02 PM-ID PIC 9(7).
+           02 PM-COF PIC 9.
+           02 PM-REDUN PIC 999.
+           02 PM-FACTOR PIC 9V9.
+           02 PM-POF PIC 9.
+       FD  FILEOUT.
+       01  FILEOUT01.
+           02 ASSET-ID PIC 9(7).
+           02 MT-BILLACCT PIC X(9).
+           02 MT-ID PIC X(3).
+           02 MT-MANU PIC X(4).
+		   02 MT-DATE-ACQ PIC X(8).
+           02 MT-UNITCOST PIC S9(6)V99.
+           02 MT-VALUE PIC S9(6)V99.
+           02 MT-LIFE PIC 999.
+           02 MT-TYPE PIC XX.
+           02 MT-CONDITION PIC 9.
+           02 MT-QUAD PIC X(4).
+           02 MT-COF PIC 9.
+           02 MT-REDUN PIC 999.
+           02 MT-FACTOR PIC 9V9.
+           02 MT-POF PIC 9.
+           02 MT-SIZE PIC 99V999.
+           02 MT-PIT PIC X.
+           02 MT-SERIAL PIC X(10).
+           02 MT-METER PIC X(8).
+           02 MT-911ADD PIC X(5).
+           02 MT-STREET PIC  X(30).
+           02 MT-ACTIVE PIC X.
+           02 MT-LONG PIC 9(3).9(11).
+           02 MT-LAT PIC 9(3).9(11).
+           02 MT-ALT PIC 9(3).9(11).
+           02 MT-REMARKS PIC X(70).
+
+       FD  FILEIN.
+       01  FILEIN01 PIC X(600).
+       WORKING-STORAGE SECTION.
+       01  NUM1 PIC 9.
+       01  NUM3 PIC 999.
+       01  NUM3X PIC 999.
+       01  ALF2 PIC XX.
+       01  ALF4 PIC XXXX.
+       01  NUM4 PIC 9999.
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  TAB4001.
+           02 TAB40 PIC X OCCURS 40 TIMES.
+       01  A PIC 99.
+       01  B PIC 99.
+       01  C PIC 99.
+       01  D PIC 99.
+       01  X PIC 99.
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT FILEIN PARMFILE OUTPUT FILEOUT.
+           MOVE 0 TO ASSET-ID.
+           PERFORM PM-1.
+
+       P1.
+           MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P2.
+           ADD 1 TO ASSET-ID
+             IF ASSET-ID = PM-ID
+             PERFORM PM-1
+           END-IF
+           MOVE FILEIN01(22:9) TO MT-BILLACCT
+           MOVE SPACE TO RIGHT-3
+           UNSTRING FILEIN01(4:3) DELIMITED BY SPACE INTO RIGHT-3
+           INSPECT  RIGHT-3 REPLACING ALL " " BY "0"
+           MOVE RIGHT-3 TO MT-ID
+           MOVE SPACE TO MT-MANU
+           MOVE FILEIN01(71:10) TO MT-SERIAL.
+           MOVE FILEIN01(86:8) TO MT-METER.
+           MOVE SPACE TO MT-TYPE.
+           IF FILEIN01(94:2) = "Po" MOVE "PO" TO MT-TYPE.
+           IF FILEIN01(100:2) = "Co" MOVE "CO" TO MT-TYPE.
+           IF FILEIN01(101:2) = "Tu" MOVE "TU" TO MT-TYPE.
+           MOVE SPACE TO MT-DATE-ACQ
+           IF FILEIN01(154:4) NOT = SPACE
+              STRING FILEIN01(154:4) "0101" DELIMITED BY SIZE
+              INTO MT-DATE-ACQ
+           END-IF
+           COMPUTE MT-SIZE = 0
+           IF FILEIN01(128:3) = "5/8"
+             COMPUTE MT-SIZE = 0.625
+           END-IF
+           IF FILEIN01(128:3) = "3/4"
+             COMPUTE MT-SIZE = 0.750
+           END-IF
+           IF FILEIN01(128:3) = " 1 "
+             COMPUTE MT-SIZE = 1.000
+           END-IF
+           IF FILEIN01(128:3) = " 2 "
+             COMPUTE MT-SIZE = 2.000
+           END-IF
+           IF FILEIN01(128:3) = " 3 "
+             COMPUTE MT-SIZE = 3.000
+           END-IF
+           IF FILEIN01(128:3) = " 4 "
+             COMPUTE MT-SIZE = 4.000
+           END-IF
+           IF FILEIN01(128:3) = " 8 "
+             COMPUTE MT-SIZE = 8.000
+           END-IF
+
+           IF FILEIN01(127:5) = "1 1/2"
+             COMPUTE MT-SIZE = 1.500
+           END-IF
+           IF FILEIN01(370:1) = SPACE
+             MOVE "0" TO FILEIN01(370:1)
+           END-IF
+           MOVE FILEIN01(370:1) TO NUM1
+           MOVE FILEIN01(372:3) TO NUM3X
+           COMPUTE MT-UNITCOST = 1000 * NUM1 + NUM3X
+           IF FILEIN01(420:1) = SPACE
+             MOVE "0" TO FILEIN01(420:1)
+           END-IF
+           MOVE FILEIN01(420:1) TO NUM3
+           MOVE FILEIN01(422:3) TO NUM3X
+           COMPUTE MT-VALUE = 1000 * NUM1 + NUM3X
+           MOVE 0 TO MT-CONDITION
+           IF FILEIN01(211:4) = "Good" MOVE "3" TO MT-CONDITION.
+           MOVE SPACE TO MT-MANU
+           MOVE SPACE TO MT-DATE-ACQ
+           IF FILEIN01(154:4) NOT = SPACE
+             MOVE SPACE TO MT-DATE-ACQ
+               STRING FILEIN01(154:4) "0101" DELIMITED BY SIZE
+               INTO MT-DATE-ACQ
+           END-IF
+           MOVE SPACE TO MT-PIT
+           IF FILEIN01(119:1) = "Y" OR "N"
+             MOVE FILEIN01(119:1) TO MT-PIT
+           END-IF
+           MOVE FILEIN01(31:40) TO TAB4001
+           PERFORM VARYING X FROM 40 BY -1 UNTIL X < 1
+            IF TAB40(X) NOT = SPACE
+             COMPUTE A = X - 4
+             COMPUTE B = X - 3
+             COMPUTE C = X - 2
+             COMPUTE D = X - 1
+             STRING TAB40(A) TAB40(B) TAB40(C) TAB40(D) TAB40(X)
+             DELIMITED BY SIZE INTO MT-911ADD
+             IF MT-911ADD NOT NUMERIC
+                MOVE SPACE TO MT-911ADD
+             END-IF
+                 IF TAB40(X) NUMERIC
+                    MOVE SPACE TO TAB40(X)
+                 END-IF
+                 IF TAB40(D) NUMERIC
+                    MOVE SPACE TO TAB40(D)
+                 END-IF
+                 IF TAB40(C) NUMERIC
+                    MOVE SPACE TO TAB40(C)
+                 END-IF
+                 IF TAB40(B) NUMERIC
+                    MOVE SPACE TO TAB40(B)
+                 END-IF
+                 IF TAB40(A) NUMERIC
+                    MOVE SPACE TO TAB40(A)
+                 END-IF
+             MOVE TAB4001 TO MT-STREET
+             MOVE 1 TO X
+            END-IF
+           END-PERFORM
+           MOVE SPACE TO RIGHT-3
+           UNSTRING  FILEIN01(194:3) DELIMITED BY " " INTO RIGHT-3
+           INSPECT RIGHT-3 REPLACING ALL " " BY "0"
+           MOVE RIGHT-3 TO MT-LIFE
+           MOVE "1" TO MT-ACTIVE
+           MOVE 0 TO MT-LONG MT-LAT MT-ALT
+           MOVE FILEIN01(483:70) TO MT-REMARKS
+           WRITE FILEOUT01
+           GO TO P1.
+       PM-1.
+           READ PARMFILE AT END GO TO P1.
+           MOVE PM-COF TO MT-COF
+           MOVE PM-REDUN TO MT-REDUN
+           MOVE PM-FACTOR TO MT-FAcTOR
+           MOVE PM-POF TO MT-POF.
+
+       P2. 
+           CLOSE FILEIN FILEOUT.
+           STOP RUN.

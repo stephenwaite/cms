@@ -1,0 +1,118 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. NEI146.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CAREFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS CARE-KEY
+           LOCK MODE MANUAL.
+           SELECT CHARCUR ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  CHARCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC.
+              03 CC-PROC1 PIC X(5).
+              03 CC-PROC2 PIC XX.
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       FD  CAREFILE.
+       01  CAREFILE01.
+           02 CARE-KEY.
+              03 CR-KEY8 PIC X(8).
+              03 CR-DATE PIC X(8).
+              03 CR-PROC PIC X(5).
+              03 CR-MOD1 PIC XX.
+              03 CR-MOD2 PIC XX.
+           02 CR-PAYDATE PIC X(8).
+           02 CR-DOCP    PIC X(6).
+           02 CR-POS     PIC XX.
+           02 CR-BILLED PIC 9(4)V99.
+           02 CR-ALLOWED PIC 9(4)V99.
+           02 CR-DEDUCT  PIC 9(4)V99.
+           02 CR-PAYED   PIC 9(4)V99.
+           02 CR-DENIAL1 PIC X(4).
+           02 CR-DENIAL2 PIC X(4).
+           02 CR-DENIAL3 PIC X(4).
+           02 CR-DENIAL4 PIC X(4).
+           02 CR-PAYDENIAL PIC X(4).
+           02 CR-ICN PIC X(13).
+           02 CR-CK-EFT PIC X(9).
+           02 CR-INSNAME PIC X(30).
+       FD FILEOUT.
+       01  FILEOUT01 PIC X(156).
+       WORKING-STORAGE SECTION.
+       01  NEF-2 PIC Z9.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN INPUT CAREFILE CHARCUR.
+           OPEN OUTPUT FILEOUT.
+
+       P1.
+           READ CAREFILE NEXT AT END GO TO P99.
+           IF NOT (   CR-DENIAL1 = "MA13"
+              OR CR-DENIAL2 = "MA13"
+              OR CR-DENIAL3 = "MA13"
+              OR CR-DENIAL4 = "MA13")
+              GO TO P1.
+           MOVE CR-KEY8 TO CC-KEY8
+           MOVE SPACE TO CC-KEY3
+           START CHARCUR KEY NOT < CHARCUR-key INVALID GO TO P1.
+       P2.
+           READ CHARCUR NEXT AT END GO TO P1.
+           IF CC-KEY8 NOT = CR-KEY8 GO TO P1.
+           IF CC-PROC1 NOT = CR-PROC GO TO P2.
+           IF CC-DATE-T NOT = CR-DATE GO TO P2.
+           IF CC-PAYCODE NOT = "003" GO TO P2.
+           WRITE FILEOUT01 FROM CHARCUR01
+           GO TO P1.
+
+       P99.
+           CLOSE CAREFILE CHARCUR FILEOUT
+           STOP RUN.

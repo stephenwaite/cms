@@ -1,0 +1,111 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. fd1001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FDREAD ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS FR-READKEY
+           ALTERNATE RECORD KEY IS FR-NAME WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION IS LINE
+           SEQUENTIAL.
+           SELECT FILEOUT2 ASSIGN TO "S40" ORGANIZATION IS LINE
+           SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(132).
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(29).
+       FD  FDREAD.
+       01  FDREAD01.
+              02 FR-READKEY.
+                 03 FR-KEY13 PIC X(13).
+                 03 FR-KEY10 PIC X(10).
+                 03 FR-KEY6  PIC X(6).
+              02 FR-USAGE PIC 9(10).
+              02 FR-PREV-READ PIC 9(12).
+              02 FR-NAME PIC X(25).
+              02 FR-STREET PIC X(28).
+              02 FR-COMMENT PIC X(33).
+       WORKING-STORAGE SECTION.
+       01  NEF-CURR PIC ZZ,ZZZ,ZZ9.
+       01  NEF-PREV PIC ZZ,ZZZ,ZZ9.
+       01  NEF-RATIOX PIC ZZZ9.
+       01  RATIOX PIC 9999.
+       01  RATIOY PIC 9(10).
+       01  SAVE01 PIC X(137).
+       01  DATEX PIC X(6).
+       01  NEW-USAGE PIC 9(10).
+       01  NUM8CURR PIC 9(10).
+       01  NUM8PREV PIC 9(10).
+       01  HOLDID PIC X(23).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FDREAD OUTPUT FILEOUT FILEOUT2.
+       P1.
+           DISPLAY "ENTER DATE YYMMDD,   END TO QUIT".
+           ACCEPT DATEX
+           IF DATEX = "END" GO TO P99.
+           move space to fileout01
+           string "     CURRENT MONTH " datex(3:2) "-20" datex(1:2)
+           delimited by size into fileout01
+           WRITE FILEOUT01 after 1
+           move space to fileout01
+           MOVE  "    %%% " TO FILEOUT01(1:4)
+           MOVE "NAME                          " TO FILEOUT01(6:30)
+           MOVE "     STREET            " TO FILEOUT01(27:23)
+           MOVE "CURRENT" TO FILEOUT01(64:7)
+           MOVE " PREVIOUS  " TO FILEOUT01(73:11)
+           WRITE FILEOUT01 after 1
+           MOVE SPACE TO HOLDID.
+
+           MOVE SPACE TO FR-READKEY
+           START FDREAD KEY NOT < FR-READKEY INVALID GO TO P1.
+       P2.
+           READ FDREAD NEXT AT END GO TO P99.
+           IF  FDREAD01(1:23) = HOLDID GO TO P2.
+           
+       P2-1.
+           IF FR-KEY6(1:4) NOT = DATEX(1:4) GO TO P2.
+           MOVE FDREAD01(1:23) TO HOLDID
+           MOVE FDREAD01 TO SAVE01
+           READ FDREAD PREVIOUS AT END continue
+           END-READ
+           IF (FR-READKEY(1:23) NOT = SAVE01(1:23))
+             GO TO P2
+           END-IF
+           MOVE FR-USAGE TO NUM8PREV
+           MOVE SAVE01(30:10) TO NUM8CURR
+           if
+             num8curr = 0 and num8prev = 0
+             move 0 to ratiox
+             go to p3
+           end-if
+           if
+             num8curr > 0 and num8prev = 0
+             move 9999 to ratiox
+             go to p3
+           end-if
+           COMPUTE RATIOY = 100 * NUM8CURR / NUM8PREV.
+           IF RATIOY > 9999 MOVE 9999 TO RATIOX
+           ELSE MOVE RATIOY TO RATIOX.
+       p3.
+           IF RATIOX < 26 OR > 199
+             MOVE SPACE TO FILEOUT01
+             MOVE NUM8CURR TO NEF-CURR
+             MOVE NUM8PREV TO NEF-PREV
+             MOVE RATIOX TO NEF-RATIOX
+             STRING NEF-RATIOX " " FR-NAME " " FR-STREET " "
+                    NEF-CURR " " NEF-PREV " " save01(105:33)
+             DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01 after 1
+             WRITE FILEOUT201 FROM FR-READKEY	  
+           END-IF
+           GO TO P2.
+       P99.
+           CLOSE FILEOUT FILEOUT2 FDREAD.
+           STOP RUN.

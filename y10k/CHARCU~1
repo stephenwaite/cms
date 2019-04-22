@@ -1,0 +1,142 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BBB816.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES.
+           SELECT CHARCURNEW ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC  RECORD KEY IS CHARCURNEW-KEY
+           ALTERNATE RECORD KEY IS CCN-PAYCODE WITH DUPLICATES.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  CHARCUR.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(5).
+           02 CC-PROC PIC X(7).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(5).
+           02 CC-DX3 PIC X(5).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-FUTURE PIC X(6).
+       FD  CHARCURNEW.
+       01  CHARCURNEW01.
+           02 CHARCURNEW-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CCC-DIAG PIC X(7).
+           02 CC-PROC PIC X(7).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CCN-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CCC-DX2 PIC X(7).
+           02 CCC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+
+
+       WORKING-STORAGE SECTION.
+       01 CNTR PIC 9.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT CHARCUR I-O CHARCURNEW.
+       P1.
+           READ CHARCUR NEXT AT END GO TO P2.
+           MOVE CORR CHARCUR01 TO CHARCURNEW01
+           MOVE CHARCUR-KEY TO CHARCURNEW-KEY
+           MOVE CC-PAYCODE TO CCN-PAYCODE
+           MOVE "0000000" TO CC-DX4 CC-DX5 CC-DX6.
+
+           MOVE CC-DIAG TO CCC-DIAG
+           IF CC-DIAG = "00000"
+              move "0000000" to ccc-diag
+           else 
+              MOVE "??" TO CCC-DIAG(6:2)
+           end-if
+
+           MOVE CC-DX2 TO CCC-DX2
+           IF CC-DX2 = "00000"
+              MOVE "0000000" to CCC-DX2
+           else 
+
+              MOVE "??" TO CCC-DX2(6:2)
+           end-if
+
+           MOVE CC-DX3 TO CCC-DX3
+           IF CC-DX3 = "00000"
+              MOVE "0000000" to CCC-DX3
+           else 
+
+              MOVE "??" TO CCC-DX3(6:2)
+           end-if
+
+           WRITE CHARCURNEW01
+           GO TO P1.
+
+
+
+       P2.
+           CLOSE CHARCURNEW. STOP RUN.

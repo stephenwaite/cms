@@ -1,0 +1,108 @@
+       IDENTIFICATION DIVISION.                      
+       PROGRAM-ID. cob009.
+      *REMARKS.  CONVERT FROM BINARY TO PRINTABLE HEX.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+           SELECT FILE14 ASSIGN TO "S850" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S851" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILE14.
+       01  FILE1401 PIC X(160).
+       FD  FILEOUT.
+       01  FILEOUT01 pic x(31).
+
+       WORKING-STORAGE SECTION.
+      * HEXVAL (output) must be twice the size of HEXNUM (input).
+      * For example if you have 20 bytes of garbage but
+      * want to display it in hex, change the picture
+      * of HEXNUM to X(20), of HEXVAL to X(40), then
+      * move the garbage to HEXNUM. Ignore DECNUM.
+       01  cntr pic 99999999 value 0.
+       01  HEXNUM   PIC X(4).
+       01  DECNUM   REDEFINES HEXNUM PIC S9(8) COMP.  
+       01  HEXNUM3   PIC XXX.      
+       01  HEXNUM11  PIC X(11).
+       01  HEXVAL6   PIC X(6).
+       01  HEXVAL22  PIC X(22).
+       01  HEXVAL   PIC X(8).                          
+       01  HEXSTR   PIC X(16) VALUE "0123456789abcdef".
+       01  DEC      PIC S9(4) COMP.                    
+       01  FILLER   REDEFINES DEC.                    
+        02  FILLER PIC X.                          
+        02  DECBYTE PIC X.                          
+       01  I   PIC S9(8) COMP.                        
+       01  J   PIC S9(8) COMP.                        
+       01  Q   PIC S9(8) COMP.                        
+       01  R   PIC S9(8) COMP.                        
+       01  J1  PIC S9(8) COMP.                        
+       01  Q1  PIC S9(8) COMP.                        
+       01  R1  PIC S9(8) COMP.
+       01  ans pic x.
+       PROCEDURE DIVISION.                              
+       P0.
+           open input file14.
+           OPEN OUTPUT FILEOUT.
+       P1.
+           READ FILE14 AT END GO TO P99.
+
+           MOVE FILE1401(58:3) TO HEXNUM3
+           PERFORM VARYING I FROM 1 BY 1 UNTIL I > LENGTH OF HEXNUM3
+            COMPUTE J = 2 * I - 1                  
+            MOVE HEXNUM3(I:1) TO DECBYTE            
+            DIVIDE DEC BY 16 GIVING Q REMAINDER R  
+            COMPUTE J1 = J + 1                      
+            COMPUTE Q1 = Q + 1                      
+            COMPUTE R1 = R + 1                      
+            MOVE HEXSTR(Q1:1) TO HEXVAL6(J:1)        
+            MOVE HEXSTR(R1:1) TO HEXVAL6(J1:1)      
+           END-PERFORM.
+
+           display file1401(58:3)
+           DISPLAY HEXVAL6
+
+
+
+           MOVE FILE1401(1:11) TO HEXNUM11
+           PERFORM VARYING I FROM 1 BY 1 UNTIL I > LENGTH OF HEXNUM11
+            COMPUTE J = 2 * I - 1                  
+            MOVE HEXNUM11(I:1) TO DECBYTE            
+            DIVIDE DEC BY 16 GIVING Q REMAINDER R  
+            COMPUTE J1 = J + 1                      
+            COMPUTE Q1 = Q + 1                      
+            COMPUTE R1 = R + 1                      
+            MOVE HEXSTR(Q1:1) TO HEXVAL22(J:1)        
+            MOVE HEXSTR(R1:1) TO HEXVAL22(J1:1)      
+           END-PERFORM.
+
+           display file1401(1:11)
+           DISPLAY HEXVAL22
+           accept ans
+           go to p1.
+
+      *     PERFORM VARYING I FROM 1 BY 1 UNTIL I > LENGTH OF HEXNUM
+      *      COMPUTE J = 2 * I - 1                  
+      *      MOVE HEXNUM(I:1) TO DECBYTE            
+      *      DIVIDE DEC BY 16 GIVING Q REMAINDER R  
+      *      COMPUTE J1 = J + 1                      
+      *      COMPUTE Q1 = Q + 1                      
+      *      COMPUTE R1 = R + 1                      
+      *      MOVE HEXSTR(Q1:1) TO HEXVAL(J:1)        
+      *      MOVE HEXSTR(R1:1) TO HEXVAL(J1:1)      
+      *     END-PERFORM.
+
+
+
+      *_________Results_______
+
+
+      *Hex           d       ----  This is all you get DISPLAY HEXNUM
+      *Dec        00051844   ----  Decimal equivalent of X'CA84'
+      *PRintable  0000CA84   ----  After conversion.
+
+       p99.
+           close file14 fileout.
+           STOP RUN.

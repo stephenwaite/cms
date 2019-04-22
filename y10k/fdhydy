@@ -1,0 +1,138 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PARMFILE ASSIGN TO "S25" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PARMFILE.
+       01  PARMFILE01.
+           02 PM-ID PIC 9(7).
+           02 PM-QUAD PIC X(4).
+           02 PM-COF PIC 9.
+           02 PM-REDUN PIC 999.
+           02 PM-FACTOR PIC 9V9.
+           02 PM-POF PIC 9.
+
+       FD  FILEOUT.
+       01  FILEOUT01.
+           02 ASSET-ID PIC 9(7).
+           02 HY-BILLACCT PIC X(9).
+           02 HY-ID PIC X(6).
+           02 HY-MANU PIC X(4).
+           02 HY-DATE-ACQ PIC X(8).
+           02 HY-INITCOST PIC S9(6)99.
+           02 HY-PRESVALUE PIC S9(6)V99.
+           02 HY-LIFE PIC 999.
+           02 HY-TYPE PIC X.		   
+           02 HY-CONDITION PIC 9.
+           02 HY-QUAD PIC X(4).
+           02 HY-COF PIC 9.
+           02 HY-REDUN PIC 999.
+           02 HY-FACTOR PIC 9V9.
+           02 HY-POF PIC 9.
+           02 HY-SIZE PIC 9V999.
+           02 HY-UNIT PIC 9.
+           02 HY-PRESSURE PIC S9(4)V9.
+           02 HY-STREET PIC  X(60).
+           02 HY-ACTIVE PIC 9.
+           02 HY-LONG PIC 9(3).9(11).
+           02 HY-LAT PIC 9(3).9(11).
+           02 HY-ALT PIC 9(3).9(11).
+           02 HY-REMARKS PIC X(70).
+		   
+       FD  FILEIN.
+       01  FILEIN01 PIC X(660).
+       WORKING-STORAGE SECTION.
+       01  ALF2 PIC XX.
+       01  ALF3 PIC XXX.
+       01  ALF3X PIC XXX.
+       01  ALF4 PIC XXXX.
+       01  ALF7 PIC X(7).
+       01  NUM1 PIC 9.
+       01  NUM1X PIC 9.
+       01  NUM2 PIC 99.
+       01  NUM3 PIC 999.
+       01  NUM3X PIC 999.
+       01  NUM4 PIC 9999.
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  TAB4001.
+           02 TAB40 PIC X OCCURS 39 TIMES.
+       01  A PIC 99.
+       01  B PIC 99.
+       01  C PIC 99.
+       01  D PIC 99.
+       01  X PIC 99.
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT PARMFILE FILEIN OUTPUT FILEOUT.
+           MOVE 0 TO ASSET-ID.
+           PERFORM PM-1.
+       P1.
+           MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P2.
+           IF FILEIN01(34:4) = "Syst" PERFORM PM-1 GO TO P1.
+           MOVE "000000000" TO HY-BILLACCT
+           COMPUTE HY-PRESSURE = 0
+           MOVE FILEIN01(3:6) TO HY-ID
+           ADD 1 TO ASSET-ID
+           MOVE SPACE TO HY-MANU
+           IF FILEIN01(124:4) = "KENN" MOVE "KENN" TO HY-MANU.
+           IF FILEIN01(123:4) = "RENS" MOVE "RENS" TO HY-MANU.
+           STRING FILEIN01(206:4) "0101" DELIMITED BY SIZE
+              INTO HY-DATE-ACQ
+           MOVE 1 TO HY-UNIT
+           IF FILEIN01(145:1) = "2" MOVE 2 TO HY-UNIT.
+           COMPUTE HY-SIZE = 2.500
+           MOVE 50 TO HY-LIFE
+
+           MOVE SPACE TO RIGHT-3
+           UNSTRING FILEIN01(73:3) DELIMITED BY " " INTO RIGHT-3
+           INSPECT RIGHT-3 REPLACING ALL " " BY "0"
+           MOVE filein01(34:60) to hy-street
+           MOVE FILEIN01(490:2) TO ALF2
+           INSPECT ALF2 REPLACING ALL "$" BY "0"
+           MOVE FILEIN01(493:3) TO ALF3
+           MOVE ALF2 TO NUM2
+           MOVE ALF3 TO NUM3
+           COMPUTE HY-PRESVALUE = 1000 * NUM2 + NUM3
+           MOVE FILEIN01(435:1) TO NUM1
+           MOVE FILEIN01(437:3) TO NUM3
+           COMPUTE HY-INITCOST = 1000 * NUM1 + NUM3
+           MOVE SPACE TO HY-TYPE
+           IF FILEIN01(112:1) = "F" MOVE "FL" TO HY-TYPE.
+           IF FILEIN01(114:1) = "F" MOVE "FR" TO HY-TYPE.
+           MOVE 50 TO HY-LIFE
+           MOVE 0 TO HY-CONDITION
+           IF FILEIN01(263:1) = "P" MOVE 1 TO HY-CONDITION.
+           IF FILEIN01(263:1) = "F" MOVE 2 TO HY-CONDITION.
+           IF FILEIN01(262:1) = "G" MOVE 3 TO HY-CONDITION.
+           MOVE PM-QUAD TO HY-QUAD.
+           MOVE PM-COF TO HY-COF.
+           MOVE PM-POF TO HY-POF.
+           MOVE PM-REDUN TO HY-REDUN.
+           MOVE PM-FACTOR TO HY-FACTOR.
+           UNSTRING FILEIN01(49:2) INTO RIGHT-2
+           INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
+           MOVE RIGHT-2 TO HY-SIZE.
+           MOVE "1" TO HY-ACTIVE
+           MOVE 0 TO HY-LONG HY-LAT HY-ALT
+           MOVE SPACE TO HY-REMARKS
+           MOVE FILEIN01(594:50) TO HY-REMARKS
+           WRITE FILEOUT01.
+           GO TO P1.
+       PM-1.
+           READ PARMFILE AT END CONTINUE.
+       P2.
+           CLOSE FILEIN FILEOUT.
+           STOP RUN.

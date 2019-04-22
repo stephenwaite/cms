@@ -1,0 +1,148 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. NEI078.
+       AUTHOR. SID WAITE.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT CHARFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT2 ASSIGN TO "S50" ORGANIZATION
+           LINE SEQUENTIAL.
+
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  CHARFILE
+      *    BLOCK CONTAINS 2 RECORDS
+           DATA RECORD IS CHARFILE01.
+       01  CHARFILE01.
+           02 CHARFILE-KEY.
+             03 CD-KEY8 PIC X(8).
+             03 CD-KEY3 PIC XXX.
+           02 CD-PATID PIC X(8).
+           02 CD-CLAIM PIC X(6).
+           02 CD-SERVICE PIC X.
+           02 CD-DIAG PIC X(7).
+           02 CD-PROC.
+              03 CD-PROC1 PIC X(4).
+              03 CD-PROC2 PIC X(5).
+              03 CD-PROC3 PIC XX.
+           02 CD-MOD2 PIC XX.
+           02 CD-MOD3 PIC XX.
+           02 CD-MOD4 PIC XX.
+           02 CD-AMOUNT PIC S9(4)V99.
+           02 CD-DOCR PIC X(3).
+           02 CD-DOCP PIC X(2).
+           02 CD-PAYCODE PIC XXX.
+           02 CD-STAT PIC X.
+           02 CD-WORK PIC XX.
+           02 CD-DAT1 PIC X(8).
+           02 CD-RESULT PIC X.
+           02 CD-ACT PIC X.
+           02 CD-SORCREF PIC X.
+           02 CD-COLLT PIC X.
+           02 CD-AUTH PIC X.
+           02 CD-PAPER PIC X.
+           02 CD-PLACE PIC X.
+           02 CD-NAME PIC X(24).
+           02 CD-ESPDT PIC X.
+           02 CD-DATE-T PIC X(8).
+           02 CD-DATE-E PIC X(8).
+           02 CD-ORDER PIC X(6).
+           02 CD-DX2 PIC X(7).
+           02 CD-DX3 PIC X(7).
+           02 CD-DATE-A PIC X(8).
+           02 CD-ACC-TYPE PIC X.
+           02 CD-DATE-M PIC X(8).
+           02 CD-ASSIGN PIC X.
+           02 CD-NEIC-ASSIGN PIC X.
+           02 CD-DX4 PIC X(7).
+           02 CD-DX5 PIC X(7).
+           02 CD-DX6 PIC X(7).
+           02 CD-FUTURE PIC X(6).
+       
+       FD GARFILE
+           BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS GARFILE01.
+       01 GARFILE01.
+           02 G-GARNO. 
+              03 G-GARNO3 PIC XXX.
+              03 F-GARNO5 PIC X(5).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(12).
+           02 G-PRIPOL PIC X(14).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-SE-OFFICE PIC X(4).
+           02 G-SE-GROUP PIC X(12).
+           02 G-SECPOL PIC X(14).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-COPAY PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+       FD FILEOUT.
+       01 FILEOUT01 PIC X(370).
+       FD FILEOUT2.
+       01 FILEOUT201 PIC X(370).
+       WORKING-STORAGE SECTION.
+       01  ALF3L PIC XXX.
+       01  KEY-X.
+           02 FILLER PIC X(24).
+           02 DOB-X PIC X(8).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN OUTPUT FILEOUT FILEOUT2.
+           OPEN I-O GARFILE
+           OPEN INPUT CHARFILE.
+           
+       P1.
+           READ CHARFILE NEXT AT END GO TO P99.
+           MOVE CD-KEY8 TO G-GARNO
+            READ GARFILE WITH LOCK 
+           END-READ
+           IF G-GARNAME = G-PRNAME
+             MOVE G-RELATE TO G-PR-RELATE
+           END-IF.
+           IF G-GARNAME = G-SENAME
+             MOVE G-RELATE TO G-SE-RELATE
+           END-IF.
+           REWRITE GARFILE01
+           GO TO P1.
+       P99.
+            CLOSE GARFILE CHARFILE FILEOUT FILEOUT2.
+            STOP RUN.

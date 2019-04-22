@@ -1,0 +1,663 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RMC002.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ACTFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC        RECORD KEY IS A-ACTNO
+           ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
+           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
+           SELECT ORDFILE ASSIGN TO "S35"     ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC        RECORD KEY IS ORDNO
+           ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
+           SELECT REFPHY ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS REF-KEY
+           ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-CRNUM WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-UPIN  WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES.
+           SELECT FILEIN ASSIGN TO "S60"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S65"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT MOBLFILE ASSIGN TO "S70" ORGANIZATION IS INDEXED
+           ACCESS IS RANDOM RECORD KEY IS MOBL-KEY.
+           SELECT INSFILE ASSIGN TO "S75" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS INS-KEY
+           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES.
+           SELECT HOSPFILE ASSIGN TO "S80" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS HOSP-KEY
+           ALTERNATE RECORD KEY IS H-INS-KEY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS H-INS-NAME WITH DUPLICATES.
+           SELECT COMPFILE ASSIGN TO "S85" ORGANIZATION IS INDEXED
+           ACCESS MODE DYNAMIC RECORD KEY IS COMP-KEY
+           LOCK MODE MANUAL.
+           SELECT emailauthFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
+           ACCESS MODE DYNAMIC RECORD KEY IS EA-KEY
+           ALTERNATE RECORD KEY IS EA-MEDREC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS EA-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS EA-EMAIL WITH DUPLICATES
+           ALTERNATE RECORD KEY IS EA-AUTH WITH DUPLICATES
+           ALTERNATE RECORD KEY IS EA-DATE-E WITH DUPLICATES
+           ALTERNATE RECORD KEY IS EA-SSN WITH DUPLICATES
+           LOCK MODE MANUAL.
+            
+       DATA DIVISION.
+       FILE SECTION.
+       FD  EMAILAUTHFILE.
+       01  EMAILAUTHFILE01.
+           02 EA-KEY PIC 9(6).
+           02 EA-MEDREC PIC X(8).
+           02 EA-NAME PIC X(24).
+           02 EA-EMAIL PIC X(30).
+           02 EA-AUTH PIC X(20).
+           02 EA-DATE-E PIC X(8).
+           02 EA-SSN PIC X(9).
+       FD  COMPFILE.
+       01  COMPFILE01.
+           02 COMP-KEY.
+             03 COMP-MEDREC PIC X(8).
+             03 COMP-DATE PIC X(8).
+             03 COMP-PROC PIC X(4).
+           02 COMP-INSNAME1 PIC X(25).
+           02 COMP-INSCONTACT1 PIC X(25).
+           02 COMP-INSADDR11 PIC X(20).
+           02 COMP-INSADDR21 PIC X(15).
+           02 COMP-INSCITY1 PIC X(20).
+           02 COMP-INSSTATE1 PIC XX.
+           02 COMP-INSZIP1 PIC X(10).
+           02 COMP-INSPHONE1 PIC X(12).
+       FD  INSFILE
+     *     BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS INSFILE01.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+       FD  MOBLFILE.
+       01  MOBLFILE01.
+           02 MOBL-KEY PIC X(4).
+           02 MOBL-RRI PIC X(4).
+           02 MOBL-CPT PIC X(7).
+           02 MOBL-TITLE PIC X(28).
+       FD  HOSPFILE
+           BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS HOSPFILE01.
+       01  HOSPFILE01.
+           02 HOSP-KEY PIC X(5).
+           02 H-INS-KEY PIC XXX.
+           02 H-INS-NAME PIC X(18).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(80).
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-1 PIC XX.
+           02 FI-2 PIC X(1068).
+       FD  REFPHY
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS REFPHY01.
+       01  REFPHY01.
+           02 REF-KEY PIC XXX.
+           02 REF-BSNUM PIC X(5).
+           02 REF-CRNUM PIC X(6).
+           02 REF-UPIN PIC X(6).
+           02 REF-CDNUM PIC X(7).
+           02 REF-NAME.
+             03 REF-TITLE4 PIC XXXX.
+             03 FILLER PIC X(20).
+           02 REF-NPI PIC X(10).
+       FD  ORDFILE
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS ORDFILE01.
+       01  ORDFILE01.
+           02 ORDNO.
+             03 ORD8 PIC X(8).
+             03 ORD3 PIC XXX.
+           02 C-PROC PIC X(4).
+           02 C-IND PIC X.
+           02 C-REF PIC XXX.
+           02 C-IOPAT PIC X.
+           02 C-DATE-A PIC X(8).
+           02 C-DATE-T PIC X(8).
+           02 C-DATE-ADMIT PIC X(8).
+           02 C-ORDER PIC XXXX.
+           02 C-CLINICAL PIC X(38).
+           02 C-DOCP PIC XX.
+           02 C-ADMIT-DIAG PIC X(30).
+           02 C-DATE-E PIC X(8).
+       FD  ACTFILE
+           BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS ACTFILE01.
+       01  ACTFILE01.
+           02 A-ACTNO PIC X(8).
+           02 A-GARNAME PIC X(24).
+           02 A-BILLADD PIC X(22).
+           02 A-STREET PIC X(22).
+           02 A-CITY PIC X(18).
+           02 A-STATE PIC X(2).
+           02 A-ZIP PIC X(9).
+           02 A-COLLT PIC X.
+           02 A-PHONE.
+             03 A-PHONE1 PIC XXX.
+             03 A-PHONE2 PIC XXX.
+             03 A-PHONE3 PIC X(4).
+           02 A-SEX PIC X.
+           02 A-RELATE PIC X.
+           02 A-MSTAT PIC X.
+           02 A-DOB PIC X(8).
+           02 A-DUNNING PIC X.
+           02 A-ACCTSTAT PIC X.
+           02 A-PR-MPLR PIC X(4).
+           02 A-PRINS PIC XXX.
+           02 A-PR-ASSIGN PIC X.
+           02 A-PR-OFFICE PIC X(4).
+           02 A-PR-GROUP.
+              03 A-PR-GROUP2 PIC XX.
+              03 FILLER PIC X(8).
+           02 A-PRIPOL.
+             03 A-PRIPOL1 PIC X(9).
+             03 A-PRIPOL2 PIC XXX.
+             03 A-PR-FILLER PIC X(4).
+           02 A-PRNAME PIC X(24).
+           02 A-PR-RELATE PIC X.
+           02 A-SE-MPLR PIC X(4).
+           02 A-SEINS PIC XXX.
+           02 A-SE-ASSIGN PIC X.
+           02 A-TRINSIND PIC X.
+           02 A-TRINS PIC XXX.
+           02 A-SE-GROUP. 
+              03 A-SE-GROUP2 PIC XX.
+              03 FILLER PIC X(8).
+           02 A-SECPOL.
+             03 A-SECPOL1 PIC X(9).
+             03 A-SECPOL2 PIC XXX.
+             03 A-SE-FILLER PIC X(4).
+           02 A-SENAME PIC X(24).
+           02 A-SE-RELATE PIC X.
+           02 A-INSPEND PIC X(7).
+           02 A-LASTBILL PIC X(8).
+           02 A-ASSIGNM PIC X.
+           02 A-PRIVATE PIC X.
+           02 A-BILLCYCLE PIC X.
+           02 A-DELETE PIC X.
+           02 A-FILLER PIC XXX.
+           02 A-GARNO PIC X(8).
+           02 A-PRGRPNAME PIC X(15).
+           02 A-SEGRPNAME PIC X(15).
+           02 NAME-KEY PIC XXX.
+       WORKING-STORAGE SECTION.
+
+       01  REC101.
+           02 R1-1 PIC XX.
+           02 R1-PATNUM PIC X(7).
+           02 R1-PATNAME.
+             03 R1-PATNAME-L PIC X(19).
+             03 R1-PATNAME-F PIC X(12).
+           02 R1-PATADDR1 PIC X(25).
+           02 R1-PATADDR2 PIC X(25).
+           02 R1-PATCITY PIC X(25).
+           02 R1-PATSTATE PIC XX.
+           02 R1-PATZIP PIC X(10).
+             02 R1-ADMIT. 
+              03 R1-ADMITMM PIC XX.
+              03 FILLER PIC X.
+              03 R1-ADMITDD PIC XX.
+              03 FILLER PIC X.
+              03 R1-ADMITYY PIC XXXX.
+           02 R1-ADMITTIME PIC X(5).
+           02 R1-WORKCOMP PIC X.
+           02 R1-GARNAME.
+             03 R1-GARNAME1.
+               05 R1-GARNAME1-L PIC X(21).
+               05 R1-GARNAME1-F PIC X(14).
+           02 R1-GARADDR1 PIC X(25).
+           02 R1-GARADDR2 PIC X(25).
+           02 R1-GARCITY PIC X(25).
+           02 R1-GARSTATE PIC XX.
+           02 R1-GARZIP PIC X(10).
+           02 r1-EMAIL PIC X(30).
+           02 R1-IP1 PIC X(5).
+           02 R1-ID1 PIC X(30).
+           02 R1-CERT11 PIC X(20).
+           02 R1-GRP1 PIC X(20).
+           02 R1-GRPNAME11 PIC X(30).
+           02 R1-SUBNAME11 PIC X(35).
+           02 R1-EMPLOYNAME11 PIC X(30).
+      * 465
+           02 R1-GENDER11 PIC X.
+           02 FILLER PIC X.
+           02 R1-DOB11 PIC X(10).
+           02 R1-SSN11 PIC X(9).
+           02 R1-RELATE1 PIC XX.
+           02 INSURANCE-1.
+            03 R1-INSNAME1 PIC X(25).
+            03 R1-INSCONTACT1 PIC X(25).
+            03 R1-INSADDR11 PIC X(20).
+            03 R1-INSADDR21 PIC X(15).
+            03 R1-INSCITY1 PIC X(20).
+            03 R1-INSSTATE1 PIC XX.
+            03 R1-INSZIP1 PIC X(10).
+            03 R1-INSPHONE1 PIC X(12).
+           02  R1-AUTH PIC X(20).
+           02 R1-IP2 PIC X(5).
+           02 R1-ID2 PIC X(30).
+           02 R1-CERT22 PIC X(20).
+           02 R1-GRP2 PIC X(20).
+           02 R1-GRPNAME22 PIC X(30).
+           02 R1-SUBNAME22 PIC X(35).
+           02 R1-EMPLOYNAME22 PIC X(30).
+           02 R1-GENDER22 PIC X.
+           02 FILLER PIC X.
+           02 R1-DOB22 PIC X(10).
+           02 R1-SSN22 PIC X(9).
+           02 R1-RELATE2 PIC XX.
+      * 365
+           02 INSURANCE-2.
+            03 R1-INSNAME2 PIC X(25).
+            03 R1-INSCONTACT2 PIC X(25).
+            03 R1-INSADDR12 PIC X(20).
+            03 R1-INSADDR22 PIC X(15).
+            03 R1-INSCITY2 PIC X(20).
+            03 R1-INSSTATE2 PIC XX.
+            03 R1-INSZIP2 PIC X(10).
+            03 R1-INSPHONE2 PIC X(12).
+      *    02 R1-IO PIC X(4).
+      *    02 FILLER PIC X(2).
+      * 135
+
+
+       01  REC201.
+           02 R2-1 PIC XX.
+           02 R2-ACC.
+             03 R2-ACCMM PIC XX.
+             03 R2-ACCDD PIC XX.
+             03 R2-ACCYY PIC XX.
+             03 R2-ACCHHMM PIC X(5).
+           02 R2-REFDOC.
+             03 R2-REFDOC4 PIC XXXX.
+             03 R2-REFDOC22 PIC X(18).
+           02 R2-DIAG PIC X(130).
+
+           02 R2-IP3 PIC X(5).
+           02 R2-ID3 PIC X(30).
+           02 R2-CERT33 PIC X(20).
+           02 R2-GRP3 PIC X(20).
+           02 R2-GRPNAME33 PIC X(30).
+           02 R2-SUBNAME33 PIC X(35).
+           02 R2-EMPLOYNAME33 PIC X(30).
+           02 R2-GENDER33 PIC X.
+           02 FILLER PIC X.
+           02 R2-DOB33 PIC X(10).
+           02 R2-SSN33 PIC X(9).
+           02 R2-RELATE3 PIC XX.
+           02 INSURANCE-3.
+            03  R2-INSNAME3 PIC X(25).
+            03  R2-INSCONTACT3 PIC X(25).
+            03  R2-INSADDR13 PIC X(20).
+            03  R2-INSADDR23 PIC X(15).
+            03  R2-INSCITY3 PIC X(20).
+            03  R2-INSSTATE3 PIC XX.
+            03  R2-INSZIP3 PIC X(10).
+            03  R2-INSPHONE3 PIC X(12).
+           02 FILLER PIC X(20).
+
+           02 R2-IP4 PIC X(5).
+           02 R2-ID4 PIC X(30).
+           02 R2-CERT44 PIC X(20).
+           02 R2-GRP4 PIC X(20).
+           02 R2-GRPNAME44 PIC X(30).
+           02 R2-SUBNAME44 PIC X(35).
+           02 R2-EMPLOYNAME44 PIC X(30).
+           02 R2-GENDER44 PIC X.
+           02 FILLER PIC X.
+           02 R2-DOB44 PIC X(10).
+           02 R2-SSN44 PIC X(9).
+           02 R2-RELATE4 PIC XX.
+           02 INSURANCE-4.
+            03  R2-INSNAME4 PIC X(25).
+            03  R2-INSCONTACT4 PIC X(25).
+            03  R2-INSADDR14 PIC X(20).
+            03  R2-INSADDR24 PIC X(15).
+            03  R2-INSCITY4 PIC X(20).
+            03  R2-INSSTATE4 PIC XX.
+            03  R2-INSZIP4 PIC X(10).
+            03  R2-INSPHONE4 PIC X(12).
+            02 FILLER PIC X(20).
+           02 R2-MEDREC.
+             03 R2-MEDREC1 PIC XX.
+             03 FILLER PIC X.
+             03 R2-MEDREC2 PIC XX.
+             03 FILLER PIC X.
+             03 R2-MEDREC3 PIC XX.
+           02 R2-EMPNAME PIC X(30).
+           02 R2-EMPLOYER-ADDR1 PIC X(25).
+           02 R2-EMPLOYER-ADDR2 PIC X(25).
+           02 R2-EMPLOYER-CITY PIC X(25).
+           02 R2-EMPLOYER-STATE PIC XX.
+           02 R2-EMPLOYER-ZIP PIC X(10).
+           02 R2-GUARSSN PIC X(9).
+           02 R2-PHONE.
+             03 R2-PHONE1 PIC XXX.
+             03 FILLER PIC X.
+             03 R2-PHONE2 PIC XXX.
+             03 FILLER PIC X.
+             03 R2-PHONE3 PIC X(4).
+           02 R2-DOC PIC X(8).
+           02 R2-REFIND PIC X.
+           02 R2-NPI PIC X(10).
+           02 R2-ADMIT-DATE-DUPLICATE PIC X(6).
+           02 R2-PATSEX PIC X.
+           02 R2-PATDOB.
+             03 R2-DOBMM PIC XX.
+             03 R2-DOBDD PIC XX.
+             03 R2-DOBYY PIC XX.
+           02 R2-DISCHARGE PIC X(6).
+      *     02 FILLER PIC X(7).
+       01  REC301.
+           02 R3-1 PIC XX.
+           02 R3-IND PIC XXX.
+           02 R3-DEPT PIC XX.
+           02 R3-GLC PIC X.
+           02 R3-PROC.
+             03 R3-PROC1 PIC X.
+             03 FILLER PIC XXX.
+           02 R3-DATE. 
+              03 R3-DATEMM PIC XX.
+              03 R3-DATEDD PIC XX.
+              03 R3-DATEYY PIC XX.
+           02 R3-UNIT PIC XXX.
+           02 R3-CLINICAL PIC X(40).
+           02 FILLER PIC X(24).
+           02 R3-PLACE PIC X(4).
+           02 R3-DOCP PIC X(4).
+
+
+       01  NAME-TEST PIC X(25).
+       01  NAME-LAST PIC X(24).
+       01  NAME-FIRST          PIC X(24).
+       01  NAME-MIDDLE         PIC X(24).
+       01  TDATE.
+           02 TCC PIC XX.
+           02 TYY PIC XX.
+           02 TMM PIC XX.
+           02 TDD PIC XX.
+       01  INPUT-DATE.
+           02 T-MM PIC 99.
+           02 T-DD PIC 99.
+           02 T-CC PIC 99.
+           02 T-YY PIC 99.
+       01  TEST-DATE.
+           02 T-CC PIC 99.
+           02 T-YY PIC 99.
+           02 T-MM PIC 99.
+           02 T-DD PIC 99.
+       01  A-DATE.
+           05 A-MM  PIC 99.
+           05 A-DD  PIC 99.
+           05 A-CC  PIC 99.
+           05 A-YY  PIC 99.
+       01  B-DATE.
+           05 B-CC  PIC 99.
+           05 B-YY  PIC 99.
+           05 B-MM  PIC 99.
+           05 B-DD  PIC 99.
+       01  OLD PIC 999.
+       01  DATE-TODAY PIC X(8).
+       01  SAVEMASTER.
+           02 S-ACTNO PIC X(8).
+           02 S-GARNAME PIC X(24).
+           02 S-BILLADD PIC X(22).
+           02 S-STREET PIC X(22).
+           02 S-CITY PIC X(18).
+           02 S-STATE PIC X(2).
+           02 S-ZIP PIC X(9).
+           02 S-COLLT PIC X.
+           02 S-PHONE PIC X(10).
+           02 S-SEX PIC X.
+           02 S-RELATE PIC X.
+           02 S-MSTAT PIC X.
+           02 S-DOB PIC X(8).
+           02 S-DUNNING PIC X.
+           02 S-ACCTSTAT PIC X.
+           02 S-PR-MPLR PIC X(4).
+           02 S-PRINS PIC XXX.
+           02 S-PR-ASSIGN PIC X.
+           02 S-PR-OFFICE PIC X(4).
+           02 S-PR-GROUP PIC X(10).
+           02 S-PRIPOL PIC X(16).
+           02 S-PRNAME PIC X(24).
+           02 S-PR-RELATE PIC X.
+           02 S-SE-MPLR PIC X(4).
+           02 S-SEINS PIC XXX.
+           02 S-SE-ASSIGN PIC X.
+           02 S-TRINSIND PIC X.
+           02 S-TRINS PIC XXX.
+           02 S-SE-GROUP PIC X(10).
+           02 S-SECPOL PIC X(16).
+           02 S-SENAME PIC X(24).
+           02 S-SE-RELATE PIC X.
+           02 S-INSPEND PIC X(7).
+           02 S-LASTBILL PIC X(8).
+           02 S-ASSIGNM PIC X.
+           02 S-PRIVATE PIC X.
+           02 S-BILLCYCLE PIC X.
+           02 S-DELETE PIC X.
+           02 S-FILLER PIC XXX.
+           02 S-GARNO PIC X(8).
+           02 S-PRGRPNAME PIC X(15).
+           02 S-SEGRPNAME PIC X(15).
+           02 S-NAME-KEY PIC XXX.
+       01     RIGHT-2 PIC XX JUST RIGHT.
+       01     ALF-1 PIC X.
+       01     XALF-1 PIC X.
+       01     ALF-3 PIC XXX.
+       01     ALF-4 PIC XXXX.
+       01     ALF-5 PIC X(5).
+       01     ALF-7 PIC X(7).
+       01     ALF-8 PIC X(8).
+       01     ALF-13 PIC X(13).
+       01     YEARDAY.
+             03 YEAR-1.
+               04 YD1 PIC X.
+               04 YD2 PIC X.
+             03 DAY3 PIC XXX.
+       01     ABC PIC X.
+       01     XYZ PIC 999.
+       01     RIGHT-4 PIC X(4) JUST RIGHT.
+       01     ALF-6 PIC X(6).
+       01     RIGHT-3 PIC XXX JUST RIGHT.
+       01     RIGHT-5 PIC X(5) JUST RIGHT.
+       01     RIGHT-7 PIC X(7) JUST RIGHT.
+       01     A PIC 99.
+       01     B PIC 99.
+       01     C PIC 99.
+       01     D PIC 99.
+       01     X PIC 99.
+       01     Y PIC 99.
+       01  Z PIC 999.
+       01     FLAG   PIC 9.
+       01  FLAGX PIC 9.
+       01  DATE-X PIC X(8).
+       01  IN-FIELD-8 PIC X(8).
+       01  IN-FIELD-6 PIC X(6).
+       01  SAVEORD PIC X(206).
+       01  NAME1.
+           02 NAME11 PIC X.
+           02 NAME12 PIC X(23).
+       01  HOLDGARNO PIC X(8).
+       01  NAMETAB01.
+           02 NAMETAB PIC X(30) OCCURS 90 TIMES.
+       01  NAMEKEYTAB01.
+           02 NAMEKEYTAB PIC XXX OCCURS 90 TIMES.
+       01  NUMKEYTAB01.
+           02 NUMKEYTAB PIC X(4) OCCURS 90 TIMES.
+       01  IPLAN PIC XXXX.
+       01  XPLAN PIC XXX.
+       01  CITY1 PIC X(24).
+       01  CITY2 PIC X(24).
+       01  CITY3 PIC X(24).
+       01  CITY4 PIC X(24).
+       01  ALF-1X PIC X.
+       01  ALF-2 PIC XX.
+       01  REFFLAG PIC 9.
+       01  LNAME PIC X(20).
+       01  FNAME PIC X(20).
+       01  X-IP PIC X(8).
+       01  X-CERT PIC X(16).
+       01  X-GRP PIC X(10).
+       01  X-GRPNAME PIC X(15).
+       01  X-LASTNAME PIC X(16).
+       01  X-FIRSTNAME PIC X(9).
+       01  X-SUBNAME PIC X(30).
+       01  X-SSN PIC X(9).
+       01  X-RELATE PIC XX.
+       01  X-GENDER PIC X.
+       01  Y-RELATE PIC XX.
+       01  RELATECODE PIC X.
+       01  GARRELATE PIC X.
+       01  POLTEST.
+           02 POLTEST1.
+             03 POLTEST1-1 PIC X.
+             03 POLTEST1-2 PIC X.
+           02 FILLER PIC X(7).
+           02 POLTEST2 PIC XX.
+           02 FILLER PIC X(5).
+       01 ACTNO.
+          02 ACTNO2 PIC XX.
+          02 ACTNO6 PIC X(6).
+       01 ALF4 PIC X(4).
+       01 ALF6 PIC X(6).
+       01 ALF8TEST.
+          02 ALF8TEST1 PIC XX.
+          02 FILLER PIC X(6).
+       01  MONTH-TABLE-CONS.
+           05  FILLER PIC X(24) VALUE "312931303130313130313031".
+       01  MONTH-TABLE REDEFINES MONTH-TABLE-CONS.
+           05  DAYS-IN-MONTH OCCURS 12 TIMES PIC 99.
+       01  SERVDATE PIC X(8).
+       01  REF PIC XXX.
+       01  IOPAT PIC X.
+       01  PLANNUM PIC 9.
+       01 TAB1601.
+          02 TAB16 PIC X OCCURS 16 TIMES.
+       01 NEWTAB01.
+          02 NEWTAB PIC X OCCURS 16 TIMES.
+       01  YNDX USAGE IS INDEX.
+       01  IN-FIELD-1 PIC X.
+       01  IN-FIELD-3 PIC XXX.
+       01  IN-FIELD-4 PIC X(4).
+       01  IN-FIELD-15 PIC X(15).
+       01  IN-FIELD-16 PIC X(16).
+       01  X-MEDREC.
+              02 X-MEDREC0 PIC XX VALUE "00".
+              02 X-MEDREC1 PIC XX.
+              02 X-MEDREC2 PIC XX.
+              02 X-MEDREC3 PIC XX.
+       01  ALF-16.
+           02 ALF-16-1.
+              03 ALF-16-11 PIC X.
+              03 ALF-16-12 PIC X.
+              03 ALF-16-13 PIC X.
+           02 ALF-16-2 PIC X(9).
+           02 ALF-16-3 PIC X(4).
+       01  ZIPCODE.
+           02 ZIPCODE-1-5 PIC X(5).
+           02 ZIPCODE-6 PIC X.
+           02 ZIPCODE-7-10 PIC X(4).
+       01  num2 pic 99.
+      *
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN I-O ACTFILE EMAILAUTHFILE.
+           OPEN I-O ORDFILE COMPFILE.
+           OPEN INPUT HOSPFILE REFPHY INSFILE FILEIN MOBLFILE.
+           OPEN OUTPUT FILEOUT.
+       P1.
+           READ FILEIN AT END GO TO 9100CMF.
+       P1-1.
+           IF FI-1 NOT = "##" GO TO P1.
+           MOVE FILEIN01 TO REC101.
+           READ FILEIN AT END DISPLAY "BAD ENDING" ACCEPT OMITTED
+           GO TO 9100CMF.
+           IF FI-1 = "##" OR "$$" DISPLAY "BAD GUAR REC." 
+           DISPLAY FILEIN01 ACCEPT OMITTED
+           GO TO 9100CMF.
+           MOVE FILEIN01 TO REC201.
+
+
+           MOVE R2-MEDREC1 TO X-MEDREC1
+           MOVE R2-MEDREC2 TO X-MEDREC2
+           MOVE R2-MEDREC3 TO X-MEDREC3
+           MOVE X-MEDREC TO R2-MEDREC
+
+           MOVE SPACE TO A-GARNAME LNAME FNAME
+           UNSTRING R1-PATNAME DELIMITED BY ", "
+            INTO LNAME FNAME
+           STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-GARNAME
+           perform ea-1 thru ea-1-exit.
+           go to p1.
+       EA-1.
+            move space to EMAILAUTHFILE01
+            MOVE 0  TO EA-KEY
+            WRITE EMAILAUTHFILE01 invalid continue.
+
+           MOVE 999999 TO EA-KEY
+           start EMAILAUTHFILE key < ea-key  invalid
+            MOVE 999999 TO EA-KEY
+            WRITE EMAILAUTHFILE01
+           end-start.
+           MOVE 999999 TO EA-KEY
+           read EMAILAUTHFILE previous at end
+           move 0 to ea-key
+           END-read.
+
+
+           ADD 1 TO EA-KEY
+           MOVE R2-MEDREC TO EA-MEDREC
+           MOVE A-GARNAME TO EA-NAME
+           ACCEPT EA-DATE-E FROM CENTURY-DATE
+           MOVE R1-EMAIL TO EA-EMAIL
+           MOVE R1-AUTH TO EA-AUTH.
+           MOVE R1-SSN11 TO EA-SSN
+           DISPLAY EA-KEY
+           DISPLAY EA-MEDREC
+           DISPLAY EA-NAME
+           DISPLAY EA-EMAIL
+           DISPLAY EA-AUTH
+           DISPLAY EA-DATE-E
+           DISPLAY EA-SSN
+           ACCEPT OMITTED.
+      *     WRITE EMAILAUTHFILE01.
+       EA-1-EXIT.
+           EXIT.
+
+       9100CMF.
+           CLOSE ACTFILE EMAILAUTHFILE ORDFILE COMPFILE
+                 REFPHY HOSPFILE INSFILE FILEOUT.
+           DISPLAY "REPORT DATA ENTRY PROGRAM HAS ENDED".
+           STOP RUN.

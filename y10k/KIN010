@@ -1,0 +1,154 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. NEI146.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CHARCUR ASSIGN TO "S30"     ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT PAYFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS PAYFILE-KEY
+           LOCK MODE MANUAL.
+           SELECT KINFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS KINFILE-KEY
+           ALTERNATE RECORD KEY IS KIN-DATE-E WITH DUPLICATES
+           ALTERNATE RECORD KEY IS KIN-STAT WITH DUPLICATES
+           LOCK MODE MANUAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  KINFILE.
+       01  KINFILE01.
+           02 KINFILE-KEY.
+             03 KIN-KEY8 PIC X(8).
+             03 KIN-KEY3 PIC XXX.
+           02 KIN-NAME PIC X(24).
+           02 KIN-AMOUNT PIC S9(4)V99.
+           02 KIN-PAYCODE PIC XXX.
+           02 KIN-DENIAL PIC XX.
+           02 KIN-DATE-T PIC X(8).
+           02 KIN-DATE-E PIC X(8).
+           02 KIN-STAT PIC X.
+           02 KIN-CHARCUR-KEY PIC X(11).
+       FD  PAYFILE.
+       01  PAYFILE01.
+           02 PAYFILE-KEY.
+             03 PD-KEY8 PIC X(8).
+             03 PD-KEY3 PIC XXX.
+           02 PD-NAME PIC X(24).
+           02 PD-AMOUNT PIC S9(4)V99.
+           02 PD-PAYCODE PIC XXX.
+           02 PD-DENIAL PIC XX.
+           02 PD-CLAIM PIC X(6).
+           02 PD-DATE-T PIC X(8).
+           02 PD-DATE-E PIC X(8).
+           02 PD-ORDER PIC X(6).
+           02 PD-BATCH PIC X(6).
+       FD  CHARCUR
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC. 
+              03 CC-PROC0 PIC X(4).
+              03 CC-PROC1 PIC X(5).
+              03 CC-PROC2 PIC XX.
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AGE PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       WORKING-STORAGE SECTION.
+       01  X PIC 99.
+       01  Y PIC 99.
+       01  Z PIC 99.
+       01  A PIC 99.
+       01  ALF6.
+           02 ALF4 PIC X(4).
+           02 ALF2 PIC XX.
+       01  PAYDATE PIC X(8).
+       01  XYZ PIC 999.
+       01  NUM6 PIC 9(6).
+       01  KINBACK01 PIC X(74).
+       01  ALF1 PIC X.
+       01  NEF-6 PIC Z,ZZ9.99CR.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN INPUT CHARCUR PAYFILE.
+           OPEN I-O KINFILE.
+           ACCEPT KIN-DATE-E FROM CENTURY-DATE.
+       P1.
+           READ PAYFILE NEXT AT END GO TO P9.
+           IF (PD-PAYCODE > "006" AND < "010")
+              OR (PD-PAYCODE  > "010" AND < "019")
+              OR (PD-DENIAL = "08" OR "14" OR "AA" OR "15")
+            GO TO P1
+           END-IF.
+           MOVE PD-KEY8 TO CC-KEY8
+           MOVE SPACE TO CC-KEY3
+           START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO P1.
+       P2. 
+           READ CHARCUR NEXT AT END GO TO P1.
+           IF CC-KEY8 NOT = PD-KEY8 GO TO P1.
+           IF CC-CLAIM NOT = PD-CLAIM GO TO P2.
+           IF CC-COLLT NOT = "1" GO TO P2.
+           MOVE PD-DATE-T TO KIN-DATE-T
+           MOVE PD-NAME TO KIN-NAME
+           MOVE PD-AMOUNT TO KIN-AMOUNT
+           MOVE PD-DENIAL TO KIN-DENIAL
+           MOVE CHARCUR-KEY TO KIN-CHARCUR-KEY
+           MOVE PD-PAYCODE TO KIN-PAYCODE
+           MOVE "0" TO KIN-STAT
+           MOVE PD-KEY8  TO KIN-KEY8
+           MOVE SPACE TO KIN-KEY3
+           MOVE KINFILE01 TO KINBACK01
+           MOVE 0 TO XYZ.
+        P3.
+           ADD 1 TO XYZ
+           MOVE XYZ TO KIN-KEY3
+           READ KINFILE INVALID KEY GO TO P4.
+           GO TO P3.
+       P4.
+           MOVE KINBACK01 TO KINFILE01
+           MOVE XYZ TO KIN-KEY3
+           WRITE KINFILE01
+           DISPLAY KINFILE-KEY " " KIN-NAME
+           DISPLAY "RECORD IS ADDED".
+           GO TO P1.
+       P9.
+           CLOSE CHARCUR PAYFILE KINFILE
+           STOP RUN.

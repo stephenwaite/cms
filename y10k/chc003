@@ -1,0 +1,252 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. UP001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01.
+           02 FO-PATNAMEL PIC X(24).
+           02 FO-PATNAMEF PIC X(24).
+           02 FO-PATNAMEMI PIC X.
+           02 FO-PATNAMESUFX PIC X(4).
+           02 FO-PAT-STR1 PIC X(22).
+           02 FO-PAT-STR2 PIC X(22).
+           02 FO-PAT-CITY PIC X(18).
+           02 FO-PAT-STATE PIC XX.
+           02 FO-PAT-ZIP PIC X(9).
+           02 FO-PAT-DOB PIC X(10).
+           02 FO-PAT-SEX PIC X.
+           02 FO-GARNAMEL PIC X(24).
+           02 FO-GARNAMEF PIC X(24).
+           02 FO-GARNAMEMI PIC X.
+           02 FO-GARNAMESUFX PIC X(4).
+           02 FO-GAR-STR1 PIC X(22).
+           02 FO-GAR-STR2 PIC X(22).
+           02 FO-GAR-CITY PIC X(18).
+           02 FO-GAR-STATE PIC XX.
+           02 FO-GAR-ZIP PIC X(9).
+           02 FO-GAR-DOB PIC X(10).
+           02 FO-GAR-SEX PIC X.
+           02 FO-PRIM-ALFA PIC X(10).
+           02 FO-PRIM-NAME PIC X(30).
+           02 FO-PRIM-STR1 PIC X(22).
+           02 FO-PRIM-STR2 PIC X(22).
+           02 FO-PRIM-CITY PIC X(18).
+           02 FO-PRIM-STATE PIC XX.
+           02 FO-PRIM-ZIP PIC X(9).
+           02 FO-PRIM-GRP PIC X(10).
+           02 FO-PRIM-POL PIC X(16).
+           02 FO-PRIM-SUFX PIC XXX.
+           02 FO-PRIM-NAMEL PIC X(24).
+           02 FO-PRIM-NAMEF PIC X(24).
+           02 FO-PRIM-NAMEMI PIC X.
+           02 FO-PRIM-NAMESUFX PIC X(4).
+           02 FO-PRIM-SUBDOB PIC X(10).
+           02 FO-PRIM-SUBSEX PIC X(10).
+           02 FO-PRIM-SUBRELATE PIC XX.
+           02 FO-SEC-ALFA PIC X(10).
+           02 FO-SEC-NAME PIC X(30).
+           02 FO-SEC-STR1 PIC X(22).
+           02 FO-SEC-STR2 PIC X(22).
+           02 FO-SEC-CITY PIC X(18).
+           02 FO-SEC-STATE PIC XX.
+           02 FO-SEC-ZIP PIC X(9).
+           02 FO-SEC-GRP PIC X(10).
+           02 FO-SEC-POL PIC X(16).
+           02 FO-SEC-SUFX PIC XXX.
+           02 FO-SEC-NAMEL PIC X(24).
+           02 FO-SEC-NAMEF PIC X(24).
+           02 FO-SEC-NAMEMI PIC X.
+           02 FO-SEC-NAMESUFX PIC X(4).
+           02 FO-SEC-SUBDOB PIC X(10).
+           02 FO-SEC-SUBSEX PIC X(10).
+           02 FO-SEC-SUBRELATE PIC XX.
+           02 FO-PROC PIC X(7).
+           02 FO-MOD PIC XX.
+           02 FO-DX1 PIC X(8).
+           02 FO-DX2 PIC X(8).
+           02 FO-DX3 PIC X(8).
+           02 FO-DX4 PIC X(8).
+           02 FO-DATE-T PIC X(10).
+           02 FO-PROVNAMEL PIC X(24).
+           02 FO-PROVNAMEF PIC X(24).
+           02 FO-PROVNAMEMI PIC X.
+           02 FO-PROVNAMESUFX PIC X(4).
+           02 FO-PLACE PIC X(6).
+           02 FO-DAT1 PIC X(10).
+           02 FO-LASTDATE PIC X(23).
+
+           02 FO-3RD-INS-CODE PIC X(10).
+           02 FO-3RD-NAME PIC X(30). 
+           02 FO-3RD-STR1 PIC X(22).
+           02 FO-3RD-CITY PIC X(18).
+           02 FO-3RD-STATE PIC XX.
+           02 FO-3RD-ZIP PIC X(9).
+           02 FO-3RD-GRP PIC X(10).  
+           02 FO-3RD-POL PIC X(16).
+           02 FO-3RD-SUFX PIC XXX. 
+           02 FO-3RD-NAMEL PIC X(24).
+           02 FO-3RD-NAMEF PIC X(24).
+           02 FO-3RD-SUBSEX PIC X(4).
+           02 FO-3RD-SUBRELATE PIC XX.
+
+           02 FO-4TH-INS-CODE
+           02 FO-4TH-NAME 
+           02 FO-4TH-STR1 
+           02 FO-4TH-CITY 
+           02 FO-4TH-STATE 
+           02 FO-4TH-ZIP 
+           02 FO-4TH-GRP 
+           02 FO-4TH-POL 
+           02 FO-4TH-SUFX 
+           02 FO-4TH-NAMEL 
+           02 FO-4TH-NAMEF 
+           02 FO-4TH-SUBSEX 
+           02 FO-4TH-SUBRELATE
+
+       FD  FILEIN
+           RECORD CONTAINS 1 TO 999 CHARACTERS.
+       01  FILEIN01 PIC X(999).
+       WORKING-STORAGE SECTION.
+       01  TAB-X PIC X VALUE H"09".
+       01  FILE1 PIC X(999).
+       01  FILE2 PIC X(999).
+       PROCEDURE DIVISION.
+       0005-S0TART.
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+       P1. MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P2.
+           MOVE SPACE TO FILE1
+           MOVE FILEIN01 TO FILE1
+           READ FILEIN AT END GO TO P2.
+           MOVE SPACE TO FILE2
+           MOVE FILEIN01 TO FILE2
+           MOVE SPACE TO FILEOUT01
+           UNSTRING FILE1 DELIMITED BY TAB-X INTO
+
+           FO-PATNAMEL 
+           FO-PATNAMEF 
+           FO-PAT-STR1 
+           FO-PAT-CITY 
+           FO-PAT-STATE
+           FO-PAT-ZIP 
+           FO-PAT-DOB 
+           FO-PAT-SEX 
+           FO-GARNAMEL 
+           FO-GARNAMEF 
+
+           FO-PRIM-INS-CODE
+           FO-PRIM-NAME
+           FO-PRIM-STR1
+           FO-PRIM-CITY
+           FO-PRIM-STATE
+           FO-PRIM-ZIP 
+           FO-PRIM-GRP 
+           FO-PRIM-POL 
+           FO-PRIM-SUFX
+           FO-PRIM-NAMEL
+           FO-PRIM-NAMEF
+           FO-PRIM-SUBSEX
+           FO-PRIM-SUBRELATE
+
+           FO-SEC-INS-CODE 
+           FO-SEC-NAME
+           FO-SEC-STR1
+           FO-SEC-CITY 
+           FO-SEC-STATE 
+           FO-SEC-ZIP 
+           FO-SEC-GRP 
+           FO-SEC-POL 
+           FO-SEC-SUFX 
+           FO-SEC-NAMEL
+           FO-SEC-NAMEF
+           FO-SEC-SUBSEX
+           FO-SEC-SUBRELATE
+
+           UNSTRING FILE2 DELIMITED BY TAB-X INTO
+
+           FO-3RD-INS-CODE  
+           FO-3RD-NAME  
+           FO-3RD-STR1  
+           FO-3RD-CITY  
+           FO-3RD-STATE 
+           FO-3RD-ZIP  
+           FO-3RD-GRP  
+           FO-3RD-POL  
+           FO-3RD-SUFX 
+           FO-3RD-NAMEL 
+           FO-3RD-NAMEF 
+           FO-3RD-SUBSEX 
+           FO-3RD-SUBRELATE
+
+           FO-4TH-INS-CODE
+           FO-4TH-NAME 
+           FO-4TH-STR1 
+           FO-4TH-CITY 
+           FO-4TH-STATE 
+           FO-4TH-ZIP 
+           FO-4TH-GRP 
+           FO-4TH-POL 
+           FO-4TH-SUFX 
+           FO-4TH-NAMEL 
+           FO-4TH-NAMEF 
+           FO-4TH-SUBSEX 
+           FO-PROC 
+           FO-MOD 
+           FO-DATE-T (CHARGE DATE)
+           FO-PROV-NPI
+           FO-DAT-ACC (ACCIDENT,SYMPTOM DATE)
+           FO-4TH-SUBRELATE 
+           FO-DX1  
+           FO-DX2  
+           FO-DX3 
+           FO-DX4 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+           FO-PATNAMEL  FO-PATNAMEF  FO-PATNAMEMI  FO-PATNAMESUFX
+           FO-PAT-STR1  FO-PAT-STR2  FO-PAT-CITY  FO-PAT-STATE   
+           FO-PAT-ZIP   FO-PAT-DOB   FO-PAT-SEX   FO-GARNAMEL 
+           FO-GARNAMEF FO-GARNAMEMI FO-GARNAMESUFX FO-GAR-STR1   
+           FO-GAR-STR2 FO-GAR-CITY  FO-GAR-STATE FO-GAR-ZIP   
+           FO-GAR-DOB FO-GAR-SEX FO-PRIM-ALFA FO-PRIM-NAME FO-PRIM-STR1 
+           FO-PRIM-STR2 FO-PRIM-CITY FO-PRIM-STATE  FO-PRIM-ZIP  
+           FO-PRIM-GRP  FO-PRIM-POL  FO-PRIM-SUFX FO-PRIM-NAMEL   
+           FO-PRIM-NAMEF FO-PRIM-NAMEMI FO-PRIM-NAMESUFX  
+           FO-PRIM-SUBDOB FO-PRIM-SUBSEX FO-PRIM-SUBRELATE   
+           FO-SEC-ALFA FO-SEC-NAME FO-SEC-STR1 FO-SEC-STR2 
+           FO-SEC-CITY FO-SEC-STATE FO-SEC-ZIP 
+           FO-SEC-GRP FO-SEC-POL FO-SEC-SUFX FO-SEC-NAMEL   
+           FO-SEC-NAMEF FO-SEC-NAMEMI FO-SEC-NAMESUFX FO-SEC-SUBDOB  
+           FO-SEC-SUBSEX    FO-SEC-SUBRELATE 
+           FO-PROC FO-MOD FO-DX1 FO-DX2 FO-DX3 FO-DX4 FO-DATE-T
+           FO-PROVNAMEL FO-PROVNAMEF FO-PROVNAMEMI FO-PROVNAMESUFX
+           FO-PLACE
+           FO-DAT1 FO-LASTDATE 
+           WRITE FILEOUT01
+           GO TO P1.
+       P2.
+           CLOSE FILEOUT.
+           STOP RUN.
+

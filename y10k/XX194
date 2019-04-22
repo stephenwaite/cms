@@ -1,0 +1,442 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. XX191.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS G-GARNO
+           LOCK MODE MANUAL.
+           SELECT PAYCUR ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S45" 
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT PARMNAME ASSIGN TO "S50"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEIN ASSIGN TO "S55"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT INSFILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS INS-KEY
+           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT OUTFILE ASSIGN TO "S65"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT balFILE ASSIGN TO "S70"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       fd  balfile.
+       01  balfile01 pic x(129).
+       FD  GARFILE
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS G-MASTER.
+       01  G-MASTER.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(12).
+           02 G-PRIPOL PIC X(14).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(12).
+           02 G-SECPOL PIC X(14).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-COPAY PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+       FD  CHARCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC 9(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(7).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC 999.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-TYYMM PIC X(6).
+           02 CC-DATE-TDD PIC XX.
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+
+       FD  INSFILE
+     *     BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS INSFILE01.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+       FD  OUTFILE.
+       01  OUTFILE01 PIC X(140).
+       FD  FILEIN.
+       01  FILEIN01 PIC X(11).
+       FD  PARMNAME
+           DATA RECORD IS PARMNAME01.
+       01   PARMNAME01 PIC X(40).
+       FD  PAYCUR
+           BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS PAYCUR01.
+       01  PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC 999.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC 9(6).
+           02 PC-DATE-T PIC 9(8).
+           02 PC-D1 PIC 9(6).
+           02 PC-D2 PIC XX.
+           02 PC-BATCH PIC X(6).
+       FD FILEOUT
+           DATA RECORD IS FILEOUT01.
+       01  FILEOUT01 PIC X(156).
+       WORKING-STORAGE SECTION.
+       01 TOT01.
+           02 TOT PIC S9(8)V99 OCCURS 990 TIMES.
+       01 CNT01.
+           02 CNT PIC 9(5) OCCURS 990 TIMES.
+       01 PAYCLAIM01.
+           02 PAYCLAIM02 OCCURS 990 TIMES.
+             03 PHR-CLAIM PIC 9(6).
+       01 PAYAMT01.
+           02 PAYAMT02 OCCURS 990 TIMES.
+              03 PHR-AMOUNT PIC S9(4)V99.
+       01 PAYPAYCODE01.
+           02 PAYPAYCODE02 OCCURS 990 TIMES.
+             03 PHR-PAYCODE PIC 999.
+
+       01  BALTAB01.
+           02 BAL PIC S9(8)V99 OCCURS 990 TIMES.
+       01  BALCNT01.
+           02 BAL-CNT PIC 99999 OCCURS 990 TIMES.
+       01  TOT-CNT01.
+           02 TOT-CNT PIC 9(6). 
+       01  TOT-AMT01.
+           02 TOT-AMT PIC S9(8)V99. 
+       01     ADJ-CNT01.
+           02 ADJ-CNT PIC 999999. 
+       01   ADJ-TOT01.
+           02 ADJ-TOT PIC S9(8)V99. 
+       01  DOT01.
+           02 DOT02 PIC X(50).
+           02 DOT03 PIC X(82).
+       01 LINE-1.
+           02 F11 PIC X(21) VALUE "COLLECTION ANALYSIS :".
+           02 L1F1 PIC X(40).
+           02 F12 PIC X(20) VALUE SPACE.
+           02 L1F2 PIC X(12).
+           02 F13 PIC X(3) VALUE SPACE.
+           02 L1F3 PIC XX.
+           02 F14 PIC XXX VALUE SPACE.
+           02 F15 PIC X(5) VALUE "PAGE ".
+           02 L1F4 PIC ZZZ9.
+       01 LINE-2.
+           02 F21 PIC X(4) VALUE SPACE.
+           02 L2F1 PIC X(9) VALUE "PAYORCODE".
+           02 F22 PIC X(21) VALUE SPACE.
+           02 L2F3 PIC X(6) VALUE "NUMBER".
+           02 F24 PIC X(10) VALUE SPACE.
+           02 L2F4 PIC X(6) VALUE "AMOUNT".
+           02 F25 PIC XX VALUE SPACE.
+           02 L2F5 PIC X(9) VALUE "% OF CHRG".
+       01 LINE-3.
+           02 F31 PIC X VALUE "(".
+           02 L3F1 PIC 9(3).
+           02 F32 PIC XX VALUE ") ".
+           02 L3F2 PIC X(17).
+           02 F23 PIC X(12) VALUE SPACE.
+           02 L3F3 PIC ZZZ9.
+           02 F24 PIC XXX VALUE SPACE.
+           02 L3F4 PIC ZZ,ZZZ,ZZ9.99CR.
+           02 F35 PIC XX VALUE SPACE.
+           02 L3F5 PIC ZZ9.9.
+       01  LINE-4.
+           02 F41 PIC X(11).
+           02 L4F1 PIC X(17) VALUE SPACE.
+           02 F42 PIC X(4) VALUE SPACE.
+           02 L4F2 PIC ZZ,ZZ9.
+           02 F43 PIC XXX VALUE SPACE.
+           02 L4F3 PIC ZZ,ZZZ,ZZ9.99CR.
+       01  LINE-5.
+           02 L5F1 PIC X(28).
+           02 F51 PIC X(4) VALUE SPACE.
+           02 L5F2 PIC ZZ9.9.
+       01 LINE-6.
+           02 L6F1 PIC X.
+           02 F60 PIC XX VALUE SPACE.
+           02 L6F2 PIC X(17).
+           02 F61 PIC XX VALUE SPACE.
+           02 L6F3 PIC X(10).
+           02 F62 PIC X(6) VALUE " THRU ".
+           02 L6F4 PIC X(10).
+       01     LINE-X PIC 99 VALUE 0.
+       01     PAGE-X PIC 9999.
+       01     X PIC 999.
+       01     Y PIC 999.
+       01     Z PIC 9999.
+       01  YYY PIC 9(6).
+       01  ZZZ PIC S9(8)V99.
+       01     DATAIN PIC X.
+       01     NUM4 PIC 9999 VALUE 0.
+       01 PHR PIC 9999 VALUE 0.
+       01 CHR03 PIC S9(8)V99 VALUE 0.
+       01 CHRCNT PIC 999999 VALUE 0.
+       01 TOT-CLAIM PIC S9(6)V99.
+       01 CLAIM-BAL PIC S9(8)V99 VALUE 0.
+       01 BAL-DUE PIC 999999 VALUE 0.
+       01 INS PIC 999.
+       01 LINS PIC 999.
+       01 HINS PIC 999.
+       01 BALAMT PIC S9(8)V99.
+       01  ALF6.
+           02 ALF61 PIC XX.
+           02 ALF62 PIC XX.
+           02 ALF63 PIC XX.
+       01  SID PIC 999 VALUE 0.
+       01  BAL-TYPE PIC X.
+       PROCEDURE DIVISION.
+       P09.
+           MOVE ALL "-  -" TO DOT01. MOVE SPACE TO DOT03.
+           OPEN INPUT FILEIN INSFILE CHARCUR GARFILE.
+           OPEN INPUT PAYCUR PARMNAME OUTPUT FILEOUT OUTFILE balfile.
+           READ PARMNAME. MOVE PARMNAME01 TO L1F1.
+           MOVE 0 TO LINE-X PAGE-X INS.
+           MOVE 0 TO
+           NUM4 CHR03 CHRCNT CLAIM-BAL BAL-DUE BALAMT.
+           PERFORM A2 VARYING Z FROM 1 BY 1 UNTIL Z > 990.
+           MOVE 0 TO BALAMT.
+
+       P1.
+           MOVE 0 TO PHR
+           READ FILEIN AT END GO TO P10.
+           MOVE FILEIN01 TO CHARCUR-KEY
+           MOVE CC-KEY8 TO PC-KEY8 
+           MOVE "000" TO PC-KEY3
+           START PAYCUR KEY NOT < PAYCUR-KEY INVALID GO TO P2.
+       Z1. READ PAYCUR NEXT AT END GO TO P2.
+           IF PC-KEY8 NOT = CC-KEY8 GO TO P2.
+           IF PC-DENIAL = "14" MOVE 014 TO PC-PAYCODE.
+           IF PC-DENIAL = "15" MOVE 015 TO PC-PAYCODE.
+           IF PC-DENIAL = "DI" MOVE 014 TO PC-PAYCODE.
+           ADD 1 TO PHR
+           MOVE PC-PAYCODE TO PHR-PAYCODE(PHR)
+           MOVE PC-AMOUNT TO PHR-AMOUNT(PHR)
+           MOVE PC-CLAIM TO PHR-CLAIM(PHR) 
+           GO TO Z1.
+       P2.
+           MOVE FILEIN01 TO CHARCUR-KEY
+           READ CHARCUR INVALID
+            display charcur-key
+            accept omitted
+            GO TO P1
+           end-read.
+           WRITE OUTFILE01 FROM CHARCUR01.
+           ADD CC-AMOUNT TO CHR03
+           ADD 1 TO CHRCNT
+           MOVE CC-AMOUNT TO TOT-CLAIM
+           PERFORM F1 THRU F1-EXIT VARYING Z FROM 1 BY 1 UNTIL Z > PHR.
+           ADD TOT-CLAIM TO CLAIM-BAL BAL(CC-PAYCODE).
+           IF TOT-CLAIM not = 0 
+            ADD 1 TO  BAL-CNT(CC-PAYCODE) BAL-DUE
+            write balfile01 from charcur01
+           end-if.
+           GO TO P1.
+       F1. IF PHR-CLAIM(Z) NOT = CC-CLAIM GO TO F1-EXIT.
+           MOVE PHR-PAYCODE(Z) TO X
+           ADD 1 TO CNT(X)
+           ADD PHR-AMOUNT(Z) TO TOT(X).
+           IF  (X > 9 AND < 18) OR (X = 19)
+           ADD PHR-AMOUNT(Z) TO ADJ-TOT
+           ADD 1 TO ADJ-CNT.
+           ADD PHR-AMOUNT(Z) TO TOT-CLAIM.
+       F1-EXIT. EXIT.
+       P10. MOVE PARMNAME01 TO L1F1.
+           MOVE 1 TO L1F4 PAGE-X.
+           PERFORM P10-1 
+           PERFORM P12.
+       P20.
+           CLOSE balfile FILEOUT GARFILE CHARCUR INSFILE OUTFILE
+           STOP RUN.
+       P10-1.
+           PERFORM L1.
+           PERFORM P5 THRU P5-EXIT VARYING Z FROM 1 BY 1 UNTIL Z > 990.
+           MOVE  DOT01 TO FILEOUT01. WRITE FILEOUT01.
+           MOVE ADJ-CNT TO L4F2.
+           MOVE ADJ-TOT TO L4F3.
+           MOVE "TOTAL ADJ. " TO F41.
+           WRITE FILEOUT01 FROM LINE-4 .
+           SUBTRACT ADJ-CNT FROM TOT-CNT GIVING YYY.
+           SUBTRACT ADJ-TOT FROM TOT-AMT GIVING ZZZ.
+           MOVE YYY TO L4F2.
+           MOVE ZZZ TO L4F3.
+           MOVE "TOTAL CASH " TO F41.
+           WRITE FILEOUT01 FROM LINE-4 .
+           MOVE  DOT01 TO FILEOUT01. WRITE FILEOUT01.
+           MOVE "TOTALS FOR " TO F41.
+           MOVE TOT-CNT TO L4F2.
+           MOVE TOT-AMT TO L4F3.
+           WRITE FILEOUT01 FROM LINE-4 .
+           MOVE  DOT01 TO FILEOUT01. WRITE FILEOUT01.
+           WRITE FILEOUT01.
+           MOVE CHRCNT TO L4F2 MOVE CHR03 TO L4F3
+           MOVE "CHARGE TOT " TO F41
+           WRITE FILEOUT01 FROM LINE-4 .
+           MOVE "CLAIM BAL  " TO F41
+           MOVE BAL-DUE TO L4F2.
+           MOVE CLAIM-BAL TO L4F3
+           WRITE FILEOUT01 FROM LINE-4 .
+           MOVE "CASH COLLECTION RATIO" TO L5F1
+           COMPUTE L5F2 = 100 * (ZZZ / CHR03).
+           WRITE FILEOUT01 FROM LINE-5 .
+           MOVE "ADJ. COLLECTION RATIO" TO L5F1
+           COMPUTE L5F2 = 100 * (TOT-AMT) / CHR03.
+           WRITE FILEOUT01 FROM LINE-5 .
+           MOVE SPACE TO L6F1
+           MOVE "DATE RANGE       " TO L6F2
+           MOVE "20031216" TO ALF6
+           MOVE SPACE TO L6F3
+           STRING ALF63 "/" ALF61 ALF62 DELIMITED BY "!!" 
+           INTO L6F3
+           MOVE "20040922" TO ALF6
+           MOVE SPACE TO L6F4
+           STRING ALF63 "/" ALF61 ALF62 DELIMITED BY "!!" 
+           INTO L6F4.
+      *     WRITE FILEOUT01 FROM LINE-6 .
+       P12.
+           MOVE "ANALYSIS ON BALANCES" TO FILEOUT01 WRITE FILEOUT01
+           .
+           WRITE FILEOUT01 FROM LINE-2 .
+           PERFORM P6 THRU P6-EXIT VARYING Z FROM 1 BY 1 UNTIL Z > 990.
+           MOVE  DOT01 TO FILEOUT01. WRITE FILEOUT01.
+           MOVE "BALANCE    " TO F41.
+           MOVE BAL-DUE TO L4F2.
+           MOVE CLAIM-BAL TO L4F3.
+           WRITE FILEOUT01 FROM LINE-4 .
+       P5. IF CNT(Z) = 0 GO TO P5-EXIT.
+           COMPUTE Y = Z
+           MOVE Y TO INS-KEY
+           MOVE Y TO L3F1
+           READ INSFILE INVALID MOVE "**NO CODE**" TO INS-NAME.
+           MOVE INS-NAME TO L3F2.
+           MOVE CNT(Z) TO L3F3.
+           MOVE TOT(Z) TO L3F4.
+           COMPUTE L3F5 = 100 * (TOT(Z) / CHR03).
+           ADD CNT(Z) TO TOT-CNT.
+           ADD TOT(Z) TO TOT-AMT.
+           IF LINE-X > 60
+           MOVE 0 TO LINE-X
+           ADD 1 TO PAGE-X
+           MOVE PAGE-X TO L1F4
+           PERFORM L1.
+           WRITE FILEOUT01 FROM LINE-3 .
+           ADD 1 TO LINE-X.
+       P5-EXIT. EXIT.
+       P6. IF BAL-CNT(Z) = 0 GO TO P6-EXIT.
+           COMPUTE Y = Z
+           MOVE Y TO INS-KEY
+           MOVE Y TO L3F1
+           READ INSFILE INVALID MOVE "**NO CODE**" TO INS-NAME.
+           MOVE INS-NAME TO L3F2.
+           MOVE BAL-CNT(Z) TO L3F3.
+           MOVE BAL(Z) TO L3F4.
+           COMPUTE L3F5 = 100 * (BAL(Z) / CHR03).
+      *    ADD BAL-CNT(Z) TO TOT-CNT.
+      *    ADD BAL(Z) TO TOT-AMT.
+           WRITE FILEOUT01 FROM LINE-3 .
+           ADD 1 TO LINE-X.
+       P6-EXIT. EXIT.
+       L1. WRITE FILEOUT01 FROM LINE-1 AFTER PAGE.
+           WRITE FILEOUT01 FROM LINE-2 AFTER 2.
+           MOVE SPACE TO FILEOUT01
+           MOVE 3 TO LINE-X.
+       
+           
+       A2. MOVE 0 TO TOT(Z) CNT(Z) BAL(Z) BAL-CNT(Z)
+           ADJ-CNT ADJ-TOT TOT-AMT TOT-CNT.

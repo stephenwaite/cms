@@ -1,0 +1,49 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. TWO001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT.
+       01  FILEOUT01.
+           02 ASSET-ID PIC 9(7).
+           02 PM-QUAD PIC X(4).
+           02 PM-COF PIC 9.
+           02 PM-REDUN PIC 999.
+           02 PM-FACTOR PIC 9V9.
+           02 PM-POF PIC 9.
+       FD  FILEIN.
+       01  FILEIN01 PIC X(600).
+       WORKING-STORAGE SECTION.
+       01  NUM1 PIC 9.
+       01  NUM1X PIC 9.
+       PROCEDURE DIVISION.
+       0005-START.
+           
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+           MOVE 0 TO ASSET-ID.
+       P1.
+           MOVE SPACE TO FILEIN01
+           READ FILEIN AT END GO TO P2.
+           ADD 1 TO ASSET-ID
+           IF FILEIN01(29:4) NOT = "Syst" GO TO P1.
+           MOVE FILEIN01(3:4) TO PM-QUAD
+           MOVE FILEIN01(226:1) TO PM-COF
+           MOVE 100 TO PM-REDUN
+           MOVE FILEIN01(249:1) TO NUM1
+           MOVE FILEIN01(251:1) TO NUM1X
+           COMPUTE PM-FACTOR = NUM1 + (NUM1X / 10)
+           MOVE FILEIN01(286:1) TO PM-POF
+
+           WRITE FILEOUT01
+           GO TO P1.
+       P2.
+           CLOSE FILEIN FILEOUT.
+           STOP RUN.

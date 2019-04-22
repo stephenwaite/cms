@@ -1,0 +1,37 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CHARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FILEIN01 pic x(80).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(80). 
+       working-storage section.
+       01  x pic 9(6) value 0.
+       01  alf3 pic xxx.
+       01  num3 pic 999.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+       P1. READ FILEIN AT END GO TO P2.
+           move FILEIN01(52:3) TO ALF3
+           INSPECT ALF3 REPLACING LEADING " " BY "0".
+           MOVE ALF3 TO NUM3
+           ADD NUM3 TO X
+      *     WRITE FILEOUT01 FROM FILEIN01
+           GO TO P1.
+       P2.
+           DISPLAY X
+           ACCEPT OMITTED
+           CLOSE FILEIN FILEOUT
+           STOP RUN.

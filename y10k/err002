@@ -1,0 +1,171 @@
+        IDENTIFICATION DIVISION.
+       PROGRAM-ID. NEI146.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CHARCUR ASSIGN TO "S30"     ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT PAYFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC        RECORD KEY IS PAYFILE-KEY
+           LOCK MODE MANUAL.
+           SELECT PAYCUR ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY
+           LOCK MODE MANUAL.
+           SELECT PAYDAL ASSIGN TO "S45" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS PAYDAL-KEY
+           LOCK MODE MANUAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PAYCUR.
+       01  PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC XXX.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC X(6).
+           02 PC-DATE-T PIC X(8).
+           02 PC-DATE-E PIC X(8).
+           02 PC-BATCH PIC X(6).
+       FD  PAYFILE.
+       01  PAYFILE01.
+           02 PAYFILE-KEY.
+             03 PD-KEY8 PIC X(8).
+             03 PD-KEY3 PIC XXX.
+           02 PD-NAME PIC X(24).
+           02 PD-AMOUNT PIC S9(4)V99.
+           02 PD-PAYCODE PIC XXX.
+           02 PD-DENIAL PIC XX.
+           02 PD-CLAIM PIC X(6).
+           02 PD-DATE-T PIC X(8).
+           02 PD-DATE-E PIC X(8).
+           02 PD-ORDER PIC X(6).
+           02 PD-BATCH PIC X(6).
+       FD  PAYDAL.
+       01  PAYDAL01.
+           02 PAYDAL-KEY.
+             03 PP-KEY8 PIC X(8).
+             03 PP-KEY3 PIC XXX.
+           02 PP-NAME PIC X(24).
+           02 PP-AMOUNT PIC S9(4)V99.
+           02 PP-PAYCODE PIC XXX.
+           02 PP-DENIAL PIC XX.
+           02 PP-CLAIM PIC X(6).
+           02 PP-DATE-T PIC X(8).
+           02 PP-DATE-E PIC X(8).
+           02 PP-ORDER PIC X(6).
+           02 PP-BATCH PIC X(6).
+       FD  CHARCUR
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC. 
+              03 CC-PROC1 PIC X(5).
+              03 CC-PROC2 PIC XX.
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AGE PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       WORKING-STORAGE SECTION.
+
+       01  CLAIM-TOT PIC S9(5)V99.
+       01  TOT-PAY PIC S9(5)V99 VALUE 0.
+       01  X PIC 99.
+       01  Y PIC 99.
+       01  Z PIC 99.
+       01  A PIC 99.
+       01  XYZ PIC 999.
+       01  PAYBACK01 PIC X(80).
+       01  ALF1 PIC X.
+       01  nef-8 pic z,zzz.99CR.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN INPUT PAYFILE CHARCUR PAYCUR.
+           OPEN I-O PAYDAL.
+       P1.
+           READ PAYFILE NEXT AT END GO TO P9.
+           IF PD-DENIAL = "14" GO TO P1.
+           MOVE PD-KEY8 TO CC-KEY8
+           MOVE SPACE TO CC-KEY3
+           START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO P1.
+       P2. 
+           READ CHARCUR NEXT AT END GO TO P1.
+           IF CC-KEY8 NOT = PD-KEY8 GO TO P1.
+           IF CC-CLAIM NOT = PD-CLAIM
+            GO TO P2
+           END-IF
+           DISPLAY CC-KEY8
+           ACCEPT OMITTED
+           PERFORM S4 THRU S5
+           IF CLAIM-TOT >= 0 GO TO P1.
+           MOVE PAYFILE01 TO PAYDAL01
+           MOVE "15" TO PP-DENIAL
+           COMPUTE PP-AMOUNT = -1 * CLAIM-TOT
+           MOVE PAYDAL01 TO PAYBACK01
+           MOVE 0 TO XYZ
+           PERFORM P3 THRU P4
+           GO TO P1.
+       P3.
+           ADD 1 TO XYZ
+           MOVE XYZ TO PP-KEY3
+           READ PAYDAL INVALID KEY GO TO P4.
+           GO TO P3.
+       P4.
+           MOVE PAYBACK01 TO PAYDAL01
+           MOVE XYZ TO PD-KEY3
+           MOVE "003" TO PP-PAYCODE
+           WRITE PAYDAL01.
+       S4.
+           COMPUTE CLAIM-TOT = CC-AMOUNT.
+           MOVE CC-KEY8 TO PC-KEY8
+           MOVE "000" TO PC-KEY3.
+           START PAYCUR KEY NOT <  PAYCUR-KEY INVALID GO TO S5.
+       S41.
+           READ PAYCUR NEXT AT END GO TO S5.
+           IF PC-KEY8 NOT = CC-KEY8 GO TO S5.
+           IF PC-CLAIM NOT = CC-CLAIM GO TO S41. 
+           COMPUTE CLAIM-TOT = CLAIM-TOT + PC-AMOUNT.
+           GO TO S41.
+       S5. EXIT.
+       P9.
+           CLOSE PAYFILE PAYDAL CHARCUR PAYCUR
+           STOP RUN.

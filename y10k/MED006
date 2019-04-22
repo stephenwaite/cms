@@ -1,0 +1,62 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. SSS052.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT MEDFILE2016 ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS MED-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEIN ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD FILEIN.
+       01  FILEIN01. 
+           02 FILLER PIC X(21).
+           02 FI-CPT PIC X(5).
+           02 FILLER PIC X(3).
+           02 FI-MOD PIC XX.
+           02 FILLER PIC X(5).
+           02 FI-DOLLAR PIC XXXXX.
+           02 FILLER PIC X.
+           02 FI-CENTS PIC XX.
+       FD MEDFILE2016.
+       01 MEDFILE201601.
+           02 MED-KEY.
+             03 MED-KEY1 PIC X(5).
+             03 MED-KEY2 PIC XX.
+           02 MED-AMT PIC 9(5)V99.
+           
+       WORKING-STORAGE SECTION.
+       01  NUM2 PIC 99.
+       01  NUM5 PIC 99999.
+       01  ALF2 PIC XX.
+       01  ALF5 PIC XxxxX.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN output MEDFILE2016.
+           close medfile2016.
+           OPEN I-O MEDFILE2016.
+           OPEN INPUT FILEIN.
+       P1.
+           READ FILEIN AT END GO TO P99.
+           move FI-CPT TO MED-KEY1
+           MOVE FI-MOD TO MED-KEY2
+           INSPECT FI-DOLLAR REPLACING LEADING " " BY "0".
+           INSPECT FI-CENTS REPLACING LEADING " " BY "0".
+           MOVE FI-DOLLAR TO NUM5
+           move FI-CENTS to num2
+           display fi-dollar
+           display fi-cents
+           COMPUTE MED-AMT = num5 + (num2 / 100)
+           WRITE MEDFILE201601
+           INVALID
+           DISPLAY FILEIN01
+           ACCEPT OMITTED
+           END-WRITE
+           GO TO P1.
+       P99.
+           CLOSE MEDFILE2016 FILEIN.
+           STOP RUN.

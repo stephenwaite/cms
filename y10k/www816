@@ -1,0 +1,99 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. BBB816.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT PAYCUR ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY
+           lock mode manual.
+           SELECT FILEOUT ASSIGN TO "S40"
+           ORGANIZATION LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION. 
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FILEIN-KEY.
+             03 FI-KEY8 PIC X(8).
+             03 FI-KEY3 PIC XXX.
+           02 FI-PATID PIC X(8).
+           02 FI-CLAIM PIC X(6).
+           02 FI-SERVICE PIC X.
+           02 FI-DIAG PIC X(7).
+           02 FI-PROC PIC X(7).
+           02 FI-MOD2 PIC XX.
+           02 FI-MOD3 PIC XX.
+           02 FI-MOD4 PIC XX.
+           02 FI-AMOUNT PIC S9(4)V99.
+           02 FI-DOCR PIC X(3).
+           02 FI-DOCP PIC X(2).
+           02 FI-PAYCODE PIC XXX.
+           02 FI-STUD PIC X.
+           02 FI-WORK PIC XX.
+           02 FI-DAT1 PIC X(8).
+           02 FI-RESULT PIC X.
+           02 FI-ACT PIC X.
+           02 FI-SORCREF PIC X.
+           02 FI-COLLT PIC X.
+           02 FI-AUTH PIC X.
+           02 FI-PAPER PIC X.
+           02 FI-PLACE PIC X.
+           02 FI-EPSDT PIC X.
+           02 FI-DATE-T PIC X(8).
+           02 FI-DATE-A PIC X(8).
+           02 FI-DATE-P PIC X(8).
+           02 FI-REC-STAT PIC X.
+           02 FI-DX2 PIC X(7).
+           02 FI-DX3 PIC X(7).
+           02 FI-ACC-TYPE PIC X.
+           02 FI-DATE-M PIC X(8).
+           02 FI-ASSIGN PIC X.
+           02 FI-NEIC-ASSIGN PIC X.
+           02 FI-DX4 PIC X(7).
+           02 FI-DX5 PIC X(7).
+           02 FI-DX6 PIC X(7).
+           02 FI-FUTURE PIC X(6).
+
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(50).
+       FD PAYCUR
+           BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS PAYCUR01.
+       01 PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC XXX.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC X(6).
+           02 PC-DATE-T PIC X(8).
+           02 PC-DATE-E PIC X(8).
+           02 PC-BATCH PIC X(6).
+       WORKING-STORAGE SECTION.
+       01  CNTR PIC 9.
+       01  ANS PIC X.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN PAYCUR 
+                OUTPUT FILEOUT.
+       P1. 
+           READ FILEIN AT END GO TO P2.
+           IF FI-DATE-T > "20171231" GO TO P1.
+           MOVE FI-KEY8 TO PC-KEY8
+           MOVE SPACE TO PC-KEY3
+           START PAYCUR KEY NOT < PAYCUR-KEY
+              INVALID GO TO P1.
+       P3. READ PAYCUR NEXT AT END GO TO P1.
+           IF PC-KEY8 NOT = FI-KEY8 GO TO P1.
+           IF PC-DATE-T NOT = "20181102" GO TO P3.
+           IF NOT (PC-PAYCODE = "004" OR "064")  GO TO P3.
+           IF PC-CLAIM NOT = FI-CLAIM GO TO P3.
+           WRITE FILEOUT01 FROM PAYCUR01 
+           GO TO P1.
+           GO TO P3.
+       P2. CLOSE FILEOUT PAYCUR FILEIN . STOP RUN.

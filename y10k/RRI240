@@ -1,0 +1,244 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RRI240.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ACTFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC      RECORD KEY IS A-ACTNO
+           ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
+           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
+           SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
+           SELECT ORDFILE ASSIGN TO "S40"     ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC        RECORD KEY IS ORDNO
+           ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
+       DATA DIVISION.
+       FILE SECTION.
+       FD ORDFILE
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS ORDFILE01.
+       01 ORDFILE01.
+           02 ORDNO.
+             03 ORD8 PIC X(8).
+             03 ORD3 PIC XXX.
+           02 C-PROC PIC X(4).
+           02 C-IND PIC X.
+           02 C-REF PIC XXX.
+           02 C-IOPAT PIC X.
+           02 C-DATE-A PIC X(8).
+           02 C-DATE-T PIC X(8).
+           02 C-DATE-ADMIT PIC X(8).
+           02 C-ORDER PIC XXXX.
+           02 C-CLINICAL PIC X(40).
+           02 C-ADMIT-DIAG PIC X(30).
+           02 C-DATE-E PIC X(8).
+           02 C-CPT PIC X(5).
+       FD GARFILE
+           BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS GARFILE01.
+       01 GARFILE01.
+           02 G-GARNO.
+             03 ID1 PIC XXX.
+             03 ID2 PIC XXX.
+             03 ID3 PIC X.
+             03 ID4 PIC X.
+           02 G-GARNAME.
+             03 G-GN1 PIC XXX.
+             03 G-GN2 PIC X(21).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(10).
+           02 G-PRIPOL PIC X(16).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(10).
+           02 G-SECPOL PIC X(16).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-INSPEND PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+       FD ACTFILE
+           BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS ACTFILE01.
+       01 ACTFILE01.
+           02 A-ACTNO PIC X(8).
+           02 A-GARNAME.
+             03 A-GN1 PIC XXX.
+             03 A-GN2 PIC X(21).
+           02 A-BILLADD PIC X(22).
+           02 A-STREET PIC X(22).
+           02 A-CITY PIC X(18).
+           02 A-STATE PIC X(2).
+           02 A-ZIP.
+             03 A-ZIP5 PIC X(5).
+             03 A-ZIP4 PIC X(4).
+           02 A-COLLT PIC X.
+           02 A-PHONE.
+             03 A-PHONE1 PIC XXX.
+             03 A-PHONE2 PIC XXX.
+             03 A-PHONE3 PIC X(4).
+           02 A-SEX PIC X.
+           02 A-RELATE PIC X.
+           02 A-MSTAT PIC X.
+           02 A-DOB PIC X(8).
+           02 A-DUNNING PIC X.
+           02 A-ACCTSTAT PIC X.
+           02 A-PR-MPLR PIC X(4).
+           02 A-PRINS PIC XXX.
+           02 A-PR-ASSIGN PIC X.
+           02 A-PR-OFFICE PIC X(4).
+           02 A-PR-GROUP PIC X(10).
+           02 A-PRIPOL PIC X(16).
+           02 A-PRNAME PIC X(24).
+           02 A-PR-RELATE PIC X.
+           02 A-SE-MPLR PIC X(4).
+           02 A-SEINS PIC XXX.
+           02 A-SE-ASSIGN PIC X.
+           02 A-TRINSIND PIC X.
+           02 A-TRINS PIC XXX.
+           02 A-SE-GROUP PIC X(10).
+           02 A-SECPOL PIC X(16).
+           02 A-SENAME PIC X(24).
+           02 A-SE-RELATE PIC X.
+           02 A-INSPEND PIC X(7).
+           02 A-LASTBILL PIC X(8).
+           02 A-ASSIGNM PIC X.
+           02 A-PRIVATE PIC X.
+           02 A-BILLCYCLE PIC X.
+           02 A-DELETE PIC X.
+           02 A-FILLER PIC XXX.
+           02 A-GARNO PIC X(8).
+           02 A-PRGRPNAME PIC X(15).
+           02 A-SEGRPNAME PIC X(15).
+           02 NAME-KEY PIC XXX.
+       WORKING-STORAGE SECTION.
+       01  GARTAB01.
+           02 GARTAB PIC X(8) OCCURS 15 TIMES.
+       01  X PIC 99.
+       01  Y PIC 99.
+       01  LINE-1.
+           02 L1F1 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L1F2 PIC X(24).
+           02 FILLER PIC X VALUE SPACE.
+           02 L1F3 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L1F4 PIC X(24).
+       01 FLAG PIC 9.
+       01 LINE-2.
+           02 FO-1 PIC X(24).
+           02 FILLER PIC X VALUE SPACE.
+           02 FO-2 PIC X(12).
+           02 FILLER PIC X VALUE SPACE.
+           02 FO-3 PIC X(12).
+       01  LINE-3.
+           02 FILLER PIC X(20) VALUE SPACE.
+           02 L3F1 PIC X(10).
+           02 FILLER PIC X VALUE SPACE.
+           02 L3F2 PIC X(16).
+           02 FILLER PIC X VALUE SPACE.
+           02 L3F3 PIC X.
+           02 FILLER PIC X VALUE SPACE.
+           02 L3F4 PIC X(24).
+       01  HOLD8 PIC X(8).
+       PROCEDURE DIVISION.
+       P0.
+           OPEN I-O ACTFILE INPUT GARFILE ORDFILE.
+           MOVE SPACE TO HOLD8
+           MOVE SPACE TO ORDNO
+           START ORDFILE KEY NOT < ORDNO INVALID GO TO P6.
+       P1.
+           READ ORDFILE NEXT AT END GO TO P6.
+           IF ORD8 = HOLD8 GO TO P1.
+           MOVE ORD8 TO HOLD8
+           MOVE ORDNO TO A-ACTNO
+           READ ACTFILE WITH LOCK INVALID DISPLAY "BAD " ORD8 GO TO P1.
+           IF A-GARNO = SPACE GO TO P1-1.
+           MOVE A-GARNO TO G-GARNO
+           READ GARFILE INVALID GO TO P1-1.
+           GO TO P3.
+       P1-1.
+           MOVE A-ACTNO TO G-ACCT
+           START GARFILE KEY NOT < G-ACCT INVALID GO TO P1.
+           MOVE 0 TO X.
+       P2.
+           READ GARFILE NEXT AT END GO TO P1.
+           IF (G-ACCT NOT = A-ACTNO) GO TO P1.
+           IF  (G-GN1 NOT = A-GN1) GO TO P2.
+           IF G-DUNNING NOT = "1" GO TO P2.
+           IF A-DOB NOT = G-DOB GO TO P2.
+           IF (A-PRINS = G-PRINS) AND (A-SEINS = G-SEINS)
+             MOVE G-GARNO TO A-GARNO
+             REWRITE ACTFILE01
+             GO TO P1.
+           IF (A-PRINS = G-PRINS) 
+             AND (A-PRINS = "003") 
+             AND (G-SEINS = "062")
+             MOVE G-GARNO TO A-GARNO
+             PERFORM NEW-DATA
+             GO TO P1.
+            GO TO P2.
+       P3.
+           MOVE A-GARNO TO G-GARNO
+           READ GARFILE INVALID
+            MOVE SPACE TO A-GARNO
+            REWRITE ACTFILE01
+            GO TO P1-1.
+           IF A-PRINS = G-PRINS
+            AND A-SEINS = G-SEINS
+            GO TO P1.
+           IF A-PRINS = G-PRINS
+             AND A-PRINS = "003" 
+             AND G-SEINS = "062"
+             PERFORM NEW-DATA
+           GO TO P1.
+            MOVE SPACE TO A-GARNO
+            REWRITE ACTFILE01
+            GO TO P1-1.
+       NEW-DATA.
+           MOVE G-PR-ASSIGN TO A-PR-ASSIGN
+           MOVE G-PRIPOL TO A-PRIPOL
+           MOVE G-PR-GROUP TO A-PR-GROUP
+           MOVE G-PR-RELATE TO A-PR-RELATE
+           MOVE G-PRNAME TO A-PRNAME
+           MOVE G-SE-ASSIGN TO A-SE-ASSIGN
+           MOVE G-SECPOL TO A-SECPOL
+           MOVE G-SE-GROUP TO A-SE-GROUP
+           MOVE G-SE-RELATE TO A-SE-RELATE
+           MOVE G-SENAME TO A-SENAME
+           MOVE "1" TO G-DELETE
+           REWRITE ACTFILE01.
+       
+       P6. CLOSE GARFILE ACTFILE ORDFILE.
+           STOP RUN.

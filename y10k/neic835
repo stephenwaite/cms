@@ -1,0 +1,68 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CHARY2K.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S30".
+           SELECT FILEOUT ASSIGN TO "S35"
+           ORGANIZATION LINE SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FI-1 PIC X.
+     
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(200).
+           
+       WORKING-STORAGE SECTION.
+       01 IN-TAB01.
+          02 IN-TAB PIC X OCCURS 200 TIMES.
+       01 SAVETAB01.
+          02 SAVETAB PIC X OCCURS 200 TIMES.
+
+       01 X PIC 9999.
+       01 Y PIC 9999.
+       01 CNTR PIC 999999 VALUE 0.
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT FILEIN OUTPUT FILEOUT.
+           PERFORM INIT-1.
+       P1. READ FILEIN AT END GO TO P99.
+           ADD 1 TO CNTR
+           IF FI-1 NOT = "@" 
+           
+           ADD 1 TO X
+           IF X > 200
+            DISPLAY IN-TAB(1) IN-TAB(2) IN-TAB(3) IN-TAB(4) " " CNTR
+            GO TO P1
+           END-IF
+           MOVE FI-1 TO IN-TAB(X)
+           GO TO P1.
+           MOVE SPACE TO SAVETAB01
+           PERFORM VARYING X FROM 1 BY 1 UNTIL X > 200
+           IF IN-TAB(X) NOT = SPACE
+            MOVE X TO Y
+            MOVE 200 TO X
+           END-IF
+           END-PERFORM
+           IF Y = 1
+            WRITE FILEOUT01 FROM IN-TAB01
+            PERFORM INIT-1
+           GO TO P1.
+
+           MOVE 0 TO CNTR
+           PERFORM VARYING X FROM Y BY 1 UNTIL X > 200
+            ADD 1 TO CNTR
+            MOVE IN-TAB(X) TO SAVETAB(CNTR)
+           END-PERFORM
+           WRITE FILEOUT01 FROM SAVETAB01
+           PERFORM INIT-1
+           GO TO P1.
+       INIT-1.
+           MOVE 0 TO X
+           MOVE SPACE TO IN-TAB01.
+       P99.
+           CLOSE FILEOUT.
+           STOP RUN.

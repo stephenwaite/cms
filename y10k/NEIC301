@@ -1,0 +1,475 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. NEI139.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT CAREFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS CARE-KEY
+           LOCK MODE MANUAL.
+           SELECT PARMFILE ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEIN ASSIGN TO "S40" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT GARFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT CHARCUR ASSIGN TO "S55" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT FILEOUT2 ASSIGN TO "S60" ORGANIZATION
+           LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(22).
+       FD  CHARCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC. 
+              03 CC-PROC0 PIC X(4).
+              03 CC-PROC1 PIC X(5).
+              03 CC-PROC2  PIC XX.
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       
+       FD  GARFILE
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS G-MASTER.
+       01  G-MASTER.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(10).
+           02 G-PRIPOL PIC X(16).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(10).
+           02 G-SECPOL PIC X(16).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-COPAY PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+       
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-PC PIC XXX.
+           02 FI-PATID.
+             03 FI-PATID7 PIC X(7).
+             03 FI-PATID8 PIC X.
+           02 FI-KEY.
+              03 FI-KEY8 PIC X(8).
+              03 FI-KEY3 PIC XXX.
+       FD  PARMFILE.
+       01  PARMFILE01.
+           02 PM1 PIC X(10).
+           02 PM2 PIC X(41).
+           
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(120).
+       FD  CAREFILE.
+       01  CAREFILE01.
+           02 CARE-KEY.
+              03 CR-KEY8 PIC X(8).
+              03 CR-DATE PIC X(8).
+              03 CR-PROC PIC X(5).
+              03 CR-MOD1 PIC XX.
+              03 CR-MOD2 PIC XX.
+           02 CR-PAYDATE PIC X(8).
+           02 CR-DOCP    PIC X(6).
+           02 CR-POS     PIC XX.
+           02 CR-BILLED PIC 9(4)V99.
+           02 CR-ALLOWED PIC 9(4)V99.
+           02 CR-DEDUCT  PIC 9(4)V99.
+           02 CR-PAYED   PIC 9(4)V99.
+           02 CR-DENIAL1 PIC X(4).
+           02 CR-DENIAL2 PIC X(4).
+           02 CR-DENIAL3 PIC X(4).
+           02 CR-DENIAL4 PIC X(4).
+           02 CR-PAYDENIAL PIC X(4). 
+           02 CR-ICN PIC X(13).
+           02 CR-CK-EFT PIC X(9).
+           02 CR-INSNAME PIC X(30).
+       WORKING-STORAGE SECTION.
+       01  LINE-1.
+           02 FILLER PIC X(4) VALUE SPACE.
+           02 L1F1 PIC X(30).
+           02 L1-CK-EFT PIC X(9).
+           02 FILLER PIC X(29) VALUE SPACE.
+       01  LINE-2.
+           02 FILLER PIC X(4) VALUE SPACE.
+           02 FILLER PIC X(11) VALUE "PROVIDER #:".
+           02 FILLER PIC X VALUE SPACE.
+           02 L2-PROV PIC X(10).
+           02 FILLER PIC X(40) VALUE SPACE.
+           02 L2-NAME PIC X(45).
+           02 FILLER PIC X VALUE SPACE.
+           02 FILLER PIC X(10) VALUE "REMITTANCE".
+       01  LINE-3.
+           02 FILLER PIC X(4) VALUE SPACE.
+           02 FILLER PIC X(12) VALUE "CHECK/EFT #:".
+           02 L3-CK-EFT PIC X(9).
+           02 FILLER PIC X(16) VALUE SPACE.
+           02 L3-PAYDATE PIC X(8).
+           02 FILLER PIC X(63) VALUE SPACE.
+           02 FILLER PIC X(6) VALUE "NOTICE".
+       01  LINE-4.
+           02 FILLER PIC X(2) VALUE SPACE.
+           02 FILLER PIC X(9) VALUE "PERF PROV".
+           02 FILLER PIC XX VALUE SPACE.
+           02 FILLER PIC X(9) VALUE "SERV DATE".
+           02 FILLER PIC XX VALUE SPACE.
+           02 FILLER PIC X(7) VALUE "POS NOS".
+           02 FILLER PIC XXXX VALUE SPACE.
+           02 FILLER PIC X(11) VALUE "PROC   MODS".
+           02 FILLER PIC X(7) VALUE SPACE.
+           02 FILLER PIC X(6) VALUE "BILLED".
+           02 FILLER PIC XXXX VALUE SPACE.
+           02 FILLER PIC X(7) VALUE "ALLOWED".
+           02 FILLER PIC XX VALUE SPACE.
+           02 FILLER PIC X(6) VALUE "DEDUCT".
+           02 FILLER PIC XXXX VALUE SPACE.
+           02 FILLER PIC X(5) VALUE "COINS".
+           02 FILLER PIC X(6) VALUE SPACE.
+           02 FILLER PIC X(11) VALUE "GRP/RO-AMT".
+           02 FILLER PIC XXXX VALUE SPACE.
+           02 FILLER PIC X(7) VALUE "PROV PD".
+       01  LINE-5.
+           02 FILLER PIC X(2) VALUE SPACE.
+           02 FILLER PIC XXXX VALUE "NAME".
+           02 FILLER PIC X VALUE SPACE.
+           02 L5-GARNAME PIC X(23).
+           02 FILLER PIC X VALUE SPACE.
+           02 FILLER PIC XXX VALUE "HIC".
+           02 FILLER PIC X VALUE SPACE.
+           02 L5-PRIPOL PIC X(12).
+           02 FILLER PIC XX VALUE SPACE.
+           02 FILLER PIC XXXX VALUE "ACNT".
+           02 FILLER PIC X VALUE SPACE.
+           02 L5-GARNO PIC X(8).
+           02 FILLER PIC X(14) VALUE SPACE.
+           02 FILLER PIC XXX VALUE "ICN".
+           02 FILLER PIC X VALUE SPACE.
+           02 L5-ICN PIC X(13).
+           02 FILLER PIC XX VALUE SPACE.
+           02 FILLER PIC X(10) VALUE "ASG Y  MOA".
+           02 FILLER PIC XX VALUE SPACE.
+           02 L5-DENIAL1 PIC X(5).
+           02 FILLER PIC X VALUE SPACE.
+           02 L5-DENIAL2 PIC X(5).
+       01  LINE-6.
+           02 FILLER PIC X(110) VALUE SPACE.
+           02 L6-DENIAL3 PIC X(5).
+           02 FILLER PIC X VALUE SPACE.
+           02 L6-DENIAL4 PIC X(5).
+       01  LINE-7.
+           02 FILLER PIC X(2) VALUE SPACE.
+           02 L7-DOCP PIC X(6).
+           02 FILLER PIC X(5) VALUE SPACE.
+           02 L7-MMDD PIC X(4).
+           02 FILLER PIC X VALUE SPACE.
+           02 L7-MMDDYY PIC X(6).
+           02 FILLER PIC X VALUE SPACE.
+           02 L7-POS PIC XX.
+           02 FILLER PIC X(4) VALUE SPACE.
+           02 L7-UNITS PIC XX.
+           02 FILLER PIC X VALUE SPACE.
+           02 L7-PROC PIC X(5).
+           02 FILLER PIC X VALUE SPACE.
+           02 L7-MOD1 PIC XX.
+           02 FILLER PIC X VALUE SPACE.
+           02 L7-MOD2 PIC XX.
+           02 FILLER PIC X(6) VALUE SPACE.
+           02 L7-BILLED PIC Z,ZZ9.99.
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L7-ALLOWED PIC Z,ZZ9.99.
+           02 FILLER PIC XX VALUE SPACE.
+           02 L7-DEDUCT PIC ZZ9.99.
+           02 FILLER PIC X VALUE SPACE.
+           02 L7-COINS PIC Z,ZZ9.99.
+           02 FILLER PIC X VALUE SPACE.
+           02 L7-PAYDNL PIC X(4).
+           02 FILLER PIC X VALUE " ".
+           02 FILLER PIC XX VALUE SPACE.
+           02 L7-RO-AMT PIC Z,ZZ9.99.
+           02 FILLER PIC XXXX VALUE SPACE.
+           02 L7-PAID PIC Z,ZZ9.99.
+       01  LINE-8.
+           02 FILLER PIC X(2) VALUE SPACE.
+           02 FILLER PIC X(7) VALUE "PT RESP".
+           02 FILLER PIC X VALUE SPACE.
+           02 L8-PT-RESP PIC Z,ZZ9.99.
+           02 FILLER PIC X(16) VALUE SPACE.
+           02 FILLER PIC X(12) VALUE "CLAIM TOTALS".
+           02 FILLER PIC X(5) VALUE SPACE.
+           02 L8-BILLED PIC Z,ZZ9.99.
+           02 FILLER PIC XXX VALUE SPACE.
+           02 L8-ALLOWED PIC Z,ZZ9.99.
+           02 FILLER PIC XX VALUE SPACE.
+           02 L8-DEDUCT PIC ZZ9.99.
+           02 FILLER PIC X VALUE SPACE.
+           02 L8-COINS PIC Z,ZZ9.99.
+           02 FILLER PIC X(8) VALUE SPACE.
+           02 L8-RO-AMT PIC Z,ZZ9.99.
+           02 FILLER PIC XXXX VALUE SPACE.
+           02 L8-PAID PIC Z,ZZ9.99.
+       01  LINE-9.
+           02 FILLER PIC X(2) VALUE SPACE.
+           02 L9-CLAIM PIC X(5) VALUE "CLAIM".
+           02 FILLER PIC X VALUE SPACE.
+           02 L9-INFORM PIC X(11) VALUE "INFORMATION".
+           02 FILLER PIC X VALUE SPACE.
+           02 L9-FOWARD PIC X(13) VALUE "FOWARDED TO:".
+           02 L9-INSNAME PIC X(30).
+           02 FILLER PIC X(44) VALUE SPACE.
+           02 L9-PAID PIC Z,ZZ9.99.
+           02 FILLER PIC X VALUE SPACE.
+           02 FILLER PIC XXX VALUE "NET".
+       01  UNDERLINE01.
+           02 FILLER PIC X(2) VALUE SPACE.
+           02 UL-1 PIC X(113).
+       01  NUM-PAID PIC 9(4)V99.
+       01  NUM-COINS PIC 9(4)V99.
+       01  NUM-RO-AMT PIC 9(4)V99.
+       01  TOT-BILLED PIC 9(4)V99.
+       01  TOT-ALLOWED PIC 9(4)V99.
+       01  TOT-DEDUCT PIC 9(4)V99.
+       01  TOT-COINS PIC 9(4)V99.
+       01  TOT-RO-AMT PIC 9(4)V99.
+       01  TOT-PAID PIC 9(4)V99.
+       01  DATE-MMDD.
+           02 MMDD-MM PIC XX.
+           02 MMDD-DD PIC XX.
+       01  DATE-MMDDYY.
+           02 MMDDYY-MM PIC XX.
+           02 MMDDYY-DD PIC XX.
+           02 MMDDYY-YY PIC XX.
+       01  TEST-DATE.
+           02 TD-CC PIC XX.
+           02 TD-YY PIC XX.
+           02 TD-MM PIC XX.
+           02 TD-DD PIC XX.
+       01  FLAG PIC 9.
+       01  UNDERLINES PIC X(113).
+       01  ALF24 PIC X(24).
+       01  ALF24X PIC X(24).
+       PROCEDURE DIVISION.
+       0005-START.
+           MOVE ALL "_" TO UNDERLINES.
+           MOVE UNDERLINES TO UL-1
+           OPEN INPUT CAREFILE PARMFILE FILEIN GARFILE CHARCUR.
+           OPEN EXTEND FILEOUT FILEOUT2
+           READ PARMFILE AT END GO TO P99.
+           MOVE PM1 TO L2-PROV
+           MOVE PM2 TO L2-NAME.
+       P1. READ FILEIN AT END GO TO P99.
+           MOVE FI-KEY TO CHARCUR-KEY
+           READ CHARCUR INVALID PERFORM A1 GO TO P1.
+           MOVE FI-KEY8 TO G-GARNO
+           READ GARFILE INVALID PERFORM A1 GO TO P1.
+           MOVE FI-KEY8 TO CR-KEY8
+           MOVE CC-DATE-T TO CR-DATE
+           MOVE SPACE TO CR-PROC CR-MOD1 CR-MOD2 
+           START CAREFILE KEY NOT < CARE-KEY INVALID
+           PERFORM A1 GO TO P1.
+           MOVE 0 TO TOT-BILLED TOT-ALLOWED TOT-DEDUCT 
+             TOT-COINS TOT-RO-AMT TOT-PAID FLAG.
+           
+       P2. READ CAREFILE NEXT AT END GO TO P4.
+           IF CR-KEY8 NOT = CC-KEY8 GO TO P4.
+           IF CR-DATE NOT = CC-DATE-T GO TO P2.
+           IF FLAG =0
+           MOVE CR-DATE TO TEST-DATE
+           MOVE TD-MM TO MMDD-MM
+           MOVE TD-DD TO MMDD-DD
+           MOVE TD-MM TO MMDDYY-MM
+           MOVE TD-DD TO MMDDYY-DD
+           MOVE TD-YY TO MMDDYY-YY
+           MOVE DATE-MMDD TO L7-MMDD
+           MOVE DATE-MMDDYY TO L7-MMDDYY
+           MOVE CR-PAYDATE TO TEST-DATE
+           MOVE SPACE TO L3-PAYDATE
+           STRING TD-MM "/" TD-DD "/" TD-YY DELIMITED BY "!!"
+           INTO L3-PAYDATE
+           MOVE CR-CK-EFT TO L1-CK-EFT L3-CK-EFT
+           MOVE CR-INSNAME TO L9-INSNAME
+           MOVE 1 TO FLAG.
+           MOVE SPACE TO ALF24 ALF24X L5-GARNAME
+           UNSTRING G-GARNAME DELIMITED BY ";" INTO ALF24 ALF24X
+           STRING ALF24 ", " ALF24X DELIMITED BY "  " INTO L5-GARNAME
+           MOVE G-PRIPOL TO L5-PRIPOL
+           MOVE FI-KEY8 TO L5-GARNO
+           MOVE CR-ICN TO L5-ICN
+           MOVE CR-DENIAL1 TO L5-DENIAL1
+           MOVE CR-DENIAL2 TO L5-DENIAL2
+
+           IF FLAG = 1
+           PERFORM B1
+           MOVE 2 TO FLAG.
+
+           MOVE CR-DOCP TO L7-DOCP
+           MOVE CR-POS TO L7-POS
+           MOVE CC-WORK TO L7-UNITS
+           INSPECT L7-UNITS REPLACING LEADING "0" BY " ".
+           MOVE CR-PROC TO L7-PROC
+           MOVE CR-MOD1 TO L7-MOD1
+           MOVE CR-MOD2 TO L7-MOD2
+           COMPUTE NUM-PAID ROUNDED = .80 * (CR-ALLOWED - CR-DEDUCT)
+
+           IF NUM-PAID < CR-PAYED
+           MOVE CR-PAYED TO NUM-PAID.
+           IF CR-ALLOWED = 0
+            COMPUTE NUM-COINS = CR-BILLED
+           ELSE
+            COMPUTE NUM-COINS ROUNDED  = 
+                                  CR-ALLOWED - CR-DEDUCT - NUM-PAID
+           END-IF
+           COMPUTE NUM-RO-AMT = CR-BILLED - CR-ALLOWED
+           MOVE CR-BILLED TO L7-BILLED
+           MOVE CR-ALLOWED TO L7-ALLOWED
+           MOVE CR-DEDUCT TO L7-DEDUCT
+           MOVE NUM-COINS TO L7-COINS
+           MOVE NUM-RO-AMT TO L7-RO-AMT
+           MOVE NUM-PAID TO L7-PAID
+           MOVE CR-PAYDENIAL TO L7-PAYDNL
+           MOVE SPACE TO FILEOUT01
+           MOVE LINE-7 TO FILEOUT01
+           WRITE FILEOUT01
+           ADD CR-BILLED TO TOT-BILLED
+           ADD CR-ALLOWED TO TOT-ALLOWED
+           ADD CR-DEDUCT TO TOT-DEDUCT
+           ADD NUM-COINS TO TOT-COINS
+           ADD NUM-RO-AMT TO TOT-RO-AMT
+           ADD NUM-PAID TO TOT-PAID
+           GO TO P2.
+       P4. IF FLAG = 2
+           MOVE TOT-COINS TO L8-PT-RESP
+           MOVE TOT-BILLED TO L8-BILLED
+           MOVE TOT-ALLOWED TO L8-ALLOWED
+           MOVE TOT-DEDUCT TO L8-DEDUCT
+           MOVE TOT-COINS TO L8-COINS
+           MOVE TOT-RO-AMT TO L8-RO-AMT
+           MOVE TOT-PAID TO L8-PAID
+           MOVE SPACE TO FILEOUT01
+           MOVE LINE-8 TO FILEOUT01
+           WRITE FILEOUT01
+           MOVE TOT-PAID TO L9-PAID
+           MOVE SPACE TO FILEOUT01
+           IF L9-INSNAME = SPACE
+           MOVE SPACE TO L9-CLAIM L9-INFORM L9-FOWARD
+           ELSE MOVE  "CLAIM" TO L9-CLAIM
+           MOVE "INFORMATION" TO L9-INFORM
+           MOVE "FOWARDED TO:" TO L9-FOWARD
+           END-IF
+           MOVE LINE-9 TO FILEOUT01
+      *     WRITE FILEOUT01 
+           MOVE SPACE TO FILEOUT01
+           MOVE UNDERLINE01 TO FILEOUT01
+           WRITE FILEOUT01 AFTER 2
+           ELSE PERFORM A1.
+           GO TO P1.
+
+
+       B1.
+           MOVE SPACE TO FILEOUT01
+           MOVE CR-INSNAME TO L1F1
+           WRITE FILEOUT01 FROM LINE-1 AFTER PAGE
+           MOVE SPACE TO FILEOUT01
+           WRITE FILEOUT01 FROM LINE-2
+           MOVE SPACE TO FILEOUT01
+           WRITE FILEOUT01 FROM LINE-3
+           MOVE SPACE TO FILEOUT01
+           WRITE FILEOUT01
+           WRITE FILEOUT01
+           WRITE FILEOUT01 FROM LINE-4
+           WRITE FILEOUT01 FROM UNDERLINE01
+           MOVE SPACE TO FILEOUT01
+           WRITE FILEOUT01
+           MOVE SPACE TO FILEOUT01
+           MOVE LINE-5 TO FILEOUT01
+           WRITE FILEOUT01
+           IF NOT (CR-DENIAL3 = SPACE AND CR-DENIAL4 = SPACE)
+           MOVE CR-DENIAL3 TO L6-DENIAL3
+           MOVE CR-DENIAL4 TO L6-DENIAL4
+           MOVE SPACE TO FILEOUT01
+           MOVE LINE-6 TO FILEOUT01
+           WRITE FILEOUT01.
+
+
+       A1. MOVE FILEIN01  TO FILEOUT201
+           WRITE FILEOUT201.
+
+       P99.
+           CLOSE FILEOUT FILEOUT2 CAREFILE GARFILE CHARCUR. 
+           STOP RUN.
