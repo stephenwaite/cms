@@ -242,7 +242,7 @@
            IF CD-DIAG NOT = "0000000" AND ALF1 = "1" GO TO P1.
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
             MOVE "R928     " TO CD-DIAG
-            IF (CD-PAYCODE = "003")
+            IF (CD-PAYCODE = "003" OR "200" OR "245" OR "270" OR "868")
               IF (CD-PROC1 = "1446")
                 MOVE "LT" TO CD-MOD2
                 MOVE "10937706526" TO CD-PROC
