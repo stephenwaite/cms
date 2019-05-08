@@ -372,16 +372,32 @@
            END-IF. 
 
            IF CD-PAYCODE = "012"
-             DISPLAY " MEASURE 405: TYPE 1 2 OR 3 OR ENTER FOR NO LES"
+             DISPLAY " MEASURE 405: TYPE ? OR 1 OR 2 OR 3 OR BLANK"
              ACCEPT CD-MOD4
+             IF CD-MOD4 = "?"
+               DISPLAY " 1 = IMAGING NOT RECOMMENDED"
+               DISPLAY " 2 = MEDICAL NECESSITY"
+               DISPLAY " 3 = IMAGING RECOMMENDED; BAD RAD, CALL STEVE"
+               DISPLAY " ENTER = NO LESION"
+               GO TO P2-0
+             END-IF               
              IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
                  GO TO P2-0
              END-IF
            END-IF.
 
            IF CD-PAYCODE = "013"
-             DISPLAY " MEASURE 406: TYPE 1 2 OR 3 OR ENTER FOR NO LES"
+             DISPLAY " MEASURE 406"
+             DISPLAY " < 1CM LESION USE 1 OR 2 OR 3"
+             DISPLAY " BLANK FOR NO LESION"
+             DISPLAY " ? FOR DEFINITIONS"
              ACCEPT CD-MOD4
+             IF CD-MOD4 = "?"
+               DISPLAY " 1 = NO FOLLOWUP RECOMMENDED"
+               DISPLAY " 2 = MEDICAL NECESSITY FOR FOLLOWUP"
+               DISPLAY "3 =  FOLLOWUP RECOMMENDED"
+               GO TO P2-0
+             END-IF
              IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
                  GO TO P2-0
              END-IF
