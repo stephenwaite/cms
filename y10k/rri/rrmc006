@@ -1143,7 +1143,7 @@
            ELSE MOVE "2" TO RELATECODE.
            MOVE X-RELATE TO Y-RELATE
            PERFORM RELATE-1 THRU RELATE-1-EXIT
-           * MOVE RELATECODE TO A-SE-RELATE.
+      *    MOVE RELATECODE TO A-SE-RELATE.
            IF X-IP = "00058   " AND A-PRINS = "003"
            MOVE "0005199     " TO A-PR-GROUP
            MOVE "062" TO A-SEINS.
@@ -1486,6 +1486,7 @@
            IF R3-DOCP = "PEKA" MOVE "07" TO C-DOCP.
            IF R3-DOCP = "SHEL" MOVE "08" TO C-DOCP.
            IF R3-DOCP = "HUMM" MOVE "09" TO C-DOCP.
+           IF R3-DOCP = "BOYE" MOVE "10" TO C-DOCP.
            
            MOVE R3-CLINICAL TO C-CLINICAL
            MOVE R2-DIAG TO C-ADMIT-DIAG
