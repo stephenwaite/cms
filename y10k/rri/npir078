@@ -281,7 +281,7 @@
            IF CC-PROC < "00100  " GO TO A2.
            IF CC-AMOUNT = 0 GO TO A2.
            IF CC-REC-STAT > "1" GO TO A2.
-           if  NOT ( CC-DOCP >= "01" AND <= "09")
+           if  NOT ( CC-DOCP >= "01" AND <= "10")
            MOVE "NO READING DOC        " TO EF2
            MOVE CHARCUR-KEY TO  EF1
            MOVE SPACE TO EF3 EF5 PERFORM E1 GO TO A2.
