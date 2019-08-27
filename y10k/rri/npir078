@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI078.
+       PROGRAM-ID. npir078.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -281,7 +281,7 @@
            IF CC-PROC < "00100  " GO TO A2.
            IF CC-AMOUNT = 0 GO TO A2.
            IF CC-REC-STAT > "1" GO TO A2.
-           if  NOT ( CC-DOCP >= "01" AND <= "10")
+           IF  NOT (CC-DOCP >= 01 AND <= 10)
            MOVE "NO READING DOC        " TO EF2
            MOVE CHARCUR-KEY TO  EF1
            MOVE SPACE TO EF3 EF5 PERFORM E1 GO TO A2.
@@ -293,7 +293,7 @@
             MOVE DOCTAB(CC-DOCP) TO CC-DOCP.
            IF CC-PAPER = "O"
             PERFORM PAPER-1
-            GO TO P1
+            GO TO A2
            END-IF
            MOVE CC-KEY8 TO G-GARNO
            READ GARFILE INVALID
