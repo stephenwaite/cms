@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRR259.
+       PROGRAM-ID. rrr259.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -62,7 +62,7 @@
        01  NUMTAB01.
            02 NUMTAB PIC XX OCCURS 8 TIMES.
        01  HOLD8 PIC X(8) VALUE SPACE.
-       01  HOLDDOC PIC XX VALUE "02".
+       01  HOLDDOC PIC XX VALUE "01".
        01  X PIC 9.
        01  Y PIC 9.
        01  ALF1 PIC X.
@@ -70,22 +70,23 @@
        01  RIGHT-2 PIC XX JUST RIGHT.
        PROCEDURE DIVISION.
        0005-START.
-           MOVE "02" TO NUMTAB(1).
+           MOVE "06" TO NUMTAB(1).
            OPEN I-O CHARFILE.
            MOVE SPACE TO CHARFILE-KEY.
            MOVE 0 TO Y.
        P00.
-           DISPLAY "ENTER NUMBERS I.E. 235,135..., E = END".
+           DISPLAY "ENTER NUMBERS I.E. 1689,169..., E = END".
            ACCEPT ALF1
            IF ALF1 = "E" AND Y = 0 DISPLAY "BAD" GO TO P00.
            IF ALF1 = "E" GO TO P0.
-           IF NOT (ALF1 = "3" OR "6" OR "8" OR "9")
+           IF NOT (ALF1 = "1" OR "6" OR "8" OR "9")
            DISPLAY "BAD" GO TO P00.
            ADD 1 TO Y
            IF Y > 8 MOVE 8 TO Y GO TO P0.
            MOVE SPACE TO RIGHT-2
            UNSTRING ALF1 DELIMITED " " INTO RIGHT-2
            INSPECT RIGHT-2 REPLACING LEADING " " BY "0".
+           IF RIGHT-2 = "01" MOVE "10" TO RIGHT-2.
            MOVE RIGHT-2 TO NUMTAB(Y) 
            GO TO P00.
            
