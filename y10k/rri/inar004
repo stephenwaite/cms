@@ -1,6 +1,6 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. INAR004.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. inar004.
+       AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -776,7 +776,7 @@
       *    SET PLINDX TO 0.
            MOVE 0 TO PLINDX.
        PX0. READ DOCPARM AT END GO TO P00.
-           IF DP-1-1 = "0" GO TO PX0.
+           IF DP-1-1 = "0" OR DPX = "10" GO TO PX0.
            MOVE DP-1-1 TO HIGH-PLACE.
            ADD 1 TO PLINDX
            MOVE DP-1-1 TO PL-TAB(PLINDX)
@@ -787,7 +787,7 @@
            SET BELL0 TO 7.
            MOVE ZERO TO DF-DATE DF-PAYCODE DF-DENIAL.
            MOVE 10 TO DF-AMOUNT.
-           OPEN INPUT PAYFILE.
+           OPEN I-O PAYFILE.
            OPEN INPUT CHARCUR.
            OPEN INPUT AUTHFILE.
            OPEN OUTPUT FILEOUT
