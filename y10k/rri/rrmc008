@@ -230,41 +230,15 @@
        P1.
            READ FILEIN AT END GO TO P99.
            IF FI-1 = "##" MOVE FILEIN01(10:15) TO HOLDNAME.
+
            IF FI-1 = "##"
-           MOVE FILEIN01 TO REC101
-             IF R1-IP1 = "00700" OR "00703" OR "00711" OR "00740"
-               MOVE R1-CERT11 TO ALF20
-               PERFORM FIX-POL
-               MOVE SPACE TO R1-CERT11
-               MOVE ALF13 TO R1-CERT11
-               move rec101 to filein01
-             END-IF             
-             IF R1-IP2 = "00700" OR "00703" OR "00711" OR "00740"
-               MOVE R1-CERT22 TO ALF20
-               PERFORM FIX-POL
-               MOVE SPACE TO R1-CERT22
-               MOVE ALF13 TO R1-CERT22
-               move rec101 to filein01
-             END-IF             
+             MOVE FILEIN01 TO REC101
            END-IF
+
            IF FI-1 = "++"
-           MOVE FILEIN01 TO REC201
-             IF R2-IP3 = "00700" OR "00703" OR "00711" OR "00740"
-               MOVE R2-CERT33 TO ALF20
-               PERFORM FIX-POL
-               MOVE SPACE TO R2-CERT33
-               MOVE ALF13 TO R2-CERT33
-               move rec201 to filein01
-             END-IF             
-             IF R2-IP4 = "00700" OR "00703" OR "00711" OR "00740"
-               MOVE R2-CERT44 TO ALF20
-               PERFORM FIX-POL
-               MOVE SPACE TO R2-CERT44
-               MOVE ALF13 TO R2-CERT44
-               move rec201 to filein01
-             END-IF             
+             MOVE FILEIN01 TO REC201
            END-IF
-           
+
            IF FI-1 NOT = "$$"
            WRITE FILEOUT01 FROM FILEIN01
            GO TO P1.
