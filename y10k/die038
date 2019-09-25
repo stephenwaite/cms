@@ -68,7 +68,7 @@
        FD  FILEIN.
        01  F01 PIC X(90).
        FD  FILEOUT.
-       01  FILEOUT01 pic x(80).
+       01  FILEOUT01 pic x(90).
 
        WORKING-STORAGE SECTION.
        01  LNAME PIC X(10).
@@ -81,11 +81,10 @@
        01  F-DOBHLD PIC X(10).
        01  F-SEXHLD PIC X.
        01  F-MRHLD PIC X(5).
-       01  F-LNAME PIC X(10).
-       01  F-FNAME PIC X(5).
        01  F-DOB PIC X(10).
        01  F-SEX PIC X.
        01  F-MR PIC X(5).
+       01  ERRFILEHOLD-01 PIC X(90).
        PROCEDURE DIVISION.
 
        P0.
@@ -102,10 +101,8 @@
            MOVE SPACE TO F-MRHLD.
            UNSTRING F01 DELIMITED BY "," INTO
             F-DATEHLD LNAMEHLD FNAMEHLD F-DOBHLD F-SEXHLD F-MRHLD
-            MOVE F01 TO ERRFILE01.
-            DISPLAY LNAMEHLD " " FNAMEHLD " " F-DOBHLD " " F-SEXHLD 
-                    " " F-MRHLD.
-            ACCEPT OMITTED.
+           MOVE F01 TO ERRFILE01.
+            
        P1.
            READ FILEIN AT END 
              PERFORM P2 THRU P2-EXIT
@@ -124,25 +121,28 @@
             INVALID PERFORM E1
             GO TO P2-EXIT
            END-START. 
+           
         P3.
            READ GARFILE NEXT AT END 
               PERFORM E1 
               GO TO P2-EXIT
            END-READ.
+           DISPLAY G-GARNO.
+           ACCEPT OMITTED.
            IF G-GARNO(1:3) > LNAMEHLD(1:3)
-             PERFORM E1
-              GO TO P2-EXIT
+               PERFORM E1
+               GO TO P2-EXIT
            END-IF
            MOVE SPACE TO TESTDOB
            STRING F-DOBHLD(1:4) F-DOBHLD(6:2) F-DOBHLD(9:2) DELIMITED
                BY SIZE INTO TESTDOB
            MOVE SPACE TO LNAME FNAME           
            UNSTRING G-GARNAME DELIMITED BY ";" INTO LNAME FNAME
-           IF (LNAMEHLD = LNAME(1:10))
+           IF (LNAMEHLD = LNAME(1:7))
               AND
                (FNAMEHLD(1:3) = FNAME(1:3))
               AND
-              (F-SEXHLD = G-SEX)
+              (F-SEXHLD(1:1) = G-SEX)
               AND 
               (TESTDOB = G-DOB)
              MOVE SPACE TO FILEOUT01
@@ -152,7 +152,7 @@
              WRITE FILEOUT01
              GO TO P2-EXIT
            END-IF           
-           IF (LNAMEHLD = LNAME(1:10))
+           IF (LNAMEHLD = LNAME(1:7))
               AND
                (FNAMEHLD(1:3) = FNAME(1:3))
               AND
@@ -165,10 +165,14 @@
        P2-EXIT.
            EXIT.       
        E1.
-           WRITE ERRFILE01.           
+      *    DISPLAY "G-GARNO " G-GARNO " IS GREATER THAN LNAMEHLD "
+      *         LNAMEHLD " " FNAMEHLD " " F-DOBHLD " " F-SEXHLD " "
+      *         F-MRHLD
+      *         ACCEPT OMITTED
+           WRITE ERRFILE01.   
        E2.
-            MOVE ERRFILE01 TO ERRFILE201
-           WRITE ERRFILE201.           
+           MOVE ERRFILE01 TO ERRFILE201
+           WRITE ERRFILE201.    
         P99.
            WRITE FILEOUT01
            CLOSE FILEOUT ERRFILE GARFILE ERRFILE2
