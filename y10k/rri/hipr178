@@ -758,6 +758,10 @@
        P1-NM1.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P9.
+           IF F1 = "CLP" AND SVC-CNTR = 0
+             PERFORM P1-NO-SVC
+             GO TO P1-CLP-1
+           END-IF
            IF F1 = "SE*"
             MOVE FILEIN01 TO SAVEFILE01
             GO TO P2-SVC-LOOP.
