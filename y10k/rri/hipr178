@@ -716,6 +716,8 @@
            MOVE SPACE TO REF01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
            REF-0 REF-1 REF-2
+           
+           DISPLAY "PERM-ID " PERM-ID " REF-2 " REF-2 " PF-1 " PF-1.
 
            IF (PERM-ID NOT = ID-NPI1)
               AND (PERM-ID NOT = ID-NPI)
