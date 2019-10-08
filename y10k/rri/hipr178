@@ -708,7 +708,7 @@
            MOVE SPACE TO N101
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
            N1-0 N1-1 N1-2 N1-3 N1-ID
-           MOVE N1-ID TO PERM-ID
+           MOVE N1-ID TO PERM-ID.
        P0001.
            MOVE SPACE TO FILEIN01.
            READ FILEIN AT END GO TO P9.
@@ -720,12 +720,13 @@
            IF (PERM-ID NOT = ID-NPI1)
               AND (PERM-ID NOT = ID-NPI)
               AND (REF-2 NOT =  PF-1) GO TO P00.
-           MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
-           MOVE SPACE TO N301
-           IF F1 = "N3*" 
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO
-           N3-0 N3-STREET N3-STREET2.
+
+      *     MOVE SPACE TO FILEIN01
+      *     READ FILEIN AT END GO TO P9.
+      *     MOVE SPACE TO N301
+      *     IF F1 = "N3*" 
+      *     UNSTRING FILEIN01 DELIMITED BY "*" INTO
+      *     N3-0 N3-STREET N3-STREET2.
            IF TITLE-FLAG = 0
            MOVE 1 TO TITLE-FLAG
            MOVE SPACE TO ERROR-FILE01
