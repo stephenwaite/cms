@@ -712,13 +712,11 @@
        P0001.
            MOVE SPACE TO FILEIN01.
            READ FILEIN AT END GO TO P9.
-           IF NOT (F1 = "REF*" AND F21= "TJ*") GO TO P0001.
+           IF NOT (F1 = "REF" AND F21= "*TJ") GO TO P0001.
            MOVE SPACE TO REF01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
            REF-0 REF-1 REF-2
            
-           DISPLAY "PERM-ID " PERM-ID " REF-2 " REF-2 " PF-1 " PF-1.
-
            IF (PERM-ID NOT = ID-NPI1)
               AND (PERM-ID NOT = ID-NPI)
               AND (REF-2 NOT =  PF-1) GO TO P00.
