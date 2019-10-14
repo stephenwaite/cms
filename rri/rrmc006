@@ -1,0 +1,1568 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. RMC002.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT ACTFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC        RECORD KEY IS A-ACTNO
+           ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
+           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
+           SELECT ORDFILE ASSIGN TO "S35"     ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC        RECORD KEY IS ORDNO
+           ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
+           SELECT REFPHY ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS REF-KEY
+           ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-CRNUM WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-UPIN  WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES.
+           SELECT FILEIN ASSIGN TO "S60"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT FILEOUT ASSIGN TO "S65"
+           ORGANIZATION LINE SEQUENTIAL.
+           SELECT MOBLFILE ASSIGN TO "S70" ORGANIZATION IS INDEXED
+           ACCESS IS RANDOM RECORD KEY IS MOBL-KEY.
+           SELECT INSFILE ASSIGN TO "S75" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS INS-KEY
+           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES.
+           SELECT HOSPFILE ASSIGN TO "S80" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS HOSP-KEY
+           ALTERNATE RECORD KEY IS H-INS-KEY WITH DUPLICATES
+           ALTERNATE RECORD KEY IS H-INS-NAME WITH DUPLICATES.
+           SELECT COMPFILE ASSIGN TO "S85" ORGANIZATION IS INDEXED
+           ACCESS MODE DYNAMIC RECORD KEY IS COMP-KEY
+           LOCK MODE MANUAL.
+           SELECT emailauthFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
+           ACCESS MODE DYNAMIC RECORD KEY IS EA-KEY
+           ALTERNATE RECORD KEY IS EA-MEDREC WITH DUPLICATES
+           ALTERNATE RECORD KEY IS EA-NAME WITH DUPLICATES
+           ALTERNATE RECORD KEY IS EA-EMAIL WITH DUPLICATES
+           ALTERNATE RECORD KEY IS EA-AUTH WITH DUPLICATES
+           ALTERNATE RECORD KEY IS EA-DATE-E WITH DUPLICATES
+           ALTERNATE RECORD KEY IS EA-SSN WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT ERRFILE ASSIGN TO "S95" ORGANIZATION IS 
+            LINE SEQUENTIAL.
+            
+       DATA DIVISION.
+       FILE SECTION.
+       FD  ERRFILE.
+       01  ERRFILE01 PIC X(60).
+       FD  EMAILAUTHFILE.
+       01  EMAILAUTHFILE01.
+           02 EA-KEY PIC 9(6).
+           02 EA-MEDREC PIC X(8).
+           02 EA-NAME PIC X(24).
+           02 EA-EMAIL PIC X(30).
+           02 EA-AUTH PIC X(20).
+           02 EA-DATE-E PIC X(8).
+           02 EA-SSN PIC X(9).
+       FD  COMPFILE.
+       01  COMPFILE01.
+           02 COMP-KEY.
+             03 COMP-MEDREC PIC X(8).
+             03 COMP-DATE PIC X(8).
+             03 COMP-PROC PIC X(4).
+           02 COMP-INSNAME1 PIC X(25).
+           02 COMP-INSCONTACT1 PIC X(25).
+           02 COMP-INSADDR11 PIC X(20).
+           02 COMP-INSADDR21 PIC X(15).
+           02 COMP-INSCITY1 PIC X(20).
+           02 COMP-INSSTATE1 PIC XX.
+           02 COMP-INSZIP1 PIC X(10).
+           02 COMP-INSPHONE1 PIC X(12).
+       FD  INSFILE
+     *     BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS INSFILE01.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+       FD  MOBLFILE.
+       01  MOBLFILE01.
+           02 MOBL-KEY PIC X(4).
+           02 MOBL-RRI PIC X(4).
+           02 MOBL-CPT PIC X(7).
+           02 MOBL-TITLE PIC X(28).
+       FD  HOSPFILE
+           BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS HOSPFILE01.
+       01  HOSPFILE01.
+           02 HOSP-KEY PIC X(5).
+           02 H-INS-KEY PIC XXX.
+           02 H-INS-NAME PIC X(18).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(80).
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-1 PIC XX.
+           02 FI-2 PIC X(1068).
+       FD  REFPHY
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS REFPHY01.
+       01  REFPHY01.
+           02 REF-KEY PIC XXX.
+           02 REF-BSNUM PIC X(5).
+           02 REF-CRNUM PIC X(6).
+           02 REF-UPIN PIC X(6).
+           02 REF-CDNUM PIC X(7).
+           02 REF-NAME.
+             03 REF-TITLE4 PIC XXXX.
+             03 FILLER PIC X(20).
+           02 REF-NPI PIC X(10).
+       FD  ORDFILE
+           BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS ORDFILE01.
+       01  ORDFILE01.
+           02 ORDNO.
+             03 ORD8 PIC X(8).
+             03 ORD3 PIC XXX.
+           02 C-PROC PIC X(4).
+           02 C-IND PIC X.
+           02 C-REF PIC XXX.
+           02 C-IOPAT PIC X.
+           02 C-DATE-A PIC X(8).
+           02 C-DATE-T PIC X(8).
+           02 C-DATE-ADMIT PIC X(8).
+           02 C-ORDER PIC XXXX.
+           02 C-CLINICAL PIC X(38).
+           02 C-DOCP PIC XX.
+           02 C-ADMIT-DIAG PIC X(30).
+           02 C-DATE-E PIC X(8).
+           02 C-CPT PIC X(5).
+       FD  ACTFILE
+           BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS ACTFILE01.
+       01  ACTFILE01.
+           02 A-ACTNO PIC X(8).
+           02 A-GARNAME PIC X(24).
+           02 A-BILLADD PIC X(22).
+           02 A-STREET PIC X(22).
+           02 A-CITY PIC X(18).
+           02 A-STATE PIC X(2).
+           02 A-ZIP PIC X(9).
+           02 A-COLLT PIC X.
+           02 A-PHONE.
+             03 A-PHONE1 PIC XXX.
+             03 A-PHONE2 PIC XXX.
+             03 A-PHONE3 PIC X(4).
+           02 A-SEX PIC X.
+           02 A-RELATE PIC X.
+           02 A-MSTAT PIC X.
+           02 A-DOB PIC X(8).
+           02 A-DUNNING PIC X.
+           02 A-ACCTSTAT PIC X.
+           02 A-PR-MPLR PIC X(4).
+           02 A-PRINS PIC XXX.
+           02 A-PR-ASSIGN PIC X.
+           02 A-PR-OFFICE PIC X(4).
+           02 A-PR-GROUP.
+              03 A-PR-GROUP2 PIC XX.
+              03 FILLER PIC X(8).
+           02 A-PRIPOL.
+             03 A-PRIPOL1 PIC X(9).
+             03 A-PRIPOL2 PIC XXX.
+             03 A-PR-FILLER PIC X(4).
+           02 A-PRNAME PIC X(24).
+           02 A-PR-RELATE PIC X.
+           02 A-SE-MPLR PIC X(4).
+           02 A-SEINS PIC XXX.
+           02 A-SE-ASSIGN PIC X.
+           02 A-TRINSIND PIC X.
+           02 A-TRINS PIC XXX.
+           02 A-SE-GROUP. 
+              03 A-SE-GROUP2 PIC XX.
+              03 FILLER PIC X(8).
+           02 A-SECPOL.
+             03 A-SECPOL1 PIC X(9).
+             03 A-SECPOL2 PIC XXX.
+             03 A-SE-FILLER PIC X(4).
+           02 A-SENAME PIC X(24).
+           02 A-SE-RELATE PIC X.
+           02 A-INSPEND PIC X(7).
+           02 A-LASTBILL PIC X(8).
+           02 A-ASSIGNM PIC X.
+           02 A-PRIVATE PIC X.
+           02 A-BILLCYCLE PIC X.
+           02 A-DELETE PIC X.
+           02 A-FILLER PIC XXX.
+           02 A-GARNO PIC X(8).
+           02 A-PRGRPNAME PIC X(15).
+           02 A-SEGRPNAME PIC X(15).
+           02 NAME-KEY PIC XXX.
+       WORKING-STORAGE SECTION.
+
+       01  REC101.
+           02 R1-1 PIC XX.
+           02 R1-PATNUM PIC X(7).
+           02 R1-PATNAME.
+             03 R1-PATNAME-L PIC X(19).
+             03 R1-PATNAME-F PIC X(12).
+           02 R1-PATADDR1 PIC X(25).
+           02 R1-PATADDR2 PIC X(25).
+           02 R1-PATCITY PIC X(25).
+           02 R1-PATSTATE PIC XX.
+           02 R1-PATZIP PIC X(10).
+             02 R1-ADMIT. 
+              03 R1-ADMITMM PIC XX.
+              03 FILLER PIC X.
+              03 R1-ADMITDD PIC XX.
+              03 FILLER PIC X.
+              03 R1-ADMITYY PIC XXXX.
+           02 R1-ADMITTIME PIC X(5).
+           02 R1-WORKCOMP PIC X.
+           02 R1-GARNAME.
+             03 R1-GARNAME1.
+               05 R1-GARNAME1-L PIC X(21).
+               05 R1-GARNAME1-F PIC X(14).
+           02 R1-GARADDR1 PIC X(25).
+           02 R1-GARADDR2 PIC X(25).
+           02 R1-GARCITY PIC X(25).
+           02 R1-GARSTATE PIC XX.
+           02 R1-GARZIP PIC X(10).
+           02 r1-EMAIL PIC X(30).
+           02 R1-IP1 PIC X(5).
+           02 R1-ID1 PIC X(30).
+           02 R1-CERT11 PIC X(20).
+           02 R1-GRP1 PIC X(20).
+           02 R1-GRPNAME11 PIC X(30).
+           02 R1-SUBNAME11 PIC X(35).
+           02 R1-EMPLOYNAME11 PIC X(30).
+      * 465
+           02 R1-GENDER11 PIC X.
+           02 FILLER PIC X.
+           02 R1-DOB11 PIC X(10).
+           02 R1-SSN11 PIC X(9).
+           02 R1-RELATE1 PIC XX.
+           02 INSURANCE-1.
+            03 R1-INSNAME1 PIC X(25).
+            03 R1-INSCONTACT1 PIC X(25).
+            03 R1-INSADDR11 PIC X(20).
+            03 R1-INSADDR21 PIC X(15).
+            03 R1-INSCITY1 PIC X(20).
+            03 R1-INSSTATE1 PIC XX.
+            03 R1-INSZIP1 PIC X(10).
+            03 R1-INSPHONE1 PIC X(12).
+           02  R1-AUTH PIC X(20).
+           02 R1-IP2 PIC X(5).
+           02 R1-ID2 PIC X(30).
+           02 R1-CERT22 PIC X(20).
+           02 R1-GRP2 PIC X(20).
+           02 R1-GRPNAME22 PIC X(30).
+           02 R1-SUBNAME22 PIC X(35).
+           02 R1-EMPLOYNAME22 PIC X(30).
+           02 R1-GENDER22 PIC X.
+           02 FILLER PIC X.
+           02 R1-DOB22 PIC X(10).
+           02 R1-SSN22 PIC X(9).
+           02 R1-RELATE2 PIC XX.
+      * 365
+           02 INSURANCE-2.
+            03 R1-INSNAME2 PIC X(25).
+            03 R1-INSCONTACT2 PIC X(25).
+            03 R1-INSADDR12 PIC X(20).
+            03 R1-INSADDR22 PIC X(15).
+            03 R1-INSCITY2 PIC X(20).
+            03 R1-INSSTATE2 PIC XX.
+            03 R1-INSZIP2 PIC X(10).
+            03 R1-INSPHONE2 PIC X(12).
+      *    02 R1-IO PIC X(4).
+      *    02 FILLER PIC X(2).
+      * 135
+
+
+       01  REC201.
+           02 R2-1 PIC XX.
+           02 R2-ACC.
+             03 R2-ACCMM PIC XX.
+             03 R2-ACCDD PIC XX.
+             03 R2-ACCYY PIC XX.
+             03 R2-ACCHHMM PIC X(5).
+           02 R2-REFDOC.
+             03 R2-REFDOC4 PIC XXXX.
+             03 R2-REFDOC22 PIC X(18).
+           02 R2-DIAG PIC X(130).
+
+           02 R2-IP3 PIC X(5).
+           02 R2-ID3 PIC X(30).
+           02 R2-CERT33 PIC X(20).
+           02 R2-GRP3 PIC X(20).
+           02 R2-GRPNAME33 PIC X(30).
+           02 R2-SUBNAME33 PIC X(35).
+           02 R2-EMPLOYNAME33 PIC X(30).
+           02 R2-GENDER33 PIC X.
+           02 FILLER PIC X.
+           02 R2-DOB33 PIC X(10).
+           02 R2-SSN33 PIC X(9).
+           02 R2-RELATE3 PIC XX.
+           02 INSURANCE-3.
+            03  R2-INSNAME3 PIC X(25).
+            03  R2-INSCONTACT3 PIC X(25).
+            03  R2-INSADDR13 PIC X(20).
+            03  R2-INSADDR23 PIC X(15).
+            03  R2-INSCITY3 PIC X(20).
+            03  R2-INSSTATE3 PIC XX.
+            03  R2-INSZIP3 PIC X(10).
+            03  R2-INSPHONE3 PIC X(12).
+           02 FILLER PIC X(20).
+
+           02 R2-IP4 PIC X(5).
+           02 R2-ID4 PIC X(30).
+           02 R2-CERT44 PIC X(20).
+           02 R2-GRP4 PIC X(20).
+           02 R2-GRPNAME44 PIC X(30).
+           02 R2-SUBNAME44 PIC X(35).
+           02 R2-EMPLOYNAME44 PIC X(30).
+           02 R2-GENDER44 PIC X.
+           02 FILLER PIC X.
+           02 R2-DOB44 PIC X(10).
+           02 R2-SSN44 PIC X(9).
+           02 R2-RELATE4 PIC XX.
+           02 INSURANCE-4.
+            03  R2-INSNAME4 PIC X(25).
+            03  R2-INSCONTACT4 PIC X(25).
+            03  R2-INSADDR14 PIC X(20).
+            03  R2-INSADDR24 PIC X(15).
+            03  R2-INSCITY4 PIC X(20).
+            03  R2-INSSTATE4 PIC XX.
+            03  R2-INSZIP4 PIC X(10).
+            03  R2-INSPHONE4 PIC X(12).
+            02 FILLER PIC X(20).
+           02 R2-MEDREC.
+             03 R2-MEDREC1 PIC XX.
+             03 FILLER PIC X.
+             03 R2-MEDREC2 PIC XX.
+             03 FILLER PIC X.
+             03 R2-MEDREC3 PIC XX.
+           02 R2-EMPNAME PIC X(30).
+           02 R2-EMPLOYER-ADDR1 PIC X(25).
+           02 R2-EMPLOYER-ADDR2 PIC X(25).
+           02 R2-EMPLOYER-CITY PIC X(25).
+           02 R2-EMPLOYER-STATE PIC XX.
+           02 R2-EMPLOYER-ZIP PIC X(10).
+           02 R2-GUARSSN PIC X(9).
+           02 R2-PHONE.
+             03 R2-PHONE1 PIC XXX.
+             03 FILLER PIC X.
+             03 R2-PHONE2 PIC XXX.
+             03 FILLER PIC X.
+             03 R2-PHONE3 PIC X(4).
+           02 R2-DOC PIC X(8).
+           02 R2-REFIND PIC X.
+           02 R2-NPI PIC X(10).
+           02 R2-ADMIT-DATE-DUPLICATE PIC X(6).
+           02 R2-PATSEX PIC X.
+           02 R2-PATDOB.
+             03 R2-DOBMM PIC XX.
+             03 R2-DOBDD PIC XX.
+             03 R2-DOBYY PIC XX.
+           02 R2-DISCHARGE PIC X(6).
+      *     02 FILLER PIC X(7).
+       01  REC301.
+           02 R3-1 PIC XX.
+           02 R3-IND PIC XXX.
+           02 R3-DEPT PIC XX.
+           02 R3-GLC PIC X.
+           02 R3-PROC.
+             03 R3-PROC1 PIC X.
+             03 FILLER PIC XXX.
+           02 R3-DATE. 
+              03 R3-DATEMM PIC XX.
+              03 R3-DATEDD PIC XX.
+              03 R3-DATEYY PIC XX.
+           02 R3-UNIT PIC XXX.
+           02 R3-CLINICAL PIC X(40).
+           02 FILLER PIC X(24).
+           02 R3-PLACE PIC X(4).
+           02 R3-DOCP PIC X(4).
+           02 R3-DOCPFILLER PIC X(18).
+           02 R3-CPT PIC X(5).
+           02 FILLER PIC X(24).
+           02 R3-OBSERV PIC X(5).
+           02 FILLER PIC X(35).
+           02 R3-LOCO PIC X(4).
+
+       01  NAME-TEST PIC X(25).
+       01  NAME-LAST PIC X(24).
+       01  NAME-FIRST          PIC X(24).
+       01  NAME-MIDDLE         PIC X(24).
+       01  TDATE.
+           02 TCC PIC XX.
+           02 TYY PIC XX.
+           02 TMM PIC XX.
+           02 TDD PIC XX.
+       01  INPUT-DATE.
+           02 T-MM PIC 99.
+           02 T-DD PIC 99.
+           02 T-CC PIC 99.
+           02 T-YY PIC 99.
+       01  TEST-DATE.
+           02 T-CC PIC 99.
+           02 T-YY PIC 99.
+           02 T-MM PIC 99.
+           02 T-DD PIC 99.
+       01  A-DATE.
+           05 A-MM  PIC 99.
+           05 A-DD  PIC 99.
+           05 A-CC  PIC 99.
+           05 A-YY  PIC 99.
+       01  B-DATE.
+           05 B-CC  PIC 99.
+           05 B-YY  PIC 99.
+           05 B-MM  PIC 99.
+           05 B-DD  PIC 99.
+       01  OLD PIC 999.
+       01  DATE-TODAY PIC X(8).
+       01  SAVEMASTER.
+           02 S-ACTNO PIC X(8).
+           02 S-GARNAME PIC X(24).
+           02 S-BILLADD PIC X(22).
+           02 S-STREET PIC X(22).
+           02 S-CITY PIC X(18).
+           02 S-STATE PIC X(2).
+           02 S-ZIP PIC X(9).
+           02 S-COLLT PIC X.
+           02 S-PHONE PIC X(10).
+           02 S-SEX PIC X.
+           02 S-RELATE PIC X.
+           02 S-MSTAT PIC X.
+           02 S-DOB PIC X(8).
+           02 S-DUNNING PIC X.
+           02 S-ACCTSTAT PIC X.
+           02 S-PR-MPLR PIC X(4).
+           02 S-PRINS PIC XXX.
+           02 S-PR-ASSIGN PIC X.
+           02 S-PR-OFFICE PIC X(4).
+           02 S-PR-GROUP PIC X(10).
+           02 S-PRIPOL PIC X(16).
+           02 S-PRNAME PIC X(24).
+           02 S-PR-RELATE PIC X.
+           02 S-SE-MPLR PIC X(4).
+           02 S-SEINS PIC XXX.
+           02 S-SE-ASSIGN PIC X.
+           02 S-TRINSIND PIC X.
+           02 S-TRINS PIC XXX.
+           02 S-SE-GROUP PIC X(10).
+           02 S-SECPOL PIC X(16).
+           02 S-SENAME PIC X(24).
+           02 S-SE-RELATE PIC X.
+           02 S-INSPEND PIC X(7).
+           02 S-LASTBILL PIC X(8).
+           02 S-ASSIGNM PIC X.
+           02 S-PRIVATE PIC X.
+           02 S-BILLCYCLE PIC X.
+           02 S-DELETE PIC X.
+           02 S-FILLER PIC XXX.
+           02 S-GARNO PIC X(8).
+           02 S-PRGRPNAME PIC X(15).
+           02 S-SEGRPNAME PIC X(15).
+           02 S-NAME-KEY PIC XXX.
+       01     RIGHT-2 PIC XX JUST RIGHT.
+       01     ALF-1 PIC X.
+       01     XALF-1 PIC X.
+       01     ALF-3 PIC XXX.
+       01     ALF-4 PIC XXXX.
+       01     ALF-5 PIC X(5).
+       01     ALF-7 PIC X(7).
+       01     ALF-8 PIC X(8).
+       01     ALF-13 PIC X(13).
+       01     YEARDAY.
+             03 YEAR-1.
+               04 YD1 PIC X.
+               04 YD2 PIC X.
+             03 DAY3 PIC XXX.
+       01     ABC PIC X.
+       01     XYZ PIC 999.
+       01     RIGHT-4 PIC X(4) JUST RIGHT.
+       01     ALF-6 PIC X(6).
+       01     RIGHT-3 PIC XXX JUST RIGHT.
+       01     RIGHT-5 PIC X(5) JUST RIGHT.
+       01     RIGHT-7 PIC X(7) JUST RIGHT.
+       01     A PIC 99.
+       01     B PIC 99.
+       01     C PIC 99.
+       01     D PIC 99.
+       01     X PIC 99.
+       01     Y PIC 99.
+       01  Z PIC 999.
+       01     FLAG   PIC 9.
+       01  FLAGX PIC 9.
+       01  DATE-X PIC X(8).
+       01  IN-FIELD-8 PIC X(8).
+       01  IN-FIELD-6 PIC X(6).
+       01  SAVEORD PIC X(211).
+       01  NAME1.
+           02 NAME11 PIC X.
+           02 NAME12 PIC X(23).
+       01  HOLDGARNO PIC X(8).
+       01  NAMETAB01.
+           02 NAMETAB PIC X(30) OCCURS 90 TIMES.
+       01  NAMEKEYTAB01.
+           02 NAMEKEYTAB PIC XXX OCCURS 90 TIMES.
+       01  NUMKEYTAB01.
+           02 NUMKEYTAB PIC X(4) OCCURS 90 TIMES.
+       01  IPLAN PIC XXXX.
+       01  XPLAN PIC XXX.
+       01  CITY1 PIC X(24).
+       01  CITY2 PIC X(24).
+       01  CITY3 PIC X(24).
+       01  CITY4 PIC X(24).
+       01  ALF-1X PIC X.
+       01  ALF-2 PIC XX.
+       01  REFFLAG PIC 9.
+       01  LNAME PIC X(20).
+       01  FNAME PIC X(20).
+       01  X-IP PIC X(8).
+       01  X-CERT PIC X(16).
+       01  X-GRP PIC X(10).
+       01  X-GRPNAME PIC X(15).
+       01  X-LASTNAME PIC X(16).
+       01  X-FIRSTNAME PIC X(9).
+       01  X-SUBNAME PIC X(30).
+       01  X-SSN PIC X(9).
+       01  X-RELATE PIC XX.
+       01  X-GENDER PIC X.
+       01  Y-RELATE PIC XX.
+       01  RELATECODE PIC X.
+       01  GARRELATE PIC X.
+       01  POLTEST.
+           02 POLTEST1.
+             03 POLTEST1-1 PIC X.
+             03 POLTEST1-2 PIC X.
+           02 FILLER PIC X(7).
+           02 POLTEST2 PIC XX.
+           02 FILLER PIC X(5).
+       01 ACTNO.
+          02 ACTNO2 PIC XX.
+          02 ACTNO6 PIC X(6).
+       01 ALF4 PIC X(4).
+       01 ALF6 PIC X(6).
+       01 ALF8TEST.
+          02 ALF8TEST1 PIC XX.
+          02 FILLER PIC X(6).
+       01  MONTH-TABLE-CONS.
+           05  FILLER PIC X(24) VALUE "312931303130313130313031".
+       01  MONTH-TABLE REDEFINES MONTH-TABLE-CONS.
+           05  DAYS-IN-MONTH OCCURS 12 TIMES PIC 99.
+       01  SERVDATE PIC X(8).
+       01  REF PIC XXX.
+       01  IOPAT PIC X.
+       01  PLANNUM PIC 9.
+       01 TAB1601.
+          02 TAB16 PIC X OCCURS 16 TIMES.
+       01 NEWTAB01.
+          02 NEWTAB PIC X OCCURS 16 TIMES.
+       01  YNDX USAGE IS INDEX.
+       01  IN-FIELD-1 PIC X.
+       01  IN-FIELD-3 PIC XXX.
+       01  IN-FIELD-4 PIC X(4).
+       01  IN-FIELD-15 PIC X(15).
+       01  IN-FIELD-16 PIC X(16).
+       01  X-MEDREC.
+              02 X-MEDREC0 PIC XX VALUE "00".
+              02 X-MEDREC1 PIC XX.
+              02 X-MEDREC2 PIC XX.
+              02 X-MEDREC3 PIC XX.
+       01  ALF-16.
+           02 ALF-16-1.
+              03 ALF-16-11 PIC X.
+              03 ALF-16-12 PIC X.
+              03 ALF-16-13 PIC X.
+           02 ALF-16-2 PIC X(9).
+           02 ALF-16-3 PIC X(4).
+       01  ZIPCODE.
+           02 ZIPCODE-1-5 PIC X(5).
+           02 ZIPCODE-6 PIC X.
+           02 ZIPCODE-7-10 PIC X(4).
+       01  num2 pic 99.
+      *
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN I-O ACTFILE EMAILAUTHFILE.
+           OPEN I-O ORDFILE COMPFILE.
+           OPEN INPUT HOSPFILE REFPHY INSFILE FILEIN MOBLFILE.
+           OPEN OUTPUT FILEOUT ERRFILE.
+       10-ACTION.
+           DISPLAY "REPORT DATE, MMDDYYYY".
+           ACCEPT IN-FIELD-8.
+           IF IN-FIELD-8 NOT NUMERIC DISPLAY "NOT NUMERIC" GO TO
+           10-ACTION.
+           MOVE IN-FIELD-8 TO INPUT-DATE
+           IF T-MM OF INPUT-DATE < 01 OR > 12
+               DISPLAY "BAD MONTH"
+               GO TO 10-ACTION.
+           IF T-DD OF INPUT-DATE > DAYS-IN-MONTH(T-MM OF INPUT-DATE)
+               DISPLAY "DATE MUST BE NUMERIC"
+               GO TO 10-ACTION.
+           MOVE CORR INPUT-DATE TO TEST-DATE
+           MOVE TEST-DATE TO DATE-X.
+           ACCEPT DATE-TODAY  FROM CENTURY-DATE.
+           PERFORM INIT-1.
+       P1.
+           READ FILEIN AT END GO TO 9100CMF.
+       P1-1.
+           IF FI-1 NOT = "##" GO TO P1.
+           MOVE FILEIN01 TO REC101.
+           READ FILEIN AT END DISPLAY "BAD ENDING" ACCEPT OMITTED
+           GO TO 9100CMF.
+           IF FI-1 = "##" OR "$$" DISPLAY "BAD GUAR REC." 
+           DISPLAY FILEIN01 ACCEPT OMITTED
+           GO TO 9100CMF.
+           MOVE FILEIN01 TO REC201.
+
+
+      *     DISPLAY R1-PATNAME
+      *     display r2-phone " r2-phone"
+      *
+      *     displAy R2-DOC " R2-DOC"
+      *     displAy R2-REFIND " R2-REFIND"
+      *     displAy R2-NPI  " R2-NPI"
+      *     displAy R2-ADMIT-DATE-DUPLICATE "R2-ADMIT-DATE-DUPLICATE"
+      *     displAy R2-PATSEX " R2-PAYSEX"
+      *     displAy R2-PATDOB " R2-PATDOB"
+      *     displAy R2-DISCHARGE " R2-DISCHARGE"
+
+
+      *    ACCEPT OMITTED
+           MOVE R2-MEDREC1 TO X-MEDREC1
+           MOVE R2-MEDREC2 TO X-MEDREC2
+           MOVE R2-MEDREC3 TO X-MEDREC3
+           MOVE X-MEDREC TO R2-MEDREC
+
+           MOVE SPACE TO A-GARNAME LNAME FNAME
+           UNSTRING R1-PATNAME DELIMITED BY ", "
+            INTO LNAME FNAME
+           STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-GARNAME
+           IF R2-MEDREC = "00000000"
+           MOVE R1-PATNUM TO R2-MEDREC
+           DISPLAY R1-PATNAME " MED-REC".
+           MOVE R1-GARZIP TO ZIPCODE
+           IF ZIPCODE-6 = "-"
+           MOVE SPACE TO ZIPCODE-6 ZIPCODE-7-10.
+           MOVE ZIPCODE TO A-ZIP.
+            IF R1-GARSTATE NOT = SPACE
+           MOVE R1-GARCITY TO A-CITY MOVE R1-GARSTATE TO A-STATE
+           GO TO Q1.
+           MOVE SPACE TO CITY1 CITY2 CITY3 CITY4
+           UNSTRING R1-GARCITY DELIMITED BY " " INTO CITY1
+           CITY2 CITY3 CITY4.
+           IF (CITY2 = SPACE) AND (CITY3 = SPACE) AND (CITY4 = SPACE)
+           MOVE "VT" TO A-STATE MOVE CITY1 TO A-CITY GO TO Q1.
+           IF CITY4 NOT = SPACE MOVE CITY4 TO A-STATE
+           STRING CITY1 "%" CITY2 "%" CITY3 DELIMITED BY " " INTO
+           A-CITY INSPECT A-CITY REPLACING ALL "%" BY " " GO TO Q1.
+           IF CITY3 NOT = SPACE MOVE CITY3 TO A-STATE
+           STRING CITY1 "%" CITY2 DELIMITED BY " " INTO A-CITY
+           INSPECT A-CITY REPLACING ALL "%" BY " " GO TO Q1.
+           MOVE CITY1 TO A-CITY MOVE CITY2 TO A-STATE.
+       Q1.
+           IF A-STATE = "T " MOVE "VT" TO A-STATE
+           MOVE SPACE TO CITY1 CITY2
+           UNSTRING A-CITY DELIMITED BY " VT " INTO CITY1 CITY2
+           MOVE CITY1 TO A-CITY.
+           MOVE R2-PHONE1 TO A-PHONE1
+           MOVE R2-PHONE2 TO A-PHONE2
+           MOVE R2-PHONE3 TO A-PHONE3
+           MOVE R1-GARADDR1 TO A-BILLADD
+           MOVE R1-GARADDR2 TO A-STREET
+           IF R1-GARADDR1 = SPACE
+            AND R1-GARADDR2 = SPACE
+            AND A-CITY = SPACE
+
+            MOVE R1-PATADDR1 TO A-BILLADD
+            MOVE R1-PATADDR2 TO A-STREET
+            MOVE R1-PATCITY TO  A-CITY
+            MOVE R1-PATSTATE TO A-STATE
+            MOVE R1-PATZIP TO A-ZIP
+           END-IF
+           INSPECT A-BILLADD REPLACING ALL "*" BY " "
+           INSPECT A-STREET REPLACING ALL "*" BY " "
+           MOVE "00000000" TO A-DOB
+           MOVE "20" TO TCC
+           MOVE R2-DOBYY TO TYY
+           MOVE R2-DOBMM TO TMM
+           MOVE R2-DOBDD TO TDD
+           IF DATE-TODAY < TDATE
+           MOVE "19" TO TCC.
+           MOVE TDATE TO A-DOB
+      *     MOVE "5" TO IOPAT
+      *     IF R1-IO = "A" OR "B" OR "GYN" OR "I" OR "J"
+      *     OR "K" OR "L" OR "M" OR "MAT" OR "FMED" OR "MPED"
+      *     OR "N" OR "MBOH" OR "NEW" OR "P" OR "PSY" OR "FORT"
+      *     OR "REHB" OR "S" OR "SORT" OR "SPOR" OR "SPSU"
+      *     OR "SUR" OR "T" OR "W" MOVE "3" TO IOPAT.
+      *     IF R1-IO = "ED" OR "EDFT" OR "MED" MOVE "E" TO IOPAT.
+           MOVE SPACE TO C-DATE-A
+           STRING "20" R2-ACCYY R2-ACCMM R2-ACCDD DELIMITED BY "!@#"
+           INTO C-DATE-A.
+           IF C-DATE-A = "20      " MOVE "00000000" TO C-DATE-A.
+           IF DATE-TODAY < C-DATE-A
+           STRING "19" R2-ACCYY R2-ACCMM R2-ACCDD DELIMITED BY "!@#"
+           INTO C-DATE-A.
+
+           IF C-DATE-A NOT NUMERIC DISPLAY C-DATE-A  " BAD DATE"
+           MOVE "00000000" TO C-DATE-A.
+           MOVE SPACE TO A-GARNO.
+           IF R2-DOC(1:6) = "NP3249" MOVE "H25" TO REF GO TO P2.
+           IF R2-DOC(1:6) = "P55488" MOVE "M19" TO REF GO TO P2.
+           IF R2-DOC(1:6) = "VN3024" MOVE "W24" TO REF GO TO P2.
+           IF R2-DOC(1:6) = "NP1616" MOVE "M42" TO REF GO TO P2.
+           IF R2-DOC(1:4) = "4702" MOVE "K02" TO REF GO TO P2.
+           IF R2-DOC(1:8) = "FOVT4964" MOVE "F10" TO REF GO TO P2.
+           IF R2-DOC(1:4) = "5565" MOVE "R14" TO REF GO TO P2.
+           IF R2-DOC(1:6) = "VT9219" MOVE "S24" TO REF GO TO P2.
+           IF R2-DOC(1:4) = "2506" MOVE "P12" TO REF GO TO P2.
+           IF R2-DOC(1:5) = "18196" MOVE "B43" TO REF GO TO P2.
+           IF R2-DOC(1:6) = "AP0554" MOVE "B61" TO REF GO TO P2.
+           IF R2-DOC(1:6) = "AP0553" MOVE "G31" TO REF GO TO P2.
+           IF R2-DOC(1:6) = "NP1463" MOVE "B60" TO REF GO TO P2.
+
+		   IF R2-REFDOC(1:17) = "SORONDO,JEAN-PAUL"
+           MOVE "S5L" TO REF GO TO P2.
+           IF R2-REFDOC(1:14) = "BROWN,PATRICIA"
+           MOVE "B05" TO REF GO TO P2.
+           IF R2-REFDOC(1:12) = "GREENLEAF, M"
+           MOVE "G1J" TO REF GO TO P2.
+           IF R2-REFDOC(1:10) = "DIAZ,LINDA"
+           MOVE "D45" TO REF GO TO P2.
+           IF R2-REFDOC(1:13) = "BAKER,RICHARD"
+           MOVE "B43" TO REF GO TO P2.
+           IF R2-REFDOC(1:12) = "DIER,DOUGLAS"
+           MOVE "D19" TO REF GO TO P2.
+           IF R2-REFDOC(1:12) = "BECKER,JACQU"
+           MOVE "B60" TO REF GO TO P2.
+           IF R2-REFDOC(1:14) = "WULFMAN,CARRIE"
+           MOVE "W20" TO REF GO TO P2.
+           IF R2-REFDOC(1:16) = "WEISBORD,TIMOTHY"
+           MOVE "W24" TO REF GO TO P2.
+           IF R2-REFDOC(1:7) = "LOVKO,T"
+           MOVE "L19" TO REF GO TO P2.
+           IF R2-REFDOC(1:11) = "LOVKO,INDRA"
+           MOVE "L25" TO REF GO TO P2.
+           IF R2-REFDOC(1:14) = "BERRICK,ROBERT"
+           MOVE "B61" TO REF GO TO P2.
+           IF R2-REFDOC(1:12) = "ANDROY,LAURA"
+           MOVE "A12" TO REF GO TO P2.
+           IF R2-REFDOC(1:16) = "MCDONALD,MARILYN"
+           MOVE "M44" TO REF GO TO P2.
+           IF R2-REFDOC(1:20) = "MILLER-RUMNEY,MARION"
+           MOVE "M42" TO REF GO TO P2.
+           IF R2-REFDOC(1:12) = "MILLER,MITCH"
+           MOVE "M43" TO REF GO TO P2.
+           IF R2-REFDOC(1:15) = "LEFFLER,STEPHEN"
+           MOVE "L11" TO REF GO TO P2.
+           IF R2-REFDOC(1:14) = "HOGENKAMP,LISA"
+           MOVE "H26" TO REF GO TO P2.
+           IF R2-REFDOC(1:15) = "HOGENKAMP,PETER"
+           MOVE "H25" TO REF GO TO P2.
+           IF R2-REFDOC(1:12) = "LEFFEL,WENDY"
+           MOVE "L18" TO REF GO TO P2.
+           IF R2-REFDOC(1:13) = "STICKNEY,MARK"
+           MOVE "S24" TO REF GO TO P2.
+           IF R2-REFDOC(1:17) = "THOMPSON,BENJAMIN"
+           MOVE "T10" TO REF GO TO P2.
+           IF R2-REFDOC(1:15) = "BAKER,RICHARD C"
+           MOVE "B43" TO REF GO TO P2.
+           IF R2-REFDOC(1:13) = "BAKER,ROGER D"
+           MOVE "B11" TO REF GO TO P2.
+           IF R2-REFDOC(1:16) = "KEENAN,PATRICK F"
+           MOVE "K02" TO REF GO TO P2.
+           IF R2-REFDOC(1:18) = "PISANELLI,PATRICIA"
+           MOVE "P12" TO REF GO TO P2.
+           IF R2-REFDOC(1:15) = "HARTMANN,ERIC G"
+           MOVE "H19" TO REF GO TO P2.
+           IF R2-REFDOC(1:12) = "THOMPSON,BEN"
+           MOVE "T10" TO REF GO TO P2.
+           IF R2-REFDOC(1:9) = "STEIN,ANN"
+           MOVE "S27" TO REF GO TO P2.
+           IF R2-REFDOC(1:13) = "THOMAS,GORDON"
+           MOVE "T05" TO REF GO TO P2.
+           IF R2-REFDOC(1:14) = "BERRICK,ROBERT"
+           MOVE "M30" TO REF GO TO P2.
+           IF R2-REFDOC(1:13) = "DEVLIN,MARTIN"
+           MOVE "M30" TO REF GO TO P2.
+           IF R2-REFDOC(1:12) = "GORTON,JAMES"
+           MOVE "M30" TO REF GO TO P2.
+           IF R2-REFDOC(1:13) = "RUSSELL,JAMES"
+           MOVE "R14" TO REF GO TO P2.
+           IF R2-REFDOC(1:11) = "UPHOLD,RUTH"
+           MOVE "U04" TO REF GO TO P2.
+           IF R2-REFDOC(1:16) = "MITCHELL,COLLEEN"
+           MOVE "M62" TO REF GO TO P2.
+           IF R2-REFDOC(1:17) = "WEIDEMAN,KATHLEEN"
+           MOVE "W29" TO REF GO TO P2.
+           IF R2-REFDOC(1:14) = "FOSTER,JULIE A"
+           MOVE "F30" TO REF GO TO P2.
+           IF R2-REFDOC(1:14) = "ELLWOOD,JUDITH"
+           MOVE "E10" TO REF GO TO P2.
+           IF R2-REFDOC(1:15) = "STEVENS,MATTHEW"
+           MOVE "S68" TO REF GO TO P2.
+           IF R2-REFDOC(1:15) = "EUGAIR,KIMBERLY"
+           MOVE "E20" TO REF GO TO P2.
+           IF R2-REFDOC(1:15) = "DERHAM,KATHLEEN"
+           MOVE "D35" TO REF GO TO P2.
+
+           PERFORM NPI-METHOD THRU NPI-EXIT.
+           if flag = 1 go to p2.
+       p2-0.
+
+           DISPLAY R2-REFDOC " " R2-DOC " " R2-NPI " TO BE ADDED"
+           ACCEPT REF
+           move  ref to ref-key
+           READ REFPHY INVALID GO TO P2-0.
+           GO TO P2.
+
+
+       4Z-REF.
+           MOVE R2-REFDOC4 TO ALF4
+           MOVE 0 TO Y
+           MOVE SPACE TO REF-KEY
+           MOVE ALF4(1:1) TO REF-KEY
+           START REFPHY KEY NOT < REF-KEY INVALID GO TO REF-2.
+       4B-REF.
+           READ REFPHY NEXT AT END GO TO REF-2.
+           IF REF-NPI = SPACE GO TO 4B-REF.
+           IF REF-NAME(1:1) > REF-KEY(1:1) GO TO REF-2.
+           IF REF-NAME(1:4) NOT = ALF4 GO TO 4B-REF.
+           ADD 1 TO Y
+           MOVE R2-DOC TO NUMKEYTAB(Y)
+           MOVE REF-NAME TO NAMETAB(Y)
+           MOVE REF-KEY TO NAMEKEYTAB(Y)
+           GO TO 4B-REF.
+
+       REF-2.
+           IF Y = 0 GO TO P2-0.
+       REF-3.
+           PERFORM REF-PICK VARYING X FROM 1 BY 1 UNTIL X > Y.
+           DISPLAY R2-REFDOC " " R2-DOC
+
+           ACCEPT ALF-3
+
+           MOVE ALF-3 TO REF-KEY
+           READ REFPHY
+            INVALID 
+             MOVE SPACE TO RIGHT-2
+             UNSTRING alf-3(1:2) delimited by " " into right-2
+             inspect right-2 replacing all " " by "0"
+             move right-2 to alf-2
+              IF( ALF-2 NOT NUMERIC) OR (ALF-2 = "00")
+               
+               DISPLAY "BAD PICK"
+               GO TO REF-3
+              END-IF
+
+              MOVE ALF-2 TO X
+              IF X = 0 OR X > Y
+                DISPLAY "BAD CHOICE. DO IT AGAIN!"
+                GO TO REF-3
+              END-IF
+
+            MOVE NAMEKEYTAB(X) TO REF
+
+            NOT INVALID  CONTINUE
+           END-READ.
+           GO TO P2.
+
+       REF-PICK. DISPLAY X " " NAMETAB(X) " " NAMEKEYTAB(X)
+           " " NUMKEYTAB(X).
+
+
+       NPI-METHOD.
+           MOVE SPACE TO REF-KEY
+           MOVE R2-REFDOC(1:1) TO REF-KEY
+           MOVE 0 TO FLAG.
+           START REFPHY KEY NOT < REF-KEY INVALID GO TO NPI-EXIT.
+
+       NPI-1. READ REFPHY NEXT AT END GO TO NPI-EXIT.
+               IF REF-NPI = SPACE GO TO NPI-1.
+               IF REF-NAME(1:1) > R2-REFDOC(1:1) GO TO NPI-EXIT.
+               IF REF-NPI = R2-NPI
+                MOVE  1 TO FLAG
+                MOVE REF-KEY TO REF
+                GO TO NPI-EXIT
+               END-IF.
+               GO TO NPI-1.
+       NPI-EXIT. EXIT.
+
+       P2.
+
+           IF (R2-DOBYY NOT NUMERIC) OR (R2-DOBMM NOT NUMERIC)
+           OR (R2-DOBDD NOT NUMERIC)
+           DISPLAY R2-PATDOB " " R1-PATNAME 
+           MOVE "000000" TO R2-PATDOB.
+           MOVE 20 TO A-CC
+           MOVE R2-DOBYY TO A-YY
+           MOVE R2-DOBMM TO A-MM
+           MOVE R2-DOBDD TO A-DD
+           MOVE A-DATE TO INPUT-DATE
+           MOVE CORR INPUT-DATE TO TEST-DATE
+           IF DATE-TODAY < TEST-DATE
+           MOVE 19 TO A-CC.
+           MOVE DATE-TODAY TO B-DATE
+           COMPUTE OLD = 100 * (B-CC - A-CC) + B-YY - A-YY 
+           IF (A-MM > B-MM) OR ((A-MM = B-MM) AND (A-DD > B-DD))
+           SUBTRACT 1 FROM OLD.
+           IF A-DOB < "19       " AND A-DOB > "000000000" ADD 99 TO OLD.
+           IF R2-PATSEX NOT = "F" MOVE "M" TO R2-PATSEX.
+           MOVE R2-PATSEX TO A-SEX.
+           IF OLD > 23 MOVE "2" TO A-RELATE ELSE MOVE "4" TO A-RELATE.
+           IF A-SEX = "F" AND A-RELATE = "4" MOVE "M" TO A-RELATE.
+           IF A-SEX = "F" AND A-RELATE = "2" MOVE "K" TO A-RELATE.
+
+           MOVE "001" TO A-PRINS A-SEINS A-TRINS
+           MOVE SPACE TO A-PRIPOL A-PR-GROUP A-PRNAME A-PR-RELATE
+           A-PR-MPLR A-PRGRPNAME
+           MOVE SPACE TO A-SECPOL A-SE-GROUP A-SENAME A-SE-RELATE
+           A-SE-MPLR A-SEGRPNAME
+           MOVE "U" TO A-PR-ASSIGN A-SE-ASSIGN
+           MOVE R1-IP1 TO X-IP
+           MOVE R1-CERT11 TO X-CERT
+           MOVE R1-GRP1 TO X-GRP
+           MOVE R1-GRPNAME11 TO X-GRPNAME
+           MOVE R1-SSN11 TO X-SSN
+           MOVE R1-SUBNAME11 TO X-SUBNAME
+           MOVE R1-RELATE1 TO X-RELATE
+           MOVE R1-GENDER11 TO X-GENDER
+           MOVE 1 TO PLANNUM
+           PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
+           IF R1-IP1 = "00930" 
+           PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
+           IF R1-IP1 = "00698" OR "00699"
+           PERFORM REPLACE-2 THRU REPLACE-2-EXIT.
+      *     IF R1-IP1 = "00931" OR "00932" GO TO P2-3.
+           IF FLAG = 1 MOVE 2 TO PLANNUM GO TO P2-1.
+
+           MOVE R1-IP2 TO X-IP
+           MOVE R1-CERT22 TO X-CERT
+           MOVE R1-GRP2 TO X-GRP
+           MOVE R1-GRPNAME22 TO X-GRPNAME
+           MOVE R1-SSN22 TO X-SSN
+           MOVE R1-SUBNAME22 TO X-SUBNAME
+           MOVE R1-RELATE2 TO X-RELATE
+           MOVE R1-GENDER22 TO X-GENDER
+
+           PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
+           IF FLAG = 1 MOVE 3 TO PLANNUM GO TO P2-1.
+           MOVE R2-IP3 TO X-IP
+           MOVE R2-CERT33 TO X-CERT
+           MOVE R2-GRP3 TO X-GRP
+           MOVE R2-GRPNAME33 TO X-GRPNAME
+           MOVE R2-SSN33 TO X-SSN
+           MOVE R2-SUBNAME33 TO X-SUBNAME
+           MOVE R2-RELATE3 TO X-RELATE
+           MOVE R2-GENDER33 TO X-GENDER
+
+           PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
+           IF FLAG = 1 MOVE 4 TO PLANNUM GO TO P2-1.
+           MOVE R2-IP4 TO X-IP
+           MOVE R2-CERT44 TO X-CERT
+           MOVE R2-GRP4 TO X-GRP
+           MOVE R2-GRPNAME44 TO X-GRPNAME
+           MOVE R2-SSN44 TO X-SSN
+           MOVE R2-SUBNAME44 TO X-SUBNAME
+           MOVE R2-RELATE4 TO X-RELATE
+           MOVE R1-GENDER22 TO X-GENDER
+
+           PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
+           GO TO P2-2.
+       P2-1.
+           IF PLANNUM = 2
+           MOVE R1-IP2 TO X-IP
+           MOVE R1-CERT22 TO X-CERT
+           MOVE R1-GRP2 TO X-GRP
+           MOVE R1-GRPNAME22 TO X-GRPNAME
+           MOVE R1-SSN22 TO X-SSN
+           MOVE R1-SUBNAME22 TO X-SUBNAME
+           MOVE R1-GENDER22 TO X-GENDER
+           MOVE R1-RELATE2 TO X-RELATE.
+
+           IF PLANNUM = 3
+           MOVE R2-IP3 TO X-IP
+           MOVE R2-CERT33 TO X-CERT
+           MOVE R2-GRP3 TO X-GRP
+           MOVE R2-GRPNAME33 TO X-GRPNAME
+           MOVE R2-SSN33 TO X-SSN
+           MOVE R2-SUBNAME33 TO X-SUBNAME
+           MOVE R2-GENDER33 TO X-GENDER
+           MOVE R2-RELATE3 TO X-RELATE.
+
+           IF PLANNUM = 4
+           MOVE R2-IP4 TO X-IP
+           MOVE R2-CERT44 TO X-CERT
+           MOVE R2-GRP4 TO X-GRP
+           MOVE R2-GRPNAME44 TO X-GRPNAME
+           MOVE R2-SSN44 TO X-SSN
+           MOVE R2-SUBNAME44 TO X-SUBNAME
+           MOVE R2-GENDER44 TO X-GENDER
+           MOVE R2-RELATE4 TO X-RELATE.
+           PERFORM SEL-SEINS THRU SEL-SEINS-EXIT.
+           IF X-IP = "00698   " OR "00699   "
+           PERFORM REPLACE-3 THRU REPLACE-3-EXIT.
+           GO TO P2-2.
+
+       SEL-PRINS.
+           MOVE 0 TO FLAG
+           MOVE X-IP TO HOSP-KEY
+           IF X-IP = SPACE GO TO SEL-PRINS-EXIT.
+           READ HOSPFILE INVALID
+           MOVE X-CERT   TO A-PRIPOL
+           MOVE X-GRP TO A-PR-GROUP
+
+           MOVE SPACE TO FILEOUT01
+           STRING "HOSP=" X-IP " " R2-MEDREC " " A-GARNAME
+           " BAD HOSPITAL CODE" DELIMITED BY "?/?" INTO FILEOUT01
+           DISPLAY FILEOUT01
+           WRITE FILEOUT01
+           GO TO SEL-PRINS-EXIT.
+           MOVE H-INS-KEY TO INS-KEY
+           READ INSFILE INVALID DISPLAY H-INS-KEY " MISSING"
+           DISPLAY HOSP-KEY " " R2-MEDREC " " A-GARNAME
+           MOVE SPACE TO FILEOUT01
+           STRING "HOSP=" HOSP-KEY " " H-INS-KEY " " R2-MEDREC " "
+           A-GARNAME " BAD INSURANCE CODE" DELIMITED BY SIZE
+           INTO FILEOUT01 WRITE FILEOUT01
+           MOVE "001" TO H-INS-KEY.
+           MOVE INS-ASSIGN TO A-PR-ASSIGN.
+           MOVE 1 TO FLAG
+           MOVE H-INS-KEY TO A-PRINS
+           MOVE X-CERT   TO A-PRIPOL
+           MOVE X-GRP TO A-PR-GROUP
+           MOVE X-GRPNAME TO A-PRGRPNAME
+           IF X-SUBNAME = "SELF" OR "UNK" OR SPACE OR "X" OR "XX"
+           MOVE A-GARNAME TO A-PRNAME GO TO SEL-1.
+
+           MOVE SPACE TO A-PRNAME LNAME FNAME
+           UNSTRING X-SUBNAME DELIMITED BY ", " OR ","
+            INTO LNAME FNAME
+           IF FNAME = SPACE
+             MOVE SPACE TO LNAME FNAME
+             UNSTRING X-SUBNAME DELIMITED BY " " INTO FNAME LNAME
+             STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-PRNAME
+           ELSE
+            STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-PRNAME
+           END-IF.
+
+       SEL-1.
+           IF X-CERT = SPACE MOVE X-SSN TO A-PRIPOL.
+           IF NOT (X-GENDER = "F" OR "M")
+             DISPLAY X-SUBNAME  " GENDER F OR M"
+              IF X-SUBNAME = SPACE
+               DISPLAY A-GARNAME
+              END-IF
+             ACCEPT X-GENDER
+           END-IF.
+           IF X-GENDER = "F" MOVE "K" TO RELATECODE
+           ELSE MOVE "2" TO RELATECODE.
+           MOVE X-RELATE TO Y-RELATE
+           PERFORM RELATE-1 THRU RELATE-1-EXIT
+           MOVE RELATECODE TO A-PR-RELATE.
+           IF A-PRINS = "091"
+           MOVE R1-EMPLOYNAME11 TO A-PRGRPNAME.
+           
+       SEL-PRINS-EXIT. EXIT.
+
+       SEL-SEINS.
+           MOVE 0 TO FLAG
+           MOVE X-IP TO HOSP-KEY
+           IF X-IP = SPACE GO TO SEL-SEINS-EXIT.
+           READ HOSPFILE INVALID
+
+           MOVE X-CERT   TO A-SECPOL
+           MOVE X-GRP TO A-SE-GROUP
+
+           MOVE SPACE TO FILEOUT01
+           STRING "HOSP=" HOSP-KEY " " R2-MEDREC " " A-GARNAME
+           " BAD HOSPITAL CODE" DELIMITED BY "?/?" INTO FILEOUT01
+           DISPLAY FILEOUT01
+           WRITE FILEOUT01 GO TO SEL-SEINS-EXIT.
+           MOVE H-INS-KEY TO INS-KEY
+           READ INSFILE INVALID DISPLAY H-INS-KEY " MISSING"
+            DISPLAY HOSP-KEY " " R2-MEDREC " " A-GARNAME
+            MOVE SPACE TO FILEOUT01
+            STRING "HOSP=" HOSP-KEY " " H-INS-KEY " " R2-MEDREC " "
+            A-GARNAME " BAD INSURANCE CODE" DELIMITED BY ".."
+            INTO FILEOUT01 WRITE FILEOUT01
+            MOVE "001" TO H-INS-KEY.
+           MOVE INS-ASSIGN TO A-SE-ASSIGN.
+           MOVE 1 TO FLAG
+           MOVE H-INS-KEY TO A-SEINS
+           MOVE X-CERT   TO A-SECPOL
+           MOVE X-GRP TO A-SE-GROUP
+           MOVE X-GRPNAME TO A-SEGRPNAME
+           IF X-SUBNAME = "SELF" OR "UNK" OR SPACE OR "X" OR "XX"
+           MOVE A-GARNAME TO A-SENAME GO TO SEL-2.
+
+
+
+           MOVE SPACE TO A-SENAME LNAME FNAME
+           UNSTRING X-SUBNAME DELIMITED BY ", " OR ","
+            INTO LNAME FNAME
+           IF FNAME = SPACE
+             MOVE SPACE TO LNAME FNAME
+             UNSTRING X-SUBNAME DELIMITED BY " " INTO FNAME LNAME
+             STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-SENAME
+           ELSE
+            STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-SENAME
+           END-IF.
+       SEL-2.
+           IF X-CERT = SPACE MOVE X-SSN TO A-SECPOL.
+           IF NOT (X-GENDER = "F" OR "M")
+             DISPLAY X-SUBNAME " GENDER F OR M"
+              IF X-SUBNAME = SPACE
+               DISPLAY A-GARNAME
+              END-IF
+
+             ACCEPT X-GENDER 
+            END-IF.
+           IF X-GENDER = "F" MOVE "K" TO RELATECODE
+           ELSE MOVE "2" TO RELATECODE.
+           MOVE X-RELATE TO Y-RELATE
+           PERFORM RELATE-1 THRU RELATE-1-EXIT
+           MOVE RELATECODE TO A-SE-RELATE.
+           IF X-IP = "00058   " AND A-PRINS = "003"
+           MOVE "0005199     " TO A-PR-GROUP
+           MOVE "062" TO A-SEINS.
+           IF X-IP = "00061   " AND A-PRINS = "003"
+           MOVE "0000731     " TO A-PR-GROUP
+           MOVE "062" TO A-SEINS.
+           IF A-SEINS = "091"
+           MOVE R1-EMPLOYNAME22 TO A-SEGRPNAME.
+
+       SEL-SEINS-EXIT. EXIT.
+       RELATE-1.
+           IF (Y-RELATE = "03" OR "04" OR "06"
+           OR "07" OR "13" OR "14" OR "17")
+           AND (X-GENDER = "M")
+           MOVE "2" TO RELATECODE
+           GO TO RELATE-1-EXIT.
+           IF (Y-RELATE = "03" OR "04" OR "06"
+           OR "07" OR "13" OR "14" OR "17")
+           AND (X-GENDER = "F")
+           MOVE "K" TO RELATECODE
+           GO TO RELATE-1-EXIT.
+           IF (Y-RELATE = "05")
+           AND (X-GENDER = "2")
+           MOVE "2" TO RELATECODE
+           GO TO RELATE-1-EXIT.
+           IF (Y-RELATE = "05")
+           AND (X-GENDER = "F")
+           MOVE "K" TO RELATECODE
+           GO TO RELATE-1-EXIT.
+       RELATE-1-EXIT.
+           EXIT.
+       REPLACE-1.
+           IF R1-INSCITY1 = "SALT LAKE CITY"
+            AND R1-INSADDR11 = "PO BOX 31353"
+            MOVE "665" TO INS-KEY
+            GO TO REPLACE-1-EXIT
+           END-IF
+
+           DISPLAY INSURANCE-1
+           DISPLAY " "
+           DISPLAY "432 = UNICARE"
+           DISPLAY "523 = ADVANTRA"
+           ACCEPT A-PRINS
+           MOVE A-PRINS TO INS-KEY
+           READ INSFILE INVALID DISPLAY "BAD" GO TO REPLACE-1.
+       REPLACE-1-EXIT.
+           EXIT.
+       REPLACE-2.
+           DISPLAY INSURANCE-1
+           DISPLAY " "
+           ACCEPT A-PRINS
+           MOVE A-PRINS TO INS-KEY
+           READ INSFILE INVALID DISPLAY "BAD" GO TO REPLACE-2.
+       REPLACE-2-EXIT.
+           EXIT.
+       REPLACE-3.
+           DISPLAY R1-PATNAME
+           IF A-PRINS = "003" DISPLAY "MEDICARE PATIENT".
+           DISPLAY INSURANCE-2
+           DISPLAY " "
+           ACCEPT A-SEINS
+           MOVE A-SEINS TO INS-KEY
+           READ INSFILE INVALID DISPLAY "BAD" GO TO REPLACE-3.
+       REPLACE-3-EXIT.
+           EXIT.
+
+       INIT-1. MOVE SPACE TO ACTFILE01 
+               MOVE "00000000" TO A-LASTBILL
+               MOVE "0000000" TO A-INSPEND
+               MOVE "1" TO A-DUNNING A-ACCTSTAT
+               MOVE "0" TO A-COLLT A-TRINSIND
+               MOVE "001" TO A-TRINS.
+       P2-2.
+           IF A-PRINS = "004"
+            MOVE A-RELATE TO A-PR-RELATE.
+           IF A-SEINS = "004"
+            MOVE A-RELATE TO A-SE-RELATE.
+           IF A-PRINS NOT = "245"
+           SET YNDX TO 1
+           MOVE A-PRIPOL TO TAB1601
+           MOVE SPACE TO NEWTAB01
+           PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
+           MOVE NEWTAB01 TO A-PRIPOL.
+           IF A-SEINS NOT = "245"
+           SET YNDX TO 1
+           MOVE A-SECPOL TO TAB1601
+           MOVE SPACE TO NEWTAB01
+           PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
+           MOVE NEWTAB01 TO A-SECPOL.
+           IF (A-PRINS = "003")
+           MOVE A-PRIPOL TO POLTEST
+            IF 
+             ((POLTEST1 = "WA" OR "MA" OR "WD") OR (POLTEST1-1 = "A"))
+             MOVE "028" TO A-PRINS
+            END-IF
+           END-IF.
+           IF (A-SEINS = "003")
+           MOVE A-SECPOL TO POLTEST
+            IF ((POLTEST1 = "WA" OR "MA" OR "WD") OR (POLTEST1-1 = "A"))
+            MOVE "028" TO A-SEINS
+            END-IF
+           END-IF.
+           IF (A-PRINS = "003") AND (A-SEINS NOT = "062")
+             MOVE SPACE TO A-PR-GROUP.
+           IF A-SEINS = "003" MOVE SPACE TO A-SE-GROUP.
+           MOVE SPACE TO A-PR-OFFICE.
+           IF A-PRINS = "121" MOVE "X100" TO A-PR-OFFICE.
+           IF A-PRINS = "074" AND (A-PRIPOL > "IBM  " AND < "IBM99")
+           MOVE "124" TO A-PRINS.
+           IF A-PRINS = "076" AND A-PR-GROUP = "2139627" MOVE
+           "102" TO A-PRINS.
+           IF A-SEINS = "076" AND A-SE-GROUP = "2139627" MOVE
+           "102" TO A-SEINS.
+
+           IF A-PRINS = "076" AND A-PR-GROUP = "C817" MOVE
+           "799" TO A-PRINS.
+           IF A-PRINS = "076" AND A-PR-GROUP = "7596" MOVE
+           "514" TO A-PRINS.
+           IF A-PRINS = "076" AND A-PR-GROUP2 = "VT" MOVE
+           "512" TO A-PRINS.
+
+           IF A-SEINS = "076" AND A-SE-GROUP = "C817" MOVE
+           "799" TO A-SEINS.
+           IF A-SEINS = "076" AND A-SE-GROUP = "7596" MOVE
+           "514" TO A-SEINS.
+           IF A-SEINS = "076" AND A-SE-GROUP2 = "VT" MOVE
+           "512" TO A-SEINS.
+
+           IF (A-PRIPOL = A-PR-GROUP)
+           MOVE SPACE TO A-PR-GROUP.
+           IF (A-SECPOL = A-SE-GROUP)
+           MOVE SPACE TO A-SE-GROUP.
+           IF (A-PRINS = "003" AND A-SEINS = "005")
+            AND (A-PRIPOL1 = A-SECPOL1)
+            MOVE A-PRIPOL2 TO A-SECPOL2.
+           IF A-PRINS = "003" AND A-SEINS = "059"
+           MOVE A-PRINS TO IN-FIELD-3
+           MOVE A-SEINS TO A-PRINS
+           MOVE IN-FIELD-3 TO A-SEINS
+           MOVE A-PRIPOL TO IN-FIELD-16
+           MOVE A-SECPOL TO A-PRIPOL
+           MOVE IN-FIELD-16 TO A-SECPOL
+           MOVE A-PR-GROUP TO IN-FIELD-16
+           MOVE A-SE-GROUP TO A-PR-GROUP
+           MOVE IN-FIELD-16 TO A-SE-GROUP
+           MOVE A-PR-MPLR TO IN-FIELD-4
+           MOVE A-SE-MPLR TO A-PR-MPLR
+           MOVE IN-FIELD-4 TO A-PR-MPLR
+           MOVE A-PRNAME TO NAME-FIRST
+           MOVE A-SENAME TO A-PRNAME
+           MOVE NAME-FIRST TO A-SENAME
+           MOVE A-PRGRPNAME TO IN-FIELD-15
+           MOVE A-SEGRPNAME TO A-PRGRPNAME
+           MOVE IN-FIELD-15 TO A-SEGRPNAME
+           MOVE A-PR-RELATE TO IN-FIELD-1
+           MOVE A-SE-RELATE TO A-PR-RELATE
+           MOVE IN-FIELD-1 TO A-PR-RELATE
+           MOVE A-PR-ASSIGN TO IN-FIELD-1
+           MOVE A-SE-ASSIGN TO A-PR-ASSIGN
+           DISPLAY A-GARNAME " 03/59"
+           MOVE IN-FIELD-1 TO A-SE-ASSIGN.
+           MOVE A-PRIPOL TO ALF-16
+           IF (ALF-16-11 ALPHABETIC) AND (ALF-16-12 ALPHABETIC)
+           AND (ALF-16-13 ALPHABETIC) AND (ALF-16-2 NUMERIC)
+           AND ((A-PRINS = "025" OR "029" OR "031" OR "044" 
+           OR "033" OR "075" OR "094" OR "096")
+           OR (A-PRINS > "233" AND < "245"))
+           MOVE "268" TO A-PRINS
+           MOVE "A" TO A-PR-ASSIGN.
+           IF A-PRINS = "268" AND ALF-16-11 = "Y"
+            AND ALF-16-12 = "L" AND ALF-16-13 = "S"
+           MOVE "U" TO A-PR-ASSIGN
+           MOVE "149" TO A-PRINS.
+           IF A-PRINS = "268" AND ALF-16-1 = "HJW"
+           MOVE "839" TO A-PRINS.
+           IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V") 
+             MOVE SPACE TO ERRFILE01
+             STRING A-GARNAME " " A-ACTNO " " A-PRIPOL 
+                    DELIMITED BY SIZE INTO ERRFILE01
+                    WRITE ERRFILE01
+           END-IF         
+           IF (A-PRINS = "268") 
+             AND ((ALF-16-11 = "Z") AND (ALF-16-12 = "I"))
+            MOVE "002" TO A-PRINS.
+      *     IF ((A-PRINS = "268") 
+      *       AND  ((ALF-16-1 = "DVT") OR (ALF-16-1 = "EVT")
+      *         OR (ALF-16-1 = "FVT") OR (ALF-16-1 = "VEI")))
+      *      MOVE "002" TO A-PRINS.
+
+           IF (A-PRINS = "268")
+           AND ((ALF-16-11 NOT ALPHABETIC)
+            OR (ALF-16-12 NOT ALPHABETIC) 
+            OR (ALF-16-13 NOT ALPHABETIC))
+           MOVE "076" TO A-PRINS
+           MOVE "U" TO A-PR-ASSIGN.
+           IF (A-PRINS = "076") 
+           AND ((ALF-16-11 ALPHABETIC)
+            OR (ALF-16-12 ALPHABETIC) 
+            OR (ALF-16-13 ALPHABETIC))
+
+           MOVE "268" TO A-PRINS
+           MOVE A-SECPOL TO ALF-16
+           IF (ALF-16-11 ALPHABETIC) AND (ALF-16-12 ALPHABETIC)
+           AND (ALF-16-13 ALPHABETIC) 
+           AND ((A-SEINS = "025" OR "029" OR "031" OR "044"  
+           OR "033" OR "075" OR "094" OR "096")
+           OR (A-SEINS > "233" AND < "245"))
+           MOVE "268" TO A-SEINS.
+           IF A-SEINS = "268" AND ALF-16-11 = "Y"
+            AND ALF-16-12 = "L"
+           MOVE "U" TO A-PR-ASSIGN
+           MOVE "149" TO A-SEINS.
+           IF (A-SEINS = "268") 
+           AND ((ALF-16-11 NOT ALPHABETIC)
+            OR (ALF-16-12 NOT ALPHABETIC) 
+            OR (ALF-16-13 NOT ALPHABETIC))
+      *     MOVE "076" TO A-SEINS
+           MOVE "U" TO A-SE-ASSIGN.
+           IF (A-SEINS = "076") 
+           AND ((ALF-16-11 ALPHABETIC) AND (ALF-16-12 ALPHABETIC) 
+                                       AND (ALF-16-13 ALPHABETIC)) 
+           MOVE "268" TO A-SEINS
+		   IF A-PRINS = "076" AND A-SEINS = "076"
+           MOVE "075" TO A-SEINS.
+           IF A-PRINS = "002" AND A-SEINS = "002"
+           MOVE "023" TO A-SEINS.
+           IF (A-PRINS = "076") AND (A-PR-GROUP = "8054" OR "1100")
+           MOVE "477" TO A-PRINS
+           MOVE "A" TO A-PR-ASSIGN.
+           IF (A-PRINS = "076") AND (A-PR-GROUP = "000703")
+           MOVE "155" TO A-PRINS
+           MOVE "A" TO A-PR-ASSIGN.
+           IF (A-PRINS = "076") 
+           AND (A-PR-GROUP = "711113" OR "71111322001")
+           MOVE "343" TO A-PRINS
+           MOVE "A" TO A-PR-ASSIGN.
+           IF A-PRINS = "512" AND A-PR-GROUP = "550566"
+           MOVE "110" TO A-PRINS.
+           IF (A-PRINS = "076") AND (A-PR-GROUP = "ORV10100")
+           MOVE "553" TO A-PRINS
+           MOVE "A" TO A-PR-ASSIGN.
+           IF (A-SEINS = "076") AND (A-SE-GROUP = "8054" OR "1100")
+           MOVE "477" TO A-SEINS
+           MOVE "A" TO A-SE-ASSIGN.
+           IF (A-SEINS = "076") AND (A-SE-GROUP = "000703")
+           MOVE "155" TO A-SEINS
+           MOVE "A" TO A-SE-ASSIGN.
+           IF (A-SEINS = "076") 
+           AND (A-SE-GROUP = "711113" OR "71111322001")
+           MOVE "343" TO A-SEINS
+           MOVE "A" TO A-SE-ASSIGN.
+           IF A-SEINS = "512" AND A-SE-GROUP = "550566"
+           MOVE "110" TO A-SEINS.
+           IF (A-SEINS = "076") AND (A-SE-GROUP = "ORV10100")
+           MOVE "553" TO A-SEINS
+           MOVE "A" TO A-PR-ASSIGN.
+           IF (A-PRINS = "003") AND (A-SEINS = "715") 
+           MOVE "062" TO A-SEINS
+           MOVE "0099001     " TO A-PR-GROUP
+           MOVE "A" TO A-SE-ASSIGN.
+
+
+           IF (A-PRINS = A-SEINS)
+             AND (A-PR-ASSIGN = "A")
+             MOVE "020" TO A-SEINS
+             DISPLAY A-PRINS "  SAME AS SECONDARY INSURANCE"
+           END-IF.
+       P2-3.
+           MOVE R2-MEDREC TO A-ACTNO
+           MOVE A-GARNAME TO NAME-KEY
+           IF A-PRIPOL = "X" OR "UNK" MOVE SPACE TO A-PRIPOL.
+           IF A-SECPOL = "X" OR "UNK" MOVE SPACE TO A-SECPOL.
+           IF A-PR-GROUP = "X" OR "UNK" OR "NA"
+                       MOVE SPACE TO A-PR-GROUP.
+           IF A-SE-GROUP = "X" OR "UNK" OR "NA"
+                       MOVE SPACE TO A-SE-GROUP.
+           IF A-PRINS = "004"
+            MOVE A-GARNAME TO A-PRNAME
+            MOVE A-RELATE TO A-PR-RELATE
+           END-IF.
+
+           IF A-SEINS = "004"
+            MOVE A-GARNAME TO A-SENAME
+            MOVE A-RELATE TO A-SE-RELATE
+           END-IF.
+           PERFORM EA-1 THRU EA-1-EXIT.
+           IF A-DOB(1:2) = "20" AND A-PRINS = "003"
+             MOVE "19" TO A-DOB(1:2)
+           END-IF.
+		   IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
+		   MOVE "A" TO A-PR-ASSIGN
+		   END-IF.
+           IF A-SEINS = "268" AND A-SE-ASSIGN = "U"
+		   MOVE "A" TO A-SE-ASSIGN
+		   END-IF.
+		   MOVE ACTFILE01 TO SAVEMASTER.
+           READ ACTFILE INVALID MOVE SAVEMASTER TO ACTFILE01
+           WRITE ACTFILE01 GO TO B1.
+           MOVE SAVEMASTER TO ACTFILE01 REWRITE ACTFILE01.
+           GO TO B1.
+       B1. READ FILEIN AT END GO TO 9100CMF.
+           IF FI-1 NOT = "$$" GO TO P1-1.
+           MOVE FILEIN01 TO REC301
+           IF R3-PROC = "166 " GO TO B1.
+       B1-1.
+           MOVE SPACE TO RIGHT-4
+           MOVE "0001"  TO C-ORDER
+           MOVE R3-DATEMM TO A-MM
+           MOVE R3-DATEDD TO A-DD
+           MOVE R3-DATEYY TO A-YY
+           MOVE 20 TO A-CC
+           MOVE A-DATE TO INPUT-DATE
+           MOVE CORR INPUT-DATE TO TEST-DATE
+           MOVE CORR INPUT-DATE TO TEST-DATE
+           MOVE TEST-DATE TO C-DATE-T
+           MOVE DATE-X TO C-DATE-E
+           MOVE SPACE TO C-DATE-ADMIT
+           STRING R1-ADMITYY R1-ADMITMM R1-ADMITDD DELIMITED
+           BY SIZE INTO C-DATE-ADMIT.
+           MOVE "5" TO C-IOPAT
+           IF R3-PLACE = "EMER" MOVE "E" TO C-IOPAT.
+           IF R3-PLACE = "INPT" MOVE "3" TO C-IOPAT.
+           IF ((R3-OBSERV = "OBSER") AND (R3-PLACE = "INPT")
+             AND (C-IOPAT NOT  = "E"))
+      *       DISPLAY "PLACE OF SERVICE CHANGE"
+      *       DISPLAY A-GARNAME
+      *       DISPLAY "OBSERVATION + INPATIENT = E"
+             MOVE "E" TO C-IOPAT
+      *      ACCEPT OMITTED
+           END-IF
+           MOVE REF TO C-REF.
+           MOVE R3-PROC TO C-PROC
+           IF R3-IND = "CAN" MOVE "-" TO C-IND
+           ELSE MOVE " " TO C-IND.
+           MOVE "00" TO C-DOCP
+           IF R3-DOCP = "RADE" MOVE "02" TO C-DOCP.
+           IF R3-DOCP = "SIVA" MOVE "03" TO C-DOCP.
+           IF R3-DOCP = "BIEB" MOVE "05" TO C-DOCP.
+           IF R3-DOCP = "MITC" MOVE "06" TO C-DOCP.
+           IF R3-DOCP = "PEKA" MOVE "07" TO C-DOCP.
+           IF R3-DOCP = "SHEL" MOVE "08" TO C-DOCP.
+           IF R3-DOCP = "HUMM" MOVE "09" TO C-DOCP.
+           IF R3-DOCP = "BOYE" MOVE "10" TO C-DOCP.
+           
+           MOVE R3-CLINICAL TO C-CLINICAL
+           MOVE R2-DIAG TO C-ADMIT-DIAG
+           MOVE R3-CPT TO C-CPT
+           MOVE "001" TO ORD3
+           MOVE A-ACTNO TO ORD8
+           MOVE ORDFILE01 TO SAVEORD
+           MOVE 1 TO XYZ.
+       B2. READ ORDFILE INVALID GO TO B3.
+           ADD 1 TO XYZ MOVE XYZ TO  ORD3
+           GO TO B2.
+       B3. MOVE SAVEORD TO ORDFILE01
+           MOVE XYZ TO ORD3
+           WRITE ORDFILE01
+           IF (R1-IP1 = "00931" OR "00932")
+           OR (A-PRINS = "075" OR "076" OR "095")
+           PERFORM WORK-COMP.
+           IF A-SEINS = "075" OR "076" OR"095"
+           PERFORM WORK-COMP2.
+           GO TO B1.
+       WORK-COMP.
+           MOVE SPACE TO COMPFILE01
+           STRING A-ACTNO  C-DATE-T C-PROC INSURANCE-1
+           DELIMITED BY SIZE INTO COMPFILE01
+           WRITE COMPFILE01 INVALID CONTINUE.
+           IF R1-INSNAME1 = SPACE
+           DISPLAY A-GARNAME " BLANK WORK COMP1 ADDRESS"
+           DISPLAY A-PRINS " " A-SEINS.
+
+       WORK-COMP2.
+           MOVE SPACE TO COMPFILE01
+           STRING A-ACTNO  C-DATE-T C-PROC INSURANCE-2
+           DELIMITED BY SIZE INTO COMPFILE01
+           WRITE COMPFILE01 INVALID CONTINUE.
+           IF R1-INSNAME2 = SPACE
+           MOVE SPACE TO COMPFILE01
+           STRING A-ACTNO  C-DATE-T C-PROC INSURANCE-3
+           DELIMITED BY SIZE INTO COMPFILE01
+           WRITE COMPFILE01 INVALID CONTINUE.
+       PACK-1. IF NOT (TAB16(X) = " " OR "-" OR "/")
+               MOVE TAB16(X) TO NEWTAB(YNDX)
+               SET YNDX UP BY 1.
+       EA-1.
+           IF R1-EMAIL = SPACE AND R1-AUTH = SPACE GO TO EA-1-EXIT.
+            move space to EMAILAUTHFILE01
+            MOVE 0  TO EA-KEY
+            WRITE EMAILAUTHFILE01 invalid continue.
+           move r2-guarssn to ea-ssn
+           MOVE 999999 TO EA-KEY
+           start EMAILAUTHFILE key < ea-key  invalid
+            MOVE 999999 TO EA-KEY
+            WRITE EMAILAUTHFILE01
+           end-start.
+           MOVE 999999 TO EA-KEY
+           read EMAILAUTHFILE previous at end
+           move 0 to ea-key
+           END-read.
+
+      *    display ea-key " ea-key after a read preious"
+      *     accept omitted
+
+           ADD 1 TO EA-KEY
+      *    display ea-key " " a-garname
+      *    accept omitted
+           move r2-guarssn to ea-ssn 
+           MOVE A-ACTNO TO EA-MEDREC
+           MOVE A-GARNAME TO EA-NAME
+           ACCEPT EA-DATE-E FROM CENTURY-DATE
+           MOVE R1-EMAIL TO EA-EMAIL
+           MOVE R1-AUTH TO EA-AUTH.
+           WRITE EMAILAUTHFILE01.
+       EA-1-EXIT.
+           EXIT.
+
+       9100CMF.
+           CLOSE ACTFILE EMAILAUTHFILE ORDFILE COMPFILE
+                 REFPHY HOSPFILE INSFILE FILEOUT ERRFILE
+           DISPLAY "REPORT DATA ENTRY PROGRAM HAS ENDED".
+           STOP RUN.
