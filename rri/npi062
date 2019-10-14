@@ -110,10 +110,10 @@
            DISPLAY "ENTER A VALID PLACE CODE TO THIS CHCRR PROVIDER"
            DISPLAY "OR X = BACK TO THE BEGINNING"
 
-           DISPLAY "C=CAST, M=METTOWEE, R=RUTLAND".
+           DISPLAY "B=BRANDON, C=CAST, M=METTOWEE, R=RUTLAND".
            ACCEPT NPI-PLACE.
            IF NPI-PLACE = "X" GO TO A-EXIT.
-           IF NOT (NPI-PLACE = "C" OR "M" OR "R" ) GO TO A-6.
+           IF NOT (NPI-PLACE = "B" OR "C" OR "M" OR "R" ) GO TO A-6.
            MOVE REF-NAME TO NPI-NAME
            MOVE REF-NAME TO NPI-NAME
            WRITE NPIFILE01 INVALID
@@ -143,7 +143,7 @@
 
            ACCEPT NPI-PLACE.
            IF NPI-PLACE = "X" GO TO P1.
-           IF NOT (NPI-PLACE = "C" OR "M" OR "R" ) GO TO C-1.
+           IF NOT (NPI-PLACE = "B" OR "C" OR "M" OR "R" ) GO TO C-1.
            REWRITE NPIFILE01
            INVALID CONTINUE.
            DISPLAY NPI-KEY " " NPI-NAME " " NPI-PLACE
