@@ -2022,8 +2022,8 @@
            MOVE SPACE TO SBR-TYPE.
 
            IF (G-RELATE NOT = G-PR-RELATE)
-             GO TO SUBSCRIBER-2.
-           MOVE "18" TO SBR-RELATE
+             MOVE SPACE TO SBR-RELATE
+	   ELSE MOVE "18" TO SBR-RELATE.
            MOVE "0    " TO HL-CHILD
            GO TO SUBSCRIBER-EXIT.
        SUBSCRIBER-2.
