@@ -1346,9 +1346,9 @@
            WRITE SEGFILE01 FROM SBR01
            PERFORM 2010BA.
            PERFORM 2010BB.
-      *     IF  SAVE-RELATE NOT = "18"
-      *     MOVE SAVE-RELATE TO SBR-PST
-      *     PERFORM 2000C.
+           IF  SAVE-RELATE NOT = "18"
+           MOVE SAVE-RELATE TO SBR-PST
+           PERFORM 2000C.
        2010BA.
            MOVE "IL " TO NM1-1
            MOVE "1" TO NM1-SOLO
