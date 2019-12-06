@@ -268,13 +268,13 @@
              REWRITE CHARFILE01  
              GO TO P1
            END-IF.
-             IF (CD-PROC1 = "1097" OR "1098") 
-             IF CD-DATE-T < "20151001"
-              MOVE "V7611??" TO CD-DIAG
+             IF (CD-PROC1 = "1097" OR "1098")
+	         MOVE "Z1231  " TO CD-DIAG
              END-IF
-             IF CD-DATE-T > "20150930"
-              MOVE "Z1231  " TO CD-DIAG
+	     IF (CD-PROC1 = "1099")
+                 MOVE "1099770672652" TO CD-PROC
              END-IF
+	     
            REWRITE CHARFILE01
              GO TO P1
            END-IF
