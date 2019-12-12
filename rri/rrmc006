@@ -728,176 +728,20 @@
            IF C-DATE-A NOT NUMERIC DISPLAY C-DATE-A  " BAD DATE"
            MOVE "00000000" TO C-DATE-A.
            MOVE SPACE TO A-GARNO.
-           IF R2-DOC(1:6) = "NP3249" MOVE "H25" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "P55488" MOVE "M19" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "VN3024" MOVE "W24" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "NP1616" MOVE "M42" TO REF GO TO P2.
-           IF R2-DOC(1:4) = "4702" MOVE "K02" TO REF GO TO P2.
-           IF R2-DOC(1:8) = "FOVT4964" MOVE "F10" TO REF GO TO P2.
-           IF R2-DOC(1:4) = "5565" MOVE "R14" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "VT9219" MOVE "S24" TO REF GO TO P2.
-           IF R2-DOC(1:4) = "2506" MOVE "P12" TO REF GO TO P2.
-           IF R2-DOC(1:5) = "18196" MOVE "B43" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "AP0554" MOVE "B61" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "AP0553" MOVE "G31" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "NP1463" MOVE "B60" TO REF GO TO P2.
-
-		   IF R2-REFDOC(1:17) = "SORONDO,JEAN-PAUL"
-           MOVE "S5L" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "BROWN,PATRICIA"
-           MOVE "B05" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "GREENLEAF, M"
-           MOVE "G1J" TO REF GO TO P2.
-           IF R2-REFDOC(1:10) = "DIAZ,LINDA"
-           MOVE "D45" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "BAKER,RICHARD"
-           MOVE "B43" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "DIER,DOUGLAS"
-           MOVE "D19" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "BECKER,JACQU"
-           MOVE "B60" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "WULFMAN,CARRIE"
-           MOVE "W20" TO REF GO TO P2.
-           IF R2-REFDOC(1:16) = "WEISBORD,TIMOTHY"
-           MOVE "W24" TO REF GO TO P2.
-           IF R2-REFDOC(1:7) = "LOVKO,T"
-           MOVE "L19" TO REF GO TO P2.
-           IF R2-REFDOC(1:11) = "LOVKO,INDRA"
-           MOVE "L25" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "BERRICK,ROBERT"
-           MOVE "B61" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "ANDROY,LAURA"
-           MOVE "A12" TO REF GO TO P2.
-           IF R2-REFDOC(1:16) = "MCDONALD,MARILYN"
-           MOVE "M44" TO REF GO TO P2.
-           IF R2-REFDOC(1:20) = "MILLER-RUMNEY,MARION"
-           MOVE "M42" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "MILLER,MITCH"
-           MOVE "M43" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "LEFFLER,STEPHEN"
-           MOVE "L11" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "HOGENKAMP,LISA"
-           MOVE "H26" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "HOGENKAMP,PETER"
-           MOVE "H25" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "LEFFEL,WENDY"
-           MOVE "L18" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "STICKNEY,MARK"
-           MOVE "S24" TO REF GO TO P2.
-           IF R2-REFDOC(1:17) = "THOMPSON,BENJAMIN"
-           MOVE "T10" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "BAKER,RICHARD C"
-           MOVE "B43" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "BAKER,ROGER D"
-           MOVE "B11" TO REF GO TO P2.
-           IF R2-REFDOC(1:16) = "KEENAN,PATRICK F"
-           MOVE "K02" TO REF GO TO P2.
-           IF R2-REFDOC(1:18) = "PISANELLI,PATRICIA"
-           MOVE "P12" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "HARTMANN,ERIC G"
-           MOVE "H19" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "THOMPSON,BEN"
-           MOVE "T10" TO REF GO TO P2.
-           IF R2-REFDOC(1:9) = "STEIN,ANN"
-           MOVE "S27" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "THOMAS,GORDON"
-           MOVE "T05" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "BERRICK,ROBERT"
-           MOVE "M30" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "DEVLIN,MARTIN"
-           MOVE "M30" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "GORTON,JAMES"
-           MOVE "M30" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "RUSSELL,JAMES"
-           MOVE "R14" TO REF GO TO P2.
-           IF R2-REFDOC(1:11) = "UPHOLD,RUTH"
-           MOVE "U04" TO REF GO TO P2.
-           IF R2-REFDOC(1:16) = "MITCHELL,COLLEEN"
-           MOVE "M62" TO REF GO TO P2.
-           IF R2-REFDOC(1:17) = "WEIDEMAN,KATHLEEN"
-           MOVE "W29" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "FOSTER,JULIE A"
-           MOVE "F30" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "ELLWOOD,JUDITH"
-           MOVE "E10" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "STEVENS,MATTHEW"
-           MOVE "S68" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "EUGAIR,KIMBERLY"
-           MOVE "E20" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "DERHAM,KATHLEEN"
-           MOVE "D35" TO REF GO TO P2.
 
            PERFORM NPI-METHOD THRU NPI-EXIT.
-           if flag = 1 go to p2.
-       p2-0.
-
+           IF FLAG = 1 GO TO P2.
+       P2-0.
            DISPLAY R2-REFDOC " " R2-DOC " " R2-NPI " TO BE ADDED"
            ACCEPT REF
-           move  ref to ref-key
+           MOVE REF TO REF-KEY
            READ REFPHY INVALID GO TO P2-0.
            GO TO P2.
-
-
-       4Z-REF.
-           MOVE R2-REFDOC4 TO ALF4
-           MOVE 0 TO Y
-           MOVE SPACE TO REF-KEY
-           MOVE ALF4(1:1) TO REF-KEY
-           START REFPHY KEY NOT < REF-KEY INVALID GO TO REF-2.
-       4B-REF.
-           READ REFPHY NEXT AT END GO TO REF-2.
-           IF REF-NPI = SPACE GO TO 4B-REF.
-           IF REF-NAME(1:1) > REF-KEY(1:1) GO TO REF-2.
-           IF REF-NAME(1:4) NOT = ALF4 GO TO 4B-REF.
-           ADD 1 TO Y
-           MOVE R2-DOC TO NUMKEYTAB(Y)
-           MOVE REF-NAME TO NAMETAB(Y)
-           MOVE REF-KEY TO NAMEKEYTAB(Y)
-           GO TO 4B-REF.
-
-       REF-2.
-           IF Y = 0 GO TO P2-0.
-       REF-3.
-           PERFORM REF-PICK VARYING X FROM 1 BY 1 UNTIL X > Y.
-           DISPLAY R2-REFDOC " " R2-DOC
-
-           ACCEPT ALF-3
-
-           MOVE ALF-3 TO REF-KEY
-           READ REFPHY
-            INVALID 
-             MOVE SPACE TO RIGHT-2
-             UNSTRING alf-3(1:2) delimited by " " into right-2
-             inspect right-2 replacing all " " by "0"
-             move right-2 to alf-2
-              IF( ALF-2 NOT NUMERIC) OR (ALF-2 = "00")
-               
-               DISPLAY "BAD PICK"
-               GO TO REF-3
-              END-IF
-
-              MOVE ALF-2 TO X
-              IF X = 0 OR X > Y
-                DISPLAY "BAD CHOICE. DO IT AGAIN!"
-                GO TO REF-3
-              END-IF
-
-            MOVE NAMEKEYTAB(X) TO REF
-
-            NOT INVALID  CONTINUE
-           END-READ.
-           GO TO P2.
-
-       REF-PICK. DISPLAY X " " NAMETAB(X) " " NAMEKEYTAB(X)
-           " " NUMKEYTAB(X).
-
-
        NPI-METHOD.
            MOVE SPACE TO REF-KEY
            MOVE R2-REFDOC(1:1) TO REF-KEY
            MOVE 0 TO FLAG.
            START REFPHY KEY NOT < REF-KEY INVALID GO TO NPI-EXIT.
-
        NPI-1. READ REFPHY NEXT AT END GO TO NPI-EXIT.
                IF REF-NPI = SPACE GO TO NPI-1.
                IF REF-NAME(1:1) > R2-REFDOC(1:1) GO TO NPI-EXIT.
@@ -908,9 +752,7 @@
                END-IF.
                GO TO NPI-1.
        NPI-EXIT. EXIT.
-
        P2.
-
            IF (R2-DOBYY NOT NUMERIC) OR (R2-DOBMM NOT NUMERIC)
            OR (R2-DOBDD NOT NUMERIC)
            DISPLAY R2-PATDOB " " R1-PATNAME 
@@ -1442,14 +1284,21 @@
            BY SIZE INTO C-DATE-ADMIT.
            MOVE "5" TO C-IOPAT
            IF R3-PLACE = "EMER" MOVE "E" TO C-IOPAT.
-           IF R3-PLACE = "INPT" MOVE "3" TO C-IOPAT.
-           IF ((R3-OBSERV = "OBSER") AND (R3-PLACE = "INPT")
-             AND (C-IOPAT NOT  = "E"))
-      *       DISPLAY "PLACE OF SERVICE CHANGE"
-      *       DISPLAY A-GARNAME
-      *       DISPLAY "OBSERVATION + INPATIENT = E"
-             MOVE "E" TO C-IOPAT
-      *      ACCEPT OMITTED
+           IF R3-PLACE = "INPT"
+             IF (REF = "G0A" OR "H27" OR "S0A" OR "J06" OR "R1D"
+                    OR "S60" OR "D55" OR "B1T" OR "B51" OR "R2A"
+                    OR "F34" OR "G36" OR "H1B" OR "M6A" OR "R3H"
+                    OR "S7O" OR "S91" OR "S1O" OR "T0E" OR "T21"
+                    OR "T0G" OR "V12" OR "W2I" OR "Z0I")
+               DISPLAY "PLACE OF SERVICE CHANGE"
+               DISPLAY A-GARNAME
+               DISPLAY "IS INPT BUT REF IS ED "
+               DISPLAY REF
+               MOVE "E" TO C-IOPAT
+               ACCEPT OMITTED
+             END-IF
+           ELSE
+             MOVE "3" TO C-IOPAT
            END-IF
            MOVE REF TO C-REF.
            MOVE R3-PROC TO C-PROC
