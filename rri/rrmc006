@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RMC002.
+       PROGRAM-ID. rrmc006.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -1234,77 +1234,57 @@
            PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
            MOVE NEWTAB01 TO A-SECPOL.
            IF (A-PRINS = "003")
-           MOVE A-PRIPOL TO POLTEST
-            IF 
-             ((POLTEST1 = "WA" OR "MA" OR "WD") OR (POLTEST1-1 = "A"))
-             MOVE "028" TO A-PRINS
-            END-IF
+               MOVE A-PRIPOL TO POLTEST
+               IF ((POLTEST1 = "WA" OR "MA" OR "WD")
+                 OR (POLTEST1-1 = "A"))
+                   MOVE "028" TO A-PRINS
+               END-IF
            END-IF.
            IF (A-SEINS = "003")
-           MOVE A-SECPOL TO POLTEST
-            IF ((POLTEST1 = "WA" OR "MA" OR "WD") OR (POLTEST1-1 = "A"))
-            MOVE "028" TO A-SEINS
-            END-IF
+               MOVE A-SECPOL TO POLTEST
+               IF ((POLTEST1 = "WA" OR "MA" OR "WD")
+                 OR (POLTEST1-1 = "A"))
+                   MOVE "028" TO A-SEINS
+               END-IF
            END-IF.
            IF (A-PRINS = "003") AND (A-SEINS NOT = "062")
              MOVE SPACE TO A-PR-GROUP.
            IF A-SEINS = "003" MOVE SPACE TO A-SE-GROUP.
            MOVE SPACE TO A-PR-OFFICE.
            IF A-PRINS = "121" MOVE "X100" TO A-PR-OFFICE.
-           IF A-PRINS = "074" AND (A-PRIPOL > "IBM  " AND < "IBM99")
-           MOVE "124" TO A-PRINS.
-           IF A-PRINS = "076" AND A-PR-GROUP = "2139627" MOVE
-           "102" TO A-PRINS.
-           IF A-SEINS = "076" AND A-SE-GROUP = "2139627" MOVE
-           "102" TO A-SEINS.
-
-           IF A-PRINS = "076" AND A-PR-GROUP = "C817" MOVE
-           "799" TO A-PRINS.
-           IF A-PRINS = "076" AND A-PR-GROUP = "7596" MOVE
-           "514" TO A-PRINS.
-           IF A-PRINS = "076" AND A-PR-GROUP2 = "VT" MOVE
-           "512" TO A-PRINS.
-
-           IF A-SEINS = "076" AND A-SE-GROUP = "C817" MOVE
-           "799" TO A-SEINS.
-           IF A-SEINS = "076" AND A-SE-GROUP = "7596" MOVE
-           "514" TO A-SEINS.
-           IF A-SEINS = "076" AND A-SE-GROUP2 = "VT" MOVE
-           "512" TO A-SEINS.
-
            IF (A-PRIPOL = A-PR-GROUP)
            MOVE SPACE TO A-PR-GROUP.
            IF (A-SECPOL = A-SE-GROUP)
            MOVE SPACE TO A-SE-GROUP.
            IF (A-PRINS = "003" AND A-SEINS = "005")
-            AND (A-PRIPOL1 = A-SECPOL1)
-            MOVE A-PRIPOL2 TO A-SECPOL2.
-           IF A-PRINS = "003" AND A-SEINS = "059"
-           MOVE A-PRINS TO IN-FIELD-3
-           MOVE A-SEINS TO A-PRINS
-           MOVE IN-FIELD-3 TO A-SEINS
-           MOVE A-PRIPOL TO IN-FIELD-16
-           MOVE A-SECPOL TO A-PRIPOL
-           MOVE IN-FIELD-16 TO A-SECPOL
-           MOVE A-PR-GROUP TO IN-FIELD-16
-           MOVE A-SE-GROUP TO A-PR-GROUP
-           MOVE IN-FIELD-16 TO A-SE-GROUP
-           MOVE A-PR-MPLR TO IN-FIELD-4
-           MOVE A-SE-MPLR TO A-PR-MPLR
-           MOVE IN-FIELD-4 TO A-PR-MPLR
-           MOVE A-PRNAME TO NAME-FIRST
-           MOVE A-SENAME TO A-PRNAME
-           MOVE NAME-FIRST TO A-SENAME
-           MOVE A-PRGRPNAME TO IN-FIELD-15
-           MOVE A-SEGRPNAME TO A-PRGRPNAME
-           MOVE IN-FIELD-15 TO A-SEGRPNAME
-           MOVE A-PR-RELATE TO IN-FIELD-1
-           MOVE A-SE-RELATE TO A-PR-RELATE
-           MOVE IN-FIELD-1 TO A-PR-RELATE
-           MOVE A-PR-ASSIGN TO IN-FIELD-1
-           MOVE A-SE-ASSIGN TO A-PR-ASSIGN
-           DISPLAY A-GARNAME " 03/59"
-           MOVE IN-FIELD-1 TO A-SE-ASSIGN.
+             AND (A-PRIPOL1 = A-SECPOL1)
+               MOVE A-PRIPOL2 TO A-SECPOL2.
+      *     IF A-PRINS = "003" AND A-SEINS = "059"
+      *         MOVE A-PRINS TO IN-FIELD-3
+      *         MOVE A-SEINS TO A-PRINS
+      *         MOVE IN-FIELD-3 TO A-SEINS
+      *         MOVE A-PRIPOL TO IN-FIELD-16
+      *         MOVE A-SECPOL TO A-PRIPOL
+      *         MOVE IN-FIELD-16 TO A-SECPOL
+      *         MOVE A-PR-GROUP TO IN-FIELD-16
+      *         MOVE A-SE-GROUP TO A-PR-GROUP
+      *         MOVE IN-FIELD-16 TO A-SE-GROUP
+      *         MOVE A-PR-MPLR TO IN-FIELD-4
+      *         MOVE A-SE-MPLR TO A-PR-MPLR
+      *         MOVE IN-FIELD-4 TO A-PR-MPLR
+      *         MOVE A-PRNAME TO NAME-FIRST
+      *         MOVE A-SENAME TO A-PRNAME
+      *         MOVE NAME-FIRST TO A-SENAME
+      *         MOVE A-PRGRPNAME TO IN-FIELD-15
+      *         MOVE A-SEGRPNAME TO A-PRGRPNAME
+      *         MOVE IN-FIELD-15 TO A-SEGRPNAME
+      *         MOVE A-PR-RELATE TO IN-FIELD-1
+      *         MOVE A-SE-RELATE TO A-PR-RELATE
+      *         MOVE IN-FIELD-1 TO A-PR-RELATE
+      *         MOVE A-PR-ASSIGN TO IN-FIELD-1
+      *         MOVE A-SE-ASSIGN TO A-PR-ASSIGN
+      *         DISPLAY A-GARNAME " 03/59"
+      *         MOVE IN-FIELD-1 TO A-SE-ASSIGN.
            MOVE A-PRIPOL TO ALF-16
            IF (ALF-16-11 ALPHABETIC) AND (ALF-16-12 ALPHABETIC)
            AND (ALF-16-13 ALPHABETIC) AND (ALF-16-2 NUMERIC)
@@ -1314,25 +1294,22 @@
            MOVE "268" TO A-PRINS
            MOVE "A" TO A-PR-ASSIGN.
            IF A-PRINS = "268" AND ALF-16-11 = "Y"
-            AND ALF-16-12 = "L" AND ALF-16-13 = "S"
-           MOVE "U" TO A-PR-ASSIGN
-           MOVE "149" TO A-PRINS.
-           IF A-PRINS = "268" AND ALF-16-1 = "HJW"
-           MOVE "839" TO A-PRINS.
-           IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V") 
-             MOVE SPACE TO ERRFILE01
-             STRING A-GARNAME " " A-ACTNO " " A-PRIPOL 
-                    DELIMITED BY SIZE INTO ERRFILE01
-                    WRITE ERRFILE01
-           END-IF         
+               AND ALF-16-12 = "L" AND ALF-16-13 = "S"
+               MOVE "U" TO A-PR-ASSIGN
+               MOVE "149" TO A-PRINS.
            IF (A-PRINS = "268") 
-             AND ((ALF-16-11 = "Z") AND (ALF-16-12 = "I"))
-            MOVE "002" TO A-PRINS.
-      *     IF ((A-PRINS = "268") 
-      *       AND  ((ALF-16-1 = "DVT") OR (ALF-16-1 = "EVT")
-      *         OR (ALF-16-1 = "FVT") OR (ALF-16-1 = "VEI")))
-      *      MOVE "002" TO A-PRINS.
-
+               AND ((ALF-16-11 = "Z") AND (ALF-16-12 = "I"))
+               MOVE "002" TO A-PRINS.
+           IF ((A-PRINS = "268")
+               AND  ((ALF-16-1 = "DVT") OR (ALF-16-1 = "EVT")
+               OR (ALF-16-1 = "FVT") OR (ALF-16-1 = "VEI")))
+               MOVE "002" TO A-PRINS.
+           IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V")
+               MOVE SPACE TO ERRFILE01
+               STRING A-GARNAME " " A-ACTNO " " A-PRIPOL
+               DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+           END-IF
            IF (A-PRINS = "268")
            AND ((ALF-16-11 NOT ALPHABETIC)
             OR (ALF-16-12 NOT ALPHABETIC) 
