@@ -737,6 +737,60 @@
            MOVE REF TO REF-KEY
            READ REFPHY INVALID GO TO P2-0.
            GO TO P2.
+       4Z-REF.
+           MOVE R2-REFDOC4 TO ALF4
+           MOVE 0 TO Y
+           MOVE SPACE TO REF-KEY
+           MOVE ALF4(1:1) TO REF-KEY
+           START REFPHY KEY NOT < REF-KEY INVALID GO TO REF-2.
+       4B-REF.
+           READ REFPHY NEXT AT END GO TO REF-2.
+           IF REF-NPI = SPACE GO TO 4B-REF.
+           IF REF-NAME(1:1) > REF-KEY(1:1) GO TO REF-2.
+           IF REF-NAME(1:4) NOT = ALF4 GO TO 4B-REF.
+           ADD 1 TO Y
+           MOVE R2-DOC TO NUMKEYTAB(Y)
+           MOVE REF-NAME TO NAMETAB(Y)
+           MOVE REF-KEY TO NAMEKEYTAB(Y)
+           GO TO 4B-REF.
+
+       REF-2.
+           IF Y = 0 GO TO P2-0.
+       REF-3.
+           PERFORM REF-PICK VARYING X FROM 1 BY 1 UNTIL X > Y.
+           DISPLAY R2-REFDOC " " R2-DOC
+
+           ACCEPT ALF-3
+
+           MOVE ALF-3 TO REF-KEY
+           READ REFPHY
+            INVALID
+             MOVE SPACE TO RIGHT-2
+             UNSTRING alf-3(1:2) delimited by " " into right-2
+             inspect right-2 replacing all " " by "0"
+             move right-2 to alf-2
+              IF( ALF-2 NOT NUMERIC) OR (ALF-2 = "00")
+
+               DISPLAY "BAD PICK"
+               GO TO REF-3
+              END-IF
+
+              MOVE ALF-2 TO X
+              IF X = 0 OR X > Y
+                DISPLAY "BAD CHOICE. DO IT AGAIN!"
+                GO TO REF-3
+              END-IF
+
+            MOVE NAMEKEYTAB(X) TO REF
+
+            NOT INVALID  CONTINUE
+           END-READ.
+           GO TO P2.
+
+       REF-PICK. DISPLAY X " " NAMETAB(X) " " NAMEKEYTAB(X)
+           " " NUMKEYTAB(X).
+
+
        NPI-METHOD.
            MOVE SPACE TO REF-KEY
            MOVE R2-REFDOC(1:1) TO REF-KEY
