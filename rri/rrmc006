@@ -1354,9 +1354,9 @@
                                 MOVE "E" TO C-IOPAT
                                 ACCEPT OMITTED
                  WRITE ERRFILE01
-                 MOVE "E" TO C-IOPAT.
-           ELSE
-             MOVE "3" TO C-IOPAT.
+                 MOVE "E" TO C-IOPAT
+               END-IF
+           ELSE MOVE "3" TO C-IOPAT.
            DISPLAY "IS THERE A BUG"
            DISPLAY R3-PLACE C-IOPAT
            ACCEPT OMITTED
