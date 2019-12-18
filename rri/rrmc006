@@ -1338,12 +1338,12 @@
            BY SIZE INTO C-DATE-ADMIT.
            MOVE "5" TO C-IOPAT
            IF R3-PLACE = "EMER" MOVE "E" TO C-IOPAT.
-           IF (R3-PLACE = "INPT" AND
-               (REF = "G0A" OR "H27" OR "S0A" OR "J06" OR "R1D"
+           IF R3-PLACE = "INPT" AND
+               IF (REF = "G0A" OR "H27" OR "S0A" OR "J06" OR "R1D"
                     OR "S60" OR "D55" OR "B1T" OR "B51" OR "R2A"
                     OR "F34" OR "G36" OR "H1B" OR "M6A" OR "R3H"
                     OR "S7O" OR "S91" OR "S1O" OR "T0E" OR "T21"
-                    OR "T0G" OR "V12" OR "W2I" OR "Z0I"))
+                    OR "T0G" OR "V12" OR "W2I" OR "Z0I")
                  MOVE SPACE TO ERRFILE01
                  STRING A-GARNAME " WAS SENT AS INPT BUT " REF
                  " IS IN THE ED" DELIMITED BY SIZE INTO ERRFILE01
@@ -1354,10 +1354,9 @@
                                 MOVE "E" TO C-IOPAT
                                 ACCEPT OMITTED
                  WRITE ERRFILE01
-                 MOVE "E" TO C-IOPAT
+                 MOVE "E" TO C-IOPAT.
            ELSE
-             MOVE "3" TO C-IOPAT
-           END-IF
+             MOVE "3" TO C-IOPAT.
            DISPLAY "IS THERE A BUG"
            DISPLAY R3-PLACE C-IOPAT
            ACCEPT OMITTED
