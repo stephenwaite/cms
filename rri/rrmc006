@@ -1348,8 +1348,8 @@
            END-IF
            IF (R3-PLACE = "INPT") AND (C-IOPAT = "E")
                MOVE SPACE TO ERRFILE01
-               STRING A-GARNAME " WAS SENT AS INPT BUT " REF
-               " IS IN THE ED" DELIMITED BY SIZE INTO ERRFILE01
+               STRING A-GARNAME " WAS SENT AS INPT BUT REF " REF
+               " IS ED" DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
            END-IF
            MOVE REF TO C-REF.
