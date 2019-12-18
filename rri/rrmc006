@@ -1338,8 +1338,8 @@
            BY SIZE INTO C-DATE-ADMIT.
            MOVE "5" TO C-IOPAT
            IF R3-PLACE = "EMER" MOVE "E" TO C-IOPAT.
-           IF R3-PLACE = "INPT"
-               AND (REF = "G0A" OR "H27" OR "S0A" OR "J06" OR "R1D"
+           IF R3-PLACE = "INPT" MOVE "3" TO C-IOPAT.
+           IF (REF = "G0A" OR "H27" OR "S0A" OR "J06" OR "R1D"
                     OR "S60" OR "D55" OR "B1T" OR "B51" OR "R2A"
                     OR "F34" OR "G36" OR "H1B" OR "M6A" OR "R3H"
                     OR "S7O" OR "S91" OR "S1O" OR "T0E" OR "T21"
