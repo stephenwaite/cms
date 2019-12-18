@@ -1344,21 +1344,14 @@
                     OR "F34" OR "G36" OR "H1B" OR "M6A" OR "R3H"
                     OR "S7O" OR "S91" OR "S1O" OR "T0E" OR "T21"
                     OR "T0G" OR "V12" OR "W2I" OR "Z0I")
-                 MOVE SPACE TO ERRFILE01
-                 STRING A-GARNAME " WAS SENT AS INPT BUT " REF
-                 " IS IN THE ED" DELIMITED BY SIZE INTO ERRFILE01
-                 DISPLAY "PLACE OF SERVICE CHANGE"
-                                DISPLAY A-GARNAME
-                                DISPLAY "IS INPT BUT REF IS ED "
-                                DISPLAY REF
-                                MOVE "E" TO C-IOPAT
-                                ACCEPT OMITTED
-                 WRITE ERRFILE01
                  MOVE "E" TO C-IOPAT
            END-IF
-           DISPLAY "IS THERE A BUG"
-           DISPLAY R3-PLACE C-IOPAT
-           ACCEPT OMITTED
+           IF (R3-PLACE = "INPT") AND (C-IOPAT = "E")
+               MOVE SPACE TO ERRFILE01
+               STRING A-GARNAME " WAS SENT AS INPT BUT " REF
+               " IS IN THE ED" DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+           END-IF
            MOVE REF TO C-REF.
            MOVE R3-PROC TO C-PROC
            IF R3-IND = "CAN" MOVE "-" TO C-IND
