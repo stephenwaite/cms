@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RVS018.
+       PROGRAM-ID. med052.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -21,7 +21,7 @@
            02 MED-KEY.
              03 MED-KEY1 PIC X(5).
              03 MED-KEY2 PIC XX.
-           02 MED-AMOUNT PIC 9(5)V99.
+           02 MED-AMOUNT PIC 9(4)V99.
        FD PROCFILE
            DATA RECORD PROCFILE01.
        01 PROCFILE01.
