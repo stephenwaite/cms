@@ -1,5 +1,5 @@
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RMC002.
+       PROGRAM-ID. rrmc006.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -728,116 +728,15 @@
            IF C-DATE-A NOT NUMERIC DISPLAY C-DATE-A  " BAD DATE"
            MOVE "00000000" TO C-DATE-A.
            MOVE SPACE TO A-GARNO.
-           IF R2-DOC(1:6) = "NP3249" MOVE "H25" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "P55488" MOVE "M19" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "VN3024" MOVE "W24" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "NP1616" MOVE "M42" TO REF GO TO P2.
-           IF R2-DOC(1:4) = "4702" MOVE "K02" TO REF GO TO P2.
-           IF R2-DOC(1:8) = "FOVT4964" MOVE "F10" TO REF GO TO P2.
-           IF R2-DOC(1:4) = "5565" MOVE "R14" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "VT9219" MOVE "S24" TO REF GO TO P2.
-           IF R2-DOC(1:4) = "2506" MOVE "P12" TO REF GO TO P2.
-           IF R2-DOC(1:5) = "18196" MOVE "B43" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "AP0554" MOVE "B61" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "AP0553" MOVE "G31" TO REF GO TO P2.
-           IF R2-DOC(1:6) = "NP1463" MOVE "B60" TO REF GO TO P2.
-
-		   IF R2-REFDOC(1:17) = "SORONDO,JEAN-PAUL"
-           MOVE "S5L" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "BROWN,PATRICIA"
-           MOVE "B05" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "GREENLEAF, M"
-           MOVE "G1J" TO REF GO TO P2.
-           IF R2-REFDOC(1:10) = "DIAZ,LINDA"
-           MOVE "D45" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "BAKER,RICHARD"
-           MOVE "B43" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "DIER,DOUGLAS"
-           MOVE "D19" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "BECKER,JACQU"
-           MOVE "B60" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "WULFMAN,CARRIE"
-           MOVE "W20" TO REF GO TO P2.
-           IF R2-REFDOC(1:16) = "WEISBORD,TIMOTHY"
-           MOVE "W24" TO REF GO TO P2.
-           IF R2-REFDOC(1:7) = "LOVKO,T"
-           MOVE "L19" TO REF GO TO P2.
-           IF R2-REFDOC(1:11) = "LOVKO,INDRA"
-           MOVE "L25" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "BERRICK,ROBERT"
-           MOVE "B61" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "ANDROY,LAURA"
-           MOVE "A12" TO REF GO TO P2.
-           IF R2-REFDOC(1:16) = "MCDONALD,MARILYN"
-           MOVE "M44" TO REF GO TO P2.
-           IF R2-REFDOC(1:20) = "MILLER-RUMNEY,MARION"
-           MOVE "M42" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "MILLER,MITCH"
-           MOVE "M43" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "LEFFLER,STEPHEN"
-           MOVE "L11" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "HOGENKAMP,LISA"
-           MOVE "H26" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "HOGENKAMP,PETER"
-           MOVE "H25" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "LEFFEL,WENDY"
-           MOVE "L18" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "STICKNEY,MARK"
-           MOVE "S24" TO REF GO TO P2.
-           IF R2-REFDOC(1:17) = "THOMPSON,BENJAMIN"
-           MOVE "T10" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "BAKER,RICHARD C"
-           MOVE "B43" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "BAKER,ROGER D"
-           MOVE "B11" TO REF GO TO P2.
-           IF R2-REFDOC(1:16) = "KEENAN,PATRICK F"
-           MOVE "K02" TO REF GO TO P2.
-           IF R2-REFDOC(1:18) = "PISANELLI,PATRICIA"
-           MOVE "P12" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "HARTMANN,ERIC G"
-           MOVE "H19" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "THOMPSON,BEN"
-           MOVE "T10" TO REF GO TO P2.
-           IF R2-REFDOC(1:9) = "STEIN,ANN"
-           MOVE "S27" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "THOMAS,GORDON"
-           MOVE "T05" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "BERRICK,ROBERT"
-           MOVE "M30" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "DEVLIN,MARTIN"
-           MOVE "M30" TO REF GO TO P2.
-           IF R2-REFDOC(1:12) = "GORTON,JAMES"
-           MOVE "M30" TO REF GO TO P2.
-           IF R2-REFDOC(1:13) = "RUSSELL,JAMES"
-           MOVE "R14" TO REF GO TO P2.
-           IF R2-REFDOC(1:11) = "UPHOLD,RUTH"
-           MOVE "U04" TO REF GO TO P2.
-           IF R2-REFDOC(1:16) = "MITCHELL,COLLEEN"
-           MOVE "M62" TO REF GO TO P2.
-           IF R2-REFDOC(1:17) = "WEIDEMAN,KATHLEEN"
-           MOVE "W29" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "FOSTER,JULIE A"
-           MOVE "F30" TO REF GO TO P2.
-           IF R2-REFDOC(1:14) = "ELLWOOD,JUDITH"
-           MOVE "E10" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "STEVENS,MATTHEW"
-           MOVE "S68" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "EUGAIR,KIMBERLY"
-           MOVE "E20" TO REF GO TO P2.
-           IF R2-REFDOC(1:15) = "DERHAM,KATHLEEN"
-           MOVE "D35" TO REF GO TO P2.
 
            PERFORM NPI-METHOD THRU NPI-EXIT.
-           if flag = 1 go to p2.
-       p2-0.
-
+           IF FLAG = 1 GO TO P2.
+       P2-0.
            DISPLAY R2-REFDOC " " R2-DOC " " R2-NPI " TO BE ADDED"
            ACCEPT REF
-           move  ref to ref-key
+           MOVE REF TO REF-KEY
            READ REFPHY INVALID GO TO P2-0.
            GO TO P2.
-
-
        4Z-REF.
            MOVE R2-REFDOC4 TO ALF4
            MOVE 0 TO Y
@@ -865,13 +764,13 @@
 
            MOVE ALF-3 TO REF-KEY
            READ REFPHY
-            INVALID 
+            INVALID
              MOVE SPACE TO RIGHT-2
              UNSTRING alf-3(1:2) delimited by " " into right-2
              inspect right-2 replacing all " " by "0"
              move right-2 to alf-2
               IF( ALF-2 NOT NUMERIC) OR (ALF-2 = "00")
-               
+
                DISPLAY "BAD PICK"
                GO TO REF-3
               END-IF
@@ -897,7 +796,6 @@
            MOVE R2-REFDOC(1:1) TO REF-KEY
            MOVE 0 TO FLAG.
            START REFPHY KEY NOT < REF-KEY INVALID GO TO NPI-EXIT.
-
        NPI-1. READ REFPHY NEXT AT END GO TO NPI-EXIT.
                IF REF-NPI = SPACE GO TO NPI-1.
                IF REF-NAME(1:1) > R2-REFDOC(1:1) GO TO NPI-EXIT.
@@ -908,9 +806,7 @@
                END-IF.
                GO TO NPI-1.
        NPI-EXIT. EXIT.
-
        P2.
-
            IF (R2-DOBYY NOT NUMERIC) OR (R2-DOBMM NOT NUMERIC)
            OR (R2-DOBDD NOT NUMERIC)
            DISPLAY R2-PATDOB " " R1-PATNAME 
@@ -1234,77 +1130,57 @@
            PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
            MOVE NEWTAB01 TO A-SECPOL.
            IF (A-PRINS = "003")
-           MOVE A-PRIPOL TO POLTEST
-            IF 
-             ((POLTEST1 = "WA" OR "MA" OR "WD") OR (POLTEST1-1 = "A"))
-             MOVE "028" TO A-PRINS
-            END-IF
+               MOVE A-PRIPOL TO POLTEST
+               IF ((POLTEST1 = "WA" OR "MA" OR "WD")
+                 OR (POLTEST1-1 = "A"))
+                   MOVE "028" TO A-PRINS
+               END-IF
            END-IF.
            IF (A-SEINS = "003")
-           MOVE A-SECPOL TO POLTEST
-            IF ((POLTEST1 = "WA" OR "MA" OR "WD") OR (POLTEST1-1 = "A"))
-            MOVE "028" TO A-SEINS
-            END-IF
+               MOVE A-SECPOL TO POLTEST
+               IF ((POLTEST1 = "WA" OR "MA" OR "WD")
+                 OR (POLTEST1-1 = "A"))
+                   MOVE "028" TO A-SEINS
+               END-IF
            END-IF.
            IF (A-PRINS = "003") AND (A-SEINS NOT = "062")
              MOVE SPACE TO A-PR-GROUP.
            IF A-SEINS = "003" MOVE SPACE TO A-SE-GROUP.
            MOVE SPACE TO A-PR-OFFICE.
            IF A-PRINS = "121" MOVE "X100" TO A-PR-OFFICE.
-           IF A-PRINS = "074" AND (A-PRIPOL > "IBM  " AND < "IBM99")
-           MOVE "124" TO A-PRINS.
-           IF A-PRINS = "076" AND A-PR-GROUP = "2139627" MOVE
-           "102" TO A-PRINS.
-           IF A-SEINS = "076" AND A-SE-GROUP = "2139627" MOVE
-           "102" TO A-SEINS.
-
-           IF A-PRINS = "076" AND A-PR-GROUP = "C817" MOVE
-           "799" TO A-PRINS.
-           IF A-PRINS = "076" AND A-PR-GROUP = "7596" MOVE
-           "514" TO A-PRINS.
-           IF A-PRINS = "076" AND A-PR-GROUP2 = "VT" MOVE
-           "512" TO A-PRINS.
-
-           IF A-SEINS = "076" AND A-SE-GROUP = "C817" MOVE
-           "799" TO A-SEINS.
-           IF A-SEINS = "076" AND A-SE-GROUP = "7596" MOVE
-           "514" TO A-SEINS.
-           IF A-SEINS = "076" AND A-SE-GROUP2 = "VT" MOVE
-           "512" TO A-SEINS.
-
            IF (A-PRIPOL = A-PR-GROUP)
            MOVE SPACE TO A-PR-GROUP.
            IF (A-SECPOL = A-SE-GROUP)
            MOVE SPACE TO A-SE-GROUP.
            IF (A-PRINS = "003" AND A-SEINS = "005")
-            AND (A-PRIPOL1 = A-SECPOL1)
-            MOVE A-PRIPOL2 TO A-SECPOL2.
-           IF A-PRINS = "003" AND A-SEINS = "059"
-           MOVE A-PRINS TO IN-FIELD-3
-           MOVE A-SEINS TO A-PRINS
-           MOVE IN-FIELD-3 TO A-SEINS
-           MOVE A-PRIPOL TO IN-FIELD-16
-           MOVE A-SECPOL TO A-PRIPOL
-           MOVE IN-FIELD-16 TO A-SECPOL
-           MOVE A-PR-GROUP TO IN-FIELD-16
-           MOVE A-SE-GROUP TO A-PR-GROUP
-           MOVE IN-FIELD-16 TO A-SE-GROUP
-           MOVE A-PR-MPLR TO IN-FIELD-4
-           MOVE A-SE-MPLR TO A-PR-MPLR
-           MOVE IN-FIELD-4 TO A-PR-MPLR
-           MOVE A-PRNAME TO NAME-FIRST
-           MOVE A-SENAME TO A-PRNAME
-           MOVE NAME-FIRST TO A-SENAME
-           MOVE A-PRGRPNAME TO IN-FIELD-15
-           MOVE A-SEGRPNAME TO A-PRGRPNAME
-           MOVE IN-FIELD-15 TO A-SEGRPNAME
-           MOVE A-PR-RELATE TO IN-FIELD-1
-           MOVE A-SE-RELATE TO A-PR-RELATE
-           MOVE IN-FIELD-1 TO A-PR-RELATE
-           MOVE A-PR-ASSIGN TO IN-FIELD-1
-           MOVE A-SE-ASSIGN TO A-PR-ASSIGN
-           DISPLAY A-GARNAME " 03/59"
-           MOVE IN-FIELD-1 TO A-SE-ASSIGN.
+             AND (A-PRIPOL1 = A-SECPOL1)
+               MOVE A-PRIPOL2 TO A-SECPOL2.
+      *     IF A-PRINS = "003" AND A-SEINS = "059"
+      *         MOVE A-PRINS TO IN-FIELD-3
+      *         MOVE A-SEINS TO A-PRINS
+      *         MOVE IN-FIELD-3 TO A-SEINS
+      *         MOVE A-PRIPOL TO IN-FIELD-16
+      *         MOVE A-SECPOL TO A-PRIPOL
+      *         MOVE IN-FIELD-16 TO A-SECPOL
+      *         MOVE A-PR-GROUP TO IN-FIELD-16
+      *         MOVE A-SE-GROUP TO A-PR-GROUP
+      *         MOVE IN-FIELD-16 TO A-SE-GROUP
+      *         MOVE A-PR-MPLR TO IN-FIELD-4
+      *         MOVE A-SE-MPLR TO A-PR-MPLR
+      *         MOVE IN-FIELD-4 TO A-PR-MPLR
+      *         MOVE A-PRNAME TO NAME-FIRST
+      *         MOVE A-SENAME TO A-PRNAME
+      *         MOVE NAME-FIRST TO A-SENAME
+      *         MOVE A-PRGRPNAME TO IN-FIELD-15
+      *         MOVE A-SEGRPNAME TO A-PRGRPNAME
+      *         MOVE IN-FIELD-15 TO A-SEGRPNAME
+      *         MOVE A-PR-RELATE TO IN-FIELD-1
+      *         MOVE A-SE-RELATE TO A-PR-RELATE
+      *         MOVE IN-FIELD-1 TO A-PR-RELATE
+      *         MOVE A-PR-ASSIGN TO IN-FIELD-1
+      *         MOVE A-SE-ASSIGN TO A-PR-ASSIGN
+      *         DISPLAY A-GARNAME " 03/59"
+      *         MOVE IN-FIELD-1 TO A-SE-ASSIGN.
            MOVE A-PRIPOL TO ALF-16
            IF (ALF-16-11 ALPHABETIC) AND (ALF-16-12 ALPHABETIC)
            AND (ALF-16-13 ALPHABETIC) AND (ALF-16-2 NUMERIC)
@@ -1314,25 +1190,22 @@
            MOVE "268" TO A-PRINS
            MOVE "A" TO A-PR-ASSIGN.
            IF A-PRINS = "268" AND ALF-16-11 = "Y"
-            AND ALF-16-12 = "L" AND ALF-16-13 = "S"
-           MOVE "U" TO A-PR-ASSIGN
-           MOVE "149" TO A-PRINS.
-           IF A-PRINS = "268" AND ALF-16-1 = "HJW"
-           MOVE "839" TO A-PRINS.
-           IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V") 
-             MOVE SPACE TO ERRFILE01
-             STRING A-GARNAME " " A-ACTNO " " A-PRIPOL 
-                    DELIMITED BY SIZE INTO ERRFILE01
-                    WRITE ERRFILE01
-           END-IF         
+               AND ALF-16-12 = "L" AND ALF-16-13 = "S"
+               MOVE "U" TO A-PR-ASSIGN
+               MOVE "149" TO A-PRINS.
            IF (A-PRINS = "268") 
-             AND ((ALF-16-11 = "Z") AND (ALF-16-12 = "I"))
-            MOVE "002" TO A-PRINS.
-      *     IF ((A-PRINS = "268") 
-      *       AND  ((ALF-16-1 = "DVT") OR (ALF-16-1 = "EVT")
-      *         OR (ALF-16-1 = "FVT") OR (ALF-16-1 = "VEI")))
-      *      MOVE "002" TO A-PRINS.
-
+               AND ((ALF-16-11 = "Z") AND (ALF-16-12 = "I"))
+               MOVE "002" TO A-PRINS.
+           IF ((A-PRINS = "268")
+               AND  ((ALF-16-1 = "DVT") OR (ALF-16-1 = "EVT")
+               OR (ALF-16-1 = "FVT") OR (ALF-16-1 = "VEI")))
+               MOVE "002" TO A-PRINS.
+           IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V")
+               MOVE SPACE TO ERRFILE01
+               STRING A-GARNAME " " A-ACTNO " " A-PRIPOL
+               DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+           END-IF
            IF (A-PRINS = "268")
            AND ((ALF-16-11 NOT ALPHABETIC)
             OR (ALF-16-12 NOT ALPHABETIC) 
@@ -1466,13 +1339,18 @@
            MOVE "5" TO C-IOPAT
            IF R3-PLACE = "EMER" MOVE "E" TO C-IOPAT.
            IF R3-PLACE = "INPT" MOVE "3" TO C-IOPAT.
-           IF ((R3-OBSERV = "OBSER") AND (R3-PLACE = "INPT")
-             AND (C-IOPAT NOT  = "E"))
-      *       DISPLAY "PLACE OF SERVICE CHANGE"
-      *       DISPLAY A-GARNAME
-      *       DISPLAY "OBSERVATION + INPATIENT = E"
-             MOVE "E" TO C-IOPAT
-      *      ACCEPT OMITTED
+           IF (REF = "G0A" OR "H27" OR "S0A" OR "J06" OR "R1D"
+                    OR "S60" OR "D55" OR "B1T" OR "B51" OR "R2A"
+                    OR "F34" OR "G36" OR "H1B" OR "M6A" OR "R3H"
+                    OR "S7O" OR "S91" OR "S1O" OR "T0E" OR "T21"
+                    OR "T0G" OR "V12" OR "W2I" OR "Z0I")
+                 MOVE "E" TO C-IOPAT
+           END-IF
+           IF (R3-PLACE = "INPT") AND (C-IOPAT = "E")
+               MOVE SPACE TO ERRFILE01
+               STRING A-GARNAME " WAS SENT AS INPT BUT REF " REF
+               " IS ED" DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
            END-IF
            MOVE REF TO C-REF.
            MOVE R3-PROC TO C-PROC

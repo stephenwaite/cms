@@ -253,12 +253,6 @@
            READ PROCFILE NEXT AT END GO TO BAD-1.
            IF PROC-KEY1 > R3-PROC GO TO BAD-1.
            IF PROC-AMOUNT = 0 GO TO P2.
-           IF PROC-KEY1 = "7002" 
-             MOVE "77065" TO R3-CPT
-             WRITE FILEOUT01 FROM REC301
-             GO TO P1
-           END-IF 
-             
            IF PROC-KEY2 NOT = R3-CPT
              DISPLAY HOLDNAME
              DISPLAY R3-CPT " IS CHANGED TO " PROC-KEY2
