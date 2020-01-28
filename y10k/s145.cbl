@@ -1,3 +1,8 @@
+      * @package cms
+      * @link    http://www.cmsvt.com
+      * @author  s waite <cmswest@sover.net>
+      * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
+      * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
               "0075T" OR "0080T" OR "24516" OR "25606" OR "25651"
            OR "26608" OR "26650" OR "26676" OR "26706" OR "26727"
            OR "27235" OR "27244" OR "27245" OR "27506" OR "27509"
