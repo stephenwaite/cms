@@ -9,7 +9,7 @@
            ACCESS MODE IS DYNAMIC RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
-           FD  CHARCUR
+       FD  CHARCUR
            BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS CHARCUR01.
 	   01  CHARCUR01.
@@ -60,13 +60,13 @@
            02 CC-FREQ PIC X.
            02 CC-FUTURE PIC X(5).
        FD FILEOUT.
-           01 FILEOUT01 PIC X(11).
+       01 FILEOUT01 PIC X(11).
 
        WORKING-STORAGE SECTION.
-           01  BAD-PROC.
-             03 BAD-PROC0 PIC X(4).
-             03 BAD-PROC1 PIC X(5).
-             03 BAD-PROC2 PIC XX.
+       01  BAD-PROC.
+         03 BAD-PROC0 PIC X(4).
+         03 BAD-PROC1 PIC X(5).
+         03 BAD-PROC2 PIC XX.
 
        PROCEDURE DIVISION.
        
