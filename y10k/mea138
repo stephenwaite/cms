@@ -146,92 +146,82 @@
        0005-START.
            OPEN INPUT DIAGFILE GARFILE CHARCUR OUTPUT FILEOUT.
        P1. 
-            READ CHARCUR NEXT AT END GO TO P99.
+           READ CHARCUR NEXT AT END GO TO P99.
            IF CC-PLACE NOT = "1" GO TO P1.
-           IF NOT (CC-DATE-T(1:4) = "2018" ) GO TO P1.
-           IF NOT (CC-PROC2 = "99201" OR "99202" OR "99203"
-                        OR "99204" OR "99205" OR "99212" OR "99213"
-                        OR "99214" OR "99215")
+           IF NOT (CC-DATE-T(1:4) = "2019" ) GO TO P1.
+      *     IF NOT (CC-PROC2 = "99201" OR "99202" OR "99203"
+      *                  OR "99204" OR "99205" OR "99212" OR "99213"
+      *                  OR "99214" OR "99215")
            GO TO P1
            END-IF.
 
            MOVE SPACE TO DX-0
-           IF  (CC-DIAG = "C430   " OR "C4310  " OR "C4311  " 
-                    OR "C4312  " OR "C4320  " OR "C4321  " OR "C4322  "
-                    OR "C4330  " OR "C4331  " OR "C4339  " OR "C434   " 
-                    OR "C4351  " OR "C4352  " OR "C4359  " OR "C4360  " 
-                    OR "C4361  " OR "C4362  " OR "C4370  " OR "C4371  " 
-                    OR "C4372  " OR "C438   " OR "C439   ")
-                MOVE CC-DIAG TO DX-0
-                GO TO P2
+           IF  (CC-DIAG = "C430   " or "C4310  " or "C43111 "
+                    or "C43112 " or "C43121 " or "C43122 "
+                    or "C4320  " or "C4321  " or "C4322  "
+                    OR "C4330  " or "C4331  " or "C4339  " or "C434   "
+                    OR "C4351  " or "C4352  " or "C4359  " or "C4360  "
+                    OR "C4361  " or "C4362  " or "C4370  " or "C4371  "
+                    OR "C4372  " or "C438   " or "C439   " or "D030   "
+                    OR "D0310  " or "D03111 " or "D03112 " or "D03121 "
+                    or "D03122 " or "D0312  " or "D0320  "
+                    OR "D0321  " or "D0322  " or "D0330  " or "D0339  "
+                    OR "D034   " or "D0351  " or "D0352  " or "D0359  "
+                    OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
+                    OR "D0371  " or "D0372  " or "D038   " or "D039   ")
+               MOVE CC-DIAG TO DX-0
+               GO TO P2
            END-IF
                     
-           IF (CC-DIAG = "D030   " 
-                    OR "D0310  " OR "D0311  " OR "D0312  " OR "D0320  " 
-                    OR "D0321  " OR "D0322  " OR "D0330  " OR "D0339  " 
-                    OR "D034   " OR "D0351  " OR "D0352  " OR "D0359  " 
-                    OR "D0360  " OR "D0361  " OR "D0362  " OR "D0370  " 
-                    OR "D0371  " OR "D0372  " OR "D038   " OR "D039   ") 
-                MOVE CC-DIAG TO DX-0
-                GO TO P2
-           END-IF
-           IF  (CC-DX2 = "C430   " OR "C4310  " OR "C4311  " 
-                    OR "C4312  " OR "C4320  " OR "C4321  " OR "C4322  "
-                    OR "C4330  " OR "C4331  " OR "C4339  " OR "C434   " 
-                    OR "C4351  " OR "C4352  " OR "C4359  " OR "C4360  " 
-                    OR "C4361  " OR "C4362  " OR "C4370  " OR "C4371  " 
-                    OR "C4372  " OR "C438   " OR "C439   ")
-                MOVE CC-DX2 TO DX-0
-                GO TO P2
+           IF  (CC-DX2 = "C430   " or "C4310  " or "C43111 "
+                    or "C43112 " or "C43121 " or "C43122 "
+                    or "C4320  " or "C4321  " or "C4322  "
+                    OR "C4330  " or "C4331  " or "C4339  " or "C434   "
+                    OR "C4351  " or "C4352  " or "C4359  " or "C4360  "
+                    OR "C4361  " or "C4362  " or "C4370  " or "C4371  "
+                    OR "C4372  " or "C438   " or "C439   " or "D030   "
+                    OR "D0310  " or "D03111 " or "D03112 " or "D03121 "
+                    or "D03122 " or "D0312  " or "D0320  "
+                    OR "D0321  " or "D0322  " or "D0330  " or "D0339  "
+                    OR "D034   " or "D0351  " or "D0352  " or "D0359  "
+                    OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
+                    OR "D0371  " or "D0372  " or "D038   " or "D039   ")
+               MOVE CC-DX2 TO DX-0
+               GO TO P2
            END-IF
 
-           IF (CC-DX2 = "D030   " 
-                    OR "D0310  " OR "D0311  " OR "D0312  " OR "D0320  " 
-                    OR "D0321  " OR "D0322  " OR "D0330  " OR "D0339  " 
-                    OR "D034   " OR "D0351  " OR "D0352  " OR "D0359  " 
-                    OR "D0360  " OR "D0361  " OR "D0362  " OR "D0370  " 
-                    OR "D0371  " OR "D0372  " OR "D038   " OR "D039   ") 
-                MOVE CC-DX2 TO DX-0
-                GO TO P2
-           END-IF
-           
-           IF  (CC-DX3 = "C430   " OR "C4310  " OR "C4311  " 
-                    OR "C4312  " OR "C4320  " OR "C4321  " OR "C4322  "
-                    OR "C4330  " OR "C4331  " OR "C4339  " OR "C434   " 
-                    OR "C4351  " OR "C4352  " OR "C4359  " OR "C4360  " 
-                    OR "C4361  " OR "C4362  " OR "C4370  " OR "C4371  " 
-                    OR "C4372  " OR "C438   " OR "C439   ")
-                MOVE CC-DX3 TO DX-0
-                GO TO P2
+           IF  (CC-DX3 = "C430   " or "C4310  " or "C43111 "
+                    or "C43112 " or "C43121 " or "C43122 "
+                    or "C4320  " or "C4321  " or "C4322  "
+                    OR "C4330  " or "C4331  " or "C4339  " or "C434   "
+                    OR "C4351  " or "C4352  " or "C4359  " or "C4360  "
+                    OR "C4361  " or "C4362  " or "C4370  " or "C4371  "
+                    OR "C4372  " or "C438   " or "C439   " or "D030   "
+                    OR "D0310  " or "D03111 " or "D03112 " or "D03121 "
+                    or "D03122 " or "D0312  " or "D0320  "
+                    OR "D0321  " or "D0322  " or "D0330  " or "D0339  "
+                    OR "D034   " or "D0351  " or "D0352  " or "D0359  "
+                    OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
+                    OR "D0371  " or "D0372  " or "D038   " or "D039   ")
+               MOVE CC-DX3 TO DX-0
+               GO TO P2
            END-IF
 
-           IF (CC-DX3 = "D030   " 
-                    OR "D0310  " OR "D0311  " OR "D0312  " OR "D0320  " 
-                    OR "D0321  " OR "D0322  " OR "D0330  " OR "D0339  " 
-                    OR "D034   " OR "D0351  " OR "D0352  " OR "D0359  " 
-                    OR "D0360  " OR "D0361  " OR "D0362  " OR "D0370  " 
-                    OR "D0371  " OR "D0372  " OR "D038   " OR "D039   ") 
-                MOVE CC-DX3 TO DX-0
-                GO TO P2
-           END-IF
-           IF  (CC-DX4 = "C430   " OR "C4310  " OR "C4311  " 
-                    OR "C4312  " OR "C4320  " OR "C4321  " OR "C4322  "
-                    OR "C4330  " OR "C4331  " OR "C4339  " OR "C434   " 
-                    OR "C4351  " OR "C4352  " OR "C4359  " OR "C4360  " 
-                    OR "C4361  " OR "C4362  " OR "C4370  " OR "C4371  " 
-                    OR "C4372  " OR "C438   " OR "C439   ")
-                MOVE CC-DX4 TO DX-0
-                GO TO P2
-           END-IF
-
-           IF (CC-DX4 = "D030   " 
-                    OR "D0310  " OR "D0311  " OR "D0312  " OR "D0320  " 
-                    OR "D0321  " OR "D0322  " OR "D0330  " OR "D0339  " 
-                    OR "D034   " OR "D0351  " OR "D0352  " OR "D0359  " 
-                    OR "D0360  " OR "D0361  " OR "D0362  " OR "D0370  " 
-                    OR "D0371  " OR "D0372  " OR "D038   " OR "D039   ") 
-                MOVE CC-DX4 TO DX-0
-                GO TO P2
+           IF  (CC-DX = "C430   " or "C4310  " or "C43111 "
+                    or "C43112 " or "C43121 " or "C43122 "
+                    or "C4320  " or "C4321  " or "C4322  "
+                    OR "C4330  " or "C4331  " or "C4339  " or "C434   "
+                    OR "C4351  " or "C4352  " or "C4359  " or "C4360  "
+                    OR "C4361  " or "C4362  " or "C4370  " or "C4371  "
+                    OR "C4372  " or "C438   " or "C439   " or "D030   "
+                    OR "D0310  " or "D03111 " or "D03112 " or "D03121 "
+                    or "D03122 " or "D0312  " or "D0320  "
+                    OR "D0321  " or "D0322  " or "D0330  " or "D0339  "
+                    OR "D034   " or "D0351  " or "D0352  " or "D0359  "
+                    OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
+                    OR "D0371  " or "D0372  " or "D038   " or "D039   ")
+               MOVE CC-DX4 TO DX-0
+               GO TO P2
            END-IF
            
            GO TO P1.
