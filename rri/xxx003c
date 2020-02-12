@@ -284,8 +284,9 @@
            END-IF.
            
            IF (CD-PROC1 = "1099")
-               MOVE "1099770672652" TO CD-PROC
-               REWRITE CHARFILE01 
+               DISPLAY "UNI SCREEN PUT 52 ON CORRESP TOMO AFTER 254"
+               MOVE "52" TO CD-MOD2
+               REWRITE CHARFILE01
                GO TO P1
            END-IF.
 	     
