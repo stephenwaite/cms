@@ -40,6 +40,7 @@
            02 F-ICD PIC X(10).
            02 ICD10 PIC X(20).
            02 F-PROC PIC X(7).
+           02 PAT-INS PIC X(3).
 
        FD  DIAGFILE.
        01  DIAG01.
@@ -263,6 +264,8 @@
            MOVE CHARCUR-KEY TO KEY-OUT
            MOVE CC-PROC2 TO F-PROC
            MOVE "7010F  " TO F-ICD
+           MOVE SPACE TO PAT-INS
+           MOVE G-PRINS TO PAT-INS
            WRITE FILEOUT01
 
            GO TO P1.
