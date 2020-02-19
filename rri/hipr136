@@ -786,7 +786,7 @@
            MOVE 0 TO BLACKFLAG
            MOVE CC-PAYCODE TO INS-KEY
            READ INSFILE INVALID MOVE 1 TO BLACKFLAG.
-           IF NOT (INS-CAID = "EE " OR "62 ") MOVE 1 TO BLACKFLAG.
+     *      IF NOT (INS-CAID = "EE " OR "62 ") MOVE 1 TO BLACKFLAG.
            IF BLACKFLAG = 1
              PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT
            END-IF.
@@ -807,17 +807,17 @@
               CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
-      *        IF (CAS-1 NOT = "PR")
-               IF (CAS-2 = "1  " OR "126" OR "25 " OR "37 ") 
-                OR (CAS-5 = "1  " OR "126" OR "25 " OR "37 ") 
-                OR (CAS-8 = "1  " OR "126" OR "25 " OR "37 ") 
-                OR (CAS-11 = "1  " OR "126" OR "25 " OR "37 ")  
-                OR (CAS-14 = "1  " OR "126" OR "25 " OR "37 ") 
-                OR (CAS-17 = "1  " OR "126" OR "25 " OR "37 ") 
-                MOVE "DD" TO PD-DENIAL
-                MOVE CAS-CNTR TO Z
-               END-IF
-      *        END-IF
+      *         IF (CAS-1 NOT = "PR")
+                   IF (CAS-2 = "1  " OR "126" OR "25 " OR "37 ")
+                    OR (CAS-5 = "1  " OR "126" OR "25 " OR "37 ")
+                    OR (CAS-8 = "1  " OR "126" OR "25 " OR "37 ")
+                    OR (CAS-11 = "1  " OR "126" OR "25 " OR "37 ")
+                    OR (CAS-14 = "1  " OR "126" OR "25 " OR "37 ")
+                    OR (CAS-17 = "1  " OR "126" OR "25 " OR "37 ")
+                    MOVE "DD" TO PD-DENIAL
+                    MOVE CAS-CNTR TO Z
+                   END-IF
+      *         END-IF
              END-IF
             END-PERFORM.
 
@@ -843,7 +843,6 @@
                  PERFORM P1-LOST-SVC
                  GO TO P5-SVC-LOOP-EXIT
                 END-IF
-                 
               END-IF
              END-IF
             END-PERFORM
