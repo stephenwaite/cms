@@ -733,18 +733,10 @@
                     
 
        P1-1.
-           IF RPG-PRINS = "116"
+           IF RPG-PRINS = "268"
               MOVE RPG-PRIPOL TO POLTEST
-              IF (POLTEST1-1 = "W" OR "M" OR "A")
-               MOVE "028" TO RPG-PRINS RPG-PAYCODE
-               MOVE "E" TO RPG-PAPER
-               MOVE "A" TO RPG-ASSIGN RPG-NEIC-ASSIGN
-              END-IF
-           END-IF.
-           IF RPG-PRINS = "002"
-              MOVE RPG-PRIPOL TO POLTEST
-              IF (POLTEST1 NOT = "ZI" )
-               MOVE "268" TO RPG-PRINS RPG-PAYCODE
+              IF (POLTEST1-1 = "R" AND POLTEST1-2 IS NUMERIC)
+               MOVE "006" TO RPG-PRINS RPG-PAYCODE
                MOVE "E" TO RPG-PAPER
               END-IF
            END-IF.
