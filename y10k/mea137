@@ -169,7 +169,8 @@
                     OR "D034   " or "D0351  " or "D0352  " or "D0359  "
                     OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
                     OR "D0371  " or "D0372  " or "D038   " or "D039   "
-                    OR "Z85820 " OR "L400")
+                    OR "Z85820 " OR "L400   " or "L401   " or "L402   "
+                    or "L403   " or "L404   " or "L408   " or "L409   ")
                MOVE CC-DIAG TO DX-0
                GO TO P2
            END-IF
@@ -187,7 +188,8 @@
                     OR "D034   " or "D0351  " or "D0352  " or "D0359  "
                     OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
                     OR "D0371  " or "D0372  " or "D038   " or "D039   "
-                    OR "Z85820 " OR "L400")
+                    OR "Z85820 " OR "L400   " or "L401   " or "L402   "
+                    or "L403   " or "L404   " or "L408   " or "L409   ")
                MOVE CC-DX2 TO DX-0
                GO TO P2
            END-IF
@@ -205,7 +207,8 @@
                     OR "D034   " or "D0351  " or "D0352  " or "D0359  "
                     OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
                     OR "D0371  " or "D0372  " or "D038   " or "D039   "
-                    OR "Z85820 " OR "L400")
+                    OR "Z85820 " OR "L400   " or "L401   " or "L402   "
+                    or "L403   " or "L404   " or "L408   " or "L409   ")
                MOVE CC-DX3 TO DX-0
                GO TO P2
            END-IF
