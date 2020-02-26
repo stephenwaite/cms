@@ -174,15 +174,16 @@
              MOVE CNTRD TO X
            END-IF
            END-PERFORM
-           IF FLAG = 0 GO TO P1.
+           IF FLAG = 1 GO TO P1.
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > CNTRN
-           IF CC-PROC(1:5) = TAB-N(X)
-           MOVE SPACE TO FILEOUTN01
-           STRING CHARCUR-KEY " " CC-PROC2 " " CC-DATE-T " " G-PRINS
-           DELIMITED BY SIZE INTO FILEOUTN01
-           WRITE FILEOUTN01 
+            IF CC-PROC(1:5) = TAB-N(X)
+             MOVE SPACE TO FILEOUTN01
+             STRING CHARCUR-KEY " " CC-PROC2 " " CC-DATE-T " " G-PRINS
+                   " " G-DOB " " G-SEX
+             DELIMITED BY SIZE INTO FILEOUTN01
+             WRITE FILEOUTN01
              MOVE CNTRN TO X
-           END-IF
+            END-IF
            END-PERFORM
            move 0 to flag
            GO TO P1.
