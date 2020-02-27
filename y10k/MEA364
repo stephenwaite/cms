@@ -40,7 +40,7 @@
        FD  FILEIN.
        01  FILEIN01 pic x(11).
        FD  FILEOUT.
-       01  output01 pic x(181).
+       01  output01 pic x(216).
 
 
        FD  GARFILE
