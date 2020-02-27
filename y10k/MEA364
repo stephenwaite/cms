@@ -188,15 +188,15 @@
            02 filler pic xx value "  ".
            02 fo-prins pic xxx.
            02 filler pic xx value "  ".
-           02 fo-358 pic x(5) value "G9316".
+           02 fo-358 pic x(5).
            02 filler pic xx value "  ".
-           02 fo-356 pic x(5) value "G9309".
+           02 fo-356 pic x(5).
            02 filler pic xx value "  ".
-           02 fo-357 pic x(5) value "G9311".
+           02 fo-357 pic x(5).
            02 filler pic xx value "  ".
-           02 FO-354 PIC X(5) VALUE "G9305".
+           02 FO-354 PIC X(5).
            02 filler pic xx value "  ".
-           02 FO-355 PIC X(5) VALUE "G9307".
+           02 FO-355 PIC X(5).
 
 
        01  ALF1 PIC X.
@@ -260,6 +260,11 @@
            END-IF
            move cc-proc(1:5) to fo-cpt
            move g-prins to fo-prins
+           move "G9316" to FO-358
+           MOVE "G9309" TO fo-356
+           MOVE "G9311" TO fo-357
+           MOVE "G9305" TO FO-354
+           MOVE "G9307" TO FO-355
            write output01 from fileout01
            go to p1.
        P99.
