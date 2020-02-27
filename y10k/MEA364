@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. DIC812.
+       PROGRAM-ID. mea364.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -187,6 +187,17 @@
            02 fo-cpt pic x(5).
            02 filler pic xx value "  ".
            02 fo-prins pic xxx.
+           02 filler pic xx value "  ".
+           02 fo-358 pic x(5) value "G9316".
+           02 filler pic xx value "  ".
+           02 fo-356 pic x(5) value "G9309".
+           02 filler pic xx value "  ".
+           02 fo-357 pic x(5) value "G9311".
+           02 filler pic xx value "  ".
+           02 FO-354 PIC X(5) VALUE "G9305".
+           02 filler pic xx value "  ".
+           02 FO-355 PIC X(5) VALUE "G9307".
+
 
        01  ALF1 PIC X.
        01  CNTRD PIC 99.
