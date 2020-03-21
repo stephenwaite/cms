@@ -1,10 +1,10 @@
-      * @package cms
+      *  @package cms
       * @link    http://www.cmsvt.com
       * @author  s waite <cmswest@sover.net>
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. mvp5079x.
+       PROGRAM-ID. mvp5079.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -1351,14 +1351,14 @@
            WRITE SEGFILE01 FROM SBR01
            PERFORM 2010BA.
            PERFORM 2010BB.
-           IF  SAVE-RELATE NOT = "18"
-           MOVE SAVE-RELATE TO SBR-PST
-           PERFORM 2000C.
+      *     IF  SAVE-RELATE NOT = "18"
+      *     MOVE SAVE-RELATE TO SBR-PST
+      *     PERFORM 2000C.
        2010BA.
            MOVE "IL " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
-            UNSTRING G-PRNAME DELIMITED BY ";" INTO
+            UNSTRING G-GARNAME DELIMITED BY ";" INTO
             NM1-NAMEL NM1-NAMEF NM1-NAMEM
            MOVE SPACE TO NAME-1 NAME-2
            UNSTRING NM1-NAMEL DELIMITED BY " " INTO NAME-1 NAME-2
@@ -1387,8 +1387,8 @@
            MOVE G-STREET TO N3-STREET
            MOVE SPACE TO N3-BILLADD.
            MOVE SPACE TO SEGFILE01
-           IF SAVE-RELATE NOT = SPACE
            WRITE SEGFILE01 FROM N301.
+           IF SAVE-RELATE NOT = SPACE
            MOVE N301 TO SAVEPAT-N301.
 
            MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
@@ -1398,22 +1398,21 @@
            IF N4-ZIP(6:4) = SPACE
            MOVE "9999" TO N4-ZIP(6:4).
            MOVE SPACE TO SEGFILE01
-           IF SAVE-RELATE NOT = SPACE
            WRITE SEGFILE01 FROM N401.
+           IF SAVE-RELATE NOT = SPACE
            MOVE N401 TO SAVEPAT-N401.
 
            MOVE G-DOB TO DMG-DOB
            MOVE G-SEX TO DMG-GENDER
-      *     IF SAVE-RELATE NOT = "18"
-      *      PERFORM MAKE-IT-UP THRU MAKE-IT-UP-EXIT
-      *     ELSE 
+           IF SAVE-RELATE NOT = "18"
+            PERFORM MAKE-IT-UP THRU MAKE-IT-UP-EXIT
+           ELSE 
             MOVE "M" TO DMG-GENDER
             IF G-PR-RELATE NOT NUMERIC
              MOVE "F" TO DMG-GENDER
             END-IF
-      *     END-IF.
+           END-IF.
            MOVE SPACE TO SEGFILE01.
-           IF SAVE-RELATE NOT = SPACE
            WRITE SEGFILE01 FROM DMG01.
        2010BB.
            MOVE "PR " TO NM1-1
@@ -1454,7 +1453,6 @@
            MOVE SPACE TO PAT-LOCATE PAT-EMPLOYM PAT-STUD
               PAT-QUAL PAT-DATE PAT-MEAS PAT-WT PAT-PREGO
            MOVE SPACE TO SEGFILE01
-           MOVE "01" TO PAT-RELATE
            WRITE SEGFILE01 FROM PAT01.
 
            MOVE "QC " TO NM1-1
@@ -2029,10 +2027,9 @@
            MOVE SPACE TO SBR-TYPE.
 
            IF (G-RELATE NOT = G-PR-RELATE)
-             MOVE SPACE TO SBR-RELATE
-             MOVE "1    " TO HL-CHILD
-	   ELSE MOVE "18" TO SBR-RELATE
-             MOVE "0    " TO HL-CHILD.
+             GO TO SUBSCRIBER-2.
+           MOVE "18" TO SBR-RELATE
+           MOVE "0    " TO HL-CHILD
            GO TO SUBSCRIBER-EXIT.
        SUBSCRIBER-2.
            MOVE "01" TO SBR-RELATE.
@@ -2212,8 +2209,7 @@
            IF CC-PL = "D" MOVE "33" TO CLM-5.
            IF CC-PL = "Q" MOVE "13" TO CLM-5.
            IF CC-PL = "S" MOVE "03" TO CLM-5.
-           IF CC-PL = "T" MOVE "02" TO CLM-5.
-           
+           IF CC-PL = "T" MOVE "02" TO CLM-5.           
            IF HOLD-PROC1 > "99320" AND < "99329" MOVE "33" TO CLM-5.
            IF HOLD-PROC1 > "99330" AND < "99338" MOVE "33" TO CLM-5.
            IF (HOLD-PROC1 = "G0179" OR "G0180" OR "G0181" OR "G0182")
