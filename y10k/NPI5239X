@@ -2181,6 +2181,7 @@
            IF CD-PL = "D" MOVE "33" TO CLM-5.
            IF CD-PL = "Q" MOVE "13" TO CLM-5.
            IF CD-PL = "S" MOVE "03" TO CLM-5.
+           IF CD-PL = "T" MOVE "02" TO CLM-5.
            
            IF HOLD-PROC1 > "99320" AND < "99329" MOVE "33" TO CLM-5.
            IF HOLD-PROC1 > "99330" AND < "99338" MOVE "33" TO CLM-5.
