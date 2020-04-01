@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NPI5279.
+       PROGRAM-ID. npi5279.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -2201,7 +2201,7 @@
            IF CC-PL = "Q" MOVE "13" TO CLM-5.
            IF CC-PL = "S" MOVE "03" TO CLM-5.
            IF CC-PL = "T" MOVE "02" TO CLM-5.
-                      
+           IF CC-PL = "Z" MOVE "02" TO CLM-5.
            IF HOLD-PROC1 > "99320" AND < "99329" MOVE "33" TO CLM-5.
            IF HOLD-PROC1 > "99330" AND < "99338" MOVE "33" TO CLM-5.
            IF (HOLD-PROC1 = "G0179" OR "G0180" OR "G0181" OR "G0182")

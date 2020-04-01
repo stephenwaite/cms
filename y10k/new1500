@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI043.
+       PROGRAM-ID. new1500.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
@@ -1108,10 +1108,10 @@
            IF CC-PL = "D" MOVE "33" TO L10F4(CNTR) GO TO PLPL1.
            IF CC-PL = "S" MOVE "03" TO L10F4(CNTR) GO TO PLPL1.
            IF (CC-PL = "T") AND (CC-PAYCODE = "004")
-             MOVE "99" TO L10F4(CNTR) GO TO PLPL1
+               MOVE "99" TO L10F4(CNTR) GO TO PLPL1
            ELSE
-             MOVE "02" TO L10F4(CNTR) GO TO PLPL1.
-           IF (CC-PL = "Z") MOVE "02" TO L10F4(CNTR) GO TO PLPL1.
+               MOVE "02" TO L10F4(CNTR) GO TO PLPL1.
+           IF CC-PL = "Z" MOVE "02" TO L10F4(CNTR) GO TO PLPL1.
            IF CC-PROC1 > "99220" AND < "99224" MOVE "21" TO L10F4(CNTR).
            IF CC-PROC1 > "99230" AND < "99234" MOVE "21" TO L10F4(CNTR).
            IF CC-PROC1 = "99238" MOVE "21" TO L10F4(CNTR).

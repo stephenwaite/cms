@@ -4,14 +4,15 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. HIP036.
+       PROGRAM-ID. npi5037.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+           SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
@@ -105,43 +106,42 @@
 
        FD  FILEIN.
        01  FILEIN01.
-
-
            02 FILEIN-KEY.
              03 FI-KEY8 PIC X(8).
              03 FI-KEY3 PIC XXX.
-           02 FI-PATID PIC X(8).
+           02 FI-PATID.
+             03 FI-PATID7 PIC X(7).
+             03 FI-PATID8 PIC X.
            02 FI-CLAIM PIC X(6).
            02 FI-SERVICE PIC X.
            02 FI-DIAG PIC X(7).
            02 FI-PROC.
-              03 FI-PROC1 PIC X(5).
-              03 FI-PROC2 PIC XX.
+             03 FI-PROC1 PIC X(5).
+             03 FI-PROC2 PIC XX.
            02 FI-MOD2 PIC XX.
            02 FI-MOD3 PIC XX.
            02 FI-MOD4 PIC XX.
            02 FI-AMOUNT PIC S9(4)V99.
            02 FI-DOCR PIC X(3).
-           02 FI-DOCP PIC 9(2).
+           02 FI-DOCP PIC 99.
            02 FI-PAYCODE PIC XXX.
-           02 FI-REC-STAT PIC X.
+           02 FI-STUD PIC X.
            02 FI-WORK PIC 99.
            02 FI-DAT1 PIC X(8).
            02 FI-RESULT PIC X.
-           02 FI-ACT PIC X.
+           02 FI-ACTION PIC X.
            02 FI-SORCREF PIC X.
            02 FI-COLLT PIC X.
-           02 FI-AUTH PIC X.
+           02 FI-AGE PIC X.
            02 FI-PAPER PIC X.
            02 FI-PLACE PIC X.
-           02 FI-NAME PIC X(24).
-           02 FI-ESPDT PIC X.
+           02 FI-IOPAT PIC X.
            02 FI-DATE-T PIC X(8).
-           02 FI-DATE-E PIC X(8).
-           02 FI-ORDER PIC X(6).
+           02 FI-DATE-A PIC X(8).
+           02 FI-DATE-P PIC X(8).
+           02 FI-REC-STAT PIC X.
            02 FI-DX2 PIC X(7).
            02 FI-DX3 PIC X(7).
-           02 FI-DATE-A PIC X(8).
            02 FI-ACC-TYPE PIC X.
            02 FI-DATE-M PIC X(8).
            02 FI-ASSIGN PIC X.
@@ -149,55 +149,58 @@
            02 FI-DX4 PIC X(7).
            02 FI-DX5 PIC X(7).
            02 FI-DX6 PIC X(7).
-           02 FI-FUTURE PIC X(6).
+           02 FI-FUTURE PIC X(7).
+
        FD  SEGFILE.
        01  SEGFILE01 PIC X(160).
-       FD  CHARFILE
-      *    BLOCK CONTAINS 2 RECORDS
-           DATA RECORD IS CHARFILE01.
-       01  CHARFILE01.
-           02 CHARFILE-KEY.
-             03 CD-KEY8 PIC X(8).
-             03 CD-KEY3 PIC XXX.
-           02 CD-PATID PIC X(8).
-           02 CD-CLAIM PIC X(6).
-           02 CD-SERVICE PIC X.
-           02 CD-DIAG PIC X(7).
-           02 CD-PROC PIC X(7).
-           02 CD-MOD2 PIC XX.
-           02 CD-MOD3 PIC XX.
-           02 CD-MOD4 PIC XX.
-           02 CD-AMOUNT PIC S9(4)V99.
-           02 CD-DOCR PIC X(3).
-           02 CD-DOCP PIC X(2).
-           02 CD-PAYCODE PIC XXX.
-           02 CD-REC-STAT PIC X.
-           02 CD-WORK PIC XX.
-           02 CD-DAT1 PIC X(8).
-           02 CD-RESULT PIC X.
-           02 CD-ACT PIC X.
-           02 CD-SORCREF PIC X.
-           02 CD-COLLT PIC X.
-           02 CD-AUTH PIC X.
-           02 CD-PAPER PIC X.
-           02 CD-PLACE PIC X.
-           02 CD-NAME PIC X(24).
-           02 CD-ESPDT PIC X.
-           02 CD-DATE-T PIC X(8).
-           02 CD-DATE-E PIC X(8).
-           02 CD-ORDER PIC X(6).
-           02 CD-DX2 PIC X(7).
-           02 CD-DX3 PIC X(7).
-           02 CD-DATE-A PIC X(8).
-           02 CD-ACC-TYPE PIC X.
-           02 CD-DATE-M PIC X(8).
-           02 CD-ASSIGN PIC X.
-           02 CD-NEIC-ASSIGN PIC X.
-           02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
-           02 CD-DX6 PIC X(7).
-           02 CD-FUTURE PIC X(6).
-
+       FD  CHARCUR
+           BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID.
+             03 CC-PATID7 PIC X(7).
+             03 CC-PATID8 PIC X.
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC.
+             03 CC-PROC1 PIC X(5).
+             03 CC-PROC2 PIC XX.
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACTION PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AGE PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-IOPAT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
        FD GARFILE
            BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS G-MASTER.
@@ -903,7 +906,7 @@
        01  DIAGTAB01.
            02 DIAGTAB PIC X(7) OCCURS 12 TIMES.
        01  FILETAB01.
-           02 FILETAB PIC X(185) OCCURS 50 TIMES.
+           02 FILETAB PIC X(156) OCCURS 50 TIMES.
        01  tab11601.
            02 TAB116 PIC X OCCURS 116 TIMES.
        01  ALF116 PIC X(116).
@@ -983,7 +986,7 @@
              03 PL-STATE PIC XX.
              03 PL-ZIP PIC X(9).
        01  PLINDX PIC 99 VALUE 0.
-       01  CD-PL PIC X.
+       01  CC-PL PIC X.
        01 HL-NUMPRV-SAVE PIC X(5).
        01 HL-SBR-SAVE PIC X(5).
        01 X-RELATE PIC X.
@@ -994,7 +997,7 @@
        01 SUB-POLICY PIC X(16).
        01 TOT-AMOUNT PIC 9(4)V99.
        01 PLACE-POINTER PIC 99.
-       01 SAVE01 PIC X(185).
+       01 SAVE01 PIC X(156).
        01 X-MOD.
           02 X-MOD1 PIC XX.
           02 X-MOD2 PIC XX.
@@ -1002,7 +1005,7 @@
        01 NAME-1 PIC X(24).
        01 NAME-2 PIC X(24).
        01  HOLD-FILEIN01.
-           02 HOLD-FILE-KEY.
+           02 HOLD-FILEIN-KEY.
              03 HOLD-KEY8 PIC X(8).
              03 HOLD-KEY3 PIC XXX.
            02 HOLD-PATID.
@@ -1021,24 +1024,23 @@
            02 HOLD-DOCR PIC X(3).
            02 HOLD-DOCP PIC 99.
            02 HOLD-PAYCODE PIC XXX.
-           02 HOLD-STAT PIC X.
-           02 HOLD-WORK PIC XX.
+           02 HOLD-STUD PIC X.
+           02 HOLD-WORK PIC 99.
            02 HOLD-DAT1 PIC X(8).
            02 HOLD-RESULT PIC X.
-           02 HOLD-ACT PIC X.
+           02 HOLD-ACTION PIC X.
            02 HOLD-SORCREF PIC X.
            02 HOLD-COLLT PIC X.
-           02 HOLD-AUTH PIC X.
+           02 HOLD-AGE PIC X.
            02 HOLD-PAPER PIC X.
            02 HOLD-PLACE PIC X.
-           02 HOLD-NAME PIC X(24).
-           02 HOLD-ESPDT PIC X.
+           02 HOLD-IOPAT PIC X.
            02 HOLD-DATE-T PIC X(8).
-           02 HOLD-DATE-E PIC X(8).
-           02 HOLD-ORDER PIC X(6).
+           02 HOLD-DATE-A PIC X(8).
+           02 HOLD-DATE-P PIC X(8).
+           02 HOLD-REC-STAT PIC X.
            02 HOLD-DX2 PIC X(7).
            02 HOLD-DX3 PIC X(7).
-           02 HOLD-DATE-A PIC X(8).
            02 HOLD-ACC-TYPE PIC X.
            02 HOLD-DATE-M PIC X(8).
            02 HOLD-ASSIGN PIC X.
@@ -1046,7 +1048,8 @@
            02 HOLD-DX4 PIC X(7).
            02 HOLD-DX5 PIC X(7).
            02 HOLD-DX6 PIC X(7).
-           02 HOLD-FUTURE PIC X(6).
+           02 HOLD-FUTURE PIC X(7).
+
        01  MAMMO-FLAG PIC 9.
        01  CLIA-FLAG PIC 9.
        01  CLIA-NUM PIC X(12).
@@ -1083,7 +1086,7 @@
            MOVE ALF9NUM TO GS-NUM
            MOVE ALF9NUM TO GE-NUM
            ADD 1 TO HIP-NUM
-           OPEN I-O CHARFILE.
+           OPEN I-O CHARCUR.
            PERFORM ISA-1 THRU ISA-EXIT
            PERFORM A0 THRU A0-EXIT.
            MOVE SPACE TO SEGFILE01
@@ -1389,7 +1392,7 @@
            MOVE SPACE TO NM1-CODE
            MOVE G-PRIPOL TO NM1-CODE
            IF G-PRINS = "002"
-             MOVE "   " TO NM1-CODE(14:3)
+            MOVE "   " TO NM1-CODE(14:3)
            END-IF  
            MOVE "MI" TO NM1-EINSS
            MOVE SPACE TO SEGFILE01
@@ -1751,7 +1754,6 @@
 
 
 
-
            MOVE SPACE TO DIAG-C(DX-CNTR-PT)
            MOVE DIAG-POINTER01 TO SV1-PT
            GO TO SV1-0.
@@ -1784,19 +1786,18 @@
            MOVE tab11601 TO ALF116
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM ALF116.
-
            MOVE "472" TO DTP-1
            MOVE FI-DATE-T TO DTP-3
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM DTP01.
       *     PERFORM 2410 THRU 2410-EXIT.
       *     PERFORM 2420A.
-           MOVE FILEIN-KEY TO CHARFILE-KEY
-           READ CHARFILE WITH LOCK INVALID GO TO 2400SRV-EXIT.
-           IF CD-REC-STAT = "0" MOVE "2" TO CD-REC-STAT.
-           IF CD-REC-STAT = "1" MOVE "3" TO CD-REC-STAT.
-           MOVE BHT-DATE TO CD-DATE-A.
-           REWRITE CHARFILE01.
+           MOVE FILEIN-KEY TO CHARCUR-KEY
+           READ CHARCUR WITH LOCK INVALID GO TO 2400SRV-EXIT.
+           IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
+           IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
+           MOVE BHT-DATE TO CC-DATE-A.
+           REWRITE CHARCUR01.
        2400SRV-EXIT.  EXIT.
 
        2410.
@@ -2121,29 +2122,30 @@
 
        DF-SEARCH. 
            MOVE 0 TO FLAG.
-           MOVE "2" TO CD-PL
+           MOVE "2" TO CC-PL
            MOVE "12" TO CLM-5
            PERFORM DF-SEARCH2 VARYING Y FROM 1 BY 1 UNTIL Y > PLINDX.
        DF-SEARCH2.  
-           IF HOLD-PLACE = PL-TAB(Y) 
-           MOVE PL-NUM(Y) TO CD-PL
+           IF HOLD-PLACE = PL-TAB(Y)
+           MOVE PL-NUM(Y) TO CC-PL
            MOVE Y TO PLACE-POINTER
            PERFORM PLACE-OF-SERVICE
            MOVE PLINDX TO Y.
        PLACE-OF-SERVICE.
-           IF CD-PL = "1" MOVE "11" TO CLM-5.
-           IF CD-PL = "3" MOVE "21" TO CLM-5.
-           IF CD-PL = "4" MOVE "32" TO CLM-5.
-           IF CD-PL = "5" MOVE "22" TO CLM-5.
-           IF CD-PL = "6" MOVE "81" TO CLM-5.
-           IF CD-PL = "7" MOVE "61" TO CLM-5.
-           IF CD-PL = "8" MOVE "99" TO CLM-5.
-           IF CD-PL = "E" MOVE "23" TO CLM-5. 
-           IF CD-PL = "K" MOVE "31" TO CLM-5.
-           IF CD-PL = "D" MOVE "33" TO CLM-5.
-           IF CD-PL = "Q" MOVE "13" TO CLM-5.
-           IF CD-PL = "S" MOVE "03" TO CLM-5.
-           IF CD-PL = "T" MOVE "02" TO CLM-5.
+           IF CC-PL = "1" MOVE "11" TO CLM-5.
+           IF CC-PL = "3" MOVE "21" TO CLM-5.
+           IF CC-PL = "4" MOVE "32" TO CLM-5.
+           IF CC-PL = "5" MOVE "22" TO CLM-5.
+           IF CC-PL = "6" MOVE "81" TO CLM-5.
+           IF CC-PL = "7" MOVE "61" TO CLM-5.
+           IF CC-PL = "8" MOVE "99" TO CLM-5.
+           IF CC-PL = "E" MOVE "23" TO CLM-5. 
+           IF CC-PL = "K" MOVE "31" TO CLM-5.
+           IF CC-PL = "D" MOVE "33" TO CLM-5.
+           IF CC-PL = "Q" MOVE "13" TO CLM-5.
+           IF CC-PL = "S" MOVE "03" TO CLM-5.
+           IF CC-PL = "T" MOVE "02" TO CLM-5.
+           IF CC-PL = "Z" MOVE "02" TO CLM-5.
            IF HOLD-PROC1 > "99216" AND < "99221" MOVE "22" TO CLM-5.
            IF HOLD-PROC1 > "99220" AND < "99224" MOVE "21" TO CLM-5.
            IF HOLD-PROC1 > "99230" AND < "99234" MOVE "21" TO CLM-5.
@@ -2153,8 +2155,6 @@
            IF HOLD-PROC1 > "99280" AND < "99289" MOVE "23" TO CLM-5.
            IF HOLD-PROC1 > "99320" AND < "99324" MOVE "33" TO CLM-5.
            IF HOLD-PROC1 > "99330" AND < "99334" MOVE "33" TO CLM-5.
-
-
        HI-DIAG.
            IF HOLD-DATE-T > "20150930" GO TO HI-DIAG10.
            MOVE HOLD-DIAG TO DIAG-KEY
@@ -2227,5 +2227,5 @@
 
        P99. 
             REWRITE HIPCLAIMFILE01.
-            CLOSE GARFILE HIPCLAIMFILE CHARFILE ERRFILE.
+            CLOSE GARFILE HIPCLAIMFILE CHARCUR ERRFILE.
             STOP RUN.
