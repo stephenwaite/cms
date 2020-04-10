@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. KRU135.
+       PROGRAM-ID. newrri1500.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -1355,8 +1355,8 @@
       *     WRITE OUT01 FROM LINE-1002LEG(X) AFTER 1.
            WRITE OUT01 FROM LINE-1002(X).
            ADD 1 TO LCNTR.
-           IF NOT (FI-PC = 004 OR 064)
-           PERFORM S4 THRU S4-EXIT.
+      *     IF NOT (FI-PC = 004 OR 064)
+      *     PERFORM S4 THRU S4-EXIT.
        S4. MOVE G-GARNO TO PC-KEY8.
            MOVE "000" TO PC-KEY3.
            START PAYCUR KEY > PAYCUR-KEY INVALID GO TO S4-EXIT.
