@@ -463,7 +463,6 @@
             03 EF-DENIAL5 PIC XXX.
             03 FILLER PIC X VALUE SPACE.
             03 EF-DENIAL6 PIC XXX.
-           02 EF-PAYORID PIC X(5). 
         01  ERR201.
            02 EF2-NUM PIC ZZ9.
            02 FILLER PIC XX VALUE SPACE.
@@ -700,15 +699,10 @@
       *     IF (PAYORID = "36273")  GO TO P00.
 
        P0000.
-      *     DISPLAY PAYORID1 " " PAYORID
-      *     ACCEPT OMITTED
-      *     GO TO XX.
-
-           IF PAYORID = SPACE 
-           MOVE PAYORID1 TO PAYORID.
-           MOVE PAYORID TO EF-PAYORID
-           MOVE SPACE TO FILEIN01.
-           READ FILEIN AT END GO TO P9.
+           IF PAYORID = SPACE
+               MOVE PAYORID1 TO PAYORID.
+               MOVE SPACE TO FILEIN01.
+               READ FILEIN AT END GO TO P9.
            IF NOT (F1 = "N1*" AND F21= "PE*") GO TO P0000.
            MOVE SPACE TO N101
            UNSTRING FILEIN01 DELIMITED BY "*" INTO

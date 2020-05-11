@@ -628,6 +628,7 @@
        01  ID-NPI1 PIC X(10).
        01  ID-NPI PIC X(10).
        01  PERM-ID PIC X(10).
+       01  PAYORID1 PIC X(5).
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT 
@@ -672,9 +673,19 @@
            MOVE SPACE TO TRN01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
            TRN-0 TRN-1 TRN-2.
+           MOVE SPACE TO PAYORID PAYORID1.
        P000.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P9.
+           IF F1 = "CLP" GO TO P0000.
+           IF FILEIN01(1:5) = "N1*PR"
+               MOVE SPACE TO N101
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               N1-0 N1-1 N1-2 N1-3 N1-ID
+               MOVE N1-ID(1:5) TO PAYORID1
+               GO TO P000
+           END-IF
+
            IF NOT (F1 = "REF" AND F21 = "*2U") GO TO P000.
            MOVE SPACE TO REF01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
@@ -683,7 +694,9 @@
            IF (PAYORID = "36273")  GO TO P00.
 
        P0000.
-           MOVE SPACE TO FILEIN01.
+           IF PAYORID = SPACE
+               MOVE PAYORID1 TO PAYORID.
+               MOVE SPACE TO FILEIN01.
            READ FILEIN AT END GO TO P9.
            IF NOT (F1 = "N1*" AND F21= "PE*") GO TO P0000.
            MOVE SPACE TO N101
