@@ -285,6 +285,7 @@
            
            IF (CD-PROC1 = "1099")
                DISPLAY "UNI SCREEN PUT 52 ON CORRESP TOMO AFTER 254"
+               DISPLAY "LOOK FOR TOMO AND ADD 52 MANUALLY FOR PT"
                MOVE "52" TO CD-MOD2
                REWRITE CHARFILE01
                GO TO P1
