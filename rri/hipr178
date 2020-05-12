@@ -682,62 +682,58 @@
        P000.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P9.
-           IF F1 = "CLP" GO TO P0000.
+
+           IF F1 = "CLP"
+               GO TO P1-CLP
+           END-IF
+
            IF FILEIN01(1:5) = "N1*PR"
               MOVE SPACE TO N101
               UNSTRING FILEIN01 DELIMITED BY "*" INTO
               N1-0 N1-1 N1-2 N1-3 N1-ID
               MOVE N1-ID(1:5) TO PAYORID1
-                  GO TO P000
            END-IF
         
-           IF NOT (F1 = "REF" AND F21 = "*2U") GO TO P000.
-           MOVE SPACE TO REF01
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO
-           REF-0 REF-1 REF-2
-           MOVE REF-2 TO PAYORID.
-      *     IF (PAYORID = "36273")  GO TO P00.
+           IF (F1 = "REF" AND F21 = "*2U")
+               MOVE SPACE TO REF01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               REF-0 REF-1 REF-2
+               MOVE REF-2 TO PAYORID
+               IF PAYORID = SPACE
+                   MOVE PAYORID1 TO PAYORID.
+                   MOVE SPACE TO FILEIN01.
+                   READ FILEIN AT END GO TO P9
+               END-IF
+           END-IF
 
-       P0000.
-           IF PAYORID = SPACE
-               MOVE PAYORID1 TO PAYORID.
-               MOVE SPACE TO FILEIN01.
-               READ FILEIN AT END GO TO P9.
-           IF NOT (F1 = "N1*" AND F21= "PE*") GO TO P0000.
-           MOVE SPACE TO N101
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO
-           N1-0 N1-1 N1-2 N1-3 N1-ID
-           MOVE N1-ID TO PERM-ID.
-       P0001.
-           MOVE SPACE TO FILEIN01.
-           READ FILEIN AT END GO TO P9.
-           IF NOT (F1 = "REF" AND F21= "*TJ") GO TO P0001.
-           MOVE SPACE TO REF01
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO
-           REF-0 REF-1 REF-2
-           
+           IF (F1 = "N1*" AND F21= "PE*")
+               MOVE SPACE TO N101
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               N1-0 N1-1 N1-2 N1-3 N1-ID
+               MOVE N1-ID TO PERM-ID
+           END-IF
+
            IF (PERM-ID NOT = ID-NPI1)
-              AND (PERM-ID NOT = ID-NPI)
-              AND (REF-2 NOT =  PF-1) GO TO P00.
+               AND (PERM-ID NOT = ID-NPI)
+               AND (REF-2 NOT =  PF-1)
+               GO TO P00
+           END-IF
 
-      *     MOVE SPACE TO FILEIN01
-      *     READ FILEIN AT END GO TO P9.
-      *     MOVE SPACE TO N301
-      *     IF F1 = "N3*" 
-      *     UNSTRING FILEIN01 DELIMITED BY "*" INTO
-      *     N3-0 N3-STREET N3-STREET2.
+           IF (F1 = "REF" AND F21= "*TJ")
+               MOVE SPACE TO REF01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               REF-0 REF-1 REF-2
+
            IF TITLE-FLAG = 0
-           MOVE 1 TO TITLE-FLAG
-           MOVE SPACE TO ERROR-FILE01
-           WRITE ERROR-FILE01 FROM HL01 AFTER PAGE
-           MOVE SPACE TO ERROR-FILE01
-           MOVE TITLE01 TO ERROR-FILE01
-           WRITE ERROR-FILE01.
+               MOVE 1 TO TITLE-FLAG
+               MOVE SPACE TO ERROR-FILE01
+               WRITE ERROR-FILE01 FROM HL01 AFTER PAGE
+               MOVE SPACE TO ERROR-FILE01
+               MOVE TITLE01 TO ERROR-FILE01
+              WRITE ERROR-FILE01
+           END-IF.
 
        P1-CLP.
-      *     DISPLAY PAYORID " " N1-2
-      *     ACCEPT OMITTED
-      *     GO TO XX.           
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P9.
            IF F1 = "SE*" GO TO P00.
