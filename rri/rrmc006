@@ -1414,32 +1414,21 @@
                SET YNDX UP BY 1.
        EA-1.
            IF R1-EMAIL = SPACE AND R1-AUTH = SPACE GO TO EA-1-EXIT.
-            move space to EMAILAUTHFILE01
-            MOVE 0  TO EA-KEY
-            WRITE EMAILAUTHFILE01 invalid continue.
-           move r2-guarssn to ea-ssn
-           MOVE 999999 TO EA-KEY
-           start EMAILAUTHFILE key < ea-key  invalid
-            MOVE 999999 TO EA-KEY
-            WRITE EMAILAUTHFILE01
-           end-start.
-           MOVE 999999 TO EA-KEY
-           read EMAILAUTHFILE previous at end
-           move 0 to ea-key
-           END-read.
 
-      *    display ea-key " ea-key after a read preious"
-      *     accept omitted
+           MOVE SPACE TO EMAILAUTHFILE01
+      *    get last record in emailauthssnfile
+           MOVE 999999 TO EA-KEY
+           READ EMAILAUTHFILE PREVIOUS AT END
+               MOVE 0 TO EA-KEY
+           END-READ
 
            ADD 1 TO EA-KEY
-      *    display ea-key " " a-garname
-      *    accept omitted
-           move r2-guarssn to ea-ssn 
+           MOVE R2-GUARSSN TO EA-SSN
            MOVE A-ACTNO TO EA-MEDREC
            MOVE A-GARNAME TO EA-NAME
            ACCEPT EA-DATE-E FROM CENTURY-DATE
            MOVE R1-EMAIL TO EA-EMAIL
-           MOVE R1-AUTH TO EA-AUTH.
+           MOVE R1-AUTH TO EA-AUTH
            WRITE EMAILAUTHFILE01.
        EA-1-EXIT.
            EXIT.
