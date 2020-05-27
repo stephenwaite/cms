@@ -1,0 +1,495 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. sid057.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PROCFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS PROC-KEY
+           LOCK MODE MANUAL
+           STATUS IS PROCFILE-STAT.
+           SELECT FILEOUT ASSIGN TO "S35"  ORGANIZATION IS LINE
+           SEQUENTIAL.
+           SELECT BILLPARM ASSIGN TO "S40" ORGANIZATION IS LINE
+           SEQUENTIAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  BILLPARM.
+       01 BILLPARM01.
+           02 FILLER PIC X(9).
+           02 BP-2 PIC X(40).
+       FD FILEOUT.
+       01  FILEOUT01 PIC X(80).
+       FD PROCFILE.
+       01 PROCFILE01.
+           02 PROC-KEY PIC X(7).
+           02 PROC-NDC PIC X.
+           02 PROC-OLD PIC X(6).
+           02 PROC-TYPE PIC X.
+           02 PROC-BCBS PIC X(4).
+           02 PROC-TITLE PIC X(28).
+           02 PROC-AMOUNT PIC 9(4)V99.
+           02 CARE-AMOUNT PIC 9(4)V99.
+
+       WORKING-STORAGE SECTION.
+       01  HOLDBACK PIC X(59).
+       01  PROCFILE-STAT PIC XX.
+       01 O4 PIC X VALUE SPACE.
+       01 PK01.
+           02 PK1 PIC X(5).
+           02 PK2 PIC X(2).
+       01  O301.
+           02 F5 PIC X(7) VALUE "       ".
+           02 F6.
+             03 F61 PIC X(5).
+             03 F62 PIC X(2).
+           02 FILLER PIC X VALUE SPACE.
+      *    02 F72 PIC X(7).
+           02 FILLER PIC X VALUE SPACE.
+           02 F7 PIC X.
+           02 FILLER PIC X VALUE SPACE.
+           02 F8 PIC X(28).
+           02 F9 PIC X VALUE " ".
+           02 F10 PIC ZZ,ZZ9.99.
+           02 FILLER PIC XX VALUE SPACE.
+           02 F11 PIC ZZ,ZZ9.99.
+       01 O101.
+           02 FILLER PIC X(15) VALUE SPACE.
+           02 O1F1 PIC X(45).
+           02 FILLER PIC X(7) VALUE SPACE.
+           02 O1F2 PIC 999.
+       01  O201.
+           02 FILLER PIC X(21) VALUE SPACE.
+           02 O2F1 PIC X(12).
+           02 FILLER PIC XXX VALUE SPACES.
+           02 O2F2 PIC X(18).
+       01  TEST-DATE.
+           02 T-YY PIC XXXX.
+           02 T-MM PIC XX.
+           02 T-DD PIC XX.
+       01  NUM-2 PIC 99.
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  RIGHT-4 PIC XXXX JUST RIGHT.
+       01  ALF-7 PIC X(8).
+       01  CENTS PIC XX.
+       01  SIGN-DOLLAR PIC XXXX.
+       01  X PIC 99.
+       01  NEF-7 PIC ZZ,ZZ9.99.
+       01  NEF-72 PIC ZZ,ZZ9.99.
+       01  ANS PIC X(32).
+       01  FUNC PIC X(16).
+       01  ALF-6 PIC X(6).
+       01  NUM-6 PIC 9(6).
+       01  ALF4 PIC XXXX.
+       01  ALF6 PIC X(6).
+       01  ALF11 PIC X(11).
+       01  OLD-PROC PIC X(7).
+       01  CARE-ASSIGN PIC X.
+       01  FLAG PIC 9 VALUE 0.
+       01  ALF1 PIC X.
+       PROCEDURE DIVISION.
+       P0. 
+           OPEN I-O PROCFILE.
+           OPEN OUTPUT FILEOUT.
+           OPEN INPUT BILLPARM.
+           READ BILLPARM AT END DISPLAY "NO PARAMTER FILE" GO TO Z1.
+           MOVE BP-2 TO HOLDBACK
+           READ BILLPARM AT END DISPLAY "NO PARAMTER FILE" GO TO Z1.
+           MOVE BILLPARM01 TO CARE-ASSIGN.
+           MOVE HOLDBACK TO BP-2.
+       S1. 
+           DISPLAY "FUNCTION ?".
+           ACCEPT ANS.
+           IF ANS = "END" GO TO Z1.
+           IF ANS = "?"
+           DISPLAY "A = ADD A PROCEDURE CODE"
+           DISPLAY "C = CHANGE A PROCEDURE CODE"
+           DISPLAY "D = DELETE A PROCEDURE CODE(BEWARE)"
+           DISPLAY "L = LIST A SINGLE PROCEDURE CODE"
+           DISPLAY "F = LIST 20 PROCEDURE CODES AT A TIME"
+           DISPLAY "    STARTING WITH CODE TYPED IN"
+           DISPLAY "PFS = PRINT FEE SCHEDULE TO LINE PRINTER"
+           DISPLAY "END = END THE PROGRAM"
+           GO TO S1.
+           MOVE SPACES TO FUNC PROC-KEY.
+           UNSTRING ANS DELIMITED BY "," INTO FUNC PROC-KEY.
+           IF FUNC = "D" OR "A" OR "C" OR "L" OR "F" OR "PFS"
+           NEXT SENTENCE ELSE DISPLAY "WHAT?" GO TO S1.
+           IF FUNC = "L" PERFORM L1 GO TO S1.
+           IF FUNC = "A" GO TO A1.
+           IF FUNC = "C" PERFORM L1 GO TO C1.
+           IF FUNC = "D" GO TO D1.
+           IF FUNC = "F" GO TO F1.
+           IF FUNC = "PFS" GO TO PFS1.
+       L1. 
+           READ PROCFILE INVALID DISPLAY "NOT ON FILE" GO TO S1.
+           MOVE SPACE TO ALF11 ALF6
+           IF PROC-AMOUNT NOT = CARE-AMOUNT
+           MOVE CARE-AMOUNT TO NEF-7
+           MOVE "CARE= " TO ALF6
+           MOVE NEF-7 TO ALF11.
+           MOVE PROC-AMOUNT TO NEF-7
+           DISPLAY PROC-KEY  " "  PROC-TYPE " " PROC-NDC " " PROC-TITLE
+           " " NEF-7 " " ALF6 ALF11.
+       F1. 
+           MOVE 0 TO X
+           MOVE SPACE TO ANS
+           START PROCFILE KEY NOT < PROC-KEY INVALID
+           DISPLAY "END OF FILE" GO TO S1.
+       F2. 
+           READ PROCFILE NEXT AT END DISPLAY "END OF FILE"
+           GO TO S1.
+           MOVE PROC-AMOUNT TO NEF-7 
+           ADD 1 TO X.
+           IF X = 20 ACCEPT ANS
+            MOVE 0 TO X
+             IF ANS NOT = SPACE GO TO S1
+             END-IF
+            END-IF
+           MOVE SPACE TO ALF11 ALF6
+           IF PROC-AMOUNT NOT = CARE-AMOUNT
+           MOVE CARE-AMOUNT TO NEF-7
+           MOVE "CARE= " TO ALF6
+           MOVE NEF-7 TO ALF11.
+           MOVE PROC-AMOUNT TO NEF-7.
+           DISPLAY PROC-KEY " "  PROC-TYPE " " PROC-NDC " " PROC-TITLE
+           " " NEF-7 " " ALF6 ALF11.
+           GO TO F2.
+       A1. 
+           DISPLAY "PROC.".
+           ACCEPT PROC-KEY.
+           IF PROC-KEY = "?"
+           DISPLAY "ENTER THE CPT CODE AND THE MODIFIER"
+           DISPLAY "IF NECESSARY. EX: 90050 OR 9330726"
+           DISPLAY "NO SPACE BETWEEN THE CODE AND MODIFIER"
+           GO TO A1.
+           READ PROCFILE INVALID GO TO A4.
+           DISPLAY "ALREADY ON FILE" PERFORM L1 GO TO S1.
+       A4. 
+           DISPLAY "ENTER THE TITLE FOR THE PROCEDURE".
+           DISPLAY "----------------------------"
+           ACCEPT PROC-TITLE.
+           IF PROC-TITLE = "?"
+           DISPLAY "X = BACK TO FUNCTION; NO ADD"
+           DISPLAY "TYPE IN UP TO 28 CHARACTER TITLE FOR"
+           DISPLAY "PROCEDURE"
+           DISPLAY "A DISPLAY OF THE FIRST 28 CHARACTERS WILL OCCUR"
+           DISPLAY "FOR YOUR APPROVAL/DISAPPROVAL"
+           GO TO A4.
+           IF PROC-TITLE = "X" DISPLAY "NO UPDATE" GO TO S1.
+           DISPLAY PROC-TITLE.
+       A5. 
+           DISPLAY "OK ?".
+           ACCEPT ANS.
+           IF ANS = "?"
+           DISPLAY "TYPE Y TO ACCEPT THE TITLE"
+           DISPLAY "TYPE N TO REJECT THIS TITLE"
+           DISPLAY "AND RETURN TO ENTER A NEW TITLE"
+           GO TO A5.
+           IF ANS = "N" GO TO A4.
+           IF ANS NOT = "Y" MOVE "?" TO ANS GO TO A5.
+       T1. 
+           DISPLAY "TYPE OF SERVICE (BS-CODE)".
+           ACCEPT PROC-TYPE.
+           IF PROC-TYPE = "?" DISPLAY "ENTER THE TYPE OF SERVICE CODE"
+           DISPLAY "1=SURG. 2=ASST. SURG. 3=ANESTH. 4=LAB"
+           DISPLAY "5=X-RAY 6=MEDICAL 7=IMMUNIZ M=QUAL. MEAS."
+           DISPLAY "* = LOCAL CODE CONVERTED TO CPT, TAKEN FROM TITLE"
+           DISPLAY "CHARGES; B = BACK" GO TO T1.
+           IF PROC-TYPE = "B" GO TO A4.
+           IF PROC-TYPE NOT NUMERIC DISPLAY "ACCEPTED " PROC-TYPE.
+       T2.
+           DISPLAY "NDC REQUIRED? Y/N"
+           ACCEPT ALF1
+           IF ALF1 = "?"
+           DISPLAY "TYPE 1 ONLY FOR PROCEDURE CODES"
+           DISPLAY "REQUIRING AN 11-DIGIT NDC NUMBER."
+           GO TO T2.
+           MOVE " " TO PROC-NDC
+           IF ALF1 = "Y"
+           MOVE "1" TO PROC-NDC
+           END-IF.
+       A6. 
+           DISPLAY "FEE ?".
+           ACCEPT ALF-7.
+           IF ALF-7 = "?"
+           DISPLAY "BK = BACK TO FEE"
+           DISPLAY "X = BACK TO FUNCTION; NO UPDATE"
+           DISPLAY "ENTER THE AMOUNT OF THE FEE"
+           DISPLAY "EX: $78.00 = 78.00, OR 78 OR 78."
+           DISPLAY "EX: 70.10 = 70.10  ONLY"
+           GO TO A6.
+           IF ALF-7 = "BK" GO TO T2.
+           MOVE SPACES TO SIGN-DOLLAR CENTS.
+           UNSTRING ALF-7 DELIMITED BY "." INTO SIGN-DOLLAR CENTS.
+           IF CENTS = SPACES MOVE "00" TO CENTS.
+           IF CENTS NOT NUMERIC MOVE "?" TO ALF-7
+           GO TO A6.
+           MOVE SPACES TO RIGHT-4.
+           UNSTRING SIGN-DOLLAR DELIMITED BY " " INTO RIGHT-4
+           INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
+           IF RIGHT-4 NOT NUMERIC MOVE "?" TO ALF-7
+           GO TO A6.
+           STRING RIGHT-4 CENTS DELIMITED BY "Z" INTO ALF-6
+           MOVE ALF-6 TO NUM-6
+           DIVIDE NUM-6 BY 100 GIVING PROC-AMOUNT.
+           IF CARE-ASSIGN = "0" MOVE PROC-AMOUNT TO CARE-AMOUNT
+           GO TO A8.
+       A7. 
+           DISPLAY "MEDICARE FEE OR <CR> IF SAME AS REGULAR FEE".
+           ACCEPT ALF-7.
+           IF ALF-7 = SPACE MOVE PROC-AMOUNT TO CARE-AMOUNT
+           GO TO A8.
+           IF ALF-7 = "?"
+           DISPLAY "BK = BACK TO REGULAR FEE"
+           DISPLAY "X = BACK TO FUNCTION; NO UPDATE"
+           DISPLAY "ENTER THE AMOUNT OF THE MAXIMUM MEDICARE FEE"
+           DISPLAY "EX: $78.00 = 78.00, OR 78 OR 78."
+           DISPLAY "EX: 70.10 = 70.10  ONLY"
+           GO TO A7.
+           IF ALF-7 = "BK" GO TO A6.
+           MOVE SPACES TO SIGN-DOLLAR CENTS.
+           UNSTRING ALF-7 DELIMITED BY "." INTO SIGN-DOLLAR CENTS.
+           IF CENTS = SPACES MOVE "00" TO CENTS.
+           IF CENTS NOT NUMERIC MOVE "?" TO ALF-7
+           GO TO A7.
+           MOVE SPACES TO RIGHT-4.
+           UNSTRING SIGN-DOLLAR DELIMITED BY " " INTO RIGHT-4
+           INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
+           IF RIGHT-4 NOT NUMERIC MOVE "?" TO ALF-7
+           GO TO A7.
+           STRING RIGHT-4 CENTS DELIMITED BY "Z" INTO ALF-6
+           MOVE ALF-6 TO NUM-6
+           DIVIDE NUM-6 BY 100 GIVING CARE-AMOUNT.
+       A8. 
+           MOVE SPACE TO PROC-OLD GO TO A9.
+           ACCEPT PROC-OLD.
+           IF PROC-OLD = "?"
+           DISPLAY "ENTER THE 1991 CPT CODE THAT WILL BE USED"
+           DISPLAY "TO CONVERT NEW CODES BACK TO"
+           DISPLAY "FOR THOSE INSURANCES WHICH WILL REQUIRE"
+           DISPLAY "THAT TO BE DONE -- IN THE BEGINNING OF 1992"
+           DISPLAY "BK = BACK  <CR> = NO CONVERSION CODE REQUIRED"
+           GO  TO A8.
+           IF PROC-OLD = SPACE DISPLAY "NO CONVERSION DONE"
+           GO TO A9.
+           IF PROC-OLD = "BK" GO TO A7.
+           IF PROC-OLD = "X" DISPLAY "NO UPDATE" GO TO S1.
+           MOVE PROCFILE01 TO HOLDBACK
+           MOVE PROC-OLD TO PROC-KEY
+           READ PROCFILE INVALID DISPLAY PROC-OLD  " INVALID"
+           DISPLAY "YOU NEED TO HAVE USED THE CODE BEFORE"
+           MOVE HOLDBACK TO PROCFILE01 GO TO A8.
+           PERFORM L1
+           DISPLAY "CONVERT TO THIS? Y/N".
+           ACCEPT ANS
+           IF ANS NOT = "Y" MOVE HOLDBACK TO PROCFILE01 GO TO A8.
+           IF ANS = "BK" DISPLAY "BACK UP" GO TO A7.
+           IF ANS = "X" DISPLAY "NO UPDATE" GO TO S1.
+           MOVE HOLDBACK TO PROCFILE01.
+       A9. 
+           MOVE 0 TO FLAG
+           IF PROC-TYPE = "*" PERFORM LOCAL-1.
+           IF FLAG = 1 DISPLAY "INVALID LOCAL CODE" GO TO S1.
+           MOVE SPACE TO PROC-BCBS PROC-OLD.
+           WRITE PROCFILE01. DISPLAY "RECORD ADDED" .
+           IF PROCFILE-STAT = "61" DISPLAY "RECORD WAS ADDED"
+           DISPLAY "MOMENTS AGO BY ANOTHER USER" PERFORM L1
+           GO TO S1.
+           PERFORM L1 GO TO S1.
+       C1. 
+           READ PROCFILE WITH LOCK INVALID DISPLAY "INVALID"
+           GO TO S1.
+           IF PROCFILE-STAT = "61" DISPLAY "RECORD LOCKED"
+           GO TO S1.
+       C11.
+            DISPLAY "FIELD # ?".
+           ACCEPT ANS.
+           IF ANS = "?"
+           DISPLAY "VALID CODES ARE 1 = TITLE 2 = AMOUNT 3 = TYPE"
+           DISPLAY "4 = MEDICARE  5= NDC CODE OR X"
+           GO TO C11.
+           IF ANS = "X" DISPLAY "NO UPDDATE" GO TO S1.
+           MOVE SPACE TO RIGHT-2.
+           UNSTRING ANS DELIMITED BY " " INTO RIGHT-2.
+           INSPECT RIGHT-2 REPLACING LEADING " " BY "0".
+           IF RIGHT-2 NOT NUMERIC DISPLAY "NOT NUMERIC" GO TO C11.
+           MOVE RIGHT-2 TO NUM-2.
+           IF NUM-2 < 1 OR > 5 DISPLAY "INVALID FIELD #" GO TO C11.
+
+           GO TO 3F 4F 5F 6F CNDC DEPENDING ON NUM-2.
+       3F.
+           DISPLAY "NEW TITLE ?".
+           ACCEPT PROC-TITLE.
+           IF PROC-TITLE = "?"
+           DISPLAY "X = BACK TO FUNCTION"
+           DISPLAY "TYPE IN TITLE UP TO 32 CHARACTERS"
+           DISPLAY "OR A CPT CODE WHEN BUILDING A LOCAL CODE"
+           GO TO 3F.
+           IF PROC-TITLE = "X" DISPLAY "NO UPDATE" GO TO S1.
+           DISPLAY PROC-TITLE.
+       3F1.
+           DISPLAY "ACCEPT Y/N ?"
+           ACCEPT ANS.
+           IF ANS = "?"
+           DISPLAY "Y = ACCEPT, N = RETRY, X = BACK TO FUNCTION"
+           GO TO 3F1.
+           IF ANS = "X" DISPLAY "NO UPDATE" GO TO S1.
+           IF ANS = "N" GO TO 3F.
+           IF ANS = "Y" PERFORM RE-WRITE
+           GO TO S1.
+           GO TO 3F1.
+       4F. 
+           DISPLAY "ENTER NEW FEE".
+           ACCEPT ALF-7.
+           IF ALF-7 = "?"
+           DISPLAY "X = BACK TO TITLE"
+           DISPLAY "X = BACK TO FUNCTION; NO UPDATE"
+           DISPLAY "ENTER THE AMOUNT OF THE FEE"
+           DISPLAY "EX: $78.00 = 78.00, OR 78 OR 78."
+           DISPLAY "EX: 70.10 = 70.10  ONLY"
+           GO TO 4F.
+           IF ALF-7 = "X" DISPLAY "NO UPDATE" GO TO S1.
+           MOVE SPACES TO SIGN-DOLLAR CENTS.
+           UNSTRING ALF-7 DELIMITED BY "." INTO SIGN-DOLLAR CENTS.
+           IF CENTS = SPACES MOVE "00" TO CENTS.
+           IF CENTS NOT NUMERIC MOVE "?" TO ALF-7
+           GO TO 4F.
+           MOVE SPACES TO RIGHT-4.
+           UNSTRING SIGN-DOLLAR DELIMITED BY " " INTO RIGHT-4
+           INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
+           IF RIGHT-4 NOT NUMERIC MOVE "?" TO ALF-7
+           GO TO 4F.
+           STRING RIGHT-4 CENTS DELIMITED BY "Z" INTO ALF-6
+           MOVE ALF-6 TO NUM-6
+           DIVIDE NUM-6 BY 100 GIVING PROC-AMOUNT.
+           IF CARE-ASSIGN = "0" MOVE PROC-AMOUNT TO CARE-AMOUNT.
+           PERFORM RE-WRITE
+           UNLOCK PROCFILE RECORD
+           GO TO S1.
+       5F. 
+           DISPLAY "0 - 9 OR M (meas.) TOS".
+           ACCEPT PROC-TYPE.
+           IF PROC-TYPE = "?" DISPLAY "ENTER THE TYPE OF SERVICE CODE"
+           DISPLAY "1=SURG. 2=ASST. SURG. 3=ANESTH. 4=LAB"
+           DISPLAY "5=X-RAY 6=MEDICAL 7=IMMUNIZ. M=QUAL. MEAS."
+           DISPLAY "*=LOCAL CODE "
+           DISPLAY "CHARGES; X = BACK" GO TO 5F.
+           IF PROC-TYPE = "X" GO TO S1.
+           IF (PROC-TYPE < "0" OR > "9")
+            AND (PROC-TYPE NOT = "M")
+           DISPLAY "??? " PROC-TYPE
+           DISPLAY PROC-TYPE "ACCEPTED".
+           PERFORM RE-WRITE 
+           GO TO S1.
+       CNDC.
+           DISPLAY "NDC REQUIRED? Y/N"
+           ACCEPT ALF1
+           IF ALF1 = "?"
+           DISPLAY "TYPE 1 ONLY FOR PROCEDURE CODES"
+           DISPLAY "REQUIRING AN 11-DIGIT NDC NUMBER."
+           GO TO CNDC.
+           MOVE " " TO PROC-NDC
+           IF ALF1 = "Y"
+           MOVE "1" TO PROC-NDC
+           END-IF.
+           PERFORM RE-WRITE 
+           GO TO S1.
+
+       6F. 
+           DISPLAY "ENTER MEDICARE OR <CR> IF SAME AS REGULAR FEE".
+           ACCEPT ALF-7.
+           IF ALF-7 = SPACE MOVE PROC-AMOUNT TO CARE-AMOUNT
+           DISPLAY "SAME AS REGULAR" GO TO 6F-1.
+           IF ALF-7 = "?"
+           DISPLAY "X = BACK TO TITLE"
+           DISPLAY "X = BACK TO FUNCTION; NO UPDATE"
+           DISPLAY "ENTER THE AMOUNT OF THE MAXIMUM MEDICARE FEE"
+           DISPLAY "EX: $78.00 = 78.00, OR 78 OR 78."
+           DISPLAY "EX: 70.10 = 70.10  ONLY"
+           GO TO 6F.
+           IF ALF-7 = "X" DISPLAY "NO UPDATE" GO TO S1.
+           MOVE SPACES TO SIGN-DOLLAR CENTS.
+           UNSTRING ALF-7 DELIMITED BY "." INTO SIGN-DOLLAR CENTS.
+           IF CENTS = SPACES MOVE "00" TO CENTS.
+           IF CENTS NOT NUMERIC MOVE "?" TO ALF-7
+           GO TO 6F.
+           MOVE SPACES TO RIGHT-4.
+           UNSTRING SIGN-DOLLAR DELIMITED BY " " INTO RIGHT-4
+           INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
+           IF RIGHT-4 NOT NUMERIC MOVE "?" TO ALF-7
+           GO TO 6F.
+           STRING RIGHT-4 CENTS DELIMITED BY "Z" INTO ALF-6
+           MOVE ALF-6 TO NUM-6
+           DIVIDE NUM-6 BY 100 GIVING CARE-AMOUNT.
+       6F-1.
+           PERFORM RE-WRITE
+           UNLOCK PROCFILE RECORD
+           GO TO S1.
+       D1. 
+           READ PROCFILE WITH LOCK INVALID DISPLAY "NOT ON FILE"
+           GO TO S1.
+           IF PROCFILE-STAT = "61" DISPLAY "RECORD LOCKED"
+           GO TO S1.
+           DISPLAY PROC-KEY " " PROC-TITLE.
+       D2. 
+           DISPLAY "DELETE Y/N ?".
+           ACCEPT ANS.
+           IF ANS = "N" DISPLAY "NO DELETE" GO TO S1.
+           IF ANS = "Y" DELETE PROCFILE RECORD
+           DISPLAY "RECORD DELETED" GO TO S1.
+           GO TO D2.
+       LOCAL-1. 
+           MOVE 0 TO FLAG
+           MOVE PROCFILE01 TO HOLDBACK
+           MOVE PROC-TITLE TO PROC-KEY
+           READ PROCFILE INVALID MOVE "1" TO FLAG.
+           IF FLAG = 0 MOVE HOLDBACK TO PROCFILE01
+           MOVE 0 TO PROC-AMOUNT CARE-AMOUNT.
+       RE-WRITE. 
+           MOVE 0 TO FLAG
+           IF PROC-TYPE = "*"
+           PERFORM LOCAL-1.
+           IF FLAG = 1
+           DISPLAY "INVALID LOCAL CODE"
+           DISPLAY "NO UPDATE"
+           ELSE REWRITE PROCFILE01.
+       PFS1. 
+           ACCEPT TEST-DATE FROM DATE YYYYMMDD
+             MOVE SPACE TO  O2F2
+             STRING T-MM "/"  T-DD "/" T-YY DELIMITED BY "??"
+             INTO O2F2.
+           MOVE "0000" TO ALF4.
+           MOVE 1 TO O1F2.
+           MOVE BP-2 TO O1F1.
+           MOVE "FEE SCHEDULE" TO O2F1.
+           MOVE 0 TO X.
+           PERFORM PFS3.
+           MOVE SPACE TO PROC-KEY.
+           START PROCFILE KEY > PROC-KEY INVALID GO TO S1.
+       PFS2. 
+           READ PROCFILE NEXT AT END GO TO S1.
+      *    IF PROC-AMOUNT = CARE-AMOUNT GO TO PFS2.
+      *    MOVE PROC-AMOUNT TO CARE-AMOUNT
+      *    REWRITE PROCFILE01. GO TO PFS2.
+           ADD 1 TO X.
+           IF X = 50 ADD 1 TO O1F2
+           PERFORM PFS3
+           MOVE 1 TO X.
+           MOVE PROC-KEY TO F6
+      *    MOVE PROC-KEY TO PK01.
+      *    MOVE PK1 TO F61 MOVE PK2 TO F62
+           MOVE PROC-TYPE TO F7
+      *    MOVE PROC-OLD TO F72
+           MOVE PROC-TITLE TO F8.
+           MOVE PROC-AMOUNT TO F10.
+           MOVE CARE-AMOUNT TO F11.
+      *    WRITE FILEOUT01 FROM O4.
+           WRITE FILEOUT01 FROM O301.
+           GO TO PFS2.
+       PFS3. 
+           MOVE SPACE TO FILEOUT01
+           WRITE FILEOUT01 FROM O101 AFTER PAGE.
+           WRITE FILEOUT01 FROM O201 AFTER 2.
+       Z1. 
+           CLOSE PROCFILE FILEOUT BILLPARM
+           STOP RUN.

@@ -742,8 +742,6 @@
            CLP-0 CLP-1 CLP-2CLMSTAT CLP-3TOTCLMCHG CLP-4TOTCLMPAY 
            CLP-5PATRESP CLP-6PLANCODE CLP-7ICN CLP-8FACILITY 
            CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN CLP-13PERCENT.
-           IF (PAYORID = "87726")
-            AND (CLP-2CLMSTAT = "2") GO TO P1-CLP.
            MOVE SPACE TO ALF10
            MOVE CLP-1 TO ALF10.
            MOVE CLP-4TOTCLMPAY TO ALF8
@@ -830,10 +828,6 @@
               GO TO P9-SVC-LOOP.
            MOVE CLP-1 TO G-GARNO
            READ GARFILE INVALID GO TO P3-SVC-LOOP.
-             IF CLP-2CLMSTAT = "2 "
-             AND (PAYORID = "87726")
-               GO TO DUMP-1.
-
            MOVE 1 TO GAR-FLAG
            MOVE 0 TO FIND-CNTR TOT-TOT
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
@@ -842,18 +836,10 @@
        P3-SVC-LOOP.    
             MOVE 0 TO FIND-CNTR TOT-TOT
             PERFORM FIND-GARNO THRU FIND-GARNO-EXIT
-             IF CLP-2CLMSTAT = "2 "
-             AND (PAYORID = "87726")
-               GO TO DUMP-1.
-
             IF (FIND-CNTR NOT = SVC-CNTR)
               OR (NOT-FLAG = 1 OR 2)
-             IF CLP-2CLMSTAT = "2 "
-             AND (PAYORID = "87726")
-               GO TO DUMP-1
-             END-IF
              IF (CLP-2CLMSTAT NOT  = "2 ")
-             OR ((CLP-2CLMSTAT = "2 ") AND (PAYORID NOT = "87726"))
+             OR (CLP-2CLMSTAT = "2 ")
               PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
               VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
              GO TO P9-SVC-LOOP
@@ -864,12 +850,10 @@
        P4-SVC-LOOP.
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
                                OR "20" OR "21")
-             IF (CLP-2CLMSTAT = "2 ")
-             AND (PAYORID = "87726")
-              GO TO DUMP-1
+
              END-IF
              IF (CLP-2CLMSTAT NOT  = "2 ")
-             OR ((CLP-2CLMSTAT = "2 ") AND (PAYORID not = "87726"))
+             OR (CLP-2CLMSTAT = "2 ")
              
               PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
               VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
@@ -877,13 +861,6 @@
             END-IF
            END-IF.
         P4-UNITED-START.
-             IF (CLP-2CLMSTAT = "2 ")
-             AND (PAYORID = "87726")
-             AND (SVC-CNTR > 1)
-             AND ( TOT-TOT NOT = CLAIM-PAID)
-              GO TO DUMP-1
-             END-IF
-
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT 
              VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
            GO TO P9-SVC-LOOP.
@@ -909,10 +886,6 @@
            END-IF
 
            PERFORM AMOUNT-1
-           IF (PAYORID = "87726") 
-            AND (CLP-2CLMSTAT = "2 ")
-            MOVE BAL-TAB(X) TO AMOUNT-X
-           END-IF
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR INVALID  
@@ -1239,16 +1212,7 @@
             MOVE "-" TO EFSIGN
            END-IF
            PERFORM AMOUNT-1
-           IF (PAYORID = "87726")
-           AND (CLP-2CLMSTAT = "2 ")
-           MOVE SPACE TO ALF8
-           MOVE ALLW-TAB(X) TO AMOUNT-X
-           MOVE SPACE TO EFSIGN
-           IF ALF8-1 = "-"
-            MOVE "-" TO EFSIGN
-           END-IF
-      *     MOVE 0 TO AMOUNT-X
-           END-IF
+
            MOVE AMOUNT-X TO EF6
            IF ALF8-1 NOT = "-"
             COMPUTE TOT-PAY = TOT-PAY + AMOUNT-X
@@ -1542,12 +1506,7 @@
            IF FLAGY = 1 GO TO LOOK-1.
            ADD 1 TO FIND-CNTR
            MOVE CHARCUR-KEY TO FOUND-KEY(X).
-           IF (CLP-2CLMSTAT = "2 ")
-           AND (PAYORID = "87726")
-           MOVE CC-AMOUNT TO TOT-CLAIM
-           PERFORM DMP4 THRU DMP5
-           MOVE TOT-CLAIM TO BAL-TAB(X)
-           ADD TOT-CLAIM TO TOT-TOT.
+           
        LOOK-CHG-EXIT.
            EXIT.
        A5. MOVE G-GARNO TO PD-KEY8 MOVE "000" TO PD-KEY3.

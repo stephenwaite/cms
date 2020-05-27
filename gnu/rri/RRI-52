@@ -1,0 +1,8 @@
+#!/bin/bash
+
+S30=procfile; S35=$HOME/W8$tid; S40=billparm
+export S30 S35 S40
+cobcrun ./sidr052
+unset S30 S35 S40
+
+exit

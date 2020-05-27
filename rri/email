@@ -47,6 +47,7 @@
            MOVE SPACE TO EMAILAUTHFILE01
       *     get last record in emailauthssnfile
            MOVE 999999 TO EA-KEY
+
            START EMAILAUTHFILE KEY < EA-KEY INVALID
                MOVE 999999 TO EA-KEY
                WRITE EMAILAUTHFILE01
@@ -64,6 +65,7 @@
            MOVE "smw26@sover.net" TO EA-EMAIL
            MOVE "G1000" TO EA-AUTH
       *     WRITE EMAILAUTHFILE01.
+
            WRITE ERRFILE01 FROM EMAILAUTHFILE01.
        EA-1-EXIT.
            EXIT.
