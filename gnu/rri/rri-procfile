@@ -1,0 +1,13 @@
+#!/bin/bash
+
+S60=procfile
+S600=file9
+S1450=errorfile
+
+export S60 S600 S1450
+
+cobcrun ./cob057
+
+unset S60 S600 S1450
+
+exit
