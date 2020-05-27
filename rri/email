@@ -26,16 +26,16 @@
        DATA DIVISION.
        FILE SECTION.
        FD  ERRFILE.
-           01  ERRFILE01 PIC X(105).
+       01  ERRFILE01 PIC X(105).
        FD  EMAILAUTHFILE.
-           01  EMAILAUTHFILE01.
-               02 EA-KEY PIC 9(6).
-               02 EA-MEDREC PIC X(8).
-               02 EA-NAME PIC X(24).
-               02 EA-EMAIL PIC X(30).
-               02 EA-AUTH PIC X(20).
-               02 EA-DATE-E PIC X(8).
-               02 EA-SSN PIC X(9).
+       01  EMAILAUTHFILE01.
+           02 EA-KEY PIC 9(6).
+           02 EA-MEDREC PIC X(8).
+           02 EA-NAME PIC X(24).
+           02 EA-EMAIL PIC X(30).
+           02 EA-AUTH PIC X(20).
+           02 EA-DATE-E PIC X(8).
+           02 EA-SSN PIC X(9).
 
        WORKING-STORAGE SECTION.
 
@@ -46,6 +46,12 @@
        EA-1.
            MOVE SPACE TO EMAILAUTHFILE01
       *     get last record in emailauthssnfile
+           MOVE 999999 TO EA-KEY
+
+           START EMAILAUTHFILE KEY < EA-KEY INVALID
+               MOVE 999999 TO EA-KEY
+               WRITE EMAILAUTHFILE01
+           END-START
            MOVE 999999 TO EA-KEY
            READ EMAILAUTHFILE PREVIOUS AT END
                MOVE 0 TO EA-KEY
@@ -59,7 +65,8 @@
            MOVE "smw26@sover.net" TO EA-EMAIL
            MOVE "G1000" TO EA-AUTH
       *     WRITE EMAILAUTHFILE01.
-           WRITE ERRORFILE01 FROM EMAILAUTHFILE01.
+
+           WRITE ERRFILE01 FROM EMAILAUTHFILE01.
        EA-1-EXIT.
            EXIT.
 

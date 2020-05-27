@@ -1416,6 +1416,14 @@
            IF R1-EMAIL = SPACE AND R1-AUTH = SPACE GO TO EA-1-EXIT.
 
            MOVE SPACE TO EMAILAUTHFILE01
+           
+      *    position key at end     
+           MOVE 999999 TO EA-KEY
+           START EMAILAUTHFILE KEY < EA-KEY INVALID
+               MOVE 999999 TO EA-KEY
+               WRITE EMAILAUTHFILE01
+           END-START
+           
       *    get last record in emailauthssnfile
            MOVE 999999 TO EA-KEY
            READ EMAILAUTHFILE PREVIOUS AT END
