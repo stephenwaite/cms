@@ -1,0 +1,12 @@
+#!/bin/bash
+#exec 8< ./rri_flat_files
+exec 8< ./rri_flat_x
+while true
+        do 
+           read -u8 var1 || exit
+#           vutil -unl -t $var1 flat_$var1
+#           vutil -info $var1
+#echo
+           scp sidw@cmsvt.com:/home/rri/$var1 .
+        done
+exit

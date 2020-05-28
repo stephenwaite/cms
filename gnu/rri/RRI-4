@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# cd into db dir
+cd db
+# set DB_HOME for Berkeley DB
+export DB_HOME=.
+#echo $DB_HOME
+#read ans
+
+
+S20=xdiag10to9
+S30=insfile; S35=payfile; S40=paycur
+S45=garfile; S50=patfile
+S55=charcur
+S60=charfile; S65=cmntfile
+S70=icd10file; S75=procfile
+S80=refphy; S85=../parm/docparm; S90=gapfile
+S120=../parm/billdate; S125=../log/W1$TID; S130=../parm/billparm
+S135=../parm/headlabels
+
+S155=rttwfile; S160=rpgprocfile
+S165=mplrfile; S170=claimfil; S175=parmndex
+S180=batchfil; S185=hisfile
+S190=authfile; S200=../log/W2$TID$USER; S220=../parm/doc135
+
+S225=carrierfile
+S230=addrfile
+S235=compfile
+S240=emailauthssnfile
+export S20 
+export S30 S35 S40 S45 S50 S55 S60 S65 S70 S75 S80 S85 S90 
+export S155 S160 S165 S170 S175 S180 S185 S190 S200 S220
+export S120 S125 S130 S135 S225 S230 S235 S240
+
+#$RUNCBL -c /opt/acucorp/810/etc/cblconfig  inar004.b
+cobcrun ../../cobol/so/inar004
+
+unset S20 
+unset S30 S35 S40 S45 S50 S55 S60 S65 S70 S75 S80 S85 S90 
+unset S155 S160 S165 S170 S175 S180 S185 S190 S200 S220
+unset S120 S125 S130 S135 S225 S230 S235 S240
+
+exit

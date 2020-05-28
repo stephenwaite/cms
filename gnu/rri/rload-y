@@ -1,0 +1,32 @@
+#!/bin/bash
+#exec 2>> log1
+#exec 1>> log1
+#set -x
+
+echo $(date)
+
+S30=flat_actfile; S35=w54
+export S30 S35
+cobcrun cobr030
+unset S30 S35 
+
+sort -o w22 -t~ -k 1.278,1.285 flat_actfile
+S30=w22; S35=w55
+export S30 S35 
+cobcrun cobr032
+unset S30 S35
+
+
+sort -o w11 -t~ -k 1.316,1.318 flat_actfile
+S30=w11; S35=w56
+export S30 S35 
+cobcrun cobr031
+unset S30 S35
+
+
+db_load -T -t btree -f w54 actfile
+
+db_load -c duplicates=1 -T -t btree -f w55 actfile.1
+
+db_load -c duplicates=1 -T -t btree -f w56 actfile.2
+
