@@ -1,0 +1,11 @@
+#!/bin/bash
+exec 8< ./sidw_flat_files
+while true
+        do 
+           read -u8 var1 || exit
+#           vutil -unl -t $var1 flat_$var1
+#           vutil -info $var1
+#echo
+           scp sidw@cmsvt.com:$var1 .
+        done
+exit

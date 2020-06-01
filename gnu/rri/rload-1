@@ -1,0 +1,128 @@
+#!/bin/bash
+exec 2>> log1
+exec 1>> log1
+set -x
+
+date
+
+S30=unlfile15; S35=unlfile15x
+export S30 S35
+/home/gnucobol/sid816.c
+unset S30 S35 
+
+S850=unlfile14; S851=w4; 
+export S850 S851
+
+/home/gnucobol/cobr008.c
+
+unset S850 S851
+
+sort -o w11 -t~ -k 1.62,1.64 unlfile14
+S850=w11; S851=w5; 
+export S850 S851
+
+/home/gnucobol/cobr019.c
+
+unset S850 S851
+
+
+db_load -T -t btree -f w4 charcur
+db_load -c duplicates=1 -T -t btree -f w5 charcur.1
+
+
+
+
+S30=unlfile19; S35=w54
+export S30 S35
+/home/gnucobol/cobr030.c
+unset S30 S35 
+
+sort -o w22 -t~ -k 1.278,1.285 unlfile19
+S30=w22; S35=w55
+export S30 S35 
+/home/gnucobol/cobr032.c
+unset S30 S35
+
+
+sort -o w11 -t~ -k 1.316,1.318 unlfile19
+S30=w11; S35=w56
+export S30 S35 
+/home/gnucobol/cobr031.c
+unset S30 S35
+
+
+db_load -T -t btree -f w54 actfile
+
+db_load -c duplicates=1 -T -t btree -f w55 actfile.1
+
+db_load -c duplicates=1 -T -t btree -f w56 actfile.2
+
+
+
+S20=charfile
+S25=payfile
+S30=parmndex
+S35=claimfil
+S40=patfile
+S45=garfile
+S50=insfile
+S55=refphy
+S60=procfile
+S65=cmntfile
+S70=authfile
+S75=compfile
+S80=mplrfile
+S90=paycur
+S95=addrfile
+S100=rpgprocfile
+S105=hospfile
+S115=rpgactfile
+S120=chchospfile
+S125=hisfile
+S130=batchfil
+S135=emailauthssnfile
+S140=kinfile
+S200=unlfile1
+S250=unlfile2 
+S300=unlfile3 
+S350=unlfile4 
+S400=unlfile5 
+S450=unlfile6 
+S500=unlfile7 
+S550=unlfile8 
+S600=unlfile9
+S650=unlfile10 
+S700=unlfile11
+S750=unlfile12 
+S800=unlfile13
+S900=unlfile15x
+S950=unlfile16
+S1000=unlfile17
+S1050=unlfile18
+S1150=unlfile20
+S1200=unlfile21
+S1250=unlfile22
+S1300=unlfile23
+S1350=unlfile27
+S1400=unlfile28
+S1450=fileout
+
+
+export S20 S25 S30 S35 S40 S45 S50 S55 S60 S65 S70
+export S75 S80 S85 S90 S95 S100 S105 S115 S120 S125 S130 S135 S140
+export S200 S250 S300 S350 S400 S450 S500 S550 S600 S650 S700
+export S750 S800 S850 S900 S950 S1000 S1050 S1150 S1200 
+export S1250 S1300 S1350 S1400 S1450
+
+/home/gnucobol/cob000.c
+
+unset S20 S25 S30 S35 S40 S45 S50 S55 S60 S65 S70
+unset S75 S80 S85 S90 S95 S100 S105 S110 S115 S120 S125 S130
+unset S200 S250 S300 S350 S400 S450 S500 S550 S600 S650 S700
+unset S750 S800 S850 S900 S950 S1000 S1050 S1100 S1150 S1200 
+unset S1250 S1300 S1350 S1400
+
+date
+exec 2> /dev/tty
+exec 1> /dev/tty
+exit

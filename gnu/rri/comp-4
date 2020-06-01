@@ -1,0 +1,7 @@
+#!/bin/bash
+cobc --std=mf tri007.cob
+cobc --std=mf inar002.cob
+cobc --std=mf inar004.cob
+cobc  rrr091.cob
+
+ 

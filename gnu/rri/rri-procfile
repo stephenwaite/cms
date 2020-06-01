@@ -1,12 +1,12 @@
 #!/bin/bash
 
-S60=procfile
-S600=file9
-S1450=errorfile
+S60=vb/procfile
+S600=flat/flat_procfile
+S1450=log/errorfile
 
 export S60 S600 S1450
 
-cobcrun ./cob057
+cobcrun ../cobol/so/cob057
 
 unset S60 S600 S1450
 

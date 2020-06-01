@@ -1,0 +1,56 @@
+#!/bin/bash
+
+#exec 2>> log00
+#exec 1>> log00
+#set -x
+
+echo $(date)
+
+S30=icd10file
+S35=provcaidfile
+S40=upinfile
+S45=xdiag10to9
+S50=carrierfile
+S55=gapfile
+S60=rttwfile
+S65=motwfile
+S70=sptwfile
+S75=hipclaimfile
+S80=webfile
+S85=cscfile
+S90=csccfile
+S95=cascodefile
+S300=flat_icd10file
+S350=flat_provcaidfile
+S400=flat_upinfile
+S450=flat_xdiag10to9
+S500=flat_carrierfile
+S550=flat_gapfile
+S600=flat_rttwfile
+S650=flat_motwfile
+S700=flat_sptwfile
+S750=flat_hipclaimfile
+S800=flat_webfile
+S850=flat_cscfile
+S900=flat_csccfile
+S950=flat_cascodefile
+S999=fileout 
+
+export S30 S35 S40 S45 S50 S55 S60 S65 S70 S75 S80
+export S85 S90 S95
+export S300 S350 S400 S450 S500 S550 S600 S650 S700 
+export S750 S800 S850 S900 S950 S999
+
+cobcrun cob001
+
+unset S30 S35 S40 S45 S50 S55 S60 S65 S70 S75 S80
+unset S85 S90 S95
+unset S300 S350 S400 S450 S500 S550 S600 S650 S700
+unset S750 S800 S850 S900 S950 S999
+
+echo $(date)
+
+#exec 2> /dev/tty
+#exec 1> /dev/tty
+
+exit
