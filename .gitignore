@@ -1,3 +1,8 @@
 # dev editor configs
 /.idea/*
 /rri/.idea/*
+/gnu/log/*
+/gnu/vb/
+/gnu/db/
+/gnu/parm/
+*~
