@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cblv nonrri/ina002
+cblv nonrri/ina004
+cblv nonrri/mcc222
+cblv nonrri/tri000
+cblv nonrri/tri001
+cblv nonrri/tri011
+cblv nonrri/tri205
+
+ 
