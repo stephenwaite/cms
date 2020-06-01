@@ -1,12 +1,12 @@
 #!/bin/bash
 
-cd db
+#old BDB days
+#cd db
+#export DB_HOME=.
 
-export DB_HOME=.
-
-S30=procfile; S35=../log/W8$TID; S40=../parm/billparm
+S30=vb/procfile; S35=log/W8$TID; S40=parm/billparm
 export S30 S35 S40
-cobcrun ../../cobol/so/sidr052
+cobcrun ../cobol/so/sidr052
 unset S30 S35 S40
 
 exit

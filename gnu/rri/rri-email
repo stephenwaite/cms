@@ -1,18 +1,18 @@
 #!/bin/bash
 
-#S135=emailauthssnfile
-#S1350=wsid
-#S1450=errorfile
-#export S135 S1350 S1450
-#cobcrun ./email
-#unset S135 S1350 S1450
+S135=vb/emailauthssnfile
+S1350=flat/flat_emailauthssnfile
+S1450=log/errorfile
+export S135 S1350 S1450
+cobcrun ../cobol/so/email
+unset S135 S1350 S1450
 
-db_load -T -t btree -f wsid emailauthssnfile
-db_load -c duplicates=1 -T -t btree -f wsid.1 emailauthssnfile.1
-db_load -c duplicates=1 -T -t btree -f wsid.2 emailauthssnfile.2
-db_load -c duplicates=1 -T -t btree -f wsid.3 emailauthssnfile.3
-db_load -c duplicates=1 -T -t btree -f wsid.4 emailauthssnfile.4
-db_load -c duplicates=1 -T -t btree -f wsid.5 emailauthssnfile.5
-db_load -c duplicates=1 -T -t btree -f wsid.6 emailauthssnfile.6
+#db_load -T -t btree -f wsid emailauthssnfile
+#db_load -c duplicates=1 -T -t btree -f wsid.1 emailauthssnfile.1
+#db_load -c duplicates=1 -T -t btree -f wsid.2 emailauthssnfile.2
+#db_load -c duplicates=1 -T -t btree -f wsid.3 emailauthssnfile.3
+#db_load -c duplicates=1 -T -t btree -f wsid.4 emailauthssnfile.4
+#db_load -c duplicates=1 -T -t btree -f wsid.5 emailauthssnfile.5
+#db_load -c duplicates=1 -T -t btree -f wsid.6 emailauthssnfile.6
 
 exit

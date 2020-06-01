@@ -4,5 +4,7 @@
 /gnu/rri/db/*
 /gnu/rri/parm/*
 /gnu/rri/log/*
+/gnu/rri/flat/*
+/gnu/rri/vb/*
 *~
 *.so
