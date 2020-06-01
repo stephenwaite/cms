@@ -1,0 +1,10 @@
+#!/bin/bash
+exec 8< ./nonrri_parm_files
+#exec 8< ./nonrri_indexed_files
+while true
+        do 
+           read -u8 var1 || exit
+#echo flat_$var1
+           scp sidw@cmsvt.com:/home/kel/$var1 parm/.
+        done
+exit

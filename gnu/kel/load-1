@@ -1,0 +1,74 @@
+#!/bin/bash
+
+#exec 2>> log/log1
+#exec 1>> log/log1
+#set -x
+
+echo $(date)
+
+S20=vb/charfile
+S25=vb/payfile
+S30=vb/parmndex
+S35=vb/claimfil
+S40=vb/patfile
+S45=vb/garfile
+S50=vb/insfile
+S55=vb/refphy
+S60=vb/procfile
+S65=vb/cmntfile
+S70=vb/newauthfile
+S200=flat/flat_charfile
+S250=flat/flat_payfile
+S300=flat/flat_parmndex
+S350=flat/flat_claimfil
+S400=flat/flat_patfile
+S450=flat/flat_garfile
+S500=flat/flat_insfile
+S550=flat/flat_refphy
+S600=flat/flat_procfile
+S650=flat/flat_cmntfile
+S700=flat/flat_newauthfile
+ 
+export S20 S25 S30 S35 S40 S45 S50 S55 S60 S65 S70
+export S200 S250 S300 S350 S400 S450 S500 S550 S600 S650 S700
+
+cobcrun cob003
+
+unset S20 S25 S30 S35 S40 S45 S50 S55 S60 S65 S70
+unset S200 S250 S300 S350 S400 S450 S500 S550 S600 S650 S700
+
+
+
+
+S30=vb/mplrfile
+S40=vb/paycur
+S45=vb/hisfile
+S50=vb/batchfil
+S55=vb/docfilenew
+S60=vb/carefile
+S300=flat/flat_mplrfile
+S400=flat/flat_paycur
+S450=flat/flat_hisfile
+S500=flat/flat_batchfil
+S550=flat/flat_docfilenew
+S600=flat/flat_carefile
+
+export S30 S40 S45 S50 S55 S60
+export S300 S400 S450 S500 S550 S600
+
+cobcrun cob004
+
+unset S30  S40 S45 S50 S55 S60
+unset S300 S400 S450 S500 S550 S600
+
+S30=vb/charcur; S35=flat/flat_charcur
+export S30 S35
+cobcrun cob013
+unset S30 S35
+
+echo $(date)
+
+#exec 2> /dev/tty
+#exec 1> /dev/tty
+
+exit

@@ -1,0 +1,29 @@
+#!/bin/bash
+
+S20=../sidw/vb/xdiag10to9
+S30=vb/insfile; S35=vb/payfile; S40=vb/paycur
+S45=vb/garfile; S50=vb/patfile
+S55=vb/charcur
+S60=vb/charfile; S65=vb/cmntfile
+S70=../sidw/vb/icd10file; S75=vb/procfile
+S80=vb/refphy; S85=parm/docparmx; S90=../sidw/vb/gapfile
+S155=../sidw/vb/motwfile
+S165=vb/mplrfile; S170=vb/claimfil; S175=vb/parmndex
+S180=vb/batchfil; S185=vb/hisfile
+S190=vb/newauthfile; S200=$HOME/W2$tid; S220=parm/doc135
+S120=parm/billdate; S125=$HOME/W1$tid; S130=parm/billparm
+S135=parm/headlabels
+S225=../sidw/vb/carrierfile
+export S20 
+export S30 S35 S40 S45 S50 S55 S60 S65 S70 S75 S80 S85 S90 
+export S155 S165 S170 S175 S180 S185 S190 S200 S220
+export S120 S125 S130 S135 S225
+
+cobcrun ina004
+
+unset S20 
+unset S30 S35 S40 S45 S50 S55 S60 S65 S70 S75 S80 S85 S90 
+unset S155 S165 S170 S175 S180 S185 S190 S200 S220
+unset S120 S125 S130 S135 S225
+
+exit

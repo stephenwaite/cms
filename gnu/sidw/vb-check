@@ -1,0 +1,7 @@
+#!/bin/bash
+test=".dat"
+for filename in vb/*.dat; do
+    newfilename=${filename//.dat/}
+    vbcheck $newfilename
+    echo
+done

@@ -1,10 +1,10 @@
 # dev editor configs
 /.idea/*
 /rri/.idea/*
-/gnu/rri/db/*
-/gnu/rri/parm/*
-/gnu/rri/log/*
-/gnu/rri/flat/*
-/gnu/rri/vb/*
+/gnu/*/db/*
+/gnu/*/parm/*
+/gnu/*/log/*
+/gnu/*/flat/*
+/gnu/*/vb/*
 *~
 *.so

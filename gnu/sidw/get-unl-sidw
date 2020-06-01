@@ -1,0 +1,8 @@
+#!/bin/bash
+exec 8< ./sidw_flat_files
+while true
+    do 
+        read -u8 var1 || exit
+        scp sidw@cmsvt.com:$var1 flat/.
+    done
+exit
