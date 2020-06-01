@@ -851,7 +851,7 @@
            MOVE R1-GENDER11 TO X-GENDER
            MOVE 1 TO PLANNUM
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
-           IF R1-IP1 = "00930" 
+           IF R1-IP1 = "00930"
            PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
            IF R1-IP1 = "00698" OR "00699"
            PERFORM REPLACE-2 THRU REPLACE-2-EXIT.
@@ -1083,18 +1083,18 @@
             GO TO REPLACE-1-EXIT
            END-IF
 
-           DISPLAY INSURANCE-1
-           DISPLAY " "
-           DISPLAY "432 = UNICARE"
-           DISPLAY "523 = ADVANTRA"
+           DISPLAY R1-PATNAME INSURANCE-1
+           DISPLAY "ENTER INS CODE"
+      *     DISPLAY "432 = UNICARE"
+      *     DISPLAY "523 = ADVANTRA"
            ACCEPT A-PRINS
            MOVE A-PRINS TO INS-KEY
            READ INSFILE INVALID DISPLAY "BAD" GO TO REPLACE-1.
        REPLACE-1-EXIT.
            EXIT.
        REPLACE-2.
-           DISPLAY INSURANCE-1
-           DISPLAY " "
+           DISPLAY R1-PATNAME INSURANCE-1
+           DISPLAY "ENTER INS CODE"
            ACCEPT A-PRINS
            MOVE A-PRINS TO INS-KEY
            READ INSFILE INVALID DISPLAY "BAD" GO TO REPLACE-2.
@@ -1103,8 +1103,8 @@
        REPLACE-3.
            DISPLAY R1-PATNAME
            IF A-PRINS = "003" DISPLAY "MEDICARE PATIENT".
-           DISPLAY INSURANCE-2
-           DISPLAY " "
+           DISPLAY R1-PATNAME INSURANCE-2
+           DISPLAY "ENTER 2NDARY INS CODE"
            ACCEPT A-SEINS
            MOVE A-SEINS TO INS-KEY
            READ INSFILE INVALID DISPLAY "BAD" GO TO REPLACE-3.
@@ -1283,11 +1283,13 @@
            MOVE "0099001     " TO A-PR-GROUP
            MOVE "A" TO A-SE-ASSIGN.
 
-
            IF (A-PRINS = A-SEINS)
              AND (A-PR-ASSIGN = "A")
              MOVE "020" TO A-SEINS
              DISPLAY A-PRINS "  SAME AS SECONDARY INSURANCE"
+             STRING A-GARNAME " WAS SENT AS INPT BUT REF " REF
+                            " IS ED" DELIMITED BY SIZE INTO ERRFILE01
+                            WRITE ERRFILE01
            END-IF.
        P2-3.
            MOVE R2-MEDREC TO A-ACTNO
