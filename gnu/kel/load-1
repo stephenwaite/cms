@@ -37,7 +37,11 @@ cobcrun cob003
 unset S20 S25 S30 S35 S40 S45 S50 S55 S60 S65 S70
 unset S200 S250 S300 S350 S400 S450 S500 S550 S600 S650 S700
 
-
+# switch endian paycur
+S30=flat/flat_paycur; S35=flat/flat_paycurx
+export S30 S35
+cobcrun sid816
+unset S30 S35
 
 
 S30=vb/mplrfile
@@ -47,7 +51,7 @@ S50=vb/batchfil
 S55=vb/docfilenew
 S60=vb/carefile
 S300=flat/flat_mplrfile
-S400=flat/flat_paycur
+S400=flat/flat_paycurx
 S450=flat/flat_hisfile
 S500=flat/flat_batchfil
 S550=flat/flat_docfilenew
@@ -60,6 +64,8 @@ cobcrun cob004
 
 unset S30  S40 S45 S50 S55 S60
 unset S300 S400 S450 S500 S550 S600
+
+# load charcur separately
 
 S30=vb/charcur; S35=flat/flat_charcur
 export S30 S35

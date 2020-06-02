@@ -1,6 +1,6 @@
        IDENTIFICATION DIVISION.
        PROGRAM-ID. cob013.
-       AUTHOR. SID WAITE.
+       AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -15,6 +15,9 @@
        FILE SECTION.
        FD  FILE13.
        01  FILE1301 PIC X(156).
+      *     02 FILE13-01 PIC X(52).
+      *     02 FILE13-02 PIC X.
+      *     02 FILE13-03 PIC X(103).
        FD  CHARCUR
       *    BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS CHARCUR01.
@@ -63,17 +66,18 @@
 
        WORKING-STORAGE SECTION.
        01  NUM1 PIC 9.
+       01  PCS PIC X.
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT CHARCUR.
            CLOSE CHARCUR.
            OPEN OUTPUT CHARCUR.
            open input file13.
-       P1.
+       P2.
            READ FILE13 AT END GO TO P99.
            MOVE FILE1301 TO CHARCUR01
            WRITE CHARCUR01
-           GO TO P1.
+           GO TO P2.
        P99.
            CLOSE CHARCUR FILE13.
            STOP RUN.
