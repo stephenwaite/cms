@@ -676,9 +676,17 @@
            CLP-5PATRESP CLP-6PLANCODE CLP-7ICN CLP-8FACILITY 
            CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN CLP-13PERCENT.
            
+      *    this only grabs take back records and their new pays
            IF CLP-2CLMSTAT NOT = "22" AND REV-FLAG NOT = "1"
                GO TO P1-CLP               
-           END-IF 
+           END-IF
+
+      *    for the denial codes to post the correct code
+           IF CLP-2CLMSTAT = "22"
+               MOVE "1" TO ADJ-FLAG
+           ELSE
+               MOVE "0" TO ADJ-FLAG
+           END-IF
               
            MOVE CLP-2CLMSTAT TO EF8                          
            MOVE SPACE TO NM101 NM1COR01 CLMCAS01.
@@ -839,10 +847,6 @@
            SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
            MOVE SPACE TO ALF8
            MOVE SVC-3PAYAMT TO ALF8
-           MOVE SPACE TO ADJ-FLAG
-           IF ALF8-1 = "-"
-              MOVE "1" TO ADJ-FLAG
-           END-IF
       *     PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
            PERFORM AMOUNT-1
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
