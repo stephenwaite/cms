@@ -921,7 +921,24 @@
            MOVE PAYBACK TO PAYFILE01
            MOVE XYZ TO PD-KEY3
            WRITE PAYFILE01.
-
+      *    we need to set paycode back to 003 so we can restart billing     
+           CLOSE CHARCUR.
+           OPEN I-O CHARCUR.
+           MOVE FOUND-KEY(X) TO CHARCUR-KEY
+           READ CHARCUR WITH LOCK
+               INVALID
+                   STRING FOUND-KEY(X) " BAD LOCK" DELIMITED BY SIZE
+                   INTO ERROR-FILE01
+                   WRITE ERROR-FILE01
+               NOT INVALID
+                   MOVE "003" TO CC-PAYCODE
+                   MOVE "A" TO CC-ASSIGN CC-NEIC-ASSIGN
+                   MOVE "2" TO CC-REC-STAT
+                   REWRITE CHARCUR01        
+                   CLOSE CHARCUR
+                   OPEN INPUT CHARCUR
+           END-READ                   
+                        
            MOVE 0 TO PAT-RESP
 
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
@@ -1436,7 +1453,7 @@
            ELSE
              UNSTRING ALF8 DELIMITED BY "." INTO SIGN-DOLLAR CENTS
            END-IF.
-           DISPLAY "ALF8-1 SIGN-DOLLAR CENTS " ALF8-1 SIGN-DOLLAR CENTS
+      *     DISPLAY "ALF8-1 SIGN-DOLLAR CENTS " ALF8-1 SIGN-DOLLAR CENTS
            INSPECT CENTS REPLACING ALL " " BY "0".
            MOVE SPACES TO RIGHT-4.
            UNSTRING SIGN-DOLLAR DELIMITED BY " " INTO RIGHT-4
@@ -1446,7 +1463,7 @@
            DIVIDE NUM-6 BY 100 GIVING AMOUNT-X.
            IF ALF8-1 = "-"
              COMPUTE AMOUNT-X = -1 * AMOUNT-X.
-           DISPLAY "AMOUNT-X " AMOUNT-X.  
+      *     DISPLAY "AMOUNT-X " AMOUNT-X.  
        P9. MOVE "UNPOSTED" TO EF1
            MOVE "PAYMENTS" TO EF2
            MOVE "TOTAL" TO EF3
