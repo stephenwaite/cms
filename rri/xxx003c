@@ -284,14 +284,16 @@
            END-IF.
            
            IF (CD-PROC1 = "1099" OR "1442")
-               DISPLAY "SEE IF 52 IS ON CORRESP TOMO AFTER 254"
+               DISPLAY "UNI SCREEN ADDING 52 MOD"
+      *         MOVE "Z1231  " TO CD-DIAG
                MOVE "52" TO CD-MOD2
                REWRITE CHARFILE01
-               GO TO P1
+      *         GO TO P1
            END-IF.
 
            IF (CD-PROC1 = "1456")
-               DISPLAY "CDM 1456 UNI TOMO, ADDING 52"
+               DISPLAY "UNI TOMO, ADDING 52 MOD"
+               MOVE "Z1231  " TO CD-DIAG
                MOVE "52" TO CD-MOD2
                REWRITE CHARFILE01
                GO TO P1
