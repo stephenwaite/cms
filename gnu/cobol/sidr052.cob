@@ -192,24 +192,19 @@
            DISPLAY "RECORD ADDED"
            PERFORM L1 GO TO S1.
        C1. 
-      *     READ PROCFILE WITH LOCK INVALID DISPLAY "NOT ON FILE"
-      *     GO TO S1.
-      *     IF PROC-STAT = "61" DISPLAY "RECORD LOCKED" GO TO S1.
-
-       C11.
            DISPLAY "FIELD # ?".
            ACCEPT ANS.
            IF ANS = "?"
            DISPLAY "VALID CODES ARE 1 = TITLE 2 = AMOUNT 3 = TYPE"
-           DISPLAY " BK = BACK TO FUNCTION"
-           GO TO C11.
-           IF ANS = "BK" DISPLAY "NO UPDATE" GO TO S1.
+           DISPLAY " X = BACK TO FUNCTION"
+           GO TO C1.
+           IF ANS = "X" DISPLAY "NO UPDATE" GO TO S1.
            MOVE SPACE TO RIGHT-2.
            UNSTRING ANS DELIMITED BY " " INTO RIGHT-2.
            INSPECT RIGHT-2 REPLACING LEADING " " BY "0".
-           IF RIGHT-2 NOT NUMERIC DISPLAY "NOT NUMERIC" GO TO C11.
+           IF RIGHT-2 NOT NUMERIC DISPLAY "NOT NUMERIC" GO TO C1.
            MOVE RIGHT-2 TO NUM-2.
-           IF NUM-2 < 1 OR > 3 DISPLAY "INVALID FIELD #" GO TO C11.
+           IF NUM-2 < 1 OR > 3 DISPLAY "INVALID FIELD #" GO TO C1.
 
            GO TO 3F 4F 5F DEPENDING ON NUM-2.
        3F. 
@@ -219,7 +214,7 @@
            DISPLAY "X = BACK TO FUNCTION"
            DISPLAY "TYPE IN TITLE UP TO 32 CHARACTERS"
            GO TO 3F.
-           IF PROC-TITLE = "X" DISPLAY "NO UPDTE" UNLOCK PROCFILE RECORD
+           IF PROC-TITLE = "X" DISPLAY "NO UPDATE" 
            GO TO S1.
            DISPLAY PROC-TITLE.
        3F1.
@@ -228,13 +223,13 @@
            IF ANS = "?"
            DISPLAY "Y = ACCEPT, N = RETRY, X = BACK TO FUNCTION"
            GO TO 3F1.
-           IF ANS = "X" DISPLAY "NO UPDATE" UNLOCK PROCFILE RECORD
+           IF ANS = "X" DISPLAY "NO UPDATE" 
            GO TO S1.
            IF ANS = "N" GO TO 3F.
-           IF ANS = "Y" REWRITE PROCFILE01
-           UNLOCK PROCFILE RECORD
-           GO TO S1.
-           GO TO 3F1.
+           IF ANS NOT = "Y" 
+               GO TO 3F1
+           END-IF
+           GO TO R1.
        4F.
            DISPLAY "ENTER NEW FEE".
            ACCEPT ALF-7.
@@ -258,44 +253,43 @@
            STRING RIGHT-4 CENTS DELIMITED BY "Z" INTO ALF-6
            MOVE ALF-6 TO NUM-6
            DIVIDE NUM-6 BY 100 GIVING PROC-AMOUNT.
-      *     DISPLAY PROCFILE01
-      *     DISPLAY PROC-KEY
+      *    time to rewrite procfile
+           GO TO R1.
+       5F. 
+           DISPLAY "TYPE 1 OR 5 OR X TO CANCEL".
+           ACCEPT PROC-TYPE.
+           IF PROC-TYPE = "X"
+              DISPLAY "NO UPDATE" 
+              GO TO S1
+           END-IF
+           
+           IF PROC-TYPE NOT = "1" AND PROC-TYPE NOT = "5"
+               DISPLAY "??? " PROC-TYPE.
+               GO TO 5F
+           END-IF    
+          
+           GO TO R1.
+       D1. 
+           DISPLAY PROC-KEY " " PROC-TITLE.
+           DISPLAY "DELETE Y/N ?".
+           ACCEPT ANS.
+           IF ANS NOT = "Y" DISPLAY "NO DELETE" GO TO S1.
+               
            MOVE PROCFILE01 TO SAVE-PROCFILE01
            CLOSE PROCFILE
            OPEN I-O PROCFILE
-           READ PROCFILE WITH LOCK.
            MOVE SAVE-PROCFILE01 TO PROCFILE01
-           DISPLAY "PROCFILE01 " PROCFILE01
-           DISPLAY PROC-STAT
-           IF PROC-STAT = "61" DISPLAY "RECORD LOCKED" GO TO S1.
-           REWRITE PROCFILE01.
-           DISPLAY "RECORD CHANGED"
-      *     UNLOCK PROCFILE RECORD
-           CLOSE PROCFILE
-           OPEN INPUT PROCFILE
-           GO TO S1.
-       5F. 
-           DISPLAY "TYPE 1 OR 5".
-           ACCEPT PROC-TYPE.
-           IF PROC-TYPE = "X" UNLOCK PROCFILE RECORD
-           DISPLAY "NO UPDATE" GO TO S1.
-           IF PROC-TYPE NOT = "1" AND PROC-TYPE NOT = "5"
-           DISPLAY "??? " PROC-TYPE.
-           REWRITE PROCFILE01 DISPLAY "RECORD CHANGED"
-           UNLOCK PROCFILE RECORD
-           GO TO S1.
-       D1. 
-           READ PROCFILE WITH LOCK INVALID DISPLAY "NOT ON FILE"
-           GO TO S1.
-           IF PROC-STAT = "61" DISPLAY "RECORD LOCKED" GO TO S1.
-           DISPLAY PROC-KEY " " PROC-TITLE.
-       D2. 
-           DISPLAY "DELETE Y/N ?".
-           ACCEPT ANS.
-           IF ANS = "N" DISPLAY "NO DELETE" GO TO S1.
-           IF ANS = "Y" DELETE PROCFILE RECORD
-           DISPLAY "RECORD DELETED" GO TO S1.
-           GO TO D2.
+           READ PROCFILE WITH LOCK INVALID
+               IF PROC-STAT NOT = "00" 
+                   DISPLAY PROC-STAT " RECORD NOT CHANGED"
+                   CLOSE PROCFILE
+                   OPEN INPUT PROCFILE
+                   GO TO S1
+               END-IF    
+           END-READ
+           DELETE PROCFILE RECORD
+           DISPLAY "RECORD DELETED"
+           GO TO S1.                               
        PFS1.
            ACCEPT DATE-X FROM DATE YYYYMMDD.
            DISPLAY "INCLUDE 0 AMOUNTS? Y"
@@ -332,6 +326,25 @@
            MOVE SPACE TO FILEOUT01. WRITE FILEOUT01 AFTER PAGE.
            WRITE FILEOUT01 FROM O101
            WRITE FILEOUT01 FROM O201 AFTER 2.
+       R1.
+           MOVE PROCFILE01 TO SAVE-PROCFILE01
+           CLOSE PROCFILE
+           OPEN I-O PROCFILE
+           MOVE SAVE-PROCFILE01 TO PROCFILE01
+           READ PROCFILE WITH LOCK INVALID
+               IF PROC-STAT NOT = "00" 
+                   DISPLAY PROC-STAT " RECORD NOT CHANGED"
+                   CLOSE PROCFILE
+                   OPEN INPUT PROCFILE
+                   GO TO S1
+               END-IF    
+           END-READ
+                     
+           REWRITE PROCFILE01.
+           DISPLAY "RECORD CHANGED"
+           CLOSE PROCFILE
+           OPEN INPUT PROCFILE
+           GO TO S1.    
        Z1.
            CLOSE PROCFILE FILEOUT BILLPARM.
            STOP RUN.
