@@ -6,7 +6,7 @@ S1450=log/errorfile
 
 export S60 S600 S1450
 
-cobcrun ../cobol/so/cob057
+cobcrun cob057
 
 unset S60 S600 S1450
 
