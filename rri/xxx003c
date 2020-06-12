@@ -304,29 +304,27 @@
 
       * more mammo codes
            IF (CD-PROC1 = "1435" OR "1502")
-             IF CD-DATE-T < "20151001"
-              MOVE "V7611??" TO CD-DIAG
-             END-IF
-             IF CD-DATE-T > "20150930"
-              MOVE "Z1239  " TO CD-DIAG
-             END-IF
-            REWRITE CHARFILE01
-             GO TO P1
+               MOVE "Z1239  " TO CD-DIAG
+               REWRITE CHARFILE01
+               GO TO P1
+           END-IF.
+      * LD lung screen
+           IF (CD-PROC1 = "5232")
+               DISPLAY "LD LUNG SCREEN AUTO-CODING"
+               MOVE "Z87891 " TO CD-DIAG
+               REWRITE CHARFILE01
+               GO TO P1
            END-IF.
 	
        P1-0.
            IF  (CD-PAYCODE = "010" OR "011")  GO TO P2.
       * mammo codes
            IF CD-PROC2 NOT = "7706726" GO TO P2.      
-             IF CD-DATE-T < "20151001"
-              MOVE "V7612??" TO CD-DIAG
-             END-IF
-             IF CD-DATE-T > "20150930"
-              MOVE "Z1231  " TO CD-DIAG
-             END-IF.
+               MOVE "Z1231  " TO CD-DIAG
+           END-IF.
            IF CD-PAYCODE NOT = "009"
-             REWRITE CHARFILE01
-             GO TO P1
+               REWRITE CHARFILE01
+               GO TO P1
            END-IF.
        P2.
            MOVE FO-KEY(1:8) TO G-GARNO
