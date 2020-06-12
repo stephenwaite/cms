@@ -118,13 +118,19 @@
            MOVE 0 TO X.
            MOVE SPACE TO ANS.
            START PROCFILE KEY NOT < PROC-KEY INVALID
-           DISPLAY "END OF FILE" GO TO S1.
+               DISPLAY "END OF FILE"
+               GO TO S1
+           END-START.
        F2. 
-           READ PROCFILE NEXT AT END DISPLAY "END OF FILE"
-           GO TO S1.
+           READ PROCFILE NEXT AT END 
+               DISPLAY "END OF FILE" 
+               GO TO S1
+           END-READ
            MOVE PROC-AMOUNT TO NEF-7.
-           IF X > 8 ACCEPT ANS
-           MOVE 0 TO X
+           IF X > 8 
+               ACCEPT ANS
+               MOVE 0 TO X
+           END-IF
            IF ANS NOT = SPACE GO TO S1.
            ADD 1 TO X
            MOVE PROC-KEY TO PROCTAB(X).
@@ -248,9 +254,11 @@
            MOVE SPACES TO RIGHT-4.
            UNSTRING SIGN-DOLLAR DELIMITED BY " " INTO RIGHT-4
            INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
-           IF RIGHT-4 NOT NUMERIC MOVE "?" TO ALF-7
-           GO TO 4F.
-           STRING RIGHT-4 CENTS DELIMITED BY "Z" INTO ALF-6
+           IF RIGHT-4 NOT NUMERIC 
+               DISPLAY "?"
+               GO TO 4F
+           END-IF
+           STRING RIGHT-4 CENTS DELIMITED BY SIZE INTO ALF-6
            MOVE ALF-6 TO NUM-6
            DIVIDE NUM-6 BY 100 GIVING PROC-AMOUNT.
       *    time to rewrite procfile
@@ -264,7 +272,7 @@
            END-IF
            
            IF PROC-TYPE NOT = "1" AND PROC-TYPE NOT = "5"
-               DISPLAY "??? " PROC-TYPE.
+               DISPLAY "??? " PROC-TYPE
                GO TO 5F
            END-IF    
           
@@ -330,7 +338,7 @@
            MOVE PROCFILE01 TO SAVE-PROCFILE01
            CLOSE PROCFILE
            OPEN I-O PROCFILE
-           MOVE SAVE-PROCFILE01 TO PROCFILE01
+      *     MOVE SAVE-PROCFILE01 TO PROCFILE01
            READ PROCFILE WITH LOCK INVALID
                IF PROC-STAT NOT = "00" 
                    DISPLAY PROC-STAT " RECORD NOT CHANGED"
@@ -339,7 +347,7 @@
                    GO TO S1
                END-IF    
            END-READ
-                     
+           MOVE SAVE-PROCFILE01 TO PROCFILE01                     
            REWRITE PROCFILE01.
            DISPLAY "RECORD CHANGED"
            CLOSE PROCFILE
