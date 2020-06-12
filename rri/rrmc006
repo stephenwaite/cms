@@ -1415,7 +1415,8 @@
                MOVE TAB16(X) TO NEWTAB(YNDX)
                SET YNDX UP BY 1.
        EA-1.
-           IF R1-EMAIL = SPACE AND R1-AUTH = SPACE GO TO EA-1-EXIT.
+           IF R1-EMAIL = SPACE AND R1-AUTH = SPACE 
+             AND R2-GUARSSN = SPACE GO TO EA-1-EXIT.
 
            MOVE SPACE TO EMAILAUTHFILE01
            
