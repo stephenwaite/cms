@@ -1600,7 +1600,6 @@
       *    add auth for VA/VACCN outpatient claims
            MOVE 0 TO AUTH-FLAG
            IF (HOLD-PAYCODE = "079" OR HOLD-PAYCODE = "225")
-             AND (HOLD-PLACE = "5")
               MOVE HOLD-KEY8 TO AUTH-KEY8
               MOVE HOLD-CLAIM TO AUTH-KEY6
               READ AUTHFILE INVALID
