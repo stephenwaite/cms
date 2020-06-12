@@ -5,6 +5,8 @@
 
 echo $(date)
 
+cd vb
+
 S20=charfile
 S25=payfile
 S30=parmndex
@@ -27,28 +29,28 @@ S120=chchospfile
 S125=hisfile
 S130=batchfil
 S140=kinfile
-S200=flat_charfile
-S250=flat_payfile
-S300=flat_parmndex
-S350=flat_claimfil
-S400=flat_patfile
-S450=flat_garfile
-S500=flat_insfile
-S550=flat_refphy
-S600=flat_procfile
-S650=flat_cmntfile
-S700=flat_authfile
-S750=flat_compfile
-S800=flat_mplrfile
-S900=flat_paycurx
-S950=flat_addrfile
-S1000=flat_rpgprocfile
-S1050=flat_hospfile
-S1150=flat_rpgactfile
-S1200=flat_chchospfile
-S1250=flat_hisfile
-S1300=flat_batchfil
-S1400=flat_kinfile
+S200=../flat/flat_charfile
+S250=../flat/flat_payfile
+S300=../flat/flat_parmndex
+S350=../flat/flat_claimfil
+S400=../flat/flat_patfile
+S450=../flat/flat_garfile
+S500=../flat/flat_insfile
+S550=../flat/flat_refphy
+S600=../flat/flat_procfile
+S650=../flat/flat_cmntfile
+S700=../flat/flat_authfile
+S750=../flat/flat_compfile
+S800=../flat/flat_mplrfile
+S900=../flat/flat_paycurx
+S950=../flat/flat_addrfile
+S1000=../flat/flat_rpgprocfile
+S1050=../flat/flat_hospfile
+S1150=../flat/flat_rpgactfile
+S1200=../flat/flat_chchospfile
+S1250=../flat/flat_hisfile
+S1300=../flat/flat_batchfil
+S1400=../flat/flat_kinfile
 S1450=fileout
 
 
@@ -58,7 +60,7 @@ export S200 S250 S300 S350 S400 S450 S500 S550 S600 S650 S700
 export S750 S800 S850 S900 S950 S1000 S1050 S1150 S1200 
 export S1250 S1300 S1400 S1450
 
-cobcrun cob000
+cobcrun ../so/cob000
 
 unset S20 S25 S30 S35 S40 S45 S50 S55 S60 S65 S70
 unset S75 S80 S85 S90 S95 S100 S105 S110 S115 S120 S125 S130

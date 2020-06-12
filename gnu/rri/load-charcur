@@ -1,0 +1,8 @@
+#!/bin/bash
+# load charcur separately
+cd vb
+
+S30=charcur; S35=../flat/flat_charcur
+export S30 S35
+cobcrun ../so/cobr013
+unset S30 S35

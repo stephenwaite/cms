@@ -1,6 +1,7 @@
 #!/bin/bash
 #exec 8< ./rri_flat_files
-exec 8< ./rri_flat_x
+exec 8< ./unlfiles
+cd flat
 while true
         do 
            read -u8 var1 || exit
