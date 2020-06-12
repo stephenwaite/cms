@@ -70,6 +70,20 @@ unset S1250 S1300 S1400
 
 echo $(date)
 
+# emailauthssnfile
+
+S135=emailauthssnfile
+S1350=../flat/flat_emailauthssnfile
+S1450=../log/errorfile
+export S135 S1350 S1450
+cobcrun ../so/email
+unset S135 S1350 S1450
+
+S30=charcur; S35=../flat/flat_charcur
+export S30 S35
+cobcrun ../so/cobr013
+unset S30 S35
+
 #exec 2> /dev/tty
 #exec 1> /dev/tty
 
