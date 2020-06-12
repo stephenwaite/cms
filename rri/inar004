@@ -792,7 +792,7 @@
            SET BELL0 TO 7.
            MOVE ZERO TO DF-DATE DF-PAYCODE DF-DENIAL.
            MOVE 10 TO DF-AMOUNT.
-           OPEN I-O PAYFILE.
+           OPEN INPUT PAYFILE.
            OPEN INPUT CHARCUR.
            OPEN INPUT AUTHFILE.
            OPEN OUTPUT FILEOUT
@@ -2639,10 +2639,24 @@
            " 5 = " PD-DENIAL " 6 = " PD-CLAIM " 7 = " PD-DATE-T
            "  BAT =  " PD-DATE-E.
        1399CPC.
-           READ CHARCUR INVALID
+           CLOSE CHARCUR
+           OPEN I-O CHARCUR    
+      *    if charcur key is bad     
+           READ CHARCUR WITH LOCK INVALID
                    DISPLAY "INVALID"
+                   CLOSE CHARCUR
+                   OPEN INPUT CHARCUR
                    GO TO 1000-ACTION
            END-READ
+      *    if charcur key is locked     
+           IF CHARCUR-STAT NOT = "00"
+               DISPLAY "RECORD LOCKED BY ANOTHER USER"
+               DISPLAY "TRY AGAIN LATER"
+               CLOSE CHARCUR
+               OPEN INPUT CHARCUR
+               GO TO 1000-ACTION
+           END-IF    
+           
            MOVE CC-ASSIGN TO HOLDASSIGN
            MOVE CC-PATID TO EIGHTPARTID
            IF EIGHT-1 = "P" MOVE CC-PATID TO P-PATNO
@@ -3485,6 +3499,24 @@
            IF ANS = "Y"
              MOVE "1" TO CC-COLLT
              MOVE 0 TO FLAG
+             CLOSE CHARCUR
+             OPEN I-O CHARCUR
+             READ CHARCUR WITH LOCK INVALID
+                   DISPLAY "INVALID"
+                   CLOSE CHARCUR
+                   OPEN INPUT CHARCUR
+                   GO TO CC-2
+           END-READ
+      *    if charcur key is locked     
+           IF CHARCUR-STAT NOT = "00"
+               DISPLAY "RECORD LOCKED BY ANOTHER USER"
+               DISPLAY "TRY AGAIN LATER"
+               DISPLAY CHARCUR-KEY " RECORD THIS "
+               CLOSE CHARCUR
+               OPEN INPUT CHARCUR
+               GO TO CC-2
+           END-IF    
+             
              PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
              IF FLAG = 1
                DISPLAY "COLLECTION"
@@ -3493,7 +3525,6 @@
                DISPLAY "CAN NOT MODIFIED THIS RECORD"
                GO TO CC-2
              END-IF
-           END-IF
            DISPLAY "BYPASSED"
            GO TO CC-2.
        RA-1.
@@ -3512,6 +3543,12 @@
            CLOSE GARFILE
            OPEN INPUT GARFILE
            GO TO  1000-ACTION.
+           IF GARFILE-STAT NOT = "00"
+             DISPLAY "RECORD LOCKED. TRY AGAIN LATER"
+             CLOSE GARFILE
+             OPEN INPUT GARFILE
+             GO TO 1000-ACTION
+            END-IF
            MOVE "1" TO G-DUNNING
            REWRITE G-MASTER
            CLOSE GARFILE
@@ -3538,8 +3575,23 @@
            IF ANS = "Y"
            MOVE "00000000" TO CC-DATE-A
            MOVE 0 TO FLAG
+           CLOSE CHARCUR
+           OPEN I-O CHARCUR
+           READ CHARCUR WITH LOCK INVALID
+               DISPLAY "RECORD LOCKED TRY AGAIN LATER"
+               DISPLAY CHARCUR-KEY
+               CLOSE CHARCUR
+               OPEN INPUT CHARCUR
+               GO TO RA-2
+           END-READ
+           IF CHARCUR-STAT NOT = "00"
+               DISPLAY "RECORD LOCKED TRY AGAIN LATER"
+               DISPLAY CHARCUR-KEY
+               CLOSE CHARCUR
+               OPEN INPUT CHARCUR
+               GO TO RA-2
+           END-IF           
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
-           IF FLAG = 1
              DISPLAY "RE-AGED"
              GO TO RA-2
            END-IF.
@@ -3556,7 +3608,7 @@
            "  " INS-PRVNUM "    " INS-HMO " " INS-STATUS " "
            INS-LASTDATE "   "    INS-CAID "     "  INS-REFWARN
            DISPLAY "ASGM TYP NEIC NCLVL NCSM PPO PPONUM    HMO STAT LAST
-      -    " DATE VTCAID# REFPRMT".
+      -     DATE VTCAID# REFPRMT".
        LI-1-EXIT. EXIT.
        INS-1. DISPLAY "SEARCH TYPE"
            DISPLAY "1 = BY NUMBER "
@@ -4066,8 +4118,6 @@
        RE-WRITE-PD-EXIT.
            EXIT.
        RE-WRITE-CC.
-           CLOSE CHARCUR
-           OPEN I-O CHARCUR
            REWRITE CHARCUR01 INVALID
                 DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
                 DISPLAY CHARCUR-STAT
