@@ -1066,16 +1066,17 @@
        01  GE-CNTR PIC 9999.
        01  SAVE-RELATE PIC XX.
        01  X-DOB.
-	  02 X-YYYY PIC 9999.
-	  02 X-MM PIC 99.
-	  02 X-DD PIC 99.
+	       02 X-YYYY PIC 9999.
+	       02 X-MM PIC 99.
+	       02 X-DD PIC 99.
        01  MONTH-TABLE-CONS.
-	   05  FILLER PIC X(24) VALUE "312931303130313130313031".
+	       05  FILLER PIC X(24) VALUE "312931303130313130313031".
        01  MONTH-TABLE REDEFINES MONTH-TABLE-CONS.
-	   05  DAYS-IN-MONTH OCCURS 12 TIMES PIC 99.
+	       05  DAYS-IN-MONTH OCCURS 12 TIMES PIC 99.
        01  ANS PIC X.
        01  MAMMO-FLAG PIC 9.
        01  MAMMO-NUM PIC X(6).
+       01  AUTH-FLAG PIC 9.
 
        PROCEDURE DIVISION.
        P0. 
@@ -1596,6 +1597,25 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM REF01.
            
+      *    add auth for VA/VACCN outpatient claims
+           MOVE 0 TO AUTH-FLAG
+           IF (HOLD-PAYCODE = "079" OR HOLD-PAYCODE = "225")
+             AND (HOLD-PLACE = "5")
+              MOVE HOLD-KEY8 TO AUTH-KEY8
+              MOVE HOLD-CLAIM TO AUTH-KEY6
+              READ AUTHFILE INVALID
+                  MOVE 1 TO AUTH-FLAG
+              END-READ    
+              IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
+                  MOVE SPACE TO REF-CODE
+                  MOVE "G1" TO REF-CODE
+                  MOVE SPACE TO REF-ID
+                  MOVE AUTH-NUM TO REF-ID
+                  MOVE SPACE TO SEGFILE01
+                  WRITE SEGFILE01 FROM REF01
+              END-IF    
+           END-IF   
+                  
            IF HOLD-PROC1 = "90901" OR "90911"
            MOVE SPACE TO NTE-2
            STRING "UNSUCCESSFUL TREATMENT OF MUSCLE RE-EDUCATION FOR //"
