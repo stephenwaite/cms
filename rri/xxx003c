@@ -247,7 +247,7 @@
            IF CD-DIAG NOT = "0000000" AND ALF1 = "1" GO TO P1.
            
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
-               MOVE "R928     " TO CD-DIAG
+               MOVE "R928   " TO CD-DIAG
                IF (CD-PAYCODE = "003" OR "200" OR "245" OR "270" 
                    OR "868" OR "912")
                    IF (CD-PROC1 = "1446")
@@ -285,10 +285,9 @@
            
            IF (CD-PROC1 = "1099" OR "1442")
                DISPLAY "UNI SCREEN ADDING 52 MOD"
-      *         MOVE "Z1231  " TO CD-DIAG
+      * needs assesment so will drop down below
                MOVE "52" TO CD-MOD2
                REWRITE CHARFILE01
-      *         GO TO P1
            END-IF.
 
            IF (CD-PROC1 = "1456")
@@ -302,12 +301,6 @@
       *     IF (CD-PROC1 = "1091" OR "1092" OR "1441")
       *    MOVE "GG" TO CD-MOD2.
 
-      * more mammo codes
-           IF (CD-PROC1 = "1435" OR "1502")
-               MOVE "Z1239  " TO CD-DIAG
-               REWRITE CHARFILE01
-               GO TO P1
-           END-IF.
       * LD lung screen
            IF (CD-PROC1 = "5232")
                DISPLAY "LD LUNG SCREEN AUTO-CODING"
@@ -317,11 +310,15 @@
            END-IF.
 	
        P1-0.
-           IF  (CD-PAYCODE = "010" OR "011")  GO TO P2.
+           IF  (CD-PAYCODE = "010" OR "011")  
+               GO TO P2
+           END-IF    
       * mammo codes
-           IF CD-PROC2 NOT = "7706726" GO TO P2.      
-               MOVE "Z1231  " TO CD-DIAG
-           END-IF.
+           IF (CD-PROC2 NOT = "7706726" OR "770672652")
+               GO TO P2      
+           END-IF    
+           
+           MOVE "Z1231  " TO CD-DIAG
            IF CD-PAYCODE NOT = "009"
                REWRITE CHARFILE01
                GO TO P1
