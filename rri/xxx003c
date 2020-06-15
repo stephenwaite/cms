@@ -690,7 +690,7 @@
            READ DIAGFILE NEXT AT END
            DISPLAY "END OF FILE"
            GO TO 3DIAG-0.
-           IF  DIAG-TITLE(1:1) = "?" GO TO 4DIAG.
+           IF  DIAG-TITLE(1:1) = "?" GO TO 3DIAG.
             IF FLAG = 9 AND DIAG-KEY >= "V9199??"
              DISPLAY "END OF FILE"
              GO TO 3DIAG-0
