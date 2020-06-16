@@ -926,12 +926,16 @@
            USING ACTION ALF-8 GO TO 1000-ACTION.
 
            IF KEYFLAG = 1 AND ACTION = "CPC"
-           MOVE PAYFILE-KEY TO IN-FIELD
-           MOVE IN-FIELD-1 TO FLAG
-           MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
-           GO TO 1399CPC.
-           IF ACTION = "CPC" MOVE PAYFILE-KEY TO CHARCUR-KEY
-           GO TO 1399CPC.
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
+               GO TO 1399CPC
+           END-IF
+
+           IF ACTION = "CPC" 
+               MOVE PAYFILE-KEY TO CHARCUR-KEY
+               GO TO 1399CPC
+           END-IF    
 
            IF KEYFLAG = 1 AND ACTION = "LPC"
            MOVE PAYFILE-KEY TO IN-FIELD
@@ -1641,7 +1645,7 @@
            " " CD-PLACE " " CD-PROC " " CD-DIAG " " CD-DOCP
            IF CD-COLLT = "1" DISPLAY "COLLECTION" BELL.
            IF CD-PAPER = "B" DISPLAY "CLAIM SENT".
-           IF CD-AUTH = "1" PERFORM READ-AUTH-CD 
+           IF CD-AUTH = "1" PERFORM READ-AUTH 
       *     ADD 1 TO Z
             IF AUTH-NUM NOT = SPACE
              DISPLAY "AUTHNUM= " AUTH-NUM
@@ -1764,6 +1768,8 @@
        1200-SEARCH-EXIT.
            EXIT.
        1300DEL.
+           CLOSE PAYFILE
+           OPEN I-O PAYFILE
            READ PAYFILE WITH LOCK INVALID DISPLAY "NOT ON FILE"
            GO TO 1000-ACTION.
            IF PAYFILE-STAT NOT = "00"
@@ -1783,17 +1789,28 @@
            GO TO 1300DEL1.
            IF ANS NOT = "Y" DISPLAY "NO DELETE"
            UNLOCK PAYFILE RECORD
+           CLOSE PAYFILE
+           OPEN INPUT PAYFILE
            GO TO 1000-ACTION.
            DELETE PAYFILE RECORD.
-      *    ISQUIET PAYFILE WITH 1 AND 3
-           DISPLAY "RECORD DELETED" GO TO 1000-ACTION.
-       1400-CHANGE-IT.
-           READ PAYFILE WITH LOCK INVALID KEY DISPLAY "NOT ON FILE"
-             GO TO 1000-ACTION.
-           IF PAYFILE-STAT NOT = "00" 
-           DISPLAY "RECORD BEING CHANGED"
-           DISPLAY "STATUS = " PAYFILE-STAT
+           DISPLAY "RECORD DELETED" 
            GO TO 1000-ACTION.
+       1400-CHANGE-IT.
+           CLOSE PAYFILE
+           OPEN I-O PAYFILE
+           READ PAYFILE WITH LOCK INVALID
+               DISPLAY "NOT ON FILE"
+               CLOSE PAYFILE
+               OPEN INPUT PAYFILE
+               GO TO 1000-ACTION
+           END-READ    
+           IF PAYFILE-STAT NOT = "00" 
+               DISPLAY "RECORD BEING CHANGED"
+               DISPLAY "STATUS = " PAYFILE-STAT
+               CLOSE PAYFILE
+               OPEN INPUT PAYFILE
+               GO TO 1000-ACTION
+            END-IF.   
        1400-CHANGE-PROCESS.
            MOVE SPACES TO RIGHT-2 IN-FIELD.
            DISPLAY "FIELD CODE,DATA?".
@@ -2645,7 +2662,7 @@
            OPEN I-O CHARCUR    
       *    if charcur key is bad     
            READ CHARCUR WITH LOCK INVALID
-                   DISPLAY "INVALID"
+                   DISPLAY CHARCUR-KEY " INVALID"
                    CLOSE CHARCUR
                    OPEN INPUT CHARCUR
                    GO TO 1000-ACTION
@@ -3322,9 +3339,12 @@
            EXIT.
        5000-WRITE-CHARCUR.
            IF CC-ASSIGN = "S" OR CC-NEIC-ASSIGN = "S"
-           DISPLAY "SET THE ASSIGNMENT FIELDS TO A OR U"
-           GO TO CC-2000TI.
-           IF CC-REC-STAT < "2" GO TO 5WC1.
+               DISPLAY "SET THE ASSIGNMENT FIELDS TO A OR U"
+               GO TO CC-2000TI
+           END-IF    
+           IF CC-REC-STAT < "2" 
+               GO TO 5WC1
+           END-IF.    
        5WC.  DISPLAY "DO YOU WISH TO SET STATUS TO RESUBMIT CLAIM? Y/N".
            ACCEPT ANS.
            IF ANS = "?"
@@ -3678,16 +3698,13 @@
        INS-1-END. DISPLAY "END OF FILE".
        INS-1-EXIT. EXIT.
 
-       READ-AUTH-CD.
-           MOVE CD-KEY8 TO AUTH-KEY8
-           MOVE CD-CLAIM TO AUTH-KEY6
-           READ AUTHFILE INVALID MOVE 1 TO FLAG
-           MOVE SPACE TO AUTH-NUM.
        READ-AUTH.
            MOVE CC-KEY8 TO AUTH-KEY8
            MOVE CC-CLAIM TO AUTH-KEY6
-           READ AUTHFILE INVALID MOVE 1 TO FLAG
-           MOVE SPACE TO AUTH-NUM.
+           READ AUTHFILE INVALID 
+               MOVE 1 TO FLAG
+               MOVE SPACE TO AUTH-NUM
+           END-READ.    
        AUTH-1.
            MOVE CC-KEY8 TO AUTH-KEY8
            MOVE CC-CLAIM TO AUTH-KEY6
@@ -3699,17 +3716,24 @@
            END-IF
            DISPLAY "CHANGE? YES "
            ACCEPT IN-FIELD-3
-           IF IN-FIELD NOT = "YES" GO TO AUTH-1-EXIT.
+           IF IN-FIELD NOT = "YES"
+               GO TO AUTH-1-EXIT
+           END-IF    
            MOVE 2 TO FLAG.
        AUTH-2. 
-           IF IN-FIELD-2 = "4 " DISPLAY "AUTHORIZATION MISSING!"
-           MOVE "0" TO ALF-1
-           GO TO AUTH-1-EXIT.
+      *    can't add ndcs in rri
+           IF IN-FIELD-2 = "4 "
+               DISPLAY "AUTHORIZATION MISSING!"
+               MOVE "0" TO ALF-1
+               GO TO AUTH-1-EXIT
+           END-IF
+
            DISPLAY "AUTHORIZATION NUMBER"
            ACCEPT ALF-15
            IF ALF-15 = "?" 
-           DISPLAY "ENTER THE PRIOR AUTHORIZATION OR <CR>"
-           GO TO AUTH-2.
+               DISPLAY "ENTER THE PRIOR AUTHORIZATION OR <CR>"
+               GO TO AUTH-2
+           END-IF    
            IF ALF-15 = SPACE OR "BK" OR "X"
                     MOVE "0" TO FLAG
                     GO TO AUTH-1-EXIT
@@ -3720,7 +3744,7 @@
            END-IF
            MOVE "1" TO CC-AUTH
            MOVE ALF-15 TO AUTH-NUM
-           MOVE 0 TO FLAG
+      *     MOVE 0 TO FLAG
            IF FLAG = 2
                PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
                GO TO AUTH-1-EXIT
@@ -3729,9 +3753,8 @@
            MOVE SPACE TO AUTH-FILLER
            ACCEPT AUTH-DATE-E FROM DATE YYYYMMDD
            PERFORM WRITE-AU THRU WRITE-AU-EXIT.
-       AUTH-1-EXIT. EXIT.
-
-
+       AUTH-1-EXIT. 
+           EXIT.
        10-PR. 
            MOVE CC-KEY8 TO G-GARNO
            READ GARFILE INVALID DISPLAY "BAD ACCT # "  
@@ -4088,7 +4111,7 @@
                 DISPLAY "RECORD NOT ADDED AT THIS TIME"
                 CLOSE PAYFILE
                 OPEN INPUT PAYFILE
-                GO TO RE-WRITE-PD-EXIT
+                GO TO WRITE-PAYFILE-EXIT
            END-IF
            MOVE 1 TO FLAG
            CLOSE PAYFILE
@@ -4143,48 +4166,49 @@
            EXIT.
 
        WRITE-AU.
+           MOVE AUTHFILE01 TO AUTHFILE-BACK
            CLOSE AUTHFILE
            OPEN I-O AUTHFILE
            MOVE AUTHFILE-BACK TO AUTHFILE01
            WRITE AUTHFILE01 INVALID
                 DISPLAY "RECORD NOT ADDED AT THIS TIME"
-                DISPLAY AUTHFILE-STAT
-                CLOSE AUTHFILE
-                OPEN INPUT AUTHFILE
-                GO TO WRITE-AU-EXIT
+                DISPLAY AUTHFILE-STAT                
+                GO TO WRITE-AU-OPEN-CLOSE
            END-WRITE
            IF AUTHFILE-STAT NOT = "00"
                 DISPLAY AUTHFILE-STAT
                 DISPLAY "RECORD NOT ADDED AT THIS TIME"
-                CLOSE AUTHFILE
-                OPEN INPUT AUTHFILE
-                GO TO WRITE-AU-EXIT
+                GO TO WRITE-AU-OPEN-CLOSE
            END-IF
            DISPLAY "RECORD ADDED".
+           MOVE 1 TO FLAG.
+       WRITE-AU-OPEN-CLOSE.
            CLOSE AUTHFILE
            OPEN INPUT AUTHFILE.
-           MOVE 1 TO FLAG.
        WRITE-AU-EXIT.
            EXIT.
        RE-WRITE-AU. 
+           CLOSE AUTHFILE
+           OPEN I-O AUTHFILE
+           READ AUTHFILE WITH LOCK INVALID
+               DISPLAY "NOT ABLE TO LOCK, TRY AGAIN LATER"              
+               GO TO RE-WRITE-AU-CLOSE-OPEN
+           END-READ
            REWRITE AUTHFILE01 INVALID
                 DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
                 DISPLAY AUTHFILE-STAT
-                CLOSE AUTHFILE
-                OPEN INPUT AUTHFILE
-                GO TO RE-WRITE-AU-EXIT
+                GO TO RE-WRITE-AU-CLOSE-OPEN
            END-REWRITE.
            IF AUTHFILE-STAT NOT = "00"
                 DISPLAY AUTHFILE-STAT
                 DISPLAY "RECORD NOT ADDED AT THIS TIME"
-                CLOSE AUTHFILE
-                OPEN INPUT AUTHFILE
-                GO TO WRITE-AU-EXIT
+                GO TO RE-WRITE-AU-CLOSE-OPEN
            END-IF
            DISPLAY "RECORD CHANGED"
-           CLOSE AUTHFILE
-           OPEN INPUT AUTHFILE.
            MOVE 1 TO FLAG.
+       RE-WRITE-AU-CLOSE-OPEN.
+            CLOSE AUTHFILE
+            OPEN INPUT AUTHFILE.            
        RE-WRITE-AU-EXIT.
            EXIT.
 
