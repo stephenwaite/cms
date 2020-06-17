@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRR250.
+       PROGRAM-ID. rrr250.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -469,6 +469,14 @@
            MOVE HOLD-GARNO TO NEW-GARNOS2
            MOVE A-ACTNO TO NEW-GARNOS1 
            WRITE NEW-GARNOS01.
+           CLOSE ACTFILE
+           OPEN I-O ACTFILE
+           READ ACTFILE WITH LOCK.
+           MOVE HOLD-GARNO TO A-GARNO
+           REWRITE ACTFILE01
+           CLOSE ACTFILE
+           OPEN INPUT ACTFILE.
+
        P5-0.
            MOVE G-PRINS TO INS-KEY
            READ INSFILE INVALID DISPLAY G-GARNO " " G-PRINS

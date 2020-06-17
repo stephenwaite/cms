@@ -11,15 +11,18 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT ACTFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC      RECORD KEY IS A-ACTNO
+           ACCESS MODE IS DYNAMIC RECORD KEY IS A-ACTNO
            ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
            ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
+           ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
-           SELECT ORDFILE ASSIGN TO "S40"     ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC        RECORD KEY IS ORDNO
+           SELECT ORDFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS ORDNO
            ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
+           SELECT ERRORFILE ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+
        DATA DIVISION.
        FILE SECTION.
        FD ORDFILE
@@ -147,6 +150,9 @@
            02 A-PRGRPNAME PIC X(15).
            02 A-SEGRPNAME PIC X(15).
            02 NAME-KEY PIC XXX.
+       FD  ERRORFILE.
+       01  ERRORFILE01 PIC X(80).
+
        WORKING-STORAGE SECTION.
        01  GARTAB01.
            02 GARTAB PIC X(8) OCCURS 15 TIMES.
@@ -177,73 +183,108 @@
            02 FILLER PIC X VALUE SPACE.
            02 L3F4 PIC X(24).
        01  HOLD8 PIC X(8).
+       01  X-GARNO PIC X(8).
        PROCEDURE DIVISION.
        P0.
-           OPEN I-O ACTFILE INPUT GARFILE ORDFILE.
+           OPEN INPUT ACTFILE GARFILE ORDFILE
+           OPEN OUTPUT ERRORFILE
            MOVE SPACE TO HOLD8
            MOVE SPACE TO ORDNO
            START ORDFILE KEY NOT < ORDNO INVALID GO TO P6.
        P1.
-           READ ORDFILE NEXT AT END GO TO P6.
-           IF ORD8 = HOLD8 GO TO P1.
+           READ ORDFILE NEXT AT END 
+               GO TO P6
+           END-READ    
+           IF ORD8 = HOLD8
+               GO TO P1
+           END-IF    
            MOVE ORD8 TO HOLD8
            MOVE ORDNO TO A-ACTNO
-           READ ACTFILE WITH LOCK INVALID DISPLAY "BAD " ORD8 GO TO P1.
-           IF A-GARNO = SPACE GO TO P1-1.
-           MOVE A-GARNO TO G-GARNO
-           READ GARFILE INVALID GO TO P1-1.
-           GO TO P3.
+           READ ACTFILE INVALID 
+               DISPLAY "THIS SHOULD NEVER HAPPEN, CALL STEVE"
+               DISPLAY "BAD READ ON ACTFILE " ORD8
+               ACCEPT X 
+               GO TO P1
+           END-READ.                          
+           MOVE A-GARNO TO X-GARNO.
        P1-1.
            MOVE A-ACTNO TO G-ACCT
-           START GARFILE KEY NOT < G-ACCT INVALID GO TO P1.
-           MOVE 0 TO X.
+           START GARFILE KEY NOT < G-ACCT INVALID
+               MOVE SPACE TO A-ACTNO
+               GO TO P4
+           END-START.    
        P2.
-           READ GARFILE NEXT AT END GO TO P1.
-           IF (G-ACCT NOT = A-ACTNO) GO TO P1.
-           IF  (G-GN1 NOT = A-GN1) GO TO P2.
-           IF G-DUNNING NOT = "1" GO TO P2.
-           IF A-DOB NOT = G-DOB GO TO P2.
+           READ GARFILE NEXT AT END
+               MOVE SPACE TO A-ACTNO
+               GO TO P4
+           END-READ    
+
+           IF (G-ACCT NOT = A-ACTNO)
+               MOVE SPACE TO A-ACTNO
+               GO TO P4
+           END-IF    
+           
+           IF (G-GN1 NOT = A-GN1)
+               GO TO P2
+           END-IF    
+
+           IF G-DUNNING NOT = "1"
+               GO TO P2
+           END-IF    
+           
+           IF A-DOB NOT = G-DOB
+               GO TO P2
+           END-IF    
+           
            IF (A-PRINS = G-PRINS) AND (A-SEINS = G-SEINS)
-             MOVE G-GARNO TO A-GARNO
-             REWRITE ACTFILE01
-             GO TO P1.
+               IF (G-GARNO = A-GARNO)
+      *    we like actfile's garno, no need to rewrite actfile, 
+      *    read next ord record
+                   STRING "NO CHANGE FOR MRN " A-ACTNO " " X-GARNO 
+                     " WAS ALREADY " A-GARNO
+                   DELIMITED BY SIZE INTO ERRORFILE01
+                   WRITE ERRORFILE01             
+                   GO TO P1
+               END-IF  
+               IF (G-GARNO NOT = A-GARNO)
+                   MOVE G-GARNO TO A-GARNO
+                   GO TO P4
+               END-IF   
+               GO TO P2
+           END-IF
+
            IF (A-PRINS = G-PRINS) 
              AND (A-PRINS = "003") 
              AND (G-SEINS = "062")
-             MOVE G-GARNO TO A-GARNO
-             PERFORM NEW-DATA
-             GO TO P1.
-            GO TO P2.
-       P3.
-           MOVE A-GARNO TO G-GARNO
-           READ GARFILE INVALID
-            MOVE SPACE TO A-GARNO
-            REWRITE ACTFILE01
-            GO TO P1-1.
-           IF A-PRINS = G-PRINS
-            AND A-SEINS = G-SEINS
-            GO TO P1.
-           IF A-PRINS = G-PRINS
-             AND A-PRINS = "003" 
-             AND G-SEINS = "062"
-             PERFORM NEW-DATA
+               IF (G-GARNO = A-GARNO)
+      *    we like actfile's garno, no need to rewrite actfile, 
+      *    read next ord record           
+                   STRING "NO CHANGE FOR MRN " A-ACTNO " " X-GARNO 
+                     " WAS ALREADY " A-GARNO
+                   DELIMITED BY SIZE INTO ERRORFILE01
+                   WRITE ERRORFILE01             
+                   GO TO P1
+               END-IF  
+               IF (G-GARNO NOT = A-GARNO)
+                   MOVE G-GARNO TO A-GARNO
+                   GO TO P4
+               END-IF
+               GO TO P2    
+           END-IF   
+           GO TO P2.
+       P4.
+           STRING "FOR MRN " A-ACTNO " CHANGED " X-GARNO " TO " A-GARNO
+             DELIMITED BY SIZE INTO ERRORFILE01
+           WRITE ERRORFILE01  
+           CLOSE ACTFILE
+           OPEN I-O ACTFILE
+           READ ACTFILE WITH LOCK INVALID
+               DISPLAY "ACTFILE LOCKED, CALL STEVE"
+           END-READ    
+      *     REWRITE ACTFILE01
+           CLOSE ACTFILE
+           OPEN INPUT ACTFILE
            GO TO P1.
-            MOVE SPACE TO A-GARNO
-            REWRITE ACTFILE01
-            GO TO P1-1.
-       NEW-DATA.
-           MOVE G-PR-ASSIGN TO A-PR-ASSIGN
-           MOVE G-PRIPOL TO A-PRIPOL
-           MOVE G-PR-GROUP TO A-PR-GROUP
-           MOVE G-PR-RELATE TO A-PR-RELATE
-           MOVE G-PRNAME TO A-PRNAME
-           MOVE G-SE-ASSIGN TO A-SE-ASSIGN
-           MOVE G-SECPOL TO A-SECPOL
-           MOVE G-SE-GROUP TO A-SE-GROUP
-           MOVE G-SE-RELATE TO A-SE-RELATE
-           MOVE G-SENAME TO A-SENAME
-           MOVE "1" TO G-DELETE
-           REWRITE ACTFILE01.
-       
-       P6. CLOSE GARFILE ACTFILE ORDFILE.
+       P6. 
+           CLOSE GARFILE ACTFILE ORDFILE ERRORFILE.
            STOP RUN.
