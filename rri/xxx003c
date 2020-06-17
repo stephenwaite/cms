@@ -244,10 +244,13 @@
        P1. READ FILE-OUT AT END GO TO P99.
            MOVE FO-KEY TO CHARFILE-KEY
            READ CHARFILE INVALID PERFORM A3 GO TO P1.
+      * skip to undone if coded and prompted
            IF CD-DIAG NOT = "0000000" AND ALF1 = "1" GO TO P1.
-           
+
+      * auto-code call back mammos     
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
                MOVE "R928   " TO CD-DIAG
+      * medicare doesn't follow vt call back policy         
                IF (CD-PAYCODE = "003" OR "200" OR "245" OR "270" 
                    OR "868" OR "912")
                    IF (CD-PROC1 = "1446")
@@ -271,12 +274,14 @@
            GO TO P1
            END-IF.
            
+      * auto-code tomosynthesis     
            IF CD-PROC1 = "1449"
                MOVE "Z1231  " TO CD-DIAG
                REWRITE CHARFILE01  
                GO TO P1
            END-IF.
-           
+      
+      * high risk aren't regular screen mammos     
            IF (CD-PROC1 = "1097" OR "1098")
                MOVE "Z1231  " TO CD-DIAG
                REWRITE CHARFILE01 
@@ -286,10 +291,12 @@
            IF (CD-PROC1 = "1099" OR "1442")
                DISPLAY "UNI SCREEN ADDING 52 MOD"
       * needs assesment so will drop down below
+               MOVE "Z1231  " TO CD-DIAG
                MOVE "52" TO CD-MOD2
                REWRITE CHARFILE01
            END-IF.
-
+      
+      * auto-code uni tomo
            IF (CD-PROC1 = "1456")
                DISPLAY "UNI TOMO, ADDING 52 MOD"
                MOVE "Z1231  " TO CD-DIAG
@@ -298,10 +305,11 @@
                GO TO P1
            END-IF.
 	     
+      * not putting GG mod on same day screen with diag exam
       *     IF (CD-PROC1 = "1091" OR "1092" OR "1441")
       *    MOVE "GG" TO CD-MOD2.
 
-      * LD lung screen
+      * auto code LD lung screen
            IF (CD-PROC1 = "5232")
                DISPLAY "LD LUNG SCREEN AUTO-CODING"
                MOVE "Z87891 " TO CD-DIAG
@@ -314,12 +322,17 @@
                GO TO P2
            END-IF    
       * mammo codes
-           IF (CD-PROC2 NOT = "7706726" OR "770672652")
+           IF (CD-PROC2 NOT = "7706726")
                GO TO P2      
            END-IF    
            
            MOVE "Z1231  " TO CD-DIAG
            IF CD-PAYCODE NOT = "009"
+               DISPLAY "NON MEDICARE SCREEN AUTO-CODED"
+               IF CD-DOCP = "00"
+                  DISPLAY "BUT RRMC TAPE SAID NOT READ, PLEASE NOTE"
+                  ACCEPT ANS
+               END-IF
                REWRITE CHARFILE01
                GO TO P1
            END-IF.
@@ -339,7 +352,7 @@
            DISPLAY " ".
        P2-0.
            IF CD-DOCP = "00"
-             DISPLAY "NOT READ  NOT READ NOT READ NOT READ "
+             DISPLAY "RRMC TAPE SAID NOT READ"
              ACCEPT ANS
            END-IF
            IF  CD-PAYCODE = "009"
