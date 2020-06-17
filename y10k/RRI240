@@ -13,13 +13,17 @@
            SELECT ACTFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS A-ACTNO
            ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
-           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
+           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES
+           STATUS IS ACCT-STAT.
+           
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
+           
            SELECT ORDFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS ORDNO
            ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
+           
            SELECT ERRORFILE ASSIGN TO "S45" ORGANIZATION
            LINE SEQUENTIAL.
 
@@ -184,6 +188,8 @@
            02 L3F4 PIC X(24).
        01  HOLD8 PIC X(8).
        01  X-GARNO PIC X(8).
+       01  X-ACTNO PIC X(8).
+       01  ACCT-STAT PIC XX.
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT ACTFILE GARFILE ORDFILE
@@ -199,14 +205,15 @@
                GO TO P1
            END-IF    
            MOVE ORD8 TO HOLD8
-           MOVE ORDNO TO A-ACTNO
+           MOVE ORD8 TO A-ACTNO
            READ ACTFILE INVALID 
                DISPLAY "THIS SHOULD NEVER HAPPEN, CALL STEVE"
                DISPLAY "BAD READ ON ACTFILE " ORD8
                ACCEPT X 
                GO TO P1
-           END-READ.                          
+           END-READ
            MOVE A-GARNO TO X-GARNO.
+           MOVE A-ACTNO TO X-ACTNO.
        P1-1.
            MOVE A-ACTNO TO G-ACCT
            START GARFILE KEY NOT < G-ACCT INVALID
@@ -215,12 +222,12 @@
            END-START.    
        P2.
            READ GARFILE NEXT AT END
-               MOVE SPACE TO A-ACTNO
+               MOVE SPACE TO A-GARNO
                GO TO P4
            END-READ    
 
            IF (G-ACCT NOT = A-ACTNO)
-               MOVE SPACE TO A-ACTNO
+               MOVE SPACE TO A-GARNO
                GO TO P4
            END-IF    
            
@@ -250,7 +257,6 @@
                    MOVE G-GARNO TO A-GARNO
                    GO TO P4
                END-IF   
-               GO TO P2
            END-IF
 
            IF (A-PRINS = G-PRINS) 
@@ -269,7 +275,6 @@
                    MOVE G-GARNO TO A-GARNO
                    GO TO P4
                END-IF
-               GO TO P2    
            END-IF   
            GO TO P2.
        P4.
@@ -278,10 +283,14 @@
            WRITE ERRORFILE01  
            CLOSE ACTFILE
            OPEN I-O ACTFILE
+           MOVE X-ACTNO TO A-ACTNO
            READ ACTFILE WITH LOCK INVALID
-               DISPLAY "ACTFILE LOCKED, CALL STEVE"
-           END-READ    
-      *     REWRITE ACTFILE01
+               DISPLAY "ACTFILE LOCKED STATUS IS " ACCT-STAT
+           END-READ
+      *     DISPLAY "A-ACTNO IS " A-ACTNO " A-GARNO IS " A-GARNO
+      *     ACCEPT OMITTED
+    
+           REWRITE ACTFILE01
            CLOSE ACTFILE
            OPEN INPUT ACTFILE
            GO TO P1.
