@@ -837,6 +837,24 @@
            02 SV1-S115 PIC X VALUE "*".
            02 SV1-COPAY PIC X.
            02 SV1-END PIC X VALUE "~".
+       01  LIN01.
+           02 LIN-0 PIC XXX VALUE "LIN".
+           02 LIN-S0 PIC X VALUE "*".
+           02 LIN-S1 PIC X VALUE "*".
+           02 LIN-1 PIC XX VALUE "N4".
+           02 LIN-S2 PIC X VALUE "*".
+           02 LIN-NDC PIC X(11).
+           02 LIN-END PIC X VALUE "~".
+       01  CTP01.
+           02 CTP-0 PIC XXX VALUE "CTP".
+           02 CTP-S012 PIC XXX VALUE "***".
+           02 CTP-3 PIC X(8).
+           02 CTP-S3 PIC X VALUE "*".
+           02 CTP-4 PIC XX.
+           02 CTP-S4 PIC X VALUE "*".
+           02 CTP-5 PIC XX VALUE "UN".
+           02 CPT-END PIC X VALUE "~".
+                 
        01  DTP01.
            02 DTP-0 PIC XXX VALUE "DTP".
            02 DTP-S0 PIC X VALUE "*".
@@ -1905,7 +1923,7 @@
              MOVE FI-DATE-T TO DTP-3
              WRITE SEGFILE01 FROM DTP01
            END-IF.
-
+           PERFORM 2410 THRU 2410-EXIT.
            IF NOT ( HOLD-NEIC = " SX065")
 
              IF EINSS-TYPE = "E"
@@ -1922,7 +1940,27 @@
            MOVE BHT-DATE TO CD-DATE-A
            REWRITE CHARFILE01
            END-READ.
-       2400SRV-EXIT.  EXIT.
+       2400SRV-EXIT.  
+           EXIT.
+       2410.
+           MOVE FI-KEY8 TO AUTH-KEY8
+           MOVE FI-CLAIM TO AUTH-KEY6
+           READ AUTHFILE INVALID GO TO 2410-EXIT.
+           IF AUTH-NDC NOT NUMERIC GO TO 2410-EXIT.
+           MOVE AUTH-NDC TO LIN-NDC
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM LIN01.
+           MOVE FI-WORK TO NUM2
+           COMPUTE NUM7= FI-AMOUNT / NUM2
+           PERFORM AMT-LEFT
+      *     MOVE ALF8NUM TO CTP-3
+           MOVE SPACE TO CTP-3
+           COMPUTE NUM5= NUM2
+           PERFORM NUM-LEFT
+           MOVE ALF5NUM TO CTP-4
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM CTP01.
+       2410-EXIT.  EXIT.           
        2420A.
            MOVE "82 " TO NM1-1
            MOVE "1" TO NM1-SOLO

@@ -1894,7 +1894,7 @@
            MOVE ":" TO DIAG-C(DX-CNTR-PT)
            MOVE 12 TO A.
 
-       SV1-0..
+       SV1-0.
            MOVE " " TO SV1-EMER
            IF CLM-5 = "23" MOVE "Y" TO SV1-EMER.
            COMPUTE NUM5 = X
@@ -1927,6 +1927,7 @@
              MOVE FI-DATE-T TO DTP-3
              WRITE SEGFILE01 FROM DTP01
            END-IF.
+           PERFORM 2410 THRU 2410-EXIT.
 
            IF NOT ( HOLD-NEIC = " SX065")
 
