@@ -217,17 +217,17 @@
        P1-1.
            MOVE A-ACTNO TO G-ACCT
            START GARFILE KEY NOT < G-ACCT INVALID
-               MOVE SPACE TO A-ACTNO
+               MOVE SPACE TO X-GARNO
                GO TO P4
            END-START.    
        P2.
            READ GARFILE NEXT AT END
-               MOVE SPACE TO A-GARNO
+               MOVE SPACE TO X-GARNO
                GO TO P4
            END-READ    
 
            IF (G-ACCT NOT = A-ACTNO)
-               MOVE SPACE TO A-GARNO
+               MOVE SPACE TO X-GARNO
                GO TO P4
            END-IF    
            
@@ -254,7 +254,7 @@
                    GO TO P1
                END-IF  
                IF (G-GARNO NOT = A-GARNO)
-                   MOVE G-GARNO TO A-GARNO
+                   MOVE G-GARNO TO X-GARNO
                    GO TO P4
                END-IF   
            END-IF
@@ -272,7 +272,7 @@
                    GO TO P1
                END-IF  
                IF (G-GARNO NOT = A-GARNO)
-                   MOVE G-GARNO TO A-GARNO
+                   MOVE G-GARNO TO X-GARNO
                    GO TO P4
                END-IF
            END-IF   
@@ -283,14 +283,13 @@
            WRITE ERRORFILE01  
            CLOSE ACTFILE
            OPEN I-O ACTFILE
-           MOVE X-ACTNO TO A-ACTNO
            READ ACTFILE WITH LOCK INVALID
                DISPLAY "ACTFILE LOCKED STATUS IS " ACCT-STAT
            END-READ
       *     DISPLAY "A-ACTNO IS " A-ACTNO " A-GARNO IS " A-GARNO
       *     ACCEPT OMITTED
-    
-           REWRITE ACTFILE01
+           MOVE X-GARNO TO A-GARNO     
+      *     REWRITE ACTFILE01
            CLOSE ACTFILE
            OPEN INPUT ACTFILE
            GO TO P1.
