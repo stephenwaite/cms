@@ -1,0 +1,611 @@
+      * @package cms
+      * @link    http://www.cmsvt.com
+      * @author  s waite <cmswest@sover.net>
+      * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
+      * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. rrr260.
+       AUTHOR. SID WAITE.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PARMCHP ASSIGN TO "S30" ORGANIZATION
+             LINE SEQUENTIAL.
+           SELECT VARSORT ASSIGN TO "S35".
+           SELECT NOREPORT ASSIGN TO "S40" ORGANIZATION
+             LINE SEQUENTIAL.
+           SELECT GARFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+             ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+             LOCK MODE MANUAL.
+           SELECT FILEOUT ASSIGN TO "S50" ORGANIZATION
+             LINE SEQUENTIAL.
+           SELECT INSFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS INS-KEY
+             ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+             ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+             ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+             ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+             ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+             ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
+             LOCK MODE MANUAL.
+           SELECT CHARCUR ASSIGN TO "S60" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+             ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+             LOCK MODE MANUAL.
+           SELECT PATFILE ASSIGN TO "S65" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS P-PATNO
+             ALTERNATE RECORD KEY IS P-GARNO WITH DUPLICATES
+             LOCK MODE MANUAL.
+           SELECT PROCFILE ASSIGN TO "S70" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS PROC-KEY
+             LOCK MODE MANUAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  GARFILE
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS G-MASTER.
+       01  G-MASTER.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB.
+              03 G-DOBCC PIC XX. 
+              03 G-DOBYY PIC XX.
+              03 G-DOBMM PIC XX.
+              03 G-DOBDD PIC XX.
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(12).
+           02 G-PRIPOL PIC X(14).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(12).
+           02 G-SECPOL PIC X(14).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-INSPEND PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+       FD  CHARCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS CHARCUR01.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID .
+              03 CC-PATID7 PIC X(7).
+              03 CC-PATID8 PIC X.
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(11).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+       FD  INSFILE
+     *     BLOCK CONTAINS 6 RECORDS
+           DATA RECORD IS INSFILE01.
+       01  INSFILE01.
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+
+       FD PATFILE
+      *    BLOCK CONTAINS 5 RECORDS
+           DATA RECORD IS P-MASTER.
+       01 P-MASTER.
+           02 P-PATNO PIC X(8).
+           02 P-GARNO PIC X(8).
+           02 P-PATNAME PIC X(24).
+           02 P-SEX PIC X.
+           02 P-RELATE PIC X.
+           02 P-MSTAT PIC X.
+           02 P-DOB.
+              03 P-DOBCC PIC XX. 
+              03 P-DOBYY PIC XX.
+              03 P-DOBMM PIC XX.
+              03 P-DOBDD PIC XX.
+           
+       FD  NOREPORT.
+       01  NOREPORT01 PIC XXX VALUE "RRR".
+       FD  VARSORT.
+       01  VARSORT01 PIC X(21).
+       FD PARMCHP.
+       01 PARMCHP01 PIC 999.
+       FD PROCFILE
+           DATA RECORD PROCFILE01.
+       01 PROCFILE01.
+           02 PROC-KEY.
+             03 PROC-KEY1 PIC X(4).
+             03 PROC-KEY2 PIC X(7).
+           02 PROC-TYPE PIC X.
+           02 PROC-TITLE PIC X(28).
+           02 PROC-AMOUNT PIC 9(4)V99.
+       FD  FILEOUT
+           DATA RECORD IS FILEOUT01.
+       01  FILEOUT01.
+           02 FO-INS PIC 999.
+           02 FO-GARNO PIC X(8).
+           02 FO-DOB PIC X(8).
+           02 FO-DOC PIC XX.
+           02 FO-NAME PIC X(16).
+           02 FO-DATE-T PIC X(8).
+           02 FO-PROC PIC X(11).
+           02 FO-DATE-A PIC X(8).
+           02 FO-KEY PIC X(6).
+           02 FO-PLACE PIC XX.
+           02 CUR-KEY PIC X(11).
+       WORKING-STORAGE SECTION.
+       01  DATE-X.
+           02 DX1 PIC 99.
+           02 DX2 PIC 99.
+           02 DX3 PIC 99.
+       01  X PIC 9999.
+       01  INSTAB01.
+           02 INSTAB PIC 999 OCCURS 999 TIMES.
+       01  CLAIM-TOT PIC S9(6)V99.
+       01  FLAG PIC 9.
+       01  ANS PIC X(20).
+       01  ALF10 PIC X(10).
+       01  ENTER01.
+           02 LOW-ENTER PIC X(8).
+           02 HIGH-ENTER PIC X(8).
+       01  DATE01.
+           02 LOWDATE PIC X(8).
+           02 HIGHDATE PIC X(8).
+       01  RT-3 PIC XXX JUST RIGHT.
+       01  rt-8 pic x(8) just right.
+       01  rt-81 pic x(8) just right.
+       01  TODAY-T PIC X(8).
+       01  ALF81 PIC X(8).
+       01  ALF82 PIC X(8).
+       01  ALF-T PIC X(8).
+       01  NUM-1 PIC 9.
+       01  ALF-1 PIC X.
+       01  SORTTAB01.
+           02 SORTTAB PIC 9 OCCURS 5 TIMES.
+       01  SORTORDER01.
+           02 SORTORDER PIC 9 OCCURS 5 TIMES.
+       01  CNTR PIC 99999 VALUE 0.
+       01  SORTNAME01.
+           02 SORTNAME PIC X(12) OCCURS 5 TIMES.
+       01  DATE-S.
+           02 S-MM PIC XX.
+           02 S-DD PIC XX.
+           02 S-CC PIC XX.
+           02 S-YY PIC XX.
+       01  DISPLAY-DATE.
+           02 DS-MM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 DS-DD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 DS-CC PIC XX.
+           02 DS-YY PIC XX.
+
+       01  TODAY-DATE.
+           02 TT-CC PIC XX.
+           02 TT-YY PIC XX.
+           02 TT-MM PIC XX.
+           02 TT-DD PIC XX.
+       01 SORTCNTR PIC 9 VALUE 0.
+       01  NUM-3 PIC 999.
+       01  ALF-8 PIC X(8).
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       01  IN-FIELD.
+           02 IN-FIELD-1 PIC X.
+           02 FILLER PIC X(9).
+       01  LOWPROC PIC X(11).
+       01  HIGHPROC PIC X(11).
+       01  VARTAB01.
+           02 VARTAB02 OCCURS 5 TIMES.
+              03 VARTAB PIC XXX OCCURS 2 TIMES.
+       01  INSURE-X PIC XX.
+       01  FLAGX PIC 9 VALUE 0.
+       01  SORT1.
+           02 FILLER PIC X(10) VALUE "sort -t~  ".
+       01  SORT2.
+           02 FILLER PIC XXXX VALUE " -k ".
+           02 FILLER PIC XX VALUE "1.".
+           02 FIELD-OUT-1 PIC 999.
+           02 FILLER PIC X VALUE ",".
+           02 FILLER PIC XX VALUE "1.".
+           02 FIELD-OUT-2 PIC 999.
+           02 FIELD-OUT-3 PIC XX VALUE "  ".
+      * 01  SORT3. 
+      *     02 FILLER PIC X(12) VALUE "$HOME/W2$tid". 
+       PROCEDURE DIVISION.
+       P0.
+           MOVE "022" TO VARTAB(1 1)
+           MOVE "037" TO VARTAB(1 2)
+           MOVE "020" TO VARTAB(2 1)
+           MOVE "021" TO VARTAB(2 2)
+           MOVE "046" TO VARTAB(3 1)
+           MOVE "056" TO VARTAB(3 2)
+           MOVE "038" TO VARTAB(4 1)
+           MOVE "045" TO VARTAB(4 2)
+           MOVE "057" TO VARTAB(5 1)
+           MOVE "064" TO VARTAB(5 2)
+           MOVE ALL ZEROES TO INSTAB01
+           MOVE "NAME        " TO SORTNAME(1)
+           MOVE "DOCTOR      " TO SORTNAME(2)
+           MOVE "PROCEDURE   " TO SORTNAME(3)
+           MOVE "SERVICE DATE" TO SORTNAME(4)
+           MOVE "CLAIM DATE  " TO SORTNAME(5)
+           OPEN INPUT PARMCHP.
+           OPEN INPUT GARFILE INSFILE PATFILE PROCFILE CHARCUR.
+           OPEN OUTPUT FILEOUT NOREPORT.
+           OPEN OUTPUT VARSORT.
+       P00. READ PARMCHP AT END GO TO P1.
+           MOVE 1 TO INSTAB(PARMCHP01) GO TO P00.
+       P1. DISPLAY "SELECT INSURANCE CODE"
+           ACCEPT INS-KEY
+           IF INS-KEY = "?"
+           DISPLAY "ENTER AN ASSIGNED INSURANCE CODE"
+           DISPLAY "FI TO LOOK FOR AN INSURANCE"
+           DISPLAY "END  TO QUIT"
+           GO TO P1.
+           IF INS-KEY = "FI" PERFORM INS-1 THRU INS-1-EXIT
+           GO TO P1.
+           IF INS-KEY = "END" DISPLAY "NO REPORT SELECTED" GO TO P12.
+           IF INS-KEY = "001" DISPLAY "INVALID" GO TO P1.
+           READ INSFILE INVALID DISPLAY "INVALID" GO TO P1.
+           IF INS-ASSIGN = "U" 
+           DISPLAY "THIS IS UNASSIGNED. RUN ANYWAY?  YES, TO RUN"
+           ACCEPT ANS
+           IF ANS NOT = "YES" GO TO P1
+           END-IF
+           END-IF.
+           MOVE INS-KEY TO NUM-3
+           IF INSTAB(NUM-3) = 1 DISPLAY "NON BILLABLE INSURANCE"
+           GO TO P1.
+           DISPLAY INS-KEY " " INS-NAME.
+           MOVE INS-KEY TO FO-INS.
+       P1-1. DISPLAY "SELECT P S E OR N FOR PRI, SEC, EITHER OR NEITHER"
+             ACCEPT INSURE-X
+             IF INSURE-X = "BK" GO TO P1.
+             IF INSURE-X = "P " OR "S " OR "E " OR "N" GO TO P2.
+           GO TO P1-1.
+       P2. DISPLAY "SERVICE DATE LOWDATE TO HIGHDATE "
+           DISPLAY "MMDDYYYY TO MMDDYYYY"
+           ACCEPT ANS.
+           IF ANS = "BK" GO TO P1.
+           IF ANS = "END" DISPLAY "NO REPORT SELECTED" GO TO P12.
+           IF ANS = "?"
+           DISPLAY "BK  TO BACK UP"
+           DISPLAY "ALL = ALL RECORDS"
+           DISPLAY "LOWDATE HIGHDATE  MISSING PARTS ASSUMED CURR."
+           DISPLAY "SEPARATE DATES WITH  - OR TO"
+           DISPLAY "1028 - 1104  ASSUMES CURRENT YEAR."
+           DISPLAY "DIFFERENT YEARS REQUIRES FULL DATE MMDDYYYY."
+           GO TO P2.
+           IF ANS = "ALL" MOVE "00000000"  TO LOW-ENTER 
+           MOVE "99999999" TO HIGH-ENTER
+           GO TO P3.
+           MOVE 0 TO FLAG.
+           PERFORM D1
+           IF FLAG = 1 DISPLAY "INVALID" GO TO P2.
+           MOVE SPACE TO LOW-ENTER HIGH-ENTER
+           STRING ALF81(5:4) ALF81(1:2) ALF81(3:2) DELIMITED BY SIZE
+           INTO LOW-ENTER
+           STRING ALF82(5:4) ALF82(1:2) ALF82(3:2) DELIMITED BY SIZE
+           INTO HIGH-ENTER.
+       P3. DISPLAY "ENTER PROCEDURE CODE RANGE LOW - HIGH"
+           ACCEPT ANS
+           IF ANS = "?"
+           DISPLAY "F  TO SEARCH PROCEDURE FILE BY PROC. CODE"
+           DISPLAY "BK  TO BACK UP"
+           DISPLAY "END  TO QUIT"
+           DISPLAY "LOW - HIGH  OR   LOW  TO  HIGH"
+           DISPLAY " IF NO HIGH RANGE; LOW RANGE MUST BE A VALID CODE."
+           DISPLAY "99213 WILL SELECT ONLY 99213"
+           DISPLAY "99213 - 99232  WILL SELECT ALL CODES IN THE RANGE."
+           DISPLAY "ALL  WILL SELECT ALL PROC. CODES FOR THE INSURANCE"
+           GO TO P3.
+           IF ANS = "F" PERFORM F1 THRU F1-EXIT GO TO P3.
+           IF ANS = SPACE DISPLAY "INVALID" GO TO P3.
+           IF ANS = "BK" GO TO P2.
+           IF ANS = "END" DISPLAY "NO REPORT SELECTED" GO TO P12.
+           IF ANS = "ALL" MOVE SPACE TO LOWPROC
+           MOVE "ZZZZZZZ" TO HIGHPROC
+           GO TO P5.
+           MOVE SPACE TO LOWPROC HIGHPROC
+           UNSTRING ANS DELIMITED BY " - " OR "-" OR " TO "
+           INTO LOWPROC HIGHPROC.
+           IF LOWPROC = SPACE AND HIGHPROC = SPACE
+           DISPLAY "INVALID RANGE" GO TO P3.
+           IF (HIGHPROC < LOWPROC)
+           AND (HIGHPROC NOT = SPACE) DISPLAY "INVALID RANGE" GO TO P3.
+           IF (HIGHPROC = SPACE) AND (LOWPROC NOT = SPACE)
+           MOVE LOWPROC TO HIGHPROC
+           PERFORM PROC1
+           IF FLAG = 1 DISPLAY "INVALID CODE" GO TO P3.
+       P5. DISPLAY "SELECT THE ORDER TO SORT THESE RECORDS."
+           DISPLAY "1 =  NAME"
+           DISPLAY "2 =  DOCTOR"
+           DISPLAY "3 =  PROCEDURE"
+           DISPLAY "4 =  SERVICE DATE"
+           DISPLAY "5 =  CLAIM DATE"
+           MOVE 0 TO SORTCNTR.
+           MOVE ALL ZEROES TO SORTORDER01
+           MOVE ALL ZEROES TO SORTTAB01.
+       P6. DISPLAY "SORT FIELD?"
+           ACCEPT ANS.
+           IF ANS = "?"
+           DISPLAY "BK  TO BACKUP TO PROC. RANGE AND RESELECT"
+           DISPLAY "RUN   TO START SORTING/PRINTING FUNCTION"
+           DISPLAY "END TO QUIT --  WITHOUT PRINTING A REPORT"
+           DISPLAY "ENTER ANY COMBINATION OF SORTING REQUIRED"
+           DISPLAY "FIRST SELECTION IS THE PRIMARY SORT FIELD"
+           DISPLAY "SECOND IS THE SECONDARY SORT FIELD, ETC."
+           DISPLAY "L TO LIST THE ORDER OF SORTING SELECTED"
+           DISPLAY "ZZ TO RESTART THE SORTING REQUIREMENTS"
+           DISPLAY "1 =  NAME"
+           DISPLAY "2 =  DOCTOR"
+           DISPLAY "3 =  PROCEDURE"
+           DISPLAY "4 =  SERVICE DATE"
+           DISPLAY "5 =  CLAIM DATE"
+           GO TO P6.
+           IF ANS = "BK" GO TO P3.
+           IF ANS = "ZZ" DISPLAY "RESTART SORT SELECTION"
+           GO TO P5.
+           IF ANS = "L" PERFORM L2 VARYING X FROM 1 BY 1 UNTIL X
+           > SORTCNTR GO TO P6.
+           IF ANS = "END" DISPLAY "NO REPORT SELECTED" GO TO P12.
+           IF ANS = "RUN" GO TO P7.
+           IF ANS = "1" OR "2" OR "3" OR "4" OR "5"
+           NEXT SENTENCE ELSE DISPLAY "INVALID" GO TO P6.
+           MOVE ANS TO ALF-1
+           MOVE ALF-1 TO NUM-1
+           IF SORTTAB(NUM-1) = 1 DISPLAY "ALREADY SELECTED"
+           GO TO P6.
+           ADD 1 TO SORTCNTR
+           MOVE 1 TO SORTTAB(NUM-1)
+           MOVE NUM-1 TO SORTORDER(SORTCNTR)
+           GO TO P6.
+       P7. MOVE FO-INS TO CC-PAYCODE
+           START CHARCUR KEY NOT < CC-PAYCODE INVALID
+           DISPLAY "NO RECORDS SELECTED WITH THESE PARAMETERS:"
+           PERFORM PARA-1 GO TO P1.
+           MOVE 0 TO FLAG.
+       P8. READ CHARCUR NEXT AT END GO TO P9.
+           IF CC-PAYCODE NOT = FO-INS GO TO P9.
+      *     IF CC-ASSIGN = "U" GO TO P8.
+           IF CC-AMOUNT = 0 GO TO P8.
+           IF (CC-DATE-T < LOW-ENTER) OR (CC-DATE-T > HIGH-ENTER)
+           OR (CC-PROC < LOWPROC) OR (CC-PROC > HIGHPROC)
+           GO TO P8.
+           MOVE 1 TO FLAG
+           MOVE CC-DATE-T TO FO-DATE-T
+           MOVE CC-PROC TO FO-PROC
+           MOVE CC-DOCP TO FO-DOC
+           MOVE CC-DATE-A TO FO-DATE-A
+           MOVE CC-KEY8 TO FO-GARNO
+           MOVE CC-CLAIM TO FO-KEY
+           MOVE CC-PLACE TO FO-PLACE
+           MOVE 0 TO FLAGX
+           MOVE CHARCUR-KEY TO CUR-KEY
+           PERFORM G-NAME
+           IF FLAGX = 1 GO TO P8.
+           ADD 1 TO CNTR
+           IF CC-PATID8 = "P" PERFORM P-NAME.
+           WRITE FILEOUT01 GO TO P8.
+       P9. IF CNTR = 0 DISPLAY "NO RECORDS SELECTED"
+           PERFORM PARA-1 GO TO P1.
+           DISPLAY CNTR " RECORDS WERE SELECTED".
+           WRITE VARSORT01 FROM SORT1.
+           MOVE SPACES TO VARSORT01.
+       P10. PERFORM V1 VARYING X FROM 1 BY 1 UNTIL X > SORTCNTR.
+           GO TO P13.
+       V1. MOVE SORTORDER(X) TO NUM-1
+           MOVE VARTAB(NUM-1 1) TO FIELD-OUT-1
+           MOVE VARTAB(NUM-1 2) TO FIELD-OUT-2
+           WRITE VARSORT01 FROM SORT2.
+       P13. IF SORTCNTR = 0
+            MOVE "030" TO FIELD-OUT-1
+            MOVE "049" TO FIELD-OUT-2
+            WRITE VARSORT01 FROM SORT2.
+            MOVE SPACES TO VARSORT01.
+      *     WRITE VARSORT01 FROM SORT3.
+           WRITE NOREPORT01
+           CLOSE VARSORT GARFILE PROCFILE INSFILE FILEOUT PATFILE
+           NOREPORT CHARCUR.
+            STOP RUN.
+       P12. MOVE "XXX" TO NOREPORT01 GO TO P13.
+       INS-1. DISPLAY "SEARCH TYPE"
+           DISPLAY "1 = BY NUMBER "
+           DISPLAY "2 = BY NAME"
+           DISPLAY "3 = BY ASSIGNMENT CODE"
+           DISPLAY "4 = BY NEIC CODE"
+           DISPLAY "5 = BY NEIC ASSIGNM CODE"
+           DISPLAY "6 = BY CLAIM-TYPE".
+       INS-2.  ACCEPT IN-FIELD.
+           IF IN-FIELD = "?"
+           DISPLAY "X = BACK OR 1-6 SEARCH METHOD"
+           GO TO INS-2.
+           IF IN-FIELD = "X" DISPLAY "END SEARCH" GO TO INS-1-EXIT.
+           IF IN-FIELD = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
+           NEXT SENTENCE ELSE DISPLAY "BAD" GO TO INS-2.
+           MOVE IN-FIELD-1 TO ALF-1.
+       INS-3. DISPLAY "STARTING POINT?".
+           ACCEPT IN-FIELD.
+           IF IN-FIELD = "?"
+           DISPLAY "ENTER WHERE TO START LOOKING"
+           DISPLAY "BK = BACK TO SEARCH METHOD"
+           DISPLAY "OR X = BACK TO OPTION" GO TO INS-3.
+           IF IN-FIELD = "X" GO TO INS-1-EXIT.
+           IF IN-FIELD = "BK" GO TO INS-1.
+           MOVE 0 TO X
+           IF ALF-1 = "1" MOVE SPACE TO RIGHT-3
+           UNSTRING IN-FIELD DELIMITED BY " " INTO RIGHT-3
+           INSPECT RIGHT-3 REPLACING LEADING " " BY "0"
+           MOVE RIGHT-3 TO INS-KEY
+           MOVE "NUMBER  " TO ALF-8
+           START INSFILE KEY NOT < INS-KEY GO TO INS-4.
+           IF ALF-1 = "2" MOVE IN-FIELD TO INS-NAME
+           MOVE "NAME    " TO ALF-8
+           START INSFILE KEY NOT < INS-NAME GO TO INS-4.
+           IF ALF-1 = "3" MOVE IN-FIELD TO INS-ASSIGN
+           MOVE "ASSIGNMT" TO ALF-8
+           START INSFILE KEY NOT < INS-ASSIGN GO TO INS-4.
+           IF ALF-1 = "4" MOVE IN-FIELD TO INS-NEIC
+           MOVE "NEICCODE" TO ALF-8
+           START INSFILE KEY NOT < INS-NEIC GO TO INS-4.
+           IF ALF-1 = "5" MOVE IN-FIELD TO INS-NEIC-ASSIGN
+           MOVE "NEICASGM" TO ALF-8
+           START INSFILE KEY NOT < INS-NEIC-ASSIGN GO TO INS-4.
+           MOVE IN-FIELD TO INS-CLAIMTYPE
+           MOVE "CLM-TYPE" TO ALF-8
+           START INSFILE KEY NOT < INS-CLAIMTYPE.
+       INS-4. READ INSFILE NEXT AT END DISPLAY "END OF FILE"
+           GO TO INS-1-EXIT.
+           DISPLAY INS-KEY " " INS-NAME " " INS-ASSIGN " " INS-CLAIMTYPE
+           " " INS-NEIC " " INS-NEIC-ASSIGN " " INS-NEICLEVEL
+           ADD 1 TO X
+           IF X > 8 MOVE 0 TO X DISPLAY "BY " ALF-8 ACCEPT ANS
+           IF ANS NOT = SPACE GO TO INS-1-EXIT.
+           GO TO INS-4.
+       INS-1-EXIT. EXIT.
+       D1.
+           MOVE SPACE TO ALF81 ALF82.
+           UNSTRING ANS DELIMITED BY " TO " INTO ALF81 ALF82.
+           IF  (ALF81 NOT NUMERIC)
+            OR ( ALF82 NOT NUMERIC)
+            MOVE 1 TO FLAG.
+       F1. DISPLAY "START POINT"
+           ACCEPT ANS
+           IF ANS = "?" DISPLAY "ENTER A PROC. CODE OR  X TO END SEARCH"
+           GO TO F1.
+           IF ANS = "X" DISPLAY "SEARCH ENDED" GO TO F1-EXIT.
+           MOVE ANS TO PROC-KEY
+           START PROCFILE KEY NOT < PROC-KEY INVALID
+           DISPLAY "SEARCH ENDED" GO TO F1-EXIT.
+       F2. READ PROCFILE NEXT AT END DISPLAY "END OF FILE"
+           GO TO F1-EXIT.
+           DISPLAY PROC-KEY " " PROC-TITLE
+           GO TO F2.
+       F1-EXIT. EXIT.
+       PROC1. MOVE LOWPROC TO PROC-KEY
+              MOVE 0 TO FLAG
+              READ PROCFILE INVALID MOVE 1 TO FLAG.
+       G-NAME. MOVE CC-KEY8 TO G-GARNO
+               READ GARFILE INVALID
+               DISPLAY "THIS RECORD HAS NO VALID ACCOUNT!!"
+               MOVE "**NO ACCT**" TO G-GARNAME MOVE SPACE TO G-PHONE
+           MOVE SPACE TO G-DOB.
+           IF (INSURE-X = "P ") AND (CC-PAYCODE NOT = G-PRINS)
+           MOVE 1 TO FLAGX.
+           IF (INSURE-X = "S ") AND (CC-PAYCODE NOT = G-SEINS)
+           MOVE 1 TO FLAGX.
+           IF (INSURE-X = "N ") AND ((CC-PAYCODE = G-PRINS)
+           OR  (CC-PAYCODE = G-SEINS))
+           MOVE 1 TO FLAGX.
+           IF (INSURE-X = "E ") AND (CC-PAYCODE NOT = G-PRINS)
+           AND (CC-PAYCODE NOT = G-SEINS)
+           MOVE 1 TO FLAGX.
+               MOVE G-DOB TO FO-DOB
+               MOVE G-GARNAME TO FO-NAME.
+       P-NAME. MOVE CC-PATID TO P-PATNO
+               READ PATFILE INVALID
+               DISPLAY "THIS RECORD HAS NO VALID PATID"
+               MOVE "**NO PATID" TO P-PATNAME.
+               MOVE P-DOB TO FO-DOB
+               MOVE P-PATNAME TO FO-NAME.
+       PARA-1. DISPLAY FO-INS " " INS-NAME
+           MOVE LOW-ENTER TO TODAY-DATE
+           MOVE TT-CC TO DS-CC
+           MOVE TT-YY TO DS-YY
+           MOVE TT-MM TO DS-MM
+           MOVE TT-DD TO DS-DD
+           MOVE DISPLAY-DATE TO ALF10
+           MOVE TT-CC TO DS-CC
+           MOVE TT-YY TO DS-YY
+           MOVE TT-MM TO DS-MM
+           MOVE TT-DD TO DS-DD
+           DISPLAY ALF10 " " DISPLAY-DATE "   DATE RANGE"
+           IF HIGHPROC = "ZZZZZZZ" MOVE "--> END" TO HIGHPROC.
+           DISPLAY LOWPROC " " HIGHPROC "   PROC RANGE".
+       L2. MOVE SORTORDER(X) TO NUM-1
+           IF X = 1
+           DISPLAY SORTNAME(NUM-1).
+           IF X = 2
+           DISPLAY " " SORTNAME(NUM-1).
+           IF X = 3
+           DISPLAY "  " SORTNAME(NUM-1).
+           IF X = 4
+           DISPLAY "   " SORTNAME(NUM-1).
+           IF X = 5
+           DISPLAY "    " SORTNAME(NUM-1).
+       A1. MOVE 0 TO INSTAB(X).
