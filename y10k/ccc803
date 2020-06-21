@@ -99,16 +99,7 @@
                MOVE "20200430" TO CC-DATE-A
                GO TO A2
            END-IF
-
-<<<<<<< HEAD:y10k/ccc803
-=======
-           IF CC-DATEYYYYMM-A = "202001"   MOVE "20200229" TO CC-DATE-A
-            GO TO A2.
-           IF CC-DATEYYYYMM-A = "202002"   MOVE "20200331" TO CC-DATE-A
-           GO TO A2.
-           IF CC-DATEYYYYMM-A = "202003"   MOVE "20200430" TO CC-DATE-A
-           GO TO A2.
->>>>>>> master:y10k/CCC803
+           
            GO TO P1.
        A2.  
            REWRITE CHARCUR01
