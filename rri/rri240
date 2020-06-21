@@ -13,13 +13,17 @@
            SELECT ACTFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS A-ACTNO
            ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
-           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
+           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES
+           STATUS IS ACCT-STAT.
+           
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
+           
            SELECT ORDFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS ORDNO
            ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
+           
            SELECT ERRORFILE ASSIGN TO "S45" ORGANIZATION
            LINE SEQUENTIAL.
 
@@ -184,6 +188,9 @@
            02 L3F4 PIC X(24).
        01  HOLD8 PIC X(8).
        01  X-GARNO PIC X(8).
+       01  X-ACTNO PIC X(8).
+       01  ACCT-STAT PIC XX.
+       
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT ACTFILE GARFILE ORDFILE
@@ -199,89 +206,100 @@
                GO TO P1
            END-IF    
            MOVE ORD8 TO HOLD8
-           MOVE ORDNO TO A-ACTNO
+           MOVE ORD8 TO A-ACTNO
            READ ACTFILE INVALID 
                DISPLAY "THIS SHOULD NEVER HAPPEN, CALL STEVE"
                DISPLAY "BAD READ ON ACTFILE " ORD8
                ACCEPT X 
                GO TO P1
-           END-READ.                          
+           END-READ           
            MOVE A-GARNO TO X-GARNO.
+           MOVE A-ACTNO TO X-ACTNO.
+           IF A-GARNO = SPACE
+               GO TO P1-1
+           END-IF
+           MOVE A-GARNO TO G-GARNO
+           READ GARFILE INVALID
+               GO TO P1-1
+           END-READ
+           MOVE 0 TO FLAG
+      *    validate current garno on actfile     
+           PERFORM A1 THRU A2
+           IF FLAG = 0
+               MOVE SPACE TO ERRORFILE01
+               STRING "FOR MRN " A-ACTNO " NO CHANGE TO " G-GARNO
+               " A-GARNO WAS " A-GARNO
+               DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01  
+               GO TO P1
+           END-IF.    
+      *    fall into p1-1 searching garfile for a candidate     
        P1-1.
            MOVE A-ACTNO TO G-ACCT
            START GARFILE KEY NOT < G-ACCT INVALID
-               MOVE SPACE TO A-ACTNO
+               MOVE SPACE TO X-GARNO
+      *    no matches in garfile
                GO TO P4
            END-START.    
        P2.
            READ GARFILE NEXT AT END
-               MOVE SPACE TO A-ACTNO
+               MOVE SPACE TO X-GARNO
+      *        no good candidates
                GO TO P4
-           END-READ    
+           END-READ   
 
            IF (G-ACCT NOT = A-ACTNO)
-               MOVE SPACE TO A-ACTNO
+               MOVE SPACE TO X-GARNO
+      *    no good candidates i.e. biden         
                GO TO P4
            END-IF    
-           
+      *    reset X-GARNO 
+           MOVE G-GARNO TO X-GARNO 
+
+      *    set flag to zero again for another validate run
+           MOVE 0 TO FLAG      
+           PERFORM A1 THRU A2 
+           IF FLAG = 0
+      *    we need to update actfile
+               GO TO P4
+           END-IF
+           GO TO P2.    
+       A1.    
            IF (G-GN1 NOT = A-GN1)
-               GO TO P2
+               MOVE 1 TO FLAG
            END-IF    
 
            IF G-DUNNING NOT = "1"
-               GO TO P2
+               MOVE 1 TO FLAG
            END-IF    
            
            IF A-DOB NOT = G-DOB
-               GO TO P2
+               MOVE 1 TO FLAG
            END-IF    
            
-           IF (A-PRINS = G-PRINS) AND (A-SEINS = G-SEINS)
-               IF (G-GARNO = A-GARNO)
-      *    we like actfile's garno, no need to rewrite actfile, 
-      *    read next ord record
-                   STRING "NO CHANGE FOR MRN " A-ACTNO " " X-GARNO 
-                     " WAS ALREADY " A-GARNO
-                   DELIMITED BY SIZE INTO ERRORFILE01
-                   WRITE ERRORFILE01             
-                   GO TO P1
-               END-IF  
-               IF (G-GARNO NOT = A-GARNO)
-                   MOVE G-GARNO TO A-GARNO
-                   GO TO P4
-               END-IF   
-               GO TO P2
+           IF (A-PRINS NOT = G-PRINS) 
+               MOVE 1 TO FLAG
            END-IF
-
-           IF (A-PRINS = G-PRINS) 
-             AND (A-PRINS = "003") 
-             AND (G-SEINS = "062")
-               IF (G-GARNO = A-GARNO)
-      *    we like actfile's garno, no need to rewrite actfile, 
-      *    read next ord record           
-                   STRING "NO CHANGE FOR MRN " A-ACTNO " " X-GARNO 
-                     " WAS ALREADY " A-GARNO
-                   DELIMITED BY SIZE INTO ERRORFILE01
-                   WRITE ERRORFILE01             
-                   GO TO P1
-               END-IF  
-               IF (G-GARNO NOT = A-GARNO)
-                   MOVE G-GARNO TO A-GARNO
-                   GO TO P4
-               END-IF
-               GO TO P2    
-           END-IF   
-           GO TO P2.
+           
+           IF (A-SEINS NOT = G-SEINS) AND (G-SEINS NOT = "062")
+               MOVE 1 TO FLAG   
+           END-IF.
+       A2.
+           EXIT.
        P4.
-           STRING "FOR MRN " A-ACTNO " CHANGED " X-GARNO " TO " A-GARNO
+           MOVE SPACE TO ERRORFILE01
+           STRING "FOR MRN " A-ACTNO " CHANGED " A-GARNO " TO " X-GARNO
              DELIMITED BY SIZE INTO ERRORFILE01
            WRITE ERRORFILE01  
            CLOSE ACTFILE
            OPEN I-O ACTFILE
            READ ACTFILE WITH LOCK INVALID
-               DISPLAY "ACTFILE LOCKED, CALL STEVE"
-           END-READ    
-      *     REWRITE ACTFILE01
+               DISPLAY "ACTFILE LOCKED STATUS IS " ACCT-STAT
+           END-READ
+      *     DISPLAY "A-ACTNO IS " A-ACTNO " A-GARNO IS " A-GARNO
+      *     ACCEPT OMITTED
+           MOVE X-GARNO TO A-GARNO     
+           REWRITE ACTFILE01
            CLOSE ACTFILE
            OPEN INPUT ACTFILE
            GO TO P1.
