@@ -67,21 +67,45 @@
            02 CNTR PIC 999999 VALUE 0.
        PROCEDURE DIVISION.
        0005-START.
-           OPEN I-O  CHARCUR.
+           OPEN I-O CHARCUR.
            MOVE SPACE TO CHARCUR-KEY
-           START CHARCUR KEY > CHARCUR-KEY INVALID GO TO P2.
-       P1. READ CHARCUR NEXT WITH LOCK AT END GO TO P2.
-           IF CC-ASSIGN = "A" GO TO P1.
-           IF CC-DATEYYYYMM-A < "201906" GO TO P1.
+           START CHARCUR KEY > CHARCUR-KEY INVALID
+               GO TO P2
+           END-START.
+       P1.
+           READ CHARCUR NEXT WITH LOCK AT END
+               GO TO P2
+           END-READ
 
-           IF CC-DATEYYYYMM-A = "202001"   MOVE "20200229" TO CC-DATE-A
-            GO TO A2.
-           IF CC-DATEYYYYMM-A = "202002"   MOVE "20200331" TO CC-DATE-A
-           GO TO A2.
-           IF CC-DATEYYYYMM-A = "202003"   MOVE "20200430" TO CC-DATE-A
-           GO TO A2.
+           IF CC-ASSIGN = "A"
+               GO TO P1
+           END-IF
+
+           IF CC-DATEYYYYMM-A < "202001"
+               GO TO P1
+           END-IF
+
+           IF CC-DATEYYYYMM-A = "202001"
+               MOVE "20200229" TO CC-DATE-A
+               GO TO A2
+           END-IF
+
+           IF CC-DATEYYYYMM-A = "202002"
+               MOVE "20200331" TO CC-DATE-A
+               GO TO A2
+           END-IF
+
+           IF CC-DATEYYYYMM-A = "202003"
+               MOVE "20200430" TO CC-DATE-A
+               GO TO A2
+           END-IF
+
            GO TO P1.
        A2.  
-           REWRITE CHARCUR01 GO TO P1.
+           REWRITE CHARCUR01
+           GO TO P1.
            
-       P2. CLOSE CHARCUR. DISPLAY CNTR STOP RUN.
+       P2.
+           CLOSE CHARCUR.
+           DISPLAY CNTR
+           STOP RUN.
