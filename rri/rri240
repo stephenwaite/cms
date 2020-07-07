@@ -269,7 +269,7 @@
                MOVE 1 TO FLAG
            END-IF    
 
-           IF G-DUNNING NOT = "1"
+           IF (G-DUNNING NOT = "1" AND A-PRINS NOT = "003")
                MOVE 1 TO FLAG
            END-IF    
            
@@ -281,7 +281,8 @@
                MOVE 1 TO FLAG
            END-IF
            
-           IF (A-SEINS NOT = G-SEINS) AND (G-SEINS NOT = "062")
+           IF (A-SEINS NOT = G-SEINS) AND 
+             (G-SEINS NOT = "062" OR G-SE-ASSIGN NOT = "U")
                MOVE 1 TO FLAG   
            END-IF.
        A2.
