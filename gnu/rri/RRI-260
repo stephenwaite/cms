@@ -1,0 +1,42 @@
+#!/bin/bash
+
+S30=parm/parmchp; S35=log/W8$USER; S40=log/W3$USER; S45=vb/garfile
+S50=log/W2$USER; S55=vb/insfile
+S60=vb/charcur; S65=vb/patfile; S70=vb/procfile
+export S30 S35 S40 S45 S50 S55 S60 S65 S70
+cobcrun rrr260
+unset S30 S45 S50 S55 S60 S65 S70
+
+read a < log/W3$USER
+if [[ $a = "XXX" ]]
+then
+  echo NO RECORDS SELECTED
+  exit
+fi
+
+chmod u+x log/W8$USER
+log/W8$USER < $S50 > $S40
+
+echo THERE ARE 
+wc -l $S40
+echo RECORDS
+
+S30=$S40; S35=log/W4$USER; S40=vb/insfile
+export S30 S35 S40
+cobcrun rrr261
+unset S40
+
+less log/W4$USER
+
+#echo TURN ON PRINTER
+#echo READY TO PRINT, TYPE X TO QUIT
+
+#read ans
+#if [[ $ans == "X" ]] 
+#then
+#exit
+#fi
+
+#rm log/W4$USER log/W3$USER
+#~/PRINT log/W4$USER
+
