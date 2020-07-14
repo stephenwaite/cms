@@ -99,7 +99,7 @@
                MOVE "20200430" TO CC-DATE-A
                GO TO A2
            END-IF
-           
+
            GO TO P1.
        A2.  
            REWRITE CHARCUR01
