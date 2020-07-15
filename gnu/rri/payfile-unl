@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# cd into db dir
+cd vb
+
+S35=payfile; 
+S40=../fileout;
+export S35 S40 
+
+cobcrun ../payfile-unl
+
+unset  S35 S40  
+
+exit

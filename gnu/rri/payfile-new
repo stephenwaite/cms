@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# cd into db dir
+cd vb
+
+S35=payfile; 
+export S35
+cobcrun ../payfile-new
+unset  S35 
+
+exit
