@@ -171,10 +171,6 @@
                GO TO P6 
            END-READ
 
-           IF CC-PAYCODE NOT = "018"
-               GO TO P1 
-           END-IF
-
            IF CC-DATE-T > "20130630"
                GO TO P1 
            END-IF

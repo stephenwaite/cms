@@ -1,0 +1,49 @@
+#!/bin/bash
+exec 2>> log/log5
+exec 1>> log/log5
+
+set -x
+
+echo $(date)
+echo "z-5j starts for posting paysid"
+
+cp charfile.idx vb/charsteve.idx
+cp charfile.dat vb/charsteve.dat
+#cp payfile.idx vb/paysid.idx
+#cp payfile.dat vb/paysid.dat
+
+S30=vb/paysid; S35=w2$TID
+export S30 S35
+$RUNCBL/nei815
+
+S30=vb/charsteve; S35=vb/paysid; S40=vb/charcur; S45=vb/paycur; S50=w1$TID
+S55=vb/garfile; S60=postfile; S65=parm/parmchp; S70=vb/insfile; S75=vb/mplrfile
+export S30 S35 S40 S45 S50 S55 S60 S65 S70 S75
+$RUNCBL /home/sidw/rrr005.b
+unset S30 S35 S40 S45 S50 S55 S60 S65 S70 S75
+
+var005=file005-$(date +%m%d%y-%H%M%S)
+sort -o $var005 -t~ -k 1.61,1.74 w2$TID
+
+S30=vb/insfile; S35=payoutsid5; S40=postfile; S45=$var005; S50=parm/billparm
+export S30 S35 S40 S45 S50
+$RUNCBL /home/sidw/nei011.b
+
+#NO MORE PRINTOUTS FOR THE SAKE OF THE MARMOCETS
+cp payoutsid5 payoutsid5-$(date +%m%d%y-%H%M)
+
+#kin-sid
+cp paysid paysidx
+cp paysidx paysid-$(date +%m%d%y-%H%M)
+cp /home/sidw/payfile paysid
+
+echo "z-5j ends"
+
+echo $(date)
+
+set +x 
+
+exec 2> /dev/tty
+exec 1> /dev/tty
+
+exit

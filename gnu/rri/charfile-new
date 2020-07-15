@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# cd into db dir
+cd vb
+
+S35=charfile; 
+export S35
+cobcrun ../charfile-new
+unset  S35 
+
+exit
