@@ -301,7 +301,6 @@
            02 CD-DX4 PIC X(7).
            02 CD-DX5 PIC X(7).
            02 CD-DX6 PIC X(7).
-
            02 CD-FUTURE PIC X(6).
        FD  CHARCUR
       *    BLOCK CONTAINS 3 RECORDS
