@@ -183,12 +183,6 @@
            
            IF TOTCLAIM = 0 
                GO TO P1
-           END-IF
-
-           IF TOTCLAIM < 0 
-               MOVE CHARCUR01 TO ERRFILE01
-               WRITE ERRFILE01
-               GO TO P1
            END-IF            
 
       *    TIME TO WRITE OFF WITH BAD DEBT, 013
@@ -198,8 +192,13 @@
            END-READ
 
            MOVE G-GARNAME TO PD-NAME
+           IF TOTCLAIM < 0 
+               MOVE "015" TO PD-PAYCODE
+           ELSE           
+               MOVE "013" TO PD-PAYCODE
+           END-IF
+           COMPUTE TOTCLAIM = -1 * TOTCLAIM    
            MOVE TOTCLAIM TO PD-AMOUNT
-           MOVE "013" TO PD-PAYCODE
            MOVE "AA" TO PD-DENIAL
            MOVE CC-CLAIM TO PD-CLAIM
            MOVE CC-DATE-T TO PD-DATE-T PD-DATE-E
