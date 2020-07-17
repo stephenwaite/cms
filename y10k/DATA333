@@ -505,7 +505,6 @@
       *    GO TO P9.
            MOVE HOLDKEY19 TO HISFILE-KEY
            DISPLAY "HISFILE RECORD"
-           c
            GO TO P10-0.
        P11. MOVE SAVEGARNO TO AUTH-KEY8.
             MOVE SPACE TO AUTH-KEY6.
