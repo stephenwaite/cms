@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRR816.
+       PROGRAM-ID. kin029.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -14,7 +14,6 @@
            ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
            LOCK MODE MANUAL.
-
            SELECT FILEIN ASSIGN TO "S30" ORGANIZATION 
            LINE SEQUENTIAL.
            SELECT FILEOUT1 ASSIGN TO "S35" ORGANIZATION 
@@ -130,7 +129,10 @@
            OPEN INPUT FILEIN GARFILE.
            OPEN OUTPUT FILEOUT1 FILEOUT2.
        P1.
-           READ FILEIN AT END GO TO P99.
+           READ FILEIN AT END
+               GO TO P99
+           END-READ
+               
            MOVE FI-KEY8 TO G-GARNO
            READ GARFILE INVALID
            DISPLAY FI-KEY8 " BAD"

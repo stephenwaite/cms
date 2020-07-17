@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. PED018.
+       PROGRAM-ID. kin020.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -94,20 +94,22 @@
              03 PHR-CLAIM PIC X(6).
              03 PHR-PAYCODE PIC XXX.
              03 PHR-AMOUNT PIC S9(4)V99.
-       01     PHR PIC 999.
-       01     Y PIC 999.
-       01     CLAIM-TOT PIC S9(5)V99.
+       01  PHR PIC 999.
+       01  Y PIC 999.
+       01  CLAIM-TOT PIC S9(5)V99.
        01  ALF1 PIC X.
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT FILEOUT.
            OPEN INPUT BILLSORT CHARCUR PAYCUR.
-       R1. READ BILLSORT AT END GO TO R20.
+       R1. 
+           READ BILLSORT AT END GO TO R20.
            MOVE 0 TO PHR 
            MOVE BS-1 TO PC-KEY8
            MOVE SPACE TO PC-KEY3
            START PAYCUR KEY NOT < PAYCUR-KEY INVALID GO TO R1-1.
-       R8. READ PAYCUR NEXT AT END GO TO R1-1.
+       R8. 
+           READ PAYCUR NEXT AT END GO TO R1-1.
            IF BS-1 NOT = PC-KEY8 GO TO R1-1.
            ADD 1 TO PHR.
            IF PHR > 990 DISPLAY PC-KEY8
@@ -120,7 +122,8 @@
            MOVE BS-1 TO CC-KEY8.
            MOVE SPACE TO CC-KEY3.
            START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO R1.
-       R6. READ CHARCUR NEXT AT END GO TO R1.
+       R6. 
+           READ CHARCUR NEXT AT END GO TO R1.
            IF BS-1 NOT = CC-KEY8 GO TO R1.
            IF CC-ASSIGN = "A" GO TO R6.
            IF CC-COLLT = "1"
