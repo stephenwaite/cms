@@ -119,11 +119,14 @@
            MOVE FILEIN-KEY TO CHARCUR-KEY
            READ CHARCUR WITH LOCK INVALID
                DISPLAY CHARCUR-KEY " BAD"
+               GO TO P1
            END-READ        
-           GO TO P1
 
            MOVE "018" TO CC-PAYCODE
-           REWRITE CHARCUR01.           
+           MOVE "A" TO CC-ASSIGN CC-NEIC-ASSIGN
+
+           REWRITE CHARCUR01
+           GO TO P1.
        P99.
            CLOSE CHARCUR FILEIN.
            STOP RUN.
