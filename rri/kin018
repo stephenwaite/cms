@@ -341,21 +341,36 @@
 
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT  PAYCUR FILEIN GARFILE INSFILE.
+           OPEN INPUT PAYCUR FILEIN GARFILE INSFILE.
            OPEN OUTPUT FILEOUT1.
            OPEN I-O CHARCUR.
            MOVE 0 TO TOT-PLACED.
            ACCEPT DATE-X FROM CENTURY-DATE.
-           READ FILEIN AT END GO TO P99.
+           READ FILEIN AT END
+               GO TO P99
+           END-READ    
            MOVE FI-DATE-T TO LASTDATE
-           MOVE FI-KEY8 TO HOLD8 GO TO P1-1.
+           MOVE FI-KEY8 TO HOLD8
+           GO TO P1-1.
        P1.
-           READ FILEIN AT END MOVE 1 TO ENDFLAG GO TO P5.
-           IF FI-KEY8 NOT = HOLD8 GO TO P5.
+           READ FILEIN AT END
+               MOVE 1 TO ENDFLAG
+               GO TO P5
+           END-READ
+
+           IF FI-KEY8 NOT = HOLD8
+               GO TO P5
+           END-IF.
+
        P1-1.
-           IF FI-DATE-T > LASTDATE MOVE FI-DATE-T TO LASTDATE.
+           IF FI-DATE-T > LASTDATE
+               MOVE FI-DATE-T TO LASTDATE
+           END-IF
+
            MOVE FILEIN-KEY TO CHARCUR-KEY
-           READ CHARCUR WITH LOCK INVALID GO TO P1.
+           READ CHARCUR WITH LOCK INVALID 
+               GO TO P1
+           END-READ    
       *     IF CC-COLLT = "1" GO TO P1.
            MOVE "018" TO CC-PAYCODE
            MOVE DATE-X TO CC-DATE-A
