@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI181.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rri184.
+       AUTHOR. S WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -159,8 +159,8 @@
        01  SAVEPAY PIC X(80).
        01  HOLD-KEY PIC X(11).
        01  XYZ PIC 999.
-       01 FLAG PIC 9.
-       01 ALF1 PIC X.
+       01  FLAG PIC 9.
+       01  ALF1 PIC X.
       *
        PROCEDURE DIVISION.
        0005-START.
@@ -171,23 +171,42 @@
            DISPLAY "PAYDATE T = TODAY   OR C = CHARGE DATE"
            ACCEPT ALF1
            IF NOT (ALF1 = "T" OR "C")
-           DISPLAY "BAD DATE" GO TO P2.
+               DISPLAY "BAD DATE" 
+               GO TO P2
+           END-IF
+
            ACCEPT PD-DATE-T FROM CENTURY-DATE
            MOVE PD-DATE-T TO PD-DATE-E
            DISPLAY "PAYCODE 012 OR 013"
            ACCEPT PD-PAYCODE.
            IF NOT (PD-PAYCODE = "012" OR "013")
-           DISPLAY "INVALID" GO TO P2.
-       P1. READ FILEIN AT END GO TO P2.
-           MOVE FI-1     TO CHARCUR-KEY
-           READ CHARCUR INVALID DISPLAY "BAD " GO TO P1.
+               DISPLAY "INVALID" 
+               GO TO P2
+           END-IF.    
+       P1. 
+           READ FILEIN AT END 
+               GO TO P2
+           END-READ    
+           MOVE FI-1 TO CHARCUR-KEY
+           READ CHARCUR INVALID 
+               DISPLAY "BAD "
+               GO TO P1
+           END-READ
+
            MOVE CC-AMOUNT TO CLAIM-TOT
            PERFORM F1 THRU F1-EXIT
            MOVE CC-KEY8 TO G-GARNO
-           READ GARFILE INVALID MOVE SPACE TO G-GARNAME.
+           READ GARFILE INVALID
+               MOVE SPACE TO G-GARNAME
+           END-READ    
+           
            WRITE FILEOUT01 FROM CHARCUR-KEY.
            MOVE G-GARNAME TO PD-NAME
-           IF CLAIM-TOT = 0 GO TO P1.
+           
+           IF CLAIM-TOT = 0
+               GO TO P1
+           END-IF
+
            COMPUTE PD-AMOUNT = -1 * CLAIM-TOT
            MOVE SPACE TO PD-DENIAL
            MOVE CC-CLAIM TO PD-CLAIM
@@ -195,29 +214,48 @@
            MOVE 0 TO XYZ
            MOVE CC-KEY8 TO PD-KEY8
            IF ALF1 = "C"
-            MOVE CC-DATE-T TO PD-DATE-T 
+               MOVE CC-DATE-T TO PD-DATE-T 
            END-IF
            
            MOVE PAYFILE01 TO SAVEPAY.
-       P5. ADD 1 TO XYZ.
+       P5. 
+           ADD 1 TO XYZ.
            MOVE XYZ TO PD-KEY3.
            MOVE PAYFILE-KEY TO HOLD-KEY.
-           READ PAYFILE INVALID GO TO P6.
+           READ PAYFILE INVALID 
+               GO TO P6
+           END-READ    
            GO TO P5.
-       P6.  MOVE SAVEPAY TO PAYFILE01.
+       P6. 
+           MOVE SAVEPAY TO PAYFILE01.
            MOVE HOLD-KEY TO PAYFILE-KEY.
            ACCEPT PD-ORDER FROM TIME.
            WRITE PAYFILE01.
            GO TO P1.
-       F1. MOVE CC-KEY8 TO PC-KEY8.
+       F1. 
+           MOVE CC-KEY8 TO PC-KEY8.
            MOVE "000" TO PC-KEY3.
            MOVE 0 TO FLAG.
-           START PAYCUR KEY > PAYCUR-KEY INVALID GO TO F1-EXIT.
-       F3.  READ PAYCUR NEXT AT END GO TO F1-EXIT.
-           IF PC-KEY8 NOT = CC-KEY8 GO TO F1-EXIT.
-           IF PC-CLAIM NOT = CC-CLAIM GO TO F3.
+           START PAYCUR KEY > PAYCUR-KEY INVALID 
+               GO TO F1-EXIT
+           END-START.    
+       F3. 
+           READ PAYCUR NEXT AT END
+               GO TO F1-EXIT
+           END-READ
+
+           IF PC-KEY8 NOT = CC-KEY8
+               GO TO F1-EXIT
+           END-IF
+
+           IF PC-CLAIM NOT = CC-CLAIM
+               GO TO F3
+           END-IF
+
            ADD PC-AMOUNT TO CLAIM-TOT.
            GO TO F3.
-       F1-EXIT. EXIT.
+       F1-EXIT. 
+           EXIT.
        P2.
-           CLOSE PAYFILE CHARCUR GARFILE. STOP RUN.
+           CLOSE PAYFILE CHARCUR GARFILE.
+           STOP RUN.
