@@ -5,7 +5,7 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
        PROGRAM-ID. rrr250.
-       AUTHOR. SID WAITE.
+       AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -499,14 +499,7 @@
            MOVE " " TO CD-ACC-TYPE
            MOVE INS-CLAIMTYPE TO CD-PAPER
            MOVE INS-ASSIGN TO CD-ASSIGN
-           MOVE INS-NEIC-ASSIGN TO CD-NEIC-ASSIGN
-           IF CHARGE1 = "1980"
-            MOVE "195" TO CD-PAYCODE
-            MOVE "P" TO CD-PAPER
-            MOVE "A" TO CD-ASSIGN
-            MOVE "A" TO CD-NEIC-ASSIGN
-           END-IF.
-
+           MOVE INS-NEIC-ASSIGN TO CD-NEIC-ASSIGN.
        P6. 
            MOVE A-ACTNO TO ORD8  
            MOVE "   " TO ORD3.
@@ -543,7 +536,6 @@
            MOVE PROC-KEY TO CD-PROC
            
            MOVE SPACE TO CD-MOD2
-      *     PERFORM AAA.
 
            MOVE PROC-AMOUNT TO CD-AMOUNT
            MOVE PROC-TYPE TO CD-SERVICE
@@ -561,10 +553,10 @@
            MOVE XXX TO CD-KEY3.
            MOVE SPACE TO CD-MOD2
            MOVE "01" TO CD-WORK
-      *     PERFORM AAA.
            WRITE CHARFILE01. 
            WRITE ORD-DELETES01 FROM ORDNO
            GO TO P8.
+       
        P8-EXIT.
            IF FLAGPROC = 0
              DISPLAY CD-NAME
@@ -579,63 +571,48 @@
              ACCEPT OMITTED
            END-IF
            GO TO P7.
-       AAA.
-           IF CD-PROC = "40807881526" MOVE "QR" TO CD-MOD2
-           MOVE "V7070" TO CD-DX2.
-           IF CD-PROC = "10607432826" MOVE "52" TO CD-MOD2.
-           IF CD-PROC = "10617432926" MOVE "52" TO CD-MOD2.
-           IF CD-PROC = "10627433026" MOVE "52" TO CD-MOD2.
-           IF CD-PROC = "19677222026" MOVE "52" TO CD-MOD2.
-           IF CD-PROC = "20797670526" MOVE "52" TO CD-MOD2.
-           IF CD-PROC = "20807685726" MOVE "52" TO CD-MOD2.
-           IF CD-PROC = "20817660426" MOVE "52" TO CD-MOD2.
-           IF CD-PROC = "19727589626" MOVE "05" TO CD-WORK.
-           IF CD-PROC = "19707589626" MOVE "05" TO CD-WORK.
 
        REWRITE-NEW. 
-                  MOVE G-COLLT TO X-COLLT
-                  MOVE G-DUNNING TO X-DUNNING
-                  MOVE G-ACCTSTAT TO X-ACCTSTAT
-                  MOVE G-INSPEND TO X-INSPEND
-                  MOVE G-LASTBILL TO X-LASTBILL
-                  MOVE G-BILLCYCLE TO X-BILLCYCLE
-                  
-                  MOVE ACTFILE01 TO GARFILE01
-                  MOVE A-GARNO TO G-GARNO
-                  MOVE A-ACTNO TO G-ACCT
-                  
-                  MOVE X-COLLT TO G-COLLT
-                  MOVE X-DUNNING TO G-DUNNING
-                  MOVE X-ACCTSTAT TO G-ACCTSTAT
-                  MOVE X-INSPEND TO G-INSPEND
-                  MOVE X-LASTBILL TO G-LASTBILL
-                  MOVE X-BILLCYCLE TO G-BILLCYCLE
-                  MOVE "1" TO G-DELETE
-                  IF NOT (G-BILLCYCLE = "1" OR "2" OR "3" OR "4")
-                  MOVE "1" TO G-BILLCYCLE.
-           IF (G-PRINS = "003")
-             AND (G-SEINS = "108" OR "116")
-           MOVE SPACE TO G-PR-GROUP
-           MOVE "0000567" TO G-PR-GROUP
-           MOVE "062" TO G-SEINS.
-            MOVE SPACE TO LNAME FNAME MNAME
-               LNAME2 FNAME2 MNAME2
-            UNSTRING G-GARNAME DELIMITED BY ";" INTO
-              LNAME FNAME MNAME
-            UNSTRING G-PRNAME DELIMITED BY ";" INTO
-              LNAME2 FNAME2 MNAME2
-            IF LNAME = LNAME2
-             AND FNAME = FNAME2
-             AND G-RELATE NOT = G-PR-RELATE
-             MOVE G-GARNAME TO G-PRNAME
-             MOVE G-RELATE TO G-PR-RELATE
-            END-IF.
+           MOVE G-COLLT TO X-COLLT
+           MOVE G-DUNNING TO X-DUNNING
+           MOVE G-ACCTSTAT TO X-ACCTSTAT
+           MOVE G-INSPEND TO X-INSPEND
+           MOVE G-LASTBILL TO X-LASTBILL
+           MOVE G-BILLCYCLE TO X-BILLCYCLE
+           MOVE ACTFILE01 TO GARFILE01
+           MOVE A-GARNO TO G-GARNO
+           MOVE A-ACTNO TO G-ACCT
+           MOVE X-COLLT TO G-COLLT
+           MOVE X-DUNNING TO G-DUNNING
+           MOVE X-ACCTSTAT TO G-ACCTSTAT
+           MOVE X-INSPEND TO G-INSPEND
+           MOVE X-LASTBILL TO G-LASTBILL
+           MOVE X-BILLCYCLE TO G-BILLCYCLE
+           MOVE "1" TO G-DELETE
+           IF NOT (G-BILLCYCLE = "1" OR "2" OR "3" OR "4")
+               MOVE "1" TO G-BILLCYCLE
+           END-IF    
+           IF (G-PRINS = "003") AND (G-SEINS = "108" OR "116")
+               MOVE SPACE TO G-PR-GROUP
+               MOVE "0000567" TO G-PR-GROUP
+               MOVE "062" TO G-SEINS
+           END-IF    
+           MOVE SPACE TO LNAME FNAME MNAME LNAME2 FNAME2 MNAME2
+           UNSTRING G-GARNAME DELIMITED BY ";" INTO LNAME FNAME MNAME
+           UNSTRING G-PRNAME DELIMITED BY ";" INTO LNAME2 FNAME2 MNAME2
+           IF (LNAME = LNAME2 AND FNAME = FNAME2
+               AND G-RELATE NOT = G-PR-RELATE)
+               MOVE G-GARNAME TO G-PRNAME
+               MOVE G-RELATE TO G-PR-RELATE
+           END-IF
            INSPECT G-BILLADD REPLACING ALL ":" BY " ".
            INSPECT G-STREET REPLACING ALL ":" BY " ".
-           REWRITE GARFILE01 INVALID DISPLAY "NO REWRITE ON " G-GARNO
-           DISPLAY "ACCOUNT IS SKIPPED UNTIL NEXT 250 RUN"
-           ACCEPT ANS
-           GO TO P1.
+           REWRITE GARFILE01 INVALID 
+               DISPLAY "NO REWRITE ON " G-GARNO
+               DISPLAY "ACCOUNT IS SKIPPED UNTIL NEXT 250 RUN"
+               ACCEPT ANS
+               GO TO P1
+           END-REWRITE    
            GO TO P5-0.
        P11.
            REWRITE CLAIM01.
