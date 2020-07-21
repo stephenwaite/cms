@@ -259,6 +259,10 @@
            IF FLAG = 146
                MOVE "00003341F  " TO CD-PROC
                MOVE "Z1231  " TO CD-DIAG
+               
+               IF CD-MOD4 = "1 "
+                   GO TO A1-1
+               END-IF
 
                IF CD-MOD4 = "0 "
                    MOVE "00003340F  " TO CD-PROC
