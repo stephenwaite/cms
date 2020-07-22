@@ -11,3 +11,4 @@
 *.acu
 
 .vscode*
+*.code-workspace
