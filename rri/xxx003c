@@ -239,7 +239,7 @@
            OPEN INPUT DIAGFILE FILE-OUT PROCFILE ALLOWFILE GARFILE
                       TAGDIAG DIAG9FILE.
            OPEN I-O CHARFILE.
-           DISPLAY "0 = START NEW  1 = SKIP TO UNDONE"
+           DISPLAY "0 = start new, 1 = skip ahead to undone"
            ACCEPT ALF1.
        P1. READ FILE-OUT AT END GO TO P99.
            MOVE FO-KEY TO CHARFILE-KEY
@@ -289,7 +289,7 @@
            END-IF.
            
            IF (CD-PROC1 = "1099" OR "1442")
-               DISPLAY "UNI SCREEN ADDING 52 MOD"
+               DISPLAY "unilateral screening mammogram -> added mod 52"
       * needs assesment so will drop down below
                MOVE "Z1231  " TO CD-DIAG
                MOVE "52" TO CD-MOD2
@@ -298,7 +298,7 @@
       
       * auto-code uni tomo
            IF (CD-PROC1 = "1456")
-               DISPLAY "UNI TOMO, ADDING 52 MOD"
+               DISPLAY "unilateral tomosynthesis -> added modifier 52"
                MOVE "Z1231  " TO CD-DIAG
                MOVE "52" TO CD-MOD2
                REWRITE CHARFILE01
@@ -311,7 +311,7 @@
 
       * auto code LD lung screen
            IF (CD-PROC1 = "5232")
-               DISPLAY "LD LUNG SCREEN AUTO-CODING"
+               DISPLAY "LD lung screen -> auto coded"
                MOVE "Z87891 " TO CD-DIAG
                REWRITE CHARFILE01
                GO TO P1
@@ -328,9 +328,9 @@
            
            MOVE "Z1231  " TO CD-DIAG
            IF CD-PAYCODE NOT = "009"
-               DISPLAY "NON MEDICARE SCREEN AUTO-CODED"
+               DISPLAY "non medicare screen -> auto coded"
                IF CD-DOCP = "00"
-                  DISPLAY "BUT RRMC TAPE SAID NOT READ, PLEASE NOTE"
+                  DISPLAY "but RRMC tape said not read, please note"
                   ACCEPT ANS
                END-IF
                REWRITE CHARFILE01
@@ -344,21 +344,21 @@
            DISPLAY FO-DATE " " FO-KEY " " FO-PROC " " CD-PAYCODE
            " " CD-PLACE " " G-DOB " " G-ACCT " " FO-NAME.
            MOVE FO-PROC TO PROC-KEY
-           READ PROCFILE INVALID DISPLAY "BAD " FO-PROC.
+           READ PROCFILE INVALID DISPLAY "bad " FO-PROC.
            DISPLAY PROC-TITLE
-           IF CD-DAT1 NOT = "00000000" DISPLAY "ACCIDENT" .
+           IF CD-DAT1 NOT = "00000000" DISPLAY "accident" .
            DISPLAY CD-CLINICAL
            DISPLAY CD-ADMIT-DIAG
            DISPLAY " ".
        P2-0.
            IF CD-DOCP = "00"
-             DISPLAY "RRMC TAPE SAID NOT READ"
+             DISPLAY "RRMC tape said not read"
              ACCEPT ANS
            END-IF
 
            IF CD-PAYCODE = "009"
-               DISPLAY "ENTER ASSESSMENT CODE"
-               DISPLAY "? FOR DEFINITIONS"            
+               DISPLAY "Enter assessment code"
+               DISPLAY "? for help"            
                ACCEPT  CD-MOD4
                
                IF NOT (CD-MOD4(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
@@ -376,7 +376,7 @@
                    GO TO P2-0
                END-IF  
                IF CD-MOD4(1:1) = "B"
-                   DISPLAY FO-KEY " HAS BEEN SKIPPED"
+                   DISPLAY FO-KEY " has been skipped"
                    GO TO P1
                END-IF
                MOVE "Z1231  " TO CD-DIAG
@@ -394,48 +394,54 @@
            END-IF
 
            IF CD-PAYCODE = "011"
-             DISPLAY " MEASURE 195: ENTER 8P OR LEAVE BLANK"
-             ACCEPT CD-MOD4
-             IF NOT (CD-MOD4 = "8P" OR SPACE)
-                 GO TO P2-0
-             END-IF
-           END-IF. 
+               DISPLAY " measure 195: 8P or <Enter>"
+               ACCEPT CD-MOD4
+               IF NOT (CD-MOD4 = "8P" OR SPACE)
+                   GO TO P2-0
+               END-IF
+           END-IF
 
            IF CD-PAYCODE = "012"
-             DISPLAY " MEASURE 405: TYPE ? OR 1 OR 2 OR 3 OR BLANK"
-             ACCEPT CD-MOD4
-             IF CD-MOD4 = "?"
-               DISPLAY " 1 = IMAGING NOT RECOMMENDED"
-               DISPLAY " 2 = MEDICAL NECESSITY"
-               DISPLAY " 3 = IMAGING RECOMMENDED; BAD RAD, CALL STEVE"
-               DISPLAY " ENTER = NO LESION"
-               GO TO P2-0
-             END-IF               
-             IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
-                 GO TO P2-0
-             END-IF
-           END-IF.
+               DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
+               ACCEPT CD-MOD4
+               IF CD-MOD4 = "?"
+                   DISPLAY " 1 = imaging not recommended"
+                   DISPLAY " 2 = medical necessity"
+                   DISPLAY " 3 = imaging recommended, this is odd"
+                   DISPLAY " <Enter> = no lesion"
+                   GO TO P2-0
+               END-IF               
+               IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
+                   GO TO P2-0
+               END-IF
+           END-IF
 
            IF CD-PAYCODE = "013"
-             DISPLAY " MEASURE 406"
-             DISPLAY " < 1CM LESION USE 1 OR 2 OR 3"
-             DISPLAY " BLANK FOR NO LESION"
-             DISPLAY " ? FOR DEFINITIONS"
-             ACCEPT CD-MOD4
-             IF CD-MOD4 = "?"
-               DISPLAY " 1 = NO FOLLOWUP RECOMMENDED"
-               DISPLAY " 2 = MEDICAL NECESSITY FOR FOLLOWUP"
-               DISPLAY "3 =  FOLLOWUP RECOMMENDED"
-               GO TO P2-0
-             END-IF
-             IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
-                 GO TO P2-0
-             END-IF
-           END-IF.
+               DISPLAY " Measure 406"
+               DISPLAY " < 1cm lesion use 1 or 2 or 3"
+               DISPLAY " <Enter> for no lesion"
+               DISPLAY " ? for help"
+               ACCEPT CD-MOD4
+               IF CD-MOD4 = "?"
+                   DISPLAY " 1 = no follow up recommended"
+                   DISPLAY " 2 = medical necessity for follow up"
+                   DISPLAY " 3 = follow up recommended"
+                   GO TO P2-0
+               END-IF
+               IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
+                   GO TO P2-0
+               END-IF
+           END-IF
 
            IF CD-PAYCODE = "014"
-
-
+               DISPLAY " Radiation Consideration for Adult CT:"
+               DISPLAY " Utilization of Dose Lowering Techniques"
+               DISPLAY " Measure 436: 8P or leave blank <Enter>"
+               ACCEPT CD-MOD4
+               IF NOT (CD-MOD4 = "8P" OR SPACE)
+                  GO TO P2-0
+               END-IF
+           END-IF.
        P2-000.
            DISPLAY " DIAG? "
            ACCEPT IN-FIELD-7.
@@ -518,14 +524,14 @@
            MOVE SPACE TO DIAG2
            GO TO P1.
        P3.
-           DISPLAY "SECOND DIAG? Y".
+           DISPLAY "2nd diag? Y".
            ACCEPT DIAG2.
            IF DIAG2 NOT = "Y"
            MOVE SPACE TO DIAG2 GO TO P1.
            DISPLAY FO-DATE " " FO-KEY " " FO-PROC " " CD-PAYCODE
            " " CD-PLACE " " G-DOB " " G-ACCT " " FO-NAME.
            DISPLAY PROC-TITLE
-           IF CD-DAT1 NOT = "00000000" DISPLAY "ACCIDENT" .
+           IF CD-DAT1 NOT = "00000000" DISPLAY "accident" .
            DISPLAY CD-CLINICAL
            DISPLAY CD-ADMIT-DIAG
            DISPLAY " ".

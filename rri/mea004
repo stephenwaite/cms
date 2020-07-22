@@ -242,6 +242,22 @@
                GO TO P0
            END-IF
            
+           IF CD-PAYCODE = "014"
+               MOVE SPACE TO FILEOUT01
+               STRING "436 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
+      *         DISPLAY "MEASURE 436"
+      *         DISPLAY CHARFILE01
+               MOVE 436 TO FLAG
+               MOVE "003" TO CD-PAYCODE
+               MOVE CHARFILE01 TO CHARBACK01
+               REWRITE CHARFILE01
+               UNLOCK CHARFILE RECORD
+               PERFORM A1 THRU A1-EXIT
+               GO TO P0
+           END-IF
+
            GO TO P1.
        A1. 
            MOVE 0 TO CD-AMOUNT
