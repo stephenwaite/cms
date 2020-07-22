@@ -328,7 +328,7 @@
            
            MOVE "Z1231  " TO CD-DIAG
            IF CD-PAYCODE NOT = "009"
-               DISPLAY "non medicare screen -> auto coded"
+               DISPLAY "non medicare screening mammo -> auto coded"
                IF CD-DOCP = "00"
                   DISPLAY "but RRMC tape said not read, please note"
                   ACCEPT ANS
@@ -356,7 +356,21 @@
              ACCEPT ANS
            END-IF
 
-           IF CD-PAYCODE = "009"
+           IF CD-PAYCODE = "008"
+               DISPLAY " Exposure Dose Indices"
+               DISPLAY " <Enter> = dose documented in report"
+               DISPLAY " 1 = no documentation of dose index"
+               ACCEPT CD-MOD4
+               IF CD-MOD4 = "?"
+                   DISPLAY "<Enter> = exposure dose documented"
+                   DISPLAY "1 = not documented"
+                   GO TO P2-0    
+               IF NOT (CD-MOD4 = "1" OR SPACE)
+                   GO TO P2-0
+               END-IF
+           END-IF
+
+           IF CD-PAYCODE = "009" 
                DISPLAY "Enter assessment code"
                DISPLAY "? for help"            
                ACCEPT  CD-MOD4
@@ -379,6 +393,8 @@
                    DISPLAY FO-KEY " has been skipped"
                    GO TO P1
                END-IF
+
+               DISPLAY "medicare screening mammo -> auto coded"
                MOVE "Z1231  " TO CD-DIAG
                REWRITE CHARFILE01
                GO TO P1
@@ -436,10 +452,15 @@
            IF CD-PAYCODE = "014"
                DISPLAY " Radiation Consideration for Adult CT:"
                DISPLAY " Utilization of Dose Lowering Techniques"
-               DISPLAY " Measure 436: 8P or leave blank <Enter>"
+               DISPLAY " <Enter> = Lower dose technique documented"
+               DISPLAY " 1 = no documentation of lower dose"
                ACCEPT CD-MOD4
-               IF NOT (CD-MOD4 = "8P" OR SPACE)
-                  GO TO P2-0
+               IF CD-MOD4 = "?"
+                   DISPLAY "<Enter> = Lower dose technique documented"
+                   DISPLAY "1 = not documented"
+                   GO TO P2-0    
+               IF NOT (CD-MOD4 = "1" OR SPACE)
+                   GO TO P2-0
                END-IF
            END-IF.
        P2-000.
