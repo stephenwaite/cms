@@ -142,7 +142,7 @@
        P1. 
            READ CHARFILE NEXT WITH LOCK AT END GO TO P2.
            IF NOT (CD-PAYCODE = "008" OR "009" OR "010" OR "011" 
-               OR "012" OR "013")
+               OR "012" OR "013" OR "014")
                GO TO P1
            END-IF
 
@@ -265,6 +265,9 @@
 
            IF FLAG = 145
                MOVE "0000G9500  " TO CD-PROC
+               IF CD-MOD4 = "1 "
+                   MOVE "0000G9501  " TO CD-PROC
+               END-IF
                MOVE CHARFILE01 TO CHARBACK01
                PERFORM B1 THRU B2
                MOVE SPACE TO CHARFILE-KEY

@@ -76,6 +76,7 @@
                GO TO P2
            END-READ
 
+      *    measure 145
            IF (CD-PROC1 = "0075T" OR "0202T" OR "0234T" OR "0235T" 
                OR "0236T" OR "0237T" OR "0238T" OR "0338T" OR "0339T"
                OR "22526" OR "25606" OR "25651" OR "26608" OR "26650"
@@ -112,6 +113,7 @@
                GO TO P1
            END-IF
 
+      *    measure 145 again :)
            IF (CD-PROC1 = "64610" OR "70010" OR "70015" OR "70170"
                OR "70332" OR "70370" OR "70371" OR "70390" OR "72240"
                OR "72255" OR "72265" OR "72270" OR "72275" OR "72285"
@@ -148,7 +150,8 @@
                REWRITE CHARFILE01
                GO TO P1
            END-IF
-
+      
+      *    measure 146    
            IF ((CD-PROC1 = "77067")
                AND NOT (CD-PROC0 = "1446" OR "1447" OR "1448"))
                AND (CD-PAYCODE = "003")
@@ -161,8 +164,9 @@
                GO TO P1
            END-IF
 
+      *    measure 147
            IF (CD-PROC1 = "78300" OR "78305" OR "78306"
-               OR  "78315" OR "78320")
+               OR  "78315" OR "78320" OR "78803" OR "78830")
                AND (CD-PAYCODE = "003")
                MOVE "010" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
@@ -173,6 +177,7 @@
                GO TO P1
            END-IF
 
+      *    measure 195
            IF (CD-PROC1 = "36222" OR "70498" OR "70547"
                OR "70548" OR "70549" OR "93880" OR "93882"
                OR "36261" OR "36223" OR "36224"
@@ -199,7 +204,8 @@
                REWRITE CHARFILE01
                GO TO P1
            END-IF
-        
+
+      *    measure 406       
 	       IF (CD-PROC1 = "70490" OR "70491" OR "70492" OR "70498" 
                OR "70540" OR "70542" OR "70543" OR "71250" OR "71260" 
                OR "71270" OR "71275" OR "71555" OR "72125" OR "72126" 
@@ -215,6 +221,7 @@
                GO TO P1
            END-IF.
 
+      *    measure 436
            IF (CD-PROC1 = "70450" OR "70460" OR "70470" OR "70480"
                OR "70481" OR "70482" OR "70486" OR "70487" OR "70488"
                OR "70490" OR "70491" OR "70492" OR "70496" OR "70498" 
