@@ -215,27 +215,27 @@
                GO TO P1
            END-IF.
 
-        *>    IF (CD-PROC1 = "70450" OR "70460" OR "70470" OR "70480"
-        *>        OR "70481" OR "70482" OR "70486" OR "70487" OR "70488"
-        *>        OR "70490" OR "70491" OR "70492" OR "70496" OR "70498" 
-        *>        OR "71250" OR "71260" OR "71270" OR "71275" OR "72125"
-        *>        OR "72126" OR "72127" OR "72128" OR "72129" OR "72130"
-        *>        OR "72131" OR "72132" OR "72133" OR "72191" OR "72192"
-        *>        OR "72193" OR "72194" OR "73200" OR "73201" OR "73202"
-        *>        OR "73206" OR "73700" OR "73701" OR "73702" OR "73706"
-        *>        OR "74150" OR "74160" OR "74170" OR "74174" OR "74175"
-        *>        OR "74176" OR "74177" OR "74178" OR "74261" OR "74262"
-        *>        OR "74263" OR "75571" OR "75572" OR "75573" OR "75574"
-        *>        OR "75635" OR "76380" OR "76497" OR "77011" OR "77012"
-        *>        OR "77013" OR "77014" OR "77078" OR "0042T" OR "G0297)
-        *>        AND (CD-PAYCODE = "003")
-        *>        MOVE "014" TO CD-PAYCODE
-        *>        MOVE SPACE TO FILEOUT01
-        *>        STRING "436 " CD-PROC1 " " CD-DATE-T " " CD-NAME 
-        *>        DELIMITED BY SIZE INTO FILEOUT01
-        *>        WRITE FILEOUT01 
-        *>        REWRITE CHARFILE01 
-        *>    END-IF
+           IF (CD-PROC1 = "70450" OR "70460" OR "70470" OR "70480"
+               OR "70481" OR "70482" OR "70486" OR "70487" OR "70488"
+               OR "70490" OR "70491" OR "70492" OR "70496" OR "70498" 
+               OR "71250" OR "71260" OR "71270" OR "71275" OR "72125"
+               OR "72126" OR "72127" OR "72128" OR "72129" OR "72130"
+               OR "72131" OR "72132" OR "72133" OR "72191" OR "72192"
+               OR "72193" OR "72194" OR "73200" OR "73201" OR "73202"
+               OR "73206" OR "73700" OR "73701" OR "73702" OR "73706"
+               OR "74150" OR "74160" OR "74170" OR "74174" OR "74175"
+               OR "74176" OR "74177" OR "74178" OR "74261" OR "74262"
+               OR "74263" OR "75571" OR "75572" OR "75573" OR "75574"
+               OR "75635" OR "76380" OR "76497" OR "77011" OR "77012"
+               OR "77013" OR "77014" OR "77078" OR "0042T" OR "G0297)
+               AND (CD-PAYCODE = "003")
+               MOVE "014" TO CD-PAYCODE
+               MOVE SPACE TO FILEOUT01
+               STRING "436 " CD-PROC1 " " CD-DATE-T " " CD-NAME 
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
+               REWRITE CHARFILE01 
+           END-IF
 
            GO TO P1.
        P2.
