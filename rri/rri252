@@ -4,14 +4,16 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI252.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rri252.
+       AUTHOR. s WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY.
+           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
+           LINE SEQUENTIAL.
        DATA DIVISION.
        FILE SECTION.
        FD  CHARFILE
@@ -61,23 +63,43 @@
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(30).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(80).           
        PROCEDURE DIVISION.
-       P0. OPEN I-O CHARFILE.
+       P0. 
+           OPEN I-O CHARFILE
+           OPEN OUTPUT FILEOUT
            MOVE SPACE TO CHARFILE-KEY
-           START CHARFILE KEY > CHARFILE-KEY INVALID
-           DISPLAY "EMPTY FILE" GO TO P2.
-       P1. READ CHARFILE NEXT AT END GO TO P2.
-           IF CD-PROC1 = "4094" OR "4095" OR "4073"
-           MOVE "024" TO CD-PAYCODE
-           MOVE "P" TO CD-PAPER
-           REWRITE CHARFILE01
-           DISPLAY CD-NAME " " CD-DATE-T " " CD-PROC1.
-           GO TO P1.
-           IF ((CD-PROC2(1:5) = "77067") AND
-              (CD-PAYCODE = "003" OR "028"))
+           START CHARFILE KEY NOT < CHARFILE-KEY INVALID
+               DISPLAY "EMPTY FILE"
+               GO TO P2
+           END-START.    
+       P1. 
+           READ CHARFILE NEXT AT END
+               GO TO P2
+           END-READ    
+           IF (CD-PROC1 = "4094" OR "4095" OR "4073")
+               MOVE "024" TO CD-PAYCODE
+               MOVE "P" TO CD-PAPER
+               REWRITE CHARFILE01
+               STRING "Cardio kid? " CD-NAME " " CD-DATE-T " " CD-PROC1
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+               GO TO P1
+           END-IF
+
+           IF ((CD-PROC2(1:5) = "77065") AND 
+               (CD-PROC1 = "1091" OR "1092" OR "1441"))
                MOVE CD-MOD2 TO CD-MOD3
                MOVE "GG" TO CD-MOD2
                REWRITE CHARFILE01
+               STRING "GG mod for same day screen with diag "
+                       CD-NAME " " CD-DATE-T " " CD-PROC1
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01        
            END-IF
+
            GO TO P1.
-       P2. CLOSE CHARFILE. STOP RUN.
+       P2. 
+           CLOSE CHARFILE FILEOUT.
+           STOP RUN.
