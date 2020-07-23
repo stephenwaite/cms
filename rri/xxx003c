@@ -163,7 +163,8 @@
            02 CD-ASSIGN PIC X.
            02 CD-NEIC-ASSIGN PIC X.
            02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
+           02 CD-DX5 PIC XX.
+           02 CD-DX5-5 PIC X(5).
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(30).
@@ -241,11 +242,19 @@
            OPEN I-O CHARFILE.
            DISPLAY "0 = start new, 1 = skip ahead to undone"
            ACCEPT ALF1.
-       P1. READ FILE-OUT AT END GO TO P99.
+       P1.
+           READ FILE-OUT AT END
+               GO TO P99
+           END-READ    
            MOVE FO-KEY TO CHARFILE-KEY
-           READ CHARFILE INVALID PERFORM A3 GO TO P1.
+           READ CHARFILE INVALID
+               PERFORM A3
+               GO TO P1
+           END-READ    
       * skip to undone if coded and prompted
-           IF CD-DIAG NOT = "0000000" AND ALF1 = "1" GO TO P1.
+           IF CD-DIAG NOT = "0000000" AND ALF1 = "1"
+               GO TO P1
+           END-IF    
 
       * auto-code call back mammos     
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
@@ -272,21 +281,21 @@
                END-IF
            REWRITE CHARFILE01 
            GO TO P1
-           END-IF.
+           END-IF
            
       * auto-code tomosynthesis     
            IF CD-PROC1 = "1449"
                MOVE "Z1231  " TO CD-DIAG
                REWRITE CHARFILE01  
                GO TO P1
-           END-IF.
+           END-IF
       
       * high risk aren't regular screen mammos     
            IF (CD-PROC1 = "1097" OR "1098")
                MOVE "Z1231  " TO CD-DIAG
                REWRITE CHARFILE01 
                GO TO P1
-           END-IF.
+           END-IF
            
            IF (CD-PROC1 = "1099" OR "1442")
                DISPLAY "unilateral screening mammogram -> added mod 52"
@@ -294,7 +303,7 @@
                MOVE "Z1231  " TO CD-DIAG
                MOVE "52" TO CD-MOD2
                REWRITE CHARFILE01
-           END-IF.
+           END-IF
       
       * auto-code uni tomo
            IF (CD-PROC1 = "1456")
@@ -318,7 +327,8 @@
            END-IF.
 	
        P1-0.
-           IF  (CD-PAYCODE = "010" OR "011")  
+           IF (CD-PAYCODE = "008" OR "010" OR "011" OR "012"
+               OR "013" OR "014" OR "015")  
                GO TO P2
            END-IF    
       * mammo codes
@@ -338,36 +348,28 @@
            END-IF.
        P2.
            MOVE FO-KEY(1:8) TO G-GARNO
-           READ GARFILE INVALID CONTINUE.
+           READ GARFILE INVALID
+               CONTINUE
+           END-READ    
            INSPECT G-ACCT REPLACING LEADING "0" BY " ".
        P2-00.
            DISPLAY FO-DATE " " FO-KEY " " FO-PROC " " CD-PAYCODE
-           " " CD-PLACE " " G-DOB " " G-ACCT " " FO-NAME.
+                   " " CD-PLACE " " G-DOB " " G-ACCT " " FO-NAME.
            MOVE FO-PROC TO PROC-KEY
-           READ PROCFILE INVALID DISPLAY "bad " FO-PROC.
+           READ PROCFILE INVALID
+               DISPLAY "bad " FO-PROC
+           END-READ    
            DISPLAY PROC-TITLE
-           IF CD-DAT1 NOT = "00000000" DISPLAY "accident" .
+           IF CD-DAT1 NOT = "00000000"
+               DISPLAY "accident!"
+           END-IF        
            DISPLAY CD-CLINICAL
            DISPLAY CD-ADMIT-DIAG
            DISPLAY " ".
        P2-0.
            IF CD-DOCP = "00"
-             DISPLAY "RRMC tape said not read"
-             ACCEPT ANS
-           END-IF
-
-           IF CD-PAYCODE = "008"
-               DISPLAY " Exposure Dose Indices"
-               DISPLAY " <Enter> = dose documented in report"
-               DISPLAY " 1 = no documentation of dose index"
-               ACCEPT CD-MOD4
-               IF CD-MOD4 = "?"
-                   DISPLAY "<Enter> = exposure dose documented"
-                   DISPLAY "1 = not documented"
-                   GO TO P2-0    
-               IF NOT (CD-MOD4 = "1" OR SPACE)
-                   GO TO P2-0
-               END-IF
+               DISPLAY "RRMC tape said not read"
+               ACCEPT ANS
            END-IF
 
            IF CD-PAYCODE = "009" 
@@ -385,8 +387,8 @@
                    DISPLAY " 2 = BENIGN"
                    DISPLAY " 3 = PROBABLY BENIGN: ALERT STEVE!"
                    DISPLAY " 4 = SUSPICIOUS"
-                   DISPLAY " 5 = HIGHLY SUGGESTIVE OF MALIG."
-                   DISPLAY " 6 = KNOWN BIOPSY PROVEN MALIG." 
+                   DISPLAY " 5 = HIGHLY SUGGESTIVE OF malignancy"
+                   DISPLAY " 6 = KNOWN BIOPSY PROVEN malignancy" 
                    GO TO P2-0
                END-IF  
                IF CD-MOD4(1:1) = "B"
@@ -403,7 +405,6 @@
            IF CD-PAYCODE = "010"
                DISPLAY " MEASURE 147: ENTER 3P OR 8P OR LEAVE BLANK"
                ACCEPT CD-MOD4
-               
                IF NOT (CD-MOD4 = "3P" OR "8P" OR SPACE)
                    GO TO P2-0
                END-IF
@@ -449,25 +450,37 @@
                END-IF
            END-IF
 
-           IF CD-PAYCODE = "014"
-               DISPLAY " Radiation Consideration for Adult CT:"
-               DISPLAY " Utilization of Dose Lowering Techniques"
-               DISPLAY " <Enter> = Lower dose technique documented"
-               DISPLAY " 1 = no documentation of lower dose"
+           IF CD-PAYCODE = "015"
+               DISPLAY " CPT 70498 needs 2 assessments"
+               DISPLAY " measure 195: 8P or <Enter>"
                ACCEPT CD-MOD4
-               IF CD-MOD4 = "?"
-                   DISPLAY "<Enter> = Lower dose technique documented"
-                   DISPLAY "1 = not documented"
-                   GO TO P2-0    
-               IF NOT (CD-MOD4 = "1" OR SPACE)
+               IF NOT (CD-MOD4 = "8P" OR SPACE)
+                   GO TO P2-0
+               END-IF
+               
+               DISPLAY " Measure 406"
+               DISPLAY " < 1cm lesion use 1 or 2 or 3"
+               DISPLAY " <Enter> for no lesion"
+               DISPLAY " ? for help but will have to re-do 195, sorry"
+               ACCEPT CD-DX5
+               IF CD-DX5 = "?"
+                   DISPLAY " 1 = no follow up recommended"
+                   DISPLAY " 2 = medical necessity for follow up"
+                   DISPLAY " 3 = follow up recommended"
+                   GO TO P2-0
+               END-IF
+               IF NOT (CD-DX5 = "1 " OR "2 " OR "3 " OR SPACE)
+                   DISPLAY " will have to re-do 195 first, sorry"
                    GO TO P2-0
                END-IF
            END-IF.
        P2-000.
            DISPLAY " DIAG? "
            ACCEPT IN-FIELD-7.
-           IF IN-FIELD-7 = "?" DISPLAY "DIAG,END,B,F,M or S"
-               GO TO P2-00.
+           IF IN-FIELD-7 = "?"
+               DISPLAY "DIAG,END,B,F,M or S"
+               GO TO P2-00
+           END-IF    
 
            IF IN-FIELD-7 = "F" OR "M"
                MOVE 1 TO DIAG-FLAG
