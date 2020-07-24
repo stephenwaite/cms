@@ -340,7 +340,8 @@
            IF CD-PAYCODE NOT = "009"
                DISPLAY "non medicare screening mammo -> auto coded"
                IF CD-DOCP = "00"
-                  DISPLAY "but RRMC tape said not read, please note"
+                  DISPLAY "but RRMC tape said not read, please note "
+                      FO-NAME
                   ACCEPT ANS
                END-IF
                REWRITE CHARFILE01

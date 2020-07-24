@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. DES025.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rtltd.
+       AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -133,26 +133,45 @@
            OPEN INPUT PROCFILE FILEIN.
            OPEN I-O CHARFILE.
        P1.
-           READ FILEIN AT END GO TO P99.
+           READ FILEIN AT END
+               GO TO P99
+           END-READ
+
            MOVE FI-PROC TO PROC-KEY
            READ PROCFILE INVALID
-           DISPLAY "BAD PROC " FI-PROC
-           GO TO P1.
+               DISPLAY "BAD PROC " FI-PROC
+               GO TO P1
+           END-READ
+
            MOVE SPACE TO ALF28 ALF28X
            UNSTRING PROC-TITLE DELIMITED BY " LTD"
-           INTO ALF28 ALF28X.
+               INTO ALF28 ALF28X.
+           
            IF ALF28X NOT = SPACE 
-           GO TO P1.
+               GO TO P1
+           END-IF
+
            MOVE SPACE TO MOD
            IF PROC-TITLE(24:5) = " LEFT"
-           MOVE "LT" TO MOD GO TO P2.
+               MOVE "LT" TO MOD 
+               GO TO P2
+           END-IF
+           
            IF PROC-TITLE(1:5) = "LEFT "
-           MOVE "LT" TO MOD GO TO P2.
-           IF PROC-TITLE(23:6) = " RIGHT"
-           MOVE "RT" TO MOD GO TO P2.
-           IF PROC-TITLE(1:6) = "RIGHT "
-           MOVE "RT" TO MOD GO TO P2.
+               MOVE "LT" TO MOD
+               GO TO P2
+           END-IF
 
+           IF PROC-TITLE(23:6) = " RIGHT"
+               MOVE "RT" TO MOD
+               GO TO P2
+           END-IF
+
+           IF PROC-TITLE(1:6) = "RIGHT "
+               MOVE "RT" TO MOD
+               GO TO P2
+           END-IF
+               
            MOVE 0 TO TALLYRIT tallylit tallyrt tallylt
            INSPECT PROC-Title TALLYING TALLYRIT FOR ALL " RIGHT "
            INSPECT PROC-Title TALLYING TALLYLIT FOR ALL " LEFT "
@@ -167,61 +186,107 @@
              ELSE
                MOVE "LT" TO MOD
            END-IF.
-
        P2.
            DISPLAY PROC-TITLE
            DISPLAY MOD
            MOVE FI-CHARFILE-KEY TO CHARFILE-KEY
            READ CHARFILE WITH LOCK INVALID
-           DISPLAY FI-CHARFILE-KEY " INVALID KEY"
-           GO TO P1.
+               DISPLAY FI-CHARFILE-KEY " INVALID KEY"
+               GO TO P1
+           END-READ
+           
            IF CD-MOD2 = "76" AND CD-MOD3 = "76"
-           MOVE MOD TO CD-MOD2
-           GO TO P3.
+               MOVE MOD TO CD-MOD2
+               GO TO P3
+           END-IF    
        
-           IF CD-MOD2 = SPACE MOVE MOD TO CD-MOD2
-           GO TO P3.
+           IF CD-MOD2 = SPACE
+               MOVE MOD TO CD-MOD2
+               GO TO P3
+           END-IF
+
            IF CD-MOD2 = "76" AND CD-MOD3 = SPACE
-            MOVE "76" TO CD-MOD3
-            MOVE MOD TO CD-MOD2
-            GO TO P3.
-           IF CD-MOD3 = SPACE MOVE MOD TO CD-MOD3
-           GO TO P3.
-           IF CD-MOD4 = SPACE MOVE MOD TO CD-MOD4
-           GO TO P3.
+               MOVE "76" TO CD-MOD3
+               MOVE MOD TO CD-MOD2
+               GO TO P3
+           END-IF
+
+           IF CD-MOD3 = SPACE
+               MOVE MOD TO CD-MOD3
+               GO TO P3
+           END-IF
+
+           IF CD-MOD4 = SPACE
+               MOVE MOD TO CD-MOD4
+               GO TO P3
+           END-IF.    
        P3. 
            IF CD-MOD2 = CD-MOD3
-           MOVE SPACE TO CD-MOD3.
+               MOVE SPACE TO CD-MOD3
+           END-IF
+
            IF CD-MOD2 = CD-MOD4
-           MOVE SPACE TO CD-MOD4.
+               MOVE SPACE TO CD-MOD4
+           END-IF
+               
            IF CD-MOD3 = CD-MOD4
-           MOVE SPACE TO CD-MOD4.
+               MOVE SPACE TO CD-MOD4
+           END-IF
+
            DISPLAY MOD
            DISPLAY CD-PROC " " CD-MOD2 " " CD-MOD3 " " CD-MOD4
 
            REWRITE CHARFILE01.
            GO TO P1.
        P4.
-
-      *     IF FI-PAYCODE = "004" OR "064" GO TO P1.
-           IF FI-PROC0 = "1118" OR "1119" OR "1149"
-           OR "1150" OR "1151" OR "1152" OR "1153" 
-           OR "1154" OR "1188" OR "1192" GO TO P5.
-
-
-
+           IF FI-PROC0 = ("1118" OR "1119" OR "1149" OR "1150" OR
+                          "1151" OR "1152" OR "1153" OR "1154" OR 
+                          "1188" OR "1192")
+               GO TO P5
+           END-IF    
        P5.
-           MOVE SPACE TO MOD.
-           IF FI-PROC0 = "1188" MOVE "FA" TO MOD.
-           IF FI-PROC0 = "1192" MOVE "F1" TO MOD.
-           IF FI-PROC0 = "1149" MOVE "F2" TO MOD.
-           IF FI-PROC0 = "1151" MOVE "F3" TO MOD.
-           IF FI-PROC0 = "1153" MOVE "F4" TO MOD.
-           IF FI-PROC0 = "1118" MOVE "F5" TO MOD.
-           IF FI-PROC0 = "1119" MOVE "F6" TO MOD.
-           IF FI-PROC0 = "1150" MOVE "F7" TO MOD.
-           IF FI-PROC0 = "1152" MOVE "F8" TO MOD.
-           IF FI-PROC0 = "1154" MOVE "F9" TO MOD.
+           MOVE SPACE TO MOD
+           
+           IF FI-PROC0 = "1188"
+               MOVE "FA" TO MOD
+           END-IF    
+           
+           IF FI-PROC0 = "1192"
+               MOVE "F1" TO MOD
+           END-IF    
+           
+           IF FI-PROC0 = "1149"
+               MOVE "F2" TO MOD
+           END-IF
+
+           IF FI-PROC0 = "1151"
+               MOVE "F3" TO MOD
+           END-IF
+
+           IF FI-PROC0 = "1153"
+               MOVE "F4" TO MOD
+           END-IF
+
+           IF FI-PROC0 = "1118"
+               MOVE "F5" TO MOD
+           END-IF
+
+           IF FI-PROC0 = "1119"
+               MOVE "F6" TO MOD
+           END-IF
+
+           IF FI-PROC0 = "1150"
+               MOVE "F7" TO MOD
+           END-IF
+
+           IF FI-PROC0 = "1152"
+               MOVE "F8" TO MOD
+           END-IF
+
+           IF FI-PROC0 = "1154"
+               MOVE "F9" TO MOD
+           END-IF
+               
            GO TO P2.
        P99.
            CLOSE CHARFILE. 

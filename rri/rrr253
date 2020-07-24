@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRR253.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rrr253.
+       AUTHOR. S WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -84,18 +84,34 @@
        P0.
            OPEN INPUT CHARFILE OUTPUT FILEOUT.
            MOVE SPACE TO CHARFILE-KEY.
-       P0-1. START CHARFILE KEY NOT < CHARFILE-KEY INVALID GO TO P4.
-       P1. READ CHARFILE NEXT AT END GO TO P4.
-           IF CD-PAYCODE NOT = "003" GO TO P1.
-       P1-1. MOVE CD-KEY8 TO HOLDIT
+       P0-1. 
+           START CHARFILE KEY NOT < CHARFILE-KEY INVALID
+               GO TO P4
+           END-START.    
+       P1. 
+           READ CHARFILE NEXT AT END
+               GO TO P4
+           END-READ    
+
+           IF CD-PAYCODE NOT = "003"
+               GO TO P1
+           END-IF.    
+       P1-1.
+           MOVE CD-KEY8 TO HOLDIT
            MOVE 1 TO X
            MOVE CHARFILE-KEY TO KEY-TAB(X)
            MOVE CD-DATE-T TO DATE-TAB(X)
            MOVE CD-PROC2 TO CHARGE-TAB(X)
            MOVE CD-PROC TO PROC-TAB(X).
-       P2. READ CHARFILE NEXT AT END GO TO P4.
-           IF CD-KEY8 NOT = HOLDIT GO TO P14.
-           IF CD-PAYCODE NOT = "003" GO TO P2.
+       P2. 
+           READ CHARFILE NEXT AT END
+               GO TO P4
+           END-READ
+
+           IF CD-KEY8 NOT = HOLDIT
+               GO TO P14
+           END-IF
+
            ADD 1 TO X
            MOVE CD-DATE-T TO DATE-TAB(X)
            MOVE CHARFILE-KEY TO KEY-TAB(X)
@@ -103,29 +119,47 @@
            MOVE CD-PROC TO PROC-TAB(X)
            GO TO P2.
        P14.
-           IF X < 2 GO TO P1-1.
+           IF X < 2
+               GO TO P1-1
+           END-IF
+
            MOVE CHARFILE-KEY TO CHARBACK.
-           PERFORM P15 MOVE CHARBACK TO CHARFILE-KEY GO TO P0-1.
+           PERFORM P15
+           MOVE CHARBACK TO CHARFILE-KEY
+           GO TO P0-1.
        P15.
            SUBTRACT 1 FROM X GIVING Y.
-           PERFORM C1 THRU C1-EXIT VARYING Z FROM 1 BY 1 UNTIL Z > Y.
-       C1. IF DATE-TAB(Z) = 0 GO TO C1-EXIT.
+           PERFORM C1 THRU C1-EXIT
+               VARYING Z FROM 1 BY 1 UNTIL Z > Y
+           END-PERFORM.    
+       C1. 
+           IF DATE-TAB(Z) = 0
+               GO TO C1-EXIT
+           END-IF
+
            MOVE 0 TO FLAGX.
-           ADD 1 Z GIVING A 
-           PERFORM C2 THRU C2-EXIT VARYING T FROM A BY 1 UNTIL T > X.
-       C1-EXIT. EXIT.
-       C2. IF (DATE-TAB(Z) NOT = DATE-TAB(T)) 
+           ADD 1 TO Z GIVING A 
+           PERFORM C2 THRU C2-EXIT 
+               VARYING T FROM A BY 1 UNTIL T > X
+           END-PERFORM.    
+       C1-EXIT.
+           EXIT.
+       C2. 
+           IF (DATE-TAB(Z) NOT = DATE-TAB(T)) 
                OR (CHARGE-TAB(Z) NOT =  CHARGE-TAB(T)) 
                OR (DATE-TAB(T) = 0)
-           GO TO C2-EXIT.
+               GO TO C2-EXIT
+           END-IF    
            STRING KEY-TAB(Z)" -- " PROC-TAB(Z) DELIMITED BY SIZE
-           INTO FILEOUT01
+               INTO FILEOUT01
            WRITE FILEOUT01
            STRING KEY-TAB(T)" -- " PROC-TAB(T) DELIMITED BY SIZE
-           INTO FILEOUT01
+               INTO FILEOUT01
            WRITE FILEOUT01
            MOVE 0 TO DATE-TAB(T).
-       C2-EXIT. EXIT.
-       P4. PERFORM P15.
+       C2-EXIT. 
+           EXIT.
+       P4. 
+           PERFORM P15.
            CLOSE CHARFILE FILEOUT. 
            STOP RUN.

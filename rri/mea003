@@ -69,7 +69,8 @@
        01 HOLD8 PIC X(8).
        PROCEDURE DIVISION.
        0005-START.
-           OPEN I-O CHARFILE EXTEND FILEOUT.
+           OPEN I-O CHARFILE 
+           OPEN OUTPUT FILEOUT.
            MOVE SPACE TO CHARFILE-KEY.
        P1. 
            READ CHARFILE NEXT WITH LOCK AT END
@@ -85,13 +86,16 @@
            IF (CD-PROC1 = "70498")
                MOVE "015" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
-               STRING "195 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "195 " CD-PAYCODE " "
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
-               STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "406 " CD-PAYCODE " "
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
-               STRING "436 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "436 " CD-PAYCODE " "
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01   
                REWRITE CHARFILE01
@@ -106,7 +110,8 @@
                OR "37215" OR "37216" OR "37217" OR "37218")
                MOVE "011" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
-               STRING "195 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "195 " CD-PAYCODE " "
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARFILE01
@@ -142,7 +147,8 @@
                OR "62282" OR "62302" OR "62303" OR "62304" OR "62305")
                MOVE "008" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
-               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "145 " CD-PAYCODE " "
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARFILE01
@@ -179,7 +185,8 @@
                OR "93583" OR "G0106" OR "G0120" OR "G0122")
                MOVE "008" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
-               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "145 " CD-PAYCODE " "
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARFILE01
@@ -191,7 +198,8 @@
                AND NOT (CD-PROC0 = "1446" OR "1447" OR "1448"))
                MOVE "009" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
-               STRING "146 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "146 " CD-PAYCODE " "
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARFILE01
@@ -203,7 +211,8 @@
                OR  "78315" OR "78320" OR "78803" OR "78830")
                MOVE "010" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
-               STRING "147 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "147 " CD-PAYCODE " "
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARFILE01
@@ -216,7 +225,8 @@
                OR "76700" OR "76705" OR "76770" OR "76775")
                MOVE "012" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
-               STRING "405 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "405 " CD-PAYCODE " "
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARFILE01
@@ -231,7 +241,8 @@
                OR "93886" OR "93888")
                MOVE "013" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
-               STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "406 " CD-PAYCODE " "
+                       CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARFILE01
@@ -254,7 +265,8 @@
                OR "77013" OR "77014" OR "77078" OR "0042T" OR "G0297")
                MOVE "014" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
-               STRING "436 " CD-PROC1 " " CD-DATE-T " " CD-NAME 
+               STRING "436 " CD-PAYCODE " " 
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME 
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARFILE01 
