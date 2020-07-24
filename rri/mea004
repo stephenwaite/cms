@@ -128,7 +128,8 @@
        01  ALF1 PIC X.
        PROCEDURE DIVISION.
        0005-START.
-           OPEN I-O CHARFILE CLAIMFILE EXTEND FILEOUT.
+           OPEN I-O CHARFILE CLAIMFILE. 
+           OPEN OUTPUT FILEOUT.
            MOVE SPACE TO CHARFILE-KEY.
            MOVE "A" TO CLAIM-KEY.
            READ CLAIMFILE WITH LOCK INVALID KEY 
@@ -170,8 +171,6 @@
                STRING "146 " CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
-      *         DISPLAY "MEASURE 146"
-      *         DISPLAY CHARFILE01
                MOVE 146 TO FLAG
                MOVE "003" TO CD-PAYCODE
                MOVE CHARFILE01 TO CHARBACK01
@@ -186,8 +185,6 @@
                STRING "147 " CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
-      *         DISPLAY "MEASURE 147"
-      *         DISPLAY CHARFILE01
                MOVE 147 TO FLAG
                MOVE "003" TO CD-PAYCODE
                MOVE CHARFILE01 TO CHARBACK01
@@ -202,8 +199,6 @@
                STRING "195 " CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
-      *         DISPLAY "MEASURE 195"
-      *         DISPLAY CHARFILE01
                MOVE 195 TO FLAG
                MOVE "003" TO CD-PAYCODE
                MOVE CHARFILE01 TO CHARBACK01
@@ -284,6 +279,7 @@
        A1. 
            MOVE 0 TO CD-AMOUNT
            MOVE 0 TO XYZ.
+           MOVE SPACE TO CD-MOD2 CD-MOD-3
 
            IF FLAG = 145
                MOVE "0000G9500  " TO CD-PROC
@@ -512,6 +508,9 @@
                GO TO A1-EXIT
            END-IF.
        A1-1.
+           STRING "225 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               DELIMITED BY SIZE INTO FILEOUT01
+           WRITE FILEOUT01
            MOVE CHARFILE01 TO CHARBACK01
            PERFORM B1 THRU B2
            MOVE "00007025F  " TO CD-PROC
@@ -523,13 +522,18 @@
            ADD 1 TO XYZ.
            MOVE XYZ TO CD-KEY3
            MOVE BK-KEY8 TO CD-KEY8
-           READ CHARFILE INVALID KEY MOVE CHARFILE-KEY TO HOLD-ID
-           GO TO B2.
+           
+           READ CHARFILE INVALID KEY
+               MOVE CHARFILE-KEY TO HOLD-ID
+               GO TO B2
+           END-READ
+
            IF XYZ = 999 
                DISPLAY "THERE ARE 999 CHARGE TRANSACTIONS"
                ACCEPT ALF1
                GO TO P2
            END-IF    
+           
            GO TO B1.
        B2.
            MOVE CHARBACK01 TO CHARFILE01

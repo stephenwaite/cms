@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRR253.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. psi253.
+       AUTHOR. S WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -71,73 +71,31 @@
       *
        PROCEDURE DIVISION.
        P0.
-           OPEN I-O CHARFILE OUTPUT FILEOUT.
+           OPEN I-O CHARFILE
+           OPEN OUTPUT FILEOUT.
            MOVE SPACE TO CHARFILE-KEY.
-       P1. READ CHARFILE NEXT AT END GO TO P99.
-           IF (CD-PROC0 = "4081" OR "4082" OR "4086" OR  "4087")
-             MOVE "PI" TO CD-MOD2
-      *       MOVE "Q0" TO CD-MOD3
-      *       if cd-date-t < "20151001"
-      *          MOVE "V7070" TO CD-DX2
-      *        else
-      *          MOVE "Z006" TO CD-DX2
-      *       END-IF
-             REWRITE CHARFILE01
-             WRITE FILEOUT01 FROM CHARFILE01
-             GO TO P1
-           END-IF.
+       P1. 
+           READ CHARFILE NEXT AT END
+               GO TO P99
+           END-READ
 
-           IF (CD-PROC0 =  "4090")
-             MOVE "PI" TO CD-MOD2
-             if cd-date-t < "20151001"
-                MOVE "V7110" TO CD-DX2
-      *        else
-      *          MOVE "Z006" TO CD-DX2
-             END-IF
-             REWRITE CHARFILE01
-             WRITE FILEOUT01 FROM CHARFILE01
-             GO TO P1
-           END-IF.
-           IF (CD-PROC0 =  "1030")
-             MOVE "PI" TO CD-MOD2
-             if cd-date-t < "20151001"
-                MOVE "V7070" TO CD-DX2
-      *        else
-      *          MOVE "Z006" TO CD-DX2
-             END-IF
-             REWRITE CHARFILE01
-             WRITE FILEOUT01 FROM CHARFILE01
-             GO TO P1
+           IF (CD-PROC0 = "4081" OR "4082" OR "4086" OR "4087"
+               OR "4090" OR "1030")
+               MOVE "PI" TO CD-MOD2
+               REWRITE CHARFILE01
+               WRITE FILEOUT01 FROM CHARFILE01
+               GO TO P1
            END-IF.
 
            IF (CD-PROC0 = "4079" OR "4080" OR "4088" OR "4089"
-             OR "4091" OR "4092" OR "4093")
-             MOVE "PS" TO CD-MOD2
-      *       MOVE "Q0" TO CD-MOD3
-             if cd-date-t < "20151001"
-                MOVE "V7070" TO CD-DX2
-      *        else
-      *          MOVE "Z006" TO CD-DX2
-             END-IF
-             REWRITE CHARFILE01
-             WRITE FILEOUT01 FROM CHARFILE01
-             GO TO P1
-           END-IF.
-           GO TO P1.
-           IF (CD-PROC0 = "4091" OR "4092" OR "4093")
-             MOVE "PS" TO CD-MOD2
-      *      MOVE "Q0" TO CD-MOD3
-             if cd-date-t < "20151001"
-                MOVE "V7070" TO CD-DX2
-      *        else
-      *          MOVE "Z006" TO CD-DX2
-             END-IF
-             REWRITE CHARFILE01
-             WRITE FILEOUT01 FROM CHARFILE01
-             GO TO P1
-           END-IF.
-           GO TO P1.
+               OR "4091" OR "4092" OR "4093")
+               MOVE "PS" TO CD-MOD2
+               REWRITE CHARFILE01
+               WRITE FILEOUT01 FROM CHARFILE01
+               GO TO P1
+           END-IF
 
+           GO TO P1.
        P99.
            CLOSE CHARFILE FILEOUT. 
            STOP RUN.

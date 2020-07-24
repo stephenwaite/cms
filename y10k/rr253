@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRR253.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rr253.
+       AUTHOR. S WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -63,20 +63,23 @@
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
        WORKING-STORAGE SECTION.
-       01  alf11 pic x(11).
-      *
+       01  ALF11 PIC X(11).
        PROCEDURE DIVISION.
        P0.
            OPEN I-O CHARFILE.
            MOVE SPACE TO CHARFILE-KEY.
        P0-1.
-           START CHARFILE KEY NOT < CHARFILE-KEY INVALID GO TO P4.
+           START CHARFILE KEY NOT < CHARFILE-KEY INVALID
+               GO TO P4
+           END-START.    
        P1.
-           READ CHARFILE NEXT WITH LOCK AT END GO TO P4.
-           IF (CD-PROC1(5:1) = "F")
-            AND (CD-MOD2 NOT = SPACE)
-             MOVE SPACE TO CD-MOD2 CD-MOD3
-             REWRITE CHARFILE01
+           READ CHARFILE NEXT WITH LOCK AT END 
+               GO TO P4
+           END-READ
+
+           IF (CD-PROC1(5:1) = "F") AND (CD-MOD2 NOT = SPACE)
+               MOVE SPACE TO CD-MOD2 CD-MOD3
+               REWRITE CHARFILE01
            END-IF
            GO TO P1.
        P4.
