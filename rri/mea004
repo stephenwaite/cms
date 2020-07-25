@@ -279,7 +279,7 @@
        A1. 
            MOVE 0 TO CD-AMOUNT
            MOVE 0 TO XYZ.
-           MOVE SPACE TO CD-MOD2 CD-MOD-3
+           MOVE SPACE TO CD-MOD2 CD-MOD3
 
            IF FLAG = 145
                MOVE "0000G9500  " TO CD-PROC

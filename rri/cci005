@@ -13,7 +13,7 @@
            ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
            LOCK MODE MANUAL.
            SELECT CCIFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC  RECORD KEY IS CCI-KEY
+           ACCESS IS DYNAMIC RECORD KEY IS CCI-KEY
            LOCK MODE MANUAL.
            SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION
            LINE SEQUENTIAL.
@@ -105,15 +105,27 @@
       *
        PROCEDURE DIVISION.
        P0.
-           OPEN I-O CHARFILE INPUT CCIFILE OUTPUT FILEOUT.
+           OPEN I-O CHARFILE 
+           OPEN INPUT CCIFILE
+           OPEN OUTPUT FILEOUT
            MOVE SPACE TO CHARFILE-KEY CHARBACK.
        P0-1.
-           START CHARFILE KEY NOT < CHARFILE-KEY INVALID GO TO P4.
+           START CHARFILE KEY NOT < CHARFILE-KEY INVALID
+               GO TO P4
+           END-START.    
        P1.
-           READ CHARFILE NEXT AT END GO TO P4.
-           IF CD-AMOUNT = 0 GO TO P1.
-           IF CD-WORK NOT = "01" GO TO P1.
-           IF CD-PROC1(5:1) = "F" GO TO P1.
+           READ CHARFILE NEXT AT END
+               GO TO P4
+           END-READ
+
+           IF CD-AMOUNT = 0
+               GO TO P1
+           END-IF
+
+           IF CD-WORK NOT = "01"
+               GO TO P1
+           END-IF
+    
        P1-1.
            MOVE CD-KEY8 TO HOLDIT
            MOVE 1 TO X
@@ -124,9 +136,17 @@
            MOVE CD-MOD3 TO MOD3-TAB(X)
            MOVE CD-DATE-T TO DATE-TAB(X).
        P2.
-           READ CHARFILE NEXT AT END GO TO P4.
-           IF CD-KEY8 NOT = HOLDIT GO TO P14.
-           IF CD-PROC1(5:1) = "F" GO TO P2.
+           READ CHARFILE NEXT AT END
+               GO TO P4
+           END-READ
+
+           IF CD-KEY8 NOT = HOLDIT
+               GO TO P14
+           END-IF
+
+           IF CD-AMOUNT = 0
+               GO TO P2
+           END-IF
 
            ADD 1 TO X
            MOVE CHARFILE-KEY TO KEY-TAB(X)
@@ -259,9 +279,9 @@
            EXIT.
        P4.
            IF X > 1
-            COMPUTE Y = X - 1
-            PERFORM P15 THRU P17 VARYING Z FROM 1 BY 1 UNTIL Z > Y
-            PERFORM P18 THRU P20 VARYING Z FROM 1 BY 1 UNTIL Z > Y
+               COMPUTE Y = X - 1
+               PERFORM P15 THRU P17 VARYING Z FROM 1 BY 1 UNTIL Z > Y
+               PERFORM P18 THRU P20 VARYING Z FROM 1 BY 1 UNTIL Z > Y
            END-IF
            CLOSE CHARFILE FILEOUT. 
            STOP RUN.

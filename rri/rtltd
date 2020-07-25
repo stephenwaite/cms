@@ -239,11 +239,11 @@
            REWRITE CHARFILE01.
            GO TO P1.
        P4.
-           IF FI-PROC0 = ("1118" OR "1119" OR "1149" OR "1150" OR
+           IF (FI-PROC0 = "1118" OR "1119" OR "1149" OR "1150" OR
                           "1151" OR "1152" OR "1153" OR "1154" OR 
                           "1188" OR "1192")
                GO TO P5
-           END-IF    
+           END-IF.    
        P5.
            MOVE SPACE TO MOD
            
@@ -286,7 +286,7 @@
            IF FI-PROC0 = "1154"
                MOVE "F9" TO MOD
            END-IF
-               
+
            GO TO P2.
        P99.
            CLOSE CHARFILE. 
