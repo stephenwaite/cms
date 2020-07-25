@@ -934,6 +934,13 @@
                    MOVE "003" TO CC-PAYCODE
                    MOVE "A" TO CC-ASSIGN CC-NEIC-ASSIGN
                    MOVE "2" TO CC-REC-STAT
+      *    for reprocess of G2012s to 99441s         
+                   IF (CC-PROC1 = "G2012")
+                       COMPUTE CC-AMOUNT = 45
+                       MOVE "99441" TO CC-PROC1
+                       MOVE "95" TO CC-MOD2
+                       MOVE "1" TO CC-PLACE
+                   END-IF    
                    REWRITE CHARCUR01        
                    CLOSE CHARCUR
                    OPEN INPUT CHARCUR
