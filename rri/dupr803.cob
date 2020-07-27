@@ -1,26 +1,21 @@
-      * @package cms
-      * @link    http://www.cmsvt.com
-      * @author  s waite <cmswest@sover.net>
-      * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
-      * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRR816.
+       PROGRAM-ID. dupr803.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS IS SEQUENTIAL RECORD KEY IS CHARFILE-KEY
-           LOCK MODE MANUAL.
-           SELECT CHARCUR ASSIGN TO "S35" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
-           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES.
-           SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION 
-           LINE SEQUENTIAL.
+               ACCESS IS SEQUENTIAL RECORD KEY IS CHARFILE-KEY
+               LOCK MODE MANUAL.
+           SELECT CHARCUR ASSIGN TO  "S35" ORGANIZATION IS INDEXED
+               ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+               ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES.
+           SELECT FILEOUT ASSIGN TO  "S40" ORGANIZATION 
+               LINE SEQUENTIAL.
        DATA DIVISION.
        FILE SECTION.
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(162).
+       01  FILEOUT01 PIC X(80).
        FD  CHARFILE
       *    BLOCK CONTAINS 2 RECORDS
            DATA RECORD IS CHARFILE01.
@@ -120,16 +115,32 @@
        P0.
            OPEN INPUT CHARCUR CHARFILE.
            OPEN OUTPUT FILEOUT.
-       P1. READ CHARFILE AT END GO TO P6.
+       P1. 
+           READ CHARFILE AT END
+               GO TO P6
+           END-READ
            MOVE CD-KEY8 TO CC-KEY8.
-            MOVE "000" TO CC-KEY3.
-           START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO P1.
-       S7. READ CHARCUR NEXT AT END GO TO P1.
-           IF CC-KEY8 NOT = CD-KEY8 GO TO P1.
-           IF CC-DATE-T = CD-DATE-T
-           AND CC-PROC2 = CD-PROC2 
-           WRITE FILEOUT01 FROM CHARFILE01
-           GO TO P1.
+           MOVE "000" TO CC-KEY3.
+           START CHARCUR KEY NOT < CHARCUR-KEY INVALID 
+               GO TO P1
+           END-START.    
+       S7. 
+           READ CHARCUR NEXT AT END
+               GO TO P1
+           END-READ    
+           IF CC-KEY8 NOT = CD-KEY8 
+               GO TO P1
+           END-IF
+
+           IF (CC-DATE-T = CD-DATE-T) AND (CC-PROC2 = CD-PROC2)
+               STRING "CHARGE FOR " CD-KEY8 " HAS SAME DOS " CD-DATE-T
+                      " AND SAME PROC " CD-PROC2
+               DELIMITED BY SIZE INTO FILEOUT01       
+               WRITE FILEOUT01
+               GO TO P1
+           END-IF
+
            GO TO S7.
-       P6. CLOSE CHARCUR CHARFILE FILEOUT. 
+       P6. 
+           CLOSE CHARCUR CHARFILE FILEOUT. 
            STOP RUN.

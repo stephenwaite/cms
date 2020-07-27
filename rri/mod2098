@@ -115,7 +115,7 @@
                INSPECT DIAG-TITLE TALLYING TALLYR   FOR ALL " R "
                INSPECT DIAG-TITLE TALLYING TALLYL   FOR ALL " L "
 
-               COMPUTE TALLYX = TALLRIT + TALLYLIT + TALLYRT + TALLYLT
+               COMPUTE TALLYX = TALLYRIT + TALLYLIT + TALLYRT + TALLYLT
                                 + TALLYR + TALLYL
               
                IF TALLYX NOT = 0
@@ -133,21 +133,22 @@
            GO TO P1.
        P2.
            MOVE "RT" TO CD-MOD3
-           MOVE 0 TO TALLYRIT TALLYLIT TALLYRT TALLLT TALLYR TALLYL
+           MOVE 0 TO TALLYRIT TALLYLIT TALLYRT TALLYLT TALLYR TALLYL
            MOVE CD-DIAG TO DIAG-KEY
            READ DIAGFILE INVALID 
                CONTINUE
            NOT INVALID
-               INSPECT DIAG-Title TALLYING TALLYRIT FOR ALL " RIGHT "
-               INSPECT DIAG-Title TALLYING TALLYLIT FOR ALL " LEFT "
-               INSPECT DIAG-Title TALLYING TALLYRT FOR ALL " RT "
-               INSPECT DIAG-Title TALLYING TALLYLT FOR ALL " LT "
-               INSPECT DIAG-Title TALLYING TALLYR FOR ALL " R "
-               INSPECT DIAG-Title TALLYING TALLYL FOR ALL " L "
+               INSPECT DIAG-TITLE TALLYING TALLYRIT FOR ALL " RIGHT "
+               INSPECT DIAG-TITLE TALLYING TALLYLIT FOR ALL " LEFT "
+               INSPECT DIAG-TITLE TALLYING TALLYRT FOR ALL " RT "
+               INSPECT DIAG-TITLE TALLYING TALLYLT FOR ALL " LT "
+               INSPECT DIAG-TITLE TALLYING TALLYR FOR ALL " R "
+               INSPECT DIAG-TITLE TALLYING TALLYL FOR ALL " L "
 
-               compute tallyx = tallyrit + tallylit + tallyrt + tallylt
-                                        + TALLYR + TALLYL
-               IF tallyx NOT = 0
+               COMPUTE TALLYX = TALLYRIT + TALLYLIT + TALLYRT + TALLYLT
+                                + TALLYR + TALLYL
+                
+               IF TALLYX NOT = 0
                    IF TALLYRIT > 0 OR TALLYRT > 0 OR TALLYR > 0
                        MOVE "RT" TO CD-MOD3
                    ELSE
