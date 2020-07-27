@@ -134,7 +134,7 @@
 
            IF (CC-DATE-T = CD-DATE-T) AND (CC-PROC2 = CD-PROC2)
                STRING "CHARGE FOR " CD-KEY8 " HAS SAME DOS " CD-DATE-T
-                      " AND SAME PROC " CD-PROC2
+                      " AND SAME PROC " CD-PROC2 " IN CHARCUR"
                DELIMITED BY SIZE INTO FILEOUT01       
                WRITE FILEOUT01
                GO TO P1

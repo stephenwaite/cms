@@ -100,9 +100,9 @@
            MOVE CD-KEY8 TO HOLDIT
            MOVE 1 TO X
            MOVE CHARFILE-KEY TO KEY-TAB(X)
-           MOVE CD-DATE-T TO DATE-TAB(X)
-           MOVE CD-PROC2 TO CHARGE-TAB(X)
-           MOVE CD-PROC TO PROC-TAB(X).
+           MOVE CD-DATE-T    TO DATE-TAB(X)
+           MOVE CD-PROC2     TO CHARGE-TAB(X)
+           MOVE CD-PROC      TO PROC-TAB(X).
        P2. 
            READ CHARFILE NEXT AT END
                GO TO P4
@@ -113,10 +113,10 @@
            END-IF
 
            ADD 1 TO X
-           MOVE CD-DATE-T TO DATE-TAB(X)
+           MOVE CD-DATE-T    TO DATE-TAB(X)
            MOVE CHARFILE-KEY TO KEY-TAB(X)
-           MOVE CD-PROC2 TO CHARGE-TAB(X)
-           MOVE CD-PROC TO PROC-TAB(X)
+           MOVE CD-PROC2     TO CHARGE-TAB(X)
+           MOVE CD-PROC      TO PROC-TAB(X)
            GO TO P2.
        P14.
            IF X < 2
