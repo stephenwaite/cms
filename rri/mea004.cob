@@ -22,12 +22,6 @@
            LOCK MODE MANUAL.
        DATA DIVISION.
        FILE SECTION.
-       FD  CLAIMFILE.
-       01  CLAIM01.
-           02 CLAIM-KEY PIC X.
-           02 CLAIMNO PIC 9(6).
-       FD  FILEOUT.
-       01  FILEOUT01 PIC X(80).
        FD  CHARFILE
       *    BLOCK CONTAINS 2 RECORDS
            DATA RECORD IS CHARFILE01.
@@ -76,6 +70,12 @@
            02 CD-DX5 PIC X(7).
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(80).
+       FD  CLAIMFILE.
+       01  CLAIM01.
+           02 CLAIM-KEY PIC X.
+           02 CLAIMNO PIC 9(6).
        WORKING-STORAGE SECTION.
        01  CHARBACK01.
            02 CHARBACK-KEY.
@@ -156,7 +156,7 @@
 
            IF CD-PAYCODE = "008"
                MOVE SPACE TO FILEOUT01
-               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 " G9500"
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                MOVE 145 TO FLAG
@@ -170,7 +170,7 @@
 	
            IF CD-PAYCODE = "009"
                MOVE SPACE TO FILEOUT01
-               STRING "146 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "146 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 " 3341F"
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                MOVE 146 TO FLAG
@@ -184,7 +184,7 @@
 
            IF CD-PAYCODE = "010"
                MOVE SPACE TO FILEOUT01
-               STRING "147 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "147 " CD-PROC1 " " CD-DATE-T " " CD-NAME " 3570F"
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                MOVE 147 TO FLAG
@@ -198,7 +198,7 @@
 
            IF CD-PAYCODE = "011"
                MOVE SPACE TO FILEOUT01
-               STRING "195 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "195 " CD-PROC1 " " CD-DATE-T " " CD-NAME " 3100F"
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                MOVE 195 TO FLAG
@@ -212,11 +212,9 @@
 	
            IF CD-PAYCODE = "012"
                MOVE SPACE TO FILEOUT01
-               STRING "405 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               STRING "405 " CD-PROC1 " " CD-DATE-T " " CD-NAME 
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
-      *         DISPLAY "MEASURE 405"
-      *         DISPLAY CHARFILE01
                MOVE 405 TO FLAG
                MOVE "003" TO CD-PAYCODE
                MOVE CHARFILE01 TO CHARBACK01
@@ -231,8 +229,6 @@
                STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
-      *         DISPLAY "MEASURE 406"
-      *         DISPLAY CHARFILE01
                MOVE 406 TO FLAG
                MOVE "003" TO CD-PAYCODE
                MOVE CHARFILE01 TO CHARBACK01
@@ -384,6 +380,10 @@
                END-IF
            
                IF CD-MOD4 = "1 " OR "2 " OR "3 "
+                   STRING "405 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                          " PERFORMANCE NOT MET! please review" 
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01 
                    MOVE "0000G9547  " TO CD-PROC
                ELSE
                    MOVE "0000G9551  " TO CD-PROC
@@ -428,6 +428,10 @@
                END-IF
 
                IF CD-MOD4 = "1 " OR "2 " OR "3 "
+                   STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                          " PERFORMANCE NOT MET! please review" 
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01 
                    MOVE "0000G9552  " TO CD-PROC
                ELSE
                    MOVE "0000G9557  " TO CD-PROC
@@ -456,7 +460,7 @@
            IF FLAG = 436
                MOVE "0000G9637  " TO CD-PROC
                MOVE CHARFILE01 TO CHARBACK01
-               PERFORM B1 THRU B2
+      *         PERFORM B1 THRU B2
                MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
@@ -504,7 +508,7 @@
       *    finally, don't forget new measure 436!
                MOVE "0000G9637  " TO CD-PROC
                MOVE CHARFILE01 TO CHARBACK01
-               PERFORM B1 THRU B2
+      *         PERFORM B1 THRU B2
                MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT

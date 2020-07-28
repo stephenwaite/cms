@@ -39,8 +39,6 @@
            SELECT DIAG9FILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
                ACCESS IS DYNAMIC RECORD KEY IS DIAG9-KEY
                ALTERNATE RECORD KEY IS DIAG9-TITLE WITH DUPLICATES.
-
-
        DATA DIVISION.
        FILE SECTION.
        FD  TAGDIAG.
@@ -348,9 +346,14 @@
            IF CD-PAYCODE NOT = "009"
                DISPLAY "non medicare screening mammo -> auto coded"
                IF CD-DOCP = "00"
-                  DISPLAY "but RRMC tape said not read, please note "
+                  DISPLAY "but RRMC tape said not read, please enter "
+                      "it now or <Enter> to skip"
                       FO-NAME
-                  ACCEPT ANS
+                  ACCEPT CD-DOCP
+                  IF (CD-DOCP NOT = "02" OR "06" OR "08" OR "09"
+                                     OR "10")
+                      MOVE "00" TO CD-DOCP
+                  END-IF     
                END-IF
                REWRITE CHARFILE01
                GO TO P1
@@ -378,7 +381,12 @@
        P2-0.
            IF CD-DOCP = "00"
                DISPLAY "RRMC tape said not read"
-               ACCEPT ANS
+               DISPLAY "can you enter it now? or <Enter> to skip"
+                      FO-NAME
+               ACCEPT CD-DOCP
+               IF (CD-DOCP NOT = "02" OR "06" OR "08" OR "09" OR "10")
+                   MOVE "00" TO CD-DOCP
+               END-IF     
            END-IF
 
            IF CD-PAYCODE = "009" 
@@ -412,25 +420,48 @@
            END-IF
 
            IF CD-PAYCODE = "010"
-               DISPLAY " MEASURE 147: ENTER 3P OR 8P OR LEAVE BLANK"
+               DISPLAY " MEASURE 147: ENTER 3P, 8P OR BLANK, ? FOR HELP"
                ACCEPT CD-MOD4
-               IF NOT (CD-MOD4 = "3P" OR "8P" OR SPACE)
+               IF NOT (CD-MOD4 = "3P" OR "8P" OR SPACE OR "?")
                    GO TO P2-0
                END-IF
+               IF CD-MOD4 = "?"
+                   DISPLAY " BLANK = REPORT INDICATES CORRELATION"
+                   DISPLAY " 3P = NO RELEVANT STUDIES"
+                   DISPLAY " 8P = NOT CORRELATED, PERF NOT MET! STEVE?"
+                   GO TO P2-0
+               END-IF  
            END-IF
 
            IF CD-PAYCODE = "011"
                DISPLAY " measure 195: 8P or <Enter>"
                ACCEPT CD-MOD4
-               IF NOT (CD-MOD4 = "8P" OR SPACE)
+               IF NOT (CD-MOD4 = "8P" OR "?" OR SPACE)
                    GO TO P2-0
                END-IF
+               IF CD-MOD4 = "?"
+                   DISPLAY " BLANK = Referenced Distal Internal Carotid"
+                           " Diameter as the Denominator for Stenosis"
+                           "  Measurement Referenced"
+                   DISPLAY " 8P = Measurements of Distal Internal"
+                           " Carotid Diameter not Referenced,"
+                           " Reason not Otherwise Specified"
+                   GO TO P2-0
+               END-IF  
            END-IF
 
            IF CD-PAYCODE = "012"
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
                ACCEPT CD-MOD4
                IF CD-MOD4 = "?"
+                  DISPLAY "Cystic renal lesion that is simple appearing"
+                     " or Adrenal lesion less than or equal to 1.0 cm"
+                     " or Adrenal lesion greater than 1.0 cm but less"
+                     " than or equal to 4.0 cm classified as likely"
+                     " benign by unenhanced CT or washout protocol CT"
+                     " or MRI with in- and opposed-phase sequences"
+                     " or other equivalent institutional imaging"
+                     " protocols use 1 or 2 or 3"
                    DISPLAY " 1 = imaging not recommended"
                    DISPLAY " 2 = medical necessity"
                    DISPLAY " 3 = imaging recommended, this is odd"
@@ -443,15 +474,17 @@
            END-IF
 
            IF CD-PAYCODE = "013"
-               DISPLAY " Measure 406"
-               DISPLAY " < 1cm lesion use 1 or 2 or 3"
-               DISPLAY " <Enter> for no lesion"
-               DISPLAY " ? for help"
+               DISPLAY " Measure 406: <Enter> no lesion or 1 or 2 or 3"
+                       " or ? for help"
                ACCEPT CD-MOD4
                IF CD-MOD4 = "?"
+                   DISPLAY "CT, CTA, or MR studies of chest or neck"
+                           "for patients aged 18 and older with an"
+                           "incidentally-detected thyroid nodule"
+                               " < 1.0 cm noted"
                    DISPLAY " 1 = no follow up recommended"
                    DISPLAY " 2 = medical necessity for follow up"
-                   DISPLAY " 3 = follow up recommended"
+                   DISPLAY " 3 = f/u recommended, uh oh, perf not met!"
                    GO TO P2-0
                END-IF
                IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
@@ -470,7 +503,8 @@
                DISPLAY " Measure 406"
                DISPLAY " < 1cm lesion use 1 or 2 or 3"
                DISPLAY " <Enter> for no lesion"
-               DISPLAY " ? for help but will have to re-do 195, sorry"
+               DISPLAY " ? for help but since this is special CPT 70498"
+                       " will have to re-do 195 just completed, sorry"
                ACCEPT CD-DX5
                IF CD-DX5 = "?"
                    DISPLAY " 1 = no follow up recommended"
@@ -479,7 +513,8 @@
                    GO TO P2-0
                END-IF
                IF NOT (CD-DX5 = "1 " OR "2 " OR "3 " OR SPACE)
-                   DISPLAY " will have to re-do 195 first, sorry"
+                   DISPLAY " ? for help but since this is CPT 70498"
+                           " will have to re-do 195 first, sorry"
                    GO TO P2-0
                END-IF
            END-IF.
@@ -487,7 +522,7 @@
            DISPLAY " DIAG? "
            ACCEPT IN-FIELD-7.
            IF IN-FIELD-7 = "?"
-               DISPLAY "DIAG,END,B,F,M or S"
+               DISPLAY "DIAG, END, B, F, M or S"
                GO TO P2-00
            END-IF    
 
@@ -530,7 +565,7 @@
            END-READ
 
            IF CD-DATE-T > "20160930" AND DIAG-TITLE(1:1) = "?"
-               DISPLAY DIAG-KEY "  WAS INACTIVATED"
+               DISPLAY DIAG-KEY " WAS INACTIVATED"
                ACCEPT OMITTED
                GO TO P2-00
            END-IF.    
@@ -542,7 +577,7 @@
              GO TO P2-000
            END-READ
            IF CD-DATE-T > "20160930" AND DIAG-TITLE(1:1) = "?"
-            DISPLAY DIAG-KEY "  WAS INACTIVATED"
+            DISPLAY DIAG-KEY " WAS INACTIVATED"
             ACCEPT OMITTED
             GO TO P2-00
            END-IF
@@ -606,10 +641,6 @@
            READ ALLOWFILE NEXT AT END GO TO A5-2.
 
            MOVE ALW-DIAG TO DIAG-KEY
-           IF  (CD-DATE-T < "20151001")
-             AND (ALW-DIAG(6:2) NOT = "??")
-            GO TO A5-1
-           END-IF.
            IF  (CD-DATE-T > "20150930")
              AND (ALW-DIAG(6:2) = "??")
             GO TO A5-1
