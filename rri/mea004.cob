@@ -281,9 +281,7 @@
 
            IF FLAG = 145
                MOVE "0000G9500  " TO CD-PROC
-               MOVE CHARFILE01 TO CHARBACK01
                PERFORM B1 THRU B2
-               MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
            END-IF
@@ -331,9 +329,7 @@
            IF FLAG = 147
                MOVE "00003570F  " TO CD-PROC
                MOVE CD-MOD4 TO CD-PROC(10:2)
-               MOVE CHARFILE01 TO CHARBACK01
                PERFORM B1 THRU B2
-               MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
            END-IF
@@ -341,9 +337,7 @@
            IF FLAG = 195
                MOVE "00003100F  " TO CD-PROC
                MOVE CD-MOD4 TO CD-PROC(10:2)
-               MOVE CHARFILE01 TO CHARBACK01
                PERFORM B1 THRU B2
-               MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
 
       *    handle multi-qpp-cpts by adding measure 145
@@ -352,9 +346,8 @@
                    MOVE "0000G9500  " TO CD-PROC
                    MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
-                   MOVE SPACE TO CHARFILE-KEY
                    STRING CD-KEY8 "000"
-                       DELIMITED BY SIZE INTO CHARFILE-KEY
+                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
 
                GO TO A1-EXIT
@@ -363,7 +356,6 @@
            IF FLAG = 405
                IF CD-MOD4 = "1 "
                    MOVE "0000G9550  " TO CD-PROC
-                   MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
                END-IF
 
@@ -375,7 +367,6 @@
 
                IF CD-MOD4 = "3 "
                    MOVE "0000G9548  " TO CD-PROC
-                   MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
                END-IF
            
@@ -389,18 +380,14 @@
                    MOVE "0000G9551  " TO CD-PROC
                END-IF
                
-               MOVE CHARFILE01 TO CHARBACK01
                PERFORM B1 THRU B2
-               MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
 
       *    handle multi-qpp-cpts by doing mea 436
                IF (CD-PROC = "74150" OR "74160" OR "74170"
                    OR "74176" OR "74177" OR "74178")
                    MOVE "0000G9637  " TO CD-PROC
-                   MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
-                   MOVE SPACE TO CHARFILE-KEY
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
@@ -410,36 +397,31 @@
 	
            IF FLAG = 406
                IF CD-MOD4 = "1 "
+                   STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                          " PERFORMANCE NOT MET! please review" 
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01 
                    MOVE "0000G9556  " TO CD-PROC
-                   MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
                END-IF
            
                IF CD-MOD4 = "2 "
                    MOVE "0000G9555  " TO CD-PROC
-                   MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
                END-IF
 
                IF CD-MOD4 = "3 "
                    MOVE "0000G9554  " TO CD-PROC
-                   MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
                END-IF
 
                IF CD-MOD4 = "1 " OR "2 " OR "3 "
-                   STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                          " PERFORMANCE NOT MET! please review" 
-                   DELIMITED BY SIZE INTO FILEOUT01
-                   WRITE FILEOUT01 
                    MOVE "0000G9552  " TO CD-PROC
                ELSE
                    MOVE "0000G9557  " TO CD-PROC
                END-IF
              
-               MOVE CHARFILE01 TO CHARBACK01
                PERFORM B1 THRU B2
-               MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
 
       *    more multi qpp cpts
@@ -447,21 +429,16 @@
                    OR "71250" OR "71260" OR "71270" OR "71275"
                    OR "72125" OR "72126" OR "72127")
                    MOVE "0000G9637  " TO CD-PROC
-                   MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
-                   MOVE SPACE TO CHARFILE-KEY
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
-
                GO TO A1-EXIT
            END-IF.
 
            IF FLAG = 436
                MOVE "0000G9637  " TO CD-PROC
-               MOVE CHARFILE01 TO CHARBACK01
       *         PERFORM B1 THRU B2
-               MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
            END-IF
@@ -472,26 +449,21 @@
       *    cut and paste in meas 195 logic from above     
                MOVE "00003100F  " TO CD-PROC
                MOVE CD-MOD4 TO CD-PROC(10:2)
-               MOVE CHARFILE01 TO CHARBACK01
                PERFORM B1 THRU B2
-               MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
       *    cut and paste meas 406 logic using spare CD-DX5 field
                IF CD-DX5 = "1 "
                    MOVE "0000G9556  " TO CD-PROC
-                   MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
                END-IF
            
                IF CD-DX5 = "2 "
                    MOVE "0000G9555  " TO CD-PROC
-                   MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
                END-IF
 
                IF CD-DX5 = "3 "
                    MOVE "0000G9554  " TO CD-PROC
-                   MOVE CHARFILE01 TO CHARBACK01
                    PERFORM B1 THRU B2
                END-IF
       *    measure 406 has an additional hcpcs based on response
@@ -500,16 +472,13 @@
                ELSE
                    MOVE "0000G9557  " TO CD-PROC
                END-IF
-               MOVE CHARFILE01 TO CHARBACK01
                PERFORM B1 THRU B2
-               MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
 
       *    finally, don't forget new measure 436!
                MOVE "0000G9637  " TO CD-PROC
                MOVE CHARFILE01 TO CHARBACK01
       *         PERFORM B1 THRU B2
-               MOVE SPACE TO CHARFILE-KEY
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
            END-IF.
@@ -517,14 +486,13 @@
            STRING "225 " CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
-           MOVE CHARFILE01 TO CHARBACK01
            PERFORM B1 THRU B2
            MOVE "00007025F  " TO CD-PROC
-           MOVE CHARFILE01 TO CHARBACK01
            PERFORM B1 THRU B2 
            STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
            GO TO A1-EXIT.
        B1.
+           MOVE CHARFILE01 TO CHARBACK01
            ADD 1 TO XYZ.
            MOVE XYZ TO CD-KEY3
            MOVE BK-KEY8 TO CD-KEY8

@@ -19,6 +19,9 @@
 
            SELECT PROCFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
                ACCESS MODE IS DYNAMIC RECORD KEY IS PROC-KEY.
+
+           SELECT FILEOUT ASSIGN TO  "S45" ORGANIZATION IS LINE 
+               SEQUENTIAL.    
        DATA DIVISION.
        FILE SECTION.
        FD  CHARFILE
@@ -119,6 +122,8 @@
            02 FI-DX5 PIC X(7).
            02 FI-DX6 PIC X(7).
            02 FI-FUTURE PIC X(6).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(80).    
        WORKING-STORAGE SECTION.
        01  ALF28 PIC X(28).
        01  ALF28X PIC X(28).
@@ -133,6 +138,7 @@
        0005-START.
            OPEN INPUT PROCFILE FILEIN.
            OPEN I-O CHARFILE.
+           OPEN OUTPUT FILEOUT.
        P1.
            READ FILEIN AT END
                GO TO P99
@@ -140,7 +146,9 @@
 
            MOVE FI-PROC TO PROC-KEY
            READ PROCFILE INVALID
-               DISPLAY "BAD PROC " FI-PROC
+               STRING "BAD PROC " FI-PROC 
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
                GO TO P1
            END-READ
 
@@ -188,11 +196,11 @@
                MOVE "LT" TO MOD
            END-IF.
        P2.
-           DISPLAY PROC-TITLE
-           DISPLAY MOD
            MOVE FI-CHARFILE-KEY TO CHARFILE-KEY
            READ CHARFILE WITH LOCK INVALID
-               DISPLAY FI-CHARFILE-KEY " INVALID KEY"
+               STRING "INVALID KEY " FI-CHARFILE-KEY 
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
                GO TO P1
            END-READ
            
@@ -234,8 +242,10 @@
                MOVE SPACE TO CD-MOD4
            END-IF
 
-           DISPLAY MOD
-           DISPLAY CD-PROC " " CD-MOD2 " " CD-MOD3 " " CD-MOD4
+           STRING "MOD " MOD " PROC " CD-PROC " MOD2 " CD-MOD2
+                  " MOD3 " CD-MOD3 " MOD4 " CD-MOD4
+               DELIMITED BY SIZE INTO FILEOUT01
+           WRITE FILEOUT01
 
            REWRITE CHARFILE01.
            GO TO P1.
@@ -290,5 +300,5 @@
 
            GO TO P2.
        P99.
-           CLOSE CHARFILE. 
+           CLOSE CHARFILE FILEIN PROCFILE FILEOUT. 
            STOP RUN.
