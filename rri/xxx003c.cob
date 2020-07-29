@@ -10,30 +10,39 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT TAGDIAG ASSIGN TO "S25" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS TAG-KEY
-           ALTERNATE RECORD KEY IS TAG-ICD9 WITH DUPLICATES
-           LOCK MODE MANUAL.
-           SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY.
-           SELECT FILE-OUT ASSIGN TO "S35" ORGANIZATION
-           LINE SEQUENTIAL.
+           SELECT TAGDIAG ASSIGN TO   "S25" ORGANIZATION IS INDEXED
+               ACCESS IS DYNAMIC RECORD KEY IS TAG-KEY
+               ALTERNATE RECORD KEY IS TAG-ICD9 WITH DUPLICATES
+               LOCK MODE MANUAL.
+
+           SELECT CHARFILE ASSIGN TO  "S30" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+               LOCK MODE MANUAL.
+           
+           SELECT FILE-OUT ASSIGN TO  "S35" ORGANIZATION
+               LINE SEQUENTIAL.
+           
            SELECT ALLOWFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC  RECORD KEY IS ALW-KEY.
-           SELECT DIAGFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS DIAG-KEY
-           ALTERNATE RECORD KEY IS DIAG-TITLE WITH DUPLICATES.
-           SELECT PROCFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS PROC-KEY.
-           SELECT GARFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
-           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
-           LOCK MODE MANUAL.
+               ACCESS MODE IS DYNAMIC RECORD KEY IS ALW-KEY.
+           
+           SELECT DIAGFILE ASSIGN TO  "S45" ORGANIZATION IS INDEXED
+               ACCESS IS DYNAMIC RECORD KEY IS DIAG-KEY
+               ALTERNATE RECORD KEY IS DIAG-TITLE WITH DUPLICATES.
+           
+           SELECT PROCFILE ASSIGN TO  "S50" ORGANIZATION IS INDEXED
+               ACCESS IS DYNAMIC RECORD KEY IS PROC-KEY.
+           
+           SELECT GARFILE ASSIGN TO   "S55" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+               ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+               LOCK MODE MANUAL.
+           
            SELECT DIAG9FILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS DIAG9-KEY
-           ALTERNATE RECORD KEY IS DIAG9-TITLE WITH DUPLICATES.
+               ACCESS IS DYNAMIC RECORD KEY IS DIAG9-KEY
+               ALTERNATE RECORD KEY IS DIAG9-TITLE WITH DUPLICATES.
 
-
+           SELECT OUTFILE ASSIGN TO   "S65" ORGANIZATION IS 
+               LINE SEQUENTIAL.    
        DATA DIVISION.
        FILE SECTION.
        FD  TAGDIAG.
@@ -168,8 +177,8 @@
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(30).
-       FD FILE-OUT.
-       01 FILE-OUT01.
+       FD  FILE-OUT.
+       01  FILE-OUT01.
       *    02 FILLER PIC X.
            02 FO-DATE PIC X(8).
            02 FILLER PIC X VALUE SPACE.
@@ -184,7 +193,8 @@
            02 FO-REFPHY PIC X(10).
            02 FILLER PIC X.
            02 FO-KEY PIC X(11).
-       
+       FD  OUTFILE.
+       01  OUTFILE01 PIC X(80).
        WORKING-STORAGE SECTION.
        01  BELL0 USAGE INDEX.
        01  HOLD8 PIC X(8) VALUE SPACE.
@@ -239,27 +249,52 @@
            SET BELL0 TO 7.
            OPEN INPUT DIAGFILE FILE-OUT PROCFILE ALLOWFILE GARFILE
                       TAGDIAG DIAG9FILE.
+           OPEN OUTPUT OUTFILE.
            OPEN I-O CHARFILE.
            DISPLAY "0 = start new, 1 = skip ahead to undone"
            ACCEPT ALF1.
        P1.
            READ FILE-OUT AT END
                GO TO P99
-           END-READ    
+           END-READ
+
            MOVE FO-KEY TO CHARFILE-KEY
-           READ CHARFILE INVALID
+           
+           READ CHARFILE WITH LOCK INVALID
                PERFORM A3
                GO TO P1
            END-READ    
+
       * skip to undone if coded and prompted
            IF CD-DIAG NOT = "0000000" AND ALF1 = "1"
                GO TO P1
-           END-IF    
+           END-IF.
 
+       P1-0.
+           IF CD-DOCP = "00"
+               DISPLAY "RRMC tape says study not read, is it read now?"
+               DISPLAY "If so enter doc ## or 02 to leave unread."
+               DISPLAY "Type ? for our radiologist doc ##s ie 06"
+               ACCEPT CD-DOCP
+
+               IF (CD-DOCP = "? ")
+                   PERFORM LIST-DOC
+                   MOVE "00" TO CD-DOCP
+                   GO TO P1-0
+               END-IF                
+
+               IF (CD-DOCP NOT = "02" OR "06" OR "08" OR "09" 
+                                 OR "10")
+                   DISPLAY "not on the menu, pick again, "
+                           "use 02 for not read please."      
+                   MOVE "00" TO CD-DOCP
+                   GO TO P1-0
+               END-IF
+           END-IF        
       * auto-code call back mammos     
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
                MOVE "R928   " TO CD-DIAG
-      * medicare doesn't follow vt call back policy         
+      * medicare and adv plans don't follow vt call back policy         
                IF (CD-PAYCODE = "003" OR "200" OR "245" OR "270" 
                    OR "868" OR "912")
                    IF (CD-PROC1 = "1446")
@@ -290,21 +325,6 @@
                GO TO P1
            END-IF
       
-      * high risk aren't regular screen mammos     
-           IF (CD-PROC1 = "1097" OR "1098")
-               MOVE "Z1231  " TO CD-DIAG
-               REWRITE CHARFILE01 
-               GO TO P1
-           END-IF
-           
-           IF (CD-PROC1 = "1099" OR "1442")
-               DISPLAY "unilateral screening mammogram -> added mod 52"
-      * needs assesment so will drop down below
-               MOVE "Z1231  " TO CD-DIAG
-               MOVE "52" TO CD-MOD2
-               REWRITE CHARFILE01
-           END-IF
-      
       * auto-code uni tomo
            IF (CD-PROC1 = "1456")
                DISPLAY "unilateral tomosynthesis -> added modifier 52"
@@ -313,10 +333,25 @@
                REWRITE CHARFILE01
                GO TO P1
            END-IF.
-	     
-      * not putting GG mod on same day screen with diag exam
-      *     IF (CD-PROC1 = "1091" OR "1092" OR "1441")
-      *    MOVE "GG" TO CD-MOD2.
+
+      * high risk aren't regular screen mammos     
+           IF (CD-PROC1 = "1097" OR "1098")
+               MOVE "Z1231  " TO CD-DIAG
+               REWRITE CHARFILE01 
+               GO TO P1
+           END-IF
+
+      * needs assessment so will drop down below so *no* go to p1     
+           IF (CD-PROC1 = "1099" OR "1442")
+               DISPLAY "unilateral screening mammogram -> added mod 52"
+               MOVE "Z1231  " TO CD-DIAG
+               MOVE "52" TO CD-MOD2
+           END-IF
+      
+      *  putting GG mod on same day screen with diag exam, needs coding
+           IF (CD-PROC1 = "1091" OR "1092" OR "1441")
+               MOVE "GG" TO CD-MOD2
+           END-IF    
 
       * auto code LD lung screen
            IF (CD-PROC1 = "5232")
@@ -326,32 +361,29 @@
                GO TO P1
            END-IF.
 	
-       P1-0.
+       P1-1.
            IF (CD-PAYCODE = "008" OR "010" OR "011" OR "012"
                OR "013" OR "014" OR "015")  
                GO TO P2
            END-IF    
-      * mammo codes
+      * mammo codes except for medicare measure 009
            IF (CD-PROC2 NOT = "7706726")
                GO TO P2      
            END-IF    
            
            MOVE "Z1231  " TO CD-DIAG
-           IF CD-PAYCODE NOT = "009"
-               DISPLAY "non medicare screening mammo -> auto coded"
-               IF CD-DOCP = "00"
-                  DISPLAY "but RRMC tape said not read, please note "
-                      FO-NAME
-                  ACCEPT ANS
-               END-IF
-               REWRITE CHARFILE01
-               GO TO P1
-           END-IF.
+           DISPLAY "Non medicare screening mammo -> auto coded"
+                   CD-KEY8 " " FO-NAME               
+           REWRITE CHARFILE01
+           GO TO P1.
        P2.
            MOVE FO-KEY(1:8) TO G-GARNO
+           
            READ GARFILE INVALID
+               DISPLAY " Bad read on garfile? " G-GARNO
                CONTINUE
-           END-READ    
+           END-READ 
+
            INSPECT G-ACCT REPLACING LEADING "0" BY " ".
        P2-00.
            DISPLAY FO-DATE " " FO-KEY " " FO-PROC " " CD-PAYCODE
@@ -368,12 +400,23 @@
            DISPLAY CD-ADMIT-DIAG
            DISPLAY " ".
        P2-0.
-           IF CD-DOCP = "00"
-               DISPLAY "RRMC tape said not read"
-               ACCEPT ANS
+           IF (CD-PAYCODE = "008" OR "009" OR "010" OR "011" OR "012"
+               OR "013" OR "014" OR "015")
+               IF CD-DOCP = "02"
+                   DISPLAY "Skipping assessment so will need to code"
+                   DISPLAY "quality codes as well once study is read"
+                   DISPLAY "writing measure code log to track"
+                   STRING FO-KEY " unread, code assessment when read " 
+                          CD-PAYCODE " DOS " FO-DATE " PROC " FO-PROC
+                          DELIMITED BY SIZE INTO OUTFILE01
+                   WRITE OUTFILE01
+                   REWRITE CHARFILE01
+                   GO TO P1        
+               END-IF    
            END-IF
 
            IF CD-PAYCODE = "009" 
+               MOVE "Z1231  " TO CD-DIAG             
                DISPLAY "Enter assessment code"
                DISPLAY "? for help"            
                ACCEPT  CD-MOD4
@@ -382,6 +425,7 @@
                                        OR "4" OR "5" OR "6" OR "B")
                    GO TO P2-0
                END-IF
+
                IF CD-MOD4 = "?"
                    DISPLAY " 0 = INCOMPLETE NEED ADDITIONAL FILMS"
                    DISPLAY " 1 = NEGATIVE"
@@ -392,6 +436,7 @@
                    DISPLAY " 6 = KNOWN BIOPSY PROVEN malignancy" 
                    GO TO P2-0
                END-IF  
+               
                IF CD-MOD4(1:1) = "B"
                    DISPLAY FO-KEY " has been skipped"
                    GO TO P1
@@ -404,25 +449,48 @@
            END-IF
 
            IF CD-PAYCODE = "010"
-               DISPLAY " MEASURE 147: ENTER 3P OR 8P OR LEAVE BLANK"
+               DISPLAY " MEASURE 147: ENTER 3P, 8P OR BLANK, ? FOR HELP"
                ACCEPT CD-MOD4
-               IF NOT (CD-MOD4 = "3P" OR "8P" OR SPACE)
+               IF NOT (CD-MOD4 = "3P" OR "8P" OR SPACE OR "?")
                    GO TO P2-0
                END-IF
+               IF CD-MOD4 = "?"
+                   DISPLAY " BLANK = REPORT INDICATES CORRELATION"
+                   DISPLAY " 3P = NO RELEVANT STUDIES"
+                   DISPLAY " 8P = NOT CORRELATED, PERF NOT MET! STEVE?"
+                   GO TO P2-0
+               END-IF  
            END-IF
 
            IF CD-PAYCODE = "011"
                DISPLAY " measure 195: 8P or <Enter>"
                ACCEPT CD-MOD4
-               IF NOT (CD-MOD4 = "8P" OR SPACE)
+               IF NOT (CD-MOD4 = "8P" OR "?" OR SPACE)
                    GO TO P2-0
                END-IF
+               IF CD-MOD4 = "?"
+                   DISPLAY " BLANK = Referenced Distal Internal Carotid"
+                           " Diameter as the Denominator for Stenosis"
+                           "  Measurement Referenced"
+                   DISPLAY " 8P = Measurements of Distal Internal"
+                           " Carotid Diameter not Referenced,"
+                           " Reason not Otherwise Specified"
+                   GO TO P2-0
+               END-IF  
            END-IF
 
            IF CD-PAYCODE = "012"
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
                ACCEPT CD-MOD4
                IF CD-MOD4 = "?"
+                  DISPLAY "Cystic renal lesion that is simple appearing"
+                     " or Adrenal lesion less than or equal to 1.0 cm"
+                     " or Adrenal lesion greater than 1.0 cm but less"
+                     " than or equal to 4.0 cm classified as likely"
+                     " benign by unenhanced CT or washout protocol CT"
+                     " or MRI with in- and opposed-phase sequences"
+                     " or other equivalent institutional imaging"
+                     " protocols use 1 or 2 or 3"
                    DISPLAY " 1 = imaging not recommended"
                    DISPLAY " 2 = medical necessity"
                    DISPLAY " 3 = imaging recommended, this is odd"
@@ -435,15 +503,17 @@
            END-IF
 
            IF CD-PAYCODE = "013"
-               DISPLAY " Measure 406"
-               DISPLAY " < 1cm lesion use 1 or 2 or 3"
-               DISPLAY " <Enter> for no lesion"
-               DISPLAY " ? for help"
+               DISPLAY " Measure 406: <Enter> no lesion or 1 or 2 or 3"
+                       " or ? for help"
                ACCEPT CD-MOD4
                IF CD-MOD4 = "?"
+                   DISPLAY "CT, CTA, or MR studies of chest or neck"
+                           "for patients aged 18 and older with an"
+                           "incidentally-detected thyroid nodule"
+                               " < 1.0 cm noted"
                    DISPLAY " 1 = no follow up recommended"
                    DISPLAY " 2 = medical necessity for follow up"
-                   DISPLAY " 3 = follow up recommended"
+                   DISPLAY " 3 = f/u recommended, uh oh, perf not met!"
                    GO TO P2-0
                END-IF
                IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
@@ -462,7 +532,8 @@
                DISPLAY " Measure 406"
                DISPLAY " < 1cm lesion use 1 or 2 or 3"
                DISPLAY " <Enter> for no lesion"
-               DISPLAY " ? for help but will have to re-do 195, sorry"
+               DISPLAY " ? for help but since this is special CPT 70498"
+                       " will have to re-do 195 just completed, sorry"
                ACCEPT CD-DX5
                IF CD-DX5 = "?"
                    DISPLAY " 1 = no follow up recommended"
@@ -471,7 +542,8 @@
                    GO TO P2-0
                END-IF
                IF NOT (CD-DX5 = "1 " OR "2 " OR "3 " OR SPACE)
-                   DISPLAY " will have to re-do 195 first, sorry"
+                   DISPLAY " ? for help but since this is CPT 70498"
+                           " will have to re-do 195 first, sorry"
                    GO TO P2-0
                END-IF
            END-IF.
@@ -479,30 +551,37 @@
            DISPLAY " DIAG? "
            ACCEPT IN-FIELD-7.
            IF IN-FIELD-7 = "?"
-               DISPLAY "DIAG,END,B,F,M or S"
+               DISPLAY "DIAG, END, B, F, M or S"
                GO TO P2-00
            END-IF    
 
            IF IN-FIELD-7 = "F" OR "M"
                MOVE 1 TO DIAG-FLAG
-                PERFORM CD10 THRU CD10-EXIT
-                  IF DIAG-FLAG = 0 GO TO P2-9
-                 END-IF
-                  IF DIAG-FLAG = 1 GO TO P2-00
-                 END-IF
-           END-IF. 
+               PERFORM CD10 THRU CD10-EXIT
+                   IF DIAG-FLAG = 0 
+                       GO TO P2-9
+                   END-IF
+                   IF DIAG-FLAG = 1
+                       GO TO P2-00
+                   END-IF
+           END-IF
+
            IF IN-FIELD-7 = "S"
-             MOVE 1 TO DIAG-FLAG
-             MOVE SPACE TO IN-FIELD-7
-             PERFORM A4
-              IF DIAG-FLAG = 0
-               GO TO P2-9
-              END-IF
-              IF DIAG-FLAG = 1 GO TO P2-00
-              END-IF
-           END-IF.
-           IF IN-FIELD-7 = "END" GO TO P99.
-           
+               MOVE 1 TO DIAG-FLAG
+               MOVE SPACE TO IN-FIELD-7
+               PERFORM A4
+               IF DIAG-FLAG = 0
+                   GO TO P2-9
+               END-IF
+               IF DIAG-FLAG = 1
+                   GO TO P2-00
+               END-IF
+           END-IF
+
+           IF IN-FIELD-7 = "END"
+               GO TO P99
+           END-IF
+
            IF IN-FIELD-7 = "B"
                DISPLAY FO-KEY " HAS BEEN SKIPPED"
                DISPLAY "PLEASE RECORD THIS FACT"
@@ -522,51 +601,59 @@
            END-READ
 
            IF CD-DATE-T > "20160930" AND DIAG-TITLE(1:1) = "?"
-               DISPLAY DIAG-KEY "  WAS INACTIVATED"
+               DISPLAY DIAG-KEY " WAS INACTIVATED"
                ACCEPT OMITTED
                GO TO P2-00
            END-IF.    
        P2-9.
-
            MOVE IN-FIELD-7 TO DIAG-KEY
            READ DIAGFILE
-            INVALID DISPLAY "BAD CODE " IN-FIELD-7
-             GO TO P2-000
+               INVALID DISPLAY "BAD CODE " IN-FIELD-7
+               GO TO P2-000
            END-READ
+           
            IF CD-DATE-T > "20160930" AND DIAG-TITLE(1:1) = "?"
-            DISPLAY DIAG-KEY "  WAS INACTIVATED"
-            ACCEPT OMITTED
-            GO TO P2-00
+               DISPLAY DIAG-KEY " WAS INACTIVATED"
+               ACCEPT OMITTED
+               GO TO P2-00
            END-IF
+           
            DISPLAY DIAG-KEY " " DIAG-TITLE
 
            IF DIAG2 = SPACE
-             MOVE DIAG-KEY TO CD-DIAG
-             MOVE CD-DIAG TO HOLD7
-            ELSE
-             MOVE DIAG-KEY TO CD-DX2
-           END-IF.
-
-           IF CD-DIAG = CD-DX2
-             MOVE "0000000" TO CD-DX2
+               MOVE DIAG-KEY TO CD-DIAG
+               MOVE CD-DIAG TO HOLD7
+           ELSE
+               MOVE DIAG-KEY TO CD-DX2
            END-IF
 
-           REWRITE CHARFILE01
-            INVALID DISPLAY FILE-OUT01
+           IF CD-DIAG = CD-DX2
+               MOVE "0000000" TO CD-DX2
+           END-IF
+
+           REWRITE CHARFILE01 INVALID 
+               DISPLAY FILE-OUT01
            END-REWRITE
 
            IF DIAG2 NOT = SPACE
-           MOVE SPACE TO DIAG2
+               MOVE SPACE TO DIAG2
            GO TO P1.
        P3.
            DISPLAY "2nd diag? Y".
            ACCEPT DIAG2.
            IF DIAG2 NOT = "Y"
-           MOVE SPACE TO DIAG2 GO TO P1.
+               MOVE SPACE TO DIAG2 
+               GO TO P1
+           END-IF
+
            DISPLAY FO-DATE " " FO-KEY " " FO-PROC " " CD-PAYCODE
            " " CD-PLACE " " G-DOB " " G-ACCT " " FO-NAME.
            DISPLAY PROC-TITLE
-           IF CD-DAT1 NOT = "00000000" DISPLAY "accident" .
+           
+           IF CD-DAT1 NOT = "00000000"
+               DISPLAY "accident"
+           END-IF
+
            DISPLAY CD-CLINICAL
            DISPLAY CD-ADMIT-DIAG
            DISPLAY " ".
@@ -574,7 +661,8 @@
            GO TO P2-000.
        A1.
            DISPLAY "GARNO NOT AVAILABLE FOR SOME UNKNOWN REASON"
-           DISPLAY "PLEASE RECORD THIS FACT" PERFORM A2.
+           DISPLAY "PLEASE RECORD THIS FACT" 
+           PERFORM A2.
        A3.
            DISPLAY "CHARGE RECORD NOT AVAILABLE FOR SOME UNKNOWN REASON"
            PERFORM A2.
@@ -585,338 +673,432 @@
            MOVE CD-PROC2 TO ALW-PROC
            MOVE IN-FIELD-7 TO ALW-DIAG
            READ ALLOWFILE
-           INVALID PERFORM A5 THRU A5-EXIT
-           NOT INVALID MOVE 0 TO DIAG-FLAG
+               INVALID
+                   PERFORM A5 THRU A5-EXIT
+               NOT INVALID 
+                   MOVE 0 TO DIAG-FLAG
            END-READ.
        A5.
            MOVE SPACE TO ALW-DIAG
            MOVE 0 TO X.
        A5-0.
-           START ALLOWFILE KEY NOT < ALW-KEY INVALID
-           DISPLAY "NO DIAGS YET" GO TO A5-EXIT.
+           START ALLOWFILE KEY NOT < ALW-KEY
+               INVALID
+                   DISPLAY "NO DIAGS YET" 
+                   GO TO A5-EXIT
+           END-START.        
        A5-1.
-           READ ALLOWFILE NEXT AT END GO TO A5-2.
+           READ ALLOWFILE NEXT 
+               AT END
+                   GO TO A5-2
+           END-READ        
 
            MOVE ALW-DIAG TO DIAG-KEY
-           IF  (CD-DATE-T < "20151001")
-             AND (ALW-DIAG(6:2) NOT = "??")
-            GO TO A5-1
-           END-IF.
-           IF  (CD-DATE-T > "20150930")
-             AND (ALW-DIAG(6:2) = "??")
-            GO TO A5-1
-           END-IF.
-           IF ALW-PROC NOT = CD-PROC2 GO TO A5-2.
+           IF (CD-DATE-T > "20150930") AND (ALW-DIAG(6:2) = "??")
+               GO TO A5-1
+           END-IF
+
+           IF ALW-PROC NOT = CD-PROC2
+               GO TO A5-2
+           END-IF    
+           
            READ DIAGFILE INVALID
-            DISPLAY DIAG-KEY " INVALID DIAG-KEY"
-           MOVE SPACE TO DIAG-TITLE.
-           IF DIAG-TITLE(1:1) = "?" GO TO A5-1.
-           IF ALW-FLAG = "1" MOVE "POLICY" TO ALF6
-           ELSE MOVE SPACE TO ALF6.
+               DISPLAY DIAG-KEY " INVALID DIAG-KEY"
+               MOVE SPACE TO DIAG-TITLE
+           END-READ
+
+           IF DIAG-TITLE(1:1) = "?" 
+               GO TO A5-1
+           END-IF
+
+           IF ALW-FLAG = "1" 
+               MOVE "POLICY" TO ALF6
+           ELSE
+               MOVE SPACE TO ALF6
+           END-IF
 
            ADD 1 TO X
            MOVE X TO NEF2.
            DISPLAY NEF2 " " ALW-DIAG " " ALF6 " " DIAG-TITLE.
            MOVE DIAG-KEY TO TAGTAB(X)
-           IF X < 20 GO TO A5-1.
 
+           IF X < 20 
+               GO TO A5-1
+           END-IF.    
        A5-11.
            DISPLAY "SELECT FROM THE LIST"
            ACCEPT ANS
            IF ANS = "?"
-           DISPLAY "PICK A NUMBER FROM THE  LIST"
-           DISPLAY "X TO QUIT, ENTER TO CONTINUE LISTING"
-           DISPLAY "TYPE A STARTING POINT FOR CODES TO LIST"
-           GO TO A5-11.
-           IF ANS = SPACE
-             MOVE 0 TO X
-             GO TO A5-1
+               DISPLAY "PICK A NUMBER FROM THE  LIST"
+               DISPLAY "X TO QUIT, ENTER TO CONTINUE LISTING"
+               DISPLAY "TYPE A STARTING POINT FOR CODES TO LIST"
+               GO TO A5-11
            END-IF
-           IF ANS = "E  " MOVE 1 TO DIAG-FLAG GO TO A5-EXIT.
+
+           IF ANS = SPACE
+               MOVE 0 TO X
+               GO TO A5-1
+           END-IF
+           
+           IF ANS = "E  " 
+               MOVE 1 TO DIAG-FLAG 
+               GO TO A5-EXIT
+           END-IF    
 
            MOVE ANS(1:2) TO ALF-2
-           IF ALF-2 = SPACE MOVE 0 TO X GO TO A5-1.
+           
+           IF ALF-2 = SPACE
+               MOVE 0 TO X 
+               GO TO A5-1
+           END-IF
+
            MOVE SPACE TO RIGHT-2
            UNSTRING ALF-2 DELIMITED BY " " INTO RIGHT-2
            INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
            MOVE RIGHT-2 TO ALF-2
 
            IF ALF-2 NUMERIC
-             MOVE ALF-2 TO NUM-2
-             IF (NUM-2 > 0) AND (NUM-2 <= X)
-              MOVE TAGTAB(NUM-2) TO IN-FIELD-7
-              MOVE 0 TO DIAG-FLAG
-              GO TO A5-EXIT
-             END-IF
-           END-IF.
+               MOVE ALF-2 TO NUM-2
+               IF (NUM-2 > 0) AND (NUM-2 <= X)
+                   MOVE TAGTAB(NUM-2) TO IN-FIELD-7
+                   MOVE 0 TO DIAG-FLAG
+                   GO TO A5-EXIT
+               END-IF
+           END-IF
+
            GO TO A5-EXIT.
        A5-2.
            DISPLAY "USE THE CODE TYPED? " HOLD-DIAG "  Y/N".
            DISPLAY " OR SELECT FROM THE LIST"
-             ACCEPT ANS
-             IF ANS = "Y  " MOVE 0 TO DIAG-FLAG GO TO A5-EXIT.
-             IF ANS = "N  " MOVE 1 TO DIAG-FLAG GO TO A5-EXIT.
+           ACCEPT ANS
+
+           IF ANS = "Y  " 
+               MOVE 0 TO DIAG-FLAG
+               GO TO A5-EXIT
+           END-IF    
+
+           IF ANS = "N  "
+               MOVE 1 TO DIAG-FLAG
+               GO TO A5-EXIT
+           END-IF
+
            MOVE ANS(1:2) TO ALF-2
+           
            IF ALF-2 = SPACE
-             MOVE 0 TO X
-             GO TO A5-1
-           END-IF.
+               MOVE 0 TO X
+               GO TO A5-1
+           END-IF
+
            MOVE SPACE TO RIGHT-2
            UNSTRING ALF-2 DELIMITED BY " " INTO RIGHT-2
            INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
            MOVE RIGHT-2 TO ALF-2
+           
            IF ALF-2 NUMERIC
-             MOVE ALF-2 TO NUM-2
-             IF (NUM-2 > 0) AND (NUM-2 <= X)
-              MOVE TAGTAB(NUM-2) TO IN-FIELD-7
-              MOVE 0 TO DIAG-FLAG
-              GO TO A5-EXIT
-             END-IF
+               MOVE ALF-2 TO NUM-2
+               IF (NUM-2 > 0) AND (NUM-2 <= X)
+                   MOVE TAGTAB(NUM-2) TO IN-FIELD-7
+                   MOVE 0 TO DIAG-FLAG
+                   GO TO A5-EXIT
+               END-IF
            END-IF.
-             
-       A5-EXIT. EXIT.
+       A5-EXIT. 
+           EXIT.
+       LIST-DOC.
+           DISPLAY "02 = not read, send to error list to check later"
+           DISPLAY "06 is Dan Mitchell MD"
+           DISPLAY "08 is Trent Shelton DO"
+           DISPLAY "09 is Jed Hummel MD"
+           DISPLAY "10 is Andy Boyer MD".
        CD10.
-           IF IN-FIELD-7 = "F" GO TO 1DIAG-SEARCH.
-           IF IN-FIELD-7 = "M" GO TO 1MAP.
-           IF (IN-FIELD-TAB(1) NUMERIC) OR (IN-FIELD-TAB(1) = "V")
-            MOVE SPACE TO ALF-7
-            STRING IN-FIELD-7(1:5) "??" DELIMITED BY SIZE INTO ALF-7
-            MOVE ALF-7 TO IN-FIELD-7
-           END-IF.
-           MOVE IN-FIELD-7 TO DIAG-KEY.
-           READ DIAGFILE INVALID DISPLAY "NOT ON FILE"
-           END-READ
-           IF (CD-DATE-T < "20151001" AND DIAG-KEY(6:2) NOT = "??")
-            DISPLAY "USE ICD9 CODE WITH THIS DATE"
-           GO TO CD10-EXIT.
-           IF (CD-DATE-T > "20150930" AND DIAG-KEY(6:2) = "??")
-            DISPLAY "USE ICD10 CODE WITH THIS DATE"
-           GO TO CD10-EXIT.
-      *     DISPLAY DIAG-TITLE
-           GO TO CD10-EXIT.
-
-
-       1DIAG-SEARCH.
-           MOVE 1 TO FLAG
-           IF CD-DATE-T < "20151001" MOVE 9 TO FLAG.
-           DISPLAY "SEARCH KEY ?".
-           ACCEPT DIAG-TITLE.
-           IF DIAG-TITLE = "?"
-           DISPLAY "ICD9 BY TITLE, TYPE AT LEAST 1ST 2 LETTERS"
-           DISPLAY "ICD9 BY CODE, TYPE AT LEAST 1ST 2 NUMBERS"
-           DISPLAY "ICD9 V CODES, TYPE V AND THEN AT LEAST 1 #"
-           DISPLAY " "
-           DISPLAY "ICD10 BY TITLE, TYPE AT LEAST ONE LETTER"
-           DISPLAY "ICD10 BY CODE, TYPE A LETTER THEN AT LEAST 1 #"
-           GO TO 1DIAG-SEARCH
-           END-IF.
-           IF DIAG-TITLE = SPACE
-           GO TO CD10-EXIT.
-      *     MOVE DIAG-TITLE TO IN-FIELD
-           IF (FLAG = 9)
-            AND
-              (((DIAG-TITLE(1:1) = "V") AND (DIAG-TITLE(2:1) NUMERIC))
-              OR
-            ((DIAG-TITLE(1:1) NUMERIC) AND (DIAG-TITLE(2:1) NUMERIC)))
-            MOVE DIAG-Title(1:5) TO DIAG-KEY
-            GO TO 4DIAG
+           IF IN-FIELD-7 = "F"
+               GO TO 1DIAG-SEARCH
            END-IF
 
-           IF (FLAG NOT = 9)
-             AND (DIAG-TITLE(1:1) ALPHABETIC)
-             AND (DIAG-TITLE(2:1) NUMERIC)
-              MOVE DIAG-title(1:5) TO DIAG-KEY
-              GO TO 4DIAG
-           END-IF.
+           IF IN-FIELD-7 = "M"
+               GO TO 1MAP
+           END-IF
+
+           IF (IN-FIELD-TAB(1) NUMERIC) OR (IN-FIELD-TAB(1) = "V")
+               MOVE SPACE TO ALF-7
+               STRING IN-FIELD-7(1:5) "??" 
+                   DELIMITED BY SIZE INTO ALF-7
+               MOVE ALF-7 TO IN-FIELD-7
+           END-IF
+
+           MOVE IN-FIELD-7 TO DIAG-KEY.
+           
+           READ DIAGFILE INVALID
+               DISPLAY "NOT ON FILE"
+           END-READ
+
+           IF (CD-DATE-T > "20150930" AND DIAG-KEY(6:2) = "??")
+               DISPLAY "USE ICD10 CODE WITH THIS DATE"
+               GO TO CD10-EXIT
+           END-IF
+
+           GO TO CD10-EXIT.
+       1DIAG-SEARCH.
+           MOVE 1 TO FLAG
+           DISPLAY "SEARCH KEY ?"
+           ACCEPT DIAG-TITLE
+           IF DIAG-TITLE = "?"
+               DISPLAY "ICD10 BY TITLE, TYPE AT LEAST ONE LETTER"
+               DISPLAY "ICD10 BY CODE, TYPE A LETTER THEN AT LEAST 1 #"
+               GO TO 1DIAG-SEARCH
+           END-IF
+
+           IF DIAG-TITLE = SPACE
+               GO TO CD10-EXIT
+           END-IF
+
+           IF (FLAG NOT = 9) AND (DIAG-TITLE(1:1) ALPHABETIC)
+               AND (DIAG-TITLE(2:1) NUMERIC)
+               MOVE DIAG-title(1:5) TO DIAG-KEY
+               GO TO 4DIAG
+           END-IF
 
            START DIAGFILE KEY NOT < DIAG-TITLE INVALID
-           DISPLAY "END OF FILE"
-           GO TO CD10-EXIT.
+               DISPLAY "END OF FILE"
+               GO TO CD10-EXIT
+           END-START
+
            MOVE 0 TO X.
            GO TO 3DIAG.
        4DIAG.
            START DIAGFILE KEY NOT < DIAG-KEY INVALID
-           DISPLAY "END OF FILE"
-           GO TO CD10-EXIT.
+               DISPLAY "END OF FILE"
+               GO TO CD10-EXIT
+           END-START    
            MOVE 0 TO X.
        3DIAG.
            READ DIAGFILE NEXT AT END
-           DISPLAY "END OF FILE"
-           GO TO 3DIAG-0.
-           IF  DIAG-TITLE(1:1) = "?" GO TO 3DIAG.
-            IF FLAG = 9 AND DIAG-KEY >= "V9199??"
-             DISPLAY "END OF FILE"
-             GO TO 3DIAG-0
-            END-IF
-           IF ((FLAG = 9) AND (DIAG-KEY(6:2) not = "??"))
-             OR ((FLAG = 1) AND(DIAG-KEY(6:2)    = "??"))
-             GO TO 3DIAG
-           END-IF.
+               DISPLAY "END OF FILE"
+               GO TO 3DIAG-0
+           END-READ
+
+           IF  DIAG-TITLE(1:1) = "?"
+               GO TO 3DIAG
+           END-IF
+
+           IF ((FLAG = 1) AND (DIAG-KEY(6:2) = "??"))
+               GO TO 3DIAG
+           END-IF
+
            ADD 1 TO X
            MOVE X TO NEF2
-             DISPLAY NEF2 " " DIAG-KEY " " DIAG-MEDB " " DIAG-TITLE
+           DISPLAY NEF2 " " DIAG-KEY " " DIAG-MEDB " " DIAG-TITLE
            MOVE DIAG-KEY TO TAGTAB(X) 
 
-           IF X < 20 GO TO 3DIAG.
+           IF X < 20
+               GO TO 3DIAG
+           END-IF.    
        3DIAG-0.
-            DISPLAY "SELECT ?"
-            ACCEPT ANS.
-             IF ANS = "?"
+           DISPLAY "SELECT ?"
+           ACCEPT ANS.
+           IF ANS = "?"
                DISPLAY "PICK A NUMBER,X TO QUIT,ENTER FOR MORE"
                GO TO 3DIAG-0
-             END-IF
-             IF ANS = SPACE
-             MOVE 0 TO X GO TO 3DIAG
-             END-IF
-           IF ANS = "X" GO TO CD10-EXIT.
+           END-IF
+            
+           IF ANS = SPACE
+               MOVE 0 TO X
+               GO TO 3DIAG
+           END-IF
+           
+           IF ANS = "X"
+               GO TO CD10-EXIT
+           END-IF
+
            MOVE ANS(1:2) TO ALF-2
            MOVE SPACE TO RIGHT-2
            UNSTRING ALF-2 DELIMITED BY " " INTO RIGHT-2
            INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
            MOVE RIGHT-2 TO ALF-2
+           
            IF ALF-2 NUMERIC
-             MOVE ALF-2 TO NUM-2
-             IF (NUM-2 > 0) AND (NUM-2 <= X)
-              MOVE TAGTAB(NUM-2) TO IN-FIELD-7
-              move 0 to diag-flag
-              go to cd10-exit
-             END-IF
-           END-IF.
+               MOVE ALF-2 TO NUM-2
+               IF (NUM-2 > 0) AND (NUM-2 <= X)
+                   MOVE TAGTAB(NUM-2) TO IN-FIELD-7
+                   MOVE 0 TO DIAG-FLAG
+                   GO TO CD10-EXIT
+               END-IF
+           END-IF
+
            MOVE 0 TO X
            GO TO 1DIAG-SEARCH.
        1MAP.
            DISPLAY "ENTER A VALID ICD9 CODE OR F TO SEARCH ICD9"
            DISPLAY "X TO QUIT."
            ACCEPT ALF-5.
+           
            IF ALF-5 = "F"
-             MOVE 1 TO DIAG-FLAG
-             PERFORM F1 THRU F1-EXIT
+               MOVE 1 TO DIAG-FLAG
+               PERFORM F1 THRU F1-EXIT
                IF DIAG-FLAG = 1
-                 GO TO 1MAP
+                   GO TO 1MAP
                END-IF
            END-IF
+
            MOVE ALF-5 TO TAG-ICD9-5
            MOVE SPACE TO TAG-ICD9-7
-           START TAGDIAG KEY NOT < TAG-ICD9
-             INVALID  GO TO CD10-EXIT
-           END-START.
+           START TAGDIAG KEY NOT < TAG-ICD9 INVALID
+               GO TO CD10-EXIT
+           END-START
            MOVE 0 TO Y.
        2MAP.
-           READ TAGDIAG NEXT AT END GO TO 4MAP.
-           IF TAG-ICD9-5 NOT = ALF-5 GO TO 4MAP.
+           READ TAGDIAG NEXT AT END
+               GO TO 4MAP
+           END-READ
+
+           IF TAG-ICD9-5 NOT = ALF-5
+               GO TO 4MAP
+           END-IF
+
            MOVE TAG-ICD9-7 TO DIAG-KEY
-           READ DIAGFILE INVALID GO TO 2MAP.
-           IF DIAG-TITLE(1:1) = "?" GO TO 2MAP.
+           READ DIAGFILE INVALID
+               GO TO 2MAP
+           END-READ
+
+           IF DIAG-TITLE(1:1) = "?"
+               GO TO 2MAP
+           END-IF
+
            ADD 1 TO Y
            MOVE TAG-ICD9-7 TO TAGTAB(Y)
            MOVE Y TO NEF2
            DISPLAY NEF2 " " TAG-ICD9-7 " " DIAG-TITLE.
        3MAP.
-           IF Y = 0 GO TO 1MAP
-           IF Y < 20 GO TO 2MAP.
+           IF Y = 0
+               GO TO 1MAP
+           END-IF
+
+           IF Y < 20
+               GO TO 2MAP
+           END-IF.    
        4MAP.
            DISPLAY "CHOOSE FROM THE LIST".
            ACCEPT ALF-2.
 
            IF ALF-2 = "?"
-           DISPLAY "A = USE A DIFFERENT ICD9 CODE"
-           DISPLAY "X = STOP THE MAPPING"
-           DISPLAY "PICK A NUMBER FROM THE LIST"
-           DISPLAY " TO MAKE A SELECTION"
-           DISPLAY "ENTER KEY TO CONTINUE THE MAPPING"
-           GO TO 4MAP.
+               DISPLAY "A = USE A DIFFERENT ICD9 CODE"
+               DISPLAY "X = STOP THE MAPPING"
+               DISPLAY "PICK A NUMBER FROM THE LIST"
+               DISPLAY " TO MAKE A SELECTION"
+               DISPLAY "ENTER KEY TO CONTINUE THE MAPPING"
+               GO TO 4MAP
+           END-IF    
 
-           IF ALF-2 = "A" GO TO 1MAP.
-           IF ALF-2 = "X" GO TO CD10-EXIT.
-           IF ALF-2 = SPACE MOVE 0 TO Y GO TO 2MAP.
+           IF ALF-2 = "A"
+               GO TO 1MAP
+           END-IF
+
+           IF ALF-2 = "X"
+               GO TO CD10-EXIT
+           END-IF
+
+           IF ALF-2 = SPACE
+               MOVE 0 TO Y
+               GO TO 2MAP
+           END-IF
+
            MOVE SPACE TO RIGHT-2
            UNSTRING ALF-2 DELIMITED BY " " INTO RIGHT-2
            INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
            MOVE RIGHT-2 TO ALF-2
            IF ALF-2 NUMERIC
-             MOVE ALF-2 TO NUM-2
-             IF (NUM-2 > 0) AND (NUM-2 <= Y)
-              MOVE TAGTAB(NUM-2) TO IN-FIELD-7
-               IF CD-DATE-T < "20151001"
-                DISPLAY "MUST USE ICD9 CODE FOR THIS DATE"
-                DISPLAY
-                CD-DATE-T(5:2) "-"CD-DATE-T(7:2) "-" CD-DATE-T(1:4)
-                ACCEPT OMITTED
-                GO TO CD10-EXIT
+               MOVE ALF-2 TO NUM-2
+               IF (NUM-2 > 0) AND (NUM-2 <= Y)
+                   MOVE TAGTAB(NUM-2) TO IN-FIELD-7
+                   MOVE 0 TO DIAG-FLAG
+                   GO TO CD10-EXIT
                END-IF
-              MOVE 0 TO DIAG-FLAG
-              GO TO CD10-EXIT
-             END-IF
            END-IF
-            GO TO 4MAP.
-
+            
+           GO TO 4MAP.
        CD10-EXIT.
            EXIT.
-
        F1.
            MOVE 1 TO DIAG-FLAG
            DISPLAY "ENTER A STARTING POINT"
            ACCEPT DIAG9-TITLE.
-           IF DIAG9-TITLE = "X" GO TO F1-EXIT.
-           IF
-           (((DIAG9-TITLE(1:1) = "V") AND (DIAG9-TITLE(2:1) NUMERIC))
-              OR
-           ((DIAG9-TITLE(1:1) NUMERIC) AND (DIAG9-TITLE(2:1) NUMERIC)))
-            MOVE DIAG9-TITLE TO DIAG9-KEY
-            MOVE 0 TO X
-            GO TO F4DIAG
+           
+           IF DIAG9-TITLE = "X"
+               GO TO F1-EXIT
+           END-IF
+
+           IF (((DIAG9-TITLE(1:1) = "V") AND 
+                (DIAG9-TITLE(2:1) NUMERIC)) OR
+               ((DIAG9-TITLE(1:1) NUMERIC) AND 
+                (DIAG9-TITLE(2:1) NUMERIC)))
+               MOVE DIAG9-TITLE TO DIAG9-KEY
+               MOVE 0 TO X
+               GO TO F4DIAG
            END-IF
 
            START DIAG9FILE KEY NOT < DIAG9-TITLE INVALID
-           DISPLAY "END OF FILE"
-           GO TO F1.
+               DISPLAY "END OF FILE"
+               GO TO F1
+           END-START
+
            MOVE 0 TO X.
            GO TO F3DIAG.
        F4DIAG.
            START DIAG9FILE KEY NOT < DIAG9-KEY INVALID
-           DISPLAY "END OF FILE"
-           GO TO F1.
+               DISPLAY "END OF FILE"
+               GO TO F1
+           END-START    
            MOVE 0 TO X.
        F3DIAG.
            READ DIAG9FILE NEXT AT END
-             DISPLAY "END OF FILE"
-             GO TO F3DIAG-0
+               DISPLAY "END OF FILE"
+               GO TO F3DIAG-0
            END-READ
            ADD 1 TO X
-            MOVE X TO NEF2
-             DISPLAY NEF2 " " DIAG9-KEY " " DIAG9-TITLE
+           MOVE X TO NEF2
+           DISPLAY NEF2 " " DIAG9-KEY " " DIAG9-TITLE
            MOVE DIAG9-KEY TO TAGTAB(X) 
 
-           IF X < 20 GO TO F3DIAG.
+           IF X < 20 
+               GO TO F3DIAG
+           END-IF.    
        F3DIAG-0.
-            DISPLAY "SELECT ?"
-            ACCEPT ANS.
-             IF ANS = "?"
+           DISPLAY "SELECT ?"
+           ACCEPT ANS.
+           IF ANS = "?"
                DISPLAY "PICK A NUMBER,X TO QUIT,ENTER FOR MORE"
                GO TO 3DIAG-0
-             END-IF
-             IF ANS = SPACE
-              MOVE 0 TO X GO TO F3DIAG
-             END-IF
-           IF ANS = "X" GO TO F1-EXIT.
+           END-IF
+            
+           IF ANS = SPACE
+               MOVE 0 TO X GO TO F3DIAG
+           END-IF
+           
+           IF ANS = "X"
+               GO TO F1-EXIT
+           END-IF
+
            MOVE ANS(1:2) TO ALF-2
            MOVE SPACE TO RIGHT-2
            UNSTRING ALF-2 DELIMITED BY " " INTO RIGHT-2
            INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
            MOVE RIGHT-2 TO ALF-2
+           
            IF ALF-2 NUMERIC
-             MOVE ALF-2 TO NUM-2
-             IF (NUM-2 > 0) AND (NUM-2 <= X)
-              MOVE TAGTAB(NUM-2) TO ALF-5
-              move 0 to diag-flag
-              GO TO F1-EXIT
-             END-IF
-           END-IF.
+               MOVE ALF-2 TO NUM-2
+               IF (NUM-2 > 0) AND (NUM-2 <= X)
+                   MOVE TAGTAB(NUM-2) TO ALF-5
+                   MOVE 0 TO DIAG-FLAG
+                   GO TO F1-EXIT
+               END-IF
+           END-IF
+
            MOVE 0 TO X
            GO TO F1.
        F1-EXIT.
            EXIT.
        P99.
-           CLOSE CHARFILE PROCFILE GARFILE DIAGFILE DIAG9FILE.
+           CLOSE CHARFILE PROCFILE GARFILE DIAGFILE DIAG9FILE
+                 ALLOWFILE FILE-OUT OUTFILE TAGDIAG.
            STOP RUN.
 

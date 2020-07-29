@@ -100,9 +100,9 @@
            MOVE CD-KEY8 TO HOLDIT
            MOVE 1 TO X
            MOVE CHARFILE-KEY TO KEY-TAB(X)
-           MOVE CD-DATE-T TO DATE-TAB(X)
-           MOVE CD-PROC2 TO CHARGE-TAB(X)
-           MOVE CD-PROC TO PROC-TAB(X).
+           MOVE CD-DATE-T    TO DATE-TAB(X)
+           MOVE CD-PROC2     TO CHARGE-TAB(X)
+           MOVE CD-PROC      TO PROC-TAB(X).
        P2. 
            READ CHARFILE NEXT AT END
                GO TO P4
@@ -113,10 +113,10 @@
            END-IF
 
            ADD 1 TO X
-           MOVE CD-DATE-T TO DATE-TAB(X)
+           MOVE CD-DATE-T    TO DATE-TAB(X)
            MOVE CHARFILE-KEY TO KEY-TAB(X)
-           MOVE CD-PROC2 TO CHARGE-TAB(X)
-           MOVE CD-PROC TO PROC-TAB(X)
+           MOVE CD-PROC2     TO CHARGE-TAB(X)
+           MOVE CD-PROC      TO PROC-TAB(X)
            GO TO P2.
        P14.
            IF X < 2
@@ -129,9 +129,7 @@
            GO TO P0-1.
        P15.
            SUBTRACT 1 FROM X GIVING Y.
-           PERFORM C1 THRU C1-EXIT
-               VARYING Z FROM 1 BY 1 UNTIL Z > Y
-           END-PERFORM.    
+           PERFORM C1 THRU C1-EXIT VARYING Z FROM 1 BY 1 UNTIL Z > Y.
        C1. 
            IF DATE-TAB(Z) = 0
                GO TO C1-EXIT
@@ -139,9 +137,7 @@
 
            MOVE 0 TO FLAGX.
            ADD 1 TO Z GIVING A 
-           PERFORM C2 THRU C2-EXIT 
-               VARYING T FROM A BY 1 UNTIL T > X
-           END-PERFORM.    
+           PERFORM C2 THRU C2-EXIT VARYING T FROM A BY 1 UNTIL T > X.
        C1-EXIT.
            EXIT.
        C2. 

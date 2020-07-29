@@ -4,20 +4,16 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. psi253.
+       PROGRAM-ID. rr253.
        AUTHOR. S WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
            SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
-           LOCK MODE MANUAL.
-           SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
-           LINE SEQUENTIAL.
+               ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+               LOCK MODE MANUAL.
        DATA DIVISION.
        FILE SECTION.
-       FD FILEOUT.
-       01 FILEOUT01 PIC X(30).
        FD  CHARFILE
       *    BLOCK CONTAINS 2 RECORDS
            DATA RECORD IS CHARFILE01.
@@ -67,35 +63,25 @@
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
        WORKING-STORAGE SECTION.
-       01 HOLDIT PIC X(8).
-      *
+       01  ALF11 PIC X(11).
        PROCEDURE DIVISION.
        P0.
-           OPEN I-O CHARFILE
-           OPEN OUTPUT FILEOUT.
+           OPEN I-O CHARFILE.
            MOVE SPACE TO CHARFILE-KEY.
-       P1. 
-           READ CHARFILE NEXT AT END
-               GO TO P99
+       P0-1.
+           START CHARFILE KEY NOT < CHARFILE-KEY INVALID
+               GO TO P4
+           END-START.    
+       P1.
+           READ CHARFILE NEXT WITH LOCK AT END 
+               GO TO P4
            END-READ
 
-           IF (CD-PROC0 = "4081" OR "4082" OR "4086" OR "4087"
-               OR "4090" OR "1030")
-               MOVE "PI" TO CD-MOD2
+           IF (CD-PROC1(5:1) = "F") AND (CD-MOD2 NOT = SPACE)
+               MOVE SPACE TO CD-MOD2 CD-MOD3
                REWRITE CHARFILE01
-               WRITE FILEOUT01 FROM CHARFILE01
-               GO TO P1
-           END-IF.
-
-           IF (CD-PROC0 = "4079" OR "4080" OR "4088" OR "4089"
-               OR "4091" OR "4092" OR "4093")
-               MOVE "PS" TO CD-MOD2
-               REWRITE CHARFILE01
-               WRITE FILEOUT01 FROM CHARFILE01
-               GO TO P1
            END-IF
-
            GO TO P1.
-       P99.
-           CLOSE CHARFILE FILEOUT. 
+       P4.
+           CLOSE CHARFILE.
            STOP RUN.
