@@ -128,6 +128,8 @@
        01  HOLD-ID PIC X(11).
        01  SAVE-KEY PIC X(11).
        01  X-PROC PIC X(11).
+       01  PROC-HOLD PIC X(5).
+       01  DIAG-HOLD PIC X(7).
        01  ALF1 PIC X.
        PROCEDURE DIVISION.
        0005-START.
@@ -149,6 +151,9 @@
            READ CHARFILE NEXT WITH LOCK AT END
                GO TO P2
            END-READ
+
+           MOVE CD-PROC1 TO PROC-HOLD
+           MOVE CD-DIAG TO DIAG-HOLD
 
            IF NOT (CD-PAYCODE = "008" OR "009" OR "010" OR "011" 
                OR "012" OR "013" OR "014" OR "015")
@@ -288,7 +293,6 @@
 
            IF FLAG = 146
                MOVE "00003341F  " TO  X-PROC
-               MOVE "Z1231  " TO CD-DIAG
 
       *    paragraph A1-1 adds HCPCS for measure 225, mammo reminder         
                IF CD-MOD4 = "1 "
@@ -328,7 +332,7 @@
 
            IF FLAG = 147
                MOVE "00003570F  " TO  X-PROC
-               MOVE CD-MOD4 TO CD-PROC(10:2)
+               MOVE CD-MOD4 TO X-PROC(10:2)
                PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
@@ -336,12 +340,12 @@
 
            IF FLAG = 195
                MOVE "00003100F  " TO  X-PROC
-               MOVE CD-MOD4 TO CD-PROC(10:2)
+               MOVE CD-MOD4 TO X-PROC(10:2)
                PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
 
       *    handle multi-qpp-cpts by adding measure 145
-               IF (CD-PROC = "36222" OR "36223" OR "36224"
+               IF (PROC-HOLD = "36222" OR "36223" OR "36224"
                    OR "37215" OR "37216" OR "37217" OR "37218")
                    MOVE "0000G9500  " TO  X-PROC
                    PERFORM B1 THRU B2
@@ -391,10 +395,10 @@
                END-IF
                               
       *    handle multi-qpp-cpts by doing mea 436
-               IF (CD-PROC = "74150" OR "74160" OR "74170"
+               IF (PROC-HOLD = "74150" OR "74160" OR "74170"
                    OR "74176" OR "74177" OR "74178")
                    MOVE "0000G9637  " TO  X-PROC
-                   PERFORM B1 THRU B2
+      *             PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
@@ -429,7 +433,7 @@
                    WRITE FILEOUT01
                END-IF
 
-               IF CD-MOD4 = "1 " OR "2 " OR "3 "
+               IF (CD-MOD4 = "1 " OR "2 " OR "3 ")
                    MOVE "0000G9552  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
@@ -443,16 +447,16 @@
              
               
       *    more multi qpp cpts
-               IF (CD-PROC = "70490" OR "70491" OR "70492"
+               IF (PROC-HOLD = "70490" OR "70491" OR "70492"
                    OR "71250" OR "71260" OR "71270" OR "71275"
                    OR "72125" OR "72126" OR "72127")
                    MOVE "0000G9637  " TO  X-PROC
-                   PERFORM B1 THRU B2
+      *             PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
                GO TO A1-EXIT
-           END-IF.
+           END-IF
 
            IF FLAG = 436
                MOVE "0000G9637  " TO  X-PROC
@@ -466,7 +470,7 @@
            IF FLAG = 999
       *    cut and paste in meas 195 logic from above     
                MOVE "00003100F  " TO  X-PROC
-               MOVE CD-MOD4 TO CD-PROC(10:2)
+               MOVE CD-MOD4 TO X-PROC(10:2)
                PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
       *    cut and paste meas 406 logic using spare CD-DX5 field
@@ -499,7 +503,6 @@
 
       *    finally, don't forget new measure 436!
                MOVE "0000G9637  " TO  X-PROC
-               MOVE CHARFILE01 TO CHARBACK01
       *         PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
@@ -535,6 +538,7 @@
            MOVE CHARBACK01 TO CHARFILE01
            MOVE HOLD-ID TO CHARFILE-KEY
            MOVE X-PROC TO CD-PROC
+           MOVE DIAG-HOLD TO CD-DIAG
            MOVE 0 TO CD-AMOUNT
            MOVE 003 TO CD-PAYCODE
            MOVE SPACE TO CD-MOD2 CD-MOD3 CD-MOD4
