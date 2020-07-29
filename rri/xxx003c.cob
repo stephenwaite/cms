@@ -470,11 +470,11 @@
                END-IF
                IF CD-MOD4 = "?"
                    DISPLAY " BLANK = Referenced Distal Internal Carotid"
-                           " Diameter as the Denominator for Stenosis"
-                           "  Measurement Referenced"
+                   DISPLAY " Diameter as the Denominator for Stenosis"
+                   DISPLAY " Measurement Referenced"
                    DISPLAY " 8P = Measurements of Distal Internal"
-                           " Carotid Diameter not Referenced,"
-                           " Reason not Otherwise Specified"
+                   DISPLAY " Carotid Diameter not Referenced,"
+                   DISPLAY " Reason not Otherwise Specified"
                    GO TO P2-0
                END-IF  
            END-IF
@@ -508,12 +508,13 @@
                ACCEPT CD-MOD4
                IF CD-MOD4 = "?"
                    DISPLAY "CT, CTA, or MR studies of chest or neck"
-                           "for patients aged 18 and older with an"
-                           "incidentally-detected thyroid nodule"
-                               " < 1.0 cm noted"
-                   DISPLAY " 1 = no follow up recommended"
-                   DISPLAY " 2 = medical necessity for follow up"
-                   DISPLAY " 3 = f/u recommended, uh oh, perf not met!"
+                   DISPLAY "for patients aged 18 and older with "
+                   DISPLAY "no known thyroid disease and an "    
+                   DISPLAY "incidentally-detected thyroid nodule"
+                   DISPLAY " < 1.0 cm noted"
+                   DISPLAY " 1 = follow up images recommended"
+                   DISPLAY " 2 = medical reasons for no f/u images"
+                   DISPLAY " 3 = f/u not recommended, perf not met!"
                    GO TO P2-0
                END-IF
                IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
@@ -524,6 +525,8 @@
            IF CD-PAYCODE = "015"
                DISPLAY " CPT 70498 needs 2 assessments"
                DISPLAY " measure 195: 8P or <Enter>"
+               DISPLAY " <Enter> = Referenced Dist Int. Car. diameter"
+               DISPLAY " 8P = not referenced"    
                ACCEPT CD-MOD4
                IF NOT (CD-MOD4 = "8P" OR SPACE)
                    GO TO P2-0
@@ -536,9 +539,14 @@
                        " will have to re-do 195 just completed, sorry"
                ACCEPT CD-DX5
                IF CD-DX5 = "?"
-                   DISPLAY " 1 = no follow up recommended"
-                   DISPLAY " 2 = medical necessity for follow up"
-                   DISPLAY " 3 = follow up recommended"
+                   DISPLAY "CT, CTA, or MR studies of chest or neck"
+                   DISPLAY "for patients aged 18 and older with "
+                   DISPLAY "no known thyroid disease and an "    
+                   DISPLAY "incidentally-detected thyroid nodule"
+                   DISPLAY " < 1.0 cm noted"
+                   DISPLAY " 1 = follow up images recommended"
+                   DISPLAY " 2 = medical resaons for no f/u images"
+                   DISPLAY " 3 = f/u not recommended, perf not met"
                    GO TO P2-0
                END-IF
                IF NOT (CD-DX5 = "1 " OR "2 " OR "3 " OR SPACE)
