@@ -141,6 +141,7 @@
            END-IF
 
            IF FUNC = "D"
+               PERFORM L1
                GO TO D1
            END-IF
 
@@ -386,15 +387,14 @@
           
            GO TO R1.
        D1. 
-           DISPLAY PROC-KEY " " PROC-TITLE.
            DISPLAY "DELETE Y/N ?".
            ACCEPT ANS.
            IF ANS NOT = "Y" DISPLAY "NO DELETE" GO TO S1.
                
-           MOVE PROCFILE01 TO SAVE-PROCFILE01
+      *     MOVE PROCFILE01 TO SAVE-PROCFILE01
            CLOSE PROCFILE
            OPEN I-O PROCFILE
-           MOVE SAVE-PROCFILE01 TO PROCFILE01
+      *     MOVE SAVE-PROCFILE01 TO PROCFILE01
            READ PROCFILE WITH LOCK INVALID
                IF PROC-STAT NOT = "00" 
                    DISPLAY PROC-STAT " RECORD NOT CHANGED"
