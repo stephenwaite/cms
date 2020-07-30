@@ -392,6 +392,7 @@
                
            CLOSE PROCFILE
            OPEN I-O PROCFILE
+
            READ PROCFILE WITH LOCK INVALID
                IF PROC-STAT NOT = "00" 
                    DISPLAY PROC-STAT " RECORD NOT CHANGED"
