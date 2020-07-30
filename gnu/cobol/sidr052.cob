@@ -30,7 +30,6 @@
            02 PROC-TITLE PIC X(28).
            02 PROC-AMOUNT PIC 9(4)V99.
        WORKING-STORAGE SECTION.
-       01  SAVE-PROCFILE01 PIC X(46).
        01  PROC-STAT PIC XX.
        01  O4 PIC X VALUE SPACE.
        01  PK01.
@@ -391,10 +390,9 @@
            ACCEPT ANS.
            IF ANS NOT = "Y" DISPLAY "NO DELETE" GO TO S1.
                
-      *     MOVE PROCFILE01 TO SAVE-PROCFILE01
            CLOSE PROCFILE
            OPEN I-O PROCFILE
-      *     MOVE SAVE-PROCFILE01 TO PROCFILE01
+
            READ PROCFILE WITH LOCK INVALID
                IF PROC-STAT NOT = "00" 
                    DISPLAY PROC-STAT " RECORD NOT CHANGED"
@@ -442,7 +440,6 @@
            WRITE FILEOUT01 FROM O101
            WRITE FILEOUT01 FROM O201 AFTER 2.
        R1.
-           MOVE PROCFILE01 TO SAVE-PROCFILE01
            CLOSE PROCFILE
            OPEN I-O PROCFILE
            READ PROCFILE WITH LOCK INVALID
@@ -453,7 +450,6 @@
                    GO TO S1
                END-IF    
            END-READ
-           MOVE SAVE-PROCFILE01 TO PROCFILE01                     
            REWRITE PROCFILE01.
            DISPLAY "RECORD CHANGED"
            CLOSE PROCFILE
