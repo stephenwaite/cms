@@ -192,6 +192,9 @@
                GO TO P14
            END-IF
 
+           DISPLAY CHARFILE-KEY
+           ACCEPT OMITTED
+           
            ADD 1 TO X
            MOVE CHARFILE-KEY TO KEY-TAB(X)
            MOVE CD-PROC1 TO PROC-TAB(X)
@@ -215,7 +218,7 @@
                GO TO CHARCUR-CHECK-EXIT
            END-IF
 
-           IF CC-DATE-T NOT = CD-DATE-T
+           IF CC-DATE-T NOT = DATE-TAB(1)
                GO TO CHARCUR-CHECK-1
            END-IF
 
@@ -232,8 +235,6 @@
        P14.
            MOVE CD-KEY8 TO HOLD-IT
            IF X < 2
-               MOVE SPACE TO CHARFILE-KEY
-               MOVE HOLD-IT TO CD-KEY8
                MOVE SPACE TO CD-KEY3
                GO TO P0-1
            END-IF
@@ -243,7 +244,6 @@
            PERFORM P15 THRU P17 VARYING Z FROM 1 BY 1 UNTIL Z > Y.
       *    determine 59 mod     
            PERFORM P18 THRU P20 VARYING Z FROM 1 BY 1 UNTIL Z > Y.
-           MOVE SPACE   TO CHARFILE-KEY
            MOVE HOLD-IT TO CD-KEY8
            MOVE SPACE   TO CD-KEY3
            GO TO P0-1.
@@ -292,7 +292,12 @@
                END-IF                   
            END-IF
            GO TO P16-EXIT.        
-       P16-1.             
+       P16-1.
+           STRING KEY-TAB(A) " " KEY-TAB(Z) " "
+               "ADDING MODS FOR " CD-NAME " DOS " CD-DATE-T " MOD2 "
+               CD-MOD2 " MOD3 " CD-MOD3 
+               DELIMITED BY SIZE INTO FILEOUT01
+           WRITE FILEOUT01               
            REWRITE CHARFILE01.
        P16-EXIT.
            EXIT.
@@ -300,7 +305,8 @@
            EXIT.
        P18.
            IF KEY-TAB(Z) = SPACE                  
-               GO TO P17
+      *   THE FOLLOWING GO TO WAS GO TO P17 NOT GO TO P20
+               GO TO P20
            END-IF 
            COMPUTE B = Z + 1
            PERFORM P19 THRU P19-EXIT VARYING A FROM B BY 1 UNTIL A > X
@@ -341,6 +347,11 @@
                    MOVE KEY-TAB(A) TO CHARFILE-KEY
                END-IF    
            END-IF
+
+           IF KEY-TAB(A) = SPACE
+               DISPLAY "KEY TAB A IS SPACE " KEY-TAB(A)
+               ACCEPT OMITTED
+           END-IF    
            
            READ CHARFILE WITH LOCK INVALID 
                GO TO P19-EXIT
@@ -360,6 +371,7 @@
                AND (CD-MOD2 NOT = "59")
                MOVE "59" TO CD-MOD3
            END-IF
+
            REWRITE CHARFILE01.
        P19-EXIT.
            EXIT.
