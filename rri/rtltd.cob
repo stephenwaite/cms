@@ -181,18 +181,21 @@
                GO TO P2
            END-IF
                
-           MOVE 0 TO TALLYRIT tallylit tallyrt tallylt
-           INSPECT PROC-Title TALLYING TALLYRIT FOR ALL " RIGHT "
-           INSPECT PROC-Title TALLYING TALLYLIT FOR ALL " LEFT "
-           INSPECT PROC-Title TALLYING TALLYRT FOR ALL " RT "
-           INSPECT PROC-Title TALLYING TALLYLT FOR ALL " LT "
-           compute tallyx = tallyrit + tallylit + tallyrt + tallylt
+           MOVE 0 TO TALLYRIT TALLYLIT TALLYRT TALLYLT
+           INSPECT PROC-TITLE TALLYING TALLYRIT FOR ALL " RIGHT "
+           INSPECT PROC-TITLE TALLYING TALLYLIT FOR ALL " LEFT "
+           INSPECT PROC-TITLE TALLYING TALLYRT  FOR ALL " RT "
+           INSPECT PROC-TITLE TALLYING TALLYLT  FOR ALL " LT "
 
-           if tallyx = 0 go to p1.
+           COMPUTE TALLYX = TALLYRIT + TALLYLIT + TALLYRT + TALLYLT    
+
+           IF TALLYX = 0
+               GO TO P1 
+           END-IF
 
            IF TALLYRIT > 0 OR TALLYRT > 0
                MOVE "RT" TO MOD
-             ELSE
+           ELSE
                MOVE "LT" TO MOD
            END-IF.
        P2.
