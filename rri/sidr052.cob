@@ -163,7 +163,7 @@
 
            MOVE PROC-AMOUNT TO NEF-7.
            DISPLAY PROC-CDM " " PROC-CPT ":" PROC-MOD " " PROC-TYPE " "
-                   PROC-TITLE " " NEF-7.
+                   PROC-TITLE " " NEF-7 " " PROC-KEY.
        F1. 
            MOVE 0 TO X.
            MOVE SPACE TO ANS.
@@ -191,7 +191,7 @@
            ADD 1 TO X
            MOVE PROC-KEY TO PROCTAB(X).
            DISPLAY X " " PROC-CDM " " PROC-CPT ":" PROC-MOD " "
-                   PROC-TYPE " " PROC-TITLE " " NEF-7.
+                   PROC-TYPE " " PROC-TITLE " " NEF-7 " " PROC-KEY.
            GO TO F2.
        A1. 
            READ PROCFILE INVALID
@@ -324,48 +324,75 @@
        3F. 
            DISPLAY "NEW TITLE ?".
            ACCEPT PROC-TITLE.
+           
            IF PROC-TITLE = "?"
-           DISPLAY "X = BACK TO FUNCTION"
-           DISPLAY "TYPE IN TITLE UP TO 32 CHARACTERS"
-           GO TO 3F.
-           IF PROC-TITLE = "X" DISPLAY "NO UPDATE" 
-           GO TO S1.
+               DISPLAY "X = BACK TO FUNCTION"
+               DISPLAY "TYPE IN TITLE UP TO 32 CHARACTERS"
+               GO TO 3F
+           END-IF
+
+           IF PROC-TITLE = "X"
+               DISPLAY "NO UPDATE" 
+               GO TO S1
+           END-IF
+
            DISPLAY PROC-TITLE.
        3F1.
            DISPLAY "ACCEPT Y/N ?"
            ACCEPT ANS.
+           
            IF ANS = "?"
-           DISPLAY "Y = ACCEPT, N = RETRY, X = BACK TO FUNCTION"
-           GO TO 3F1.
-           IF ANS = "X" DISPLAY "NO UPDATE" 
-           GO TO S1.
-           IF ANS = "N" GO TO 3F.
+               DISPLAY "Y = ACCEPT, N = RETRY, X = BACK TO FUNCTION"
+               GO TO 3F1
+           END-IF
+
+           IF ANS = "X"
+               DISPLAY "NO UPDATE" 
+               GO TO S1
+           END-IF
+
+           IF ANS = "N"
+               GO TO 3F
+           END-IF
+
            IF ANS NOT = "Y" 
                GO TO 3F1
            END-IF
+
            GO TO R1.
        4F.
            DISPLAY "ENTER NEW FEE".
            ACCEPT ALF-7.
            IF ALF-7 = "?"
-           DISPLAY "X = BACK TO TITLE"
-           DISPLAY "X = BACK TO FUNCTION; NO UPDATE"
-           DISPLAY "ENTER THE AMOUNT OF THE FEE"
-           DISPLAY "EX: $78.00 = 78.00, OR 78 OR 78."
-           DISPLAY "EX: 70.10 = 70.10  ONLY"
-           GO TO 4F.
-           MOVE SPACES TO SIGN-DOLLAR CENTS.
+               DISPLAY "X = BACK TO TITLE"
+               DISPLAY "X = BACK TO FUNCTION; NO UPDATE"
+               DISPLAY "ENTER THE AMOUNT OF THE FEE"
+               DISPLAY "EX: $78.00 = 78.00, OR 78 OR 78."
+               DISPLAY "EX: 70.10 = 70.10  ONLY"
+               GO TO 4F
+           END-IF
+
+           MOVE SPACES TO SIGN-DOLLAR CENTS
            UNSTRING ALF-7 DELIMITED BY "." INTO SIGN-DOLLAR CENTS.
-           IF CENTS = SPACES MOVE "00" TO CENTS.
-           IF CENTS NOT NUMERIC MOVE "?" TO ALF-7
-           GO TO 4F.
+           
+           IF CENTS = SPACES
+               MOVE "00" TO CENTS
+           END-IF
+
+           IF CENTS NOT NUMERIC
+               MOVE "?" TO ALF-7
+               GO TO 4F
+           END-IF
+
            MOVE SPACES TO RIGHT-4.
            UNSTRING SIGN-DOLLAR DELIMITED BY " " INTO RIGHT-4
            INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
+           
            IF RIGHT-4 NOT NUMERIC 
                DISPLAY "?"
                GO TO 4F
            END-IF
+           
            STRING RIGHT-4 CENTS DELIMITED BY SIZE INTO ALF-6
            MOVE ALF-6 TO NUM-6
            DIVIDE NUM-6 BY 100 GIVING PROC-AMOUNT.
@@ -374,6 +401,7 @@
        5F. 
            DISPLAY "TYPE 1 OR 5 OR X TO CANCEL".
            ACCEPT PROC-TYPE.
+           
            IF PROC-TYPE = "X"
               DISPLAY "NO UPDATE" 
               GO TO S1
@@ -444,7 +472,9 @@
        R1.
            MOVE PROCFILE01 TO SAVE-PROCFILE01
            CLOSE PROCFILE
+           DISPLAY "BEFORE OPEN I-O" PROCFILE01
            OPEN I-O PROCFILE
+           DISPLAY "AFTER OPEN I-O" PROCFILE01
            READ PROCFILE WITH LOCK INVALID
                IF PROC-STAT NOT = "00" 
                    DISPLAY PROC-STAT " RECORD NOT CHANGED"
@@ -490,7 +520,7 @@
 
            MOVE PROC-AMOUNT TO NEF-7   
            DISPLAY PROC-CDM " " PROC-CPT ":" PROC-MOD " "
-                   PROC-TYPE " " PROC-TITLE " " NEF-7
+                   PROC-TYPE " " PROC-TITLE " " NEF-7 " " PROC-KEY
 
            ADD 1 TO X
            IF X > 29

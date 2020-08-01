@@ -192,9 +192,6 @@
                GO TO P14
            END-IF
 
-           DISPLAY CHARFILE-KEY
-           ACCEPT OMITTED
-           
            ADD 1 TO X
            MOVE CHARFILE-KEY TO KEY-TAB(X)
            MOVE CD-PROC1 TO PROC-TAB(X)
@@ -346,12 +343,7 @@
                ELSE
                    MOVE KEY-TAB(A) TO CHARFILE-KEY
                END-IF    
-           END-IF
-
-           IF KEY-TAB(A) = SPACE
-               DISPLAY "KEY TAB A IS SPACE " KEY-TAB(A)
-               ACCEPT OMITTED
-           END-IF    
+           END-IF  
            
            READ CHARFILE WITH LOCK INVALID 
                GO TO P19-EXIT

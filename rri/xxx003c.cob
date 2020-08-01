@@ -268,10 +268,17 @@
       * skip to undone if coded and prompted
            IF CD-DIAG NOT = "0000000" AND ALF1 = "1"
                GO TO P1
-           END-IF.
+           END-IF
 
+      * skip unread which are handled in P1-0.
+           IF CD-DOCP = "02"
+               GO TO P1
+           END-IF.    
        P1-0.
            IF CD-DOCP = "00"
+               PERFORM P2
+               DISPLAY "For MRN " G-ACCT " DOS " FO-DATE " " FO-PROC
+                       " our ACCT " G-GARNO
                DISPLAY "RRMC tape says study not read, is it read now?"
                DISPLAY "If so enter doc ## or 02 to leave unread."
                DISPLAY "Type ? for our radiologist doc ##s ie 06"
@@ -283,14 +290,17 @@
                    GO TO P1-0
                END-IF                
 
-               IF (CD-DOCP NOT = "02" OR "06" OR "08" OR "09" 
+               IF NOT (CD-DOCP = "02" OR "06" OR "08" OR "09" 
                                  OR "10")
                    DISPLAY "not on the menu, pick again, "
                            "use 02 for not read please."      
                    MOVE "00" TO CD-DOCP
                    GO TO P1-0
                END-IF
-           END-IF        
+      *    save new doc ## but continue for mods to the proc         
+               REWRITE CHARFILE01                              
+           END-IF
+
       * auto-code call back mammos     
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
                MOVE "R928   " TO CD-DIAG
@@ -321,7 +331,11 @@
       * auto-code tomosynthesis     
            IF CD-PROC1 = "1449"
                MOVE "Z1231  " TO CD-DIAG
-               REWRITE CHARFILE01  
+
+               IF CD-DOCP = "02"
+                   MOVE "0000000" TO CD-DIAG
+               END-IF    
+               
                GO TO P1
            END-IF
       
@@ -329,6 +343,11 @@
            IF (CD-PROC1 = "1456")
                DISPLAY "unilateral tomosynthesis -> added modifier 52"
                MOVE "Z1231  " TO CD-DIAG
+               
+               IF CD-DOCP = "02"
+                   MOVE "0000000" TO CD-DIAG
+               END-IF  
+
                MOVE "52" TO CD-MOD2
                REWRITE CHARFILE01
                GO TO P1
@@ -345,6 +364,9 @@
            IF (CD-PROC1 = "1099" OR "1442")
                DISPLAY "unilateral screening mammogram -> added mod 52"
                MOVE "Z1231  " TO CD-DIAG
+               IF CD-DOCP = "02"
+                   MOVE "0000000" TO CD-DIAG
+               END-IF  
                MOVE "52" TO CD-MOD2
            END-IF
       
@@ -357,6 +379,11 @@
            IF (CD-PROC1 = "5232")
                DISPLAY "LD lung screen -> auto coded"
                MOVE "Z87891 " TO CD-DIAG
+               
+               IF CD-DOCP = "02"
+                   MOVE "0000000" TO CD-DIAG
+               END-IF  
+               
                REWRITE CHARFILE01
                GO TO P1
            END-IF.
@@ -372,6 +399,11 @@
            END-IF    
            
            MOVE "Z1231  " TO CD-DIAG
+           
+           IF CD-DOCP = "02"
+                   MOVE "0000000" TO CD-DIAG
+           END-IF  
+           
            DISPLAY "Non medicare screening mammo -> auto coded"
                    CD-KEY8 " " FO-NAME               
            REWRITE CHARFILE01
@@ -556,6 +588,10 @@
                END-IF
            END-IF.
        P2-000.
+           IF CD-DOCP = "02"
+               DISPLAY "Skipping coding since not read"
+               GO TO P1        
+           END-IF    
            DISPLAY " DIAG? "
            ACCEPT IN-FIELD-7.
            IF IN-FIELD-7 = "?"
