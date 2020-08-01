@@ -307,25 +307,34 @@
       * medicare and adv plans don't follow vt call back policy         
                IF (CD-PAYCODE = "003" OR "200" OR "245" OR "270" 
                    OR "868" OR "912")
+
                    IF (CD-PROC1 = "1446")
                        MOVE "LT" TO CD-MOD2
                        MOVE "10937706526" TO CD-PROC
+
                    ELSE IF (CD-PROC1 = "1447")
+
                        MOVE "RT" TO CD-MOD2
                        MOVE "10947706526" TO CD-PROC
+
                    ELSE IF (CD-PROC1 = "1448")
                        MOVE "  " TO CD-MOD2
                        MOVE "10957706626" TO CD-PROC
                        MOVE 184 TO CD-AMOUNT
                    END-IF
+
                ELSE
+                   
                    MOVE "52" TO CD-MOD2
                    IF (CD-PROC1 = "1448")
                        MOVE "  " TO CD-MOD2
                    END-IF
+
                END-IF
-           REWRITE CHARFILE01 
-           GO TO P1
+               
+               REWRITE CHARFILE01 
+               GO TO P1
+
            END-IF
            
       * auto-code tomosynthesis     
@@ -335,8 +344,9 @@
                IF CD-DOCP = "02"
                    MOVE "0000000" TO CD-DIAG
                END-IF    
-               
-               GO TO P1
+
+               REWRITE CHARFILE01
+               GO TO P1               
            END-IF
       
       * auto-code uni tomo
