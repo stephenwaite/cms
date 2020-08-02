@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. ste005.
+       PROGRAM-ID. ste006.
        AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -137,10 +137,11 @@
               GO TO P0
            END-READ   
 
-           MOVE G-SEINS TO CC-PAYCODE
-           MOVE G-SE-ASSIGN TO CC-ASSIGN CC-NEIC-ASSIGN
-           MOVE "2" TO CC-REC-STAT
-           MOVE "20200801" TO CC-DATE-A
+      *     MOVE "G2012  " TO CC-PROC
+      *     MOVE "  " TO CC-MOD2
+           MOVE "99441  " TO CC-PROC
+           COMPUTE CC-AMOUNT = 45
+           MOVE "1" TO CC-PLACE
            REWRITE CHARCUR01
            GO TO P0.
        P99.
