@@ -273,7 +273,8 @@
       * skip unread which are handled in P1-0.
            IF CD-DOCP = "02"
                GO TO P1
-           END-IF.    
+           END-IF.
+               
        P1-0.
            IF CD-DOCP = "00"
                PERFORM P2
@@ -282,6 +283,7 @@
                DISPLAY "RRMC tape says study not read, is it read now?"
                DISPLAY "If so enter doc ## or 02 to leave unread."
                DISPLAY "Type ? for our radiologist doc ##s ie 06"
+
                ACCEPT CD-DOCP
 
                IF (CD-DOCP = "? ")
@@ -297,8 +299,6 @@
                    MOVE "00" TO CD-DOCP
                    GO TO P1-0
                END-IF
-      *    save new doc ## but continue for mods to the proc         
-               REWRITE CHARFILE01                              
            END-IF
 
       * auto-code call back mammos     
@@ -366,6 +366,11 @@
       * high risk aren't regular screen mammos     
            IF (CD-PROC1 = "1097" OR "1098")
                MOVE "Z1231  " TO CD-DIAG
+
+               IF CD-DOCP = "02"
+                   MOVE "0000000" TO CD-DIAG
+               END-IF  
+
                REWRITE CHARFILE01 
                GO TO P1
            END-IF
@@ -414,6 +419,11 @@
                    MOVE "0000000" TO CD-DIAG
            END-IF  
            
+           IF CD-PAYCODE = "009"
+               DISPLAY "Autocoded now let us proceed to assessment..."
+               GO TO P2-00
+           END-IF
+
            DISPLAY "Non medicare screening mammo -> auto coded"
                    CD-KEY8 " " FO-NAME               
            REWRITE CHARFILE01
