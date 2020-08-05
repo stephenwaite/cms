@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI038.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. npir036.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -238,16 +238,25 @@
            MOVE "BCBSVT ELECTRONIC CLAIMS ERRORS" TO ERRORFILE01
            WRITE ERRORFILE01.
 
-       P0. READ FILEIN AT END GO TO P6.
+       P0. 
+           READ FILEIN AT END GO TO P6.
            MOVE FILEIN01 TO CC-PAYCODE
            START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P0.
-       P1. READ CHARCUR NEXT AT END GO TO P0.
+       P1. 
+           READ CHARCUR NEXT AT END GO TO P0.
            IF CC-PAYCODE NOT = FILEIN01 GO TO P0.
            IF CC-PROC1 < "00100  "
            OR CC-CLAIM = "999995"
            OR CC-REC-STAT > "1"
            OR CC-AMOUNT = 0
            GO TO P1.
+           
+           IF CC-DOCP = "02"
+               MOVE "BAD DOC ## AND/OR DIAG ?" TO EF2
+               PERFORM S1 
+               GO TO P1
+           END-IF 
+               
            MOVE CC-KEY8 TO G-GARNO.
            READ GARFILE INVALID MOVE "NO GARNO" TO EF2
             PERFORM S1 GO TO P1.
@@ -267,11 +276,6 @@
            MOVE CC-DOCP TO FO-DOC 
            WRITE PAPEROUT01 .
        TEST-IT.
-           IF CC-DOCP = "00"
-           MOVE "NO DOCP" TO EF2
-            PERFORM S1 
-            GO TO P1.
-
            IF G-DOB NOT NUMERIC
            MOVE "BAD DOB" TO EF2
             PERFORM S1 
@@ -281,33 +285,7 @@
            MOVE "POLICY MISSING" TO EF2
             PERFORM S1 
             GO TO P1.
-      *     MOVE G-PRIPOL0 TO ALF16 
-      *     IF G-PRINS NOT = "268"
-      *      IF ALF16-31 = "ZI"
-      *       MOVE ALF16-9 TO ALF9
-      *       IF ALF9-1 NOT = "8"
-      *        STRING G-DOBMM "-" G-DOBDD "-" G-DOBYY " " G-PRIPOL0
-      *          " BAD POLICY # "
-      *        DELIMITED BY "!!" INTO EF2
-      *        PERFORM S1 
-      *        GO TO P1
-      *       END-IF
-      *      END-IF
-      *     END-IF
-      *     IF ((G-PRINS = "002") AND (ALF16-3 NOT ALPHABETIC))
-      *     STRING G-PRIPOL0  " BAD B/S POLICY FORMAT " 
-      *     DELIMITED BY "!!" INTO EF2
-      *      PERFORM S1 
-      *       GO TO P1.
-      *     IF G-PRINS = "006" 
-      *      MOVE G-PRIPOL TO ALF9
-      *       IF (ALF9-1 NOT = "R") OR (ALF9-8 NOT NUMERIC)
-      *        STRING G-PRIPOL0  " BAD FEP POLICY FORMAT " 
-      *        DELIMITED BY "!!" INTO EF2
-      *        PERFORM S1 
-      *        GO TO P1
-      *       END-IF
-      *    END-IF.
+    
            MOVE CC-PROC TO PROC-KEY.
            READ PROCFILE INVALID
            MOVE "INVALID PROCEDURE CODE" TO EF2 
@@ -381,7 +359,8 @@
            MOVE ALF7 TO DIAG-KEY
            READ DIAGFILE INVALID MOVE 1 TO DIAGFLAG.
 
-       S1. MOVE CHARCUR-KEY TO EF1 
+       S1. 
+           MOVE CHARCUR-KEY TO EF1 
            MOVE G-GARNAME TO EF3
            WRITE ERRORFILE01.
 

@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI038.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. npir038.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -50,7 +50,6 @@
             LINE SEQUENTIAL.
            SELECT FILEOUT2 ASSIGN TO "S85" ORGANIZATION
            LINE SEQUENTIAL.
-       
 
        DATA DIVISION.
        FILE SECTION.
@@ -78,7 +77,6 @@
            02 EF1 PIC X(12).
            02 EF2 PIC X(37).
            02 EF3 PIC X(24).
-       
        FD  REFPHY
       *    BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS REFPHY01.
@@ -90,7 +88,7 @@
            02 REF-CDNUM PIC X(7).
            02 REF-NAME PIC X(24).
            02 REF-NPI PIC X(10).
-       FD GAPFILE.             
+       FD GAPFILE.
        01 GAPFILE01.
            02 GAPKEY PIC X(7).
            02 GAP-NAME PIC X(25).
@@ -179,7 +177,7 @@
        FD FILEOUT.
        01  FILEOUT01 PIC X(160).
        FD FILEOUT2.
-       01  FILEOUT201 PIC X(129).
+       01  FILEOUT201 PIC X(160).
        FD  CHARCUR
            BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS CHARCUR01.
@@ -239,13 +237,26 @@
              03 PL-ZIP PIC X(9).
        01  PLINDX PIC 99 VALUE 0.
        01  DIAGFLAG PIC 9.
-       01  ALF7 PIC X(7).
+       01  alf7 PIC X(7).
        01 FLAG PIC 9.
        01  Y PIC 99.
        01  CNTR PIC 99 VALUE 0.
        01  NAMEFIRST PIC X(24).
        01  NAMELAST PIC X(24).
        01  CLM-5 PIC XX.
+       01  MD01.
+           02 MD1 PIC X.
+           02 MD2 PIC X.
+           02 MD3 PIC X.
+           02 MD4 PIC X.
+           02 MD5 PIC X.
+           02 MD6 PIC X.
+           02 MD7 PIC X.
+           02 MD8 PIC X.
+           02 MD9 PIC X.
+           02 MD10 PIC X.
+           02 MD11 PIC X.
+
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT PLACEFILE FILEIN CHARCUR REFPHY GARFILE 
@@ -255,7 +266,8 @@
            MOVE "MEDICARE ELECTRONIC CLAIMS ERRORS" TO ERRORFILE01
            WRITE ERRORFILE01.
 
-       P00. READ PLACEFILE AT END GO TO P0.
+       P00.
+           READ PLACEFILE AT END GO TO P0.
            ADD 1 TO PLINDX.
            MOVE DF1 TO PL-TAB(PLINDX)
            MOVE DF2 TO PL-NUM(PLINDX)
@@ -266,18 +278,24 @@
            MOVE DF7 TO PL-ZIP(PLINDX)
            GO TO P00.
        
-       P0. READ FILEIN AT END GO TO P6.
+       P0. 
+           READ FILEIN AT END GO TO P6.
            MOVE FILEIN01 TO CC-PAYCODE
            START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P0.
-       P1. READ CHARCUR NEXT AT END GO TO P0.
+       P1. 
+           READ CHARCUR NEXT AT END GO TO P0.
            IF CC-PAYCODE NOT = FILEIN01 GO TO P0.
-           IF CC-PROC < "00100  "
-           OR CC-CLAIM = "999995"
-           OR CC-REC-STAT > "1"
-           OR CC-AMOUNT = 0
-           GO TO P1.
+           IF CC-REC-STAT > "1" GO TO P1.
+
+           IF CC-DOCP = "02"
+               MOVE "BAD DOC ## AND/OR DIAG ?" TO EF2
+               PERFORM S1 
+               GO TO P1
+           END-IF 
+               
            IF CC-PAPER = "P" OR "O" PERFORM PAPER-1 GO TO P1.
-           GO TO TEST-IT.
+           IF CC-PAYCODE = "003" GO TO TEST-IT.
+           GO TO P1.
        PAPER-1.
            MOVE CC-PAYCODE TO FO-PC
            MOVE CC-PATID TO FO-PATID
@@ -289,20 +307,26 @@
            WRITE PAPEROUT01.
        TEST-IT.
            MOVE SPACE TO ERRORFILE01
-           IF CC-DIAG = "0000000" 
-            MOVE SPACE TO EF2
-            MOVE "NO DIAG" TO EF2 PERFORM S1
-           GO TO P1.
+           
+           IF CC-DIAG = "0000000"
+               MOVE SPACE TO EF2
+               MOVE "NO DIAG" TO EF2 
+               PERFORM S1
+               GO TO P1
+           END-IF    
+
            MOVE CC-DIAG TO DIAG-KEY
            READ DIAGFILE INVALID 
-            MOVE SPACE TO EF2
-            MOVE "OLD DIAG CODE" TO EF2
-            MOVE SPACE TO EF3
-            MOVE CC-DIAG TO EF3 
-            PERFORM S1 
-           GO TO P1.
+             MOVE SPACE TO EF2
+             MOVE "OLD DIAG CODE" TO EF2
+             MOVE SPACE TO EF3
+             MOVE CC-DIAG TO EF3 
+             PERFORM S1 
+             GO TO P1
+           END-READ
            MOVE 0 TO DIAGFLAG
-           IF CC-DX2 NOT = "0000000" MOVE CC-DX2 TO ALF7
+           IF CC-DX2 NOT = "0000000"
+           MOVE CC-DX2 TO alf7
            MOVE 0 TO DIAGFLAG
            PERFORM DIAG-CHECK.
            IF DIAGFLAG = 1 
@@ -311,7 +335,7 @@
            MOVE CC-DX2 TO EF3
            PERFORM S1
            GO TO P1.
-           IF CC-DX3 NOT = "0000000" MOVE CC-DX3 TO ALF7
+           IF CC-DX3 NOT = "0000000" MOVE CC-DX3 TO alf7
            MOVE 0 TO DIAGFLAG
            PERFORM DIAG-CHECK.
            IF DIAGFLAG = 1 
@@ -320,41 +344,95 @@
            MOVE CC-DX3 TO EF3
            PERFORM S1
            GO TO P1.
+           IF CC-DX4 NOT = "0000000" MOVE CC-DX4 TO alf7
+           MOVE 0 TO DIAGFLAG
+           PERFORM DIAG-CHECK.
+           IF DIAGFLAG = 1 
+           MOVE SPACE TO EF2
+           MOVE "OLD DX4 CODE" TO EF2 
+           MOVE CC-DX4 TO EF3
+           PERFORM S1
+           GO TO P1.
            
            MOVE CC-KEY8 TO G-GARNO.
            READ GARFILE INVALID 
-            MOVE SPACE TO EF2
-            MOVE "NO GARNO" TO EF2
-            MOVE SPACE TO EF3
-            PERFORM S1 
+           MOVE SPACE TO EF2
+           MOVE "NO GARNO" TO EF2
+           MOVE SPACE TO EF3
+           PERFORM S1 
            GO TO P1.
-           MOVE G-GARNAME TO EF3
-           IF NOT (G-PRINS = "028" OR  G-SEINS = "028")
-            MOVE SPACE TO EF2
-            MOVE "NO TRAVELERS MEDICARE CODE" TO EF2
-            PERFORM S1 
+           IF G-DOB NOT NUMERIC
+           MOVE SPACE TO EF2
+           MOVE "BAD DOB" TO EF2
+           MOVE G-DOB TO EF3
+           PERFORM S1 
            GO TO P1.
-           IF (G-PRINS NOT = "028")
+           IF G-billadd = space and g-street = space
+           MOVE SPACE TO EF2
+           MOVE "no street address" TO EF2
+           MOVE G-DOB TO EF3
+           PERFORM S1 
+           GO TO P1.
+
+           IF NOT
+              (G-PRINS = "003" OR G-SEINS = "003" OR G-TRINS = "003")
+           MOVE SPACE TO EF2
+           MOVE "NO MEDICARE INSURANCE DEFINED" TO EF2
+           PERFORM S1 
+           GO TO P1.
+           IF (G-SEINS = "003" AND CC-PAPER = "E")
+            WRITE FILEOUT201 FROM CHARCUR01
+            GO TO P1
+           END-IF.
+           IF (G-TRINS = "003")
              PERFORM PAPER-1
              GO TO P1
-           END-IF
-           IF G-PRIPOL = SPACE
-            MOVE SPACE TO EF2
-            MOVE "MISSING POLICY NUMBER" TO EF2
-            PERFORM S1 
-           GO TO P1.
+            END-IF.
+
+           MOVE G-GARNAME TO EF3
+              IF (G-SEINS = "004" OR "005" OR "062")
+                 IF ((G-SECPOL = SPACE) OR (G-SENAME = SPACE)
+                   OR (G-SE-RELATE = SPACE))
+                   MOVE SPACE TO EF2
+                   MOVE "MISSING 2ND-DARY INSURANCE INFO" TO EF2
+                    PERFORM S1 GO TO P1
+                 END-IF
+              END-IF.
+           IF G-PRIPOL0(1:9) NOT NUMERIC
+             MOVE 0 TO FLAG
+             PERFORM MBI-CHECK
+              IF FLAG = 1
+              MOVE SPACE TO EF1
+              STRING CHARCUR-KEY " " CC-PROC DELIMITED BY SIZE 
+                INTO EF1
+              MOVE CHARCUR-KEY TO EF1 
+              MOVE SPACE TO EF2
+              MOVE "MEDICARE POLICY IS INVALID" TO EF2
+              MOVE G-PRIPOL0(1:11) TO EF3
+              PERFORM S1 
+              GO TO P1           
+              END-IF
+           END-IF   
            IF G-ZIP5 NOT NUMERIC 
-            MOVE SPACE TO EF2
-            MOVE "BAD ZIP CODE" TO EF2
-            PERFORM S1 
-           GO TO P1.
+             MOVE SPACE TO EF2
+             MOVE "BAD ZIP CODE" TO EF2
+             PERFORM S1 
+             GO TO P1
+           END-IF  
            MOVE CC-DOCR TO REF-KEY.
            READ REFPHY INVALID MOVE "INVALID" TO REF-CDNUM
            MOVE SPACE TO REF-NAME.
-           IF (REF-KEY NOT = "000") AND (REF-NPI = SPACE)
-            MOVE SPACE TO EF2
+           IF REF-CDNUM = "INVALID"
+           MOVE SPACE TO EF2
+           STRING CC-DOCR " IS NOT A VALID REF. PHYS. CODE"
+             DELIMITED BY "**" INTO EF2
+             PERFORM S1 
+            GO TO P1.
+
+           IF REF-NPI NOT NUMERIC
+           MOVE SPACE TO EF2
             STRING CC-DOCR " / HAS NO NPI" DELIMITED BY "**" INTO EF2
-            PERFORM S1
+            PERFORM S1 
            GO TO P1.
            IF REF-NAME NOT = SPACE
             MOVE SPACE TO NAMELAST NAMEFIRST
@@ -371,10 +449,8 @@
            END-IF.
            MOVE CC-PROC TO PROC-KEY.
            READ PROCFILE INVALID
-            MOVE SPACE TO EF2
-            MOVE "INVALID PROCEDURE CODE" TO EF2
-            PERFORM S1
-           GO TO P1.
+           MOVE SPACE TO EF2
+           MOVE "INVALID PROCEDURE CODE" TO EF2 PERFORM S1 GO TO P1.
              MOVE 0 TO FLAG
            IF CC-PLACE = "3" AND CC-DATE-M = "00000000"  
              MOVE SPACE TO EF2
@@ -384,15 +460,114 @@
              INTO EF2 PERFORM S1 
              GO TO P1
            END-IF.
+           
            WRITE FILEOUT01 FROM CHARCUR01 
            GO TO P1.
+
+       GAP-1.
+           MOVE CC-KEY8 TO G-GARNO
+           READ GARFILE INVALID MOVE 1 TO FLAG 
+           MOVE SPACE TO EF2 EF3
+           STRING CC-KEY8 " BAD ACCOUNT #" DELIMITED BY "//"
+           INTO EF2
+           PERFORM S1 
+           GO TO GAP-1-EXIT.
+           MOVE G-GARNAME TO EF3
+           MOVE G-PR-GROUP TO GAPKEY
+           READ GAPFILE INVALID 
+           MOVE SPACE TO EF2
+           STRING G-GARNO " INVALID MEDIGAPE CODE" DELIMITED BY "//"
+           INTO EF2
+           PERFORM S1 
+           MOVE 1 TO FLAG 
+           GO TO GAP-1-EXIT.
+           IF GAP-TYPE = "X" OR "Y"
+           MOVE 1 TO FLAG.
+           IF (G-SECPOL = SPACE) OR (G-SENAME = SPACE)
+           OR (G-SE-RELATE = SPACE)
+           MOVE SPACE TO EF2
+           STRING G-GARNO " MISSING 2ND-DARY INSURANCE " 
+           DELIMITED BY "//" INTO EF2
+           PERFORM S1
+           GO TO GAP-1-EXIT.
+       GAP-1-EXIT.  EXIT.
        DIAG-CHECK.
            MOVE 0 TO DIAGFLAG
-           MOVE ALF7 TO DIAG-KEY
+           MOVE alf7 TO DIAG-KEY
            READ DIAGFILE INVALID MOVE 1 TO DIAGFLAG.
 
-       S1. MOVE CHARCUR-KEY TO EF1 
+       S1. 
+           MOVE CHARCUR-KEY TO EF1 
            WRITE ERRORFILE01.
+       MBI-CHECK.
+           MOVE G-PRIPOL0(1:11) TO MD01
+           MOVE 0 TO FLAG
+           IF (MD1 NOT NUMERIC) OR (MD1 = "0")
+              DISPLAY "1ST POSITION NOT NUMERIC  " MD1
+              MOVE 1 TO FLAG
+           END-IF
+           IF (MD2 NUMERIC) 
+             OR ((MD2 ALPHABETIC) AND 
+                (MD2 = "S" OR "L" OR "O" OR "I" OR "B" OR "Z"))
+             OR NOT (MD2 ALPHABETIC  OR MD2 NUMERIC)
+             DISPLAY "2ND POSITION IS INVALID  " MD2
+             MOVE 1 TO FLAG
+           END-IF             
+           
+           IF NOT((MD3 NUMERIC)OR ((MD3 ALPHABETIC) AND
+                (MD3 NOT  = "S" OR "L" OR "O" OR "I" OR "B" OR "Z")))
+             DISPLAY "3RD POSITION IS INVALID  " MD3
+             MOVE 1 TO FLAG
+           END-IF           
+            IF MD4 NOT NUMERIC
+              DISPLAY "4TH POSITION NOT NUMERIC  " MD4
+              MOVE 1 TO FLAG
+           END-IF   
+
+           
+           IF (MD5 NUMERIC) 
+             OR ((MD5 ALPHABETIC) AND 
+                (MD5 = "S" OR "L" OR "O" OR "I" OR "B" OR "Z"))
+             OR NOT (MD5 ALPHABETIC  OR MD5 NUMERIC)
+             DISPLAY "5TH POSITION IS INVALID  " MD5
+             MOVE 1 TO FLAG
+           END-IF        
+           
+
+             IF NOT ((MD6 NUMERIC) OR ((MD6 ALPHABETIC) AND
+                (MD6 NOT = "S" OR "L" OR "O" OR "I" OR "B" OR "Z")))
+             OR NOT (MD6 ALPHABETIC  OR MD6 NUMERIC)
+             DISPLAY "6TH POSITION IS INVALID  " MD6
+             MOVE 1 TO FLAG
+           END-IF 
+           
+             IF MD7 NOT NUMERIC
+              DISPLAY "7TH POSITION NOT NUMERIC  " MD7
+              MOVE 1 TO FLAG
+           END-IF   
+           
+           IF (MD8 NUMERIC) 
+             OR ((MD8 ALPHABETIC) AND 
+                (MD8 = "S" OR "L" OR "O" OR "I" OR "B" OR "Z"))
+             OR NOT (MD8 ALPHABETIC  OR MD8 NUMERIC)
+             DISPLAY "8TH POSITION IS INVALID  " MD8
+             MOVE 1 TO FLAG
+           END-IF  
+           IF (MD9 NUMERIC) 
+             OR ((MD9 ALPHABETIC) AND 
+                (MD9 = "S" OR "L" OR "O" OR "I" OR "B" OR "Z"))
+             OR NOT (MD9 ALPHABETIC  OR MD9 NUMERIC)
+             DISPLAY "9TH POSITION IS INVALID  " MD9
+             MOVE 1 TO FLAG
+           END-IF  
+             IF MD10 NOT NUMERIC
+              DISPLAY "10TH POSITION NOT NUMERIC  " MD10
+              MOVE 1 TO FLAG
+           END-IF   
+             IF MD11 NOT NUMERIC
+              DISPLAY "11TH POSITION NOT NUMERIC  " MD11
+              MOVE 1 TO FLAG
+            END-IF.   
 
        P6. CLOSE FILEOUT FILEOUT2 PAPEROUT ERRORFILE.
            CLOSE GARFILE DIAGFILE REFPHY GAPFILE PROCFILE
