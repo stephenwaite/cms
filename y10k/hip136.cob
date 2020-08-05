@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI146.
+       PROGRAM-ID. hip136.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -790,7 +790,11 @@
            GO TO P5-1.
            MOVE 0 TO FLAGZERO
            IF  ( PD-DENIAL = "DD" )  GO TO P5-1.
-           IF  ( PD-DENIAL = "DA" )  GO TO P5-1.
+           
+           IF  ( PD-DENIAL = "DA" ) 
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF
 
            IF  (PD-MANAGE = "MN" ) GO TO P5-1.
            IF  ( PATRESP NOT = SPACE ) GO TO P5-1.
@@ -798,11 +802,16 @@
            PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
        P5-1.
            IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS)
-           PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
+               PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT
+           END-IF
+
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
            PERFORM S4 THRU S5
+           
            IF CLAIM-TOT < 0
-           PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
+               PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT
+           END-IF
+
            ACCEPT ORDER-8 FROM TIME
            MOVE ORDER-6 TO PD-ORDER
            MOVE SPACE TO PD-BATCH

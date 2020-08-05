@@ -276,20 +276,35 @@
            START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P6.
            
        P1.
-           READ CHARCUR NEXT AT END GO TO P6.
-           IF CC-PAYCODE = 160 OR 197 GO TO P1.
-           IF CC-PAYCODE > 199 GO TO P6.
-           PERFORM A1 THRU A2 GO TO P1.
+           READ CHARCUR NEXT AT END
+               GO TO P6
+           END-READ
+
+           IF CC-PAYCODE = 160 OR 197
+               GO TO P1
+           END-IF    
+           
+           IF CC-PAYCODE > 199
+               GO TO P6
+           END-IF
+
+           PERFORM A1 THRU A2
+           GO TO P1.
        A1.
            MOVE CHARCUR-KEY TO EF1
            IF CC-PROC = "1      " OR "2       " GO TO A2.
            IF CC-PROC < "00100  " GO TO A2.
            IF CC-AMOUNT = 0 GO TO A2.
            IF CC-REC-STAT > "1" GO TO A2.
-           IF  NOT (CC-DOCP >= 01 AND <= 10)
-           MOVE "NO READING DOC        " TO EF2
-           MOVE CHARCUR-KEY TO  EF1
-           MOVE SPACE TO EF3 EF5 PERFORM E1 GO TO A2.
+           
+           IF CC-DOCP = 02
+               MOVE "NO READING DOC        " TO EF2
+               MOVE CHARCUR-KEY TO  EF1
+               MOVE SPACE TO EF3 EF5
+               PERFORM E1
+               GO TO A2
+           END-IF
+
            IF DOCTAB(CC-DOCP) = 99
            OR INSTAB(CC-PAYCODE) = 99 GO TO A2.
            IF INSTAB(CC-PAYCODE) NOT = 0
@@ -358,20 +373,22 @@
            MOVE "GRP & POLICY ARE =" TO EF2
            MOVE G-GARNAME TO EF5
            MOVE G-PR-GROUP TO EF3 PERFORM E1 GO TO A2.
+           
            IF (INS-NEIC = "14165")
-            MOVE G-PRIPOL TO ALF11
-            IF (ALF11 NOT NUMERIC)
-             IF (G-PRINS = "256" OR "349")
-                MOVE "BAD POLICY NUMBER " TO EF2
-              PERFORM E1
-              GO TO A2
-             END-IF
-            END-IF
-           END-IF.
+               MOVE G-PRIPOL TO ALF11
+               IF (ALF11 NOT NUMERIC)
+                   IF (G-PRINS = "256" OR "349")
+                       MOVE "BAD POLICY NUMBER " TO EF2
+                       PERFORM E1
+                       GO TO A2
+                    END-IF
+               END-IF
+           END-IF
+
            IF CC-DIAG = "0000000"
-                MOVE "NO DIAG. ON CHARGE " TO EF2
-              PERFORM E1
-              GO TO A2
+               MOVE "NO DIAG. ON CHARGE " TO EF2
+               PERFORM E1
+               GO TO A2
            END-IF
 
            MOVE SPACE TO FILEOUT01

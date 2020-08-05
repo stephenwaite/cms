@@ -1037,6 +1037,7 @@
               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
                IF  (CAS-2 = "50")
                  OR (CAS-1 = "PI" AND CAS-2 = "97   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "97   ")
                  OR (CAS-1 = "CO" AND CAS-2 = "197  ")
                  OR (CAS-1 = "CO" AND CAS-2 = "4    ")
                  OR (CAS-1 = "CO" AND CAS-2 = "16   ")

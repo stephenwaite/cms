@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI134.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rrr134.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -26,6 +26,8 @@
            SELECT CAREFILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS CARE-KEY
            LOCK MODE MANUAL.
+           SELECT ERRORFILE ASSIGN TO "S65" ORGANIZATION
+           LINE SEQUENTIAL.
        DATA DIVISION.
        FILE SECTION.
        FD  CAREFILE.
@@ -181,6 +183,14 @@
            02 G-SEGRPNAME PIC X(15).
        FD  FILEOUT2.
        01  FILEOUT201 PIC X(160).
+        
+       FD  ERRORFILE
+           DATA RECORD IS ERRORFILE01.
+       01  ERRORFILE01.
+           02 EF1 PIC X(12).
+           02 EF2 PIC X(37).
+           02 EF3 PIC X(24).
+       
        WORKING-STORAGE SECTION.
        01  X USAGE IS INDEX.
        01  INSTAB01.
@@ -190,7 +200,7 @@
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT PAYCUR INSIN CHARCUR GARFILE CAREFILE
-           OUTPUT FILE-OUT FILEOUT2.
+           OUTPUT FILE-OUT FILEOUT2 ERRORFILE.
            MOVE SPACE TO FILE-OUT01
            PERFORM A1 VARYING X FROM 1 BY 1 UNTIL X > 999.
        P00. READ INSIN AT END GO TO P1.
@@ -201,10 +211,17 @@
            IF INSTAB(CC-PAYCODE) = 2 GO TO P1.
            IF CC-REC-STAT > "1" GO TO P1.
            IF CC-PAYCODE = 003 OR 004 OR 028 OR 064 OR 197 GO TO P1.
+           
+           IF CC-DOCP = "02"
+               MOVE "BAD DOC ## AND/OR DIAG ?" TO EF2
+               PERFORM S1 
+               GO TO P1
+           END-IF
+           
            IF CC-PAPER = "P" OR "O" GO TO P1-1.
            IF CC-ASSIGN = "U" GO TO P1.
            IF CC-PAYCODE = 062 GO TO P1-3.
-           IF CC-PAPER = " " GO TO P1.
+           IF CC-PAPER = " " GO TO P1.           
        P1-1.
            MOVE CC-KEY8 TO G-GARNO
            READ GARFILE INVALID DISPLAY CHARCUR-KEY " BAD GARNO"
@@ -245,14 +262,25 @@
            IF CR-INSNAME NOT = SPACE GO TO P1.
            GO TO P1-1.
 
-       A1. MOVE 0 TO INSTAB(X).
-       S4. MOVE CC-KEY8 TO PC-KEY8.
+       A1. 
+           MOVE 0 TO INSTAB(X).
+       S1. 
+           MOVE CHARCUR-KEY TO EF1 
+           WRITE ERRORFILE01.
+       
+       S4.
+           MOVE CC-KEY8 TO PC-KEY8.
            MOVE "000" TO PC-KEY3.
            COMPUTE TOT-AMT = CC-AMOUNT
            START PAYCUR KEY > PAYCUR-KEY INVALID GO TO S4-EXIT.
-       S7. READ PAYCUR NEXT AT END GO TO S4-EXIT.
+       S7. 
+           READ PAYCUR NEXT AT END GO TO S4-EXIT.
            IF PC-KEY8 NOT = CC-KEY8 GO TO S4-EXIT.
            IF PC-CLAIM NOT = CC-CLAIM GO TO S7.
            ADD PC-AMOUNT TO TOT-AMT GO TO S7.
-       S4-EXIT. EXIT.
-       P6. CLOSE FILE-OUT FILEOUT2. STOP RUN.
+       S4-EXIT. 
+           EXIT.
+       P6. 
+           CLOSE FILE-OUT FILEOUT2 ERRORFILE
+                 PAYCUR INSIN CHARCUR GARFILE CAREFILE. 
+           STOP RUN.

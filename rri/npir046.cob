@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI038.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. npir046.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -274,7 +274,8 @@
            MOVE SPACE TO FO-FILLER.
            OPEN I-O CHARCUR.
            READ PARMFILE AT END GO TO P00.
-       P00. READ PLACEFILE AT END GO TO P0.
+       P00. 
+           READ PLACEFILE AT END GO TO P0.
            ADD 1 TO PLINDX.
            MOVE DF1 TO PL-TAB(PLINDX)
            MOVE DF2 TO PL-NUM(PLINDX)
@@ -285,10 +286,12 @@
            MOVE DF7 TO PL-ZIP(PLINDX)
            GO TO P00.
        
-       P0. READ FILEIN AT END GO TO P6.
+       P0. 
+           READ FILEIN AT END GO TO P6.
            MOVE FILEIN01 TO CC-PAYCODE
            START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P0.
-       P1. READ CHARCUR NEXT WITH LOCK AT END GO TO P0.
+       P1. 
+           READ CHARCUR NEXT WITH LOCK AT END GO TO P0.
            IF CC-PAYCODE NOT = FILEIN01 GO TO P0.
            IF CC-PROC1 < "00100  "
            OR CC-CLAIM = "999995"
@@ -313,11 +316,12 @@
            PERFORM S1
            GO TO P1.
 
-           IF CC-DOCP = "00"
-            MOVE SPACE TO EF2
-            MOVE "NO DOCP" TO EF2
-           PERFORM S1
-           GO TO P1.
+           IF CC-DOCP = "02"
+               MOVE SPACE TO EF2
+               MOVE "NO DOCP" TO EF2
+               PERFORM S1
+               GO TO P1
+           END-IF    
 
            IF (G-PRINS = CC-PAYCODE)
             AND ((G-PRIPOL(1:9) NUMERIC) OR (G-PRIPOL = SPACE))
