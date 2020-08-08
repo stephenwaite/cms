@@ -388,10 +388,10 @@
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                ELSE
-                   STRING "405 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                          " G9551 removed for 2020 reporting "
-                          " of denominator exclusion"     
-                   DELIMITED BY SIZE INTO FILEOUT01
+                   MOVE "0000G9551  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000" 
+                       DELIMITED BY SIZE INTO CHARFILE-KEY     
                END-IF
                               
       *    handle multi-qpp-cpts by doing mea 436

@@ -252,17 +252,27 @@
            GO TO P1.
            
            IF CC-DOCP = "02"
+               MOVE SPACE TO ERRORFILE01
                MOVE "BAD DOC ## AND/OR DIAG ?" TO EF2
                PERFORM S1 
                GO TO P1
            END-IF 
                
            MOVE CC-KEY8 TO G-GARNO.
-           READ GARFILE INVALID MOVE "NO GARNO" TO EF2
-            PERFORM S1 GO TO P1.
+           
+           READ GARFILE INVALID 
+               MOVE SPACE TO ERRORFILE01
+               MOVE "NO GARNO" TO EF2
+               PERFORM S1
+               GO TO P1
+           END-READ
+
            IF (CC-PAYCODE NOT = G-PRINS)
-           OR (CC-PAPER = "P" OR "O") 
-           PERFORM PAPER-1 GO TO P1.
+               OR (CC-PAPER = "P" OR "O") 
+               PERFORM PAPER-1
+               GO TO P1
+           END-IF
+               
            GO TO TEST-IT.
        PAPER-1.
            move space to paperout01

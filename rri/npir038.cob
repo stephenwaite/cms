@@ -288,6 +288,7 @@
            IF CC-REC-STAT > "1" GO TO P1.
 
            IF CC-DOCP = "02"
+               MOVE SPACE TO ERRORFILE01
                MOVE "BAD DOC ## AND/OR DIAG ?" TO EF2
                PERFORM S1 
                GO TO P1
@@ -309,7 +310,7 @@
            MOVE SPACE TO ERRORFILE01
            
            IF CC-DIAG = "0000000"
-               MOVE SPACE TO EF2
+               MOVE SPACE TO ERORFILE01
                MOVE "NO DIAG" TO EF2 
                PERFORM S1
                GO TO P1
@@ -317,13 +318,13 @@
 
            MOVE CC-DIAG TO DIAG-KEY
            READ DIAGFILE INVALID 
-             MOVE SPACE TO EF2
+             MOVE SPACE TO ERRORFILE01
              MOVE "OLD DIAG CODE" TO EF2
-             MOVE SPACE TO EF3
              MOVE CC-DIAG TO EF3 
              PERFORM S1 
              GO TO P1
            END-READ
+           
            MOVE 0 TO DIAGFLAG
            IF CC-DX2 NOT = "0000000"
            MOVE CC-DX2 TO alf7

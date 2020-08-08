@@ -5,7 +5,7 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
        PROGRAM-ID. npir078.
-       AUTHOR. SID WAITE.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -298,9 +298,9 @@
            IF CC-REC-STAT > "1" GO TO A2.
            
            IF CC-DOCP = 02
+               MOVE SPACE TO ERRORFILE01
                MOVE "NO READING DOC        " TO EF2
                MOVE CHARCUR-KEY TO  EF1
-               MOVE SPACE TO EF3 EF5
                PERFORM E1
                GO TO A2
            END-IF
@@ -316,20 +316,35 @@
             GO TO A2
            END-IF
            MOVE CC-KEY8 TO G-GARNO
+
            READ GARFILE INVALID
-           MOVE "BAD GARNO           " TO EF2
-           MOVE SPACE TO EF3 EF5 PERFORM E1 GO TO A2.
+               MOVE SPACE TO ERRORFILE01
+               MOVE "BAD GARNO           " TO EF2
+               PERFORM E1 
+               GO TO A2
+           END-READ
+
            MOVE G-GARNAME TO EF5
            MOVE G-PRINS TO NUM3
+           
            IF G-STREET = SPACE AND G-BILLADD = SPACE
-           MOVE "ADDRESS IS BLANK" TO EF2
-           MOVE G-GARNAME TO EF5
-           MOVE CC-KEY8 TO EF3 PERFORM E1 GO TO A2.
+               MOVE SPACE TO ERRORFILE01
+               MOVE "ADDRESS IS BLANK" TO EF2
+               MOVE G-GARNAME TO EF5
+               MOVE CC-KEY8 TO EF3 
+               PERFORM E1 
+               GO TO A2
+           END-IF
+
            IF G-DOB NOT NUMERIC
-           MOVE "BAD DOB           " TO EF2
-           MOVE SPACE TO EF3 EF5 PERFORM E1 GO TO A2.
+               MOVE SPACE TO ERRORFILE01
+               MOVE "BAD DOB           " TO EF2               
+               PERFORM E1 
+               GO TO A2
+           END-IF
+
            IF (NUM3 NOT = CC-PAYCODE) AND (CC-PAPER = "E")
-           MOVE "P" TO CC-PAPER.
+               MOVE "P" TO CC-PAPER.
            IF CC-PAYCODE = 153 OR "122" OR "123" MOVE "P" TO CC-PAPER.
            IF CC-PAPER = "E" GO TO A1-1.
            PERFORM PAPER-1 GO TO A2.

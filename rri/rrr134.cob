@@ -213,6 +213,7 @@
            IF CC-PAYCODE = 003 OR 004 OR 028 OR 064 OR 197 GO TO P1.
            
            IF CC-DOCP = "02"
+               MOVE SPACE TO ERRORFILE
                MOVE "BAD DOC ## AND/OR DIAG ?" TO EF2
                PERFORM S1 
                GO TO P1
