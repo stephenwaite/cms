@@ -896,9 +896,12 @@
            ELSE MOVE 0 TO KEYFLAG.
 
            IF KEYFLAG = 1 AND ACTION = "D"
-           MOVE PAYFILE-KEY TO IN-FIELD
-           MOVE IN-FIELD-1 TO FLAG
-           MOVE LASTPAY-TAB(FLAG) TO PAYFILE-KEY GO TO 1300DEL.
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE LASTPAY-TAB(FLAG) TO PAYFILE-KEY 
+               DISPLAY PAYFILE-KEY
+               GO TO 1300DEL
+           END-IF    
 
            IF KEYFLAG = 1 AND ACTION = "C"
            MOVE PAYFILE-KEY TO IN-FIELD
@@ -1175,54 +1178,73 @@
            DISPLAY "GUAR " G-GARNO " " G-GARNAME.
        LP-1-EXIT. EXIT.
        1200-ADD-PROCESS.
-           MOVE ZEROES TO PD-CLAIM   PD-AMOUNT   PD-PAYCODE
-             PD-DATE-T PD-DENIAL PD-BATCH.
+           MOVE ZEROES TO PD-CLAIM PD-AMOUNT PD-PAYCODE
+               PD-DATE-T PD-DENIAL PD-BATCH.
            MOVE SPACES TO PD-NAME PAYFILE-KEY.
-       M1. PERFORM 1205-ADD-LOOP VARYING ADD-KEY FROM 1 BY 1
-             UNTIL ADD-KEY > 6.
-       M4. IF IN-FIELD = "X" DISPLAY "NO UPDATE" GO TO 1000-ACTION.
-           IF IN-FIELD = "!)(!" GO TO M2.
-      *    IF PD-PAYCODE = "060" MOVE 0 TO PD-AMOUNT.
+       M1. 
+           PERFORM 1205-ADD-LOOP VARYING ADD-KEY FROM 1 BY 1
+               UNTIL ADD-KEY > 6.
+       M4. 
+           IF IN-FIELD = "X"
+               DISPLAY "NO UPDATE"
+               GO TO 1000-ACTION
+           END-IF
+
+           IF IN-FIELD = "!)(!"
+               GO TO M2
+           END-IF.
        DR1.
            ACCEPT ORDER-8 FROM TIME
            MOVE ORDER-6 TO PD-ORDER.
            MOVE CURRENT-BATCH TO PD-DATE-E
+           
            IF ((PD-PAYCODE = "010" OR "015" OR "019")
-           OR (PD-DENIAL = "08" OR "15"))
-           AND (PD-AMOUNT < 0)
-           COMPUTE PD-AMOUNT = -1 * PD-AMOUNT.
+               OR (PD-DENIAL = "08" OR "15"))
+               AND (PD-AMOUNT < 0)
+               COMPUTE PD-AMOUNT = -1 * PD-AMOUNT
+           END-IF
+
            MOVE PAYFILE01 TO PAYFILE-BACK
-           MOVE 0 TO XYZ.
+           MOVE 0 TO XYZ.           
        DR1-1.
            ADD 1 TO XYZ
            MOVE XYZ TO PD-KEY3
+           
            IF XYZ = 999
-             DISPLAY "NO UPDATE"
-             DISPLAY "THIS SHOULD NOT HAVE HAPPENED!"
-             DISPLAY "CALL CMS IMMEDIATELY"
-             ACCEPT ANS
-             GO TO 1000-ACTION
+               DISPLAY "NO UPDATE"
+               DISPLAY "THIS SHOULD NOT HAVE HAPPENED!"
+               DISPLAY "CALL CMS IMMEDIATELY"
+               ACCEPT ANS
+               GO TO 1000-ACTION
            END-IF
 
-           READ PAYFILE INVALID
-             MOVE PAYFILE01 TO PAYFILE-BACK
-             MOVE 0 TO FLAG
-             PERFORM WRITE-PAYFILE THRU WRITE-PAYFILE-EXIT
+           READ PAYFILE 
+           INVALID
+               MOVE 0 TO FLAG
+               PERFORM WRITE-PAYFILE THRU WRITE-PAYFILE-EXIT
 
-             IF FLAG = 0
-                 DISPLAY "CAN NOT WRITE THE PAYMENT RECORD"
-                 DISPLAY "THIS INDICATES A PROBLEM"
-                 DISPLAY "CALL CMS IMMEDIATELY"
-                 ACCEPT ANS
-                 GO TO 1000-ACTION
-             END-IF
+               IF FLAG = 0
+                   DISPLAY "CAN NOT WRITE THE PAYMENT RECORD"
+                   DISPLAY "THIS INDICATES A PROBLEM"
+                   DISPLAY "CALL CMS IMMEDIATELY"
+                   ACCEPT ANS
+                   GO TO 1000-ACTION
+               END-IF
+
+           NOT INVALID
+               GO TO DR1-1
            END-READ
+
            MOVE PAYFILE01 TO PAYFILE-BACK.
            MOVE 0 TO FLAGX.
            MOVE PD-KEY3 TO XYZ.
-           IF DI = 1 PERFORM WH1 THRU WH1-EXIT.
-       DR1-EXIT. EXIT.
-       WO1. IF DR = -1 GO TO M2.
+           IF DI = 1 
+               PERFORM WH1 THRU WH1-EXIT
+           END-IF.     
+       DR1-EXIT. 
+           EXIT.
+       WO1. 
+           IF DR = -1 GO TO M2.
            IF (PD-PAYCODE > "006" AND < "020") 
            AND (PD-PAYCODE NOT = "018")
            DISPLAY "REDUCTIONS ON ADJUSTMENT RECORDS ARE INVALID."
@@ -1275,32 +1297,40 @@
            MOVE ORDER-6 TO PD-ORDER
            MOVE CURRENT-BATCH TO PD-DATE-E
            MOVE PAYFILE01 TO PAYFILE-BACK.
-       WO13. ADD 1 TO XYZ.
+       WO13. 
+           ADD 1 TO XYZ.
            MOVE XYZ TO PD-KEY3.
-           READ PAYFILE INVALID GO TO WO14.
+           
+           READ PAYFILE INVALID
+               GO TO WO14
+           END-READ
+
            IF XYZ = 999
-              DISPLAY "TOO MANY RECORDS CALL CMS"
-              ACCEPT ANS
-              GO TO 1000-ACTION
-            ELSE
-              GO TO WO13
+               DISPLAY "TOO MANY RECORDS CALL CMS"
+               ACCEPT ANS
+               GO TO 1000-ACTION
+           ELSE
+               GO TO WO13
            END-IF.
        WO14.
            MOVE PD-AMOUNT TO NEF-8
            DISPLAY "REDUCTION " NEF-8.
            MOVE PAYFILE-BACK TO PAYFILE01
            MOVE XYZ TO PD-KEY3.
+           
            READ PAYFILE INVALID
-            MOVE 0 TO FLAG
-            PERFORM WRITE-PAYFILE THRU WRITE-PAYFILE-EXIT
+               MOVE 0 TO FLAG
+               PERFORM WRITE-PAYFILE THRU WRITE-PAYFILE-EXIT
+           
                IF FLAG = 0
-                  DISPLAY "CAN NOT WRITE THE PAYMENT RECORD"
-                  DISPLAY "THIS INDICATES A PROBLEM"
-                  DISPLAY "CALL CMS IMMEDIATELY"
-                  ACCEPT ANS
-                  GO TO 1000-ACTION
+                   DISPLAY "CAN NOT WRITE THE PAYMENT RECORD"
+                   DISPLAY "THIS INDICATES A PROBLEM"
+                   DISPLAY "CALL CMS IMMEDIATELY"
+                   ACCEPT ANS
+                   GO TO 1000-ACTION
                END-IF
            END-READ
+
            GO TO WO13.
        M2.
            DISPLAY "MORE PAYMENTS ?".
@@ -1732,8 +1762,11 @@
        1205-ADD-LOOP.
            SET INDX TO ADD-FLD(ADD-KEY).
            PERFORM 2050-DISPLAY THRU 4910DEE.
-       1200-FIND. START PAYFILE KEY > PAYFILE-KEY INVALID
-           DISPLAY " END OF FILE" GO TO 1000-ACTION.
+       1200-FIND. 
+           START PAYFILE KEY > PAYFILE-KEY INVALID
+               DISPLAY " END OF FILE"
+               GO TO 1000-ACTION
+           END-START.    
        1200-FIND-20.
            MOVE 0 TO X.
            MOVE 0 TO FLAG.
@@ -1765,66 +1798,112 @@
        1200-SEARCH-EXIT.
            EXIT.
        1300DEL.
-           READ PAYFILE WITH LOCK INVALID DISPLAY "NOT ON FILE"
-           GO TO 1000-ACTION.
+           CLOSE PAYFILE
+           OPEN I-O PAYFILE
+           
+           READ PAYFILE WITH LOCK INVALID
+               DISPLAY " PAYFILE RECORD LOCKED TRY LATER. " PAYFILE-KEY
+           END-READ
+           
+           READ PAYFILE WITH LOCK INVALID 
+               DISPLAY "NOT ON FILE"
+               GO TO 1000-ACTION
+           END-READ
+
            IF PAYFILE-STAT NOT = "00"
-           DISPLAY "STATUS = " PAYFILE-STAT
-           DISPLAY "RECORD BEING USED. NO DELETE CAN BE MADE"
-           GO TO 1000-ACTION.
+               DISPLAY "STATUS = " PAYFILE-STAT
+               DISPLAY "RECORD BEING USED. NO DELETE CAN BE MADE"
+               GO TO 1000-ACTION
+           END-IF
+    
            MOVE PD-DATE-T TO TEST-DATE
            MOVE CORR TEST-DATE TO DISP-DATE
            MOVE PD-AMOUNT TO NEF-5
            DISPLAY "   " PD-KEY8  " " DISP-DATE " " NEF-5 " " PD-PAYCODE
            " " PD-CLAIM  " " PD-DENIAL " " PD-NAME.
-       1300DEL1. DISPLAY "DELETE Y/N ?".
+       1300DEL1. 
+           DISPLAY "DELETE Y/N ?".
            ACCEPT ANS.
            IF ANS = "?"
-           DISPLAY "Y = YES TO DELETE THE RECORD DISPLAYED"
-           DISPLAY "N = NO"
-           GO TO 1300DEL1.
-           IF ANS NOT = "Y" DISPLAY "NO DELETE"
-           UNLOCK PAYFILE RECORD
-           GO TO 1000-ACTION.
+               DISPLAY "Y = YES TO DELETE THE RECORD DISPLAYED"
+               DISPLAY "N = NO"
+               GO TO 1300DEL1
+           END-IF
+
+           IF ANS NOT = "Y"
+               DISPLAY "NO DELETE"
+               UNLOCK PAYFILE RECORD
+               GO TO 1000-ACTION
+           END-IF
+
            DELETE PAYFILE RECORD.
       *    ISQUIET PAYFILE WITH 1 AND 3
-           DISPLAY "RECORD DELETED" GO TO 1000-ACTION.
-       1400-CHANGE-IT.
-           READ PAYFILE WITH LOCK INVALID KEY DISPLAY "NOT ON FILE"
-             GO TO 1000-ACTION.
-           IF PAYFILE-STAT NOT = "00" 
-           DISPLAY "RECORD BEING CHANGED"
-           DISPLAY "STATUS = " PAYFILE-STAT
+           DISPLAY "RECORD DELETED"
+           
+           CLOSE PAYFILE
+           OPEN INPUT PAYFILE.           
+        
            GO TO 1000-ACTION.
+       1400-CHANGE-IT.
+           READ PAYFILE WITH LOCK INVALID
+               DISPLAY "NOT ON FILE"
+               GO TO 1000-ACTION
+           END-READ
+
+           IF PAYFILE-STAT NOT = "00" 
+               DISPLAY "RECORD BEING CHANGED"
+               DISPLAY "STATUS = " PAYFILE-STAT
+               GO TO 1000-ACTION
+           END-IF.    
        1400-CHANGE-PROCESS.
            MOVE SPACES TO RIGHT-2 IN-FIELD.
            DISPLAY "FIELD CODE,DATA?".
            ACCEPT DATAIN.
+           
            IF DATAIN = "X"
-               DISPLAY "NO CHANGE"  GO TO 1000-ACTION.
-           IF DATAIN = "L" PERFORM LPAY-1 GO TO 1400-CHANGE-PROCESS.
-           IF DATAIN = "UP"
+               DISPLAY "NO CHANGE"
+               GO TO 1000-ACTION
+           END-IF
 
-             GO TO 5000-WRITE-PAYFILE.
+           IF DATAIN = "L" 
+               PERFORM LPAY-1 
+               GO TO 1400-CHANGE-PROCESS
+           END-IF
+
+           IF DATAIN = "UP"
+               GO TO 5000-WRITE-PAYFILE
+           END-IF
+
            IF DATAIN = "?"
                DISPLAY "UP TO UPDATE CHANGES MADE"
                DISPLAY "L TO LIST THE RECORD"
                DISPLAY "   OR"
                DISPLAY "ENTER THE FIELD #,(NEW DATA)"
                DISPLAY "SEPARATED BY A COMMA. THE VALID FIELDS ARE:"
-           DISPLAY "3=AMOUNT 4=PAYORCODE 5=DENIAL CODE 6=CLAIM 7=DATE"
-               GO TO 1400-CHANGE-PROCESS.
+               DISPLAY "3=AMOUNT 4=PAYORCODE 5=DENIAL CODE 6=CLAIM "
+                   "7=DATE"
+               GO TO 1400-CHANGE-PROCESS
+           END-IF
+
            UNSTRING DATAIN DELIMITED BY "," INTO RIGHT-2 IN-FIELD.
            INSPECT RIGHT-2 REPLACING LEADING SPACE BY "0".
+           
            IF RIGHT-2 NOT NUMERIC
                DISPLAY "FIELD CODE NOT NUMERIC"
-               GO TO 1400-CHANGE-PROCESS.
+               GO TO 1400-CHANGE-PROCESS
+           END-IF
+
            IF RIGHT-2 = "00"
                DISPLAY "FIELD CODE CANNOT BE ZERO OR BLANK"
-               GO TO 1400-CHANGE-PROCESS.
+               GO TO 1400-CHANGE-PROCESS
+           END-IF
+
            IF RIGHT-2 > "02" AND RIGHT-2 < "08"
-           MOVE RIGHT-2 TO LOW-NUM
-           SET INDX TO LOW-NUM
-           GO TO 2060-GO-TO.
+               MOVE RIGHT-2 TO LOW-NUM
+               SET INDX TO LOW-NUM
+               GO TO 2060-GO-TO
+           END-IF
+
            DISPLAY "FIELD # MUST BE 3-7 ".
            GO TO 1400-CHANGE-PROCESS.
        2050-DISPLAY.
@@ -2337,24 +2416,31 @@
            EXIT.
        5000-WRITE-PAYFILE.
            IF (PD-DENIAL = "14" OR "07" OR "08" OR "15" OR "DI") 
-           AND ((PD-PAYCODE > "006" AND < "020") 
-           AND (PD-PAYCODE NOT = "018"))
-           DISPLAY "ADJUSTMENT DENIALS ON ADJUSTMENT RECORDS = INVALID"
-           GO TO 1400-CHANGE-PROCESS.
+               AND ((PD-PAYCODE > "006" AND < "020") 
+               AND (PD-PAYCODE NOT = "018"))
+               DISPLAY "ADJUSTMENT DENIALS ON ADJUSTMENT RECORDS = "
+                   "INVALID"
+               GO TO 1400-CHANGE-PROCESS
+           END-IF
+
            IF (PD-AMOUNT < 0)
-           AND 
-           ((PD-PAYCODE = "010" OR "015" OR "019")
-           OR (PD-DENIAL = "08" OR "15"))
-           COMPUTE PD-AMOUNT = -1 * PD-AMOUNT.
+               AND ((PD-PAYCODE = "010" OR "015" OR "019")
+               OR (PD-DENIAL = "08" OR "15"))
+               COMPUTE PD-AMOUNT = -1 * PD-AMOUNT
+           END-IF
+
            IF (PD-AMOUNT > 0)
-           AND  NOT ((PD-PAYCODE = "010" OR "015" OR "019")
-           OR (PD-DENIAL = "08" OR "15"))
-           COMPUTE PD-AMOUNT = -1 * PD-AMOUNT.
+               AND  NOT ((PD-PAYCODE = "010" OR "015" OR "019")
+               OR (PD-DENIAL = "08" OR "15"))
+               COMPUTE PD-AMOUNT = -1 * PD-AMOUNT
+           END-IF
+
            MOVE 0 TO FLAG
            MOVE PAYFILE01 TO PAYFILE-BACK
+           DISPLAY PAYFILE01
+
            PERFORM RE-WRITE-PD THRU RE-WRITE-PD-EXIT
            GO TO 1000-ACTION.
-
        CUR-1.
            MOVE G-GARNO TO CC-KEY8 MOVE "000" TO CC-KEY3.
            START CHARCUR KEY > CHARCUR-KEY INVALID GO TO CUR-END.
@@ -2487,23 +2573,37 @@
            MOVE DN-TAB(AA) TO ALF-2
            MOVE DN-TAB(YY) TO DN-TAB(AA)
            MOVE ALF-2 TO DN-TAB(YY).
-        SD3. ADD 1 TO XYZ.
+        SD3.
+           ADD 1 TO XYZ.
            MOVE XYZ TO PD-KEY3.
-           READ PAYFILE INVALID GO TO SD3-1.
+           
+           READ PAYFILE INVALID
+               GO TO SD3-1
+           END-READ
+
            GO TO SD3.
         SD3-1.
-           IF TOT-AMOUNT NOT < 0 GO TO SD3-EXIT.
+           IF TOT-AMOUNT NOT < 0
+               GO TO SD3-EXIT
+           END-IF
+
            MOVE PAYFILE-BACK TO PAYFILE01
            MOVE XYZ TO PD-KEY3
            MULTIPLY A-TAB(XX) BY -1 GIVING PD-AMOUNT.
            MOVE C-TAB(XX) TO PD-CLAIM.
-           IF TOT-AMOUNT > PD-AMOUNT MOVE TOT-AMOUNT TO PD-AMOUNT
-           PERFORM DR1 THRU DR1-EXIT
-           SET XX TO P-IND
-           ELSE PERFORM DR1 THRU DR1-EXIT
-           COMPUTE TOT-AMOUNT = TOT-AMOUNT - PD-AMOUNT.
-       SD3-EXIT. EXIT.
-       SD4. IF PC-TAB(XX) = PD-PAYCODE MOVE ZERO TO D-TAB(XX).
+           IF TOT-AMOUNT > PD-AMOUNT
+               MOVE TOT-AMOUNT TO PD-AMOUNT
+               PERFORM DR1 THRU DR1-EXIT
+               SET XX TO P-IND
+           ELSE 
+               PERFORM DR1 THRU DR1-EXIT
+               COMPUTE TOT-AMOUNT = TOT-AMOUNT - PD-AMOUNT
+           END-IF.
+
+       SD3-EXIT.
+           EXIT.
+       SD4. 
+           IF PC-TAB(XX) = PD-PAYCODE MOVE ZERO TO D-TAB(XX).
        SD5. ADD A-TAB(XX) TO TOT-BAL.
        DP1. MOVE G-GARNO TO PC-KEY8 MOVE "000" TO PC-KEY3.
            START PAYCUR KEY > PAYCUR-KEY INVALID GO TO DP5.
@@ -4073,10 +4173,13 @@
 
        CC10-EXIT.
            EXIT.
+
        WRITE-PAYFILE.
            CLOSE PAYFILE
            OPEN I-O PAYFILE
            MOVE PAYFILE-BACK TO PAYFILE01
+           MOVE XYZ TO PD-KEY3
+
            WRITE PAYFILE01 INVALID
                 DISPLAY "RECORD NOT ADDED AT THIS TIME"
                 DISPLAY PAYFILE-STAT
@@ -4084,22 +4187,23 @@
                 OPEN INPUT PAYFILE
                 GO TO WRITE-PAYFILE-EXIT
            END-WRITE
-           IF PAYFILE-STAT NOT = "00"
-                DISPLAY PAYFILE-STAT
-                DISPLAY "RECORD NOT ADDED AT THIS TIME"
-                CLOSE PAYFILE
-                OPEN INPUT PAYFILE
-                GO TO RE-WRITE-PD-EXIT
-           END-IF
+           
            MOVE 1 TO FLAG
            CLOSE PAYFILE
            OPEN INPUT PAYFILE
            DISPLAY "RECORD ADDED".
-           MOVE 1 TO FLAG.
        WRITE-PAYFILE-EXIT.
            EXIT.
-
        RE-WRITE-PD.
+           CLOSE PAYFILE
+           OPEN I-O PAYFILE
+           
+           MOVE PAYFILE-BACK(1:11) TO PAYFILE-KEY
+           READ PAYFILE WITH LOCK INVALID
+               DISPLAY " PAYFILE RECORD LOCKED TRY LATER. " PAYFILE-KEY
+           END-READ
+
+           MOVE PAYFILE-BACK TO PAYFILE01
            REWRITE PAYFILE01 INVALID
                 DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
                 DISPLAY PAYFILE-STAT
@@ -4107,13 +4211,15 @@
                 OPEN INPUT PAYFILE
                 GO TO RE-WRITE-PD-EXIT
            END-REWRITE  
-              IF PAYFILE-STAT NOT = "00"
-                DISPLAY PAYFILE-STAT
-                DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
-                CLOSE PAYFILE
-                OPEN INPUT PAYFILE
-                GO TO RE-WRITE-PD-EXIT
-              END-IF
+           
+           IF PAYFILE-STAT NOT = "00"
+               DISPLAY PAYFILE-STAT
+               DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
+               CLOSE PAYFILE
+               OPEN INPUT PAYFILE
+               GO TO RE-WRITE-PD-EXIT
+           END-IF
+           
            CLOSE PAYFILE
            OPEN INPUT PAYFILE.
            DISPLAY "RECORD CHANGED".

@@ -303,6 +303,7 @@
 
       * auto-code call back mammos     
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
+               DISPLAY "Autocoding screening call back with R928"
                MOVE "R928   " TO CD-DIAG
       * medicare and adv plans don't follow vt call back policy         
                IF (CD-PAYCODE = "003" OR "200" OR "245" OR "270" 

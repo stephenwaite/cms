@@ -801,7 +801,7 @@
            MOVE "  " TO PD-DENIAL.
             PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
              IF CAS-SVC(Z) = X
-              MOVE SPACE TO CAS01 
+              MOVE SPACE TO CAS01   
               MOVE CAS-TAB(Z) TO FILEIN01
               UNSTRING FILEIN01 DELIMITED BY "*" INTO
               CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 

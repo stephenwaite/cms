@@ -298,27 +298,35 @@
            OR CC-REC-STAT > "1"
            GO TO P1.
            MOVE CC-KEY8 TO G-GARNO.
-           READ GARFILE INVALID MOVE "NO GARNO" TO EF2
-           PERFORM S1 
-           GO TO P1.
+
+           READ GARFILE INVALID
+               MOVE SPACE TO ERRORFILE01
+               MOVE "NO GARNO" TO EF2
+               PERFORM S1 
+               GO TO P1
+           END-READ    
 
            IF (FILEIN01 NOT = G-PRINS)
-           AND (FILEIN01 NOT = G-SEINS)
-           AND (FILEIN01 NOT = G-TRINS)
-           MOVE CHARCUR-KEY TO EF1
-           MOVE "NO INS. MATCH" TO EF2
-           PERFORM S1
-           GO TO P1.
+               AND (FILEIN01 NOT = G-SEINS)
+               AND (FILEIN01 NOT = G-TRINS)
+               MOVE SPACE TO ERRORFILE01
+               MOVE CHARCUR-KEY TO EF1
+               MOVE "NO INS. MATCH" TO EF2
+               PERFORM S1
+               GO TO P1
+           END-IF    
 
            IF (G-DOB = "00000000")
-            OR (G-DOB NOT NUMERIC)
-           MOVE CHARCUR-KEY TO EF1 MOVE "NO D.O.B.   " TO EF2
-           PERFORM S1
-           GO TO P1.
+               OR (G-DOB NOT NUMERIC)
+               MOVE SPACE TO ERRORFILE01
+               MOVE CHARCUR-KEY TO EF1 MOVE "NO D.O.B.   " TO EF2
+               PERFORM S1
+               GO TO P1
+           END-IF    
 
            IF CC-DOCP = "02"
-               MOVE SPACE TO EF2
-               MOVE "NO DOCP" TO EF2
+               MOVE SPACE TO ERRORFILE01
+               MOVE "02 FOR DOCP, STILL UNREAD?" TO EF2
                PERFORM S1
                GO TO P1
            END-IF    
@@ -326,26 +334,29 @@
            IF (G-PRINS = CC-PAYCODE)
             AND ((G-PRIPOL(1:9) NUMERIC) OR (G-PRIPOL = SPACE))
             MOVE CHARCUR-KEY TO EF1
-            MOVE SPACE TO EF2
+            MOVE SPACE TO ERRORFILE01
             STRING G-PRIPOL " BAD POLICY #"
               DELIMITED BY SIZE INTO EF2
            PERFORM S1
            GO TO P1.
 
            IF (G-SEINS = CC-PAYCODE)
-            AND ((G-SECPOL(1:9) NUMERIC) OR (G-SECPOL = SPACE))
-            MOVE CHARCUR-KEY TO EF1
-            MOVE SPACE TO EF2
-            STRING G-SECPOL " BAD POLICY #" 
-              DELIMITED BY SIZE INTO EF2
-           PERFORM S1
-           GO TO P1.
+               AND ((G-SECPOL(1:9) NUMERIC) OR (G-SECPOL = SPACE))
+               MOVE CHARCUR-KEY TO EF1
+               MOVE SPACE TO ERRORFILE01
+               STRING G-SECPOL " BAD POLICY #" 
+               DELIMITED BY SIZE INTO EF2
+               PERFORM S1
+               GO TO P1
+           END-IF    
 
            IF (G-BILLADD = SPACE) AND (G-STREET = SPACE)
-            MOVE CHARCUR-KEY TO EF1 
-            MOVE "NO ADDRESS" TO EF2
-            PERFORM S1
-           GO TO P1.
+               MOVE SPACE TO ERRORFILE01
+               MOVE CHARCUR-KEY TO EF1 
+               MOVE "NO ADDRESS" TO EF2
+               PERFORM S1
+               GO TO P1
+           END-IF    
 
            IF CC-PAPER = "O"
             PERFORM PAPER-1
@@ -359,13 +370,16 @@
 
        TEST-IT.
            IF CC-DIAG = "00000"
-            MOVE "NO DIAG" TO EF2
-            PERFORM S1
-           GO TO P1.
+               MOVE SPACE TO ERRORFILE01
+               MOVE "NO DIAG" TO EF2
+               PERFORM S1
+               GO TO P1
+           END-IF    
 
            MOVE 0 TO DIAGFLAG
            MOVE CC-DIAG TO DIAG-KEY
            READ DIAGFILE INVALID
+            MOVE SPACE TO ERRORFILE01
             MOVE "OLD DIAG CODE" TO EF2
             MOVE CC-DIAG TO EF3
             PERFORM S1
@@ -377,6 +391,7 @@
            PERFORM DIAG-CHECK.
 
            IF DIAGFLAG = 1
+            MOVE SPACE TO ERRORFILE01
             MOVE "OLD DX2 CODE" TO EF2
             PERFORM S1
            GO TO P1.
@@ -387,15 +402,19 @@
            PERFORM DIAG-CHECK.
 
            IF DIAGFLAG = 1
-            MOVE "OLD DX3 CODE" TO EF2
-            PERFORM S1
-           GO TO P1.
+               MOVE SPACE TO ERRORFILE01
+               MOVE "OLD DX3 CODE" TO EF2
+               PERFORM S1
+               GO TO P1
+           END-IF 
+
            IF CC-DX4 NOT = "0000000"
             MOVE CC-DX4 TO ALF7
             MOVE 0 TO DIAGFLAG
            PERFORM DIAG-CHECK.
 
            IF DIAGFLAG = 1
+               MOVE SPACE TO ERRORFILE01
             MOVE "OLD DX4 CODE" TO EF2
             PERFORM S1
            GO TO P1.
@@ -405,28 +424,30 @@
             PERFORM PAPER-1
            GO TO P1.
 
-            MOVE CC-DOCR TO REF-KEY
-            READ REFPHY INVALID 
-             STRING CC-DOCR " IS AN INVALID REF-KEY" DELIMITED BY "**" 
-             INTO EF2
-             PERFORM S1 
-             GO TO P1
-            end-read
-
-
+           MOVE CC-DOCR TO REF-KEY
+           READ REFPHY INVALID 
+               MOVE SPACE TO ERRORFILE01
+               STRING CC-DOCR " IS AN INVALID REF-KEY" 
+                   DELIMITED BY "**" INTO EF2
+               PERFORM S1 
+               GO TO P1
+           END-READ
+            
            IF REF-NPI = SPACE
-            MOVE SPACE TO EF2                     
-            STRING CC-DOCR " NPI MISSING          " DELIMITED BY "**"
-            INTO EF2
-            PERFORM S1 
-           GO TO P1.
+               MOVE SPACE TO ERRORFILE01                     
+               STRING CC-DOCR " NPI MISSING          "
+                   DELIMITED BY "**" INTO EF2
+               PERFORM S1 
+               GO TO P1
+           END-IF.    
        TEST-IT2.
            MOVE CC-PROC TO PROC-KEY.
            READ PROCFILE INVALID
-            MOVE "INVALID PROCEDURE CODE" TO EF2
-            PERFORM S1
-            GO TO P1
-           end-read.
+               MOVE SPACE TO ERRORFILE01
+               MOVE "INVALID PROCEDURE CODE" TO EF2
+               PERFORM S1
+               GO TO P1
+           END-READ
 
            WRITE FILEOUT01 FROM CHARCUR01.
            GO TO P1.

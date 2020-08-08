@@ -141,6 +141,7 @@
            END-IF
 
            IF FUNC = "D"
+               PERFORM L1
                GO TO D1
            END-IF
 
