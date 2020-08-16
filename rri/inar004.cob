@@ -5,45 +5,51 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
        PROGRAM-ID. inar004.
-       AUTHOR. S WAITE.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT TAGDIAG ASSIGN TO "S20" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS TAG-KEY
-           ALTERNATE RECORD KEY IS TAG-ICD9 WITH DUPLICATES
-           LOCK MODE MANUAL.
-           SELECT INSFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC  RECORD KEY IS INS-KEY
-           ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
-           ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
-           ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
-           ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
-           ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
-           ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
-           LOCK MODE MANUAL.
-           SELECT PAYFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS PAYFILE-KEY
-           LOCK MODE MANUAL
-           STATUS IS PAYFILE-STAT.
-           SELECT PAYCUR ASSIGN TO "S40" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY
-           LOCK MODE MANUAL.
-           SELECT GARFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
-           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
-           LOCK MODE MANUAL
-           STATUS IS GARFILE-STAT.
-           SELECT PATFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS P-PATNO
-           ALTERNATE RECORD KEY IS P-GARNO WITH DUPLICATES
-           LOCK MODE MANUAL.
-           SELECT CHARCUR ASSIGN TO "S55" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC  RECORD KEY IS CHARCUR-KEY
-           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
-           LOCK MODE MANUAL
-           STATUS IS CHARCUR-STAT.
+
+           SELECT TAGDIAG ASSIGN TO "S20" ORGANIZATION INDEXED
+               ACCESS IS DYNAMIC RECORD KEY IS TAG-KEY
+               ALTERNATE RECORD KEY IS TAG-ICD9 WITH DUPLICATES
+               LOCK MODE MANUAL.
+
+           SELECT INSFILE ASSIGN TO "S30" ORGANIZATION INDEXED
+               ACCESS IS DYNAMIC  RECORD KEY IS INS-KEY
+               ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+               ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+               ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+               ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+               ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+               ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
+               LOCK MODE MANUAL.
+
+           SELECT PAYFILE ASSIGN TO "S35" ORGANIZATION INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS PAYFILE-KEY
+               LOCK MODE MANUAL
+               STATUS IS PAYFILE-STAT.
+
+           SELECT PAYCUR ASSIGN TO "S40" ORGANIZATION INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY
+               LOCK MODE MANUAL.
+
+           SELECT GARFILE ASSIGN TO "S45" ORGANIZATION INDEXED
+               ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
+               ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+               LOCK MODE MANUAL STATUS IS GARFILE-STAT.
+
+           SELECT PATFILE ASSIGN TO "S50" ORGANIZATION INDEXED
+               ACCESS IS DYNAMIC RECORD KEY IS P-PATNO
+               ALTERNATE RECORD KEY IS P-GARNO WITH DUPLICATES
+               LOCK MODE MANUAL.
+
+           SELECT CHARCUR ASSIGN TO "S55" ORGANIZATION INDEXED
+               ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+               ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+               LOCK MODE MANUAL STATUS IS CHARCUR-STAT.
+
            SELECT CHARFILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS CHARFILE-KEY
            LOCK MODE MANUAL.
@@ -77,6 +83,11 @@
            ACCESS IS DYNAMIC RECORD KEY IS AUTH-KEY
            LOCK MODE MANUAL
            STATUS IS AUTHFILE-STAT.
+           
+           SELECT RPGPROCFILE ASSIGN TO "S160" ORGANIZATION INDEXED
+               ACCESS IS DYNAMIC RECORD KEY IS RPGPROC-KEY
+               LOCK MODE MANUAL.
+
            SELECT MPLRFILE ASSIGN TO "S165" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY
            LOCK MODE IS MANUAL.
@@ -150,6 +161,18 @@
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(40).
+
+       FD  RPGPROCFILE.
+       01  RPGPROCFILE01.
+	     02 RPGPROC-KEY.
+	       03 RPGPROC-KEY1 PIC X(7).
+	       03 RPGPROC-KEY2 PIC X(4).
+	     02 RPGPROC-TYPE PIC X.
+	     02 RPGPROC-TITLE. 
+	       03 RPG-NT1 PIC X(4).
+	       03 RPG-NT2 PIC X(24).
+	     02 RPGPROC-AMOUNT PIC 9(4)V99.
+
        FD  MPLRFILE.
        01  MPLRFILE01.
            02 MPLR-KEY PIC X(8). 
@@ -606,6 +629,7 @@
            02 FILLER PIC X(59).
        01  PAYFILE-BACK PIC X(80).
        01  CHARCUR-BACK PIC X(160).
+       01  CHARCUR-KEY-BACK PIC X(11).
        01  AUTHFILE-BACK PIC X(91).
        01  HOLD-DIST PIC X(70).
        01     DF-AMOUNT PIC S9(4)V99.
@@ -824,62 +848,110 @@
            MOVE 0 TO NUMBER-OF-FIELDS.
            DISPLAY "OPTION,ID PAYMENTS".
            ACCEPT DATAIN.
+
            IF DATAIN = "GP"
-           CLOSE GARFILE PATFILE MPLRFILE INSFILE GAPFILE
-                 ADDRFILE COMPFILE
-           CALL "/home/sidw/rrr091.b" USING GARPAT1
-           MOVE 1 TO GARPAT1
-           OPEN INPUT GARFILE PATFILE MPLRFILE INSFILE GAPFILE
-                 ADDRFILE COMPFILE
-           GO TO 1000-ACTION.
+               CLOSE GARFILE PATFILE MPLRFILE INSFILE GAPFILE
+                     ADDRFILE COMPFILE
+               CALL "/home/sidw/rrr091.b" USING GARPAT1
+               MOVE 1 TO GARPAT1
+               OPEN INPUT GARFILE PATFILE MPLRFILE INSFILE GAPFILE
+                          ADDRFILE COMPFILE
+               GO TO 1000-ACTION
+           END-IF
+
            IF DATAIN = "AC"
-           CLOSE CHARFILE CHARCUR PAYFILE FILEOUT PAYCUR PROCFILE
-                 TAGDIAG DIAGFILE
-           CALL "/home/sidw/inar002.b" USING CHAR1
-           MOVE 1 TO CHAR1
-           OPEN INPUT CHARFILE PAYCUR PROCFILE TAGDIAG DIAGFILE
-           OPEN OUTPUT FILEOUT
-           OPEN I-O CHARCUR PAYFILE
-           GO TO 1000-ACTION.
+               CLOSE CHARFILE CHARCUR PAYFILE FILEOUT PAYCUR PROCFILE
+                     TAGDIAG DIAGFILE
+               CALL "/home/sidw/inar002.b" USING CHAR1
+               MOVE 1 TO CHAR1
+               OPEN INPUT CHARFILE PAYCUR PROCFILE TAGDIAG DIAGFILE
+                   CHARCUR PAYFILE
+               OPEN OUTPUT FILEOUT
+               GO TO 1000-ACTION
+           END-IF
+
       *     IF DATAIN = "NONBAT" GO TO 999-A.
       *     IF DATAIN = "BAT" CALL "/home/sidw/tri007.b" 
       *     USING CURRENT-BATCH CBN
       *     GO TO 1000-ACTION.
-           IF DATAIN = "CD" PERFORM CD1 GO TO 1000-ACTION.
-           IF DATAIN = "IP" PERFORM IP-1 GO TO 1000-ACTION.
-           IF DATAIN = "ZZ" PERFORM ZZ-1 GO TO 1000-ACTION.
-           IF DATAIN = "CM" PERFORM CM-1 GO TO 1000-ACTION.
-           IF DATAIN = "DR" PERFORM DR2 GO TO 1000-ACTION.
-           IF DATAIN = "DP" PERFORM DPX1 GO TO 1000-ACTION.
-           IF DATAIN = "FZ" PERFORM FZ1 GO TO 1000-ACTION.
-           IF DATAIN = "DI" PERFORM DI1 GO TO 1000-ACTION.
-           IF DATAIN = "END" GO TO 9100-CLOSE-MASTER-FILE.
+           
+           IF DATAIN = "CD"
+               PERFORM CD1
+               GO TO 1000-ACTION
+           END-IF
+
+           IF DATAIN = "IP"
+               PERFORM IP-1
+               GO TO 1000-ACTION
+           END-IF
+
+           IF DATAIN = "ZZ"
+               PERFORM ZZ-1
+               GO TO 1000-ACTION
+           END-IF
+               
+           IF DATAIN = "CM" 
+               PERFORM CM-1
+               GO TO 1000-ACTION
+           END-IF
+
+           IF DATAIN = "DR" 
+               PERFORM DR2 
+               GO TO 1000-ACTION
+           END-IF
+
+           IF DATAIN = "DP" 
+               PERFORM DPX1 
+               GO TO 1000-ACTION
+           END-IF
+
+           IF DATAIN = "FZ" 
+               PERFORM FZ1 
+               GO TO 1000-ACTION
+           END-IF
+
+           IF DATAIN = "DI" 
+               PERFORM DI1 
+               GO TO 1000-ACTION
+           END-IF
+
+           IF DATAIN = "END" 
+               GO TO 9100-CLOSE-MASTER-FILE
+           END-IF
+
            IF DATAIN = "?"
-           DISPLAY "GP = GAR-PAT-INS-MPLR ROUTINES."
-           DISPLAY "AC = DAILY CHARGES."
-           DISPLAY "FPC,LPC,CPC =POSTED CHRG ROUTINE."
-           DISPLAY "A,D,C  <GARNO+KEY> PAYMENT RECORD."
-           DISPLAY "FC = FIND CHARGES FCC = ONLY CHARGES FX=2ND LINE."
-           DISPLAY "FT = FIND TOTALS, INSURANCE AND PERSONAL."
-           DISPLAY "FA,FG,SG,LG = GUARANTOR ROUTINES."
-           DISPLAY "FP,SP,LP = PATIENT ROUTINES."
-           DISPLAY "DA,DE,PC,AM,<VALUE> TO DEFAULT DATE,DENIAL,PAYCODE,"
-           "AMOUNT."
-           DISPLAY "DA,DE,PC,AM,<0> TO RESET FOR PROMPT."
-           DISPLAY "LD OR LD,?  LIST OF DEFAULT FIELDS SET."
-           DISPLAY "CONDITIONAL DEFAULT SETTINGS SWITCHES"
-           DISPLAY "DR = REDUCTION PROMPT  DI = DEFERRED INCOME PROMPT"
-           DISPLAY "FZ = ZERO BALANCES     CM = COMMENT LISTING"
-           DISPLAY "DP = PATIENT NAME      IP = INSURANCE"
-           DISPLAY "LI= LIST INS. FI=FIND INS.  CD=CHARGE DATE PROMPT." 
-           DISPLAY "COM,# TO ADD A COMMENT RECORD THE ACCT #."
-           DISPLAY "HS,HSC,HSP,# TO SEARCH HISTORY RECORDS."
-           DISPLAY "PB,<GARNO> TO PRINT BILL. LB,<GARNO> LAB FORM"
-           DISPLAY "PCF TO PRINT A POSTED CHARGE 1500-HCFA FORM"
-           DISPLAY "RA = RE-AGE CHARGES TO CURRENT END = END THE JOB."
-           DISPLAY "DC= DELETE OLD WC ADDS LA= LIST ACCOUNTS BY MEDREC"
-           DISPLAY "LM= LIST E-MAIL AND SSN NY MEDREC NUMBER"
-           GO TO 1000-ACTION.
+               DISPLAY "GP = GAR-PAT-INS-MPLR ROUTINES."
+               DISPLAY "AC = DAILY CHARGES."
+               DISPLAY "FPC,LPC,CPC =POSTED CHRG ROUTINE."
+               DISPLAY "A,D,C  <GARNO+KEY> PAYMENT RECORD."
+               DISPLAY "FC = FIND CHARGES FCC = ONLY CHARGES "
+                       "FX=2ND LINE."
+               DISPLAY "FT = FIND TOTALS, INSURANCE AND PERSONAL."
+               DISPLAY "FA,FG,SG,LG = GUARANTOR ROUTINES."
+               DISPLAY "FP,SP,LP = PATIENT ROUTINES."
+               DISPLAY "DA, DE, PC, AM, <VALUE> TO DEFAULT DATE, "
+                       "DENIAL, PAYCODE, AMOUNT."
+               DISPLAY "DA,DE,PC,AM,<0> TO RESET FOR PROMPT."
+               DISPLAY "LD OR LD,?  LIST OF DEFAULT FIELDS SET."
+               DISPLAY "CONDITIONAL DEFAULT SETTINGS SWITCHES"
+               DISPLAY "DR = REDUCTION PROMPT  DI = DEFERRED INCOME "
+                       "PROMPT"
+               DISPLAY "FZ = ZERO BALANCES     CM = COMMENT LISTING"
+               DISPLAY "DP = PATIENT NAME      IP = INSURANCE"
+               DISPLAY "LI= LIST INS. FI=FIND INS.  CD=CHARGE DATE "
+                       "PROMPT." 
+               DISPLAY "COM,# TO ADD A COMMENT RECORD THE ACCT #."
+               DISPLAY "HS,HSC,HSP,# TO SEARCH HISTORY RECORDS."
+               DISPLAY "PB,<GARNO> TO PRINT BILL. LB,<GARNO> LAB FORM"
+               DISPLAY "PCF TO PRINT A POSTED CHARGE 1500-HCFA FORM"
+               DISPLAY "RA = RE-AGE CHARGES TO CURRENT END = END THE "
+                       "JOB."
+               DISPLAY "DC= DELETE OLD WC ADDS LA= LIST ACCOUNTS BY "
+                       "MEDREC"
+               DISPLAY "LM= LIST E-MAIL AND SSN NY MEDREC NUMBER"
+               GO TO 1000-ACTION
+           END-IF
+
            MOVE SPACE TO ALF-3 BUFFER-PACK01.
            UNSTRING DATAIN DELIMITED BY "=" INTO BUFFER-PACK01 ALF-3.
            IF ALF-3 NOT = SPACE MOVE BUFFER-PACK01 TO DATAIN.
@@ -887,8 +959,12 @@
            MOVE SPACE TO RIGHT-3.
            UNSTRING ALF-3 DELIMITED BY " " INTO RIGHT-3.
            INSPECT RIGHT-3 REPLACING ALL " " BY "0".
-           IF RIGHT-3 NOT NUMERIC DISPLAY "PAYCODE NOT NUMERIC"
-           GO TO 1000-ACTION.
+           
+           IF RIGHT-3 NOT NUMERIC 
+               DISPLAY "PAYCODE NOT NUMERIC"
+               GO TO 1000-ACTION
+           END-IF
+
            MOVE RIGHT-3 TO ALF-3.
 
            IF (PAYFILE-KEY = "1" OR "2" OR "3" OR "4" OR "5" OR
@@ -918,76 +994,99 @@
            MOVE PAYFILE-KEY TO CHARCUR-KEY GO TO CC-1200-FIND.
 
            IF KEYFLAG = 1 AND ACTION = "HS" OR "HSC" OR "HSP"
-           MOVE PAYFILE-KEY TO IN-FIELD
-           MOVE IN-FIELD-1 TO FLAG
-           MOVE LAST-TAB(FLAG) TO ALF-8
-           CALL "/home/sidw/trir011.b" USING ACTION ALF-8 
-           GO TO 1000-ACTION.
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE LAST-TAB(FLAG) TO ALF-8
+               CALL "/home/sidw/trir011.b" USING ACTION ALF-8 
+               GO TO 1000-ACTION
+           END-IF
+
            IF ACTION = "HS" OR "HSC" OR "HSP"
-           MOVE PD-KEY8 TO ALF-8
-           CALL "/home/sidw/trir011.b"
-           USING ACTION ALF-8 GO TO 1000-ACTION.
+               MOVE PD-KEY8 TO ALF-8
+               CALL "/home/sidw/trir011.b"
+               USING ACTION ALF-8 
+               GO TO 1000-ACTION
+           END-IF    
 
            IF KEYFLAG = 1 AND ACTION = "CPC"
-           MOVE PAYFILE-KEY TO IN-FIELD
-           MOVE IN-FIELD-1 TO FLAG
-           MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
-           GO TO 1399CPC.
-           IF ACTION = "CPC" MOVE PAYFILE-KEY TO CHARCUR-KEY
-           GO TO 1399CPC.
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
+      *         MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY-BACK
+               GO TO 1399CPC
+           END-IF
+
+           IF ACTION = "CPC"
+               MOVE PAYFILE-KEY TO CHARCUR-KEY
+      *         MOVE PAYFILE-KEY TO CHARCUR-KEY-BACK
+               GO TO 1399CPC
+           END-IF    
 
            IF KEYFLAG = 1 AND ACTION = "LPC"
-           MOVE PAYFILE-KEY TO IN-FIELD
-           MOVE IN-FIELD-1 TO FLAG
-           MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
-           PERFORM LC-0 THRU LC-0-EXIT GO TO 1000-ACTION.
-           IF ACTION = "LPC" MOVE PAYFILE-KEY TO CHARCUR-KEY
-           PERFORM LC-0 THRU LC-0-EXIT GO TO 1000-ACTION.
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
+               PERFORM LC-0 THRU LC-0-EXIT
+               GO TO 1000-ACTION
+           END-IF
 
+           IF ACTION = "LPC"
+               MOVE PAYFILE-KEY TO CHARCUR-KEY
+               PERFORM LC-0 THRU LC-0-EXIT
+               GO TO 1000-ACTION
+           END-IF
+               
            IF KEYFLAG = 1 AND ACTION = "COM"
-           MOVE PAYFILE-KEY TO IN-FIELD
-           MOVE IN-FIELD-1 TO FLAG
-           MOVE LAST-TAB(FLAG) TO G-GARNO
-           READ GARFILE
-           DISPLAY G-GARNO " " G-GARNAME " " G-PRINS "/" G-SEINS
-           MOVE G-GARNO TO ALF-8
-           CLOSE CMNTFILE
-           CALL "/home/sidw/tri000.b" USING ALF-8
-           OPEN INPUT CMNTFILE  GO TO 1000-ACTION.
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE LAST-TAB(FLAG) TO G-GARNO
+               READ GARFILE
+               DISPLAY G-GARNO " " G-GARNAME " " G-PRINS "/" G-SEINS
+               MOVE G-GARNO TO ALF-8
+               CLOSE CMNTFILE
+               CALL "/home/sidw/tri000.b" USING ALF-8
+               OPEN INPUT CMNTFILE
+               GO TO 1000-ACTION
+           END-IF    
 
            IF KEYFLAG = 1 AND ACTION = "DC"
-            CLOSE COMPFILE
-            OPEN I-O COMPFILE
-            MOVE PAYFILE-KEY TO IN-FIELD
-            MOVE IN-FIELD-1 TO FLAG
-            MOVE LAST-TAB(FLAG) TO G-GARNO
-            READ GARFILE
-            END-READ
-            PERFORM DCOMP THRU DCOMP-EXIT
-            CLOSE COMPFILE
-            OPEN INPUT COMPFILE
-           GO TO 1000-ACTION.
+               CLOSE COMPFILE
+               OPEN I-O COMPFILE
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE LAST-TAB(FLAG) TO G-GARNO
+               READ GARFILE
+               END-READ
+               PERFORM DCOMP THRU DCOMP-EXIT
+               CLOSE COMPFILE
+               OPEN INPUT COMPFILE
+               GO TO 1000-ACTION
+           END-IF    
+
            IF KEYFLAG = 1 AND ACTION = "PB"
-           MOVE PAYFILE-KEY TO IN-FIELD
-           MOVE IN-FIELD-1 TO FLAG
-           MOVE LAST-TAB(FLAG) TO G-GARNO
-           CLOSE CHARCUR PAYFILE
-           CALL "/home/sidw/trir205.b" USING PB1 G-GARNO
-           MOVE 1 TO PB1
-           OPEN I-O CHARCUR PAYFILE
-           GO TO 1000-ACTION.
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE LAST-TAB(FLAG) TO G-GARNO
+               CLOSE CHARCUR PAYFILE
+               CALL "/home/sidw/trir205.b" USING PB1 G-GARNO
+               MOVE 1 TO PB1
+               OPEN INPUT CHARCUR PAYFILE
+               GO TO 1000-ACTION
+           END-IF    
            
            IF KEYFLAG = 1 AND ACTION = "PCF"
-           MOVE PAYFILE-KEY TO IN-FIELD
-           MOVE IN-FIELD-1 TO FLAG
-           MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
-           GO TO 10-PR.
-
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
+               GO TO 10-PR
+           END-IF
+             
            IF KEYFLAG = 1 AND ACTION = "CC"
-           MOVE PAYFILE-KEY TO IN-FIELD
-           MOVE IN-FIELD-1 TO FLAG
-           MOVE LAST-TAB(FLAG) TO G-GARNO
-           GO TO CC-1.
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE LAST-TAB(FLAG) TO G-GARNO
+               GO TO CC-1
+           END-IF    
 
            IF KEYFLAG = 1 AND ACTION = "RA"
            MOVE PAYFILE-KEY TO IN-FIELD
@@ -996,11 +1095,12 @@
            GO TO RA-1.
 
            IF KEYFLAG = 1 AND ACTION = "LP"
-           MOVE PAYFILE-KEY TO IN-FIELD
-           MOVE IN-FIELD-1 TO FLAG
-           MOVE LAST-PAT(FLAG) TO PAYFILE-KEY
-           PERFORM LP-1 THRU LP-1-EXIT GO TO
-           1000-ACTION.
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE LAST-PAT(FLAG) TO PAYFILE-KEY
+               PERFORM LP-1 THRU LP-1-EXIT 
+               GO TO 1000-ACTION
+           END-IF    
            
            IF KEYFLAG = 1 
            MOVE PAYFILE-KEY TO IN-FIELD
@@ -1016,51 +1116,113 @@
            DISPLAY "INSURANCE = " NEF-8
            MOVE TOT-UNASSIGNED TO NEF-8
            DISPLAY "PERSONAL  = " NEF-8.
-           IF CM = 1 PERFORM CM-2 THRU CM-4.
+
+           IF CM = 1 
+               PERFORM CM-2 THRU CM-4
+           END-IF
+
            GO TO 1000-ACTION.
        PPPP.
-           IF ACTION = "LG" PERFORM LG-1 THRU LG-1-EXIT GO TO
-           1000-ACTION.
-           IF ACTION = "LA" GO TO 2500-FIND.
-           IF ACTION = "LP" PERFORM LP-1 THRU LP-1-EXIT GO TO
-           1000-ACTION.
-           IF ACTION = "LM" PERFORM LM-1 THRU LM-1-EXIT
-             GO TO 1000-ACTION.
+           IF ACTION = "LG" 
+               PERFORM LG-1 THRU LG-1-EXIT 
+               GO TO 1000-ACTION
+           END-IF
 
+           IF ACTION = "LA" 
+               GO TO 2500-FIND
+           END-IF
+
+           IF ACTION = "LP" 
+               PERFORM LP-1 THRU LP-1-EXIT 
+               GO TO 1000-ACTION
+           END-IF
+
+           IF ACTION = "LM" 
+               PERFORM LM-1 THRU LM-1-EXIT
+               GO TO 1000-ACTION
+           END-IF
+               
       *     IF ACTION = "A" AND CURRENT-BATCH = "00000000"
       *     DISPLAY "CURRENT BATCH NUMBER NOT SET" BELL0
       *     GO TO 1000-ACTION.
-           IF ACTION = "A" GO TO 1200-ADD-PROCESS.
-           IF ACTION = "F" GO TO 1200-FIND.
-           IF ACTION = "SG" OR "FG" GO TO 2400-FIND.
-           IF ACTION = "SP" OR "FP" GO TO 3600-FIND.
-           IF ACTION = "FA" PERFORM FA-1 THRU FA-1-EXIT
-           GO TO 1000-ACTION.
-           IF ACTION = "FC" OR "FX" MOVE PD-KEY8 TO G-GARNO PERFORM FP1
-           THRU FP1-EXIT GO TO 1000-ACTION.
-           IF ACTION = "FT" MOVE PD-KEY8 TO G-GARNO
-           PERFORM FP1 THRU FP1-EXIT
-           MOVE TOT-ASSIGNED TO NEF-8
-           DISPLAY "INSURANCE = " NEF-8
-           MOVE TOT-UNASSIGNED TO NEF-8
-           DISPLAY "PERSONAL  = " NEF-8
-           GO TO 1000-ACTION.
+           
+           IF ACTION = "A" 
+               GO TO 1200-ADD-PROCESS
+           END-IF
+
+           IF ACTION = "F" 
+               GO TO 1200-FIND
+           END-IF
+
+           IF ACTION = "SG" OR "FG" 
+               GO TO 2400-FIND
+           END-IF
+
+           IF ACTION = "SP" OR "FP" 
+               GO TO 3600-FIND
+           END-IF
+
+           IF ACTION = "FA" 
+               PERFORM FA-1 THRU FA-1-EXIT
+               GO TO 1000-ACTION
+           END-IF
+
+           IF ACTION = "FC" OR "FX" 
+               MOVE PD-KEY8 TO G-GARNO 
+               PERFORM FP1 THRU FP1-EXIT 
+               GO TO 1000-ACTION
+           END-IF
+
+           IF ACTION = "FT" 
+               MOVE PD-KEY8 TO G-GARNO
+               PERFORM FP1 THRU FP1-EXIT
+               MOVE TOT-ASSIGNED TO NEF-8
+               DISPLAY "INSURANCE = " NEF-8
+               MOVE TOT-UNASSIGNED TO NEF-8
+               DISPLAY "PERSONAL  = " NEF-8
+               GO TO 1000-ACTION
+           END-IF
+
       *     IF ACTION = "LB" DISPLAY "CURRENT BATCH = " CURRENT-BATCH
       *     " " CBN
       *     GO TO 1000-ACTION.
-           IF ACTION = "DA" GO TO DA1.
-           IF ACTION = "DE" GO TO DE1.
-           IF ACTION = "PC" GO TO PC1.
-           IF ACTION = "AM" GO TO AM1.
-           IF ACTION = "LD"
-           GO TO LD1.
-           IF ACTION = "FI" PERFORM INS-1 THRU INS-1-EXIT
-           GO TO 1000-ACTION.
-           IF ACTION = "LI" PERFORM LI-1 THRU LI-1-EXIT
-           GO TO 1000-ACTION.
-           IF ACTION = "RA" GO TO RA-1.
+           
+           IF ACTION = "DA" 
+               GO TO DA1
+           END-IF
 
-           DISPLAY "WHAT ?" GO TO 1000-ACTION.
+           IF ACTION = "DE" 
+               GO TO DE1
+           END-IF
+
+           IF ACTION = "PC" 
+               GO TO PC1
+           END-IF
+
+           IF ACTION = "AM" 
+               GO TO AM1
+           END-IF
+
+           IF ACTION = "LD"
+               GO TO LD1
+           END-IF
+
+           IF ACTION = "FI" 
+               PERFORM INS-1 THRU INS-1-EXIT
+               GO TO 1000-ACTION
+           END-IF
+
+           IF ACTION = "LI" 
+               PERFORM LI-1 THRU LI-1-EXIT
+               GO TO 1000-ACTION
+           END-IF
+
+           IF ACTION = "RA" 
+               GO TO RA-1
+           END-IF    
+
+           DISPLAY "WHAT ?" 
+           GO TO 1000-ACTION.
        LG-1.
            MOVE PAYFILE-KEY TO G-GARNO
            IF G-GARNO = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
@@ -1338,7 +1500,11 @@
            ACCEPT ANS.
            IF ANS = "?" DISPLAY "Y=YES  <CR>=NO"
            GO TO M2.
-           IF ANS = SPACE GO TO 1000-ACTION.
+           
+           IF ANS = SPACE 
+               GO TO 1000-ACTION
+           END-IF
+
            IF ANS NOT = "Y" GO TO M2.
            GO TO M5.
        WH1. 
@@ -1426,8 +1592,12 @@
            UNTIL ADD-KEY > 6.
            GO TO M4.
        DA1.
-           IF PAYFILE-KEY = "0" MOVE "00000000" TO DF-DATE
-           DISPLAY "PROMPT FOR DATE" GO TO 1000-ACTION.
+           IF PAYFILE-KEY = "0" 
+               MOVE "00000000" TO DF-DATE
+               DISPLAY "PROMPT FOR DATE" 
+               GO TO 1000-ACTION
+           END-IF
+
            MOVE PAYFILE-KEY TO IN-FIELD.
            IF IN-FIELD-2 NUMERIC AND
            IN-FIELD-TAB(3) = " " AND IN-FIELD-TAB(4) = " "
@@ -1454,62 +1624,122 @@
            MOVE T-CC OF TEST-DATE TO T-CC OF INPUT-DATE
            DISPLAY T-CC OF INPUT-DATE T-YY OF INPUT-DATE " ASSUMED"
            MOVE INPUT-DATE TO IN-FIELD-8.
-           IF IN-FIELD-8 NOT NUMERIC DISPLAY "INVALID DATE" GO TO
-           1000-ACTION.
+           
+           IF IN-FIELD-8 NOT NUMERIC 
+               DISPLAY "INVALID DATE" 
+               GO TO 1000-ACTION
+           END-IF
+
            MOVE IN-FIELD-8 TO INPUT-DATE.
+           
            IF T-MM OF INPUT-DATE < 01 OR > 12
-           DISPLAY "INVALID MONTH" GO TO 1000-ACTION.
+               DISPLAY "INVALID MONTH" 
+               GO TO 1000-ACTION
+           END-IF
+
            IF (T-DD OF INPUT-DATE > DAYS-IN-MONTH(T-MM OF INPUT-DATE))
-             OR (T-DD OF INPUT-DATE = 00)
-           DISPLAY "INVALID DAY" GO TO 1000-ACTION.
+               OR (T-DD OF INPUT-DATE = 00)
+               DISPLAY "INVALID DAY" 
+               GO TO 1000-ACTION
+           END-IF
+
            MOVE CORR INPUT-DATE TO TEST-DATE
+
       *     IF T-DATE < TEST-DATE DISPLAY "FUTURE DATE NOT ALLOWED"
       *     GO TO 1000-ACTION.
-           IF TEST-DATE < "19990101" DISPLAY "VERY OLD" BELL0.
-           MOVE TEST-DATE TO DF-DATE GO TO 1000-ACTION.
+           
+           IF TEST-DATE < "19990101" 
+               DISPLAY "VERY OLD" BELL0
+           END-IF
 
+           MOVE TEST-DATE TO DF-DATE 
+           GO TO 1000-ACTION.
        DE1.
-           IF PAYFILE-KEY = "0" MOVE "00" TO DF-DENIAL
-           DISPLAY "PROMPT FOR DENIAL" GO TO 1000-ACTION.
+           IF PAYFILE-KEY = "0" 
+               MOVE "00" TO DF-DENIAL
+               DISPLAY "PROMPT FOR DENIAL" 
+               GO TO 1000-ACTION
+           END-IF
+
            MOVE PAYFILE-KEY TO IN-FIELD-2
+           
            IF IN-FIELD-2 = "  " OR "NC" OR "DD" OR "NR" OR "CB"
-           OR "CP" OR "CI" OR "TM" OR "NM"
-           MOVE IN-FIELD-2 TO DF-DENIAL
-           ELSE DISPLAY "INVALID DENIAL CODE". GO TO 1000-ACTION.
+               OR "CP" OR "CI" OR "TM" OR "NM"
+               MOVE IN-FIELD-2 TO DF-DENIAL
+           ELSE 
+               DISPLAY "INVALID DENIAL CODE"
+           END-IF        
+           
+           GO TO 1000-ACTION.
        PC1.
-           IF PAYFILE-KEY = "0" MOVE "000" TO DF-PAYCODE
-           DISPLAY "PROMPT FOR PAYORCODE" GO TO 1000-ACTION.
+           IF PAYFILE-KEY = "0" 
+               MOVE "000" TO DF-PAYCODE
+               DISPLAY "PROMPT FOR PAYORCODE" 
+               GO TO 1000-ACTION
+           END-IF
+
            MOVE SPACE TO RIGHT-3
            UNSTRING PAYFILE-KEY DELIMITED BY " " INTO RIGHT-3
            INSPECT RIGHT-3 REPLACING ALL " " BY "0"
            MOVE RIGHT-3 TO PAYFILE-KEY
            MOVE PAYFILE-KEY TO IN-FIELD-3.
+           
            IF IN-FIELD-3 = "010" OR "015" OR "019" OR "017"
-           DISPLAY "CAN""T DEFAULT DEBIT CODES" GO TO 1000-ACTION.
-           IF IN-FIELD-3 NOT NUMERIC
-           OR IN-FIELD-3 = "000" DISPLAY "INVALID PAYCODE"
-           GO TO 1000-ACTION ELSE MOVE IN-FIELD-3 TO DF-PAYCODE
-           GO TO 1000-ACTION.
+               DISPLAY "CAN""T DEFAULT DEBIT CODES" 
+               GO TO 1000-ACTION
+           END-IF
+
+           IF IN-FIELD-3 NOT NUMERIC OR IN-FIELD-3 = "000" 
+               DISPLAY "INVALID PAYCODE"
+               GO TO 1000-ACTION 
+           ELSE 
+               MOVE IN-FIELD-3 TO DF-PAYCODE
+               GO TO 1000-ACTION
+           END-IF.    
        AM1.
-           IF PAYFILE-KEY = "0" MOVE 10 TO DF-AMOUNT
-           DISPLAY "PROMPT FOR AMOUNT" GO TO 1000-ACTION.
+           IF PAYFILE-KEY = "0" 
+               MOVE 10 TO DF-AMOUNT
+               DISPLAY "PROMPT FOR AMOUNT" 
+               GO TO 1000-ACTION
+           END-IF
+
            MOVE SPACES TO SIGN-DOLLAR CENTS.
            UNSTRING PAYFILE-KEY DELIMITED BY "." INTO SIGN-DOLLAR CENTS.
+           
            IF CENTS = SPACES MOVE "00" TO CENTS.
-           IF CENTS NOT NUMERIC DISPLAY "INVALID" GO TO 1000-ACTION.
+           
+           IF CENTS NOT NUMERIC 
+               DISPLAY "INVALID" 
+               GO TO 1000-ACTION
+           END-IF
+
            MOVE SPACES TO RIGHT-4.
            UNSTRING SIGN-DOLLAR DELIMITED BY " " INTO RIGHT-4
            INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
-           IF RIGHT-4 NOT NUMERIC DISPLAY "INVALID" GO TO 1000-ACTION.
+           
+           IF RIGHT-4 NOT NUMERIC 
+               DISPLAY "INVALID" 
+               GO TO 1000-ACTION
+           END-IF
+
            STRING RIGHT-4 CENTS DELIMITED BY "Z" INTO ALF-6
            MOVE ALF-6 TO NUM-6
            DIVIDE NUM-6 BY -100 GIVING DF-AMOUNT
            GO TO 1000-ACTION.
-       LD1. IF DF-PAYCODE = "000" NEXT SENTENCE
-           ELSE DISPLAY "PAYCODE " DF-PAYCODE.
-           IF DF-AMOUNT > 0 NEXT SENTENCE
-           ELSE MOVE DF-AMOUNT TO NEF-8
-           DISPLAY "AMOUNT " NEF-8.
+       LD1. 
+           IF DF-PAYCODE = "000" 
+               NEXT SENTENCE
+           ELSE 
+               DISPLAY "PAYCODE " DF-PAYCODE
+           END-IF
+
+           IF DF-AMOUNT > 0 
+               NEXT SENTENCE
+           ELSE 
+               MOVE DF-AMOUNT TO NEF-8
+               DISPLAY "AMOUNT " NEF-8
+           END-IF
+
            IF DF-DENIAL = "00" NEXT SENTENCE
            ELSE DISPLAY "DENIAL " DF-DENIAL.
            IF DF-DATE NOT = "00000000" 
@@ -1526,12 +1756,16 @@
            DISPLAY "NO PROMPT FOR REDUCTION." ELSE
            DISPLAY "PROMPT FOR REDUCTION.".
            IF CD = 0
-           DISPLAY "NO PROMPT FOR CHARGE DATE" 
-           ELSE DISPLAY "PROMPT FOR CHARGE ON FC AND FCC COMMAND.".
+               DISPLAY "NO PROMPT FOR CHARGE DATE" 
+           ELSE 
+               DISPLAY "PROMPT FOR CHARGE ON FC AND FCC COMMAND.".
            GO TO 1000-ACTION.
        FP1.
-            READ GARFILE INVALID DISPLAY " NOT ON FILE"
-           GO TO 1000-ACTION.
+           READ GARFILE INVALID 
+               DISPLAY " NOT ON FILE"
+               GO TO 1000-ACTION
+           END-READ
+
            DISPLAY G-PRINS "/" G-SEINS "/" G-TRINS " " G-GARNAME
            MOVE G-GARNO TO PC-KEY8 MOVE "000" TO PC-KEY3.
            MOVE 0 TO TOT-UNASSIGNED TOT-ASSIGNED.
@@ -1540,7 +1774,8 @@
            IF IN-FIELD = "FCC" OR ACTION = "FCC"
            DISPLAY "CHRGS ONLY" GO TO FC1.
            START PAYCUR KEY > PAYCUR-KEY INVALID GO TO FP5.
-       FP4. READ PAYCUR NEXT AT END GO TO FP5.
+       FP4. 
+           READ PAYCUR NEXT AT END GO TO FP5.
            IF PC-KEY8 NOT = G-GARNO GO TO FP5.
            MOVE PC-CLAIM TO C-TAB(P-IND)
            MOVE PC-AMOUNT TO A-TAB(P-IND)
@@ -1553,12 +1788,16 @@
            DISPLAY "ONLY 990 WILL BE USED" GO TO FC1.
            SET P-IND UP BY 1
            GO TO FP4.
-       FP5. MOVE G-GARNO TO PD-KEY8 MOVE "000" TO PD-KEY3.
+       FP5. 
+           MOVE G-GARNO TO PD-KEY8 MOVE "000" TO PD-KEY3.
       *    IF P-IND > 1
       *    SET P-IND DOWN BY 1
            START PAYFILE KEY > PAYFILE-KEY INVALID GO TO FC1.
-       FP6. READ PAYFILE NEXT AT END GO TO FC1.
+       FP6. 
+           READ PAYFILE NEXT AT END GO TO FC1.
+           
            IF PD-KEY8 NOT = G-GARNO GO TO FC1.
+           
            MOVE PD-CLAIM TO C-TAB(P-IND)
            MOVE PD-AMOUNT TO A-TAB(P-IND)
            MOVE PD-DATE-T TO D-TAB(P-IND)
@@ -1570,41 +1809,63 @@
            DISPLAY "ONLY 990 WILL BE USED" GO TO FC1.
            SET P-IND UP BY 1
            GO TO FP6.
-       FC1. MOVE G-GARNO TO CC-KEY8 MOVE "000" TO CC-KEY3.
+       FC1. 
+           MOVE G-GARNO TO CC-KEY8 
+           MOVE "000" TO CC-KEY3.
            MOVE 0 TO Y Z.
            SET P-IND DOWN BY 1.
-           START CHARCUR KEY > CHARCUR-KEY INVALID GO TO FC6.
+
+           START CHARCUR KEY > CHARCUR-KEY 
+             INVALID 
+               GO TO FC6
+           END-START.    
        FC3.
-           READ CHARCUR NEXT AT END GO TO FC6.
+           READ CHARCUR NEXT
+             AT END 
+               GO TO FC6
+           END-READ
+
            IF CC-KEY8 NOT = G-GARNO GO TO FC6.
+           
            IF ALF-3 = "000" OR ALF-3 = CC-PAYCODE NEXT SENTENCE
            ELSE GO TO FC3.
+           
            IF (CD = 0)
            OR ((CD = 1) AND (DATE-OF-CHARGE = CC-DATE-T OR SPACE))
            NEXT SENTENCE
            ELSE GO TO FC3.
+           
            IF (IN-FIELD = "FT") OR (ACTION = "FT")
            MOVE CC-CLAIM TO CLAIM
            MOVE CC-AMOUNT TO TOT-AMOUNT
            MOVE CC-ASSIGN TO ALF-1-1
            PERFORM FT1 GO TO FC3.
+           
            MOVE CC-AMOUNT TO TOT-AMOUNT NEF-8
            MOVE CC-CLAIM TO CLAIM
            MOVE CC-DATE-T TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            MOVE DISPLAY-DATE TO DISPLAY-DATE-CC
            MOVE SPACE TO ALF-5
+           
            IF DP NOT = 1 GO TO FC33-0.
+           
            MOVE G-GARNAME TO DATAIN
            MOVE CC-PATID TO EIGHTPARTID
+           
            IF EIGHT-1 = "P" MOVE CC-PATID TO P-PATNO
            READ PATFILE  MOVE P-PATNAME TO DATAIN.
+           
            UNSTRING DATAIN DELIMITED BY ";" INTO ALF-14 ALF-5.
        FC33-0.
            IF IN-FIELD = "FCC" OR ACTION = "FCC" GO TO FC33.
+
            IF FZ = -1 GO TO FC33.
+           
            PERFORM FPZ VARYING XIND FROM 1 BY 1 UNTIL XIND > P-IND.
+           
            IF TOT-AMOUNT = 0 GO TO FC3.
+           
            MOVE CC-AMOUNT TO TOT-AMOUNT.
        FC33.
            ADD 1 TO Z
@@ -1613,55 +1874,89 @@
            DISPLAY Z " " ALF-5 " " DISPLAY-DATE-CC " PC " CC-PAYCODE
            " CLAIM " CC-CLAIM " AMOUNT " NEF-8 " " CC-PLACE " " CC-PROC 
            " " CC-DIAG " " CC-DOCP
+           
            IF CC-COLLT = "1" DISPLAY "COLLECTION " BELL0.
+           
            IF CC-AUTH = "1" PERFORM READ-AUTH 
       *     ADD 1 TO Z
-            IF AUTH-NUM NOT = SPACE
-             DISPLAY "AUTHNUM= " AUTH-NUM
-            END-IF
+               IF AUTH-NUM NOT = SPACE
+                   DISPLAY "AUTHNUM= " AUTH-NUM
+               END-IF
            END-IF
+
            MOVE SPACE TO ANS
+           
            IF IN-FIELD = "FX" OR ACTION = "FX" PERFORM FXCC-1.
+           
            IF (IN-FIELD = "FCC" OR ACTION = "FCC") NEXT SENTENCE
            ELSE
            PERFORM FPS VARYING XIND FROM 1 BY 1 UNTIL XIND > P-IND.
+           
            IF ANS NOT = SPACES GO TO FP1-EXIT.
-           IF Z = 9 MOVE 0 TO Z MOVE 0 TO Y ACCEPT ANS
-           IF ANS NOT = SPACES GO TO FP1-EXIT.
+           
+           IF Z = 9 
+               MOVE 0 TO Z 
+               MOVE 0 TO Y 
+               ACCEPT ANS
+               IF ANS NOT = SPACES 
+                   GO TO FP1-EXIT
+               END-IF
+           END-IF
+
            GO TO FC3.
-       FC6. MOVE G-GARNO TO CD-KEY8 MOVE "000" TO CD-KEY3.
-           START CHARFILE KEY > CHARFILE-KEY INVALID GO TO FP1-EXIT.
-       FC5. READ CHARFILE NEXT AT END GO TO FP1-EXIT.
+       FC6. 
+           MOVE G-GARNO TO CD-KEY8 
+           MOVE "000" TO CD-KEY3.
+           
+           START CHARFILE KEY > CHARFILE-KEY 
+             INVALID 
+               GO TO FP1-EXIT
+           END-START.    
+       FC5. 
+           READ CHARFILE NEXT AT END GO TO FP1-EXIT.
+           
            IF CD-KEY8 NOT = G-GARNO GO TO FP1-EXIT.
+        
            IF ALF-3 =  "000" OR ALF-3 = CD-PAYCODE NEXT SENTENCE
            ELSE GO TO FC5.
+           
            IF (CD = 0)
            OR ((CD = 1) AND (DATE-OF-CHARGE = CD-DATE-T OR SPACE))
            NEXT SENTENCE
            ELSE GO TO FC5.
+           
            IF (IN-FIELD = "FT") OR (ACTION = "FT")
            MOVE CD-CLAIM TO CLAIM
            MOVE CD-AMOUNT TO TOT-AMOUNT
            MOVE CD-ASSIGN TO ALF-1-1
            PERFORM FT1 GO TO FC5.
+           
            MOVE CD-AMOUNT TO TOT-AMOUNT NEF-8
            MOVE CD-CLAIM TO CLAIM
            MOVE CD-DATE-T TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            MOVE DISPLAY-DATE TO DISPLAY-DATE-CD
            MOVE SPACE TO ALF-5
+           
            IF DP NOT = 1 GO TO FC55-0.
+           
            MOVE G-GARNAME TO DATAIN
            MOVE CD-PATID TO EIGHTPARTID
+           
            IF EIGHT-1 = "P" MOVE CD-PATID TO P-PATNO
            READ PATFILE  MOVE P-PATNAME TO DATAIN.
            UNSTRING DATAIN DELIMITED BY ";" INTO ALF-14 ALF-5.
        FC55-0.
            IF IN-FIELD = "FX" OR ACTION = "FX" PERFORM FXCD-1.
+           
            IF IN-FIELD = "FCC" OR ACTION = "FCC" GO TO FC55.
+           
            IF FZ = -1 GO TO FC55.
+           
            PERFORM FPZ VARYING XIND FROM 1 BY 1 UNTIL XIND > P-IND.
+           
            IF TOT-AMOUNT = 0 GO TO FC5.
+           
            MOVE CD-AMOUNT TO TOT-AMOUNT.
        FC55.
            ADD 1 TO Z.
@@ -1771,17 +2066,28 @@
            MOVE 0 TO X.
            MOVE 0 TO FLAG.
            PERFORM 1200-SEARCH THRU 1200-SEARCH-EXIT.
-           IF FLAG = 1 DISPLAY "END OF FILE FOUND"
-           DISPLAY "END OF SEARCH"
-           GO TO 1000-ACTION.
+
+           IF FLAG = 1 
+               DISPLAY "END OF FILE FOUND"
+               DISPLAY "END OF SEARCH"
+               GO TO 1000-ACTION
+           END-IF.    
+
        1200-FIND-QUES.
            DISPLAY "?".
            ACCEPT ANS.
-           IF ANS = SPACES GO TO 1200-FIND-20.
+
+           IF ANS = SPACES 
+               GO TO 1200-FIND-20
+           END-IF    
+           
            IF ANS = "?"
-           DISPLAY "A <CR> WILL PRODUCE 9 MORE NAMES"
-           DISPLAY "ANYTHING ELSE WILL RETURN YOU TO THE OPTION COMMAND"
-           GO TO 1200-FIND-QUES.
+               DISPLAY "A <CR> WILL PRODUCE 9 MORE NAMES"
+               DISPLAY "ANYTHING ELSE WILL RETURN YOU TO THE OPTION "
+                       "COMMAND"
+               GO TO 1200-FIND-QUES
+           END-IF
+
            GO TO 1000-ACTION.
        1200-SEARCH.
            ADD 1 TO X.
@@ -1969,10 +2275,14 @@
            DEPENDING ON INDX.
        2000TI.
            IF ACTION = "A" GO TO 2050-DISPLAY.
+           
            IF ACTION = "C" GO TO 1400-CHANGE-PROCESS.
+           
            IF ACTION = "FG" OR "SG" OR "FP" OR "SP" OR "S"
                     OR "SA" OR "LA"
-           GO TO 1000-ACTION.
+               GO TO 1000-ACTION
+           END-IF.
+
        2100-PAYFILE-KEY.
            IF IN-FIELD = "?"
            DISPLAY "ENTER  A GUARANTOR ACCT #"
@@ -2031,20 +2341,34 @@
            MOVE 0 TO X YYY.
            MOVE 0 TO FLAG SGFLAG.
            PERFORM 2400-SEARCH THRU 2400-SEARCH-EXIT.
-           IF SGFLAG = 1 GO TO 1000-ACTION.
+           
+           IF SGFLAG = 1 
+               GO TO 1000-ACTION
+           END-IF
+
            IF FLAG = 0 GO TO 2400-FIND-QUES.
-           IF FLAG = 1 DISPLAY "END OF FILE FOUND"
-           ELSE DISPLAY "NO MORE MATCHES ON NAME".
+
+           IF FLAG = 1 
+               DISPLAY "END OF FILE FOUND"
+           ELSE 
+               DISPLAY "NO MORE MATCHES ON NAME"
+           END-IF
+
            DISPLAY "END OF SEARCH"
            GO TO 1000-ACTION.
        2400-FIND-QUES.
            DISPLAY "?".
            ACCEPT ANS.
+           
            IF ANS = SPACES GO TO 2400-FIND-20.
+           
            IF ANS = "?"
-           DISPLAY "A <CR> WILL PRODUCE 9 MORE NAMES"
-           DISPLAY "ANYTHING ELSE WILL RETURN YOU TO THE OPTION COMMAND"
-           GO TO 2400-FIND-QUES.
+               DISPLAY "A <CR> WILL PRODUCE 9 MORE NAMES"
+               DISPLAY "ANYTHING ELSE WILL RETURN YOU TO THE OPTION "
+                   "COMMAND"
+               GO TO 2400-FIND-QUES
+           END-IF.
+
            GO TO 1000-ACTION.
        2400-SEARCH.
            IF X = 9 GO TO 2400-SEARCH-EXIT.
@@ -2090,27 +2414,44 @@
        2500-FIND.
            MOVE 0 TO X
            MOVE SPACE TO RIGHT-8
-           UNSTRING datain(4:8) DELIMITED BY " " INTO RIGHT-8.
+           UNSTRING DATAIN(4:8) DELIMITED BY " " INTO RIGHT-8.
            INSPECT RIGHT-8 REPLACING LEADING " " BY "0"
-           MOVE RIGHT-8 TO g-acct
-           START GARFILE KEY NOT < g-acct INVALID
-           DISPLAY "INVALID MEDREC NUMBER" GO TO  1000-ACTION.
-       2500-FIND-1.
-           READ GARFILE NEXT AT END GO TO 1000-ACTION.
-           if g-acct not numeric go to 2500-find-1.
+           MOVE RIGHT-8 TO G-ACCT
 
-           IF g-acct > RIGHT-8 GO TO 1000-ACTION.
-            DISPLAY X " " G-GARNO " " G-GARNAME 
-            " " G-DOBMM "-" G-DOBDD "-" G-DOBYY 
-            " " G-PRINS " " G-PRIPOL " " G-SEINS " " G-TRINS " " g-acct
-           add 1 to x
+           START GARFILE KEY NOT < G-ACCT INVALID
+               DISPLAY "INVALID MEDREC NUMBER" 
+               GO TO 1000-ACTION
+           END-START.    
+       2500-FIND-1.
+           READ GARFILE NEXT AT END
+               GO TO 1000-ACTION
+           END-READ
+
+           IF G-ACCT NOT NUMERIC 
+               GO TO 2500-FIND-1
+           END-IF    
+
+           IF G-ACCT > RIGHT-8 
+               GO TO 1000-ACTION
+           END-IF
+
+           DISPLAY X " " G-GARNO " " G-GARNAME 
+               " " G-DOBMM "-" G-DOBDD "-" G-DOBYY 
+               " " G-PRINS " " G-PRIPOL " " G-SEINS " " G-TRINS " " 
+               G-ACCT
+           ADD 1 TO X
            MOVE G-GARNO TO LAST-TAB(X)
-           if x = 9
-            accept alf-1
-            if alf-1 not = space go to 1000-action
-            end-if
-            move 0 to x
-           end-if
+           
+           IF X = 9
+               ACCEPT ALF-1 
+            
+               IF ALF-1 NOT = SPACE
+                   GO TO 1000-ACTION
+               END-IF
+            
+               MOVE 0 TO X               
+           END-IF           
+
            GO TO 2500-FIND-1.
        3600-FIND.
            MOVE SPACES TO  ACTION FFTAB1001 NAME-LAST.
@@ -2356,23 +2697,34 @@
            UNSTRING IN-FIELD-3 DELIMITED BY " " INTO RIGHT-3
            INSPECT RIGHT-3 REPLACING LEADING " " BY "0".
            MOVE G-GARNO TO CC-KEY8 MOVE RIGHT-3 TO CC-KEY3.
-           READ CHARCUR INVALID
-                DISPLAY "INVALID"
-                GO TO 2000TI.
-           MOVE CC-CLAIM TO PD-CLAIM GO TO 4900DEE.
+           
+           READ CHARCUR 
+             INVALID
+               DISPLAY "INVALID"
+               GO TO 2000TI
+           END-READ
+
+           MOVE CC-CLAIM TO PD-CLAIM 
+           GO TO 4900DEE.
        AX3.
            IF ((IN-FIELD-TAB(1) > "0" AND < "9")
            OR (IN-FIELD-TAB(1) = "9"))
            AND (IN-FIELD-TAB(2) = " " AND IN-FIELD-TAB(3) = " ")
            MOVE IN-FIELD-TAB(1) TO X MOVE LAST-CLAIM(X) TO IN-FIELD.
+           
            IF IN-FIELD-6 NOT NUMERIC MOVE "?" TO IN-FIELD
            GO TO 2100-CLAIM.
+           
            MOVE IN-FIELD-6 TO PD-CLAIM
            MOVE 0 TO FLAG
            PERFORM CUR-1 THRU CUR-END
+           
            IF FLAG = 1 GO TO 4900DEE.
+           
            PERFORM DAL-1 THRU DAL-END
+           
            IF FLAG = 1 GO TO 4900DEE.
+           
            MOVE "?" TO IN-FIELD GO TO 2000TI.
        2300-DENIAL.
            IF IN-FIELD = "?"
@@ -2392,26 +2744,34 @@
            DISPLAY "CI = CO-INSURANCE     TM = TOO MANY OCCURANCES"
            DISPLAY "NF = NON-SUFF. FUNDS  NM = NOT MEDICALLY NECESSARY"
            GO TO 2000TI.
+           
            IF IN-FIELD-2 = "DD" OR "NC" OR "NR" OR "CE" OR "DA" OR "BE"
            OR SPACE OR "CB" OR "14" OR "CP" OR "WC" OR "TO" OR "DI"
            OR "IN" OR "RE" OR "PI" OR "ON" OR "RF" OR "PP" OR "07"
            OR "08" OR "15" OR "OI" OR "RS" OR "CI" OR "TM" OR "NF"
            OR "NM"
            NEXT SENTENCE ELSE MOVE "?" TO IN-FIELD GO TO 2300-DENIAL.
+           
            IF (IN-FIELD-2 = "14" OR "07" OR "08" OR "15" OR "DI") AND
            ((PD-PAYCODE > "006" AND < "020") AND
            (PD-PAYCODE NOT = "018"))
            DISPLAY "ADJUSTMENT DENIALS ON ADJUSTMENT RECORDS NOT VALID"
            GO TO 2000TI.
+
       *     IF IN-FIELD-2 = "14" DISPLAY "INS. REDUCTION" BELL0.
-           MOVE IN-FIELD-2 TO PD-DENIAL GO TO 4900DEE.
+           
+           MOVE IN-FIELD-2 TO PD-DENIAL
+           GO TO 4900DEE.
        4900DEE.
            IF FLAG-TABLE(INDX) NOT = 1
-           MOVE 1 TO FLAG-TABLE(INDX)
-           ADD 1 TO NUMBER-OF-FIELDS
-           MOVE INDX TO DISPLAY-FIELD(NUMBER-OF-FIELDS).
+               MOVE 1 TO FLAG-TABLE(INDX)
+               ADD 1 TO NUMBER-OF-FIELDS
+               MOVE INDX TO DISPLAY-FIELD(NUMBER-OF-FIELDS)
+           END-IF.    
        4905DEE.
-           IF ACTION = "C" GO TO 1400-CHANGE-PROCESS.
+           IF ACTION = "C" 
+               GO TO 1400-CHANGE-PROCESS
+           END-IF.    
        4910DEE.
            EXIT.
        5000-WRITE-PAYFILE.
@@ -2442,12 +2802,23 @@
            PERFORM RE-WRITE-PD THRU RE-WRITE-PD-EXIT
            GO TO 1000-ACTION.
        CUR-1.
-           MOVE G-GARNO TO CC-KEY8 MOVE "000" TO CC-KEY3.
-           START CHARCUR KEY > CHARCUR-KEY INVALID GO TO CUR-END.
-       CUR-2. READ CHARCUR NEXT AT END GO TO CUR-END.
+           MOVE G-GARNO TO CC-KEY8 
+           MOVE "000" TO CC-KEY3.
+           START CHARCUR KEY > CHARCUR-KEY 
+             INVALID 
+               GO TO CUR-END
+           END-START.    
+       CUR-2. 
+           READ CHARCUR NEXT
+             AT END 
+               GO TO CUR-END
+           END-READ
+
            IF CC-KEY8 NOT = G-GARNO GO TO CUR-END.
+           
            IF CC-CLAIM NOT = PD-CLAIM GO TO CUR-2.
-            IF (INS-ASSIGN = "A")
+           
+           IF (INS-ASSIGN = "A")
             AND (CC-ASSIGN = "A")
             AND NOT (INS-KEY > "009" AND < "023")
             AND (PD-PAYCODE NOT = G-PRINS) 
@@ -2460,8 +2831,10 @@
             IF ANS NOT = "Y" GO TO CUR-END
             END-IF
            END-IF
+           
            MOVE 1 TO FLAG.
-       CUR-END. EXIT.
+       CUR-END. 
+           EXIT.
        DAL-1.
            MOVE G-GARNO TO CD-KEY8 MOVE "000" TO CD-KEY3.
            START CHARFILE KEY > CHARFILE-KEY INVALID GO TO DAL-END.
@@ -2482,8 +2855,10 @@
             END-IF
            END-IF
            MOVE 1 TO FLAG.
-       DAL-END. EXIT.
-       DC1. MOVE "000" TO CC-KEY3 MOVE G-GARNO TO CC-KEY8.
+       DAL-END. 
+           EXIT.
+       DC1. 
+           MOVE "000" TO CC-KEY3 MOVE G-GARNO TO CC-KEY8.
            IF ( PD-PAYCODE = "010" OR "015" OR "019" OR "017" )
            OR (PD-DENIAL = "08" OR "15")
            OR ( PD-AMOUNT NOT < 0 )
@@ -2496,7 +2871,8 @@
            IF PAY-IND = 990 DISPLAY "ACCT TOO LARGE TO USE D ROUTINE"
            GO TO DC1-EXIT.
            START CHARCUR KEY > CHARCUR-KEY INVALID GO TO DC5.
-       DC4.   READ CHARCUR NEXT AT END GO TO DC5.
+       DC4.
+           READ CHARCUR NEXT AT END GO TO DC5.
            IF CC-KEY8 NOT = G-GARNO GO TO DC5.
            IF CC-ASSIGN = "A" GO TO DC4.
            IF P-IND = 990 DISPLAY "THIS ACCOUNT HAS MORE THAN "
@@ -2669,54 +3045,73 @@
            DISPLAY "NO PROMPT FOR CHARGE DATE" 
            ELSE MOVE 1 TO CD
            DISPLAY "PROMPT FOR CHARGE ON FC AND FCC COMMAND.".
-       WO6. MOVE G-GARNO TO CC-KEY8 MOVE "000" TO CC-KEY3.
+       WO6. 
+           MOVE G-GARNO TO CC-KEY8 MOVE "000" TO CC-KEY3.
            MOVE 1 TO FLAG.
            MOVE 0 TO TOT-CLAIM.
            START CHARCUR KEY > CHARCUR-KEY INVALID GO TO WO81.
-       WO7. READ CHARCUR NEXT AT END GO TO WO81.
+       WO7.
+           READ CHARCUR NEXT AT END GO TO WO81.
            IF G-GARNO NOT = CC-KEY8 GO TO WO81.
            IF CC-CLAIM NOT = PD-CLAIM GO TO WO7.
            MOVE CC-AMOUNT TO TOT-CLAIM. MOVE 0 TO FLAG. GO TO WO8.
-       WO81. MOVE G-GARNO TO CD-KEY8 MOVE "000" TO CD-KEY3.
+       WO81.
+           MOVE G-GARNO TO CD-KEY8 MOVE "000" TO CD-KEY3.
            START CHARFILE KEY > CHARFILE-KEY INVALID GO TO WO12.
-       WO82. READ CHARFILE NEXT AT END GO TO WO12.
+       WO82.
+           READ CHARFILE NEXT AT END GO TO WO12.
            IF G-GARNO NOT = CD-KEY8 GO TO WO12.
            IF CD-CLAIM NOT = PD-CLAIM GO TO WO82.
            MOVE CD-AMOUNT TO TOT-CLAIM. MOVE 0 TO FLAG. GO TO WO8.
-       WO8. MOVE G-GARNO TO PC-KEY8 MOVE "000" TO PC-KEY3.
+       WO8.
+           MOVE G-GARNO TO PC-KEY8 MOVE "000" TO PC-KEY3.
            START PAYCUR KEY > PAYCUR-KEY INVALID GO TO WO10.
-       WO9. READ PAYCUR NEXT AT END GO TO WO10.
+       WO9.
+           READ PAYCUR NEXT AT END GO TO WO10.
            IF G-GARNO NOT = PC-KEY8 GO TO WO10.
            IF PC-CLAIM = PD-CLAIM ADD PC-AMOUNT TO TOT-CLAIM.
            GO TO WO9.
-       WO10. MOVE PD-CLAIM TO IN-FIELD-6.
+       WO10.
+           MOVE PD-CLAIM TO IN-FIELD-6.
            MOVE G-GARNO TO PD-KEY8 MOVE "000" TO PD-KEY3.
            START PAYFILE KEY > PAYFILE-KEY INVALID GO TO WO12.
-       WO11. READ PAYFILE NEXT AT END GO TO WO12.
+       WO11.
+           READ PAYFILE NEXT AT END GO TO WO12.
            IF G-GARNO NOT = PD-KEY8 GO TO WO12.
            IF PD-CLAIM = IN-FIELD-6 ADD PD-AMOUNT TO TOT-CLAIM.
            GO TO WO11.
-       WO12. EXIT.
-       FF-NAME. IF FFTAB10(XIND) NOT = SPACE SET FF TO XIND
+       WO12.
+           EXIT.
+       FF-NAME.
+           IF FFTAB10(XIND) NOT = SPACE SET FF TO XIND
            SET XIND TO 1.
-       LL-NAME. IF LLTAB24(XIND) NOT = SPACE SET LL TO XIND
+       LL-NAME.
+           IF LLTAB24(XIND) NOT = SPACE SET LL TO XIND
            SET XIND TO 1.
-       AQ1. IF LLTAB24(YIND) NOT = XLLTAB24(YIND) MOVE 1 TO FLAGX.
-       AQ2. IF XFFTAB10(YIND) NOT = FFTAB10(YIND) MOVE 1 TO FLAGX.
-       IP-1. IF IP = 0 MOVE 1 TO IP DISPLAY "LIST INSURANCE"
+       AQ1.
+           IF LLTAB24(YIND) NOT = XLLTAB24(YIND) MOVE 1 TO FLAGX.
+       AQ2.
+           IF XFFTAB10(YIND) NOT = FFTAB10(YIND) MOVE 1 TO FLAGX.
+       IP-1.
+           IF IP = 0 MOVE 1 TO IP DISPLAY "LIST INSURANCE"
              ELSE MOVE 0 TO IP DISPLAY "NO INSURANCE DISPLAY".
-       CM-1. IF CM = 0 MOVE 1 TO CM DISPLAY "LIST COMMENTS"
+       CM-1.
+           IF CM = 0 MOVE 1 TO CM DISPLAY "LIST COMMENTS"
            ELSE MOVE 0 TO CM DISPLAY "COMMENTS NOT READ".
-       CM-2. MOVE G-GARNO TO CM-KEY8 MOVE "000" TO CM-KEY3.
+       CM-2.
+           MOVE G-GARNO TO CM-KEY8 MOVE "000" TO CM-KEY3.
            START CMNTFILE KEY NOT < CMNT-KEY INVALID GO TO CM-4.
-       CM-3. READ CMNTFILE NEXT AT END GO TO CM-4.
+       CM-3.
+           READ CMNTFILE NEXT AT END GO TO CM-4.
            IF CM-KEY8 NOT = G-GARNO GO TO CM-4.
            ADD 1 TO Y
            IF Y > 13 ACCEPT ANS
            MOVE 0 TO Y.
            DISPLAY CMNT GO TO CM-3.
-       CM-4. EXIT.
-       FA-1. MOVE PD-KEY8 TO G-GARNO.
+       CM-4.
+           EXIT.
+       FA-1.
+           MOVE PD-KEY8 TO G-GARNO.
            READ GARFILE INVALID DISPLAY "INVALID" GO TO FA-1-EXIT.
            MOVE G-DOB TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
@@ -2727,7 +3122,8 @@
            DISPLAY DISPLAY-DATE " " G-PRIPOL " " G-SECPOL
            MOVE G-GARNO TO P-GARNO
            START PATFILE KEY NOT < P-GARNO INVALID GO TO FA-1-EXIT.
-       FA-2. READ PATFILE NEXT AT END GO TO FA-1-EXIT.
+       FA-2.
+           READ PATFILE NEXT AT END GO TO FA-1-EXIT.
            IF P-GARNO NOT = G-GARNO GO TO FA-1-EXIT.
            MOVE P-DOB TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
@@ -2735,98 +3131,114 @@
            INSPECT T-DD OF DISPLAY-DATE REPLACING LEADING "0" BY " "
            DISPLAY P-PATNO " " DISPLAY-DATE  " " P-SEX " " P-PATNAME 
            GO TO FA-2.
-       FA-1-EXIT. EXIT.
-       LPAY-1. DISPLAY PAYFILE-KEY " " PD-NAME " "
+       FA-1-EXIT.
+           EXIT.
+       LPAY-1.
+           DISPLAY PAYFILE-KEY " " PD-NAME " "
            MOVE PD-AMOUNT TO NEF-8
            DISPLAY "3 = " NEF-8 " 4 = " PD-PAYCODE
            " 5 = " PD-DENIAL " 6 = " PD-CLAIM " 7 = " PD-DATE-T
            "  BAT =  " PD-DATE-E.
        1399CPC.
-           CLOSE CHARCUR
-           OPEN I-O CHARCUR    
-      *    if charcur key is bad     
-           READ CHARCUR WITH LOCK INVALID
-                   DISPLAY "INVALID"
-                   CLOSE CHARCUR
-                   OPEN INPUT CHARCUR
-                   GO TO 1000-ACTION
-           END-READ
-      *    if charcur key is locked     
-           IF CHARCUR-STAT NOT = "00"
-               DISPLAY "RECORD LOCKED BY ANOTHER USER"
-               DISPLAY "TRY AGAIN LATER"
-               CLOSE CHARCUR
-               OPEN INPUT CHARCUR
+           READ CHARCUR INVALID
+               DISPLAY "INVALID READ OF CHARCUR"
                GO TO 1000-ACTION
-           END-IF    
+           END-READ
            
            MOVE CC-ASSIGN TO HOLDASSIGN
            MOVE CC-PATID TO EIGHTPARTID
-           IF EIGHT-1 = "P" MOVE CC-PATID TO P-PATNO
-           READ PATFILE INVALID
+           
+           IF EIGHT-1 = "P" 
+               MOVE CC-PATID TO P-PATNO
+               READ PATFILE 
+                 INVALID
                    DISPLAY "NO PATIENT FOR THIS RECORD"
-                   GO TO 1000-ACTION
-           END-READ
-           IF EIGHT-1 = "P" DISPLAY P-PATNAME GO TO 1400CPC.
+                  GO TO 1000-ACTION
+               END-READ
+
+               IF EIGHT-1 = "P" 
+                   DISPLAY P-PATNAME 
+                   GO TO 1400CPC
+               END-IF
+           END-IF     
+
            MOVE CC-PATID TO G-GARNO
+           
            READ GARFILE INVALID
-                       DISPLAY "INVALID ACCT FOR THIS RECORD"
-                       GO TO 1000-ACTION
+               DISPLAY "INVALID ACCT FOR THIS RECORD"
+               GO TO 1000-ACTION
            END-READ
+
            DISPLAY G-GARNAME.
        1400CPC.
            DISPLAY "FIELD CODE,DATA?  POSTED CHRG"
            ACCEPT DATAIN.
+           
            IF DATAIN = "X"
-               DISPLAY "NO CHANGE"  GO TO 1000-ACTION.
+               DISPLAY "NO CHANGE"
+               GO TO 1000-ACTION
+           END-IF    
 
            IF DATAIN = "UP"
 
-              IF ((CC-DATE-T > "20150930") AND
-                  (CC-DIAG(6:2) = "??"
-                  OR CC-DX2(6:2) = "??"
-                  OR CC-DX3(6:2) = "??"
-                  OR CC-DX4(6:2) = "??"))
-               OR ((CC-DATE-T < "20151001")
-               AND NOT
+               IF ((CC-DATE-T > "20150930") AND
+                   (CC-DIAG(6:2) = "??"
+                     OR CC-DX2(6:2) = "??"
+                     OR CC-DX3(6:2) = "??"
+                     OR CC-DX4(6:2) = "??"))
+                   OR ((CC-DATE-T < "20151001") AND NOT
                      ((CC-DIAG(6:2) = "??" OR "00")
-                 AND (CC-DX2(6:2) = "??" OR "00")
-                 AND (CC-DX3(6:2) = "??" OR "00")
-                 AND (CC-DX4(6:2) = "??" OR "00")))
-               DISPLAY "DATE CONFLICT WITH DIAGNOSES"
-               DISPLAY "CHANGE THE DATE TO MATCH DIAGNOSES"
-               DISPLAY "OR CHANGE ALL THE DIAGNOSES"
-               GO TO 1400CPC
-              END-IF
-           GO TO 5000-WRITE-CHARCUR
+                     AND (CC-DX2(6:2) = "??" OR "00")
+                     AND (CC-DX3(6:2) = "??" OR "00")
+                     AND (CC-DX4(6:2) = "??" OR "00")))
+                   
+                   DISPLAY "DATE CONFLICT WITH DIAGNOSES"
+                   DISPLAY "CHANGE THE DATE TO MATCH DIAGNOSES"
+                   DISPLAY "OR CHANGE ALL THE DIAGNOSES"
+                   GO TO 1400CPC
+               END-IF
+
+               GO TO 5000-WRITE-CHARCUR
            END-IF
 
-           IF DATAIN = "L" PERFORM LC-1 GO TO 1400CPC.
+           IF DATAIN = "L" 
+               PERFORM LC-1 
+               GO TO 1400CPC
+           END-IF
+
            IF DATAIN = "?"
-           DISPLAY "ENTER THE FIELD # AND DATA FOR THAT FIELD"
-           DISPLAY "TO BE CHANGED. VALID CODES ARE:"
-           DISPLAY "  2=PATID   4=TYPE SERV   5=DIAG     6=PROC" 
-           DISPLAY "  7=AMOUNT  8=REF PHYS    9=PRVDR   10=INS"
-           DISPLAY "12=UNITS  13=ACC DATE   14=PAPER   15=PLACE"
-           DISPLAY "17=EPSDT  18=CHRGDATE   19=RESULT  20=ACTION"
-           DISPLAY "21=MOD2   22=REC-STAT   23=SORCREF 24=DX2" 
-           DISPLAY "25=DX3    26=CLM-DATE   27=COLLT   28=ACCTYPE" 
-           DISPLAY "29=ADMTDT 30=MOD3       31=AUTH/NDC 32=ASSIGN" 
-           DISPLAY "33=NEICASGM  34=DX4"
+               DISPLAY "ENTER THE FIELD # AND DATA FOR THAT FIELD"
+               DISPLAY "TO BE CHANGED. VALID CODES ARE:"
+               DISPLAY "  2=PATID   4=TYPE SERV   5=DIAG     6=PROC" 
+               DISPLAY "  7=AMOUNT  8=REF PHYS    9=PRVDR   10=INS"
+               DISPLAY "12=UNITS  13=ACC DATE   14=PAPER   15=PLACE"
+               DISPLAY "17=EPSDT  18=CHRGDATE   19=RESULT  20=ACTION"
+               DISPLAY "21=MOD2   22=REC-STAT   23=SORCREF 24=DX2" 
+               DISPLAY "25=DX3    26=CLM-DATE   27=COLLT   28=ACCTYPE" 
+               DISPLAY "29=ADMTDT 30=MOD3       31=AUTH/NDC 32=ASSIGN" 
+               DISPLAY "33=NEICASGM  34=DX4"
       *      35=DX5 36=DX6 "
-           DISPLAY "L TO LIST THE RECORD"
-           DISPLAY "UP = UPDATE CHANGES"
-           DISPLAY "X = NO UPDATE"
-           GO TO 1400CPC.
+               DISPLAY "L TO LIST THE RECORD"
+               DISPLAY "UP = UPDATE CHANGES"
+               DISPLAY "X = NO UPDATE"
+               GO TO 1400CPC
+           END-IF
+
            MOVE SPACES TO RIGHT-2 IN-FIELD.
            UNSTRING DATAIN DELIMITED BY "," INTO RIGHT-2 IN-FIELD.
            INSPECT RIGHT-2 REPLACING LEADING SPACE BY "0".
+           
            IF RIGHT-2 NOT NUMERIC
                DISPLAY "FIELD-CODE MUST BE NUMERIC"
-               GO TO 1400CPC.
+               GO TO 1400CPC
+           END-IF
+
            IF RIGHT-2 = "00" OR "01" OR "03" OR "16" 
-           OR RIGHT-2 > "34" DISPLAY "INVALID FIELD-CODE"
-               GO TO 1400CPC.
+                        OR RIGHT-2 > "34" 
+               DISPLAY "INVALID FIELD-CODE"
+               GO TO 1400CPC
+           END-IF
+
            MOVE RIGHT-2 TO NUM-2
            SET CCINDX TO NUM-2
            GO TO CC-2060-GO-TO.
@@ -2834,10 +3246,17 @@
            DISPLAY CCDES-KEY(CCINDX) "?".
        CC-2051.
            ACCEPT IN-FIELD.
-           IF IN-FIELD = "L" PERFORM LC-1 GO TO CC-2050.
+           IF IN-FIELD = "L" 
+               PERFORM LC-1 
+               GO TO CC-2050
+           END-IF.    
        CC-2060-GO-TO.
            MOVE 0 TO FLAG.
-           IF CCINDX = 6 GO TO CC-2061.
+           
+           IF CCINDX = 6 
+               GO TO CC-2061
+           END-IF
+
            MOVE CCLEN-TAB(CCINDX) TO Q ADD 1 TO Q.
            IF IN-FIELD-TAB(Q) NOT = " " MOVE 1 TO FLAG
            DISPLAY "DATA TOO LONG, MUST NOT BE GREATER "
@@ -2857,15 +3276,24 @@
       *     CC-2-DX5 CC-2-DX6
            DEPENDING ON CCINDX.
        CC-2000TI.
-           IF ACTION = "CPC" GO TO 1400CPC.
+           IF ACTION = "CPC" 
+               GO TO 1400CPC
+           END-IF
+
            GO TO 1000-ACTION.
        2100-CHAR-KEY.
            IF IN-FIELD = "?"
-           DISPLAY "ENTER  A GUARANTOR ACCT #"
-           GO TO CC-2000TI.
+               DISPLAY "ENTER  A GUARANTOR ACCT #"
+               GO TO CC-2000TI
+           END-IF
+
            MOVE IN-FIELD-8 TO G-GARNO.
-           READ GARFILE INVALID KEY DISPLAY " NOT ON FILE"
-           GO TO CC-2000TI.
+           
+           READ GARFILE INVALID KEY 
+               DISPLAY " NOT ON FILE"
+               GO TO CC-2000TI
+           END-READ
+
            DISPLAY G-GARNAME.
        2120-CHAR-KEY.
            MOVE 0 TO X.
@@ -2875,21 +3303,31 @@
            MOVE X TO ABC.
            STRING IN-FIELD-8 ABC DELIMITED BY "@" INTO ALF-11.
            MOVE ALF-11 TO CHARCUR-KEY.
-           READ CHARCUR INVALID KEY GO TO 4900CPC.
+           
+           READ CHARCUR INVALID KEY 
+               GO TO 4900CPC
+           END-READ
+
            ADD 1 TO X.
-           IF X = 999 DISPLAY "THIS ACCOUNT HAS 999 TRANSACTIONS"
-           DISPLAY "IN THE FILE ALREADY. NO MORE ARE ALLOWED."
-           GO TO CC-2000TI
-           GO TO 2130-CHARCUR-KEY.
+           
+           IF X = 999 
+               DISPLAY "THIS ACCOUNT HAS 999 TRANSACTIONS"
+               DISPLAY "IN THE FILE ALREADY. NO MORE ARE ALLOWED."
+               GO TO CC-2000TI
+               GO TO 2130-CHARCUR-KEY
+           END-IF.               
        CC-2-PATID.
            MOVE IN-FIELD-8 TO P-PATNO EIGHTPARTID.
            IF EIGHT-1 = "G" GO TO CC-3-PATID.
            READ PATFILE INVALID DISPLAY "INVALID"
            GO TO 1400CPC.
            MOVE CHARCUR-KEY TO PART11.
+           
            IF PART8 NOT = P-GARNO
-           DISPLAY P-PATNAME  " IS NOT A DEPENDENT FOR THIS GARNO"
-           GO TO 1400CPC.
+               DISPLAY P-PATNAME " IS NOT A DEPENDENT FOR THIS GARNO"
+               GO TO 1400CPC
+           END-IF
+
            MOVE P-PATNO TO CC-PATID
            DISPLAY  P-PATNAME
            GO TO 4900CPC.
@@ -3423,41 +3861,71 @@
            EXIT.
        5000-WRITE-CHARCUR.
            IF CC-ASSIGN = "S" OR CC-NEIC-ASSIGN = "S"
-           DISPLAY "SET THE ASSIGNMENT FIELDS TO A OR U"
-           GO TO CC-2000TI.
-           IF CC-REC-STAT < "2" GO TO 5WC1.
-       5WC.  DISPLAY "DO YOU WISH TO SET STATUS TO RESUBMIT CLAIM? Y/N".
+               DISPLAY "SET THE ASSIGNMENT FIELDS TO A OR U"
+               GO TO CC-2000TI
+           END-IF
+
+           IF CC-REC-STAT < "2" 
+               GO TO 5WC1
+           END-IF.    
+       5WC. 
+           DISPLAY "DO YOU WISH TO SET STATUS TO RESUBMIT CLAIM? Y/N".
            ACCEPT ANS.
+           
            IF ANS = "?"
-           DISPLAY "TYPE Y AND THIS ASSIGNED CHARGE WILL BE REPROCESSED"
-           DISPLAY "ELECTRONICALLY OR BY CLAIM FORM"
-           DISPLAY "TYPE N AND THE RECORD WILL NOT BE SUBMITTED AGAIN."
-           GO TO 5WC.
+              DISPLAY "TYPE Y AND THIS ASSIGNED CHARGE "
+                  "WILL BE REPROCESSED"
+              DISPLAY "ELECTRONICALLY OR BY CLAIM FORM"
+              DISPLAY "TYPE N AND THE RECORD WILL NOT BE SUBMITTED "
+                  "AGAIN."
+              GO TO 5WC
+           END-IF
+
            IF ANS = "N" GO TO 5WC1.
+           
            IF ANS NOT = "Y" GO TO 5WC.
+           
            IF CC-PAPER = "A" MOVE "P" TO CC-PAPER.
+           
            IF CC-REC-STAT = "3" MOVE "1" TO CC-REC-STAT.
+           
            IF CC-REC-STAT = "2" MOVE "0" TO CC-REC-STAT.
        5WC1.
            IF HOLDASSIGN = CC-ASSIGN GO TO 5WC2.
+           
            DISPLAY "ASSIGNMENT MODE HAS CHANGED, SO.."
            DISPLAY "RE-AGED TO CURRENT".
+           
            MOVE "00000000" TO CC-DATE-A.
        5WC2.
            MOVE CC-KEY8 TO G-GARNO
-           READ GARFILE INVALID DISPLAY "BAD GARNO " G-GARNO
-           GO TO 1000-ACTION.
-           IF CC-PAYCODE NOT = "001" AND CC-PAYCODE NOT = G-PRINS
-           AND CC-PAYCODE NOT = G-SEINS AND CC-PAYCODE NOT = G-TRINS
-           DISPLAY "INSURANCE CODE ON THIS RECORD DOES NOT MATCH"
-           DISPLAY "EITHER INSURANCE CODE FOR THE ACCOUNT"
-           DISPLAY "THIS MAY NOT BE VALID.  THIS IS ONLY A WARNING".
-           PERFORM DX-1 THRU DX-1-EXIT.
+           READ GARFILE 
+             INVALID 
+               DISPLAY "BAD GARNO " G-GARNO
+               GO TO 1000-ACTION
+           END-READ
+
+           IF CC-PAYCODE NOT = "001" 
+                         AND CC-PAYCODE NOT = G-PRINS
+                         AND CC-PAYCODE NOT = G-SEINS 
+                         AND CC-PAYCODE NOT = G-TRINS
+               DISPLAY "INSURANCE CODE ON THIS RECORD DOES NOT MATCH"
+               DISPLAY "EITHER INSURANCE CODE FOR THE ACCOUNT"
+               DISPLAY "THIS MAY NOT BE VALID. THIS IS ONLY A WARNING"
+           END-IF
+
+           PERFORM DX-1 THRU DX-1-EXIT
+
            MOVE CHARCUR01 TO CHARCUR-BACK.
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
            GO TO 1000-ACTION.
-       CC-1200-FIND. START CHARCUR KEY > CHARCUR-KEY INVALID
-           DISPLAY " END OF FILE" GO TO 1000-ACTION.
+       CC-1200-FIND. 
+           START CHARCUR KEY > CHARCUR-KEY 
+             INVALID
+               DISPLAY " END OF FILE" 
+               GO TO 1000-ACTION
+           END-START
+
            MOVE "D" TO UPDOWN.
        CC-1200-FIND-20.
            MOVE 0 TO X.
@@ -3583,13 +4051,26 @@
            READ PATFILE INVALID DISPLAY "NO DEPENDANT RECORD " P-PATNO.
            DISPLAY P-PATNAME.
        CC-1.
-           READ GARFILE INVALID DISPLAY "INVALID" GO TO 1000-ACTION.
+           READ GARFILE 
+             INVALID 
+                 DISPLAY "INVALID" 
+                 GO TO 1000-ACTION
+           END-READ
+
            DISPLAY G-GARNO " " G-GARNAME
            MOVE SPACE TO CC-KEY3
            MOVE G-GARNO TO CC-KEY8
-           START CHARCUR KEY > CHARCUR-KEY INVALID DISPLAY "NO RECORDS"
-           GO TO 1000-ACTION.
-       CC-2. READ CHARCUR NEXT AT END GO TO 1000-ACTION.
+           START CHARCUR KEY > CHARCUR-KEY 
+             INVALID 
+               DISPLAY "NO RECORDS"
+               GO TO 1000-ACTION
+           END-START.    
+       CC-2. 
+           READ CHARCUR NEXT 
+             AT END 
+               GO TO 1000-ACTION
+           END-READ
+
            IF CC-KEY8 NOT = G-GARNO GO TO 1000-ACTION.
            IF CC-COLLT = "1" GO TO CC-2.
            MOVE CC-AMOUNT TO NEF-8
@@ -3598,36 +4079,23 @@
            DISPLAY CC-PAYCODE " " CC-PROC " " DISP-DATE " " NEF-8.
            DISPLAY "CODE FOR COLLECTION? Y/N/X"
            ACCEPT ANS
+
            IF ANS = "X" GO TO 1000-ACTION.
+
            IF ANS = "Y"
-             MOVE "1" TO CC-COLLT
-             MOVE 0 TO FLAG
-             CLOSE CHARCUR
-             OPEN I-O CHARCUR
-             READ CHARCUR WITH LOCK INVALID
-                   DISPLAY "INVALID"
-                   CLOSE CHARCUR
-                   OPEN INPUT CHARCUR
+               MOVE "1" TO CC-COLLT
+               MOVE 0 TO FLAG
+               MOVE CHARCUR01 TO CHARCUR-BACK           
+               PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+               IF FLAG = 1
+                   DISPLAY "COLLECTION"
                    GO TO CC-2
-           END-READ
-      *    if charcur key is locked     
-           IF CHARCUR-STAT NOT = "00"
-               DISPLAY "RECORD LOCKED BY ANOTHER USER"
-               DISPLAY "TRY AGAIN LATER"
-               DISPLAY CHARCUR-KEY " RECORD THIS "
-               CLOSE CHARCUR
-               OPEN INPUT CHARCUR
-               GO TO CC-2
-           END-IF    
-             
-             PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
-             IF FLAG = 1
-               DISPLAY "COLLECTION"
-               GO TO CC-2
-              ELSE
-               DISPLAY "CAN NOT MODIFIED THIS RECORD"
-               GO TO CC-2
-             END-IF
+               ELSE
+                   DISPLAY "CAN NOT MODIFY THIS RECORD"
+                   GO TO CC-2
+               END-IF
+           END-IF
+
            DISPLAY "BYPASSED"
            GO TO CC-2.
        RA-1.
@@ -3662,9 +4130,13 @@
            MOVE G-GARNO TO CC-KEY8
            START CHARCUR KEY > CHARCUR-KEY INVALID DISPLAY "NO RECORDS"
            GO TO 1000-ACTION.
-       RA-2. READ CHARCUR NEXT AT END GO TO 1000-ACTION.
+       RA-2. 
+           READ CHARCUR NEXT AT END GO TO 1000-ACTION.
+           
            IF CC-KEY8 NOT = G-GARNO GO TO 1000-ACTION.
+           
            IF CC-ASSIGN = "A" OR CC-DATE-A = "00000000" GO TO RA-2.
+           
            MOVE CC-AMOUNT TO NEF-8
            MOVE CC-DATE-T TO TEST-DATE
            MOVE CORR TEST-DATE TO DISP-DATE
@@ -3674,30 +4146,18 @@
            DISPLAY "AGE-DATE =  " DISP-DATE
            DISPLAY "RE-AGE TO CURRENT? Y=YES  <CR>=NO  X=QUIT"
            ACCEPT ANS
+           
            IF ANS = "X" GO TO 1000-ACTION.
+           
            IF ANS = "Y"
-           MOVE "00000000" TO CC-DATE-A
-           MOVE 0 TO FLAG
-           CLOSE CHARCUR
-           OPEN I-O CHARCUR
-           READ CHARCUR WITH LOCK INVALID
-               DISPLAY "RECORD LOCKED TRY AGAIN LATER"
-               DISPLAY CHARCUR-KEY
-               CLOSE CHARCUR
-               OPEN INPUT CHARCUR
+               MOVE "00000000" TO CC-DATE-A
+               MOVE 0 TO FLAG
+               MOVE CHARCUR01 TO CHARCUR-BACK         
+               PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+               DISPLAY "RE-AGED"
                GO TO RA-2
-           END-READ
-           IF CHARCUR-STAT NOT = "00"
-               DISPLAY "RECORD LOCKED TRY AGAIN LATER"
-               DISPLAY CHARCUR-KEY
-               CLOSE CHARCUR
-               OPEN INPUT CHARCUR
-               GO TO RA-2
-           END-IF           
-           PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
-             DISPLAY "RE-AGED"
-             GO TO RA-2
            END-IF.
+
            DISPLAY "BYPASSED"
            GO TO RA-2.
        
@@ -3794,41 +4254,58 @@
            MOVE CC-CLAIM TO AUTH-KEY6
            READ AUTHFILE INVALID GO TO AUTH-2.
            DISPLAY "CURRENT NUMBER = " AUTH-NUM
+
            IF IN-FIELD-2 = "4 "
                MOVE "1" TO ALF-1
                GO TO AUTH-1-EXIT
            END-IF
+           
            DISPLAY "CHANGE? YES "
            ACCEPT IN-FIELD-3
-           IF IN-FIELD NOT = "YES" GO TO AUTH-1-EXIT.
+           
+           IF IN-FIELD NOT = "YES"
+               GO TO AUTH-1-EXIT
+           END-IF
+
            MOVE 2 TO FLAG.
        AUTH-2. 
-           IF IN-FIELD-2 = "4 " DISPLAY "AUTHORIZATION MISSING!"
-           MOVE "0" TO ALF-1
-           GO TO AUTH-1-EXIT.
+           IF IN-FIELD-2 = "4 " 
+               DISPLAY "AUTHORIZATION MISSING!"
+               MOVE "0" TO ALF-1
+               GO TO AUTH-1-EXIT
+           END-IF
+
            DISPLAY "AUTHORIZATION NUMBER"
            ACCEPT ALF-15
+           
            IF ALF-15 = "?" 
-           DISPLAY "ENTER THE PRIOR AUTHORIZATION OR <CR>"
-           GO TO AUTH-2.
+               DISPLAY "ENTER THE PRIOR AUTHORIZATION OR <CR>"
+               GO TO AUTH-2
+           END-IF
+
            IF ALF-15 = SPACE OR "BK" OR "X"
-                    MOVE "0" TO FLAG
+                    MOVE 0 TO FLAG
                     GO TO AUTH-1-EXIT
            END-IF
+           
            IF ALF-15 = "Y" OR "N"
                     DISPLAY "INVALID"
                     GO TO AUTH-2
            END-IF
+           
            MOVE "1" TO CC-AUTH
            MOVE ALF-15 TO AUTH-NUM
-           MOVE 0 TO FLAG
+           
            IF FLAG = 2
+               MOVE AUTHFILE01 TO AUTHFILE-BACK
                PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
                GO TO AUTH-1-EXIT
            END-IF
+           
            MOVE "01" TO AUTH-QNTY
            MOVE SPACE TO AUTH-FILLER
            ACCEPT AUTH-DATE-E FROM CENTURY-DATE
+           MOVE AUTHFILE01 TO AUTHFILE-BACK
            PERFORM WRITE-AU THRU WRITE-AU-EXIT.
        AUTH-1-EXIT. EXIT.
 
@@ -4030,10 +4507,12 @@
 
 
        1DIAG-SEARCH.
-           DISPLAY "FOR ICD9 SEARCH TYPE 9".
-           ACCEPT ANS
            MOVE 1 TO DIAG-FLAG
-           IF ANS = "9" MOVE 9 TO DIAG-FLAG.
+           
+           IF ANS = "9" 
+               MOVE 9 TO DIAG-FLAG
+           END-IF
+
            DISPLAY "SEARCH KEY ?".
            ACCEPT DIAG-TITLE.
            IF DIAG-TITLE = "?"
@@ -4212,14 +4691,6 @@
                 GO TO RE-WRITE-PD-EXIT
            END-REWRITE  
            
-           IF PAYFILE-STAT NOT = "00"
-               DISPLAY PAYFILE-STAT
-               DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
-               CLOSE PAYFILE
-               OPEN INPUT PAYFILE
-               GO TO RE-WRITE-PD-EXIT
-           END-IF
-           
            CLOSE PAYFILE
            OPEN INPUT PAYFILE.
            DISPLAY "RECORD CHANGED".
@@ -4227,6 +4698,9 @@
        RE-WRITE-PD-EXIT.
            EXIT.
        RE-WRITE-CC.
+           CLOSE CHARCUR
+           OPEN I-O CHARCUR
+           MOVE CHARCUR-BACK TO CHARCUR01
            REWRITE CHARCUR01 INVALID
                 DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
                 DISPLAY CHARCUR-STAT
@@ -4235,17 +4709,11 @@
                 GO TO RE-WRITE-CC-EXIT
            END-REWRITE
 
-              IF CHARCUR-STAT NOT = "00"
-                DISPLAY CHARCUR-STAT
-                DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
-                CLOSE CHARCUR
-                OPEN INPUT CHARCUR
-                GO TO RE-WRITE-CC-EXIT
-              END-IF
            CLOSE CHARCUR
-           OPEN INPUT CHARCUR.
+           OPEN INPUT CHARCUR
            DISPLAY "RECORD CHANGED".
            MOVE 1 TO FLAG.
+           
        RE-WRITE-CC-EXIT.
            EXIT.
 
@@ -4260,20 +4728,17 @@
                 OPEN INPUT AUTHFILE
                 GO TO WRITE-AU-EXIT
            END-WRITE
-           IF AUTHFILE-STAT NOT = "00"
-                DISPLAY AUTHFILE-STAT
-                DISPLAY "RECORD NOT ADDED AT THIS TIME"
-                CLOSE AUTHFILE
-                OPEN INPUT AUTHFILE
-                GO TO WRITE-AU-EXIT
-           END-IF
+           
            DISPLAY "RECORD ADDED".
            CLOSE AUTHFILE
            OPEN INPUT AUTHFILE.
            MOVE 1 TO FLAG.
        WRITE-AU-EXIT.
            EXIT.
-       RE-WRITE-AU. 
+       RE-WRITE-AU.
+           CLOSE AUTHFILE
+           OPEN I-O AUTHFILE
+           MOVE AUTHFILE-BACK TO AUTHFILE01
            REWRITE AUTHFILE01 INVALID
                 DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
                 DISPLAY AUTHFILE-STAT
@@ -4281,13 +4746,7 @@
                 OPEN INPUT AUTHFILE
                 GO TO RE-WRITE-AU-EXIT
            END-REWRITE.
-           IF AUTHFILE-STAT NOT = "00"
-                DISPLAY AUTHFILE-STAT
-                DISPLAY "RECORD NOT ADDED AT THIS TIME"
-                CLOSE AUTHFILE
-                OPEN INPUT AUTHFILE
-                GO TO WRITE-AU-EXIT
-           END-IF
+          
            DISPLAY "RECORD CHANGED"
            CLOSE AUTHFILE
            OPEN INPUT AUTHFILE.

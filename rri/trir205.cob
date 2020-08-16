@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. TRI205.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. trir205.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -43,10 +43,11 @@
 	     SELECT PROCFILE ASSIGN TO "S75" ORGANIZATION IS INDEXED
 	     ACCESS IS RANDOM RECORD KEY IS PROC-KEY
 	     LOCK MODE MANUAL.
-           SELECT RPGPROCFILE ASSIGN TO "S160"
-             ORGANIZATION IS INDEXED
+         
+         SELECT RPGPROCFILE ASSIGN TO "S160" ORGANIZATION INDEXED
              ACCESS IS DYNAMIC RECORD KEY IS RPGPROC-KEY
              LOCK MODE MANUAL.
+             
            SELECT BILLDATE ASSIGN TO "S120" ORGANIZATION LINE
              SEQUENTIAL.
            SELECT OUT-FILE ASSIGN TO "S125"

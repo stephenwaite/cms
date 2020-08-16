@@ -418,7 +418,11 @@
            DISPLAY PROC-KEY " " PROC-TITLE.
            DISPLAY "DELETE Y/N ?".
            ACCEPT ANS.
-           IF ANS NOT = "Y" DISPLAY "NO DELETE" GO TO S1.
+           
+           IF ANS NOT = "Y" 
+               DISPLAY "NO DELETE" 
+               GO TO S1
+           END-IF    
                
            MOVE PROCFILE01 TO SAVE-PROCFILE01
            CLOSE PROCFILE
@@ -473,9 +477,8 @@
        R1.
            MOVE PROCFILE01 TO SAVE-PROCFILE01
            CLOSE PROCFILE
-           DISPLAY "BEFORE OPEN I-O" PROCFILE01
            OPEN I-O PROCFILE
-           DISPLAY "AFTER OPEN I-O" PROCFILE01
+
            READ PROCFILE WITH LOCK INVALID
                IF PROC-STAT NOT = "00" 
                    DISPLAY PROC-STAT " RECORD NOT CHANGED"
@@ -484,6 +487,7 @@
                    GO TO S1
                END-IF    
            END-READ
+
            MOVE SAVE-PROCFILE01 TO PROCFILE01                     
            REWRITE PROCFILE01.
            DISPLAY "RECORD CHANGED"

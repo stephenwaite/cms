@@ -773,6 +773,8 @@
            IF FLAG = 1 GO TO P2.
        P2-0.
            DISPLAY R2-REFDOC " " R2-DOC " " R2-NPI " TO BE ADDED"
+               " FOR " R1-PATNAME " CITY " R1-GARCITY " STATE "
+                   R1-GARSTATE
            ACCEPT REF
            MOVE REF TO REF-KEY
            READ REFPHY INVALID GO TO P2-0.
