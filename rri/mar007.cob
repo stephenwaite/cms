@@ -1,0 +1,109 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. mar007.
+       AUTHOR. SWAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+       
+           SELECT MEDFILE2020 ASSIGN TO "S35" ORGANIZATION INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS MED-KEY
+           LOCK MODE MANUAL.
+
+           SELECT PROC2021 ASSIGN TO "S40" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS PROC2021-KEY
+           LOCK MODE MANUAL.
+
+           SELECT CHANGEDX ASSIGN TO "S45"
+           ORGANIZATION LINE SEQUENTIAL.
+
+           SELECT NOTCHANGED  ASSIGN TO "S50"
+           ORGANIZATION LINE SEQUENTIAL.
+
+           SELECT NOTFOUND  ASSIGN TO "S55"
+           ORGANIZATION LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PROC2021.
+       01  PROC202101.
+           02  PROC2021-KEY.
+             03 PROC2021-KEY1 PIC X(4).
+             03 PROC2021-KEY2 PIC X(7).
+           02 PROC2021-TYPE PIC X.
+           02 PROC2021-TITLE PIC X(28).
+           02 PROC2021-AMOUNT PIC 9(4)V99.
+
+       FD  MEDFILE2020.
+       01  MEDFILE202001.
+           02 MED-KEY.
+             03 MED-KEY1 PIC X(5).
+             03 MED-KEY2 PIC XX.
+           02 MED-AMT PIC 9(4)V99.
+
+       FD  CHANGEDX.           
+       01  CHANGEDX01 PIC X(80).
+
+       FD  NOTCHANGED.
+       01  NOTCHANGED01 PIC X(80).
+
+       FD  NOTFOUND.
+       01  NOTFOUND01 PIC X(80).
+       
+       WORKING-STORAGE SECTION.
+       01  X-AMT PIC 9(5)V99.
+       01  SAVE-AMT PIC 9(4)V99.
+
+       PROCEDURE DIVISION.
+       P0.
+           OPEN INPUT MEDFILE2020.
+           OPEN OUTPUT CHANGEDX NOTCHANGED NOTFOUND.
+           OPEN I-O PROC2021.
+
+       P1.
+           READ PROC2021 NEXT WITH LOCK AT END
+               GO TO P99
+           END-READ
+
+           IF PROC2021-AMOUNT = 0 
+               GO TO P1
+           END-IF
+
+           MOVE PROC2021-KEY2 TO MED-KEY
+           
+           READ MEDFILE2020 INVALID 
+               WRITE NOTFOUND01 FROM PROC202101
+               GO TO P1
+           END-READ
+
+           COMPUTE X-AMT = 4 * MED-AMT
+           
+           IF X-AMT > 9999
+               MOVE SPACE TO CHANGEDX01
+               STRING PROC2021-KEY " " PROC2021-TITLE " " 
+                   PROC2021-AMOUNT "  " X-AMT "  LIMITED EXCEEDED"
+                   DELIMITED BY SIZE INTO CHANGEDX01
+               WRITE CHANGEDX01       
+               COMPUTE PROC2021-AMOUNT = 9995.00
+               REWRITE PROC202101
+               GO TO P1
+           END-IF
+
+           IF PROC2021-AMOUNT < X-AMT
+               MOVE PROC2021-AMOUNT TO SAVE-AMT
+               COMPUTE PROC2021-AMOUNT = X-AMT
+               REWRITE PROC202101
+               MOVE SPACE TO CHANGEDX01
+               STRING PROC2021-KEY " " PROC2021-TITLE " " 
+                   SAVE-AMT "  " PROC2021-AMOUNT 
+                   DELIMITED BY SIZE INTO CHANGEDX01
+               WRITE CHANGEDX01       
+               REWRITE PROC202101
+               GO TO P1
+           END-IF        
+           
+           WRITE NOTCHANGED01 FROM PROC202101
+           GO TO P1.
+       P99.
+           CLOSE MEDFILE2020 PROC2021 CHANGEDX NOTCHANGED NOTFOUND.
+           STOP RUN.
