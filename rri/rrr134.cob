@@ -207,13 +207,26 @@
            IF INS-2 = " "
            MOVE 1 TO INSTAB(INS-1)
            ELSE MOVE 2 TO INSTAB(INS-1). GO TO P00.
-       P1. READ CHARCUR AT END GO TO P6.
+       P1. 
+           READ CHARCUR
+             AT END
+               GO TO P6
+           END-READ
+
+           IF CC-DATE-T < "20170801"
+               GO TO P1
+           END-IF    
+
            IF INSTAB(CC-PAYCODE) = 2 GO TO P1.
+           
            IF CC-REC-STAT > "1" GO TO P1.
-           IF CC-PAYCODE = 003 OR 004 OR 028 OR 064 OR 197 GO TO P1.
+      
+           IF CC-PAYCODE = 003 OR 004 OR 028 OR 064 OR 197
+               GO TO P1
+           END-IF    
            
            IF CC-DOCP = "02"
-               MOVE SPACE TO ERRORFILE
+               MOVE SPACE TO ERRORFILE01
                MOVE "BAD DOC ## AND/OR DIAG ?" TO EF2
                PERFORM S1 
                GO TO P1

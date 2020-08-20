@@ -5,7 +5,7 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
        PROGRAM-ID. xxx003c.
-       AUTHOR. S WAITE.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -194,7 +194,7 @@
            02 FILLER PIC X.
            02 FO-KEY PIC X(11).
        FD  OUTFILE.
-       01  OUTFILE01 PIC X(80).
+       01  OUTFILE01 PIC X(132).
        WORKING-STORAGE SECTION.
        01  BELL0 USAGE INDEX.
        01  HOLD8 PIC X(8) VALUE SPACE.
@@ -249,7 +249,7 @@
            SET BELL0 TO 7.
            OPEN INPUT DIAGFILE FILE-OUT PROCFILE ALLOWFILE GARFILE
                       TAGDIAG DIAG9FILE.
-           OPEN OUTPUT OUTFILE.
+           OPEN EXTEND OUTFILE.
            OPEN I-O CHARFILE.
            DISPLAY "0 = start new, 1 = skip ahead to undone"
            ACCEPT ALF1.
@@ -299,6 +299,14 @@
                    MOVE "00" TO CD-DOCP
                    GO TO P1-0
                END-IF
+
+               IF CD-DOCP = "02"
+                   MOVE SPACE TO OUTFILE01
+                   STRING FO-KEY " USING 02 FOR DOCP AS NOT READ" 
+                          CD-PAYCODE " DOS " FO-DATE " PROC " FO-PROC
+                          DELIMITED BY SIZE INTO OUTFILE01
+                   WRITE OUTFILE01
+               END-IF    
            END-IF
 
       * auto-code call back mammos     
@@ -454,6 +462,7 @@
                    DISPLAY "Skipping assessment so will need to code"
                    DISPLAY "quality codes as well once study is read"
                    DISPLAY "writing measure code log to track"
+                   MOVE SPACE TO OUTFILE01
                    STRING FO-KEY " unread, code assessment when read " 
                           CD-PAYCODE " DOS " FO-DATE " PROC " FO-PROC
                           DELIMITED BY SIZE INTO OUTFILE01

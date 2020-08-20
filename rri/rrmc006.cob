@@ -19,7 +19,7 @@
                ACCESS MODE IS DYNAMIC RECORD KEY IS ORDNO
                ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
            
-           SELECT REFPHY ASSIGN TO        "S40" ORGANIZATION IS INDEXED
+           SELECT REFPHY ASSIGN TO        "S40" ORGANIZATION INDEXED
                ACCESS IS DYNAMIC RECORD KEY IS REF-KEY
                ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
                ALTERNATE RECORD KEY IS REF-CRNUM WITH DUPLICATES
@@ -181,7 +181,6 @@
            02 C-CPT PIC X(5).
 
        FD  ACTFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS ACTFILE01.
        01  ACTFILE01.
            02 A-ACTNO PIC X(8).
@@ -916,7 +915,9 @@
            MOVE R2-GENDER33 TO X-GENDER
 
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
+
            IF FLAG = 1 MOVE 4 TO PLANNUM GO TO P2-1.
+           
            MOVE R2-IP4 TO X-IP
            MOVE R2-CERT44 TO X-CERT
            MOVE R2-GRP4 TO X-GRP
@@ -927,6 +928,7 @@
            MOVE R1-GENDER22 TO X-GENDER
 
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
+           
            GO TO P2-2.
        P2-1.
            IF PLANNUM = 2
@@ -1157,27 +1159,34 @@
        P2-2.
            IF A-PRINS = "004"
             MOVE A-RELATE TO A-PR-RELATE.
+           
            IF A-SEINS = "004"
             MOVE A-RELATE TO A-SE-RELATE.
+           
            IF A-PRINS NOT = "245"
-           SET YNDX TO 1
-           MOVE A-PRIPOL TO TAB1601
-           MOVE SPACE TO NEWTAB01
-           PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
-           MOVE NEWTAB01 TO A-PRIPOL.
+               SET YNDX TO 1
+               MOVE A-PRIPOL TO TAB1601
+               MOVE SPACE TO NEWTAB01
+               PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
+               MOVE NEWTAB01 TO A-PRIPOL
+           END-IF    
+           
            IF A-SEINS NOT = "245"
-           SET YNDX TO 1
-           MOVE A-SECPOL TO TAB1601
-           MOVE SPACE TO NEWTAB01
-           PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
-           MOVE NEWTAB01 TO A-SECPOL.
+               SET YNDX TO 1
+               MOVE A-SECPOL TO TAB1601
+               MOVE SPACE TO NEWTAB01
+               PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
+               MOVE NEWTAB01 TO A-SECPOL
+           END-IF
+
            IF (A-PRINS = "003")
                MOVE A-PRIPOL TO POLTEST
                IF ((POLTEST1 = "WA" OR "MA" OR "WD")
                  OR (POLTEST1-1 = "A"))
                    MOVE "028" TO A-PRINS
                END-IF
-           END-IF.
+           END-IF
+
            IF (A-SEINS = "003")
                MOVE A-SECPOL TO POLTEST
                IF ((POLTEST1 = "WA" OR "MA" OR "WD")
@@ -1185,111 +1194,164 @@
                    MOVE "028" TO A-SEINS
                END-IF
            END-IF.
+           
            IF (A-PRINS = "003") AND (A-SEINS NOT = "062")
-             MOVE SPACE TO A-PR-GROUP.
-           IF A-SEINS = "003" MOVE SPACE TO A-SE-GROUP.
+               MOVE SPACE TO A-PR-GROUP
+           END-IF
+
+           IF A-SEINS = "003"
+               MOVE SPACE TO A-SE-GROUP
+           END-IF
+
            MOVE SPACE TO A-PR-OFFICE.
-           IF A-PRINS = "121" MOVE "X100" TO A-PR-OFFICE.
+           
+           IF A-PRINS = "121"
+               MOVE "X100" TO A-PR-OFFICE
+           END-IF
+
            IF (A-PRIPOL = A-PR-GROUP)
-           MOVE SPACE TO A-PR-GROUP.
+               MOVE SPACE TO A-PR-GROUP
+           END-IF
+
            IF (A-SECPOL = A-SE-GROUP)
-           MOVE SPACE TO A-SE-GROUP.
+               MOVE SPACE TO A-SE-GROUP
+           END-IF
+
            IF (A-PRINS = "003" AND A-SEINS = "005")
-             AND (A-PRIPOL1 = A-SECPOL1)
-               MOVE A-PRIPOL2 TO A-SECPOL2.
+               AND (A-PRIPOL1 = A-SECPOL1)
+               MOVE A-PRIPOL2 TO A-SECPOL2
+           END-IF
    
            MOVE A-PRIPOL TO ALF-16
+           
            IF (ALF-16-11 ALPHABETIC) AND (ALF-16-12 ALPHABETIC)
-           AND (ALF-16-13 ALPHABETIC) AND (ALF-16-2 NUMERIC)
-           AND ((A-PRINS = "025" OR "029" OR "031" OR "044" 
-           OR "033" OR "075" OR "094" OR "096")
-           OR (A-PRINS > "233" AND < "245"))
-           MOVE "268" TO A-PRINS
-           MOVE "A" TO A-PR-ASSIGN.
+               AND (ALF-16-13 ALPHABETIC) AND (ALF-16-2 NUMERIC)
+               AND ((A-PRINS = "025" OR "029" OR "031" OR "044" 
+               OR "033" OR "075" OR "094" OR "096")
+               OR (A-PRINS > "233" AND < "245"))
+               MOVE "268" TO A-PRINS
+               MOVE "A" TO A-PR-ASSIGN
+           END-IF
+
            IF A-PRINS = "268" AND ALF-16-11 = "Y"
                AND ALF-16-12 = "L" AND ALF-16-13 = "S"
                MOVE "U" TO A-PR-ASSIGN
-               MOVE "149" TO A-PRINS.
+               MOVE "149" TO A-PRINS
+           END-IF
+
            IF (A-PRINS = "268") 
                AND ((ALF-16-11 = "Z") AND (ALF-16-12 = "I"))
-               MOVE "002" TO A-PRINS.
+               MOVE "002" TO A-PRINS
+           END-IF
+
            IF ((A-PRINS = "268")
                AND  ((ALF-16-1 = "DVT") OR (ALF-16-1 = "EVT")
                OR (ALF-16-1 = "FVT") OR (ALF-16-1 = "VEI")))
-               MOVE "002" TO A-PRINS.
+               MOVE "002" TO A-PRINS
+           END-IF
+
            IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V")
                MOVE SPACE TO ERRFILE01
                STRING A-GARNAME " " A-ACTNO " " A-PRIPOL
                DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
            END-IF
+           
            IF (A-PRINS = "268")
-           AND ((ALF-16-11 NOT ALPHABETIC)
-            OR (ALF-16-12 NOT ALPHABETIC) 
-            OR (ALF-16-13 NOT ALPHABETIC))
-           MOVE "076" TO A-PRINS
-           MOVE "U" TO A-PR-ASSIGN.
+               AND ((ALF-16-11 NOT ALPHABETIC)
+               OR (ALF-16-12 NOT ALPHABETIC) 
+               OR (ALF-16-13 NOT ALPHABETIC))
+               MOVE "076" TO A-PRINS
+               MOVE "U" TO A-PR-ASSIGN
+           END-IF    
+           
            IF (A-PRINS = "076") 
-           AND ((ALF-16-11 ALPHABETIC)
-            OR (ALF-16-12 ALPHABETIC) 
-            OR (ALF-16-13 ALPHABETIC))
+               AND ((ALF-16-11 ALPHABETIC)
+               OR (ALF-16-12 ALPHABETIC) 
+               OR (ALF-16-13 ALPHABETIC))
 
-           MOVE "268" TO A-PRINS
-           MOVE A-SECPOL TO ALF-16
-           IF (ALF-16-11 ALPHABETIC) AND (ALF-16-12 ALPHABETIC)
-           AND (ALF-16-13 ALPHABETIC) 
-           AND ((A-SEINS = "025" OR "029" OR "031" OR "044"  
-           OR "033" OR "075" OR "094" OR "096")
-           OR (A-SEINS > "233" AND < "245"))
-           MOVE "268" TO A-SEINS.
+               MOVE "268" TO A-PRINS
+               MOVE A-SECPOL TO ALF-16
+
+               IF (ALF-16-11 ALPHABETIC) AND (ALF-16-12 ALPHABETIC)
+                   AND (ALF-16-13 ALPHABETIC) 
+                   AND ((A-SEINS = "025" OR "029" OR "031" OR "044"  
+                   OR "033" OR "075" OR "094" OR "096")
+                   OR (A-SEINS > "233" AND < "245"))
+           
+                   MOVE "268" TO A-SEINS
+               END-IF
+           END-IF   
+
            IF A-SEINS = "268" AND ALF-16-11 = "Y"
-            AND ALF-16-12 = "L"
-           MOVE "U" TO A-PR-ASSIGN
-           MOVE "149" TO A-SEINS.
+               AND ALF-16-12 = "L"
+                       
+               MOVE "U" TO A-PR-ASSIGN
+               MOVE "149" TO A-SEINS
+           END-IF
+
            IF (A-SEINS = "268") 
-           AND ((ALF-16-11 NOT ALPHABETIC)
-            OR (ALF-16-12 NOT ALPHABETIC) 
-            OR (ALF-16-13 NOT ALPHABETIC))
-      *     MOVE "076" TO A-SEINS
-           MOVE "U" TO A-SE-ASSIGN.
+               AND ((ALF-16-11 NOT ALPHABETIC)
+               OR (ALF-16-12 NOT ALPHABETIC) 
+               OR (ALF-16-13 NOT ALPHABETIC))
+               MOVE "U" TO A-SE-ASSIGN
+           END-IF
+
            IF (A-SEINS = "076") 
-           AND ((ALF-16-11 ALPHABETIC) AND (ALF-16-12 ALPHABETIC) 
-                                       AND (ALF-16-13 ALPHABETIC)) 
-           MOVE "268" TO A-SEINS
-		   IF A-PRINS = "076" AND A-SEINS = "076"
-           MOVE "075" TO A-SEINS.
+               AND ((ALF-16-11 ALPHABETIC)
+               AND  (ALF-16-12 ALPHABETIC) 
+               AND  (ALF-16-13 ALPHABETIC)) 
+           
+               MOVE "268" TO A-SEINS
+		   END-IF
+
+           IF A-PRINS = "076" AND A-SEINS = "076"
+               MOVE "075" TO A-SEINS
+           END-IF
+           
            IF A-PRINS = "002" AND A-SEINS = "002"
            MOVE "023" TO A-SEINS.
+           
            IF (A-PRINS = "076") AND (A-PR-GROUP = "8054" OR "1100")
            MOVE "477" TO A-PRINS
            MOVE "A" TO A-PR-ASSIGN.
+           
            IF (A-PRINS = "076") AND (A-PR-GROUP = "000703")
            MOVE "155" TO A-PRINS
            MOVE "A" TO A-PR-ASSIGN.
+           
            IF (A-PRINS = "076") 
            AND (A-PR-GROUP = "711113" OR "71111322001")
            MOVE "343" TO A-PRINS
            MOVE "A" TO A-PR-ASSIGN.
+           
            IF A-PRINS = "512" AND A-PR-GROUP = "550566"
            MOVE "110" TO A-PRINS.
+           
            IF (A-PRINS = "076") AND (A-PR-GROUP = "ORV10100")
            MOVE "553" TO A-PRINS
            MOVE "A" TO A-PR-ASSIGN.
+           
            IF (A-SEINS = "076") AND (A-SE-GROUP = "8054" OR "1100")
            MOVE "477" TO A-SEINS
            MOVE "A" TO A-SE-ASSIGN.
+           
            IF (A-SEINS = "076") AND (A-SE-GROUP = "000703")
            MOVE "155" TO A-SEINS
            MOVE "A" TO A-SE-ASSIGN.
+           
            IF (A-SEINS = "076") 
            AND (A-SE-GROUP = "711113" OR "71111322001")
            MOVE "343" TO A-SEINS
            MOVE "A" TO A-SE-ASSIGN.
+           
            IF A-SEINS = "512" AND A-SE-GROUP = "550566"
            MOVE "110" TO A-SEINS.
+           
            IF (A-SEINS = "076") AND (A-SE-GROUP = "ORV10100")
            MOVE "553" TO A-SEINS
            MOVE "A" TO A-PR-ASSIGN.
+           
            IF (A-PRINS = "003") AND (A-SEINS = "715") 
            MOVE "062" TO A-SEINS
            MOVE "0099001     " TO A-PR-GROUP
@@ -1299,7 +1361,7 @@
                AND (A-PR-ASSIGN = "A")
                MOVE "020" TO A-SEINS
                DISPLAY A-PRINS "  SAME AS SECONDARY INSURANCE "
-                   X-SUBNAME
+                   R2-MEDREC
            END-IF.
        P2-3.
            MOVE R2-MEDREC TO A-ACTNO
@@ -1420,10 +1482,19 @@
            MOVE SPACE TO COMPFILE01
            STRING A-ACTNO  C-DATE-T C-PROC INSURANCE-3
            DELIMITED BY SIZE INTO COMPFILE01
-           WRITE COMPFILE01 INVALID CONTINUE.
-       PACK-1. IF NOT (TAB16(X) = " " OR "-" OR "/")
+           
+           WRITE COMPFILE01
+             INVALID 
+               CONTINUE
+           END-WRITE.    
+
+       PACK-1. 
+           
+           IF NOT (TAB16(X) = " " OR "-" OR "/")
                MOVE TAB16(X) TO NEWTAB(YNDX)
-               SET YNDX UP BY 1.
+               SET YNDX UP BY 1
+           END-IF.
+
        EA-1.
            IF R1-EMAIL = SPACE AND R1-AUTH = SPACE 
              AND R2-GUARSSN = SPACE GO TO EA-1-EXIT.

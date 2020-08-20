@@ -849,10 +849,7 @@
               GO TO P9-SVC-LOOP.
            MOVE CLP-1 TO G-GARNO
            READ GARFILE INVALID GO TO P3-SVC-LOOP.
-      *       IF CLP-2CLMSTAT = "2 "
-      *       AND (PAYORID = "87726")
-      *          GO TO DUMP-1.
-
+     
            MOVE 1 TO GAR-FLAG
            MOVE 0 TO FIND-CNTR TOT-TOT
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
@@ -861,48 +858,23 @@
        P3-SVC-LOOP.    
             MOVE 0 TO FIND-CNTR TOT-TOT
             PERFORM FIND-GARNO THRU FIND-GARNO-EXIT
-      *      IF CLP-2CLMSTAT = "2 "
-      *       AND (PAYORID = "87726")
-      *         GO TO DUMP-1.
 
             IF (FIND-CNTR NOT = SVC-CNTR)
               OR (NOT-FLAG = 1 OR 2)
-      *       IF CLP-2CLMSTAT = "2 "
-      *       AND (PAYORID = "87726")
-      *         GO TO DUMP-1
-      *       END-IF
-      *      IF (CLP-2CLMSTAT NOT  = "2 ")
-      *       OR ((CLP-2CLMSTAT = "2 ") AND (PAYORID NOT = "87726"))
               PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
               VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
              GO TO P9-SVC-LOOP
-      *       END-IF
             END-IF.
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
                                OR "20" OR "21")
-      *      IF (CLP-2CLMSTAT = "2 ")
-      *       AND (PAYORID = "87726")
-      *        GO TO DUMP-1
-      *       END-IF
-      *      IF (CLP-2CLMSTAT NOT  = "2 ")
-      *      OR ((CLP-2CLMSTAT = "2 ") AND (PAYORID not = "87726"))
-      *       
              PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
               VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
              GO TO P9-SVC-LOOP
-      *     END-IF
            END-IF.
         P4-UNITED-START.
-      *       IF (CLP-2CLMSTAT = "2 ")
-      *       AND (PAYORID = "87726")
-      *       AND (SVC-CNTR > 1)
-      *       AND ( TOT-TOT NOT = CLAIM-PAID)
-      *        GO TO DUMP-1
-      *       END-IF
-
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT 
              VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
            GO TO P9-SVC-LOOP.
@@ -915,15 +887,10 @@
            SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
            IF SVC-1PROCMOD(8:1) = "F" GO TO P5-SVC-LOOP-EXIT.
            MOVE SPACE TO ALF8
-           move SVC-3PAYAMT to alf8
-           if alf8 = "-"
+           MOVE SVC-3PAYAMT to alf8
+           IF ALF8 = "-"
            PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
-
            PERFORM AMOUNT-1
-      *     IF (PAYORID = "87726") 
-      *      AND (CLP-2CLMSTAT = "2 ")
-      *      MOVE BAL-TAB(X) TO AMOUNT-X
-      *     END-IF
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
            IF PD-AMOUNT = 0
              MOVE 0 TO FLAG
@@ -1037,115 +1004,135 @@
            MOVE PAYFILE01 TO TRNPAYFILE01
            MOVE TRN-2 TO TRN-CHKNO
            WRITE TRNPAYFILE01
-            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
-             IF CAS-SVC(Z) = X
-              MOVE SPACE TO CAS01 ALF8
-              MOVE CAS-TAB(Z) TO FILEIN01
-              UNSTRING FILEIN01 DELIMITED BY "*" INTO
-              CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-              CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-              CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-              IF (CAS-2 = "104") MOVE CAS-3 TO ALF8
-              END-IF
-              IF (CAS-5 = "104") MOVE CAS-5 TO ALF8
-              END-IF
-              IF (CAS-8 = "104") MOVE CAS-8 TO ALF8
-              END-IF
-              IF (CAS-11 = "104") MOVE CAS-11 TO ALF8
-              END-IF
-              IF (CAS-14 = "104") MOVE CAS-14 TO ALF8
-              END-IF
-              IF (CAS-17 = "104") MOVE CAS-17 TO ALF8
-              END-IF
-              IF ALF8 NOT = SPACE
-               MOVE "DI" TO PD-DENIAL
-               PERFORM AMOUNT-1
-               MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
+           
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR           
+               IF CAS-SVC(Z) = X
+                   MOVE SPACE TO CAS01 ALF8
+                   MOVE CAS-TAB(Z) TO FILEIN01
+                   UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                     CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+              
+                   IF (CAS-2 = "104") MOVE CAS-3 TO ALF8
+                   END-IF
+              
+                   IF (CAS-5 = "104") MOVE CAS-5 TO ALF8
+                   END-IF
+              
+                   IF (CAS-8 = "104") MOVE CAS-8 TO ALF8
+                   END-IF
+              
+                   IF (CAS-11 = "104") MOVE CAS-11 TO ALF8
+                   END-IF
+              
+                   IF (CAS-14 = "104") MOVE CAS-14 TO ALF8
+                   END-IF
+              
+                   IF (CAS-17 = "104") MOVE CAS-17 TO ALF8
+                   END-IF
+              
+                   IF ALF8 NOT = SPACE
+                       MOVE "DI" TO PD-DENIAL
+                       PERFORM AMOUNT-1
+                       MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
+                       PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
+                       MOVE CAS-CNTR TO Z
+                   END-IF
+               END-IF
+           END-PERFORM
+           
+           MOVE 0 TO INS-REDUCE
+           
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
+           
+               IF CAS-SVC(Z) = X
+                   MOVE SPACE TO CAS01 
+                   MOVE CAS-TAB(Z) TO FILEIN01
+                   UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                     CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+                   
+                   IF (CAS-1 = "CO" OR "PI" OR "OA")
+                               AND
+                      ((CAS-2 = "A2" OR "42" OR "45" OR "B6" OR "B10" OR
+                                "59" OR "253" OR "131")
+                               OR
+                      (CAS-5 = "A2" OR "42" OR "45" OR "B6" OR "B10" OR 
+                               "59" OR "253"OR "131"))
+                               AND NOT (CLP-2CLMSTAT = "2 " OR "3 ")
+                       
+                       IF CAS-3 NOT = SPACE
+                           MOVE SPACE TO ALF8
+                           MOVE CAS-3 TO ALF8
+                           PERFORM AMOUNT-1
+                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                       END-IF
+               
+                       IF CAS-6 NOT = SPACE
+                           MOVE SPACE TO ALF8
+                           MOVE CAS-6 TO ALF8
+                           PERFORM AMOUNT-1
+                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                       END-IF
+               
+                       IF CAS-9 NOT = SPACE
+                           MOVE SPACE TO ALF8
+                           MOVE CAS-9 TO ALF8
+                           PERFORM AMOUNT-1
+                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                       END-IF
+               
+                       IF CAS-12 NOT = SPACE
+                           MOVE SPACE TO ALF8
+                           MOVE CAS-12 TO ALF8
+                           PERFORM AMOUNT-1
+                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                       END-IF
+               
+                       IF CAS-15 NOT = SPACE
+                           MOVE SPACE TO ALF8
+                           MOVE CAS-15 TO ALF8
+                           PERFORM AMOUNT-1
+                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                       END-IF
+               
+                       IF CAS-18 NOT = SPACE
+                           MOVE SPACE TO ALF8
+                           MOVE CAS-18 TO ALF8
+                           PERFORM AMOUNT-1
+                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                       END-IF
+                   END-IF
+               END-IF
+           END-PERFORM.
+           
+           COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
+           
+           IF CLAIM-TOT = 0
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF
+           
+           IF INS-REDUCE NOT = 0
+               COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT - INS-REDUCE
+               PERFORM S4 THRU S5
+               
+               IF CLAIM-TOT < 0
+                   PERFORM P1-LOST-SVC
+                   GO TO P5-SVC-LOOP-EXIT
+               END-IF
+
+               MOVE "14" TO PD-DENIAL
+               MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
                PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
                MOVE CAS-CNTR TO Z
-              END-IF
-             END-IF
-            END-PERFORM
-            MOVE 0 TO INS-REDUCE
-            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
-             IF CAS-SVC(Z) = X
-              MOVE SPACE TO CAS01 
-              MOVE CAS-TAB(Z) TO FILEIN01
-              UNSTRING FILEIN01 DELIMITED BY "*" INTO
-              CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-              CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-              CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-              IF (CAS-1 = "CO" OR "PI" OR "OA")
-              AND
-              ((CAS-2 =
-               "A2" OR "42" OR "45" OR "B6" OR "B10" OR "59" OR "253"
-                OR "131")
-                OR
-               (CAS-5 =
-               "A2" OR "42" OR "45" OR "B6" OR "B10" OR "59" OR "253"
-                OR "131"))
-              AND NOT (CLP-2CLMSTAT = "2 " OR "3 ")
-               IF CAS-3 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-3 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-               END-IF
-               IF CAS-6 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-6 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                END-IF
-               IF CAS-9 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-9 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                END-IF
-               IF CAS-12 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-12 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                END-IF
-               IF CAS-15 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-15 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                END-IF
-               IF CAS-18 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-18 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-               END-IF
-              END-IF
-             END-IF
-            END-PERFORM.
-            COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
-            IF CLAIM-TOT = 0
-                PERFORM P1-LOST-SVC
-                GO TO P5-SVC-LOOP-EXIT
-            END-IF
-            IF INS-REDUCE NOT = 0
-            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT - INS-REDUCE
-            PERFORM S4 THRU S5
-             IF CLAIM-TOT < 0
-                 PERFORM P1-LOST-SVC
-                 GO TO P5-SVC-LOOP-EXIT
-             END-IF
-            MOVE "14" TO PD-DENIAL
-            MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
-            PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
-            MOVE CAS-CNTR TO Z
            END-IF
+           
            GO TO P5-SVC-LOOP-EXIT.
 
        WRITE-ADJ.     
-      *     IF PAYORID = "80705" OR PC-PAYCODE = "106"
-      *      GO TO WRITE-ADJ-EXIT.
            MOVE PAYFILE01 TO PAYBACK.
        P4-0.
            ADD 1 TO XYZ.
@@ -1166,19 +1153,19 @@
            EXIT.
        DUMP50.
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
-            IF CAS-SVC(Z) = X
-              MOVE SPACE TO CAS01 
-              MOVE CAS-TAB(Z) TO FILEIN01
-              UNSTRING FILEIN01 DELIMITED BY "*" INTO
-              CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-              CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-              CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+               IF CAS-SVC(Z) = X
+                   MOVE SPACE TO CAS01 
+                   MOVE CAS-TAB(Z) TO FILEIN01
+                   UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                     CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-              IF CAS-2 = "50"
-                MOVE 1 TO FLAG
-                MOVE Z TO CAS-CNTR
-              END-IF
-            END-IF.
+                   IF CAS-2 = "50"
+                       MOVE 1 TO FLAG
+                       MOVE Z TO CAS-CNTR
+                   END-IF               
+               END-IF.
        P9-SVC-LOOP.
            MOVE SAVEFILE01 TO FILEIN01
            IF F1 = "CLP" GO TO P1-CLP-1.
