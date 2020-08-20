@@ -9,27 +9,36 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT INSIN ASSIGN TO "S30" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT FILE-OUT ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT CHARCUR ASSIGN TO "S40" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC    RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
+       
            SELECT PAYCUR ASSIGN TO "S45" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY
            LOCK MODE MANUAL.
+       
            SELECT FILEOUT ASSIGN TO "S50" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT DOCFILE ASSIGN TO "S55" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT GARFILE ASSIGN TO "S60"     ORGANIZATION IS INDEXED
            ACCESS MODE IS RANDOM         RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
            LOCK MODE MANUAL.
+       
            SELECT FILEIN   ASSIGN TO "S65" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT INSFILE ASSIGN TO "S70"    ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC        RECORD KEY IS INS-KEY
            ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
@@ -39,6 +48,7 @@
            ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
            ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
            LOCK MODE MANUAL.
+       
            SELECT REFPHY ASSIGN TO "S75" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS REF-KEY
            ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
@@ -47,8 +57,10 @@
            ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
            ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES
            LOCK MODE MANUAL.
+       
            SELECT ERRORFILE ASSIGN TO "S80" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT FILEOUT2 ASSIGN TO "S85" ORGANIZATION
            LINE SEQUENTIAL.
 
@@ -255,8 +267,10 @@
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT FILE-OUT FILEOUT FILEOUT2 ERRORFILE.
+           
            OPEN INPUT PAYCUR INSIN CHARCUR DOCFILE GARFILE
-           FILEIN INSFILE REFPHY.
+               FILEIN INSFILE REFPHY.
+           
            MOVE SPACE TO ERRORFILE01
            MOVE "  COMMERCIAL ELECTRONIC CLAIMS ERRORS      "
             TO ERRORFILE01
@@ -265,18 +279,34 @@
 
            PERFORM A4 VARYING X FROM 1 BY 1 UNTIL X > 999.
            PERFORM A3 VARYING X FROM 1 BY 1 UNTIL X > 20.
-       PZ. READ DOCFILE AT END GO TO P00.
-           MOVE DF-2 TO DOCTAB(DF-1) GO TO PZ.
+       PZ. 
+           READ DOCFILE
+             AT END
+               GO TO P00
+           END-READ
+
+           MOVE DF-2 TO DOCTAB(DF-1)
+           GO TO PZ.
        P00.
-           READ INSIN AT END GO TO P000.
-           MOVE INS-2 TO INSTAB(INS-1) GO TO P00.
+           READ INSIN
+             AT END
+               GO TO P000
+           END-READ
+
+           MOVE INS-2 TO INSTAB(INS-1)
+           GO TO P00.
 
        P000.
            MOVE 100 TO CC-PAYCODE
-           START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P6.
            
+           START CHARCUR KEY NOT < CC-PAYCODE
+             INVALID
+               GO TO P6
+           END-START.      
        P1.
-           READ CHARCUR NEXT AT END
+
+           READ CHARCUR NEXT
+             AT END
                GO TO P6
            END-READ
 
@@ -292,10 +322,22 @@
            GO TO P1.
        A1.
            MOVE CHARCUR-KEY TO EF1
-           IF CC-PROC = "1      " OR "2       " GO TO A2.
-           IF CC-PROC < "00100  " GO TO A2.
-           IF CC-AMOUNT = 0 GO TO A2.
-           IF CC-REC-STAT > "1" GO TO A2.
+           
+           IF CC-PROC = "1      " OR "2       "
+               GO TO A2
+           END-IF    
+           
+           IF CC-PROC < "00100  "
+               GO TO A2
+           END-IF    
+           
+           IF CC-AMOUNT = 0
+               GO TO A2
+           END-IF    
+           
+           IF CC-REC-STAT > "1"
+               GO TO A2
+           END-IF    
            
            IF CC-DOCP = 02
                MOVE SPACE TO ERRORFILE01
@@ -306,18 +348,27 @@
            END-IF
 
            IF DOCTAB(CC-DOCP) = 99
-           OR INSTAB(CC-PAYCODE) = 99 GO TO A2.
-           IF INSTAB(CC-PAYCODE) NOT = 0
-            MOVE INSTAB(CC-PAYCODE) TO CC-DOCP.
-           IF DOCTAB(CC-DOCP) NOT = 0
-            MOVE DOCTAB(CC-DOCP) TO CC-DOCP.
-           IF CC-PAPER = "O"
-            PERFORM PAPER-1
-            GO TO A2
+             OR INSTAB(CC-PAYCODE) = 99
+               GO TO A2
            END-IF
+
+           IF INSTAB(CC-PAYCODE) NOT = 0
+              MOVE INSTAB(CC-PAYCODE) TO CC-DOCP
+           END-IF
+
+           IF DOCTAB(CC-DOCP) NOT = 0
+               MOVE DOCTAB(CC-DOCP) TO CC-DOCP
+           END-IF
+
+           IF CC-PAPER = "O"
+               PERFORM PAPER-1
+               GO TO A2
+           END-IF
+
            MOVE CC-KEY8 TO G-GARNO
 
-           READ GARFILE INVALID
+           READ GARFILE
+             INVALID
                MOVE SPACE TO ERRORFILE01
                MOVE "BAD GARNO           " TO EF2
                PERFORM E1 
@@ -345,38 +396,50 @@
 
            IF (NUM3 NOT = CC-PAYCODE) AND (CC-PAPER = "E")
                MOVE "P" TO CC-PAPER.
+           
            IF CC-PAYCODE = 153 OR "122" OR "123" MOVE "P" TO CC-PAPER.
+           
            IF CC-PAPER = "E" GO TO A1-1.
+           
            PERFORM PAPER-1 GO TO A2.
        A1-1.
            MOVE CC-PAYCODE TO INS-KEY
-           READ INSFILE INVALID GO TO A2.
+           
+           READ INSFILE
+             INVALID
+               GO TO A2
+           END-READ
+
            IF INS-NEIC = SPACE DISPLAY CHARCUR01 GO TO A2.
+           
            IF INS-CITY = SPACE OR INS-STREET = SPACE
              OR INS-STATE = SPACE OR INS-ZIP = SPACE
              MOVE SPACE TO EF1 EF2
              MOVE CC-PAYCODE TO EF1
              MOVE  "NO INS. ADDRESS " TO EF2
              PERFORM E1 GO TO A2.
+           
            IF CC-DOCP = "00"
            MOVE "NO DOCP              " TO EF2 
            MOVE G-GARNAME TO EF5 
            PERFORM E1 GO TO A2.
-
 
            IF INS-NEIC = "57106" AND CC-DATE-M = "00000000"
            AND CC-PLACE = "3"
            MOVE "ADMIT DATE - TRICARE " TO EF2 
            MOVE G-GARNAME TO EF5 
            PERFORM E1 GO TO A2.
+
            IF INS-NEIC = SPACE
            MOVE "NO NEIC CODE PRESENT" TO EF2
            MOVE INS-KEY TO EF3
            PERFORM E1 GO TO A2.
+
            IF G-PRIPOL = SPACE
            MOVE "POLICY NUMBER MISSING" TO EF2
            MOVE G-PRINS TO EF3
            PERFORM E1 GO TO A2.
+
            IF G-PRIPOL = ZEROES
            MOVE "POLICY CANT BE 0" TO EF2
            MOVE G-PRIPOL TO EF3
@@ -384,6 +447,7 @@
 
            IF INS-NEIC = "23742"
            PERFORM PAPER-1 GO TO P1.
+
            IF G-PR-GROUP = G-PRIPOL
            MOVE "GRP & POLICY ARE =" TO EF2
            MOVE G-GARNAME TO EF5
@@ -409,15 +473,19 @@
            MOVE SPACE TO FILEOUT01
            STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE
            INTO FILEOUT01
+
            IF INS-NEIC = "14165"
             WRITE FILEOUT201 FROM FILEOUT01
            ELSE
             WRITE FILEOUT01
            END-IF
+
            GO TO A2.
+
        PAPER-1.
-           move space to file-out01
-           MOVE CC-PAYCODE TO FO-PC.
+           
+           MOVE SPACE TO FILE-OUT01
+           MOVE CC-PAYCODE TO FO-PC
            MOVE CC-PATID TO  FO-PATID 
            MOVE CHARCUR-KEY TO FILEOUT-KEY
            MOVE CC-DATE-T TO FO-DATE 
@@ -426,30 +494,66 @@
            MOVE CC-DOCP TO FO-DOCP
            MOVE CC-PAPER TO FO-PAPER
            WRITE FILE-OUT01.
+
        A2.
            EXIT.
-       A4. MOVE 0 TO INSTAB(X).
-       A3. MOVE 0 TO DOCTAB(X).
+       A4. 
+           MOVE 0 TO INSTAB(X).
+       A3. 
+           MOVE 0 TO DOCTAB(X).
        E1.
            MOVE CC-DATE-T TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            MOVE DISPLAY-DATE TO EF4
            WRITE ERRORFILE01.
-
-       S4. MOVE CC-KEY8 TO PC-KEY8.
+       S4.            
+           MOVE CC-KEY8 TO PC-KEY8.
            MOVE "000" TO PC-KEY3.
-           START PAYCUR KEY > PAYCUR-KEY INVALID GO TO S4-EXIT.
-       S7. READ PAYCUR NEXT AT END GO TO S4-EXIT.
+           
+           START PAYCUR KEY > PAYCUR-KEY
+             INVALID
+               GO TO S4-EXIT
+           END-START.
+
+       S7. 
+           READ PAYCUR NEXT
+             AT END
+               GO TO S4-EXIT
+           END-READ
+
            IF PC-KEY8 NOT = CC-KEY8 GO TO S4-EXIT.
+           
            IF PC-CLAIM NOT = CC-CLAIM GO TO S7.
+           
            ADD PC-AMOUNT TO CC-AMOUNT GO TO S7.
-       S4-EXIT. EXIT.
-       P6. READ FILEIN AT END GO TO P9.
+       
+       S4-EXIT.
+       
+           EXIT.
+       
+       P6. 
+           READ FILEIN
+             AT END
+               GO TO P9
+           END-READ
+
            MOVE FILEIN01 TO CC-PAYCODE
-           START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P6.
-       P7. READ CHARCUR NEXT AT END GO TO P6.
+           START CHARCUR KEY NOT < CC-PAYCODE
+             INVALID
+               GO TO P6
+           END-START.    
+       P7. 
+           READ CHARCUR NEXT
+             AT END
+               GO TO P6
+           END-READ
+
            IF CC-PAYCODE NOT = FILEIN01 GO TO P6.
+           
            PERFORM A1 THRU A2 GO TO P7.
        P9.
-           CLOSE FILE-OUT FILEOUT ERRORFILE.
+           CLOSE INSIN FILE-OUT CHARCUR PAYCUR 
+                 FILEOUT DOCFILE GARFILE FILEIN
+                 REFPHY ERRORFILE FILEOUT2.
+
            STOP RUN.

@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
         IDENTIFICATION DIVISION.
-       PROGRAM-ID. SID062.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. npi062.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -18,11 +18,13 @@
              ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
              ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES
              LOCK MODE MANUAL.
+
            SELECT NPIFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
              ACCESS IS DYNAMIC RECORD KEY IS NPI-KEY
              ALTERNATE RECORD KEY IS NPI-NAME WITH DUPLICATES
              ALTERNATE RECORD KEY IS NPI-REFKEY WITH DUPLICATES
              LOCK MODE MANUAL.
+
        DATA DIVISION.
        FILE SECTION.
        FD  REFPHY.
@@ -117,15 +119,22 @@
 
            DISPLAY "C=CAST, M=METTOWEE, R=RUTLAND".
            ACCEPT NPI-PLACE.
-           IF NPI-PLACE = "X" GO TO A-EXIT.
-           IF NOT (NPI-PLACE = "C" OR "M" OR "R" ) GO TO A-6.
-           MOVE REF-NAME TO NPI-NAME
-           MOVE REF-NAME TO NPI-NAME
-           WRITE NPIFILE01 INVALID
-            DISPLAY "ALREADY ON FILE"
-            GO TO P1
-           END-WRITE.
            
+           IF NPI-PLACE = "X" GO TO A-EXIT.
+
+           IF NOT (NPI-PLACE = "A" OR "B" OR "C" OR "M" OR "P" OR 
+                               "R" OR "S") 
+               GO TO A-6
+           END-IF    
+           
+           MOVE REF-NAME TO NPI-NAME
+
+           WRITE NPIFILE01
+             INVALID
+               DISPLAY "ALREADY ON FILE"
+               GO TO P1
+           END-WRITE.
+        
        A-EXIT.
            EXIT.
 
@@ -134,24 +143,39 @@
            DISPLAY "ENTER THE NPI"
            DISPLAY " X = BACK TO OPTIONS"
            ACCEPT NPI-KEY
+
            IF NPI-KEY = "X" GO TO P1.
+
            IF NPI-KEY NOT NUMERIC
              DISPLAY "10-DIGITS PLEASE!"
              GO TO C-1
            END-IF
-           READ NPIFILE WITH LOCK INVALID
-             DISPLAY " NOT ON FILE"
-             GO TO C-1
+
+           READ NPIFILE WITH LOCK
+             INVALID
+               DISPLAY " NOT ON FILE"
+               GO TO C-1
            END-READ
+
            DISPLAY "PLACE OF SERVICE"
            DISPLAY " X = BACK TO OPTIONS"
 
            ACCEPT NPI-PLACE.
+           
            IF NPI-PLACE = "X" GO TO P1.
-           IF NOT (NPI-PLACE = "C" OR "M" OR "R" ) GO TO C-1.
+           
+           IF NOT (NPI-PLACE = "A" OR "B" OR "C" OR "M" OR "P" OR 
+                               "R" OR "S")
+               GO TO C-1
+           END-IF    
+           
            REWRITE NPIFILE01
-           INVALID CONTINUE.
+             INVALID
+               CONTINUE
+           END-REWRITE
+
            DISPLAY NPI-KEY " " NPI-NAME " " NPI-PLACE
+           
            GO TO P1.
        F-1.
            MOVE 0 TO CNTR.

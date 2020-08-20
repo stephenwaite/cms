@@ -20,6 +20,7 @@
            SELECT CLAIMFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS CLAIM-KEY
            LOCK MODE MANUAL.
+
        DATA DIVISION.
        FILE SECTION.
        FD  CHARFILE
@@ -398,7 +399,7 @@
                IF (PROC-HOLD = "74150" OR "74160" OR "74170"
                    OR "74176" OR "74177" OR "74178")
                    MOVE "0000G9637  " TO  X-PROC
-      *             PERFORM B1 THRU B2
+                   PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
@@ -460,7 +461,7 @@
 
            IF FLAG = 436
                MOVE "0000G9637  " TO  X-PROC
-      *         PERFORM B1 THRU B2
+               PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
            END-IF
@@ -503,7 +504,7 @@
 
       *    finally, don't forget new measure 436!
                MOVE "0000G9637  " TO  X-PROC
-      *         PERFORM B1 THRU B2
+               PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
            END-IF.
@@ -539,6 +540,7 @@
            MOVE HOLD-ID TO CHARFILE-KEY
            MOVE X-PROC TO CD-PROC
            MOVE DIAG-HOLD TO CD-DIAG
+           MOVE SPACE TO CD-DX2 CD-DX3 CD-DX4
            MOVE 0 TO CD-AMOUNT
            MOVE 003 TO CD-PAYCODE
            MOVE SPACE TO CD-MOD2 CD-MOD3 CD-MOD4

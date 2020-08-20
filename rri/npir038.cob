@@ -9,24 +9,31 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC    RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT FILEIN ASSIGN TO "S40" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT PAPEROUT ASSIGN TO "S45" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT GARFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT DIAGFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
            ACCESS IS RANDOM RECORD KEY IS DIAG-KEY
            ALTERNATE RECORD KEY IS DIAG-TITLE WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT REFPHY ASSIGN TO "S60" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS REF-KEY
            ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
@@ -35,19 +42,24 @@
            ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
            ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT GAPFILE ASSIGN TO "S65" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS GAPKEY
            ALTERNATE RECORD KEY IS GAP-NAME WITH DUPLICATES
            ALTERNATE RECORD KEY IS GAP-CITY WITH DUPLICATES
            ALTERNATE RECORD KEY IS GAP-STATE WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT ERRORFILE ASSIGN TO "S70" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT PROCFILE ASSIGN TO "S75" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS PROC-KEY
            LOCK MODE MANUAL.
+
            SELECT PLACEFILE ASSIGN TO "S80" ORGANIZATION 
             LINE SEQUENTIAL.
+
            SELECT FILEOUT2 ASSIGN TO "S85" ORGANIZATION
            LINE SEQUENTIAL.
 
@@ -279,23 +291,40 @@
            GO TO P00.
        
        P0. 
-           READ FILEIN AT END GO TO P6.
+           READ FILEIN
+             AT END
+               GO TO P6
+           END-READ
+
            MOVE FILEIN01 TO CC-PAYCODE
-           START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P0.
+
+           START CHARCUR KEY NOT < CC-PAYCODE
+             INVALID
+               GO TO P0
+           END-START.    
        P1. 
-           READ CHARCUR NEXT AT END GO TO P0.
+           READ CHARCUR NEXT
+             AT END
+               GO TO P0
+           END-READ
+
            IF CC-PAYCODE NOT = FILEIN01 GO TO P0.
+           
            IF CC-REC-STAT > "1" GO TO P1.
 
            IF CC-DOCP = "02"
                MOVE SPACE TO ERRORFILE01
-               MOVE "BAD DOC ## AND/OR DIAG ?" TO EF2
+               MOVE "BAD DOC ##" TO EF2
+               STRING "CPT " CC-PROC1 " DX " CC-DIAG DELIMITED BY SIZE
+                   INTO EF3
                PERFORM S1 
                GO TO P1
            END-IF 
                
            IF CC-PAPER = "P" OR "O" PERFORM PAPER-1 GO TO P1.
+
            IF CC-PAYCODE = "003" GO TO TEST-IT.
+
            GO TO P1.
        PAPER-1.
            MOVE CC-PAYCODE TO FO-PC
@@ -310,7 +339,7 @@
            MOVE SPACE TO ERRORFILE01
            
            IF CC-DIAG = "0000000"
-               MOVE SPACE TO ERORFILE01
+               MOVE SPACE TO ERRORFILE01
                MOVE "NO DIAG" TO EF2 
                PERFORM S1
                GO TO P1
@@ -326,34 +355,48 @@
            END-READ
            
            MOVE 0 TO DIAGFLAG
+
            IF CC-DX2 NOT = "0000000"
-           MOVE CC-DX2 TO alf7
-           MOVE 0 TO DIAGFLAG
-           PERFORM DIAG-CHECK.
+               MOVE CC-DX2 TO ALF7
+               MOVE 0 TO DIAGFLAG
+               PERFORM DIAG-CHECK
+           END-IF
+
            IF DIAGFLAG = 1 
-           MOVE SPACE TO EF2
-           MOVE "OLD DX2 CODE" TO EF2 
-           MOVE CC-DX2 TO EF3
-           PERFORM S1
-           GO TO P1.
-           IF CC-DX3 NOT = "0000000" MOVE CC-DX3 TO alf7
-           MOVE 0 TO DIAGFLAG
-           PERFORM DIAG-CHECK.
+               MOVE SPACE TO ERRORFILE01
+               MOVE "OLD DX2 CODE" TO EF2 
+               MOVE CC-DX2 TO EF3
+               PERFORM S1
+               GO TO P1
+           END-IF
+
+           IF CC-DX3 NOT = "0000000"
+               MOVE CC-DX3 TO ALF7
+               MOVE 0 TO DIAGFLAG
+               PERFORM DIAG-CHECK
+           END-IF
+
            IF DIAGFLAG = 1 
-           MOVE SPACE TO EF2
-           MOVE "OLD DX3 CODE" TO EF2 
-           MOVE CC-DX3 TO EF3
-           PERFORM S1
-           GO TO P1.
-           IF CC-DX4 NOT = "0000000" MOVE CC-DX4 TO alf7
-           MOVE 0 TO DIAGFLAG
-           PERFORM DIAG-CHECK.
+               MOVE SPACE TO ERRORFILE01
+               MOVE "OLD DX3 CODE" TO EF2 
+               MOVE CC-DX3 TO EF3
+               PERFORM S1
+               GO TO P1
+           END-IF
+
+           IF CC-DX4 NOT = "0000000"
+               MOVE CC-DX4 TO ALF7
+               MOVE 0 TO DIAGFLAG
+               PERFORM DIAG-CHECK
+           END-IF
+
            IF DIAGFLAG = 1 
-           MOVE SPACE TO EF2
-           MOVE "OLD DX4 CODE" TO EF2 
-           MOVE CC-DX4 TO EF3
-           PERFORM S1
-           GO TO P1.
+               MOVE SPACE TO ERRORFILE01
+               MOVE "OLD DX4 CODE" TO EF2 
+               MOVE CC-DX4 TO EF3
+               PERFORM S1
+               GO TO P1
+           END-IF    
            
            MOVE CC-KEY8 TO G-GARNO.
            READ GARFILE INVALID 
@@ -362,11 +405,12 @@
            MOVE SPACE TO EF3
            PERFORM S1 
            GO TO P1.
+           
            IF G-DOB NOT NUMERIC
-           MOVE SPACE TO EF2
-           MOVE "BAD DOB" TO EF2
-           MOVE G-DOB TO EF3
-           PERFORM S1 
+               MOVE SPACE TO EF2
+               MOVE "BAD DOB" TO EF2
+               MOVE G-DOB TO EF3
+               PERFORM S1 
            GO TO P1.
            IF G-billadd = space and g-street = space
            MOVE SPACE TO EF2

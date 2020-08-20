@@ -4,17 +4,20 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI249.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rpg249.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT RPGCHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
              ACCESS MODE IS SEQUENTIAL RECORD KEY IS RPGCHARFILE-KEY
              LOCK MODE MANUAL.
+
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION LINE
            SEQUENTIAL.
+       
        DATA DIVISION.
        FILE SECTION.
        FD  FILEOUT.
@@ -71,11 +74,15 @@
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT RPGCHARFILE OUTPUT FILEOUT.
-       P1. READ RPGCHARFILE AT END GO TO P2.
+       P1.
+           READ RPGCHARFILE AT END GO TO P2.
+          
            IF RPG-KEY8 = HOLD-CHAR GO TO P1.
+          
            WRITE FILEOUT01 FROM RPG-KEY8
            MOVE RPG-KEY8 TO HOLD-CHAR
+          
            GO TO P1.
 
-       P2. CLOSE FILEOUT.
+       P2. CLOSE RPGCHARFILE FILEOUT.
            STOP RUN.
