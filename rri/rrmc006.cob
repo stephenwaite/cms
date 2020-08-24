@@ -278,10 +278,10 @@
            02 R1-GRPNAME11 PIC X(30).
            02 R1-SUBNAME11 PIC X(35).
            02 R1-EMPLOYNAME11 PIC X(30).
-      * 465
            02 R1-GENDER11 PIC X.
            02 FILLER PIC X.
            02 R1-DOB11 PIC X(10).
+      * 478
            02 R1-SSN11 PIC X(9).
            02 R1-RELATE1 PIC XX.
            02 INSURANCE-1.
@@ -294,6 +294,7 @@
             03 R1-INSZIP1 PIC X(10).
             03 R1-INSPHONE1 PIC X(12).
            02  R1-AUTH PIC X(20).
+      * 638
            02 R1-IP2 PIC X(5).
            02 R1-ID2 PIC X(30).
            02 R1-CERT22 PIC X(20).
@@ -877,6 +878,7 @@
            MOVE SPACE TO A-SECPOL A-SE-GROUP A-SENAME A-SE-RELATE
            A-SE-MPLR A-SEGRPNAME
            MOVE "U" TO A-PR-ASSIGN A-SE-ASSIGN
+           
            MOVE R1-IP1 TO X-IP
            MOVE R1-CERT11 TO X-CERT
            MOVE R1-GRP1 TO X-GRP
@@ -887,11 +889,14 @@
            MOVE R1-GENDER11 TO X-GENDER
            MOVE 1 TO PLANNUM
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
+           
            IF R1-IP1 = "00930"
            PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
+           
            IF R1-IP1 = "00698" OR "00699"
            PERFORM REPLACE-2 THRU REPLACE-2-EXIT.
       *     IF R1-IP1 = "00931" OR "00932" GO TO P2-3.
+           
            IF FLAG = 1 MOVE 2 TO PLANNUM GO TO P2-1.
 
            MOVE R1-IP2 TO X-IP
@@ -904,7 +909,9 @@
            MOVE R1-GENDER22 TO X-GENDER
 
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
+
            IF FLAG = 1 MOVE 3 TO PLANNUM GO TO P2-1.
+           
            MOVE R2-IP3 TO X-IP
            MOVE R2-CERT33 TO X-CERT
            MOVE R2-GRP3 TO X-GRP
@@ -968,18 +975,23 @@
        SEL-PRINS.
            MOVE 0 TO FLAG
            MOVE X-IP TO HOSP-KEY
-           IF X-IP = SPACE GO TO SEL-PRINS-EXIT.
-           READ HOSPFILE INVALID
-           MOVE X-CERT   TO A-PRIPOL
-           MOVE X-GRP TO A-PR-GROUP
 
-           MOVE SPACE TO FILEOUT01
-           STRING "HOSP=" X-IP " " R2-MEDREC " " A-GARNAME
-           " BAD HOSPITAL CODE" DELIMITED BY "?/?" INTO FILEOUT01
-           DISPLAY FILEOUT01
-           WRITE FILEOUT01
-           GO TO SEL-PRINS-EXIT.
+           IF X-IP = SPACE GO TO SEL-PRINS-EXIT.
+           
+           READ HOSPFILE
+             INVALID
+               MOVE X-CERT TO A-PRIPOL
+               MOVE X-GRP TO A-PR-GROUP
+               MOVE SPACE TO FILEOUT01
+               STRING "HOSP=" X-IP " " R2-MEDREC " " A-GARNAME
+               " BAD HOSPITAL CODE" DELIMITED BY "?/?" INTO FILEOUT01
+               DISPLAY FILEOUT01
+               WRITE FILEOUT01
+               GO TO SEL-PRINS-EXIT
+           END-READ
+    
            MOVE H-INS-KEY TO INS-KEY
+
            READ INSFILE INVALID DISPLAY H-INS-KEY " MISSING"
            DISPLAY HOSP-KEY " " R2-MEDREC " " A-GARNAME
            MOVE SPACE TO FILEOUT01
