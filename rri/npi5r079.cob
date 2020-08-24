@@ -1991,7 +1991,7 @@
            MOVE ":" TO DIAG-C(DX-CNTR-PT)
            MOVE 12 TO A.
 
-       SV1-0..
+       SV1-0.
            MOVE " " TO SV1-EMER
            IF CLM-5 = "23" MOVE "Y" TO SV1-EMER.
            COMPUTE NUM5 = X
@@ -2000,7 +2000,7 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM LX01.
            MOVE SPACE TO SV1-COPAY.
-       2400srv-1.
+       2400SRV-1.
            MOVE SPACE TO tab10801
            MOVE 0 TO D
            PERFORM VARYING C FROM 1 BY 1 UNTIL C > 108
@@ -2044,7 +2044,8 @@
            MOVE BHT-DATE TO CC-DATE-A
            REWRITE CHARCUR01
            END-READ.
-       2400SRV-EXIT.  EXIT.
+       2400SRV-EXIT.
+           EXIT.
        2420A.
            MOVE "82 " TO NM1-1
            MOVE "1" TO NM1-SOLO
