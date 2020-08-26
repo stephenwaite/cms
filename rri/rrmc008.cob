@@ -37,7 +37,7 @@
        01  FILEIN01.
            02 FI-1 PIC XX.
            02 FI-2 PIC X(1068).
-       
+      
        FD  PROCFILE
            DATA RECORD PROCFILE01.
        01  PROCFILE01.
@@ -210,7 +210,7 @@
              03 R2-DOBYY PIC XX.
            02 R2-DISCHARGE PIC X(6).
 
-       01  REC301.
+      01  REC301.
            02 R3-1 PIC XX.
            02 R3-IND PIC XXX.
            02 R3-DEPT PIC XX.
@@ -233,9 +233,9 @@
        01  ANS PIC X.
        01  HOLDNAME PIC X(15).
        01  ALF13 PIC X(13).
-       01  ALF20 PIC X(20).
-       
-       PROCEDURE DIVISION.
+       01  ALF20 PIC X(20).       
+
+      PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT FILEIN PROCFILE.
            OPEN OUTPUT FILEOUT ERRFILE.
@@ -320,8 +320,6 @@
            DELIMITED BY SIZE INTO ERRFILE01
 
            WRITE ERRFILE01.
-
-      *     WRITE FILEOUT01 FROM REC301.
            
            GO TO P1.
            
