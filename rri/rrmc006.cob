@@ -160,7 +160,6 @@
            02 REF-NPI PIC X(10).
 
        FD  ORDFILE
-           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS ORDFILE01.
        01  ORDFILE01.
            02 ORDNO.
@@ -629,8 +628,7 @@
       *
        PROCEDURE DIVISION.
        0005-START.
-           OPEN I-O ACTFILE EMAILAUTHFILE.
-           OPEN I-O ORDFILE COMPFILE.
+           OPEN I-O ACTFILE EMAILAUTHFILE ORDFILE COMPFILE.
            OPEN INPUT HOSPFILE REFPHY INSFILE FILEIN MOBLFILE.
            OPEN OUTPUT FILEOUT ERRFILE.
        10-ACTION.
@@ -1408,9 +1406,16 @@
            WRITE ACTFILE01 GO TO B1.
            MOVE SAVEMASTER TO ACTFILE01 REWRITE ACTFILE01.
            GO TO B1.
-       B1. READ FILEIN AT END GO TO 9100CMF.
+       B1. 
+           READ FILEIN
+             AT END
+               GO TO 9100CMF
+           END-READ
+
            IF FI-1 NOT = "$$" GO TO P1-1.
+           
            MOVE FILEIN01 TO REC301
+           
            IF R3-PROC = "166 " GO TO B1.
        B1-1.
            MOVE SPACE TO RIGHT-4
@@ -1540,5 +1545,6 @@
        9100CMF.
            CLOSE ACTFILE EMAILAUTHFILE ORDFILE COMPFILE
                  REFPHY HOSPFILE INSFILE FILEOUT ERRFILE
+                 FILEIN MOBLFILE.
            DISPLAY "REPORT DATA ENTRY PROGRAM HAS ENDED".
            STOP RUN.

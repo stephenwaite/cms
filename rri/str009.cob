@@ -10,20 +10,26 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT FILEIN ASSIGN TO "S30".
+
            SELECT FILEOUT ASSIGN TO "S35"
            ORGANIZATION LINE SEQUENTIAL.
+
            SELECT FILEOUT2 ASSIGN TO "S40"
            ORGANIZATION LINE SEQUENTIAL.
 
        DATA DIVISION.
        FILE SECTION.
+
        FD  FILEIN.
        01  FI-1 PIC X.
+
        FD  FILEOUT.
        01  FILEOUT01.
            02 FO-1  PIC XX.
            02 FO-2 PIC X(1068).
+
        FD  FILEOUT2.
        01  FILEOUT201.
            02 FO-Y PIC ZZZ9.
@@ -31,29 +37,35 @@
            02 FO-X PIC ZZZ9.
            02 FILLER PIC X(10).
        01  ERROUT2 PIC X(1070).    
-       WORKING-STORAGE SECTION.
-       01 S-CNTR PIC 9 VALUE 0.
-       01 X PIC 9999 VALUE 0.
-       01 Y PIC 9999 VALUE 0.
-       01 A PIC 9999.
-       01 B PIC 9999.
-       01 CODE-X PIC X.
-       01 CODE-Y PIC X.
-       01 Z PIC 9999.
-       01 HOLD-1 PIC X.
-       01 TAB01.
-         02 TAB2 PIC X OCCURS 4000 TIMES.
-       01 FILL01.
-         02 FILL2 PIC X OCCURS 1068 TIMES.
 
+       WORKING-STORAGE SECTION.
+       01  S-CNTR PIC 9 VALUE 0.
+       01  X PIC 9999 VALUE 0.
+       01  Y PIC 9999 VALUE 0.
+       01  A PIC 9999.
+       01  B PIC 9999.
+       01  CODE-X PIC X.
+       01  CODE-Y PIC X.
+       01  Z PIC 9999.
+       01  HOLD-1 PIC X.
+       01  TAB01.
+             02 TAB2 PIC X OCCURS 4000 TIMES.
+       01  FILL01.
+             02 FILL2 PIC X OCCURS 1068 TIMES.
        01 ALF1 PIC X.
+
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT FILEIN OUTPUT FILEOUT FILEOUT2.
+           OPEN INPUT FILEIN
+           OPEN OUTPUT FILEOUT FILEOUT2.
            MOVE SPACE TO TAB01.
+           
            READ FILEIN AT END GO TO P99.
+           
            MOVE FI-1 TO ALF1
+           
            READ FILEIN AT END GO TO P99.
+           
            IF NOT (FI-1 = "#" AND ALF1 = "#")
            DISPLAY "BAD BEGINNING TO FILE"
            ACCEPT ALF1
@@ -125,5 +137,5 @@
             MOVE "$$" TO FO-1
             MOVE TAB01 TO FO-2
             WRITE FILEOUT01
-           CLOSE FILEOUT FILEOUT2
-           STOP RUN.
+            CLOSE FILEOUT FILEOUT2 FILEIN
+            STOP RUN.
