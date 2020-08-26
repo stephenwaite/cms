@@ -26,14 +26,18 @@
 
        DATA DIVISION.
        FILE SECTION.
+       
        FD  ERRFILE.
        01  ERRFILE01 PIC X(80).
+
        FD  FILEOUT.
        01  FILEOUT01 PIC X(1070).
+       
        FD  FILEIN.
        01  FILEIN01.
            02 FI-1 PIC XX.
            02 FI-2 PIC X(1068).
+      
        FD  PROCFILE
            DATA RECORD PROCFILE01.
        01  PROCFILE01.
@@ -44,6 +48,7 @@
            02 PROC-TYPE PIC X.
            02 PROC-TITLE PIC X(28).
            02 PROC-AMOUNT PIC 9(4)V99.
+       
        WORKING-STORAGE SECTION.
 
        01  REC101.
@@ -57,12 +62,12 @@
            02 R1-PATCITY PIC X(25).
            02 R1-PATSTATE PIC XX.
            02 R1-PATZIP PIC X(10).
-             02 R1-ADMIT. 
-              03 R1-ADMITMM PIC XX.
-              03 FILLER PIC X.
-              03 R1-ADMITDD PIC XX.
-              03 FILLER PIC X.
-              03 R1-ADMITYY PIC XXXX.
+           02 R1-ADMIT. 
+             03 R1-ADMITMM PIC XX.
+             03 FILLER PIC X.
+             03 R1-ADMITDD PIC XX.
+             03 FILLER PIC X.
+             03 R1-ADMITYY PIC XXXX.
            02 R1-ADMITTIME PIC X(5).
            02 R1-WORKCOMP PIC X.
            02 R1-GARNAME.
@@ -74,7 +79,7 @@
            02 R1-GARCITY PIC X(25).
            02 R1-GARSTATE PIC XX.
            02 R1-GARZIP PIC X(10).
-           02 r1-EMAIL PIC X(30).
+           02 R1-EMAIL PIC X(30).
            02 R1-IP1 PIC X(5).
            02 R1-ID1 PIC X(30).
            02 R1-CERT11 PIC X(20).
@@ -88,15 +93,15 @@
            02 R1-SSN11 PIC X(9).
            02 R1-RELATE1 PIC XX.
            02 INSURANCE-1.
-            03 R1-INSNAME1 PIC X(25).
-            03 R1-INSCONTACT1 PIC X(25).
-            03 R1-INSADDR11 PIC X(20).
-            03 R1-INSADDR21 PIC X(15).
-            03 R1-INSCITY1 PIC X(20).
-            03 R1-INSSTATE1 PIC XX.
-            03 R1-INSZIP1 PIC X(10).
-            03 R1-INSPHONE1 PIC X(12).
-           02  R1-AUTH PIC X(20).
+             03 R1-INSNAME1 PIC X(25).
+             03 R1-INSCONTACT1 PIC X(25).
+             03 R1-INSADDR11 PIC X(20).
+             03 R1-INSADDR21 PIC X(15).
+             03 R1-INSCITY1 PIC X(20).
+             03 R1-INSSTATE1 PIC XX.
+             03 R1-INSZIP1 PIC X(10).
+             03 R1-INSPHONE1 PIC X(12).
+           02 R1-AUTH PIC X(20).
            02 R1-IP2 PIC X(5).
            02 R1-ID2 PIC X(30).
            02 R1-CERT22 PIC X(20).
@@ -111,14 +116,14 @@
            02 R1-RELATE2 PIC XX.
 
            02 INSURANCE-2.
-            03 R1-INSNAME2 PIC X(25).
-            03 R1-INSCONTACT2 PIC X(25).
-            03 R1-INSADDR12 PIC X(20).
-            03 R1-INSADDR22 PIC X(15).
-            03 R1-INSCITY2 PIC X(20).
-            03 R1-INSSTATE2 PIC XX.
-            03 R1-INSZIP2 PIC X(10).
-            03 R1-INSPHONE2 PIC X(12).
+             03 R1-INSNAME2 PIC X(25).
+             03 R1-INSCONTACT2 PIC X(25).
+             03 R1-INSADDR12 PIC X(20).
+             03 R1-INSADDR22 PIC X(15).
+             03 R1-INSCITY2 PIC X(20).
+             03 R1-INSSTATE2 PIC XX.
+             03 R1-INSZIP2 PIC X(10).
+             03 R1-INSPHONE2 PIC X(12).
 
        01  REC201.
            02 R2-1 PIC XX.
@@ -131,7 +136,6 @@
              03 R2-REFDOC4 PIC XXXX.
              03 R2-REFDOC22 PIC X(18).
            02 R2-DIAG PIC X(130).
-
            02 R2-IP3 PIC X(5).
            02 R2-ID3 PIC X(30).
            02 R2-CERT33 PIC X(20).
@@ -145,16 +149,15 @@
            02 R2-SSN33 PIC X(9).
            02 R2-RELATE3 PIC XX.
            02 INSURANCE-3.
-            03  R2-INSNAME3 PIC X(25).
-            03  R2-INSCONTACT3 PIC X(25).
-            03  R2-INSADDR13 PIC X(20).
-            03  R2-INSADDR23 PIC X(15).
-            03  R2-INSCITY3 PIC X(20).
-            03  R2-INSSTATE3 PIC XX.
-            03  R2-INSZIP3 PIC X(10).
-            03  R2-INSPHONE3 PIC X(12).
+             03  R2-INSNAME3 PIC X(25).
+             03  R2-INSCONTACT3 PIC X(25).
+             03  R2-INSADDR13 PIC X(20).
+             03  R2-INSADDR23 PIC X(15).
+             03  R2-INSCITY3 PIC X(20).
+             03  R2-INSSTATE3 PIC XX.
+             03  R2-INSZIP3 PIC X(10).
+             03  R2-INSPHONE3 PIC X(12).
            02 FILLER PIC X(20).
-
            02 R2-IP4 PIC X(5).
            02 R2-ID4 PIC X(30).
            02 R2-CERT44 PIC X(20).
@@ -168,15 +171,15 @@
            02 R2-SSN44 PIC X(9).
            02 R2-RELATE4 PIC XX.
            02 INSURANCE-4.
-            03  R2-INSNAME4 PIC X(25).
-            03  R2-INSCONTACT4 PIC X(25).
-            03  R2-INSADDR14 PIC X(20).
-            03  R2-INSADDR24 PIC X(15).
-            03  R2-INSCITY4 PIC X(20).
-            03  R2-INSSTATE4 PIC XX.
-            03  R2-INSZIP4 PIC X(10).
-            03  R2-INSPHONE4 PIC X(12).
-            02 FILLER PIC X(20).
+             03  R2-INSNAME4 PIC X(25).
+             03  R2-INSCONTACT4 PIC X(25).
+             03  R2-INSADDR14 PIC X(20).
+             03  R2-INSADDR24 PIC X(15).
+             03  R2-INSCITY4 PIC X(20).
+             03  R2-INSSTATE4 PIC XX.
+             03  R2-INSZIP4 PIC X(10).
+             03  R2-INSPHONE4 PIC X(12).
+           02 FILLER PIC X(20).
            02 R2-MEDREC.
              03 R2-MEDREC1 PIC XX.
              03 FILLER PIC X.
@@ -207,8 +210,7 @@
              03 R2-DOBYY PIC XX.
            02 R2-DISCHARGE PIC X(6).
 
-
-       01  REC301.
+      01  REC301.
            02 R3-1 PIC XX.
            02 R3-IND PIC XXX.
            02 R3-DEPT PIC XX.
@@ -217,9 +219,9 @@
              03 R3-PROC1 PIC X.
              03 FILLER PIC XXX.
            02 R3-DATE. 
-              03 R3-DATEMM PIC XX.
-              03 R3-DATEDD PIC XX.
-              03 R3-DATEYY PIC XX.
+             03 R3-DATEMM PIC XX.
+             03 R3-DATEDD PIC XX.
+             03 R3-DATEYY PIC XX.
            02 R3-UNIT PIC XXX.
            02 R3-CLINICAL PIC X(40).
            02 FILLER PIC X(24).
@@ -231,89 +233,96 @@
        01  ANS PIC X.
        01  HOLDNAME PIC X(15).
        01  ALF13 PIC X(13).
-       01  ALF20 PIC X(20).
-       PROCEDURE DIVISION.
+       01  ALF20 PIC X(20).       
+
+      PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT FILEIN PROCFILE.
            OPEN OUTPUT FILEOUT ERRFILE.
        P1.
-           READ FILEIN AT END GO TO P99.
-           IF FI-1 = "##" MOVE FILEIN01(10:15) TO HOLDNAME.
+           READ FILEIN
+             AT END
+               GO TO P99
+           END-READ
 
            IF FI-1 = "##"
-             MOVE FILEIN01 TO REC101
+               MOVE FILEIN01(10:15) TO HOLDNAME
+           END-IF    
+
+           IF FI-1 = "##"
+               MOVE FILEIN01 TO REC101
            END-IF
 
            IF FI-1 = "++"
-             MOVE FILEIN01 TO REC201
+               MOVE FILEIN01 TO REC201
            END-IF
 
            IF FI-1 NOT = "$$"
-           WRITE FILEOUT01 FROM FILEIN01
-           GO TO P1.
+               WRITE FILEOUT01 FROM FILEIN01
+               GO TO P1
+           END-IF
+
            MOVE FILEIN01 TO REC301
+           
+           IF R3-GLC = "0" AND
+               (R3-PROC = "0000" OR R3-PROC = "0001")
+               
+               MOVE SPACE TO ERRFILE01
+               STRING HOLDNAME " " R3-PROC
+                   " WITH SPECIAL HANDLING FOR NOW DUE TO AUC"
+               DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+               GO TO P1
+           END-IF
+
            MOVE R3-PROC TO PROC-KEY1
            MOVE SPACE TO PROC-KEY2
+           
            START PROCFILE KEY NOT < PROC-KEY
-            INVALID
-             GO TO BAD-1
+             INVALID
+               GO TO BAD-1
            END-START.
+       
        P2.
-           READ PROCFILE NEXT AT END GO TO BAD-1.
+           READ PROCFILE NEXT
+             AT END
+               GO TO BAD-1
+           END-READ
+           
+
            IF PROC-KEY1 > R3-PROC GO TO BAD-1.
+           
            IF PROC-AMOUNT = 0 GO TO P2.
+           
            IF PROC-KEY2 NOT = R3-CPT
-             DISPLAY HOLDNAME
-             DISPLAY R3-CPT " IS CHANGED TO " PROC-KEY2
-             DISPLAY "FOR HOSPITAL CODE " PROC-KEY1
-             DISPLAY "IF THIS IS NOT APPROPRIATE"
-             DISPLAY "FIND THE EXISTING RECORD IN HOSPFILE"
-             DISPLAY "AND DO WHAT IS NEEDED TO EDIT HOSPRRI"
-             DISPLAY "TO MAKE IT RIGHT"
-             MOVE SPACE TO ERRFILE01
-             STRING HOLDNAME " " PROC-KEY1 " " R3-CPT
-              DELIMITED BY SIZE INTO ERRFILE01
-              WRITE ERRFILE01
-             ACCEPT ANS
-             MOVE PROC-KEY2(1:5) TO R3-CPT
-           END-IF.
+               DISPLAY HOLDNAME
+               DISPLAY R3-CPT " IS CHANGED TO " PROC-KEY2
+               DISPLAY "FOR HOSPITAL CODE " PROC-KEY1
+               DISPLAY "IF THIS IS NOT APPROPRIATE"
+               DISPLAY "FIND THE EXISTING RECORD IN HOSPFILE"
+               DISPLAY "AND DO WHAT IS NEEDED TO EDIT HOSPRRI"
+               DISPLAY "TO MAKE IT RIGHT"
+               MOVE SPACE TO ERRFILE01
+               STRING HOLDNAME " " PROC-KEY1 " " R3-CPT
+               DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+               ACCEPT ANS
+               MOVE PROC-KEY2(1:5) TO R3-CPT
+           END-IF
+
            WRITE FILEOUT01 FROM REC301
            GO TO P1.
        BAD-1.
-           DISPLAY HOLDNAME
-           DISPLAY R3-PROC " " R3-CPT
-           DISPLAY "THIS IS AN UNDEFINED PROCEDURE"  
-           DISPLAY "FIND THIS PROCEDURE IN THE HOSPRRI FILE"
-           DISPLAY "CALL RRMC TO FIND OUT IF THIS IS AN  ERROR"
-           DISPLAY "OR IF IT IS A NEW PROCEDURE WE NEED TO ADD"
-           DISPLAY "INTO PROCFILE"
-
-           ACCEPT ANS.
-           
            MOVE SPACE TO ERRFILE01.    
 
            STRING "UNDEFINED PROCEDURE FOR " HOLDNAME " " R3-PROC 
-                  " " R3-CPT " MSG STEVE SO HE CAN ASK RRMC WASSUP?"
+                  " " R3-CPT " We should ask RRMC for the cpt/hcpcs."
            DELIMITED BY SIZE INTO ERRFILE01
 
            WRITE ERRFILE01.
-
-      *     WRITE FILEOUT01 FROM REC301.
            
            GO TO P1.
            
-       FIX-POL.
-           IF ALF20(4:1) NOT = "V"
-             MOVE SPACE TO ALF13
-             MOVE ALF20(1:3) TO ALF13(1:3)          
-             MOVE "V" TO ALF13(4:1)
-             MOVE ALF20(4:9) TO ALF13(5:9)
-             MOVE SPACE TO ALF20
-             MOVE ALF13 TO ALF20
-           END-IF
-           MOVE ALF20(1:13) TO ALF13
-           MOVE SPACE TO ALF20
-           MOVE ALF13 TO ALF20.
        P99.
            CLOSE PROCFILE FILEIN FILEOUT ERRFILE.
            STOP RUN.

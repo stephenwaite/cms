@@ -4,25 +4,31 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI245.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rri245.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT ACTFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC        RECORD KEY IS A-ACTNO
            ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
            ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
+       
            SELECT ORDFILE ASSIGN TO "S35"     ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC        RECORD KEY IS ORDNO
            ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
+       
            SELECT ERROR-FILE ASSIGN TO "S55" ORGANIZATION LINE
            SEQUENTIAL.
+       
            SELECT WORK245 ASSIGN TO "S60" ORGANIZATION LINE
            SEQUENTIAL.
+       
            SELECT GARFILE ASSIGN TO "S65" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
+       
            SELECT REFPHY ASSIGN TO "S70" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS REF-KEY
            ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
@@ -30,10 +36,14 @@
            ALTERNATE RECORD KEY IS REF-UPIN  WITH DUPLICATES
            ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
            ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES.
+       
            SELECT PROCFILE ASSIGN TO "S75" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS PROC-KEY.
+       
        DATA DIVISION.
+       
        FILE SECTION.
+       
        FD PROCFILE
            DATA RECORD PROCFILE01.
        01 PROCFILE01.
@@ -45,6 +55,7 @@
               03 PROC-TI PIC X(6).
               02 FILLER PIC X(22).
            02 PROC-AMOUNT PIC 9(4)V99.
+       
        FD  REFPHY
            BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS REFPHY01.
@@ -56,6 +67,7 @@
            02 REF-CDNUM PIC X(7).
            02 REF-NAME PIC X(24).
            02 REF-NPI PIC X(10).
+       
        FD GARFILE
            BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS GARFILE01.
@@ -102,11 +114,13 @@
            02 G-ACCT PIC X(8).
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
+       
        FD  WORK245.
        01  WORK24501.
            02 WORK-1 PIC X(8).
            02 FILLER PIC X(20).
            02 SERVDATE PIC X(8).
+       
        FD ORDFILE
            BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS ORDFILE01.
@@ -126,6 +140,7 @@
            02 C-ADMIT-DIAG PIC X(30).
            02 C-DATE-E PIC X(8).
            02 C-CPT PIC X(5).
+       
        FD ACTFILE
            BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS ACTFILE01.
@@ -186,6 +201,7 @@
            02 A-PRGRPNAME PIC X(15).
            02 A-SEGRPNAME PIC X(15).
            02 NAME-KEY PIC XXX.
+       
        FD  ERROR-FILE.
        01  ERROR-FILE01.
            02 ER-0 PIC X(8).
@@ -197,18 +213,19 @@
            02 ER-3 PIC X(22).
            02 FILLER PIC X VALUE SPACE.
            02 ER-4 PIC X(15).
+
        WORKING-STORAGE SECTION.
        01  FLAG PIC 9.
        01  NAME-TAB PIC X OCCURS 24 TIMES.
        01  ALF-4 PIC XXXX.
-       01 DATE-TAB01.
-           02 DATE-TAB PIC 9(8) OCCURS 90 TIMES.
-           02 CHARGE-TAB PIC X(5) OCCURS 90 TIMES.
+       01  DATE-TAB01.
+             02 DATE-TAB PIC 9(8) OCCURS 90 TIMES.
+             02 CHARGE-TAB PIC X(5) OCCURS 90 TIMES.
        01  X PIC 99.
        01  Y PIC 99.
-       01 Z PIC 99.
-       01 T PIC 99.
-       01 A PIC 99.
+       01  Z PIC 99.
+       01  T PIC 99.
+       01  A PIC 99.
        01  ALF4 PIC X(4).
        01  STATE-TABLE-CONSTANT.
            05  FILLER   PIC X(26) VALUE "AKALARAZCACNCOCTDCDEFLGAHI".
@@ -225,20 +242,20 @@
            02 ALFTEST14-9 PIC X(9).
            02 FILLER PIC X(4).
        01 TITLE-FLAG PIC 9.
-      *
+      
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT ACTFILE REFPHY.
-           OPEN INPUT ORDFILE.
+           OPEN INPUT ACTFILE REFPHY ORDFILE PROCFILE WORK245 GARFILE.
            OPEN OUTPUT ERROR-FILE.
-           OPEN INPUT PROCFILE WORK245 GARFILE.
        P8.
-           READ WORK245 AT END 
+           READ WORK245
+             AT END 
                GO TO P20
            END-READ
 
            MOVE WORK-1 TO A-ACTNO
-           READ ACTFILE INVALID 
+           READ ACTFILE
+             INVALID 
                WRITE ERROR-FILE01 FROM WORK24501
                GO TO P8
            END-READ
@@ -247,6 +264,7 @@
            MOVE A-ACTNO TO ER-1 
            MOVE A-GARNAME TO ER-2
            MOVE 0 TO FLAG
+           
            IF A-ACTNO NOT NUMERIC OR A-ACTNO = "00000000"
                MOVE "BAD MED REC NUMBER" TO ER-3
                MOVE A-ACTNO TO ER-4
@@ -256,12 +274,16 @@
        P12-1. 
            MOVE A-ACTNO TO ORD8
            MOVE SPACE TO ORD3
-           START ORDFILE KEY > ORDNO INVALID 
+           
+           START ORDFILE KEY > ORDNO
+             INVALID 
                GO TO P8
            END-START    
+           
            MOVE 0 TO X.
        P13.
-           READ ORDFILE NEXT AT END 
+           READ ORDFILE
+             NEXT AT END 
                GO TO P15
            END-READ
 
@@ -270,7 +292,9 @@
            END-IF
 
            MOVE C-REF TO REF-KEY
-           READ REFPHY INVALID
+           
+           READ REFPHY
+             INVALID
                MOVE C-REF TO ER-3
                MOVE "BAD REF" TO ER-4
                MOVE C-DATE-T TO ER-0
@@ -295,11 +319,14 @@
            MOVE A-CHARGE(1:4) TO PROC-KEY1 ALF4
            MOVE 0 TO TITLE-FLAG
            MOVE SPACE TO PROC-KEY2
-           START PROCFILE KEY NOT < PROC-KEY INVALID 
+           
+           START PROCFILE KEY NOT < PROC-KEY
+             INVALID 
                GO TO P14
            END-START.    
        P13-2.
-           READ PROCFILE NEXT AT END
+           READ PROCFILE NEXT
+             AT END
                GO TO P14
            END-READ    
 
@@ -316,11 +343,13 @@
            END-IF    
 
            MOVE 1 TO TITLE-FLAG
+           
            IF PROC-KEY1 = ALF4
-                 ADD 1 TO X
-                 MOVE C-DATE-T TO DATE-TAB(X)
-                 MOVE A-CHARGE TO CHARGE-TAB(X)
+               ADD 1 TO X
+               MOVE C-DATE-T TO DATE-TAB(X)
+               MOVE A-CHARGE TO CHARGE-TAB(X)
            END-IF
+
            GO TO P13.
        P14. 
            IF TITLE-FLAG = 0
@@ -337,7 +366,9 @@
            END-IF
 
            SUBTRACT 1 FROM X GIVING Y.
+           
            PERFORM C1 VARYING Z FROM 1 BY 1 UNTIL Z > Y    
+           
            GO TO P8.
        C1.
            IF DATE-TAB(Z) NOT = 0
@@ -361,5 +392,6 @@
            CLOSE ACTFILE
            CLOSE ORDFILE
            CLOSE PROCFILE.
+           CLOSE WORK245.
            STOP RUN.
 

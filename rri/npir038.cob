@@ -86,9 +86,10 @@
        FD  ERRORFILE
            DATA RECORD IS ERRORFILE01.
        01  ERRORFILE01.
-           02 EF1 PIC X(12).
+           02 EF1 PIC X(20).
+           02 FILLER PIC X.
            02 EF2 PIC X(37).
-           02 EF3 PIC X(24).
+           02 EF3 PIC X(22).
        FD  REFPHY
       *    BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS REFPHY01.
@@ -542,7 +543,7 @@
            READ DIAGFILE INVALID MOVE 1 TO DIAGFLAG.
 
        S1. 
-           MOVE CHARCUR-KEY TO EF1 
+           STRING CHARCUR-KEY " " G-ACCT DELIMITED BY SIZE INTO EF1 
            WRITE ERRORFILE01.
        MBI-CHECK.
            MOVE G-PRIPOL0(1:11) TO MD01

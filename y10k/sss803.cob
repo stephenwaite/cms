@@ -138,7 +138,7 @@
                GO TO P1
            END-READ
 
-           MOVE CHARCUR01 TO FILEOUT01
+           MOVE CHARCUR01 TO FO-1
            MOVE INS-NEIC TO FO-2.
 
            WRITE FILEOUT01
