@@ -724,7 +724,7 @@
            END-IF
 
       *    FOR HEALTHEQUITY EFT 835s
-           IF  (N1-ID = "411410766")
+           IF  ((N1-ID = "411410766")
                AND (PERM-ID = PF-1))
                MOVE 0 TO PROV-FLAG
            END-IF
