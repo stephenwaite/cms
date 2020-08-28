@@ -427,7 +427,11 @@
            02 R3-DOCP PIC X(4).
            02 R3-DOCPFILLER PIC X(18).
            02 R3-CPT PIC X(5).
-           02 FILLER PIC X(24).
+           02 FILLER PIC X(3).
+           02 R3-HCPCS PIC X(5).
+           02 FILLER PIC X(3).
+           02 R3-MOD PIC X(2).
+           02 FILLER PIC X(11).
            02 R3-OBSERV PIC X(5).
            02 FILLER PIC X(35).
            02 R3-LOCO PIC X(4).
@@ -892,10 +896,15 @@
            PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
            
            IF R1-IP1 = "00698" OR "00699"
-           PERFORM REPLACE-2 THRU REPLACE-2-EXIT.
+               PERFORM REPLACE-2 THRU REPLACE-2-EXIT
+           END-IF
+
       *     IF R1-IP1 = "00931" OR "00932" GO TO P2-3.
            
-           IF FLAG = 1 MOVE 2 TO PLANNUM GO TO P2-1.
+           IF FLAG = 1
+               MOVE 2 TO PLANNUM
+               GO TO P2-1
+           END-IF               
 
            MOVE R1-IP2 TO X-IP
            MOVE R1-CERT22 TO X-CERT
@@ -974,7 +983,9 @@
            MOVE 0 TO FLAG
            MOVE X-IP TO HOSP-KEY
 
-           IF X-IP = SPACE GO TO SEL-PRINS-EXIT.
+           IF X-IP = SPACE
+               GO TO SEL-PRINS-EXIT
+           END-IF     
            
            READ HOSPFILE
              INVALID
@@ -989,32 +1000,39 @@
            END-READ
     
            MOVE H-INS-KEY TO INS-KEY
-
-           READ INSFILE INVALID DISPLAY H-INS-KEY " MISSING"
-           DISPLAY HOSP-KEY " " R2-MEDREC " " A-GARNAME
-           MOVE SPACE TO FILEOUT01
-           STRING "HOSP=" HOSP-KEY " " H-INS-KEY " " R2-MEDREC " "
-           A-GARNAME " BAD INSURANCE CODE" DELIMITED BY SIZE
-           INTO FILEOUT01 WRITE FILEOUT01
-           MOVE "001" TO H-INS-KEY.
+           READ INSFILE
+             INVALID
+               DISPLAY H-INS-KEY " MISSING"
+               DISPLAY HOSP-KEY " " R2-MEDREC " " A-GARNAME
+               MOVE SPACE TO FILEOUT01
+               STRING "HOSP=" HOSP-KEY " " H-INS-KEY " " R2-MEDREC " "
+               A-GARNAME " BAD INSURANCE CODE" DELIMITED BY SIZE
+               INTO FILEOUT01 WRITE FILEOUT01
+               MOVE "001" TO H-INS-KEY
+           END-READ    
+           
            MOVE INS-ASSIGN TO A-PR-ASSIGN.
            MOVE 1 TO FLAG
            MOVE H-INS-KEY TO A-PRINS
            MOVE X-CERT   TO A-PRIPOL
            MOVE X-GRP TO A-PR-GROUP
            MOVE X-GRPNAME TO A-PRGRPNAME
+           
            IF X-SUBNAME = "SELF" OR "UNK" OR SPACE OR "X" OR "XX"
-           MOVE A-GARNAME TO A-PRNAME GO TO SEL-1.
+               MOVE A-GARNAME TO A-PRNAME
+               GO TO SEL-1
+           END-IF    
 
            MOVE SPACE TO A-PRNAME LNAME FNAME
-           UNSTRING X-SUBNAME DELIMITED BY ", " OR ","
-            INTO LNAME FNAME
+           UNSTRING X-SUBNAME DELIMITED BY ", " OR "," INTO LNAME FNAME
+           
            IF FNAME = SPACE
-             MOVE SPACE TO LNAME FNAME
-             UNSTRING X-SUBNAME DELIMITED BY " " INTO FNAME LNAME
-             STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-PRNAME
+               MOVE SPACE TO LNAME FNAME
+               UNSTRING X-SUBNAME DELIMITED BY " " INTO FNAME LNAME
+               STRING LNAME ";" FNAME
+               DELIMITED BY "  " INTO A-PRNAME
            ELSE
-            STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-PRNAME
+               STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-PRNAME
            END-IF.
 
        SEL-1.
@@ -1146,9 +1164,15 @@
            DISPLAY "ENTER A PRIMARY INS CODE MAYBE ELECTRONIC?"
            ACCEPT A-PRINS
            MOVE A-PRINS TO INS-KEY
-           READ INSFILE INVALID DISPLAY "BAD" GO TO REPLACE-2.
+           READ INSFILE
+             INVALID
+               DISPLAY "BAD"
+               GO TO REPLACE-2
+           END-READ.
+
        REPLACE-2-EXIT.
            EXIT.
+           
        REPLACE-3.
            DISPLAY R1-PATNAME
            IF A-PRINS = "003" DISPLAY "MEDICARE PATIENT".
@@ -1465,6 +1489,11 @@
            MOVE R3-CLINICAL TO C-CLINICAL
            MOVE R2-DIAG TO C-ADMIT-DIAG
            MOVE R3-CPT TO C-CPT
+      *    let's work with the new format which has hcpcs and a mod     
+           IF R3-HCPCS NOT = SPACE
+               MOVE R3-HCPCS TO C-CPT
+           END-IF
+
            MOVE "001" TO ORD3
            MOVE A-ACTNO TO ORD8
            MOVE ORDFILE01 TO SAVEORD
