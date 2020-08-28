@@ -428,7 +428,7 @@
            02 R3-DOCPFILLER PIC X(18).
            02 R3-CPT PIC X(5).
            02 FILLER PIC X(3).
-           02 R3-HCPCS PIC X(5)
+           02 R3-HCPCS PIC X(5).
            02 FILLER PIC X(3).
            02 R3-MOD PIC X(2).
            02 FILLER PIC X(11).
