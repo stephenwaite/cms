@@ -8,42 +8,58 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT PARMFILE ASSIGN TO "S30" ORGANIZATION
            LINE SEQUENTIAL.
+         
            SELECT FILEIN ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+         
            SELECT CHARCUR ASSIGN TO "S40"     ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC        RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
+         
            SELECT GARFILE ASSIGN TO "S45"     ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC        RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
            LOCK MODE MANUAL.
+         
            SELECT PAYFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS PAYFILE-KEY
            LOCK MODE MANUAL.
+         
            SELECT ERROR-FILE ASSIGN TO "S55" ORGANIZATION
            LINE SEQUENTIAL.
+         
            SELECT PAYCUR ASSIGN TO "S60" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY
            LOCK MODE MANUAL.
+         
            SELECT CAIDFILE ASSIGN TO "S65" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS CAID-KEY
            LOCK MODE MANUAL.
+         
            SELECT MPLRFILE ASSIGN TO "S70" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY
            LOCK MODE IS MANUAL.
+         
            SELECT ERRORCOR-FILE ASSIGN TO "S75" ORGANIZATION
            LINE SEQUENTIAL.
+         
            SELECT ERR209 ASSIGN TO "S80" ORGANIZATION
            LINE SEQUENTIAL.
+         
            SELECT MBIFILE ASSIGN TO "S85" ORGANIZATION
            LINE SEQUENTIAL.
+       
        DATA DIVISION.
+       
        FILE SECTION.
+       
        FD  ERR209.
        01  ERR20901 PIC X(60).
+       
        FD  MPLRFILE.
        01  MPLRFILE01.
            02 MPLR-KEY PIC X(8). 
@@ -62,13 +78,13 @@
            02 MPLR-TR-NAME PIC X(24).
            02 MPLR-TR-RELATE PIC X.
            02 MPLR-FUTURE PIC X(6).
-       FD  CAIDFILE
-           BLOCK CONTAINS 3 RECORDS.
+       
+       FD  CAIDFILE.
        01  CAIDFILE01.
            02 CAID-KEY PIC XXX.
            02 CAID-REASON PIC X(70).
+
        FD  PAYCUR
-           BLOCK CONTAINS 6 RECORDS
            DATA RECORD IS PAYCUR01.
        01  PAYCUR01.
            02 PAYCUR-KEY.
@@ -81,10 +97,13 @@
            02 PC-DATE-T PIC X(8).
            02 PC-DATE-E PIC X(8).
            02 PC-BATCH PIC X(6).
+           
        FD  PARMFILE.
        01  PARMFILE01 PIC X(40).
+       
        FD ERROR-FILE.
        01 ERROR-FILE01 PIC X(132).
+       
        FD ERRORCOR-FILE.
        01 ERRORCOR-FILE01 PIC X(132).
 
@@ -94,8 +113,8 @@
              03 F1 PIC XXX.
              03 F2 PIC X(4).
            02 F3 PIC X(113).
+       
        FD  PAYFILE
-           BLOCK CONTAINS 4 RECORDS
            DATA RECORD IS PAYFILE01.
        01  PAYFILE01.
            02 PAYFILE-KEY.
@@ -110,8 +129,8 @@
            02 PD-DATE-E PIC X(8).
            02 PD-ORDER PIC X(6).
            02 PD-BATCH PIC X(6).
+       
        FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS CHARCUR01.
        01  CHARCUR01.
            02 CHARCUR-KEY.
@@ -157,8 +176,8 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
+      
        FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS G-MASTER.
        01 G-MASTER.
            02 G-GARNO.
@@ -211,6 +230,7 @@
            02 G-ACCT PIC X(8).
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
+       
        FD  MBIFILE.
        01  MBI01 PIC X(20).       
 
@@ -345,7 +365,6 @@
            02 NM1COR-EINSS PIC XX.
            02 NM1COR-PREFIX PIC XX.
            02 NM1COR-CODE PIC X(16).
-
            
        01 TS301.
           02 TS3-0 PIC XXX.
@@ -380,6 +399,7 @@
            02 HL-2 PIC X(27) VALUE "  MEDICARE UNPOSTED LIST   ".
            02 FILLER PIC X(5) VALUE SPACE.
            02 HL-3 PIC X(10).
+       
        01  ERR01.
            02 EF1 PIC X(20).
            02 FILLER PIC X VALUE SPACE.
@@ -417,13 +437,15 @@
             03 EF-DENIAL5 PIC XXX.
             03 FILLER PIC X VALUE SPACE.
             03 EF-DENIAL6 PIC XXX.
-        01  ERR201.
+       
+       01  ERR201.
            02 EF2-NUM PIC ZZ9.
            02 FILLER PIC XX VALUE SPACE.
            02 EF2-DENIAL PIC X(3).
            02 FILLER PIC XX VALUE SPACE.
            02 EF2-REASON PIC X(70).
-        01  ERR301.
+       
+       01  ERR301.
            02 EF3-DENIAL1 PIC XXX.
            02 FILLER PIC X VALUE SPACE.
            02 EF3-DENIAL2 PIC XXX.
@@ -587,28 +609,49 @@
        01  ANS PIC X.
        PROCEDURE DIVISION.
        0005-START.
-           OPEN INPUT FILEIN CHARCUR GARFILE MPLRFILE PARMFILE PAYCUR.
-           OPEN I-O PAYFILE 
-           INPUT CAIDFILE.
+           OPEN INPUT FILEIN CHARCUR GARFILE MPLRFILE PARMFILE PAYCUR
+                      CAIDFILE.
+           
+           OPEN I-O PAYFILE. 
+           
            OPEN OUTPUT ERROR-FILE ERRORCOR-FILE ERR209 MBIFILE.
+           
            MOVE SPACE TO ERRORCOR-FILE01
            MOVE "###" TO ERRORCOR-FILE01
            WRITE ERRORCOR-FILE01
+
            MOVE SPACE TO NAR-KEY01 
            MOVE ALL ZEROES TO NAR-CNTR01 STATUSCODES01 
            MOVE SPACE TO ERROR-FILE01
            PERFORM STATUS-0
 
-           READ PARMFILE AT END GO TO P9.
+           READ PARMFILE
+             AT END
+               GO TO P9
+           END-READ
+
            MOVE PARMFILE01 TO HL-1.
            READ PARMFILE AT END GO TO P9.
            MOVE SPACE TO PROV-1 PROV-2
            UNSTRING PARMFILE01 DELIMITED BY " " INTO PROV-1 PROV-2
-           READ PARMFILE AT END GO TO P9.
+
+           READ PARMFILE
+             AT END
+               GO TO P9
+           END-READ
            MOVE PARMFILE01 TO PROV-FED.
-           READ PARMFILE AT END GO TO P9.
+           
+           READ PARMFILE
+             AT END
+               GO TO P9
+           END-READ    
            MOVE PARMFILE01 TO PROV-LEG.
-           READ FILEIN AT END DISPLAY "NO RECORDS" GO TO P9.
+
+           READ FILEIN
+             AT END
+               DISPLAY "NO RECORDS"
+               GO TO P9
+           END-READ    
            MOVE FILEIN01 TO PD-DATE-E
            MOVE PD-DATE-E TO TEST-DATE 
            MOVE CORR TEST-DATE TO INPUT-DATE
@@ -617,9 +660,15 @@
            WRITE ERROR-FILE01 FROM HL01 AFTER PAGE.
        P00.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
+           READ FILEIN
+             AT END
+               GO TO P9
+           END-READ.    
        XX.
-           IF F1 NOT = "BPR" GO TO P00.
+           IF F1 NOT = "BPR"
+               GO TO P00
+           END-IF    
+           
            MOVE SPACE TO BPR01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
            BPR-0 BPR-1 BPR-2 BPR-3 BPR-4 BPR-5 BPR-6 BPR-7 BPR-8 
@@ -636,50 +685,77 @@
       *      IF DTM-1 = "405" MOVE DTM-2 TO DATE-X GO TO XX2.
       *      GO TO XX1.
 
-
        XX2.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
+           READ FILEIN
+             AT END
+               GO TO P9
+           END-READ
+
            IF F1 = "SE*" GO TO P00.
+           
            IF F1 NOT = "N1*" GO TO XX2.
-            MOVE SPACE TO N101
-            UNSTRING FILEIN01 DELIMITED BY "*"
-                           INTO N1-0 N1-1 N1-2 N1-3 N1-4.
+           
+           MOVE SPACE TO N101
+           UNSTRING FILEIN01 DELIMITED BY "*"
+               INTO N1-0 N1-1 N1-2 N1-3 N1-4.
+           
            IF N1-1 NOT = "PE" GO TO XX2. 
-               IF N1-3 = "FI" MOVE N1-4(1:9) TO IN-FEDID GO TO P000.
-               IF N1-3 = "XX" MOVE N1-4 TO IN-NPI GO TO P000.
+           
+           IF N1-3 = "FI" MOVE N1-4(1:9) TO IN-FEDID GO TO P000.
+           
+           IF N1-3 = "XX" MOVE N1-4 TO IN-NPI GO TO P000.
+           
            GO TO XX2.
 
        P000.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
+           READ FILEIN
+             AT END
+               GO TO P9
+           END-READ
+
            IF F1 = "SE*" GO TO P00.
+           
            IF NOT F1 = "REF" GO TO P000.
+           
            MOVE SPACE TO REF01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
            REF-0 REF-1 REF-2
+           
            IF REF-1 = "1C" MOVE REF-2 TO IN-LEG.
+           
            IF REF-1 = "TJ" MOVE REF-2 TO IN-FEDID. 
+
        CHECK-ID.
            IF IN-NPI = PROV-1 OR PROV-2 GO TO NEXT-PARA.
+           
            IF IN-LEG = PROV-LEG GO TO NEXT-PARA.
+           
            GO TO P00.
        NEXT-PARA.
            IF TITLE-FLAG = 0
-           MOVE 1 TO TITLE-FLAG
-           MOVE SPACE TO ERROR-FILE01
-           MOVE DATE-X TO TEST-DATE
+               MOVE 1 TO TITLE-FLAG
+               MOVE SPACE TO ERROR-FILE01
+               MOVE DATE-X TO TEST-DATE
 
-           MOVE CORR TEST-DATE TO DISPLAY-DATE
-           MOVE SPACE TO ERROR-FILE01
-           MOVE TITLE01 TO ERROR-FILE01
-           WRITE ERROR-FILE01.
+               MOVE CORR TEST-DATE TO DISPLAY-DATE
+               MOVE SPACE TO ERROR-FILE01
+               MOVE TITLE01 TO ERROR-FILE01
+               WRITE ERROR-FILE01
+            END-IF.   
 
        P1-CLP. 
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
+           READ FILEIN
+             AT END
+               GO TO P9
+           END-READ
+
            IF F1 = "SE*" GO TO P00.
+           
            IF F1 NOT = "CLP" GO TO P1-CLP.
+       
        P1-CLP-1.
            MOVE SPACE TO CLP01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
@@ -689,103 +765,131 @@
            MOVE CLP-2CLMSTAT TO EF8
            MOVE SPACE TO NM101 NM1COR01 CLMCAS01.
            MOVE SPACE TO SVC-DATE01
+           
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 64
-           MOVE 0 TO ALLW-TAB(X) PR-TAB(X)
+               MOVE 0 TO ALLW-TAB(X) PR-TAB(X)
            END-PERFORM
+           
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR.
            
        P1-NM1.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
-           IF F1 = "SVC" GO TO P1-SVC-LOOP-0.
+           READ FILEIN
+             AT END
+               GO TO P9
+           END-READ
+
+           IF F1 = "SVC"
+               GO TO P1-SVC-LOOP-0
+           END-IF    
+           
            IF F1 = "CLP" OR "SE*" 
-            MOVE FILEIN01 TO SAVEFILE01
-            GO TO P2-SVC-LOOP.
+               MOVE FILEIN01 TO SAVEFILE01
+               GO TO P2-SVC-LOOP
+           END-IF
+
            IF F1 = "CAS" 
-             MOVE SPACE TO CAS01
-             UNSTRING FILEIN01 DELIMITED BY "*" INTO
-             CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-             CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-             CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-             MOVE CAS01 TO CLMCAS01
-             MOVE SPACE TO CAS01
-            GO TO P1-NM1.
+               MOVE SPACE TO CAS01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+               MOVE CAS01 TO CLMCAS01
+               MOVE SPACE TO CAS01
+               GO TO P1-NM1
+           END-IF
+
            IF (F1 = "NM1" AND F2 = "*QC*") 
-            MOVE SPACE TO NM101
-            UNSTRING FILEIN01 DELIMITED BY "*" INTO
-            NM1-0 NM1-1 NM1-SOLO NM1-NAMEL NM1-NAMEF NM1-NAMEM 
-            NM1-NAMES NM1-EINSS NM1-PREFIX NM1-CODE
-           GO TO P1-NM1.
+               MOVE SPACE TO NM101
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               NM1-0 NM1-1 NM1-SOLO NM1-NAMEL NM1-NAMEF NM1-NAMEM 
+               NM1-NAMES NM1-EINSS NM1-PREFIX NM1-CODE
+               GO TO P1-NM1
+           END-IF
+
            IF (F1 = "NM1" AND F2 = "*74*") 
-            MOVE SPACE TO NM1COR01
-            UNSTRING FILEIN01 DELIMITED BY "*" INTO
-            NM1COR-0 NM1COR-1 NM1COR-SOLO NM1COR-NAMEL NM1COR-NAMEF 
-            NM1COR-NAMEM NM1COR-NAMES NM1COR-EINSS NM1COR-PREFIX 
-            NM1COR-CODE
-            IF (NM1COR-CODE NOT = SPACE) AND (NM1COR-PREFIX = "C")
-              MOVE SPACE TO MBI01
-              STRING CLP-1(1:8) " " NM1COR-CODE DELIMITED 
-              BY SIZE INTO MBI01
-              WRITE MBI01
-            END-IF
-            IF NOT (NM1COR-NAMEL = SPACE AND NM1COR-NAMEF = SPACE)
-             MOVE SPACE TO ERRORCOR-FILE01 LNAME
-             STRING NM1-NAMEL ";" NM1-NAMEF DELIMITED BY "  "
-                INTO LNAME
-             STRING  
-             "CORRECT INFO FOR : " CLP-1 " " LNAME 
-             DELIMITED BY SIZE INTO ERRORCOR-FILE01
-             WRITE ERRORCOR-FILE01
-             MOVE SPACE TO ERRORCOR-FILE01
-             STRING
-             "LASTNAME                "
-             "FIRSTNAME               "
-             "MIDDLE INITIAL  POLICY #"
-             DELIMITED BY SIZE INTO ERRORCOR-FILE01
-             WRITE ERRORCOR-FILE01
-             MOVE SPACE TO ERRORCOR-FILE01
-             STRING NM1COR-NAMEL " " NM1COR-NAMEF " " NM1COR-NAMEM
-             "             " NM1COR-CODE 
-             DELIMITED BY SIZE INTO ERRORCOR-FILE01
-             WRITE ERRORCOR-FILE01
-            END-IF
-           GO TO P1-NM1.
+               MOVE SPACE TO NM1COR01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               NM1COR-0 NM1COR-1 NM1COR-SOLO NM1COR-NAMEL NM1COR-NAMEF 
+               NM1COR-NAMEM NM1COR-NAMES NM1COR-EINSS NM1COR-PREFIX 
+               NM1COR-CODE
+            
+               IF (NM1COR-CODE NOT = SPACE) AND (NM1COR-PREFIX = "C")
+                   MOVE SPACE TO MBI01
+                   STRING CLP-1(1:8) " " NM1COR-CODE DELIMITED 
+                   BY SIZE INTO MBI01
+                   WRITE MBI01
+               END-IF
+            
+               IF NOT (NM1COR-NAMEL = SPACE AND NM1COR-NAMEF = SPACE)
+                   MOVE SPACE TO ERRORCOR-FILE01 LNAME
+                   STRING NM1-NAMEL ";" NM1-NAMEF DELIMITED BY "  "
+                   INTO LNAME
+                   STRING "CORRECT INFO FOR : " CLP-1 " " LNAME 
+                   DELIMITED BY SIZE INTO ERRORCOR-FILE01
+                   WRITE ERRORCOR-FILE01
+                   MOVE SPACE TO ERRORCOR-FILE01
+                  STRING "LASTNAME                "
+                  "FIRSTNAME               "
+                  "MIDDLE INITIAL  POLICY #"
+                  DELIMITED BY SIZE INTO ERRORCOR-FILE01
+                  WRITE ERRORCOR-FILE01
+                  MOVE SPACE TO ERRORCOR-FILE01
+                  STRING NM1COR-NAMEL " " NM1COR-NAMEF " " NM1COR-NAMEM
+                  "             " NM1COR-CODE 
+                  DELIMITED BY SIZE INTO ERRORCOR-FILE01
+                  WRITE ERRORCOR-FILE01
+               END-IF
+           
+               GO TO P1-NM1
+           END-IF
 
            IF F1 = "DTM" AND F2 = "*472"
-            MOVE SPACE TO DTM01
-            UNSTRING FILEIN01 DELIMITED BY "*" INTO
-            DTM-0 DTM-1 DTM-2 
-            MOVE DTM-2 TO DATE-CC SVC-DATE(1).
-           GO TO P1-NM1.
+               MOVE SPACE TO DTM01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               DTM-0 DTM-1 DTM-2 
+               MOVE DTM-2 TO DATE-CC SVC-DATE(1)
+               GO TO P1-NM1
+           END-IF    
 
            IF F1 = "PLB"
                UNSTRING FILEIN01 DELIMITED BY "*" INTO ERRORCOR-FILE01
                WRITE ERRORCOR-FILE01
            END-IF
+
            GO TO P1-NM1.
 
        P1-SVC-LOOP.  
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P2-SVC-LOOP.
+           READ FILEIN
+             AT END
+               GO TO P2-SVC-LOOP
+           END-READ    
            
            IF F1 = "CLP" OR "SE*" 
-            MOVE FILEIN01 TO SAVEFILE01
-            GO TO P2-SVC-LOOP.
+               MOVE FILEIN01 TO SAVEFILE01
+               GO TO P2-SVC-LOOP
+           END-IF.
+
        P1-SVC-LOOP-0.    
-           IF F1 = "SVC"
-             IF FILEIN01(12:1) = "F" GO TO P1-SVC-LOOP
-             END-IF
-           IF (FILEIN01(8:1) = "G")
-             AND (FILEIN01(8:5) = "G9500" OR "G9547" OR "G9548"
-               OR "G9549" OR "G9550" OR "G9551" OR "G9552"
-               OR "G9553" OR "G9554" OR "G9555" OR "G9556"
-               OR "G9557")
+           IF F1 = "SVC"               
+               IF FILEIN01(12:1) = "F"
+                   GO TO P1-SVC-LOOP
+               END-IF
+
+               IF (FILEIN01(8:1) = "G")
+                   AND (FILEIN01(8:5) = "G9500" OR "G9547" OR "G9548"
+                   OR "G9549" OR "G9550" OR "G9551" OR "G9552"
+                   OR "G9553" OR "G9554" OR "G9555" OR "G9556"
+                   OR "G9557" OR "G9637")
+                   GO TO P1-SVC-LOOP
+               END-IF 
+             
+               ADD 1 TO SVC-CNTR
+               MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
                GO TO P1-SVC-LOOP
-           END-IF 
-             ADD 1 TO SVC-CNTR
-           MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
-           GO TO P1-SVC-LOOP.
+           END-IF    
            
            IF F1 = "CAS"
               MOVE SPACE TO CAS01 
@@ -837,8 +941,11 @@
 
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
-           IF SVC-CNTR = 0 PERFORM P1-NO-SVC 
-              GO TO P9-SVC-LOOP.
+           IF SVC-CNTR = 0
+               PERFORM P1-NO-SVC 
+               GO TO P9-SVC-LOOP
+           END-IF
+
            MOVE CLP-1 TO G-GARNO
            READ GARFILE INVALID GO TO P3-SVC-LOOP.
       *     IF NOT ((G-PRIPOL0 = NM1-CODE)  
@@ -1074,14 +1181,20 @@
 
        P9-SVC-LOOP.
            MOVE SAVEFILE01 TO FILEIN01
-           IF F1 = "CLP" GO TO P1-CLP-1.
+           
+           IF F1 = "CLP"
+               GO TO P1-CLP-1
+           END-IF
+
            GO TO XX.
 
        P1-NO-SVC.
            PERFORM STATUS-1
+           
            MOVE SPACE TO EF1
            STRING NM1-NAMEL ";" NM1-NAMEF 
            DELIMITED BY "  " INTO EF1
+           
            MOVE NM1-CODE TO EF2
            MOVE DATE-CC TO TEST-DATE 
            MOVE CORR TEST-DATE TO INPUT-DATE
@@ -1093,20 +1206,27 @@
            MOVE SPACE TO ALF8
            MOVE CLP-3TOTCLMCHG TO ALF8
            MOVE SPACE TO EFSIGNC
+           
            IF ALF8-1 = "-"
-           MOVE "-" TO EFSIGNC
+               MOVE "-" TO EFSIGNC
            END-IF
+
            PERFORM AMOUNT-1
+           
            MOVE AMOUNT-X TO EF5
            MOVE SPACE TO ALF8 EFSIGNP
            MOVE CLP-4TOTCLMPAY TO ALF8 
+           
            IF ALF8-1 = "-"
-           MOVE "-" TO EFSIGNP
+               MOVE "-" TO EFSIGNP
            END-IF
+           
            PERFORM AMOUNT-1
+           
            IF EFSIGNP NOT = "-"
-           ADD AMOUNT-X TO TOT-PAY
+               ADD AMOUNT-X TO TOT-PAY
            END-IF
+           
            MOVE AMOUNT-X TO EF6
            MOVE CLP-7ICN TO EF7
            MOVE CLP-2CLMSTAT TO EF8
@@ -1119,24 +1239,37 @@
            MOVE CLMCAS-17 TO EF-DENIAL6
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
+           
            IF CLMCAS-2 NOT = SPACE
-            MOVE CLMCAS-2 TO ALF3
-            PERFORM NAR-1.
+               MOVE CLMCAS-2 TO ALF3
+               PERFORM NAR-1
+           END-IF
+
            IF CLMCAS-5 NOT = SPACE
-            MOVE CLMCAS-5 TO ALF3
-            PERFORM NAR-1.
+               MOVE CLMCAS-5 TO ALF3
+               PERFORM NAR-1
+           END-IF
+
            IF CLMCAS-8 NOT = SPACE
-            MOVE CLMCAS-8 TO ALF3
-            PERFORM NAR-1.
+               MOVE CLMCAS-8 TO ALF3
+               PERFORM NAR-1
+           END-IF
+               
            IF CLMCAS-11 NOT = SPACE
-           MOVE CLMCAS-11 TO ALF3
-            PERFORM NAR-1.
+               MOVE CLMCAS-11 TO ALF3
+               PERFORM NAR-1
+           END-IF
+
            IF CLMCAS-14 NOT = SPACE
-            MOVE CLMCAS-14 TO ALF3
-            PERFORM NAR-1.
+               MOVE CLMCAS-14 TO ALF3
+               PERFORM NAR-1
+           END-IF
+
            IF CLMCAS-17 NOT = SPACE
-            MOVE CLMCAS-17 TO ALF3
-            PERFORM NAR-1.
+               MOVE CLMCAS-17 TO ALF3
+               PERFORM NAR-1
+           END-IF.
+
        P1-DENIED-SVC.
            PERFORM STATUS-1
            MOVE SPACE TO SVC01 
@@ -1144,15 +1277,18 @@
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
            SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
            SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
+
        P1-LOST-SVC.
            PERFORM STATUS-1
            MOVE SPACE TO EF1
            STRING NM1-NAMEL ";" NM1-NAMEF 
            DELIMITED BY "  " INTO EF1
+           
            MOVE NM1-CODE TO EF2
            IF SVC-DATE(X) = SPACE
-            MOVE DATE-CC TO SVC-DATE(X)
+               MOVE DATE-CC TO SVC-DATE(X)
            END-IF
+           
            MOVE SVC-DATE(X) TO TEST-DATE 
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO EF3
@@ -1164,197 +1300,218 @@
            MOVE SPACE TO ALF8
            MOVE SVC-2CHRGAMT TO ALF8
            MOVE SPACE TO EFSIGNC
+           
            IF ALF8-1 = "-"
             MOVE "-" TO EFSIGNC
            END-IF
+           
            PERFORM AMOUNT-1
-           move amount-X to chr-amt
+           
+           MOVE AMOUNT-X TO CHR-AMT 
            MOVE AMOUNT-X TO EF5
            ADD AMOUNT-X TO TOT-CHARGE
+           
            MOVE SPACE TO ALF8 EFSIGNP
            MOVE SVC-3PAYAMT TO ALF8
            IF ALF8-1 = "-"
-            MOVE "-" TO EFSIGNP
+               MOVE "-" TO EFSIGNP
            END-IF
+           
            PERFORM AMOUNT-1
            MOVE AMOUNT-X TO EF6
            IF ALF8-1 NOT = "-"
-            COMPUTE TOT-PAY = TOT-PAY + AMOUNT-X
+               COMPUTE TOT-PAY = TOT-PAY + AMOUNT-X
            END-IF.
+           
            COMPUTE PAY-AMT = AMOUNT-X
-            MOVE CLP-7ICN TO EF7
-            MOVE SPACE TO ALF-17 CC-PROC1X CC-PROC2X CC-MOD2X CC-MOD3X
-            MOVE SVC-1PROCMOD TO ALF-17
-            UNSTRING ALF-14 DELIMITED BY ":" INTO 
+           MOVE CLP-7ICN TO EF7
+           MOVE SPACE TO ALF-17 CC-PROC1X CC-PROC2X CC-MOD2X CC-MOD3X
+           MOVE SVC-1PROCMOD TO ALF-17
+           UNSTRING ALF-14 DELIMITED BY ":" INTO 
             CC-PROC1X CC-PROC2X CC-MOD2X CC-MOD3X
-            MOVE SPACE TO EF-PROC
-            STRING CC-PROC1X CC-PROC2X CC-MOD3X DELIMITED BY SIZE
-            INTO EF-PROC
-            MOVE SPACE TO EF-TAB01
-            MOVE 0 TO DENIAL-CNTR PAT-RESP 
+           MOVE SPACE TO EF-PROC
+           STRING CC-PROC1X CC-PROC2X CC-MOD3X DELIMITED BY SIZE
+           INTO EF-PROC
+           MOVE SPACE TO EF-TAB01
+           MOVE 0 TO DENIAL-CNTR PAT-RESP 
+           
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > CAS-CNTR
-            IF CAS-SVC(Y) = X 
-             MOVE SPACE TO FILEIN01
-             MOVE CAS-TAB(Y) TO FILEIN01
-             MOVE SPACE TO CAS01
-             UNSTRING FILEIN01 DELIMITED BY "*" INTO
-             CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-             CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-             CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+           
+             IF CAS-SVC(Y) = X 
+               MOVE SPACE TO FILEIN01
+               MOVE CAS-TAB(Y) TO FILEIN01
+               MOVE SPACE TO CAS01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
              
-             IF CAS-2 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-2 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-2 TO ALF3
-              PERFORM NAR-1
-             END-IF
-             IF CAS-5 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-5 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-5 TO ALF3
-              PERFORM NAR-1
-             END-IF
-             IF CAS-8 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-8 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-8 TO ALF3
-              PERFORM NAR-1
-             END-IF
+               IF CAS-2 NOT = SPACE
+                   ADD 1 TO DENIAL-CNTR
+                   MOVE CAS-2 TO EF-TAB(DENIAL-CNTR)
+                   MOVE CAS-2 TO ALF3
+                   PERFORM NAR-1
+               END-IF
+             
+               IF CAS-5 NOT = SPACE
+                   ADD 1 TO DENIAL-CNTR
+                   MOVE CAS-5 TO EF-TAB(DENIAL-CNTR)
+                   MOVE CAS-5 TO ALF3
+                   PERFORM NAR-1
+               END-IF
+             
+               IF CAS-8 NOT = SPACE
+                   ADD 1 TO DENIAL-CNTR
+                   MOVE CAS-8 TO EF-TAB(DENIAL-CNTR)
+                   MOVE CAS-8 TO ALF3
+                   PERFORM NAR-1
+               END-IF
 
-             IF CAS-11 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-11 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-11 TO ALF3
-              PERFORM NAR-1
-             END-IF
+               IF CAS-11 NOT = SPACE
+                   ADD 1 TO DENIAL-CNTR
+                   MOVE CAS-11 TO EF-TAB(DENIAL-CNTR)
+                   MOVE CAS-11 TO ALF3
+                   PERFORM NAR-1
+               END-IF
 
-             IF CAS-14 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-14 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-14 TO ALF3
-              PERFORM NAR-1
-             END-IF
+               IF CAS-14 NOT = SPACE
+                   ADD 1 TO DENIAL-CNTR
+                   MOVE CAS-14 TO EF-TAB(DENIAL-CNTR)
+                   MOVE CAS-14 TO ALF3
+                   PERFORM NAR-1
+               END-IF
 
-             IF CAS-17 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-17 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-17 TO ALF3
-              PERFORM NAR-1
-             END-IF
+               IF CAS-17 NOT = SPACE
+                   ADD 1 TO DENIAL-CNTR
+                   MOVE CAS-17 TO EF-TAB(DENIAL-CNTR)
+                   MOVE CAS-17 TO ALF3
+                   PERFORM NAR-1
+               END-IF
 
-              IF CAS-1 = "PR"
-                IF CAS-3 NOT = SPACE
-                 MOVE SPACE TO ALF8
-                 MOVE CAS-3 TO ALF8
-                 PERFORM AMOUNT-1
-                 COMPUTE PAT-RESP = pat-resp + AMOUNT-X
-                END-IF
-                IF CAS-6 NOT = SPACE
-                 MOVE SPACE TO ALF8
-
-                  MOVE CAS-6 TO ALF8
-                  PERFORM AMOUNT-1
-                  COMPUTE PAT-RESP = PAT-RESP + AMOUNT-X
-                END-IF
-                IF CAS-9 NOT = SPACE
-                  MOVE SPACE TO ALF8
-                  MOVE CAS-9 TO ALF8
-                  PERFORM AMOUNT-1
-                  COMPUTE PAT-RESP = PAT-RESP + AMOUNT-X
-                END-IF
-                IF CAS-12 NOT = SPACE
-                  MOVE SPACE TO ALF8
-                  MOVE CAS-12 TO ALF8
-                  PERFORM AMOUNT-1
-                  COMPUTE PAT-RESP = PAT-RESP + AMOUNT-X
-                END-IF
-                IF CAS-15 NOT = SPACE
-                  MOVE SPACE TO ALF8
-                  MOVE CAS-15 TO ALF8
-                  PERFORM AMOUNT-1
-                  COMPUTE PAT-RESP = PAT-RESP + AMOUNT-X
-                END-IF
-                IF CAS-18 NOT = SPACE
-                  MOVE SPACE TO ALF8
-                  MOVE CAS-18 TO ALF8
-                  PERFORM AMOUNT-1
-                  COMPUTE PAT-RESP = PAT-RESP + AMOUNT-X
-                END-IF
-              END-IF
-            END-IF
+               IF CAS-1 = "PR"
+                   IF CAS-3 NOT = SPACE
+                       MOVE SPACE TO ALF8
+                       MOVE CAS-3 TO ALF8
+                       PERFORM AMOUNT-1
+                       COMPUTE PAT-RESP = pat-resp + AMOUNT-X
+                   END-IF
+                
+                   IF CAS-6 NOT = SPACE
+                       MOVE SPACE TO ALF8
+                       MOVE CAS-6 TO ALF8
+                       PERFORM AMOUNT-1
+                       COMPUTE PAT-RESP = PAT-RESP + AMOUNT-X
+                   END-IF
+                
+                   IF CAS-9 NOT = SPACE
+                       MOVE SPACE TO ALF8
+                       MOVE CAS-9 TO ALF8
+                       PERFORM AMOUNT-1
+                       COMPUTE PAT-RESP = PAT-RESP + AMOUNT-X
+                   END-IF
+                
+                   IF CAS-12 NOT = SPACE
+                       MOVE SPACE TO ALF8
+                       MOVE CAS-12 TO ALF8
+                       PERFORM AMOUNT-1
+                       COMPUTE PAT-RESP = PAT-RESP + AMOUNT-X
+                   END-IF
+                
+                   IF CAS-15 NOT = SPACE
+                       MOVE SPACE TO ALF8
+                       MOVE CAS-15 TO ALF8
+                       PERFORM AMOUNT-1
+                       COMPUTE PAT-RESP = PAT-RESP + AMOUNT-X
+                   END-IF
+                   
+                   IF CAS-18 NOT = SPACE
+                       MOVE SPACE TO ALF8
+                       MOVE CAS-18 TO ALF8
+                       PERFORM AMOUNT-1
+                       COMPUTE PAT-RESP = PAT-RESP + AMOUNT-X
+                   END-IF
+               END-IF
+             END-IF           
            END-PERFORM.
+           
            MOVE SVC-2CHRGAMT TO ALF8
            MOVE SPACE TO EFSIGNC
            PERFORM AMOUNT-1
-             IF ALF8-1 = "-" 
-                MOVE "-" TO EFSIGNC
-             END-IF
+           
+           IF ALF8-1 = "-" 
+               MOVE "-" TO EFSIGNC
+           END-IF
 
-              COMPUTE PD-AMOUNTX = chr-amt - PAY-AMT  - PAT-RESP
-            move pd-amountx to nefx
+           COMPUTE PD-AMOUNTX = chr-amt - PAY-AMT  - PAT-RESP
+           MOVE PD-AMOUNTX TO NEFX
 
+           IF CHR-AMT = PD-AMOUNTX MOVE 0 TO PD-AMOUNTX.
 
+           MOVE PD-AMOUNTX TO EF-REDUCE
+           ADD ALLW-TAB(X) TO TOT-REDUCE
+           MOVE EF-TAB(1) TO EF-DENIAL1
+           MOVE EF-TAB(2) TO EF-DENIAL2
+           MOVE EF-TAB(3) TO EF-DENIAL3
+           MOVE EF-TAB(4) TO EF-DENIAL4
+           MOVE EF-TAB(5) TO EF-DENIAL5
+           MOVE EF-TAB(6) TO EF-DENIAL6
+           MOVE SPACE TO ERROR-FILE01
+           WRITE ERROR-FILE01 FROM ERR01.
 
-             IF CHR-AMT = PD-AMOUNTX MOVE 0 TO PD-AMOUNTX.
+           IF DENIAL-CNTR > 6
+               MOVE EF-TAB(7) TO EF3-DENIAL1
+               MOVE EF-TAB(8) TO EF3-DENIAL2
+               MOVE EF-TAB(9) TO EF3-DENIAL3
+               MOVE EF-TAB(10) TO EF3-DENIAL4
+               MOVE EF-TAB(11) TO EF3-DENIAL5
+               MOVE EF-TAB(12) TO EF3-DENIAL6
+               MOVE SPACE TO ERROR-FILE01
+               WRITE ERROR-FILE01 FROM ERR301
+           END-IF
 
+           IF DENIAL-CNTR > 12
+               MOVE EF-TAB(13) TO EF3-DENIAL1
+               MOVE EF-TAB(14) TO EF3-DENIAL2
+               MOVE EF-TAB(15) TO EF3-DENIAL3
+               MOVE EF-TAB(16) TO EF3-DENIAL4
+               MOVE EF-TAB(17) TO EF3-DENIAL5
+               MOVE EF-TAB(18) TO EF3-DENIAL6
+               MOVE SPACE TO ERROR-FILE01
+               WRITE ERROR-FILE01 FROM ERR301
+           END-IF
 
-             
-             MOVE PD-AMOUNTX TO EF-REDUCE
-             ADD ALLW-TAB(X) TO TOT-REDUCE
-             MOVE EF-TAB(1) TO EF-DENIAL1
-             MOVE EF-TAB(2) TO EF-DENIAL2
-             MOVE EF-TAB(3) TO EF-DENIAL3
-             MOVE EF-TAB(4) TO EF-DENIAL4
-             MOVE EF-TAB(5) TO EF-DENIAL5
-             MOVE EF-TAB(6) TO EF-DENIAL6
-             MOVE SPACE TO ERROR-FILE01
-             WRITE ERROR-FILE01 FROM ERR01.
+           IF DENIAL-CNTR > 18
+               MOVE EF-TAB(19) TO EF3-DENIAL1
+               MOVE EF-TAB(20) TO EF3-DENIAL2
+               MOVE EF-TAB(21) TO EF3-DENIAL3
+               MOVE EF-TAB(22) TO EF3-DENIAL4
+               MOVE EF-TAB(23) TO EF3-DENIAL5
+               MOVE EF-TAB(24) TO EF3-DENIAL6
+               MOVE SPACE TO ERROR-FILE01
+               WRITE ERROR-FILE01 FROM ERR301
+           END-IF
 
-             IF DENIAL-CNTR > 6
-             MOVE EF-TAB(7) TO EF3-DENIAL1
-             MOVE EF-TAB(8) TO EF3-DENIAL2
-             MOVE EF-TAB(9) TO EF3-DENIAL3
-             MOVE EF-TAB(10) TO EF3-DENIAL4
-             MOVE EF-TAB(11) TO EF3-DENIAL5
-             MOVE EF-TAB(12) TO EF3-DENIAL6
-             MOVE SPACE TO ERROR-FILE01
-             WRITE ERROR-FILE01 FROM ERR301.
-             IF DENIAL-CNTR > 12
-             MOVE EF-TAB(13) TO EF3-DENIAL1
-             MOVE EF-TAB(14) TO EF3-DENIAL2
-             MOVE EF-TAB(15) TO EF3-DENIAL3
-             MOVE EF-TAB(16) TO EF3-DENIAL4
-             MOVE EF-TAB(17) TO EF3-DENIAL5
-             MOVE EF-TAB(18) TO EF3-DENIAL6
-             MOVE SPACE TO ERROR-FILE01
-             WRITE ERROR-FILE01 FROM ERR301.
-             IF DENIAL-CNTR > 18
-             MOVE EF-TAB(19) TO EF3-DENIAL1
-             MOVE EF-TAB(20) TO EF3-DENIAL2
-             MOVE EF-TAB(21) TO EF3-DENIAL3
-             MOVE EF-TAB(22) TO EF3-DENIAL4
-             MOVE EF-TAB(23) TO EF3-DENIAL5
-             MOVE EF-TAB(24) TO EF3-DENIAL6
-             MOVE SPACE TO ERROR-FILE01
-             WRITE ERROR-FILE01 FROM ERR301.
-             IF DENIAL-CNTR > 24
-             MOVE EF-TAB(25) TO EF3-DENIAL1
-             MOVE EF-TAB(26) TO EF3-DENIAL2
-             MOVE EF-TAB(27) TO EF3-DENIAL3
-             MOVE EF-TAB(28) TO EF3-DENIAL4
-             MOVE EF-TAB(29) TO EF3-DENIAL5
-             MOVE EF-TAB(30) TO EF3-DENIAL6
-             MOVE SPACE TO ERROR-FILE01
-             WRITE ERROR-FILE01 FROM ERR301.
-             IF DENIAL-CNTR > 30
-             MOVE EF-TAB(31) TO EF3-DENIAL1
-             MOVE EF-TAB(32) TO EF3-DENIAL2
-             MOVE EF-TAB(33) TO EF3-DENIAL3
-             MOVE EF-TAB(34) TO EF3-DENIAL4
-             MOVE EF-TAB(35) TO EF3-DENIAL5
-             MOVE EF-TAB(36) TO EF3-DENIAL6
-             MOVE SPACE TO ERROR-FILE01
-             WRITE ERROR-FILE01 FROM ERR301.
+           IF DENIAL-CNTR > 24
+               MOVE EF-TAB(25) TO EF3-DENIAL1
+               MOVE EF-TAB(26) TO EF3-DENIAL2
+               MOVE EF-TAB(27) TO EF3-DENIAL3
+               MOVE EF-TAB(28) TO EF3-DENIAL4
+               MOVE EF-TAB(29) TO EF3-DENIAL5
+               MOVE EF-TAB(30) TO EF3-DENIAL6
+               MOVE SPACE TO ERROR-FILE01
+               WRITE ERROR-FILE01 FROM ERR301
+           END-IF
+
+           IF DENIAL-CNTR > 30
+               MOVE EF-TAB(31) TO EF3-DENIAL1
+               MOVE EF-TAB(32) TO EF3-DENIAL2
+               MOVE EF-TAB(33) TO EF3-DENIAL3
+               MOVE EF-TAB(34) TO EF3-DENIAL4
+               MOVE EF-TAB(35) TO EF3-DENIAL5
+               MOVE EF-TAB(36) TO EF3-DENIAL6
+               MOVE SPACE TO ERROR-FILE01
+               WRITE ERROR-FILE01 FROM ERR301
+           END-IF.    
 
        NAR-1.
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 216 
@@ -1380,25 +1537,39 @@
            MOVE SPACE TO G-GARNO
            MOVE NM1-NAMEL(1:3) TO ID1
            MOVE ID1 TO ALF-3
-           START GARFILE KEY NOT < G-GARNO INVALID 
-           GO TO FIND-GARNO-EXIT.
-       P2.  READ GARFILE NEXT AT END GO TO FIND-GARNO-EXIT.
+           START GARFILE KEY NOT < G-GARNO
+             INVALID 
+             GO TO FIND-GARNO-EXIT
+           END-START.  
+       P2.
+           READ GARFILE NEXT
+             AT END
+               GO TO FIND-GARNO-EXIT
+           END-READ
+
            IF ID1 > ALF-3 GO TO FIND-GARNO-EXIT.
+           
            MOVE 1 TO GARFLAG
            IF G-PRINS NOT = "003" MOVE 2 TO GARFLAG.
+           
            IF NOT ((G-PRINS = "003")
                  OR  (G-SEINS = "003")
                  OR  (G-TRINS = "003"))
            GO TO P2.
+           
            IF G-TRINS = "003"
-            MOVE G-GARNO TO MPLR-KEY
-            READ MPLRFILE INVALID MOVE SPACE TO MPLR-TRIPOL0
-            END-READ
-           END-IF.
+               MOVE G-GARNO TO MPLR-KEY
+               READ MPLRFILE
+                 INVALID
+                   MOVE SPACE TO MPLR-TRIPOL0
+               END-READ
+           END-IF
+
            IF NOT ((G-PRIPOL0 = NM1-CODE)  
                 OR (G-SECPOL0 = NM1-CODE)
                 OR (MPLR-TRIPOL0 = NM1-CODE))
-           GO TO P2.
+               GO TO P2
+           END-IF    
 
       *  START LOOKING FOR MATCHING CHARGES WITH THE GARNO IN QUESTION.
            
