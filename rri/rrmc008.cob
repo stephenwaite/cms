@@ -210,7 +210,7 @@
              03 R2-DOBYY PIC XX.
            02 R2-DISCHARGE PIC X(6).
 
-      01  REC301.
+       01  REC301.
            02 R3-1 PIC XX.
            02 R3-IND PIC XXX.
            02 R3-DEPT PIC XX.
@@ -235,7 +235,7 @@
        01  ALF13 PIC X(13).
        01  ALF20 PIC X(20).       
 
-      PROCEDURE DIVISION.
+       PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT FILEIN PROCFILE.
            OPEN OUTPUT FILEOUT ERRFILE.
@@ -264,9 +264,7 @@
 
            MOVE FILEIN01 TO REC301
            
-           IF R3-GLC = "0" AND
-               (R3-PROC = "0000" OR R3-PROC = "0001")
-               
+           IF R3-GLC = "0"               
                MOVE SPACE TO ERRFILE01
                STRING HOLDNAME " " R3-PROC
                    " WITH SPECIAL HANDLING FOR NOW DUE TO AUC"

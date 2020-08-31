@@ -70,7 +70,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD  ERRFILE.
-       01  ERRFILE01 PIC X(60).
+       01  ERRFILE01 PIC X(80).
 
        FD  EMAILAUTHFILE.
        01  EMAILAUTHFILE01.
@@ -551,7 +551,7 @@
        01     X PIC 99.
        01     Y PIC 99.
        01  Z PIC 999.
-       01     FLAG   PIC 9.
+       01  FLAG PIC 9.
        01  FLAGX PIC 9.
        01  DATE-X PIC X(8).
        01  IN-FIELD-8 PIC X(8).
@@ -636,11 +636,15 @@
               03 ALF-16-13 PIC X.
            02 ALF-16-2 PIC X(9).
            02 ALF-16-3 PIC X(4).
+       01  ALF-BCBSVT.
+           02 ALF-BCBSVT-1 PIC X(4).
+           02 ALF-BCBSVT-2 PIC X(9).
+           02 ALF-BCBSVT-3 PIC X(3).      
        01  ZIPCODE.
            02 ZIPCODE-1-5 PIC X(5).
            02 ZIPCODE-6 PIC X.
            02 ZIPCODE-7-10 PIC X(4).
-       01  NUM2 pic 99.
+       01  NUM2 PIC 99.
       *
        PROCEDURE DIVISION.
        0005-START.
@@ -784,26 +788,46 @@
            MOVE SPACE TO A-GARNO.
 
            PERFORM NPI-METHOD THRU NPI-EXIT.
-           IF FLAG = 1 GO TO P2.
+           
+           IF FLAG = 1
+               GO TO P2
+           END-IF.    
+
        P2-0.
            DISPLAY R2-REFDOC " " R2-DOC " " R2-NPI " TO BE ADDED"
                " FOR " R1-PATNAME " CITY " R1-GARCITY " STATE "
                    R1-GARSTATE
            ACCEPT REF
            MOVE REF TO REF-KEY
-           READ REFPHY INVALID GO TO P2-0.
+           READ REFPHY
+             INVALID
+               GO TO P2-0
+           END-READ
+
            GO TO P2.
+
        4Z-REF.
            MOVE R2-REFDOC4 TO ALF4
            MOVE 0 TO Y
            MOVE SPACE TO REF-KEY
            MOVE ALF4(1:1) TO REF-KEY
-           START REFPHY KEY NOT < REF-KEY INVALID GO TO REF-2.
+           START REFPHY KEY NOT < REF-KEY
+             INVALID
+               GO TO REF-2
+           END-START.
+
        4B-REF.
-           READ REFPHY NEXT AT END GO TO REF-2.
+           READ REFPHY NEXT
+             AT END
+               GO TO REF-2
+           END-READ
+
            IF REF-NPI = SPACE GO TO 4B-REF.
+           
            IF REF-NAME(1:1) > REF-KEY(1:1) GO TO REF-2.
+           
            IF REF-NAME(1:4) NOT = ALF4 GO TO 4B-REF.
+           
            ADD 1 TO Y
            MOVE R2-DOC TO NUMKEYTAB(Y)
            MOVE REF-NAME TO NAMETAB(Y)
@@ -820,77 +844,109 @@
 
            MOVE ALF-3 TO REF-KEY
            READ REFPHY
-            INVALID
-             MOVE SPACE TO RIGHT-2
-             UNSTRING alf-3(1:2) delimited by " " into right-2
-             inspect right-2 replacing all " " by "0"
-             move right-2 to alf-2
-              IF( ALF-2 NOT NUMERIC) OR (ALF-2 = "00")
+             INVALID
+               MOVE SPACE TO RIGHT-2
+               UNSTRING ALF-3(1:2) DELIMITED BY " " INTO RIGHT-2
+               INSPRECT RIGHT-2 REPLACING ALL " " BY "0"
+               MOVE RIGHT-2 TO ALF-2
+               IF( ALF-2 NOT NUMERIC) OR (ALF-2 = "00")
+                   DISPLAY "BAD PICK"
+                   GO TO REF-3
+               END-IF
 
-               DISPLAY "BAD PICK"
-               GO TO REF-3
-              END-IF
+               MOVE ALF-2 TO X
+               IF X = 0 OR X > Y
+                   DISPLAY "BAD CHOICE. DO IT AGAIN!"
+                   GO TO REF-3
+               END-IF
 
-              MOVE ALF-2 TO X
-              IF X = 0 OR X > Y
-                DISPLAY "BAD CHOICE. DO IT AGAIN!"
-                GO TO REF-3
-              END-IF
+               MOVE NAMEKEYTAB(X) TO REF
 
-            MOVE NAMEKEYTAB(X) TO REF
+             NOT INVALID
+               CONTINUE
+           END-READ
 
-            NOT INVALID  CONTINUE
-           END-READ.
            GO TO P2.
 
-       REF-PICK. DISPLAY X " " NAMETAB(X) " " NAMEKEYTAB(X)
-           " " NUMKEYTAB(X).
-
+       REF-PICK.
+           DISPLAY X " " NAMETAB(X) " " NAMEKEYTAB(X)
+                   " " NUMKEYTAB(X).
 
        NPI-METHOD.
            MOVE SPACE TO REF-KEY
            MOVE R2-REFDOC(1:1) TO REF-KEY
            MOVE 0 TO FLAG.
-           START REFPHY KEY NOT < REF-KEY INVALID GO TO NPI-EXIT.
-       NPI-1. READ REFPHY NEXT AT END GO TO NPI-EXIT.
-               IF REF-NPI = SPACE GO TO NPI-1.
-               IF REF-NAME(1:1) > R2-REFDOC(1:1) GO TO NPI-EXIT.
-               IF REF-NPI = R2-NPI
-                MOVE  1 TO FLAG
-                MOVE REF-KEY TO REF
-                GO TO NPI-EXIT
-               END-IF.
-               GO TO NPI-1.
-       NPI-EXIT. EXIT.
+           START REFPHY KEY NOT < REF-KEY
+             INVALID
+               GO TO NPI-EXIT
+           END-START.
+
+       NPI-1.
+           READ REFPHY NEXT
+             AT END
+               GO TO NPI-EXIT
+           END-READ    
+           
+           IF REF-NPI = SPACE
+               GO TO NPI-1
+           END-IF    
+           
+           IF REF-NAME(1:1) > R2-REFDOC(1:1)
+               GO TO NPI-EXIT
+           END-IF    
+           
+           IF REF-NPI = R2-NPI
+               MOVE 1 TO FLAG
+               MOVE REF-KEY TO REF
+               GO TO NPI-EXIT
+           END-IF
+           
+           GO TO NPI-1.
+
+       NPI-EXIT.
+           EXIT.
+
        P2.
            IF (R2-DOBYY NOT NUMERIC) OR (R2-DOBMM NOT NUMERIC)
-           OR (R2-DOBDD NOT NUMERIC)
-           DISPLAY R2-PATDOB " " R1-PATNAME 
-           MOVE "000000" TO R2-PATDOB.
+               OR (R2-DOBDD NOT NUMERIC)
+               DISPLAY R2-PATDOB " " R1-PATNAME 
+               MOVE "000000" TO R2-PATDOB
+           END-IF
+
            MOVE 20 TO A-CC
            MOVE R2-DOBYY TO A-YY
            MOVE R2-DOBMM TO A-MM
            MOVE R2-DOBDD TO A-DD
            MOVE A-DATE TO INPUT-DATE
            MOVE CORR INPUT-DATE TO TEST-DATE
+           
            IF DATE-TODAY < TEST-DATE
-           MOVE 19 TO A-CC.
+               MOVE 19 TO A-CC
+           END-IF
+
            MOVE DATE-TODAY TO B-DATE
            COMPUTE OLD = 100 * (B-CC - A-CC) + B-YY - A-YY 
+           
            IF (A-MM > B-MM) OR ((A-MM = B-MM) AND (A-DD > B-DD))
-           SUBTRACT 1 FROM OLD.
+               SUBTRACT 1 FROM OLD.
+           
            IF A-DOB < "19       " AND A-DOB > "000000000" ADD 99 TO OLD.
+           
            IF R2-PATSEX NOT = "F" MOVE "M" TO R2-PATSEX.
+           
            MOVE R2-PATSEX TO A-SEX.
+           
            IF OLD > 23 MOVE "2" TO A-RELATE ELSE MOVE "4" TO A-RELATE.
+           
            IF A-SEX = "F" AND A-RELATE = "4" MOVE "M" TO A-RELATE.
+           
            IF A-SEX = "F" AND A-RELATE = "2" MOVE "K" TO A-RELATE.
 
            MOVE "001" TO A-PRINS A-SEINS A-TRINS
            MOVE SPACE TO A-PRIPOL A-PR-GROUP A-PRNAME A-PR-RELATE
-           A-PR-MPLR A-PRGRPNAME
+                         A-PR-MPLR A-PRGRPNAME
            MOVE SPACE TO A-SECPOL A-SE-GROUP A-SENAME A-SE-RELATE
-           A-SE-MPLR A-SEGRPNAME
+                         A-SE-MPLR A-SEGRPNAME
            MOVE "U" TO A-PR-ASSIGN A-SE-ASSIGN
            
            MOVE R1-IP1 TO X-IP
@@ -905,7 +961,7 @@
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
            
            IF R1-IP1 = "00930"
-           PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
+               PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
            
            IF R1-IP1 = "00698" OR "00699"
                PERFORM REPLACE-2 THRU REPLACE-2-EXIT
@@ -929,7 +985,10 @@
 
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
 
-           IF FLAG = 1 MOVE 3 TO PLANNUM GO TO P2-1.
+           IF FLAG = 1
+               MOVE 3 TO PLANNUM
+               GO TO P2-1
+           END-IF    
            
            MOVE R2-IP3 TO X-IP
            MOVE R2-CERT33 TO X-CERT
@@ -942,7 +1001,10 @@
 
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
 
-           IF FLAG = 1 MOVE 4 TO PLANNUM GO TO P2-1.
+           IF FLAG = 1
+               MOVE 4 TO PLANNUM
+               GO TO P2-1
+           END-IF    
            
            MOVE R2-IP4 TO X-IP
            MOVE R2-CERT44 TO X-CERT
@@ -956,16 +1018,18 @@
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
            
            GO TO P2-2.
+
        P2-1.
            IF PLANNUM = 2
-           MOVE R1-IP2 TO X-IP
-           MOVE R1-CERT22 TO X-CERT
-           MOVE R1-GRP2 TO X-GRP
-           MOVE R1-GRPNAME22 TO X-GRPNAME
-           MOVE R1-SSN22 TO X-SSN
-           MOVE R1-SUBNAME22 TO X-SUBNAME
-           MOVE R1-GENDER22 TO X-GENDER
-           MOVE R1-RELATE2 TO X-RELATE.
+               MOVE R1-IP2 TO X-IP
+               MOVE R1-CERT22 TO X-CERT
+               MOVE R1-GRP2 TO X-GRP
+               MOVE R1-GRPNAME22 TO X-GRPNAME
+               MOVE R1-SSN22 TO X-SSN
+               MOVE R1-SUBNAME22 TO X-SUBNAME
+               MOVE R1-GENDER22 TO X-GENDER
+               MOVE R1-RELATE2 TO X-RELATE
+           END-IF    
 
            IF PLANNUM = 3
            MOVE R2-IP3 TO X-IP
@@ -986,9 +1050,13 @@
            MOVE R2-SUBNAME44 TO X-SUBNAME
            MOVE R2-GENDER44 TO X-GENDER
            MOVE R2-RELATE4 TO X-RELATE.
+           
            PERFORM SEL-SEINS THRU SEL-SEINS-EXIT.
+           
            IF X-IP = "00698   " OR "00699   "
+           
            PERFORM REPLACE-3 THRU REPLACE-3-EXIT.
+           
            GO TO P2-2.
 
        SEL-PRINS.
@@ -1064,7 +1132,8 @@
            IF A-PRINS = "091"
            MOVE R1-EMPLOYNAME11 TO A-PRGRPNAME.
            
-       SEL-PRINS-EXIT. EXIT.
+       SEL-PRINS-EXIT.
+           EXIT.
 
        SEL-SEINS.
            MOVE 0 TO FLAG
@@ -1187,21 +1256,31 @@
            
        REPLACE-3.
            DISPLAY R1-PATNAME
-           IF A-PRINS = "003" DISPLAY "MEDICARE PATIENT".
+
+           IF A-PRINS = "003"
+               DISPLAY "MEDICARE PATIENT"
+           END-IF
+
            DISPLAY R1-PATNAME INSURANCE-2
            DISPLAY "ENTER 2NDARY INS CODE"
            ACCEPT A-SEINS
            MOVE A-SEINS TO INS-KEY
-           READ INSFILE INVALID DISPLAY "BAD" GO TO REPLACE-3.
+           READ INSFILE INVALID
+             DISPLAY "BAD"
+               GO TO REPLACE-3
+           END-READ.
+
        REPLACE-3-EXIT.
            EXIT.
 
-       INIT-1. MOVE SPACE TO ACTFILE01 
-               MOVE "00000000" TO A-LASTBILL
-               MOVE "0000000" TO A-INSPEND
-               MOVE "1" TO A-DUNNING A-ACCTSTAT
-               MOVE "0" TO A-COLLT A-TRINSIND
-               MOVE "001" TO A-TRINS.
+       INIT-1.
+           MOVE SPACE TO ACTFILE01 
+           MOVE "00000000" TO A-LASTBILL
+           MOVE "0000000" TO A-INSPEND
+           MOVE "1" TO A-DUNNING A-ACCTSTAT
+           MOVE "0" TO A-COLLT A-TRINSIND
+           MOVE "001" TO A-TRINS.
+
        P2-2.
            IF A-PRINS = "004"
             MOVE A-RELATE TO A-PR-RELATE.
@@ -1298,9 +1377,14 @@
 
            IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V")
                MOVE SPACE TO ERRFILE01
-               STRING A-GARNAME " " A-ACTNO " " A-PRIPOL
-               DELIMITED BY SIZE INTO ERRFILE01
+               STRING "ADDING V TO 002 POLICY FOR " A-GARNAME " "
+                   A-ACTNO " " A-PRIPOL DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
+               MOVE SPACE TO ALF-BCBSVT
+               STRING ALF-16-1 "V" DELIMITED BY SIZE INTO ALF-BCBSVT-1
+               MOVE ALF-16-2 TO ALF-BCBSVT-2
+               MOVE ALF-16-3(1:3) TO ALF-BCBSVT-3
+               MOVE ALF-BCBSVT TO A-PRIPOL
            END-IF
            
            IF (A-PRINS = "268")
@@ -1409,38 +1493,63 @@
                DISPLAY A-PRINS "  SAME AS SECONDARY INSURANCE "
                    R2-MEDREC
            END-IF.
+
+           IF (A-PRINS = "576" AND A-PRIPOL(10:2) = SPACE)
+               STRING A-PRIPOL "00" DELIMITED BY SIZE INTO A-PRIPOL
+           END-IF.
+
+           IF (A-SEINS = "555")
+               MOVE "A" TO A-PR-ASSIGN
+           END-IF.    
+
        P2-3.
            MOVE R2-MEDREC TO A-ACTNO
            MOVE A-GARNAME TO NAME-KEY
+
            IF A-PRIPOL = "X" OR "UNK" MOVE SPACE TO A-PRIPOL.
+
            IF A-SECPOL = "X" OR "UNK" MOVE SPACE TO A-SECPOL.
+
            IF A-PR-GROUP = "X" OR "UNK" OR "NA"
                        MOVE SPACE TO A-PR-GROUP.
+
            IF A-SE-GROUP = "X" OR "UNK" OR "NA"
                        MOVE SPACE TO A-SE-GROUP.
+
            IF A-PRINS = "004"
-            MOVE A-GARNAME TO A-PRNAME
-            MOVE A-RELATE TO A-PR-RELATE
-           END-IF.
+               MOVE A-GARNAME TO A-PRNAME
+               MOVE A-RELATE TO A-PR-RELATE
+           END-IF
 
            IF A-SEINS = "004"
-            MOVE A-GARNAME TO A-SENAME
-            MOVE A-RELATE TO A-SE-RELATE
-           END-IF.
+               MOVE A-GARNAME TO A-SENAME
+               MOVE A-RELATE TO A-SE-RELATE
+           END-IF
+
            PERFORM EA-1 THRU EA-1-EXIT.
+           
            IF A-DOB(1:2) = "20" AND A-PRINS = "003"
-             MOVE "19" TO A-DOB(1:2)
-           END-IF.
+               MOVE "19" TO A-DOB(1:2)
+           END-IF
+
 		   IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
-		   MOVE "A" TO A-PR-ASSIGN
-		   END-IF.
+		       MOVE "A" TO A-PR-ASSIGN
+		   END-IF
+
            IF A-SEINS = "268" AND A-SE-ASSIGN = "U"
-		   MOVE "A" TO A-SE-ASSIGN
-		   END-IF.
+		       MOVE "A" TO A-SE-ASSIGN
+		   END-IF 
+
 		   MOVE ACTFILE01 TO SAVEMASTER.
-           READ ACTFILE INVALID MOVE SAVEMASTER TO ACTFILE01
-           WRITE ACTFILE01 GO TO B1.
-           MOVE SAVEMASTER TO ACTFILE01 REWRITE ACTFILE01.
+           READ ACTFILE
+             INVALID
+               MOVE SAVEMASTER TO ACTFILE01
+               WRITE ACTFILE01
+               GO TO B1
+           END-READ
+
+           MOVE SAVEMASTER TO ACTFILE01
+           REWRITE ACTFILE01.
            GO TO B1.
        B1. 
            READ FILEIN
@@ -1448,11 +1557,16 @@
                GO TO 9100CMF
            END-READ
 
-           IF FI-1 NOT = "$$" GO TO P1-1.
+           IF FI-1 NOT = "$$"
+               GO TO P1-1
+           END-IF     
            
            MOVE FILEIN01 TO REC301
            
-           IF R3-PROC = "166 " GO TO B1.
+           IF R3-PROC = "166 "
+               GO TO B1
+           END-IF.
+
        B1-1.
            MOVE SPACE TO RIGHT-4
            MOVE "0001"  TO C-ORDER
@@ -1468,9 +1582,13 @@
            MOVE SPACE TO C-DATE-ADMIT
            STRING R1-ADMITYY R1-ADMITMM R1-ADMITDD DELIMITED
            BY SIZE INTO C-DATE-ADMIT.
+
            MOVE "5" TO C-IOPAT
+           
            IF R3-PLACE = "EMER" MOVE "E" TO C-IOPAT.
+           
            IF R3-PLACE = "INPT" MOVE "3" TO C-IOPAT.
+           
            IF (REF = "G0A" OR "H27" OR "J06" OR "R1D"
                     OR "D55" OR "B1T" OR "B51" OR "R2A"
                     OR "F34" OR "G36" OR "H1B" OR "M6A"
@@ -1478,24 +1596,39 @@
                     OR "T0G" OR "V12" OR "W2I" OR "Z0I")
                  MOVE "E" TO C-IOPAT
            END-IF
+           
            IF (R3-PLACE = "INPT") AND (C-IOPAT = "E")
                MOVE SPACE TO ERRFILE01
                STRING A-GARNAME " WAS SENT AS INPT BUT REF " REF
                " IS ED" DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
            END-IF
+           
            MOVE REF TO C-REF.
            MOVE R3-PROC TO C-PROC
-           IF R3-IND = "CAN" MOVE "-" TO C-IND
-           ELSE MOVE " " TO C-IND.
+           
+           IF R3-IND = "CAN"
+               MOVE "-" TO C-IND
+           ELSE
+               MOVE " " TO C-IND
+           END-IF
+
            MOVE "00" TO C-DOCP
+           
            IF R3-DOCP = "RADE" MOVE "02" TO C-DOCP.
+           
            IF R3-DOCP = "SIVA" MOVE "03" TO C-DOCP.
+           
            IF R3-DOCP = "BIEB" MOVE "05" TO C-DOCP.
+           
            IF R3-DOCP = "MITC" MOVE "06" TO C-DOCP.
+           
            IF R3-DOCP = "PEKA" MOVE "07" TO C-DOCP.
+           
            IF R3-DOCP = "SHEL" MOVE "08" TO C-DOCP.
+           
            IF R3-DOCP = "HUMM" MOVE "09" TO C-DOCP.
+           
            IF R3-DOCP = "BOYE" MOVE "10" TO C-DOCP.
            
            MOVE R3-CLINICAL TO C-CLINICAL
@@ -1510,41 +1643,59 @@
            MOVE A-ACTNO TO ORD8
            MOVE ORDFILE01 TO SAVEORD
            MOVE 1 TO XYZ.
-       B2. READ ORDFILE INVALID GO TO B3.
-           ADD 1 TO XYZ MOVE XYZ TO  ORD3
+
+       B2. 
+           READ ORDFILE
+             INVALID
+               GO TO B3
+           END-READ
+
+           ADD 1 TO XYZ
+           MOVE XYZ TO ORD3
            GO TO B2.
-       B3. MOVE SAVEORD TO ORDFILE01
+       B3. 
+           MOVE SAVEORD TO ORDFILE01
            MOVE XYZ TO ORD3
            WRITE ORDFILE01
+           
            IF (R1-IP1 = "00931" OR "00932")
            OR (A-PRINS = "075" OR "076" OR "095")
            PERFORM WORK-COMP.
+           
            IF A-SEINS = "075" OR "076" OR"095"
            PERFORM WORK-COMP2.
+           
            GO TO B1.
+
        WORK-COMP.
            MOVE SPACE TO COMPFILE01
            STRING A-ACTNO  C-DATE-T C-PROC INSURANCE-1
            DELIMITED BY SIZE INTO COMPFILE01
            WRITE COMPFILE01 INVALID CONTINUE.
+           
            IF R1-INSNAME1 = SPACE
-           DISPLAY A-GARNAME " BLANK WORK COMP1 ADDRESS"
-           DISPLAY A-PRINS " " A-SEINS.
+               DISPLAY A-GARNAME " BLANK WORK COMP1 ADDRESS"
+               DISPLAY A-PRINS " " A-SEINS
+           END-IF.    
 
        WORK-COMP2.
            MOVE SPACE TO COMPFILE01
            STRING A-ACTNO  C-DATE-T C-PROC INSURANCE-2
            DELIMITED BY SIZE INTO COMPFILE01
-           WRITE COMPFILE01 INVALID CONTINUE.
-           IF R1-INSNAME2 = SPACE
-           MOVE SPACE TO COMPFILE01
-           STRING A-ACTNO  C-DATE-T C-PROC INSURANCE-3
-           DELIMITED BY SIZE INTO COMPFILE01
-           
            WRITE COMPFILE01
-             INVALID 
+             INVALID
                CONTINUE
-           END-WRITE.    
+           END-WRITE
+
+           IF R1-INSNAME2 = SPACE
+               MOVE SPACE TO COMPFILE01
+               STRING A-ACTNO C-DATE-T C-PROC INSURANCE-3
+               DELIMITED BY SIZE INTO COMPFILE01           
+               WRITE COMPFILE01
+                 INVALID 
+                   CONTINUE
+               END-WRITE
+           END-IF.        
 
        PACK-1. 
            
@@ -1580,6 +1731,7 @@
            MOVE R1-EMAIL TO EA-EMAIL
            MOVE R1-AUTH TO EA-AUTH
            WRITE EMAILAUTHFILE01.
+
        EA-1-EXIT.
            EXIT.
 
@@ -1587,5 +1739,5 @@
            CLOSE ACTFILE EMAILAUTHFILE ORDFILE COMPFILE
                  REFPHY HOSPFILE INSFILE FILEOUT ERRFILE
                  FILEIN MOBLFILE.
-           DISPLAY "REPORT DATA ENTRY PROGRAM HAS ENDED".
+           DISPLAY "RRMC DATA FILE LOAD HAS ENDED".
            STOP RUN.
