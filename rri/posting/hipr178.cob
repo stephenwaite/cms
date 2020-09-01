@@ -8,32 +8,42 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT PARMFILE ASSIGN TO "S30" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT FILEIN ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT CHARCUR ASSIGN TO "S40"     ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC        RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT GARFILE ASSIGN TO "S45"     ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC        RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT PAYFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS PAYFILE-KEY
            LOCK MODE MANUAL.
+
            SELECT ERROR-FILE ASSIGN TO "S55" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT PAYCUR ASSIGN TO "S60" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY
            LOCK MODE MANUAL.
+
            SELECT CAIDFILE ASSIGN TO "S65" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS CAID-KEY
            LOCK MODE MANUAL.
+
            SELECT MPLRFILE ASSIGN TO "S70" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY
            LOCK MODE IS MANUAL.
+
            SELECT INSFILE ASSIGN TO "S75" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS INS-KEY
            ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
@@ -43,6 +53,7 @@
            ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
            ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT TRNPAYFILE ASSIGN TO "S80" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS TRNPAYFILE-KEY
            LOCK MODE MANUAL.
@@ -50,7 +61,6 @@
        DATA DIVISION.
        FILE SECTION.
        FD  INSFILE
-     *     BLOCK CONTAINS 6 RECORDS
            DATA RECORD IS INSFILE01.
        01  INSFILE01.
            02 INS-KEY PIC XXX.
@@ -93,12 +103,10 @@
            02 MPLR-TR-RELATE PIC X.
            02 MPLR-FUTURE PIC X(6).
        FD  CAIDFILE
-           BLOCK CONTAINS 3 RECORDS.
        01  CAIDFILE01.
            02 CAID-KEY PIC XXX.
            02 CAID-REASON PIC X(70).
        FD  PAYCUR
-           BLOCK CONTAINS 6 RECORDS
            DATA RECORD IS PAYCUR01.
        01  PAYCUR01.
            02 PAYCUR-KEY.
@@ -117,8 +125,10 @@
            02 PF-2 PIC XXX.
            02 PARMCODE PIC XXX.
            02 PF-3 PIC X(27).
+
        FD ERROR-FILE.
        01 ERROR-FILE01 PIC X(150).
+
        FD FILEIN.
        01  FILEIN01.
            02 F0.
@@ -127,8 +137,8 @@
                 04 F21 PIC XXX.
                 04 FILLER PIC X.
            02 F3 PIC X(113).
+
        FD  PAYFILE
-           BLOCK CONTAINS 4 RECORDS
            DATA RECORD IS PAYFILE01.
        01  PAYFILE01.
            02 PAYFILE-KEY.
@@ -143,9 +153,10 @@
            02 PD-DATE-E PIC X(8).
            02 PD-ORDER PIC X(6).
            02 PD-BATCH PIC X(6).
+
        FD  TRNPAYFILE
-           BLOCK CONTAINS 4 RECORDS
            DATA RECORD IS TRNPAYFILE01.
+
        01  TRNPAYFILE01.
            02 TRNPAYFILE-KEY.
              03 TRN-KEY8 PIC X(8).
@@ -160,8 +171,8 @@
            02 TRN-ORDER PIC X(6).
            02 TRN-BATCH PIC X(6).
            02 TRN-CHKNO PIC X(30).
+
        FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS CHARCUR01.
        01  CHARCUR01.
            02 CHARCUR-KEY.
@@ -207,8 +218,8 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
+
        FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS G-MASTER.
        01 G-MASTER.
            02 G-GARNO.
@@ -262,116 +273,114 @@
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
 
-
-
        WORKING-STORAGE SECTION.
-       01 AMT01.
-          02 AMT-0 PIC XXX.
-          02 AMT-1 PIC XX.
-          02 AMT-2 PIC X(9).
-          02 AMT-3 PIC X.
-       01 BPR01.
-          02 BPR-0 PIC XXX.
-          02 BPR-1 PIC XX.
-          02 BPR-2 PIC X(9).
-          02 BPR-3 PIC X.
-          02 BPR-4 PIC XXX.
-          02 BPR-5 PIC X(10).
-          02 BPR-6 PIC XX.
-          02 BPR-7 PIC X(12).
-          02 BPR-8 PIC XXX.
-          02 BPR-9 PIC X(35).
-          02 BPR-10 PIC X(10).
-          02 BPR-11 PIC X(9).
-          02 BPR-12 PIC XX.
-          02 BPR-13 PIC X(12).
-          02 BPR-14 PIC XXX.
-          02 BPR-15 PIC X(35).
-          02 BPR-16 PIC X(8).
-       01 TRN01.
-          02 TRN-0 PIC XXX.
-          02 TRN-1 PIC X.
-          02 TRN-2 PIC X(30).
-       01 N101.
+       01  AMT01.
+           02 AMT-0 PIC XXX.
+           02 AMT-1 PIC XX.
+           02 AMT-2 PIC X(9).
+           02 AMT-3 PIC X.
+       01  BPR01.
+           02 BPR-0 PIC XXX.
+           02 BPR-1 PIC XX.
+           02 BPR-2 PIC X(9).
+           02 BPR-3 PIC X.
+           02 BPR-4 PIC XXX.
+           02 BPR-5 PIC X(10).
+           02 BPR-6 PIC XX.
+           02 BPR-7 PIC X(12).
+           02 BPR-8 PIC XXX.
+           02 BPR-9 PIC X(35).
+           02 BPR-10 PIC X(10).
+           02 BPR-11 PIC X(9).
+           02 BPR-12 PIC XX.
+           02 BPR-13 PIC X(12).
+           02 BPR-14 PIC XXX.
+           02 BPR-15 PIC X(35).
+           02 BPR-16 PIC X(8).
+       01  TRN01.
+           02 TRN-0 PIC XXX.
+           02 TRN-1 PIC X.
+           02 TRN-2 PIC X(30).
+       01  N101.
            02 N1-0 PIC XX. 
            02 N1-1 PIC XX. 
            02 N1-2 PIC X(30). 
            02 N1-3 PIC XX.
            02 N1-ID PIC X(10).
-       01 N301.
-          02 N3-0 PIC XX.
-          02 N3-STREET PIC X(11).
-          02 N3-STREET2 PIC X(11).
-       01 CAS01.
-          02 CAS-0 PIC XXX.
-          02 CAS-1 PIC XX.
-          02 CAS-2 PIC X(5).
-          02 CAS-3 PIC X(8).
-          02 CAS-4 PIC XX.
-          02 CAS-5 PIC X(5).
-          02 CAS-6 PIC X(8).
-          02 CAS-7 PIC XX.
-          02 CAS-8 PIC X(5).
-          02 CAS-9 PIC X(8).
-          02 CAS-10 PIC XX.
-          02 CAS-11 PIC X(5).
-          02 CAS-12 PIC X(8).
-          02 CAS-13 PIC XX.
-          02 CAS-14 PIC X(5).
-          02 CAS-15 PIC X(8).
-          02 CAS-16 PIC XX.
-          02 CAS-17 PIC X(5).
-          02 CAS-18 PIC X(8).
-          02 CAS-19 PIC XX.
-       01 CLMCAS01.
-          02 CLMCAS-0 PIC XXX.
-          02 CLMCAS-1 PIC XX.
-          02 CLMCAS-2 PIC X(5).
-          02 CLMCAS-3 PIC X(8).
-          02 CLMCAS-4 PIC XX.
-          02 CLMCAS-5 PIC X(5).
-          02 CLMCAS-6 PIC X(8).
-          02 CLMCAS-7 PIC XX.
-          02 CLMCAS-8 PIC X(5).
-          02 CLMCAS-9 PIC X(8).
-          02 CLMCAS-10 PIC XX.
-          02 CLMCAS-11 PIC X(5).
-          02 CLMCAS-12 PIC X(8).
-          02 CLMCAS-13 PIC XX.
-          02 CLMCAS-14 PIC X(5).
-          02 CLMCAS-15 PIC X(8).
-          02 CLMCAS-16 PIC XX.
-          02 CLMCAS-17 PIC X(5).
-          02 CLMCAS-18 PIC X(8).
-          02 CLMCAS-19 PIC XX.
+       01  N301.
+           02 N3-0 PIC XX.
+           02 N3-STREET PIC X(11).
+           02 N3-STREET2 PIC X(11).
+       01  CAS01.
+           02 CAS-0 PIC XXX.
+           02 CAS-1 PIC XX.
+           02 CAS-2 PIC X(5).
+           02 CAS-3 PIC X(8).
+           02 CAS-4 PIC XX.
+           02 CAS-5 PIC X(5).
+           02 CAS-6 PIC X(8).
+           02 CAS-7 PIC XX.
+           02 CAS-8 PIC X(5).
+           02 CAS-9 PIC X(8).
+           02 CAS-10 PIC XX.
+           02 CAS-11 PIC X(5).
+           02 CAS-12 PIC X(8).
+           02 CAS-13 PIC XX.
+           02 CAS-14 PIC X(5).
+           02 CAS-15 PIC X(8).
+           02 CAS-16 PIC XX.
+           02 CAS-17 PIC X(5).
+           02 CAS-18 PIC X(8).
+           02 CAS-19 PIC XX.
+       01  CLMCAS01.
+           02 CLMCAS-0 PIC XXX.
+           02 CLMCAS-1 PIC XX.
+           02 CLMCAS-2 PIC X(5).
+           02 CLMCAS-3 PIC X(8).
+           02 CLMCAS-4 PIC XX.
+           02 CLMCAS-5 PIC X(5).
+           02 CLMCAS-6 PIC X(8).
+           02 CLMCAS-7 PIC XX.
+           02 CLMCAS-8 PIC X(5).
+           02 CLMCAS-9 PIC X(8).
+           02 CLMCAS-10 PIC XX.
+           02 CLMCAS-11 PIC X(5).
+           02 CLMCAS-12 PIC X(8).
+           02 CLMCAS-13 PIC XX.
+           02 CLMCAS-14 PIC X(5).
+           02 CLMCAS-15 PIC X(8).
+           02 CLMCAS-16 PIC XX.
+           02 CLMCAS-17 PIC X(5).
+           02 CLMCAS-18 PIC X(8).
+           02 CLMCAS-19 PIC XX. 
 
-       01 CLP01.
-          02 CLP-0 PIC XXX.
-          02 CLP-1 PIC X(14).
-          02 CLP-2CLMSTAT PIC XX.
-          02 CLP-3TOTCLMCHG PIC X(8).
-          02 CLP-4TOTCLMPAY PIC X(8).
-          02 CLP-5PATRESP PIC X(8).
-          02 CLP-6PLANCODE PIC XX.
-          02 CLP-7ICN PIC X(30).
-          02 CLP-8FACILITY PIC XX.
-          02 CLP-9FREQ PIC X.
-          02 CLP-10PATSTAT PIC X(4).
-          02 CLP-11DRG PIC X.
-          02 CLP-12QUAN PIC XXX.
-          02 CLP-13PERCENT PIC XXX.
+       01  CLP01.
+           02 CLP-0 PIC XXX.
+           02 CLP-1 PIC X(14).
+           02 CLP-2CLMSTAT PIC XX.
+           02 CLP-3TOTCLMCHG PIC X(8).
+           02 CLP-4TOTCLMPAY PIC X(8).
+           02 CLP-5PATRESP PIC X(8).
+           02 CLP-6PLANCODE PIC XX.
+           02 CLP-7ICN PIC X(30).
+           02 CLP-8FACILITY PIC XX.
+           02 CLP-9FREQ PIC X.
+           02 CLP-10PATSTAT PIC X(4).
+           02 CLP-11DRG PIC X.
+           02 CLP-12QUAN PIC XXX.
+           02 CLP-13PERCENT PIC XXX.
+           
+       01  DTM01.
+           02 DTM-0 PIC XXX.
+           02 DTM-1 PIC XXX.
+           02 DTM-2 PIC X(8).
+           
+       01  REF01.
+           02 REF-0 PIC XXX.
+           02 REF-1 PIC XXX.
+           02 REF-2 PIC X(30).
           
-       01 DTM01.
-          02 DTM-0 PIC XXX.
-          02 DTM-1 PIC XXX.
-          02 DTM-2 PIC X(8).
-          
-       01 REF01.
-          02 REF-0 PIC XXX.
-          02 REF-1 PIC XXX.
-          02 REF-2 PIC X(30).
-         
-       01 SVC01.
+       01  SVC01.
            02 SVC-0 PIC XXX.
            02 SVC-1PROCMOD PIC X(17).
            02 SVC-2CHRGAMT PIC X(8).
@@ -381,7 +390,7 @@
            02 SVC-6COMPOSITE PIC X(80).
            02 SVC-7QUAN PIC X(5).
            
-       01 NM101.
+       01  NM101.
            02 NM1-0 PIC XXX.
            02 NM1-1 PIC XXX.
            02 NM1-SOLO PIC X.
@@ -394,32 +403,32 @@
            02 NM1-CODE0. 
               03 NM1-CODE PIC X(9).
               03 NM1-CODE2 PIC XX.
-       01 TS301.
-          02 TS3-0 PIC XXX.
-          02 TS3-1 PIC X(7).
-          02 TS3-2 PIC XX.
-          02 TS3-3 PIC X(8).
-          02 TS3-4 PIC XXXX.
-          02 TS3-5TOTCLM PIC X(9).
-          02 TS3-6TOTCVR PIC X(9).
-          02 TS3-7TOTNONCVR PIC X(9).
-          02 TS3-8TOTDENY PIC X(9).
-          02 TS3-9TOTPAID PIC X(9).
-          02 TS3-10INTEREST PIC X(9).
-          02 TS3-11TOTCONADJ PIC X(9).
-          02 TS3-12TOTGR PIC X(9).
-          02 TS3-13TOTMSP PIC X(9).
-          02 TS3-14TOTBLOOD PIC X(9).
-          02 TS3-15TOTNONLABCHRG PIC X(9).
-          02 TS3-16TOTCOINS PIC X(9).
-          02 TS3-17TOTHCPCSCHG PIC X(9).
-          02 TS3-18TOTHCPCSPAY PIC X(9).
-          02 TS3-19TOTDEDUCT PIC X(9).
-          02 TS3-20TOTPC PIC X(9).
-          02 TS3-21TOTMSPLIAB PIC X(9).
-          02 TS3-22TOTPATPAY PIC X(9).
-          02 TS3-23TOTPIPCNTR PIC X(9).
-          02 TS3-24TOTPIPPAY PIC X(9).
+       01  TS301.
+           02 TS3-0 PIC XXX.
+           02 TS3-1 PIC X(7).
+           02 TS3-2 PIC XX.
+           02 TS3-3 PIC X(8).
+           02 TS3-4 PIC XXXX.
+           02 TS3-5TOTCLM PIC X(9).
+           02 TS3-6TOTCVR PIC X(9).
+           02 TS3-7TOTNONCVR PIC X(9).
+           02 TS3-8TOTDENY PIC X(9).
+           02 TS3-9TOTPAID PIC X(9).
+           02 TS3-10INTEREST PIC X(9).
+           02 TS3-11TOTCONADJ PIC X(9).
+           02 TS3-12TOTGR PIC X(9).
+           02 TS3-13TOTMSP PIC X(9).
+           02 TS3-14TOTBLOOD PIC X(9).
+           02 TS3-15TOTNONLABCHRG PIC X(9).
+           02 TS3-16TOTCOINS PIC X(9).
+           02 TS3-17TOTHCPCSCHG PIC X(9).
+           02 TS3-18TOTHCPCSPAY PIC X(9).
+           02 TS3-19TOTDEDUCT PIC X(9).
+           02 TS3-20TOTPC PIC X(9).
+           02 TS3-21TOTMSPLIAB PIC X(9).
+           02 TS3-22TOTPATPAY PIC X(9).
+           02 TS3-23TOTPIPCNTR PIC X(9).
+           02 TS3-24TOTPIPPAY PIC X(9).
 
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.
@@ -463,13 +472,14 @@
             03 EF-DENIAL5 PIC XXX.
             03 FILLER PIC X VALUE SPACE.
             03 EF-DENIAL6 PIC XXX.
-        01  ERR201.
+        01 ERR201.
            02 EF2-NUM PIC ZZ9.
            02 FILLER PIC XX VALUE SPACE.
            02 EF2-DENIAL PIC X(3).
            02 FILLER PIC XX VALUE SPACE.
            02 EF2-REASON PIC X(70).
-        01  ERR301.
+
+        01 ERR301.
            02 EF3-DENIAL1 PIC XXX.
            02 FILLER PIC X VALUE SPACE.
            02 EF3-DENIAL2 PIC XXX.
@@ -515,17 +525,17 @@
        01  TOT-PAY PIC S9(5)V99 VALUE 0.
        01  TOT-CHARGE PIC S9(5)V99 VALUE 0.
        01  TOT-REDUCE PIC S9(5)V99 VALUE 0.
-       01 FLAGY PIC 9.
-       01 FIND-CNTR PIC 99.
-       01 CNTRY PIC 99.
-       01 CNTR PIC 99.
+       01  FLAGY PIC 9.
+       01  FIND-CNTR PIC 99.
+       01  CNTRY PIC 99.
+       01  CNTR PIC 99.
        01  MULTCHAR PIC 99.
        01  X PIC 99.
        01  Y PIC 99.
        01  Z PIC 999.
        01  A PIC 99.
-       01 HOLDKEY PIC X(11).
-       01 HOLDAMT PIC S9(4)V99.
+       01  HOLDKEY PIC X(11).
+       01  HOLDAMT PIC S9(4)V99.
        01  RIGHT-4 PIC X(4) JUST RIGHT.
        01  ALF-3 PIC XXX.
        01  ALF3 PIC XXX.
@@ -556,41 +566,41 @@
        01  OVERFLAG PIC 9.
        01  CO-PAY-PAID PIC S9(7)V99.
        01  CLAIM-PAID PIC S9(4)V99.
-       01 DATE-X PIC X(8).
-       01 DATE-CC PIC X(8).
-       01 SVC-CNTR PIC 99.
-       01 CAS-CNTR PIC 99.
-       01 CLP-TAB01.
-          02 CLP-TAB PIC XX OCCURS 64 TIMES.
-       01 SVC-TAB01.
-          02 SVC-TAB PIC X(120) OCCURS 64 TIMES.
-       01 SVC-DATE01.
-          02 SVC-DATE PIC X(8) OCCURS 64 TIMES.
-       01 FOUND-TAB01.
-          02 FOUND-KEY PIC X(11) OCCURS 64 TIMES.
-       01 BAL-TAB01.
-          02 BAL-TAB PIC S9(4)V99 OCCURS 64 TIMES.
-       01 TOT-TOT PIC S9(4)V99.
-       01 TOT-CLAIM PIC S9(4)V99.
-       01 CAS-TAB01.
-          02 CAS-TAB PIC X(120) OCCURS 64 TIMES.
-       01 CAS-SVC01.
-          02 CAS-SVC PIC 99 OCCURS 64 TIMES.
-       01 SAVEFILE01 PIC X(120).
-       01 CC-PROCX01.
-          02 CC-PROC1X PIC X(5).
-          02 CC-PROC2X PIC XX.
-          02 CC-MOD2X PIC XX.
-          02 CC-MOD3X PIC XX.
-       01 CC-PROCY01.
-          02 CC-PROC1Y PIC X(5).
-          02 CC-PROC2Y PIC XX.
-          02 CC-MOD2Y PIC XX.
-          02 CC-MOD3Y PIC XX.
+       01  DATE-X PIC X(8).
+       01  DATE-CC PIC X(8).
+       01  SVC-CNTR PIC 99.
+       01  CAS-CNTR PIC 99.
+       01  CLP-TAB01.
+           02 CLP-TAB PIC XX OCCURS 64 TIMES.
+       01  SVC-TAB01.
+           02 SVC-TAB PIC X(120) OCCURS 64 TIMES.
+       01  SVC-DATE01.
+           02 SVC-DATE PIC X(8) OCCURS 64 TIMES.
+       01  FOUND-TAB01.
+           02 FOUND-KEY PIC X(11) OCCURS 64 TIMES.
+       01  BAL-TAB01.
+           02 BAL-TAB PIC S9(4)V99 OCCURS 64 TIMES.
+       01  TOT-TOT PIC S9(4)V99.
+       01  TOT-CLAIM PIC S9(4)V99.
+       01  CAS-TAB01.
+           02 CAS-TAB PIC X(120) OCCURS 64 TIMES.
+       01  CAS-SVC01.
+           02 CAS-SVC PIC 99 OCCURS 64 TIMES.
+       01  SAVEFILE01 PIC X(120).
+       01  CC-PROCX01.
+           02 CC-PROC1X PIC X(5).
+           02 CC-PROC2X PIC XX.
+           02 CC-MOD2X PIC XX.
+           02 CC-MOD3X PIC XX.
+       01  CC-PROCY01.
+           02 CC-PROC1Y PIC X(5).
+           02 CC-PROC2Y PIC XX.
+           02 CC-MOD2Y PIC XX.
+           02 CC-MOD3Y PIC XX.
        01  CENTS PIC XX.
        01  SIGN-DOLLAR PIC XXXX.
-       01 LNAME PIC X(24).
-       01 FNAME PIC X(24).
+       01  LNAME PIC X(24).
+       01  FNAME PIC X(24).
        01  DISPLAY-DATE.
            05 T-MM  PIC 99.
            05 FILLER PIC X VALUE "/".
@@ -635,54 +645,101 @@
        01  PERM-ID PIC X(10).
        01  PAYORID1 PIC X(5).
        01  PROV-FLAG PIC X.
+       
        PROCEDURE DIVISION.
        0005-START.
-           OPEN INPUT 
-           INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE PAYCUR.
-           OPEN I-O PAYFILE OUTPUT TRNPAYFILE
-           INPUT CAIDFILE.
-           OPEN OUTPUT ERROR-FILE.
+           OPEN INPUT INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE
+                      PAYCUR CAIDFILE.
+           OPEN I-O PAYFILE 
+           OPEN OUTPUT TRNPAYFILE ERROR-FILE.
            MOVE SPACE TO NAR-KEY01 
            MOVE ALL ZEROES TO NAR-CNTR01 STATUSCODES01 
            MOVE SPACE TO ERROR-FILE01
            PERFORM STATUS-0
-           READ PARMFILE AT END GO TO P9.
+
+           READ PARMFILE 
+             AT END 
+               GO TO P9
+           END-READ
+
            MOVE PARMFILE01 TO HL-1.
 
-           READ PARMFILE AT END GO TO P9.
+           READ PARMFILE
+             AT END
+               GO TO P9
+           END-READ    
+           
            MOVE PARMFILE01 TO PARM-ADDR.
            
-           READ PARMFILE AT END GO TO P9.
+           READ PARMFILE
+             AT END
+               GO TO P9
+           END-READ    
+           
            MOVE PARMFILE01 TO ID-NPI1
-           READ PARMFILE AT END GO TO P9.
+           
+           READ PARMFILE
+             AT END
+               GO TO P9
+           END-READ    
+           
            MOVE PARMFILE01 TO ID-NPI
 
-           READ PARMFILE AT END GO TO P9.
-           READ FILEIN AT END DISPLAY "NO RECORDS" GO TO P9.
+           READ PARMFILE
+             AT END
+               GO TO P9
+           END-READ    
+           
+           READ FILEIN
+             AT END
+               DISPLAY "NO RECORDS"
+               GO TO P9
+           END-READ    
+           
            MOVE FILEIN01 TO PD-DATE-E
            MOVE PD-DATE-E TO TEST-DATE 
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO HL-3.
+
        P00.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
+           
+           READ FILEIN
+             AT END
+               GO TO P9
+           END-READ.    
+
        XX.
-           IF F1 NOT = "BPR" GO TO P00.
+           IF F1 NOT = "BPR"
+               GO TO P00
+           END-IF
+
            MOVE SPACE TO BPR01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-           BPR-0 BPR-1 BPR-2 BPR-3 BPR-4 BPR-5 BPR-6 BPR-7 BPR-8 
-           BPR-9 BPR-10 BPR-11 BPR-12 BPR-13 BPR-14 BPR-15 BPR-16.
+               BPR-0 BPR-1 BPR-2 BPR-3 BPR-4 BPR-5 BPR-6 BPR-7 BPR-8 
+               BPR-9 BPR-10 BPR-11 BPR-12 BPR-13 BPR-14 BPR-15 BPR-16.
            MOVE BPR-16 TO DATE-X.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
-           IF F1 NOT = "TRN" GO TO P00.
+           READ FILEIN
+             AT END
+               GO TO P9
+           END-READ
+
+           IF F1 NOT = "TRN"
+               GO TO P00
+           END-IF
+
            MOVE SPACE TO TRN01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-           TRN-0 TRN-1 TRN-2.
+               TRN-0 TRN-1 TRN-2.
            MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG.
+
        P000.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
+           READ FILEIN
+             AT END
+               GO TO P9
+           END-READ    
 
            IF F1 = "CLP"
                GO TO P0000
@@ -691,31 +748,32 @@
            IF FILEIN01(1:5) = "N1*PR"
               MOVE SPACE TO N101
               UNSTRING FILEIN01 DELIMITED BY "*" INTO
-              N1-0 N1-1 N1-2 N1-3 N1-ID
+                  N1-0 N1-1 N1-2 N1-3 N1-ID
               MOVE N1-ID(1:5) TO PAYORID1
            END-IF
         
            IF (F1 = "REF" AND F21 = "*2U")
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
-               REF-0 REF-1 REF-2
+                   REF-0 REF-1 REF-2
                MOVE REF-2 TO PAYORID
            END-IF
 
            IF (F1 = "N1*" AND F21= "PE*")
                MOVE SPACE TO N101
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
-               N1-0 N1-1 N1-2 N1-3 N1-ID
+                   N1-0 N1-1 N1-2 N1-3 N1-ID
                MOVE N1-ID TO PERM-ID
            END-IF
            
            IF (F1 = "REF" AND F21= "*TJ")
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
-               REF-0 REF-1 REF-2
+                   REF-0 REF-1 REF-2
            END-IF
            
            GO TO P000.
+
        P0000.
            IF (PERM-ID NOT = ID-NPI1)
                AND (PERM-ID NOT = ID-NPI)
@@ -734,7 +792,7 @@
            END-IF
            
            IF PAYORID = SPACE
-                   MOVE PAYORID1 TO PAYORID
+               MOVE PAYORID1 TO PAYORID
            END-IF
 
            IF TITLE-FLAG = 0
@@ -743,7 +801,7 @@
                WRITE ERROR-FILE01 FROM HL01 AFTER PAGE
                MOVE SPACE TO ERROR-FILE01
                MOVE TITLE01 TO ERROR-FILE01
-              WRITE ERROR-FILE01
+               WRITE ERROR-FILE01
            END-IF.
 
        P1-CLP.
@@ -1276,7 +1334,7 @@
                      CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
                      CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-                   IF CAS-2 = "50"
+                   IF CAS-2 = "50" OR "5 "
                        MOVE 1 TO FLAG
                        MOVE Z TO CAS-CNTR
                    END-IF               
