@@ -782,7 +782,7 @@
       *     IF F1 NOT = "CLP" GO TO P1-CLP.
        P1-CLP-1.
            MOVE 0 TO NOT-FLAG
-           MOVE SPACE TO CLP01
+           MOVE SPACE TO CLP01 DATE-CC
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
            CLP-0 CLP-1 CLP-2CLMSTAT CLP-3TOTCLMCHG CLP-4TOTCLMPAY 
            CLP-5PATRESP CLP-6PLANCODE CLP-7ICN CLP-8FACILITY 
@@ -834,7 +834,7 @@
             MOVE SPACE TO DTM01
             UNSTRING FILEIN01 DELIMITED BY "*" INTO
             DTM-0 DTM-1 DTM-2 
-            MOVE DTM-2 TO DATE-CC SVC-DATE(1).
+            MOVE DTM-2 TO DATE-CC
 
            GO TO P1-NM1.
        P1-SVC-LOOP.  
@@ -1682,11 +1682,17 @@
               GO TO LOOK-CHG-EXIT
            END-READ
 
-           IF CC-KEY8 NOT = G-GARNO GO TO LOOK-CHG-EXIT.
+           IF CC-KEY8 NOT = G-GARNO
+               GO TO LOOK-CHG-EXIT
+           END-IF
 
-      *     IF CC-ASSIGN NOT = "A" GO TO LOOK-1.
+           IF SVC-DATE(X) = SPACE
+               MOVE DATE-CC TO SVC-DATE(X)
+           END-IF        
 
-           IF CC-DATE-T NOT = SVC-DATE(X) GO TO LOOK-1.
+           IF CC-DATE-T NOT = SVC-DATE(X)
+               GO TO LOOK-1
+           END-IF    
 
            IF CC-PAYCODE = "001" GO TO LOOK-1.
            
