@@ -1,4 +1,4 @@
-### to build gnucobol with bdb
+### to build gnucobol with vbisam
 
 ```sh
 wget http://sourceforge.net/projects/open-cobol/files/gnu-cobol/3.0/gnucobol-3.0-rc1.tar.gz
