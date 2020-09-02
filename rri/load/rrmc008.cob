@@ -209,7 +209,7 @@
              03 R2-DOBDD PIC XX.
              03 R2-DOBYY PIC XX.
            02 R2-DISCHARGE PIC X(6).
-
+    
        01  REC301.
            02 R3-1 PIC XX.
            02 R3-IND PIC XXX.
@@ -219,17 +219,37 @@
              03 R3-PROC1 PIC X.
              03 FILLER PIC XXX.
            02 R3-DATE. 
-             03 R3-DATEMM PIC XX.
-             03 R3-DATEDD PIC XX.
-             03 R3-DATEYY PIC XX.
+              03 R3-DATEMM PIC XX.
+              03 R3-DATEDD PIC XX.
+              03 R3-DATEYY PIC XX.
            02 R3-UNIT PIC XXX.
+      * col 22     
            02 R3-CLINICAL PIC X(40).
            02 FILLER PIC X(24).
+      * col 86     
            02 R3-PLACE PIC X(4).
            02 R3-DOCP PIC X(4).
            02 R3-DOCPFILLER PIC X(18).
+      * col 112     
            02 R3-CPT PIC X(5).
-           02 FILLER PIC X(300).
+           02 FILLER PIC X(3).
+      * col 120     
+           02 R3-HCPCS PIC X(5).
+           02 FILLER PIC X(3).
+      * col 128     
+           02 R3-MOD1 PIC X(2).
+           02 FILLER PIC X.
+      * col 131     
+           02 R3-MOD2 PIC X(2).
+           02 FILLER PIC X.
+      * col 134
+           02 R3-MOD3 PIC X(2).
+           02 FILLER PIC X(5).
+      * col 141     
+           02 R3-OBSERV PIC X(5).
+           02 FILLER PIC X(35).
+           02 R3-LOCO PIC X(4).
+
        01  ANS PIC X.
        01  HOLDNAME PIC X(15).
        01  ALF13 PIC X(13).
@@ -262,30 +282,45 @@
                GO TO P1
            END-IF
 
-           MOVE FILEIN01 TO REC301
-           
-           IF R3-GLC = "0"               
-               MOVE SPACE TO ERRFILE01
-               STRING HOLDNAME " " R3-PROC
-                   " WITH SPECIAL HANDLING FOR NOW DUE TO AUC"
-               DELIMITED BY SIZE INTO ERRFILE01
-               WRITE ERRFILE01
-               GO TO P1
-           END-IF
-
+           MOVE FILEIN01 TO REC301                    
            MOVE R3-PROC TO PROC-KEY1
            MOVE SPACE TO PROC-KEY2
-           
+           MOVE SPACE TO PROC-KEY3           
            START PROCFILE KEY NOT < PROC-KEY
              INVALID
                GO TO BAD-1
            END-START.
        
        P2.
+           IF R3-GLC = "0"
+               IF R3-HCPCS = SPACE
+                   MOVE SPACE TO ERRFILE01
+                   STRING HOLDNAME " " R3-PROC
+                     " HCPCS SHOULD NOT BE SPACE FOR AUC"
+                   DELIMITED BY SIZE INTO ERRFILE01
+                   WRITE ERRFILE01
+                   GO TO P1
+               END-IF
+
+               MOVE R3-HCPCS TO PROC-KEY2 
+               READ PROCFILE
+                 INVALID 
+                   MOVE SPACE TO ERRFILE01
+                   STRING HOLDNAME " " R3-PROC
+                     " HCPCS SHOULD BE IN PROCFILE"
+                   DELIMITED BY SIZE INTO ERRFILE01
+                   WRITE ERRFILE01
+                   GO TO P1
+               END-READ
+
+               WRITE FILEOUT01 FROM REC301
+               GO TO P1
+           END-IF                               
+               
            READ PROCFILE NEXT
              AT END
                GO TO BAD-1
-           END-READ
+           END-READ           
            
 
            IF PROC-KEY1 > R3-PROC GO TO BAD-1.

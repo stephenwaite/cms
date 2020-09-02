@@ -10,6 +10,7 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT ACTFILE ASSIGN TO       "S30" ORGANIZATION INDEXED
                ACCESS MODE IS DYNAMIC RECORD KEY IS A-ACTNO
                ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
@@ -645,6 +646,7 @@
            02 ZIPCODE-6 PIC X.
            02 ZIPCODE-7-10 PIC X(4).
        01  NUM2 PIC 99.
+       01  ANS PIC X.
       *
        PROCEDURE DIVISION.
        0005-START.
@@ -847,7 +849,7 @@
              INVALID
                MOVE SPACE TO RIGHT-2
                UNSTRING ALF-3(1:2) DELIMITED BY " " INTO RIGHT-2
-               INSPRECT RIGHT-2 REPLACING ALL " " BY "0"
+               INSPECT RIGHT-2 REPLACING ALL " " BY "0"
                MOVE RIGHT-2 TO ALF-2
                IF( ALF-2 NOT NUMERIC) OR (ALF-2 = "00")
                    DISPLAY "BAD PICK"
@@ -1650,7 +1652,8 @@
            MOVE R3-CPT TO C-CPT
       *    let's work with the new format which has hcpcs and a mod     
            IF R3-HCPCS NOT = SPACE
-              
+               DISPLAY "MOVING HCPCS " R3-HCPCS " TO C-CPT "
+               ACCEPT ANS     
                MOVE R3-HCPCS TO C-CPT
            END-IF
 
