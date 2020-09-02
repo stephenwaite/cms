@@ -5,7 +5,7 @@ wget http://sourceforge.net/projects/open-cobol/files/gnu-cobol/3.0/gnucobol-3.0
 
 tar xvf gnucobol-3.0-rc1.tar.gz
 
-cd gnu-cobol-3.0-rc1.tar.gz
+cd gnu-cobol-3.0-rc1
 
 export CPPFLAGS="-I/usr/local/include"
 
