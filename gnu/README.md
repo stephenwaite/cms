@@ -11,7 +11,7 @@ export CPPFLAGS="-I/usr/local/include"
 
 export LDFLAGS="-L/usr/local/lib -Wl,-R,/usr/local/lib -Wl,--enable-new-dtags"
 
-./configure --with-vbisam
+./configure --with-debug --with-vbisam
 
 make
 
