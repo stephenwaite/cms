@@ -102,7 +102,7 @@
            02 MPLR-TR-NAME PIC X(24).
            02 MPLR-TR-RELATE PIC X.
            02 MPLR-FUTURE PIC X(6).
-       FD  CAIDFILE
+       FD  CAIDFILE.
        01  CAIDFILE01.
            02 CAID-KEY PIC XXX.
            02 CAID-REASON PIC X(70).
