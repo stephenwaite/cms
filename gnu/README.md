@@ -22,4 +22,14 @@ make check
 sudo make install
 
 sudo ldconfig
+
+## now for ocesql
+cd ~/src
+git clone git@github.com:opensourcecobol/Open-COBOL-ESQL.git
+cd Open-COBOL-ESQL/
+export CPPFLAGS+=" -I/usr/include/postgresql "
+./configure
+make AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=:
+sudo make install AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=:
+
 ```
