@@ -32,5 +32,9 @@ export CPPFLAGS+=" -I/usr/include/postgresql "
 ./configure
 make AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=:
 sudo make install AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=:
-
+```
+## precompile
+```
+ocesql FETCHTBL.cbl fetchtbl.cob
+cobc -x fetchtbl.cob ../dblib/ocdb.o ../dblib/ocdblog.o ../dblib/ocdbutil.o ../dblib/ocesql.o -locesql
 ```
