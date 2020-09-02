@@ -146,7 +146,7 @@
            DISPLAY "USING THE F COMMAND"
            DISPLAY "OR TYPE IN THE 10 DIGITS"
            DISPLAY "ON THE 2 CPT CODES"
-           ACCEPT ALF11
+           ACCEPT ALF11 
            
            IF ALF11 NUMERIC
                MOVE ALF11 TO CCI-KEY
