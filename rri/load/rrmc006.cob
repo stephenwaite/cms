@@ -1116,21 +1116,35 @@
            END-IF.
 
        SEL-1.
-           IF X-CERT = SPACE MOVE X-SSN TO A-PRIPOL.
+           IF X-CERT = SPACE
+               MOVE X-SSN TO A-PRIPOL
+           END-IF    
+
            IF NOT (X-GENDER = "F" OR "M")
-             DISPLAY X-SUBNAME  " GENDER F OR M"
-              IF X-SUBNAME = SPACE
-               DISPLAY A-GARNAME
-              END-IF
-             ACCEPT X-GENDER
-           END-IF.
-           IF X-GENDER = "F" MOVE "K" TO RELATECODE
-           ELSE MOVE "2" TO RELATECODE.
+               DISPLAY X-SUBNAME  " GENDER F OR M"
+               
+               IF X-SUBNAME = SPACE
+                   DISPLAY A-GARNAME
+               END-IF
+               
+               ACCEPT X-GENDER
+           END-IF
+
+           IF X-GENDER = "F" 
+               MOVE "K" TO RELATECODE
+           ELSE 
+               MOVE "2" TO RELATECODE
+           END-IF    
+           
            MOVE X-RELATE TO Y-RELATE
+           
            PERFORM RELATE-1 THRU RELATE-1-EXIT
+           
            MOVE RELATECODE TO A-PR-RELATE.
+           
            IF A-PRINS = "091"
-           MOVE R1-EMPLOYNAME11 TO A-PRGRPNAME.
+               MOVE R1-EMPLOYNAME11 TO A-PRGRPNAME
+           END-IF.    
            
        SEL-PRINS-EXIT.
            EXIT.
@@ -1636,6 +1650,7 @@
            MOVE R3-CPT TO C-CPT
       *    let's work with the new format which has hcpcs and a mod     
            IF R3-HCPCS NOT = SPACE
+              
                MOVE R3-HCPCS TO C-CPT
            END-IF
 
