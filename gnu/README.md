@@ -1,6 +1,8 @@
 ### to build gnucobol with vbisam
 
 ```sh
+git clone https://github.com/opensourcecobol/opensource-cobol/tree/develop/vbisam
+
 wget http://sourceforge.net/projects/open-cobol/files/gnu-cobol/3.0/gnucobol-3.0-rc1.tar.gz
 
 tar xvf gnucobol-3.0-rc1.tar.gz
