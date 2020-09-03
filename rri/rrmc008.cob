@@ -267,10 +267,9 @@
            IF R3-GLC = "0"               
                MOVE SPACE TO ERRFILE01
                STRING HOLDNAME " " R3-PROC
-                   " WITH SPECIAL HANDLING FOR NOW DUE TO AUC"
+                   " ADDING AUC HCPCS RECORD "
                DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
-               GO TO P1
            END-IF
 
            MOVE R3-PROC TO PROC-KEY1
@@ -292,6 +291,10 @@
            
            IF PROC-AMOUNT = 0 GO TO P2.
            
+           IF R3-CPT = SPACE
+              MOVE R3-HCPCS TO R3-CPT
+           END-IF
+              
            IF PROC-KEY2 NOT = R3-CPT
                DISPLAY HOLDNAME
                DISPLAY R3-CPT " IS CHANGED TO " PROC-KEY2
