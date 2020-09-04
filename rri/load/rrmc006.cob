@@ -176,7 +176,9 @@
            02 C-ORDER PIC XXXX.
            02 C-CLINICAL PIC X(38).
            02 C-DOCP PIC XX.
-           02 C-ADMIT-DIAG PIC X(30).
+           02 C-ADMIT-DIAG PIC X(24).
+      * took 6 from above to create mods     
+           02 C-MODS PIC X(6)
            02 C-DATE-E PIC X(8).
            02 C-CPT PIC X(5).
 
@@ -1642,6 +1644,8 @@
            MOVE R3-CLINICAL TO C-CLINICAL
            MOVE R2-DIAG TO C-ADMIT-DIAG
            MOVE R3-CPT TO C-CPT
+           STRING R3-MOD1 R3-MOD2 R3-MOD3 DELIMITED BY SIZE 
+               INTO C3-MODS
 
       *  new format which has hcpcs and a mod
       *  but no place in ordfile to store mod?
