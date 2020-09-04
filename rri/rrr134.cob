@@ -9,27 +9,38 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT INSIN ASSIGN TO "S30" ORGANIZATION LINE
            SEQUENTIAL.
+
            SELECT FILE-OUT ASSIGN TO "S35" ORGANIZATION LINE
            SEQUENTIAL.
+
            SELECT CHARCUR ASSIGN TO "S40" ORGANIZATION IS INDEXED
            ACCESS IS SEQUENTIAL RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES.
+
            SELECT PAYCUR ASSIGN TO "S45" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY.
+
            SELECT GARFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
            ACCESS IS RANDOM RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
+
            SELECT FILEOUT2 ASSIGN TO "S55" ORGANIZATION LINE
            SEQUENTIAL.
+
            SELECT CAREFILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS CARE-KEY
            LOCK MODE MANUAL.
+
            SELECT ERRORFILE ASSIGN TO "S65" ORGANIZATION
            LINE SEQUENTIAL.
+
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  CAREFILE.
        01  CAREFILE01.
            02 CARE-KEY.
@@ -53,8 +64,8 @@
            02 CR-ICN PIC X(13).
            02 CR-CK-EFT PIC X(9).
            02 CR-INSNAME PIC X(30).
+
        FD  PAYCUR
-           BLOCK CONTAINS 6 RECORDS
            DATA RECORD IS PAYCUR01.
        01  PAYCUR01.
            02 PAYCUR-KEY.
@@ -67,11 +78,13 @@
            02 PC-DATE-T PIC X(8).
            02 PC-DATE-E PIC X(8).
            02 PC-BATCH PIC X(6).
+
        FD  INSIN
            DATA RECORD IS INSIN01.
        01  INSIN01.
            02 INS-1 PIC 999.
            02 INS-2 PIC X.
+           
        FD FILE-OUT
            DATA RECORD IS FILE-OUT01.
        01  FILE-OUT01.
@@ -85,8 +98,8 @@
            02 FO-CHCRR PIC X(12).
            02 FILLER PIC X(4).
            02 FO-PAPER PIC X.
+
        FD  CHARCUR
-           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS CHARCUR01.
        01  CHARCUR01.
            02 CHARCUR-KEY.
@@ -132,8 +145,8 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
+
        FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS G-MASTER.
        01 G-MASTER.
            02 G-GARNO PIC X(8).
@@ -181,6 +194,7 @@
            02 G-ACCT PIC X(8).
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
+
        FD  FILEOUT2.
        01  FILEOUT201 PIC X(160).
         
@@ -203,10 +217,21 @@
            OUTPUT FILE-OUT FILEOUT2 ERRORFILE.
            MOVE SPACE TO FILE-OUT01
            PERFORM A1 VARYING X FROM 1 BY 1 UNTIL X > 999.
-       P00. READ INSIN AT END GO TO P1.
+
+       P00. 
+           READ INSIN
+             AT END
+               GO TO P1
+           END-READ
+
            IF INS-2 = " "
-           MOVE 1 TO INSTAB(INS-1)
-           ELSE MOVE 2 TO INSTAB(INS-1). GO TO P00.
+               MOVE 1 TO INSTAB(INS-1)
+           ELSE
+               MOVE 2 TO INSTAB(INS-1)
+           END-IF
+           
+           GO TO P00.
+
        P1. 
            READ CHARCUR
              AT END
@@ -217,7 +242,13 @@
                GO TO P1
            END-IF    
 
-           IF INSTAB(CC-PAYCODE) = 2 GO TO P1.
+           IF CC-AMOUNT = 0
+              GO TO P1 
+           END-IF   
+           
+           IF INSTAB(CC-PAYCODE) = 2 
+               GO TO P1
+           END-IF    
            
            IF CC-REC-STAT > "1" GO TO P1.
       
