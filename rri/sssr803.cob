@@ -128,7 +128,7 @@
            READ CHARCUR
              INVALID
                DISPLAY FILEIN01
-                 GO TO P1
+               GO TO P1
            END-READ
 
            MOVE CC-PAYCODE TO INS-KEY
