@@ -64,8 +64,14 @@
            SELECT FILEOUT2 ASSIGN TO "S85" ORGANIZATION
            LINE SEQUENTIAL.
 
+           SELECT AUTHFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS AUTH-KEY
+           LOCK MODE MANUAL.           
+
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  ERRORFILE.
        01  ERRORFILE01.
            02 EF1 PIC X(12).
@@ -73,8 +79,8 @@
            02 EF3 PIC X(12).
            02 EF4 PIC X(10).
            02 EF5 PIC X(24).
+
        FD  REFPHY
-      *    BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS REFPHY01.
        01  REFPHY01.
            02 REF-KEY PIC XXX.
@@ -84,8 +90,8 @@
            02 REF-CDNUM PIC X(7).
            02 REF-NAME PIC X(24).
            02 REF-NPI PIC X(10).
+
        FD  INSFILE
-     *     BLOCK CONTAINS 6 RECORDS
            DATA RECORD IS INSFILE01.
        01  INSFILE01.
            02 INS-KEY PIC XXX.
@@ -108,10 +114,11 @@
            02 INS-CAID PIC XXX.
            02 INS-REFWARN PIC X.
            02 INS-FUTURE PIC X(8).
+
        FD  FILEIN.
        01  FILEIN01 PIC 999.
+
        FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS GARFILE01.
        01 GARFILE01.
            02 G-GARNO PIC X(8).
@@ -157,18 +164,18 @@
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
 
-
         FD  DOCFILE.
         01  DOCFILE01.
             02 DF-1 PIC 99.
             02 DF-2 PIC 99.
+
        FD FILEOUT.
        01 FILEOUT01 PIC X(165).
+
        FD FILEOUT2.
        01 FILEOUT201 PIC X(165).
 
        FD  PAYCUR
-           BLOCK CONTAINS 6 RECORDS
            DATA RECORD IS PAYCUR01.
        01  PAYCUR01.
            02 PAYCUR-KEY.
@@ -181,11 +188,13 @@
            02 PC-DATE-T PIC X(8).
            02 PC-DATE-E PIC X(8).
            02 PC-BATCH PIC X(6).
+
        FD  INSIN
            DATA RECORD IS INSIN01.
        01  INSIN01.
            02 INS-1 PIC 999.
            02 INS-2 PIC XX.
+
        FD FILE-OUT.
        01  FILE-OUT01.
            02 FO-PC PIC XXX.
@@ -193,12 +202,12 @@
            02 FILEOUT-KEY PIC X(11).
            02 FO-DATE PIC X(8).
            02 FO-ASSIGN PIC X.
-            02 FO-PLACE PIC X.
-            02 FO-DOCP PIC XX.
-            02 filler pic x(16).
-            02 FO-PAPER PIC X.
+           02 FO-PLACE PIC X.
+           02 FO-DOCP PIC XX.
+           02 FILLER PIC X(16).
+           02 FO-PAPER PIC X.
+
        FD  CHARCUR
-           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS CHARCUR01.
        01  CHARCUR01.
            02 CHARCUR-KEY.
@@ -242,6 +251,18 @@
            02 CC-D65 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
+
+       FD  AUTHFILE
+           DATA RECORD IS AUTHFILE01.
+       01  AUTHFILE01.
+           02 AUTH-KEY.
+              03 AUTH-KEY8 PIC X(8).
+              03 AUTH-KEY6 PIC X(6).
+           02 AUTH-NUM PIC X(15).
+           02 AUTH-QNTY PIC XX.
+           02 AUTH-DATE-E PIC X(8).
+           02 AUTH-FILLER PIC XXX.           
+
        WORKING-STORAGE SECTION.
        01  X USAGE IS INDEX.
        01  INSTAB01.
@@ -264,12 +285,13 @@
            02 T-CC PIC XX.
            02 T-YY PIC XX.
        01  ALF2 PIC XX. 
+
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT FILE-OUT FILEOUT FILEOUT2 ERRORFILE.
            
            OPEN INPUT PAYCUR INSIN CHARCUR DOCFILE GARFILE
-               FILEIN INSFILE REFPHY.
+               FILEIN INSFILE REFPHY AUTHFILE.
            
            MOVE SPACE TO ERRORFILE01
            MOVE "  COMMERCIAL ELECTRONIC CLAIMS ERRORS      "
@@ -319,8 +341,10 @@
            END-IF
 
            PERFORM A1 THRU A2
+
            GO TO P1.
        A1.
+           MOVE SPACE TO ERRORFILE01
            MOVE CHARCUR-KEY TO EF1
            
            IF CC-PROC = "1      " OR "2       "
@@ -340,9 +364,7 @@
            END-IF    
            
            IF CC-DOCP = 02
-               MOVE SPACE TO ERRORFILE01
                MOVE "NO READING DOC        " TO EF2
-               MOVE CHARCUR-KEY TO  EF1
                PERFORM E1
                GO TO A2
            END-IF
@@ -369,7 +391,6 @@
 
            READ GARFILE
              INVALID
-               MOVE SPACE TO ERRORFILE01
                MOVE "BAD GARNO           " TO EF2
                PERFORM E1 
                GO TO A2
@@ -379,7 +400,6 @@
            MOVE G-PRINS TO NUM3
            
            IF G-STREET = SPACE AND G-BILLADD = SPACE
-               MOVE SPACE TO ERRORFILE01
                MOVE "ADDRESS IS BLANK" TO EF2
                MOVE G-GARNAME TO EF5
                MOVE CC-KEY8 TO EF3 
@@ -388,7 +408,6 @@
            END-IF
 
            IF G-DOB NOT NUMERIC
-               MOVE SPACE TO ERRORFILE01
                MOVE "BAD DOB           " TO EF2               
                PERFORM E1 
                GO TO A2
@@ -470,6 +489,17 @@
                GO TO A2
            END-IF
 
+           IF (INS-NEIC = "VACCN")
+               MOVE CC-KEY8 TO AUTH-KEY8
+               MOVE CC-CLAIM TO AUTH-KEY6
+               READ AUTHFILE                  
+                 INVALID 
+                   MOVE "NO AUTH " TO EF2
+                   PERFORM E1
+                   GO TO A2
+               END-READ
+           END-IF    
+                    
            MOVE SPACE TO FILEOUT01
            STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE
            INTO FILEOUT01
@@ -554,6 +584,6 @@
        P9.
            CLOSE INSIN FILE-OUT CHARCUR PAYCUR 
                  FILEOUT DOCFILE GARFILE FILEIN
-                 REFPHY ERRORFILE FILEOUT2.
+                 REFPHY ERRORFILE FILEOUT2 AUTHFILE.
 
            STOP RUN.
