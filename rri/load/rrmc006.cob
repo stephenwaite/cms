@@ -1648,8 +1648,6 @@
                INTO C3-MODS
 
       *  new format which has hcpcs and a mod
-      *  but no place in ordfile to store mod?
-      *  maybe take a few chars from c-admit-diag?
              
            IF R3-CPT = SPACE
                MOVE SPACE TO ERRFILE01

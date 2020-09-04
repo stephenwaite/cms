@@ -10,14 +10,18 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY.
+
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  CHARFILE
-           BLOCK CONTAINS 2 RECORDS
            DATA RECORD IS CHARFILE01.
        01  CHARFILE01.
            02 CHARFILE-KEY.
@@ -63,21 +67,28 @@
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(30).
+
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(80).           
+       01  FILEOUT01 PIC X(80).   
+
        PROCEDURE DIVISION.
+
        P0. 
            OPEN I-O CHARFILE
            OPEN OUTPUT FILEOUT
            MOVE SPACE TO CHARFILE-KEY
-           START CHARFILE KEY NOT < CHARFILE-KEY INVALID
+           START CHARFILE KEY NOT < CHARFILE-KEY
+             INVALID
                DISPLAY "EMPTY FILE"
                GO TO P2
            END-START.    
+
        P1. 
-           READ CHARFILE NEXT AT END
+           READ CHARFILE NEXT
+             AT END
                GO TO P2
            END-READ    
+           
            IF (CD-PROC1 = "4094" OR "4095" OR "4073")
                MOVE "024" TO CD-PAYCODE
                MOVE "P" TO CD-PAPER

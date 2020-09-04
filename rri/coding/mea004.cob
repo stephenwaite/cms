@@ -10,6 +10,7 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+       
            SELECT CHARFILE ASSIGN TO  "S30" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
            LOCK MODE MANUAL.
@@ -68,9 +69,12 @@
            02 CD-ASSIGN PIC X.
            02 CD-NEIC-ASSIGN PIC X.
            02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
+           02 CD-QP1 PIC XX.
+           02 CD-QP2 PIC XX.
+           02 CD-DX5-3 PIC X(3).
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
+
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).
        FD  CLAIMFILE.
@@ -296,36 +300,36 @@
                MOVE "00003341F  " TO  X-PROC
 
       *    paragraph A1-1 adds HCPCS for measure 225, mammo reminder         
-               IF CD-MOD4 = "1 "
+               IF CD-QP1 = "1 "
                    GO TO A1-1
                END-IF
 
-               IF CD-MOD4 = "0 "
+               IF CD-QP1 = "0 "
                    MOVE "00003340F  " TO  X-PROC
                    GO TO A1-1
                END-IF
 
-               IF CD-MOD4 = "2 "
+               IF CD-QP1 = "2 "
                    MOVE "00003342F  " TO  X-PROC
                    GO TO A1-1
                END-IF
 
-               IF CD-MOD4 = "3 "
+               IF CD-QP1 = "3 "
                    MOVE "00003343F  " TO  X-PROC
                    GO TO A1-1
                END-IF
 
-               IF CD-MOD4 = "4 "
+               IF CD-QP1 = "4 "
                    MOVE "00003344F  " TO  X-PROC
                    GO TO A1-1
                END-IF
 
-               IF CD-MOD4 = "5 "
+               IF CD-QP1 = "5 "
                    MOVE "00003345F  " TO  X-PROC
                    GO TO A1-1
                END-IF
 
-               IF CD-MOD4 = "6 "
+               IF CD-QP1 = "6 "
                    MOVE "00003350F  " TO  X-PROC
                    GO TO A1-1
                END-IF
@@ -333,7 +337,7 @@
 
            IF FLAG = 147
                MOVE "00003570F  " TO  X-PROC
-               MOVE CD-MOD4 TO X-PROC(10:2)
+               MOVE CD-QP1 TO X-PROC(10:2)
                PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
@@ -341,7 +345,7 @@
 
            IF FLAG = 195
                MOVE "00003100F  " TO  X-PROC
-               MOVE CD-MOD4 TO X-PROC(10:2)
+               MOVE CD-QP1 TO X-PROC(10:2)
                PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
 
@@ -358,28 +362,28 @@
            END-IF.
 	
            IF FLAG = 405
-               IF CD-MOD4 = "1 "
+               IF CD-QP1 = "1 "
                    MOVE "0000G9550  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
 
-               IF CD-MOD4 = "2 "
+               IF CD-QP1 = "2 "
                    MOVE "0000G9549  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
 
-               IF CD-MOD4 = "3 "
+               IF CD-QP1 = "3 "
                    MOVE "0000G9548  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
            
-               IF CD-MOD4 = "1 " OR "2 " OR "3 "
+               IF CD-QP1 = "1 " OR "2 " OR "3 "
                    STRING "405 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
                           " PERFORMANCE NOT MET! please review" 
                    DELIMITED BY SIZE INTO FILEOUT01
@@ -408,21 +412,21 @@
            END-IF
 	
            IF FLAG = 406
-               IF CD-MOD4 = "1 "                    
+               IF CD-QP1 = "1 "                    
                    MOVE "0000G9554  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                         DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
            
-               IF CD-MOD4 = "2 "
+               IF CD-QP1 = "2 "
                    MOVE "0000G9555  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                         DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
 
-               IF CD-MOD4 = "3 "
+               IF CD-QP1 = "3 "
                    MOVE "0000G9556  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
@@ -434,7 +438,7 @@
                    WRITE FILEOUT01
                END-IF
 
-               IF (CD-MOD4 = "1 " OR "2 " OR "3 ")
+               IF (CD-QP1 = "1 " OR "2 " OR "3 ")
                    MOVE "0000G9552  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
@@ -471,21 +475,21 @@
            IF FLAG = 999
       *    cut and paste in meas 195 logic from above     
                MOVE "00003100F  " TO  X-PROC
-               MOVE CD-MOD4 TO X-PROC(10:2)
+               MOVE CD-QP1 TO X-PROC(10:2)
                PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
-      *    cut and paste meas 406 logic using spare CD-DX5 field
-               IF CD-DX5 = "1 "
+      *    cut and paste meas 406 logic using CD-QP2 field
+               IF CD-QP2 = "1 "
                    MOVE "0000G9554  " TO  X-PROC
                    PERFORM B1 THRU B2
                END-IF
            
-               IF CD-DX5 = "2 "
+               IF CD-QP2 = "2 "
                    MOVE "0000G9555  " TO  X-PROC
                    PERFORM B1 THRU B2
                END-IF
 
-               IF CD-DX5 = "3 "
+               IF CD-QP2 = "3 "
                    MOVE "0000G9556  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
@@ -494,7 +498,7 @@
                    WRITE FILEOUT01
                END-IF
       *    measure 406 has an additional hcpcs based on response
-               IF CD-DX5 = "1 " OR "2 " OR "3 "
+               IF CD-QP2 = "1 " OR "2 " OR "3 "
                    MOVE "0000G9552  " TO  X-PROC
                ELSE
                    MOVE "0000G9557  " TO  X-PROC

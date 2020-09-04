@@ -172,8 +172,9 @@
            02 CD-ASSIGN PIC X.
            02 CD-NEIC-ASSIGN PIC X.
            02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC XX.
-           02 CD-DX5-5 PIC X(5).
+           02 CD-QP1 PIC XX.
+           02 CD-QP2 PIC XX.
+           02 CD-DX5-3 PIC X(3).
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(30).
@@ -476,14 +477,14 @@
                MOVE "Z1231  " TO CD-DIAG             
                DISPLAY "Enter assessment code"
                DISPLAY "? for help"            
-               ACCEPT  CD-MOD4
+               ACCEPT CD-QP1
                
-               IF NOT (CD-MOD4(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
+               IF NOT (    CD-QP1(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
                                        OR "4" OR "5" OR "6" OR "B")
                    GO TO P2-0
                END-IF
 
-               IF CD-MOD4 = "?"
+               IF CD-QP1 = "?"
                    DISPLAY " 0 = INCOMPLETE NEED ADDITIONAL FILMS"
                    DISPLAY " 1 = NEGATIVE"
                    DISPLAY " 2 = BENIGN"
@@ -494,7 +495,7 @@
                    GO TO P2-0
                END-IF  
                
-               IF CD-MOD4(1:1) = "B"
+               IF CD-QP1(1:1) = "B"
                    DISPLAY FO-KEY " has been skipped"
                    GO TO P1
                END-IF
@@ -507,11 +508,11 @@
 
            IF CD-PAYCODE = "010"
                DISPLAY " MEASURE 147: ENTER 3P, 8P OR BLANK, ? FOR HELP"
-               ACCEPT CD-MOD4
-               IF NOT (CD-MOD4 = "3P" OR "8P" OR SPACE OR "?")
+               ACCEPT CD-QP1
+               IF NOT (CD-QP1 = "3P" OR "8P" OR SPACE OR "?")
                    GO TO P2-0
                END-IF
-               IF CD-MOD4 = "?"
+               IF CD-QP1 = "?"
                    DISPLAY " BLANK = REPORT INDICATES CORRELATION"
                    DISPLAY " 3P = NO RELEVANT STUDIES"
                    DISPLAY " 8P = NOT CORRELATED, PERF NOT MET! STEVE?"
@@ -521,11 +522,11 @@
 
            IF CD-PAYCODE = "011"
                DISPLAY " measure 195: 8P or <Enter>"
-               ACCEPT CD-MOD4
-               IF NOT (CD-MOD4 = "8P" OR "?" OR SPACE)
+               ACCEPT CD-QP1
+               IF NOT (CD-QP1 = "8P" OR "?" OR SPACE)
                    GO TO P2-0
                END-IF
-               IF CD-MOD4 = "?"
+               IF CD-QP1 = "?"
                    DISPLAY " BLANK = Referenced Distal Internal Carotid"
                    DISPLAY " Diameter as the Denominator for Stenosis"
                    DISPLAY " Measurement Referenced"
@@ -538,8 +539,8 @@
 
            IF CD-PAYCODE = "012"
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
-               ACCEPT CD-MOD4
-               IF CD-MOD4 = "?"
+               ACCEPT CD-QP1
+               IF CD-QP1 = "?"
                   DISPLAY "Cystic renal lesion that is simple appearing"
                      " or Adrenal lesion less than or equal to 1.0 cm"
                      " or Adrenal lesion greater than 1.0 cm but less"
@@ -554,7 +555,7 @@
                    DISPLAY " <Enter> = no lesion"
                    GO TO P2-0
                END-IF               
-               IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
                    GO TO P2-0
                END-IF
            END-IF
@@ -562,8 +563,8 @@
            IF CD-PAYCODE = "013"
                DISPLAY " Measure 406: <Enter> no lesion or 1 or 2 or 3"
                        " or ? for help"
-               ACCEPT CD-MOD4
-               IF CD-MOD4 = "?"
+               ACCEPT CD-QP1
+               IF CD-QP1 = "?"
                    DISPLAY "CT, CTA, or MR studies of chest or neck"
                    DISPLAY "for patients aged 18 and older with "
                    DISPLAY "no known thyroid disease and an "    
@@ -574,7 +575,7 @@
                    DISPLAY " 3 = f/u not recommended, perf not met!"
                    GO TO P2-0
                END-IF
-               IF NOT (CD-MOD4 = "1 " OR "2 " OR "3 " OR SPACE)
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
                    GO TO P2-0
                END-IF
            END-IF
@@ -584,8 +585,8 @@
                DISPLAY " measure 195: 8P or <Enter>"
                DISPLAY " <Enter> = Referenced Dist Int. Car. diameter"
                DISPLAY " 8P = not referenced"    
-               ACCEPT CD-MOD4
-               IF NOT (CD-MOD4 = "8P" OR SPACE)
+               ACCEPT CD-QP1
+               IF NOT (CD-QP1 = "8P" OR SPACE)
                    GO TO P2-0
                END-IF
                
@@ -594,8 +595,8 @@
                DISPLAY " <Enter> for no lesion"
                DISPLAY " ? for help but since this is special CPT 70498"
                        " will have to re-do 195 just completed, sorry"
-               ACCEPT CD-DX5
-               IF CD-DX5 = "?"
+               ACCEPT CD-QP2
+               IF CD-QP2 = "?"
                    DISPLAY "CT, CTA, or MR studies of chest or neck"
                    DISPLAY "for patients aged 18 and older with "
                    DISPLAY "no known thyroid disease and an "    
@@ -606,7 +607,7 @@
                    DISPLAY " 3 = f/u not recommended, perf not met"
                    GO TO P2-0
                END-IF
-               IF NOT (CD-DX5 = "1 " OR "2 " OR "3 " OR SPACE)
+               IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
                    DISPLAY " ? for help but since this is CPT 70498"
                            " will have to re-do 195 first, sorry"
                    GO TO P2-0
