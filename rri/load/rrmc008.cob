@@ -283,6 +283,15 @@
            END-IF
 
            MOVE FILEIN01 TO REC301
+           
+           IF R3-GLC = "0"               
+               MOVE SPACE TO ERRFILE01
+               STRING HOLDNAME " " R3-PROC
+                   " ADDING AUC HCPCS RECORD "
+               DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+           END-IF
+
            MOVE R3-PROC TO PROC-KEY1
            
            IF R3-CPT = SPACE

@@ -4,31 +4,40 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI078.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. npi078.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT INSIN ASSIGN TO "S30" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT FILE-OUT ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT CHARCUR ASSIGN TO "S40" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC    RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
+       
            SELECT PAYCUR ASSIGN TO "S45" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY
            LOCK MODE MANUAL.
+       
            SELECT FILEOUT ASSIGN TO "S50" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT DOCFILE ASSIGN TO "S55" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT GARFILE ASSIGN TO "S60"     ORGANIZATION IS INDEXED
            ACCESS MODE IS RANDOM         RECORD KEY IS G-GARNO
            LOCK MODE MANUAL.
+       
            SELECT FILEIN   ASSIGN TO "S65" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT INSFILE ASSIGN TO "S70"    ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC        RECORD KEY IS INS-KEY
            ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
@@ -38,10 +47,13 @@
            ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
            ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
            LOCK MODE MANUAL.
+       
            SELECT PLACEFILE ASSIGN TO "S75" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT ERRORFILE ASSIGN TO "S80" ORGANIZATION
            LINE SEQUENTIAL.
+       
            SELECT FILEOUT2 ASSIGN TO "S85" ORGANIZATION
            LINE SEQUENTIAL.
 
@@ -87,10 +99,11 @@
            02 INS-CAID PIC XXX.
            02 INS-REFWARN PIC X.
            02 INS-FUTURE PIC X(8).
+       
        FD  FILEIN.
        01  FILEIN01 PIC 999.
+       
        FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS GARFILE01.
        01 GARFILE01.
            02 G-GARNO PIC X(8).
@@ -137,13 +150,14 @@
         01  DOCFILE01.
             02 DF-1 PIC 99.
             02 DF-2 PIC 99.
+      
        FD FILEOUT.
        01 FILEOUT01 PIC X(161).
+      
        FD FILEOUT2.
        01 FILEOUT201 PIC X(161).
 
        FD  PAYCUR
-           BLOCK CONTAINS 6 RECORDS
            DATA RECORD IS PAYCUR01.
        01  PAYCUR01.
            02 PAYCUR-KEY.
@@ -156,11 +170,13 @@
            02 PC-DATE-T PIC X(8).
            02 PC-DATE-E PIC X(8).
            02 PC-BATCH PIC X(6).
+ 
        FD  INSIN
            DATA RECORD IS INSIN01.
        01  INSIN01.
            02 INS-1 PIC 999.
            02 INS-2 PIC XX.
+ 
        FD FILE-OUT.
        01  FILE-OUT01.
            02 FO-PC PIC XXX.
@@ -171,6 +187,7 @@
            02 FO-PLACE PIC X.
            02 FO-DOCP PIC XX.
            02 FO-PAPER PIC X.
+ 
        FD  CHARCUR.
        01  CHARCUR01.
            02 CHARCUR-KEY.
@@ -213,6 +230,7 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
+ 
        WORKING-STORAGE SECTION.
        01  INSTAB01.
            02 INSTAB PIC 99 OCCURS 999 TIMES.
@@ -316,14 +334,22 @@
            PERFORM PAPER-1 GO TO A2.
        A1-1.
            MOVE CC-PAYCODE TO INS-KEY
-           READ INSFILE INVALID GO TO A2.
+           READ INSFILE
+             INVALID
+              GO TO A2
+           END-READ
+
            IF INS-NEIC = SPACE DISPLAY CHARCUR01 GO TO A2.
+           
            IF INS-CITY = SPACE OR INS-STREET = SPACE
              OR INS-STATE = SPACE OR INS-ZIP = SPACE
              MOVE SPACE TO EF1 EF2
              MOVE CC-PAYCODE TO EF1
              MOVE  "NO INS. ADDRESS " TO EF2
-             PERFORM E1 GO TO A2.
+             PERFORM E1
+             GO TO A2
+           END-IF
+
            PERFORM DF-SEARCH
            IF INS-NEIC = "57106" AND CC-DATE-M = "00000000"
            AND CC-PL = "3"
@@ -355,14 +381,16 @@
       *     MOVE "BAD POLICY NUMBER " TO EF2
       *     PERFORM E1 GO TO A2.
            MOVE SPACE TO FILEOUT01
-           STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE
-           INTO FILEOUT01
+           STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE INTO FILEOUT01
+           
            IF INS-NEIC = "14165" 
-            WRITE FILEOUT201 FROM FILEOUT01
+               WRITE FILEOUT201 FROM FILEOUT01
            ELSE
-            WRITE FILEOUT01
+               WRITE FILEOUT01
            END-IF
+           
            GO TO A2.
+
        PAPER-1.
            MOVE CC-PAYCODE TO FO-PC.
            MOVE CC-PATID TO  FO-PATID 

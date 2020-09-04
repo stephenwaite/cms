@@ -105,9 +105,10 @@
        01  FILEIN01. 
            02 FI-1 PIC X(11).
            02 FILLER PIC X(145).
+
        FD  FILEOUT.
        01  FILEOUT01.
-           02 FO-1 PIC X(151).
+           02 FO-1 PIC X(156).
            02 FO-2 PIC X(5).
 
        PROCEDURE DIVISION.
@@ -142,6 +143,7 @@
            MOVE INS-NEIC TO FO-2.
 
            WRITE FILEOUT01
+
            GO TO P1.
        P2.
            CLOSE CHARCUR FILEOUT FILEIN INSFILE
