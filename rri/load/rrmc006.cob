@@ -1629,18 +1629,10 @@
                MOVE " " TO C-IND
            END-IF
 
-           MOVE "00" TO C-DOCP
-           
-           IF R3-DOCP = "RADE" MOVE "02" TO C-DOCP.
-           
-           IF R3-DOCP = "SIVA" MOVE "03" TO C-DOCP.
-           
-           IF R3-DOCP = "BIEB" MOVE "05" TO C-DOCP.
-           
+           MOVE "02" TO C-DOCP
+                                            
            IF R3-DOCP = "MITC" MOVE "06" TO C-DOCP.
-           
-           IF R3-DOCP = "PEKA" MOVE "07" TO C-DOCP.
-           
+                      
            IF R3-DOCP = "SHEL" MOVE "08" TO C-DOCP.
            
            IF R3-DOCP = "HUMM" MOVE "09" TO C-DOCP.
@@ -1650,10 +1642,17 @@
            MOVE R3-CLINICAL TO C-CLINICAL
            MOVE R2-DIAG TO C-ADMIT-DIAG
            MOVE R3-CPT TO C-CPT
-      *    let's work with the new format which has hcpcs and a mod     
-           IF R3-HCPCS NOT = SPACE
-               DISPLAY "MOVING HCPCS " R3-HCPCS " TO C-CPT "
-               ACCEPT ANS     
+
+      *  new format which has hcpcs and a mod
+      *  but no place in ordfile to store mod?
+      *  maybe take a few chars from c-admit-diag?
+             
+           IF R3-CPT = SPACE
+               MOVE SPACE TO ERRFILE01
+               STRING A-GARNAME " HAD NO CPT BUT HAD HCPCS " R3-HCPCS
+                   DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+           
                MOVE R3-HCPCS TO C-CPT
            END-IF
 
