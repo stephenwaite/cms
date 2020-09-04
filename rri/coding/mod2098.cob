@@ -10,6 +10,7 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
                ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
                LOCK MODE MANUAL.
@@ -19,9 +20,12 @@
                ALTERNATE RECORD KEY IS DIAG-TITLE WITH DUPLICATES.
 
            SELECT FILEOUT ASSIGN TO  "S40" ORGANIZATION
-               LINE SEQUENTIAL.    
+               LINE SEQUENTIAL.   
+
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  CHARFILE.
        01  CHARFILE01.
            02 CHARFILE-KEY.
@@ -68,8 +72,8 @@
            02 CD-DX5 PIC X(7).
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
+
        FD  DIAGFILE
-           BLOCK CONTAINS 8 RECORDS
            DATA RECORD IS DIAG01.
        01  DIAG01.
            02 DIAG-KEY PIC X(7).
@@ -77,8 +81,10 @@
              03 DIAG-T1 PIC XXX.
              03 DIAG-T2 PIC X(58).
            02 DIAG-MEDB PIC X(5).
+
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).
+
        WORKING-STORAGE SECTION.
        01  TALLYX PIC 9.
        01  TALLYRT PIC 9.
@@ -89,13 +95,17 @@
        01  TALLYL PIC 9.
 
        01  CNTR PIC 9(7) VALUE 0.
+
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN I-O CHARFILE.
            OPEN INPUT DIAGFILE.
            OPEN OUTPUT FILEOUT.
+
        P1.
-           READ CHARFILE NEXT WITH LOCK AT END 
+           READ CHARFILE NEXT WITH LOCK
+             AT END 
                GO TO P99
            END-READ
 
