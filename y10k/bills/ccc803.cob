@@ -5,19 +5,21 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
        PROGRAM-ID. ccc803.
-       AUTHOR. SID WAITE.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC     RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
+
        DATA DIVISION.
+
        FILE SECTION.
        FD  CHARCUR
-           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS CHARCUR01.
        01  CHARCUR01.
            02 CHARCUR-KEY.
@@ -62,18 +64,24 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
+
        WORKING-STORAGE SECTION.
        01  CONSTANTS.
            02 CNTR PIC 999999 VALUE 0.
+
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN I-O CHARCUR.
            MOVE SPACE TO CHARCUR-KEY
-           START CHARCUR KEY > CHARCUR-KEY INVALID
+           START CHARCUR KEY > CHARCUR-KEY
+             INVALID
                GO TO P2
            END-START.
+
        P1.
-           READ CHARCUR NEXT WITH LOCK AT END
+           READ CHARCUR NEXT WITH LOCK
+             AT END
                GO TO P2
            END-READ
 
@@ -81,13 +89,8 @@
                GO TO P1
            END-IF
 
-           IF CC-DATEYYYYMM-A < "202003"
+           IF CC-DATEYYYYMM-A < "202004"
                GO TO P1
-           END-IF
-
-           IF CC-DATEYYYYMM-A = "202003"
-               MOVE "20200430" TO CC-DATE-A
-               GO TO A2
            END-IF
 
            IF CC-DATEYYYYMM-A = "202004"
@@ -97,6 +100,11 @@
 
            IF CC-DATEYYYYMM-A = "202005"
                MOVE "20200630" TO CC-DATE-A
+               GO TO A2
+           END-IF
+
+           IF CC-DATEYYYYMM-A = "202006"
+               MOVE "20200731" TO CC-DATE-A
                GO TO A2
            END-IF
 
