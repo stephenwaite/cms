@@ -10,6 +10,7 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
                ACCESS IS DYNAMIC  RECORD KEY IS CHARFILE-KEY
                LOCK MODE MANUAL.
@@ -22,10 +23,12 @@
 
            SELECT FILEOUT ASSIGN TO  "S45" ORGANIZATION IS LINE 
                SEQUENTIAL.    
+
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  CHARFILE
-      *    BLOCK CONTAINS 2 RECORDS
            DATA RECORD IS CHARFILE01.
        01  CHARFILE01.
            02 CHARFILE-KEY.
@@ -77,6 +80,7 @@
            02 PROC-TYPE PIC X.
            02 PROC-TITLE PIC X(28). 
            02 PROC-AMOUNT PIC 9(4)V99.
+
        FD FILEIN.
        01  FILEIN01.
            02 FI-CHARFILE-KEY.
@@ -122,8 +126,10 @@
            02 FI-DX5 PIC X(7).
            02 FI-DX6 PIC X(7).
            02 FI-FUTURE PIC X(6).
+
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(80).    
+       01  FILEOUT01 PIC X(80).   
+        
        WORKING-STORAGE SECTION.
        01  ALF28 PIC X(28).
        01  ALF28X PIC X(28).
@@ -135,17 +141,21 @@
        01  TALLYLIT PIC 9.
        
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN INPUT PROCFILE FILEIN.
            OPEN I-O CHARFILE.
            OPEN OUTPUT FILEOUT.
+
        P1.
-           READ FILEIN AT END
+           READ FILEIN
+             AT END
                GO TO P99
            END-READ
 
            MOVE FI-PROC TO PROC-KEY
-           READ PROCFILE INVALID
+           READ PROCFILE
+             INVALID
                STRING "BAD PROC " FI-PROC 
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01

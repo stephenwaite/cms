@@ -303,7 +303,7 @@
        WORKING-STORAGE SECTION.
        01  ANS PIC X.
        01  GAR-STAT PIC XX.
-       01 CLM-STAT PIC XX.
+       01  CLM-STAT PIC XX.
        01  CHARBACK PIC X(258).
        01  INPUT-DATE-S.      
            05 T-MM  PIC 99.

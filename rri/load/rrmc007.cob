@@ -103,7 +103,7 @@
            02 R1-GARCITY PIC X(25).
            02 R1-GARSTATE PIC XX.
            02 R1-GARZIP PIC X(10).
-           02 r1-EMAIL PIC X(30).
+           02 R1-EMAIL PIC X(30).
            02 R1-IP1 PIC X(5).
            02 R1-ID1 PIC X(30).
            02 R1-CERT11 PIC X(20).
@@ -241,28 +241,40 @@
            OPEN INPUT HOSPFILE FILEIN INSFILE.
            OPEN OUTPUT FILEOUT.
        P1.
-           READ FILEIN AT END GO TO 9100CMF.
-           IF FI-1 NOT = "##" GO TO P1.
-           MOVE FILEIN01 TO REC101.
+           READ FILEIN
+             AT END
+               GO TO 9100CMF
+           END-READ
+
+           IF FI-1 NOT = "##"
+               GO TO P1
+           END-IF
+
+           MOVE FILEIN01 TO REC101
+
            MOVE R1-IP1 TO X-IP
            MOVE 1 TO PLANNUM
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT.
 
-
            MOVE R1-IP2 TO X-IP
            MOVE 2 TO PLANNUM
-
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT.
 
-           READ FILEIN AT END GO TO 9100CMF.
-           IF FI-1 NOT = "++" GO TO P1.
+           READ FILEIN
+             AT END
+               GO TO 9100CMF
+           END-READ
+
+           IF FI-1 NOT = "++"
+               GO TO P1
+           END-IF
+
            MOVE FILEIN01 TO REC201.
 
            MOVE R2-IP3 TO X-IP
            MOVE 3 TO PLANNUM
 
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT.
-
 
            MOVE R2-IP4 TO X-IP
            MOVE 4 TO PLANNUM
@@ -272,44 +284,58 @@
            GO TO P1.
 
        SEL-PRINS.
-           IF X-IP = SPACE GO TO SEL-PRINS-EXIT.
+           IF X-IP = SPACE
+               GO TO SEL-PRINS-EXIT
+           END-IF    
 
            MOVE X-IP TO HOSP-KEY
-           READ HOSPFILE  INVALID MOVE "XXX" TO INS-KEY GO TO SEL-1.
+           READ HOSPFILE
+             INVALID
+               MOVE "XXX" TO INS-KEY
+               GO TO SEL-1
+           END-READ
+
            MOVE H-INS-KEY TO INS-KEY
-           READ INSFILE INVALID MOVE "XXX" TO INS-KEY GO TO SEL-1.
-           IF INS-CLAIMTYPE = "E" GO TO SEL-PRINS-EXIT.
+           READ INSFILE
+             INVALID
+               MOVE "XXX" TO INS-KEY
+               GO TO SEL-1
+           END-READ
+
+           IF INS-CLAIMTYPE = "E"
+               GO TO SEL-PRINS-EXIT
+           END-IF.
+
        SEL-1.
            MOVE SPACE TO FILEOUT01
            IF PLANNUM = 1 
-            
-            STRING X-IP " " INS-KEY " " R1-INSPHONE1 " "INSURANCE-1
-                    DELIMITED BY SIZE INTO FILEOUT01
-                   WRITE FILEOUT01
-           END-IF.
+               STRING X-IP " " INS-KEY " " R1-INSPHONE1 " " INSURANCE-1
+                   DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+           END-IF
 
-           IF PLANNUM = 2
-            
-            STRING X-IP " " INS-KEY " " R1-INSPHONE2 " "INSURANCE-2
-                    DELIMITED BY SIZE INTO FILEOUT01
-                   WRITE FILEOUT01
-           END-IF.
-           IF PLANNUM = 3 
-            
-            STRING X-IP " " INS-KEY " " R2-INSPHONE3 " "INSURANCE-3
-                    DELIMITED BY SIZE INTO FILEOUT01
-                   WRITE FILEOUT01
-           END-IF.
-           IF PLANNUM = 4 
-            
-            STRING X-IP " " INS-KEY " " R2-INSPHONE4 " "INSURANCE-4
-                    DELIMITED BY SIZE INTO FILEOUT01
-                   WRITE FILEOUT01
+           IF PLANNUM = 2    
+               STRING X-IP " " INS-KEY " " R1-INSPHONE2 " " INSURANCE-2
+                   DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+           END-IF
+
+           IF PLANNUM = 3          
+               STRING X-IP " " INS-KEY " " R2-INSPHONE3 " " INSURANCE-3
+                   DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+           END-IF
+
+           IF PLANNUM = 4             
+               STRING X-IP " " INS-KEY " " R2-INSPHONE4 " " INSURANCE-4
+                   DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
            END-IF.
 
        SEL-PRINS-EXIT.
            EXIT.
 
        9100CMF.
-           CLOSE HOSPFILE FILEOUT.
+           CLOSE FILEIN INSFILE HOSPFILE FILEOUT.
            STOP RUN.
+ 

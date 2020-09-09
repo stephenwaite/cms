@@ -253,7 +253,8 @@
        01  ANS PIC X.
        01  HOLDNAME PIC X(15).
        01  ALF13 PIC X(13).
-       01  ALF20 PIC X(20).       
+       01  ALF20 PIC X(20).  
+       01  MEDREC PIC X(6).
 
        PROCEDURE DIVISION.
        0005-START.
@@ -275,6 +276,8 @@
 
            IF FI-1 = "++"
                MOVE FILEIN01 TO REC201
+               STRING R2-MEDREC1 R2-MEDREC2 R2-MEDREC3
+                   DELIMITED BY SIZE INTO MEDREC
            END-IF
 
            IF FI-1 NOT = "$$"
@@ -283,15 +286,6 @@
            END-IF
 
            MOVE FILEIN01 TO REC301
-           
-           IF R3-GLC = "0"               
-               MOVE SPACE TO ERRFILE01
-               STRING HOLDNAME " " R3-PROC
-                   " ADDING AUC HCPCS RECORD "
-               DELIMITED BY SIZE INTO ERRFILE01
-               WRITE ERRFILE01
-           END-IF
-
            MOVE R3-PROC TO PROC-KEY1
            
            IF R3-CPT = SPACE
@@ -314,7 +308,7 @@
            
            IF PROC-AMOUNT = 0
                AND R3-GLC NOT = 0
-               GO TO BAD-1
+               GO TO BAD-2
            END-IF                       
 
            WRITE FILEOUT01 FROM REC301
@@ -323,13 +317,24 @@
        BAD-1.
            MOVE SPACE TO ERRFILE01.    
 
-           STRING "UNDEFINED PROCEDURE FOR " HOLDNAME " " R3-PROC 
-                  " " R3-CPT " We should ask RRMC for the cpt/hcpcs."
-           DELIMITED BY SIZE INTO ERRFILE01
+           STRING "UNDEFINED PROCEDURE FOR " MEDREC " " R3-PROC 
+                  " " R3-CPT " DOS " R3-DATE ". Sheesh."
+               DELIMITED BY SIZE INTO ERRFILE01
 
            WRITE ERRFILE01.
            
            GO TO P1.
+
+       BAD-2.
+           MOVE SPACE TO ERRFILE01.    
+
+           STRING "ZERO DOLLAR PROCEDURE FOR " MEDREC " " R3-PROC 
+                  " " R3-CPT " " R3-DATE ". CALL CADY :)"
+               DELIMITED BY SIZE INTO ERRFILE01
+
+           WRITE ERRFILE01.
+           
+           GO TO P1.    
            
        P99.
            CLOSE PROCFILE FILEIN FILEOUT ERRFILE.

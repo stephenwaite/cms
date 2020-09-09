@@ -585,21 +585,28 @@
        0005-START.
            OPEN OUTPUT NEWINS
            CLOSE NEWINS.
-           OPEN I-O NEWINS
-           OPEN I-O RPGACTFILE.
-           OPEN I-O RPGCHARFILE RPGINSFILE.
+           OPEN I-O NEWINS RPGACTFILE RPGCHARFILE RPGINSFILE.
            OPEN INPUT RPGPROCFILE REFPHY INSFILE
                       NPIFILE FILEIN DIAGFILE.
            OPEN OUTPUT FILEOUT FILEOUT2.
            ACCEPT DATE-TODAY  FROM CENTURY-DATE.
+
        P1. 
            PERFORM INIT-1.
-           READ FILEIN AT END GO TO P99.
+           
+           READ FILEIN
+             AT END
+               GO TO P99
+           END-READ
+
            IF FI-PROC1 = "76499" GO TO P1.
+
            IF FI-PROC1 = "73620" MOVE "73630" TO FI-PROC1.
+
            IF FI-PROC1 = "73070" MOVE "73060" TO FI-PROC1.
-            STRING FI-PATNAMEL ";" FI-PATNAMEF DELIMITED BY "  " INTO
-            RPG-GARNAME
+
+           STRING FI-PATNAMEL ";" FI-PATNAMEF DELIMITED BY "  " INTO
+               RPG-GARNAME
            MOVE RPG-GARNAME(1:3) TO NAME-KEY
 
 
@@ -624,37 +631,56 @@
            MOVE FI-PAT-CITY TO RPG-CITY
            MOVE FI-PAT-STATE TO RPG-STATE
            MOVE FI-PAT-ZIP TO RPG-ZIP
+           
            IF RPG-ZIP(1:5) = " "
-            MOVE SPACE TO ALF5
-            STRING "0" RPG-ZIP(1:4) DELIMITED BY SIZE INTO ALF5
-            MOVE SPACE TO RPG-ZIP
-            MOVE ALF5 TO RPG-ZIP
+               MOVE SPACE TO ALF5
+               STRING "0" RPG-ZIP(1:4) DELIMITED BY SIZE INTO ALF5
+               MOVE SPACE TO RPG-ZIP
+               MOVE ALF5 TO RPG-ZIP
            END-IF
+
            MOVE "M" TO RPG-SEX
-           IF FI-PAT-SEX = "F" MOVE "F" TO RPG-SEX.
+           
+           IF FI-PAT-SEX = "F"
+               MOVE "F" TO RPG-SEX
+           END-IF
+
            MOVE "2" TO RPG-RELATE
-           IF RPG-SEX = "F" MOVE "K" TO RPG-RELATE.
+           
+           IF RPG-SEX = "F"
+               MOVE "K" TO RPG-RELATE
+           END-IF    
+           
            IF FI-SEC-SUBRELATE = SPACE
-             MOVE FI-PRIM-SUBRELATE TO FI-SEC-SUBRELATE.
+               MOVE FI-PRIM-SUBRELATE TO FI-SEC-SUBRELATE
+           END-IF
+
            IF FI-SEC-SUBSEX = SPACE
-             MOVE FI-PRIM-SUBSEX TO FI-SEC-SUBSEX.
+               MOVE FI-PRIM-SUBSEX TO FI-SEC-SUBSEX
+           END-IF
+
            IF FI-PRIM-ALFA = SPACE 
-             MOVE "0" TO FI-PRIM-ALFA
+               MOVE "0" TO FI-PRIM-ALFA
            END-IF
+           
            IF FI-SEC-ALFA = SPACE 
-             MOVE "0" TO FI-SEC-ALFA
+               MOVE "0" TO FI-SEC-ALFA
            END-IF
 
-            STRING FI-PRIM-NAMEL ";" FI-PRIM-NAMEF 
-            DELIMITED BY "  " INTO RPG-PRNAME
+           STRING FI-PRIM-NAMEL ";" FI-PRIM-NAMEF 
+               DELIMITED BY "  " INTO RPG-PRNAME
+           
            IF FI-PRIM-SUBRELATE = "C"
-              MOVE "4" TO RPG-RELATE
-              IF RPG-SEX = "F" MOVE "M" TO RPG-RELATE
-              END-IF
-           END-IF.
-           IF FI-PRIM-GRP = "0" MOVE SPACE TO FI-PRIM-GRP.
-           IF FI-SEC-GRP = "0" MOVE SPACE TO FI-SEC-GRP.
+               MOVE "4" TO RPG-RELATE
+               IF RPG-SEX = "F"
+                   MOVE "M" TO RPG-RELATE
+               END-IF
+           END-IF
 
+           IF FI-PRIM-GRP = "0" MOVE SPACE TO FI-PRIM-GRP.
+
+           IF FI-SEC-GRP = "0" MOVE SPACE TO FI-SEC-GRP.
+           
            MOVE FI-PRIM-GRP TO RPG-PR-GROUP
            MOVE SPACE TO TAB1601
            MOVE FI-PRIM-POL TO RPG-PRIPOL
@@ -662,53 +688,71 @@
            MOVE RPG-RELATE TO RPG-PR-RELATE
            MOVE RPG-GARNAME TO RPG-PRNAME
            GO TO SEC-1.
+           
            MOVE "2" TO RPG-PR-RELATE
+           
            IF FI-PRIM-SUBRELATE = " " MOVE RPG-RELATE TO RPG-PR-RELATE.
+           
            IF FI-PRIM-SUBRELATE = "P" AND RPG-SEX = "M" 
            MOVE "K" TO RPG-PR-RELATE.
+
        SEC-1.    
            IF FI-SEC-ALFA = SPACE 
-              MOVE "0" TO FI-SEC-ALFA
-            END-IF
-            STRING FI-SEC-NAMEL ";" FI-SEC-NAMEF 
-            DELIMITED BY "  " INTO RPG-SENAME
-           IF FI-SEC-SUBRELATE = "C"
-              MOVE "4" TO RPG-RELATE
-              IF RPG-SEX = "F" MOVE "M" TO RPG-RELATE
-              END-IF
-           END-IF.
-           IF RPG-SENAME = ";"
-            MOVE RPG-GARNAME TO RPG-SENAME
+               MOVE "0" TO FI-SEC-ALFA
            END-IF
+           
+           STRING FI-SEC-NAMEL ";" FI-SEC-NAMEF 
+               DELIMITED BY "  " INTO RPG-SENAME
+           
+           IF FI-SEC-SUBRELATE = "C"
+               MOVE "4" TO RPG-RELATE
+               IF RPG-SEX = "F"
+                   MOVE "M" TO RPG-RELATE
+               END-IF
+           END-IF
+
+           IF RPG-SENAME = ";"
+               MOVE RPG-GARNAME TO RPG-SENAME
+           END-IF
+           
            MOVE FI-SEC-GRP TO RPG-SE-GROUP
            MOVE FI-SEC-POL TO RPG-SECPOL
+           
            IF RPG-GARNAME = RPG-SENAME
-           MOVE RPG-RELATE TO RPG-SE-RELATE
-           GO TO RPGINS-1.
-           MOVE "2" TO RPG-SE-RELATE
-           IF FI-SEC-SUBRELATE = " " MOVE RPG-RELATE TO RPG-SE-RELATE.
-           IF FI-SEC-SUBRELATE = "P" AND RPG-SEX = "M" 
-           MOVE "K" TO RPG-SE-RELATE.
+               MOVE RPG-RELATE TO RPG-SE-RELATE
+               GO TO RPGINS-1
+           END-IF
 
+           MOVE "2" TO RPG-SE-RELATE
+
+           IF FI-SEC-SUBRELATE = " " MOVE RPG-RELATE TO RPG-SE-RELATE.
+           
+           IF FI-SEC-SUBRELATE = "P" AND RPG-SEX = "M" 
+               MOVE "K" TO RPG-SE-RELATE
+           END-IF.    
 
        RPGINS-1.
            MOVE SPACE TO RPGINS-KEY
            MOVE FI-PRIM-ALFA TO RPGINS-KEY
-           READ RPGINSFILE INVALID
-            DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
-                    FI-PRIM-ALFA "  IS INVALID "
-             DISPLAY "FIX IT AND RESTART PROGRAM"
-             ACCEPT ANS
-             GO TO P99
+           READ RPGINSFILE
+             INVALID
+               DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
+                   FI-PRIM-ALFA "  IS INVALID "
+               DISPLAY "FIX IT AND RESTART PROGRAM"
+               ACCEPT ANS
+               GO TO P99
            END-READ 
+
            MOVE RPGINS-CMS TO INS-KEY
-           READ INSFILE INVALID
-            DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
-             FI-PRIM-ALFA "  " RPGINS-KEY " FOR CMS IS INVALID"
-             DISPLAY "FIX IT AND RESTART PROGRAM"
-             ACCEPT ANS
-             GO TO P99
+           READ INSFILE
+             INVALID
+               DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
+                   FI-PRIM-ALFA "  " RPGINS-KEY " FOR CMS IS INVALID"
+               DISPLAY "FIX IT AND RESTART PROGRAM"
+               ACCEPT ANS
+               GO TO P99
            END-READ 
+
            MOVE INS-KEY TO RPG-PRINS
            MOVE INS-CLAIMTYPE TO RPG-PAPER
            MOVE INS-ASSIGN TO RPG-PR-ASSIGN
@@ -717,81 +761,82 @@
 
            MOVE SPACE TO RPGINS-KEY
            MOVE FI-SEC-ALFA TO RPGINS-KEY
-           READ RPGINSFILE INVALID
-            DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
-                    FI-SEC-ALFA "  IS INVALID "
-             DISPLAY "FIX IT AND RESTART PROGRAM"
-             ACCEPT ANS
-             GO TO P99
+           READ RPGINSFILE
+             INVALID
+               DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
+                   FI-SEC-ALFA "  IS INVALID "
+               DISPLAY "FIX IT AND RESTART PROGRAM"
+               ACCEPT ANS
+               GO TO P99
            END-READ 
+
            MOVE RPGINS-CMS TO INS-KEY
-           READ INSFILE INVALID
-            DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
-             FI-SEC-ALFA "  " RPGINS-KEY " FOR CMS IS INVALID"
-             DISPLAY "FIX IT AND RESTART PROGRAM"
-             ACCEPT ANS
-             GO TO P99
+           READ INSFILE
+             INVALID
+               DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
+                   FI-SEC-ALFA "  " RPGINS-KEY " FOR CMS IS INVALID"
+               DISPLAY "FIX IT AND RESTART PROGRAM"
+               ACCEPT ANS
+               GO TO P99
            END-READ
+           
            MOVE INS-KEY TO RPG-SEINS
            MOVE INS-ASSIGN TO RPG-SE-ASSIGN
+           
            IF FI-PRIM-ALFA = "1" OR "26" OR "84" 
-             PERFORM OLD-1 THRU OLD-1-EXIT
+               PERFORM OLD-1 THRU OLD-1-EXIT
            END-IF.
                     
-
        P1-1.
            IF RPG-PRINS = "268"
               MOVE RPG-PRIPOL TO POLTEST
               IF (POLTEST1-1 = "R" AND POLTEST1-2 IS NUMERIC)
-               MOVE "006" TO RPG-PRINS RPG-PAYCODE
-               MOVE "E" TO RPG-PAPER
+                  MOVE "006" TO RPG-PRINS RPG-PAYCODE
+                  MOVE "E" TO RPG-PAPER
               END-IF
-           END-IF.
-           IF RPG-PRINS = "001"
-             MOVE SPACE TO RPG-PRNAME
-             MOVE "U" TO RPG-PR-ASSIGN
-             MOVE SPACE TO RPG-PR-RELATE
            END-IF
+
+           IF RPG-PRINS = "001"
+               MOVE SPACE TO RPG-PRNAME
+               MOVE "U" TO RPG-PR-ASSIGN
+               MOVE SPACE TO RPG-PR-RELATE
+           END-IF
+
            IF RPG-SEINS = "001"
-             MOVE SPACE TO RPG-SENAME
-             MOVE "U" TO RPG-SE-ASSIGN
-             MOVE SPACE TO RPG-SE-RELATE
-           END-IF.
+               MOVE SPACE TO RPG-SENAME
+               MOVE "U" TO RPG-SE-ASSIGN
+               MOVE SPACE TO RPG-SE-RELATE
+           END-IF
 
            MOVE RPGACTFILE01 TO SAVEMASTER
            READ RPGACTFILE 
-
              INVALID
-
-              MOVE SAVEMASTER TO RPGACTFILE01
-              WRITE RPGACTFILE01 
-              END-WRITE
-
+               MOVE SAVEMASTER TO RPGACTFILE01
+               WRITE RPGACTFILE01 
+               END-WRITE
              NOT INVALID
+               MOVE RPG-GARNO TO ALF8
+               MOVE SAVEMASTER TO RPGACTFILE01
+               MOVE ALF8 TO RPG-GARNO
+               REWRITE RPGACTFILE01
+               END-REWRITE
+           END-READ
 
-              MOVE RPG-GARNO TO ALF8
-              MOVE SAVEMASTER TO RPGACTFILE01
-              MOVE ALF8 TO RPG-GARNO
-
-              REWRITE RPGACTFILE01
-              END-REWRITE
-           END-READ.
-
-
-
-              MOVE RPGACTFILE01 TO NEWINS01
-                WRITE NEWINS01 INVALID
-                  REWRITE NEWINS01
-                  END-REWRITE
-                END-WRITE
+           MOVE RPGACTFILE01 TO NEWINS01
+           WRITE NEWINS01
+             INVALID
+               REWRITE NEWINS01
+               END-REWRITE
+           END-WRITE
 
            MOVE RPG-GARNAME TO RPG-NAME
            MOVE RPG-PRINS TO RPG-PAYCODE
            MOVE SPACE TO RPG-DATE-T TEST-DATE
            UNSTRING FI-DATE-T DELIMITED BY "/" INTO T-MM T-DD T-YYYY
+           
            IF T-YYYY(3:2) = SPACE
-              MOVE T-YYYY(1:2) TO T-YYYY(3:2)
-              MOVE "20" TO T-YYYY(1:2)
+               MOVE T-YYYY(1:2) TO T-YYYY(3:2)
+               MOVE "20" TO T-YYYY(1:2)
            END-IF
 
            MOVE SPACE TO RIGHT-2
@@ -806,10 +851,12 @@
            MOVE TEST-DATE TO RPG-DATE-T
 
            MOVE SPACE TO RPG-DAT1 TEST-DATE
+           
            IF T-YYYY(3:2) = SPACE
-              MOVE T-YYYY(1:2) TO T-YYYY(3:2)
-              MOVE "20" TO T-YYYY(1:2)
+               MOVE T-YYYY(1:2) TO T-YYYY(3:2)
+               MOVE "20" TO T-YYYY(1:2)
            END-IF
+           
            UNSTRING FI-DAT1 DELIMITED BY "/" INTO T-MM T-DD T-YYYY
            MOVE SPACE TO RIGHT-2
            UNSTRING T-MM DELIMITED BY " " INTO RIGHT-2
@@ -821,100 +868,116 @@
            INSPECT RIGHT-2 REPLACING ALL " " BY "0"
            MOVE RIGHT-2 TO T-DD
            MOVE TEST-DATE TO RPG-DAT1
+           
            IF RPG-DAT1 NOT NUMERIC
-           MOVE "00000000" TO RPG-DAT1.
+               MOVE "00000000" TO RPG-DAT1
+           END-IF
+
            MOVE FI-PROC TO ALF-7X
            MOVE "26" TO  ALF-7X2
            MOVE ALF-7X TO RPGPROC-KEY1
            MOVE SPACE TO RPGPROC-KEY2
-           READ RPGPROCFILE INVALID 
-           DISPLAY "BAD PROC " FI-PROC
-           MOVE SPACE TO FILEOUT201
-           STRING RPG-GARNAME " " FI-PROC " " FI-DATE-T " bad proc"
-           DELIMITED BY SIZE  INTO FILEOUT201
-           WRITE FILEOUT01
-           MOVE SPACE TO RPG-NT1
-           MOVE 0 TO RPGPROC-AMOUNT.
+           READ RPGPROCFILE
+             INVALID 
+               DISPLAY "BAD PROC " FI-PROC
+               MOVE SPACE TO FILEOUT201
+               STRING RPG-GARNAME " " FI-PROC " " FI-DATE-T " BAD PROC"
+               DELIMITED BY SIZE INTO FILEOUT201
+               WRITE FILEOUT01
+               MOVE SPACE TO RPG-NT1
+               MOVE 0 TO RPGPROC-AMOUNT
+           END-READ     
+           
            COMPUTE NUM6 = (100 * RPGPROC-AMOUNT)
            MOVE NUM6 TO RPG-AMOUNT
            MOVE RPG-NT1 TO RPG-PROC1
            MOVE ALF-7X TO RPG-PROC2
            MOVE "5" TO RPG-SERVICE.
+
        DIAG-XX.
            MOVE SPACES TO DIAG-ARRAY01
            MOVE FI-DX1 TO ALFATAB01
            PERFORM DIAG-1
+
            MOVE DIAGTAB01 TO DIAG-ARRAY(1)
            MOVE FI-DX2 TO ALFATAB01
            PERFORM DIAG-1
+
            MOVE DIAGTAB01 TO DIAG-ARRAY(2)
            MOVE FI-DX3 TO ALFATAB01
            PERFORM DIAG-1
+
            MOVE DIAGTAB01 TO DIAG-ARRAY(3)
            MOVE FI-DX4 TO ALFATAB01
            PERFORM DIAG-1
+
            MOVE DIAGTAB01 TO DIAG-ARRAY(4)
-           move 0 to cntr-x
-           PERFORM VARYING X FROM 1 BY 1 UNTIL X > 4
-              if rpg-date-t < "20151001"
-               move diag-array(x) to alf7
-               inspect alf7(1:5) replacing all " " by "0"
-               move "??" to alf7(6:2)
-               move alf7 to diag-array(x)
-              end-if
+           MOVE 0 TO CNTR-X
+           PERFORM VARYING X FROM 1 BY 1 UNTIL X > 4              
              MOVE DIAG-ARRAY(X) TO DIAG-KEY
              READ DIAGFILE
-              INVALID
-                MOVE "0000000" TO DIAG-ARRAY(X)
-              NOT INVALID
-              add 1 to cntr-x
-              if rpg-date-t < "20151001"
-                move diag-medb to diag-array(cntr-x)
-               else
-                MOVE DIAG-KEY TO DIAG-ARRAY(CNTR-X)
-              end-if
+               INVALID
+                 MOVE "0000000" TO DIAG-ARRAY(X)
+               NOT INVALID
+                 ADD 1 TO CNTR-X
+                 MOVE DIAG-KEY TO DIAG-ARRAY(CNTR-X)              
              END-READ
            END-PERFORM
 
-           add 1 to cntr-x giving cntr-y
-
+           ADD 1 TO CNTR-X GIVING CNTR-Y
+           
            PERFORM VARYING X FROM CNTR-Y BY 1 UNTIL X > 4
-           MOVE "0000000" TO DIAG-ARRAY(X)
+               MOVE "0000000" TO DIAG-ARRAY(X)
            END-PERFORM
 
            MOVE SPACE TO RPG-MOD2
-           MOVE 0 TO TALLYRIT tallylit tallyrt tallylt
-                     TALLYR TALLYL
+           MOVE 0 TO TALLYRIT TALLYLIT TALLYRT TALLYLT TALLYR TALLYL
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > CNTR-X
-            IF diag-array(X) not = "0000000"
-             move diag-array(X) to diag-key
-             read diagfile invalid continue
-              not invalid
-              INSPECT DIAG-Title TALLYING TALLYRIT FOR ALL " RIGHT "
-              INSPECT DIAG-Title TALLYING TALLYLIT FOR ALL " LEFT "
-              INSPECT DIAG-Title TALLYING TALLYRT FOR ALL " RT "
-              INSPECT DIAG-Title TALLYING TALLYLT FOR ALL " LT "
-              INSPECT DIAG-Title TALLYING TALLYR FOR ALL " R "
-              INSPECT DIAG-Title TALLYING TALLYL FOR ALL " L "
-
-              compute tallyx = tallyrit + tallylit + tallyrt + tallylt
-                                        + TALLYR + TALLYL
-              IF tallyx NOT = 0
-
-               IF TALLYRIT > 0 OR TALLYRT > 0 OR TALLYR > 0
-                   MOVE "RT" TO RPG-MOD2
-                 ELSE
-                   MOVE "LT" TO RPG-MOD2
+               IF DIAG-ARRAY(X) NOT = "0000000"
+                   MOVE DIAG-ARRAY(X) TO DIAG-KEY
+                   READ DIAGFILE
+                     INVALID
+                       CONTINUE
+                     NOT INVALID  
+                       INSPECT DIAG-TITLE TALLYING TALLYRIT
+                           FOR ALL " RIGHT "
+                       INSPECT DIAG-TITLE TALLYING TALLYLIT
+                           FOR ALL " LEFT "
+                       INSPECT DIAG-TITLE TALLYING TALLYRT
+                           FOR ALL " RT "
+                       INSPECT DIAG-TITLE TALLYING TALLYLT
+                           FOR ALL " LT "
+                       INSPECT DIAG-TITLE TALLYING TALLYR
+                           FOR ALL " R "
+                       INSPECT DIAG-TITLE TALLYING TALLYL
+                           FOR ALL " L "
+                       COMPUTE TALLYX = TALLYRIT +
+                                        TALLYLIT +
+                                        TALLYRT  +
+                                        TALLYLT  + 
+                                        TALLYR   +
+                                        TALLYL
+                       IF TALLYX NOT = 0
+                           IF TALLYRIT > 0 OR
+                              TALLYRT  > 0 OR
+                              TALLYR   > 0
+                               MOVE "RT" TO RPG-MOD2
+                           ELSE
+                               MOVE "LT" TO RPG-MOD2
+                           END-IF
+                       END-IF
+                   END-READ
                END-IF
-              END-IF
-             END-READ
-            END-IF
            END-PERFORM
-           IF ((RPG-DIAG > "79999" AND < "90000")
-                OR (RPG-DX2 > "79999" AND < "90000")
-                OR (RPG-DX3 > "79999" AND < "90000"))
-           AND (RPG-DAT1 = ZEROES)
-           MOVE RPG-DATE-T TO RPG-DAT1.
+           
+           IF ((RPG-DIAG > "79999" AND < "90000") OR
+               (RPG-DX2 > "79999" AND < "90000")  OR
+               (RPG-DX3 > "79999" AND < "90000")) AND
+               (RPG-DAT1 = ZEROES)
+               MOVE RPG-DATE-T TO RPG-DAT1
+           END-IF
+
+
            MOVE RPG-DOB TO RPG-GARNO.
            MOVE 0 TO REFFLAG FLAG.
            MOVE DIAG-ARRAY(1) TO RPG-DIAG
@@ -924,47 +987,60 @@
 
        4A-REF.
            MOVE FI-PROVNPI TO NPI-KEY
-           READ NPIFILE INVALID
-           DISPLAY FI-PATNAMEL " " FI-PATNAMEF " " FI-PROVNPI " BAD NPI"
-           ACCEPT OMITTED
-           WRITE FILEOUT201 FROM FILEIN01
-           GO TO P1
+           READ NPIFILE
+             INVALID
+               DISPLAY FI-PATNAMEL " " FI-PATNAMEF " " FI-PROVNPI
+                   " BAD NPI"
+               ACCEPT OMITTED
+               WRITE FILEOUT201 FROM FILEIN01
+               GO TO P1
            END-READ
+           
            MOVE NPI-REFKEY TO RPG-DOCR
            MOVE NPI-PLACE TO RPG-PLACE.
+
        P2.
-
-           IF RPG-PROC1 = "1402" MOVE "1405" TO RPG-PROC1.
-
-           IF RPG-PROC = "72110" MOVE SPACE TO RPG-MOD2.  
+           IF RPG-PROC1 = "1402"
+               MOVE "1405" TO RPG-PROC1
+           END-IF
+               
+           IF RPG-PROC = "72110"
+               MOVE SPACE TO RPG-MOD2
+           END-IF    
            
-           IF RPG-PROC = "72100" MOVE SPACE TO RPG-MOD2.  
+           IF RPG-PROC = "72100"
+               MOVE SPACE TO RPG-MOD2
+           END-IF    
 
            MOVE RPG-ACTNO TO RPG-KEY8
            MOVE 0 TO XYZ
            MOVE RPGCHARFILE01 TO SAVE-RPGCHARFILE.
+
        ADD-X.
            ADD 1 TO XYZ
            MOVE XYZ TO RPG-KEY3
-           READ RPGCHARFILE INVALID
-           MOVE SAVE-RPGCHARFILE TO RPGCHARFILE01
-           MOVE XYZ TO RPG-KEY3
-           WRITE RPGCHARFILE01
-           GO TO P1.
+           READ RPGCHARFILE
+             INVALID
+               MOVE SAVE-RPGCHARFILE TO RPGCHARFILE01
+               MOVE XYZ TO RPG-KEY3
+               WRITE RPGCHARFILE01
+               GO TO P1
+           END-READ
+
            GO TO ADD-X.
 
-
-
        OLD-1.
-            IF FI-PRIM-ALFA = "1" AND FI-PRIM-NAME = SPACE
-              MOVE "001" TO RPG-PRINS RPG-SEINS RPG-PAYCODE
-              MOVE "U" TO RPG-PR-ASSIGN RPG-ASSIGN RPG-NEIC-ASSIGN
-              MOVE SPACE TO RPG-PRNAME RPG-PR-RELATE
-              MOVE SPACE TO RPG-SENAME RPG-SE-RELATE RPG-SE-RELATE
-            GO TO OLD-1-EXIT
-            END-IF
-            DISPLAY FI-PRIM-NAME(1:20) " " FI-PRIM-STR1(1:20)
-            " " FI-PRIM-CITY " " FI-PRIM-STATE " " FI-PRIM-ZIP
+           IF FI-PRIM-ALFA = "1" AND 
+              FI-PRIM-NAME = SPACE
+               MOVE "001" TO RPG-PRINS RPG-SEINS RPG-PAYCODE
+               MOVE "U" TO RPG-PR-ASSIGN RPG-ASSIGN RPG-NEIC-ASSIGN
+               MOVE SPACE TO RPG-PRNAME RPG-PR-RELATE
+               MOVE SPACE TO RPG-SENAME RPG-SE-RELATE RPG-SE-RELATE
+               GO TO OLD-1-EXIT
+           END-IF
+           
+           DISPLAY FI-PRIM-NAME(1:20) " " FI-PRIM-STR1(1:20)
+               " " FI-PRIM-CITY " " FI-PRIM-STATE " " FI-PRIM-ZIP
 
            MOVE 0 TO CNTR ENDFLAG
            DISPLAY "BEGIN A SEARCH BY:"
@@ -973,27 +1049,33 @@
            DISPLAY "                  3 = STATE"
            DISPLAY "                  9 = ADD A NEW CODE"
            ACCEPT ALF1.
+           
            IF ALF1 = "9"
-             MOVE 1 TO NUM4
-             PERFORM ADD-1 THRU ADD-1-EXIT
-             GO TO OLD-1-EXIT
+               MOVE 1 TO NUM4
+               PERFORM ADD-1 THRU ADD-1-EXIT
+               GO TO OLD-1-EXIT
            END-IF
+           
            IF ALF1 = "1"
-              DISPLAY "ENTER A NAME"
-              ACCEPT RPGINS-TITLE
-              START RPGINSFILE KEY NOT < RPGINS-TITLE
-                     INVALID GO TO OLD-1
-              END-START
-            GO TO RPGINS-2
+               DISPLAY "ENTER A NAME"
+               ACCEPT RPGINS-TITLE
+               START RPGINSFILE KEY NOT < RPGINS-TITLE
+                 INVALID
+                   GO TO OLD-1
+               END-START
+               GO TO RPGINS-2
            END-IF
+
            IF ALF1 = "2"
-              DISPLAY "ENTER A CITY"
-              ACCEPT RPGINS-CITY
-              START RPGINSFILE KEY NOT < RPGINS-CITY
-                     INVALID GO TO OLD-1
-              END-START
-            GO TO RPGINS-2
-           END-IF.
+               DISPLAY "ENTER A CITY"
+               ACCEPT RPGINS-CITY
+               START RPGINSFILE KEY NOT < RPGINS-CITY
+                 INVALID
+                   GO TO OLD-1
+               END-START
+               GO TO RPGINS-2
+           END-IF
+
            IF ALF1 = "3"
               DISPLAY "ENTER A STATE"
               ACCEPT RPGINS-STATE
@@ -1001,22 +1083,29 @@
                      INVALID GO TO OLD-1
               END-START
             GO TO RPGINS-2
-           END-IF.
+           END-IF
+           
            DISPLAY "BAD SELECTION CATEGORY"
            GO TO OLD-1.
+
        RPGINS-2.
-           READ RPGINSFILE NEXT AT END
-              MOVE 1 TO ENDFLAG
-              GO TO RPGINS-2-1
-           END-READ.
+           READ RPGINSFILE NEXT
+             AT END
+               MOVE 1 TO ENDFLAG
+               GO TO RPGINS-2-1
+           END-READ
+
            ADD 1 TO CNTR
            MOVE RPGINS-KEY TO INSTAB(CNTR)
            MOVE RPGINS-CMS TO INSCMS(CNTR)
            DISPLAY CNTR " " RPGINS-TITLE(1:20) " " RPGINS-BOX(1:20)
-           " " RPGINS-CITY " " RPGINS-STATE FI-PRIM-ZIP
-           IF CNTR < 9 AND ENDFLAG NOT = 1
-                      GO TO RPGINS-2
+               " " RPGINS-CITY " " RPGINS-STATE FI-PRIM-ZIP
+               
+           IF CNTR < 9 AND
+              ENDFLAG NOT = 1
+               GO TO RPGINS-2
            END-IF.
+
        RPGINS-2-1.
             MOVE 0 TO CNTR
             DISPLAY " "
@@ -1128,8 +1217,11 @@
            MOVE "0" TO RPG-STAT
            MOVE "0" TO RPG-COLLECT
            MOVE SPACE TO RPG-ACC-TYPE
+
            IF FI-PRIM-ALFA = "26" MOVE "2" TO RPG-ACC-TYPE.
+
            IF FI-PRIM-ALFA = "84" MOVE "1" TO RPG-ACC-TYPE.
+
            MOVE SPACE TO RPG-FUTURE
            MOVE SPACE TO RPG-PATID RPG-CLAIM
            MOVE ZEROES TO RPG-DAT1 RPG-DATE-A RPG-DATE-M
@@ -1210,7 +1302,9 @@
            MOVE "CITY    " TO ALF-8
            START INSFILE KEY NOT < INS-CITY INVALID 
            GO TO INS-1-END.
-       INS-4. READ INSFILE NEXT AT END DISPLAY "END OF FILE"
+
+       INS-4.
+           READ INSFILE NEXT AT END DISPLAY "END OF FILE"
            GO TO INS-1-EXIT.
            DISPLAY INS-KEY " " INS-NAME " " INS-STREET 
            " " INS-CITY " " INS-STATE " " INS-CLAIMTYPE 
@@ -1218,11 +1312,15 @@
            IF X > 8 MOVE 0 TO X DISPLAY "BY " ALF-8 ACCEPT ANS
            IF ANS NOT = SPACE GO TO INS-1-EXIT.
            GO TO INS-4.
-       INS-1-END. DISPLAY "END OF FILE".
-       INS-1-EXIT. EXIT.
+
+       INS-1-END.
+           DISPLAY "END OF FILE".
+
+       INS-1-EXIT.
+           EXIT.
 
        P99.
            CLOSE NEWINS RPGACTFILE RPGCHARFILE RPGPROCFILE RPGINSFILE
-           REFPHY INSFILE FILEOUT FILEOUT2 NPIFILE.
+               REFPHY INSFILE FILEOUT FILEOUT2 NPIFILE DIAGFILE.
            DISPLAY "RPG XRAY DATA ENTRY PROGRAM HAS ENDED".
            STOP RUN.

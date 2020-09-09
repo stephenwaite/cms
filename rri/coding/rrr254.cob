@@ -10,6 +10,7 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT CHARFILE ASSIGN TO   "S30" ORGANIZATION IS INDEXED
                ACCESS MODE IS SEQUENTIAL RECORD KEY IS CHARFILE-KEY.
 
@@ -19,10 +20,11 @@
 
            SELECT FILEOUT ASSIGN TO    "S40" ORGANIZATION IS 
                LINE SEQUENTIAL.
+
        DATA DIVISION.
        FILE SECTION.
+
        FD  CHARFILE
-           BLOCK CONTAINS 4 RECORDS
            DATA RECORD IS CHARFILE01.
        01  CHARFILE01.
            02 CHARFILE-KEY.
@@ -68,8 +70,8 @@
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(30).
+
        FD  CHARFILEBK
-           BLOCK CONTAINS 4 RECORDS
            DATA RECORD IS CHARFILEBK01.
        01  CHARFILEBK01.
            02 CHARFILEBK-KEY.
@@ -116,25 +118,34 @@
            02 CD-FUTURE PIC X(6).
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).   
+
        WORKING-STORAGE SECTION.
+
        01  CONSTANTS.
            02 AMT PIC S9999999V99 VALUE 0.
            02 NEF-11 PIC ZZ,ZZZ,ZZ9.99CR.
+
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN INPUT CHARFILE
            OPEN I-O CHARFILEBK
            OPEN OUTPUT FILEOUT.
+
        P1.
-           READ CHARFILE AT END
+           READ CHARFILE
+             AT END
                GO TO P2
            END-READ
 
-           ADD CD-AMOUNT OF CHARFILE01 TO AMT.
+           ADD CD-AMOUNT OF CHARFILE01 TO AMT
            MOVE CORR CHARFILE01 TO CHARFILEBK01
            MOVE SPACE TO CD-FUTURE
            MOVE CHARFILE-KEY TO CHARFILEBK-KEY
+      
       *    PET scans need mod Q0 and Z006 as 2nd DX?
+      *    is this for all CPT 78815 and 78816?
+
            IF (CD-PROC0 OF CHARFILEBK01 = "4080" OR "4082" OR "4087")
                MOVE "Q0" TO CD-MOD2 OF CHARFILEBK01
                MOVE "Z006   " TO CD-DX2 OF CHARFILEBK01

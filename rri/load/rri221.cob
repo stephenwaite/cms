@@ -4,25 +4,28 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI221.
+       PROGRAM-ID. rri221.
        AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
 
-           SELECT ORDFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC        RECORD KEY IS ORDNO
+           SELECT ORDFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC    
+           RECORD KEY IS ORDNO
            ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
        
            SELECT FILE-IN ASSIGN TO "S35" ORGANIZATION LINE
            SEQUENTIAL.
        
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  FILE-IN.
        01  FI-1 PIC X(11).
+
        FD ORDFILE
-           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS ORDFILE01.
        01 ORDFILE01.
            02 ORDNO.
@@ -39,10 +42,13 @@
            02 C-ADMIT-DIAG PIC X(30).
            02 C-DATE-E PIC X(8).
            02 C-CPT PIC X(5).
+       
        PROCEDURE DIVISION.
+       
        P0.
            OPEN I-O ORDFILE
            OPEN INPUT FILE-IN.
+       
        P1. 
            READ FILE-IN
              AT END
@@ -62,6 +68,7 @@
            END-DELETE
 
            GO TO P1.
+       
        P2. 
            CLOSE ORDFILE FILE-IN.
            STOP RUN.
