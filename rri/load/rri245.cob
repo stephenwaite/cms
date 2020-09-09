@@ -10,8 +10,9 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
 
-           SELECT ACTFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC        RECORD KEY IS A-ACTNO
+           SELECT ACTFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC
+           RECORD KEY IS A-ACTNO
            ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
            ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
        
@@ -49,7 +50,8 @@
        01 PROCFILE01.
            02 PROC-KEY.
              03 PROC-KEY1 PIC X(4).
-             03 PROC-KEY2 PIC X(7).
+             03 PROC-KEY2 PIC X(5).
+             03 PROC-KEY3 PIC X(2).
            02 PROC-TYPE PIC X.
            02 PROC-TITLE. 
               03 PROC-TI PIC X(6).
@@ -57,7 +59,6 @@
            02 PROC-AMOUNT PIC 9(4)V99.
        
        FD  REFPHY
-           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS REFPHY01.
        01  REFPHY01.
            02 REF-KEY PIC XXX.
@@ -69,7 +70,6 @@
            02 REF-NPI PIC X(10).
        
        FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS GARFILE01.
        01 GARFILE01.
            02 G-GARNO PIC X(8).
@@ -122,13 +122,13 @@
            02 SERVDATE PIC X(8).
        
        FD ORDFILE
-           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS ORDFILE01.
        01 ORDFILE01.
            02 ORDNO.
              03 ORD8 PIC X(8).
              03 ORD3 PIC XXX.
-           02 A-CHARGE PIC X(5).
+           02 C-PROC PIC X(4).
+           02 C-IND PIC X.
            02 C-REF PIC XXX.
            02 C-IOPAT PIC X.
            02 C-DATE-A PIC X(8).
@@ -137,12 +137,14 @@
            02 C-ORDER PIC XXXX.
            02 C-CLINICAL PIC X(38).
            02 C-DOCP PIC XX.
-           02 C-ADMIT-DIAG PIC X(30).
+           02 C-ADMIT-DIAG PIC X(24).
+           02 C-MOD2 PIC X(2).
+           02 C-MOD3 PIC X(2).
+           02 C-MOD4 PIC X(2).           
            02 C-DATE-E PIC X(8).
            02 C-CPT PIC X(5).
        
        FD ACTFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS ACTFILE01.
        01 ACTFILE01.
            02 A-ACTNO PIC X(8).
@@ -221,21 +223,24 @@
        01  DATE-TAB01.
              02 DATE-TAB PIC 9(8) OCCURS 90 TIMES.
              02 CHARGE-TAB PIC X(5) OCCURS 90 TIMES.
+             02 MOD-TAB PIC X(2) OCCURS 90 TIMES.
        01  X PIC 99.
        01  Y PIC 99.
        01  Z PIC 99.
        01  T PIC 99.
        01  A PIC 99.
        01  ALF4 PIC X(4).
+
        01  STATE-TABLE-CONSTANT.
            05  FILLER   PIC X(26) VALUE "AKALARAZCACNCOCTDCDEFLGAHI".
            05  FILLER   PIC X(24) VALUE "IAIDILINKSKYLAMAMDMEMIMN".
            05  FILLER   PIC X(24) VALUE "MOMSMTNCNDNENHNJNMNVNYOH".
            05  FILLER   PIC X(24) VALUE "OKORPAPRRISCSDTNTXUTVAVT".
            05  FILLER   PIC X(8)  VALUE "WAWIWVWY".
+
        01  STATE-TABLE REDEFINES STATE-TABLE-CONSTANT.
            05  STATE-2  PIC XX OCCURS 53 TIMES ASCENDING KEY STATE-2
-           INDEXED BY S-2.
+               INDEXED BY S-2.
 
        01  ALFTEST14.
            02 ALFTEST14-3 PIC XXX.
@@ -271,6 +276,7 @@
                WRITE ERROR-FILE01
                GO TO P8
            END-IF.
+
        P12-1. 
            MOVE A-ACTNO TO ORD8
            MOVE SPACE TO ORD3
@@ -281,9 +287,10 @@
            END-START    
            
            MOVE 0 TO X.
+
        P13.
-           READ ORDFILE
-             NEXT AT END 
+           READ ORDFILE NEXT
+             AT END 
                GO TO P15
            END-READ
 
@@ -314,52 +321,47 @@
                MOVE "NOT READ" TO ER-4
                MOVE C-DATE-T TO ER-0
                WRITE ERROR-FILE01
-           END-IF.    
+           END-IF.  
+
        P13-1.
-           MOVE A-CHARGE(1:4) TO PROC-KEY1 ALF4
+           MOVE C-PROC TO PROC-KEY1 ALF4
            MOVE 0 TO TITLE-FLAG
-           MOVE SPACE TO PROC-KEY2
-           
-           START PROCFILE KEY NOT < PROC-KEY
-             INVALID 
-               GO TO P14
-           END-START.    
+           MOVE C-CPT TO PROC-KEY2
+           MOVE "26" TO PROC-KEY3.
+                        
        P13-2.
-           READ PROCFILE NEXT
-             AT END
-               GO TO P14
+           READ PROCFILE 
+             INVALID
+               MOVE "  " TO PROC-KEY3
+               READ PROCFILE
+                 INVALID
+                   GO TO BAD-1
+               END-READ                   
            END-READ    
 
-           IF PROC-KEY1 NOT = ALF4
-               GO TO P14
-           END-IF    
-
-           IF PROC-AMOUNT = 0
-               GO TO P13-2
+           IF PROC-AMOUNT = 0 AND
+              C-CPT(1:1) NOT = "G"
+               GO TO P13
            END-IF
-           
-           IF PROC-KEY2(1:5) NOT = C-CPT
-               GO TO P13-2
-           END-IF    
-
+                      
            MOVE 1 TO TITLE-FLAG
            
-           IF PROC-KEY1 = ALF4
-               ADD 1 TO X
-               MOVE C-DATE-T TO DATE-TAB(X)
-               MOVE A-CHARGE TO CHARGE-TAB(X)
-           END-IF
-
+           ADD 1 TO X
+           MOVE C-DATE-T TO DATE-TAB(X)
+           MOVE C-PROC TO CHARGE-TAB(X)
+           MOVE C-MOD2 TO MOD-TAB(X)
            GO TO P13.
+
        P14. 
            IF TITLE-FLAG = 0
                MOVE SPACE TO ER-3 
-               STRING "BAD CHARGE / "A-CHARGE  DELIMITED
-               BY "???" INTO ER-3
+               STRING "BAD CHARGE / " C-PROC " " C-IND
+                   DELIMITED BY "???" INTO ER-3
                MOVE ORD3 TO ER-4
                WRITE ERROR-FILE01
                GO TO P13
-           END-IF.    
+           END-IF. 
+
        P15.
            IF X = 0 OR 1 
                GO TO P8
@@ -375,23 +377,32 @@
                ADD 1 TO Z GIVING A 
                PERFORM C2 VARYING T FROM A BY 1 UNTIL T > X
            END-IF.        
+
        C2.
-           IF (DATE-TAB(Z) = DATE-TAB(T)) AND 
-               (CHARGE-TAB(Z) = CHARGE-TAB(T)) AND
-               (DATE-TAB(T) NOT = 0)
+           IF (DATE-TAB(Z)   = DATE-TAB(T)) AND 
+              (CHARGE-TAB(Z) = CHARGE-TAB(T)) AND
+              (MOD-TAB(Z)    = MOD-TAB(T)) AND
+              (DATE-TAB(T) NOT = 0)
                MOVE "SAME CHARGES?" TO ER-3
                STRING CHARGE-TAB(Z) "/" DATE-TAB(Z) DELIMITED BY "ZZ"
                INTO ER-4 
                WRITE ERROR-FILE01
                MOVE 0 TO DATE-TAB(T)
            END-IF.    
+
+       BAD-1.
+           MOVE SPACE TO ERROR-FILE01.    
+
+           STRING "UNDEFINED PROCEDURE FOR " ORD8 " " C-PROC 
+                  " " C-CPT " We should ask RRMC for the cpt/hcpcs."
+           DELIMITED BY SIZE INTO ERROR-FILE01
+
+           WRITE ERROR-FILE01.
+           
+           GO TO P13.           
+
        P20.
-           CLOSE ERROR-FILE
-           CLOSE GARFILE
-           CLOSE REFPHY
-           CLOSE ACTFILE
-           CLOSE ORDFILE
-           CLOSE PROCFILE.
-           CLOSE WORK245.
+           CLOSE ERROR-FILE GARFILE REFPHY ACTFILE ORDFILE PROCFILE
+                 WORK245.
            STOP RUN.
 

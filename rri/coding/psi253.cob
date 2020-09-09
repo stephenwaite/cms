@@ -9,16 +9,18 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
                ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
                LOCK MODE MANUAL.
 
            SELECT FILEOUT ASSIGN TO  "S35" ORGANIZATION
                LINE SEQUENTIAL.
+
        DATA DIVISION.
        FILE SECTION.
+
        FD  CHARFILE
-      *    BLOCK CONTAINS 2 RECORDS
            DATA RECORD IS CHARFILE01.
        01  CHARFILE01.
            02 CHARFILE-KEY.
@@ -65,38 +67,81 @@
            02 CD-DX5 PIC X(7).
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
+
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(189).    
+       01  FILEOUT01 PIC X(189). 
+
        WORKING-STORAGE SECTION.
        01  HOLDIT PIC X(8).
+       01  ANS PIC X.
       *
        PROCEDURE DIVISION.
        P0.
            OPEN I-O CHARFILE
            OPEN OUTPUT FILEOUT.
            MOVE SPACE TO CHARFILE-KEY.
+
        P1. 
-           READ CHARFILE NEXT AT END
+           READ CHARFILE NEXT
+             AT END
                GO TO P99
            END-READ
 
            IF (CD-PROC0 = "4081" OR "4082" OR "4086" OR "4087"
                OR "4090" OR "1030")
-               MOVE "PI" TO CD-MOD2
-               REWRITE CHARFILE01
-               WRITE FILEOUT01 FROM CHARFILE01
-               GO TO P1
+               
+               IF CD-MOD2 NOT = SPACE
+                   MOVE "PI" TO CD-MOD2
+                   GO TO P2               
+               END-IF
+
+               IF CD-MOD3 NOT = SPACE
+                   MOVE "PI" TO CD-MOD3
+                   GO TO P2               
+               END-IF
+
+               IF CD-MOD4 NOT = SPACE
+                   MOVE "PI" TO CD-MOD4
+                   GO TO P2               
+               END-IF
+               
+               DISPLAY "NO MODS LEFT FOR PI MODIFIER FOR " 
+                        CHARFILE-KEY " " CD-PROC
+               ACCEPT ANS
+              
            END-IF.
 
            IF (CD-PROC0 = "4079" OR "4080" OR "4088" OR "4089"
                OR "4091" OR "4092" OR "4093")
-               MOVE "PS" TO CD-MOD2
-               REWRITE CHARFILE01
-               WRITE FILEOUT01 FROM CHARFILE01
-               GO TO P1
+
+               IF CD-MOD2 NOT = SPACE 
+                   MOVE "PS" TO CD-MOD2
+                   GO TO P2
+               END-IF
+
+               IF CD-MOD3 NOT = SPACE
+                   MOVE "PS" TO CD-MOD3
+                   GO TO P2               
+               END-IF
+
+               IF CD-MOD4 NOT = SPACE
+                   MOVE "PS" TO CD-MOD4
+                   GO TO P2               
+               END-IF
+               
+               DISPLAY "NO MODS LEFT FOR PS MODIFIER FOR " 
+                        CHARFILE-KEY " " CD-PROC
+               ACCEPT ANS               
+
            END-IF
 
            GO TO P1.
+
+       P2.
+           REWRITE CHARFILE01
+           WRITE FILEOUT01 FROM CHARFILE01
+           GO TO P1.
+
        P99.
            CLOSE CHARFILE FILEOUT. 
            STOP RUN.

@@ -178,7 +178,7 @@
            02 C-DOCP PIC XX.
            02 C-ADMIT-DIAG PIC X(24).
       * took 6 from above to create mods     
-           02 C-MODS PIC X(6)
+           02 C-MODS PIC X(6).
            02 C-DATE-E PIC X(8).
            02 C-CPT PIC X(5).
 
@@ -272,7 +272,7 @@
            02 R1-GARCITY PIC X(25).
            02 R1-GARSTATE PIC XX.
            02 R1-GARZIP PIC X(10).
-           02 r1-EMAIL PIC X(30).
+           02 R1-EMAIL PIC X(30).
            02 R1-IP1 PIC X(5).
            02 R1-ID1 PIC X(30).
            02 R1-CERT11 PIC X(20).
@@ -655,9 +655,11 @@
            OPEN I-O ACTFILE EMAILAUTHFILE ORDFILE COMPFILE.
            OPEN INPUT HOSPFILE REFPHY INSFILE FILEIN MOBLFILE.
            OPEN OUTPUT FILEOUT ERRFILE.
+
        10-ACTION.
            DISPLAY "REPORT DATE, MMDDYYYY".
            ACCEPT IN-FIELD-8.
+
            IF IN-FIELD-8 NOT NUMERIC 
                DISPLAY "NOT NUMERIC"
                GO TO 10-ACTION
@@ -680,88 +682,117 @@
            ACCEPT DATE-TODAY FROM CENTURY-DATE.
 
            PERFORM INIT-1.
+
        P1.
            READ FILEIN AT END
                GO TO 9100CMF
-           END-READ.    
+           END-READ.  
+
        P1-1.
            IF FI-1 NOT = "##"
+               DISPLAY "FIRST RECORD NOT A ## ? " FILEIN01
+               ACCEPT OMITTED
                GO TO P1
            END-IF
 
            MOVE FILEIN01 TO REC101.
-           READ FILEIN AT END DISPLAY "BAD ENDING" ACCEPT OMITTED
-           GO TO 9100CMF.
-           IF FI-1 = "##" OR "$$" DISPLAY "BAD GUAR REC." 
-           DISPLAY FILEIN01 ACCEPT OMITTED
-           GO TO 9100CMF.
+           READ FILEIN
+             AT END
+               DISPLAY "BAD ENDING"
+               ACCEPT OMITTED
+               GO TO 9100CMF
+           END-READ
+
+           IF FI-1 = "##" OR "$$"
+               DISPLAY "BAD GUAR REC." 
+               DISPLAY FILEIN01
+               ACCEPT OMITTED
+               GO TO 9100CMF
+           END-IF
+
            MOVE FILEIN01 TO REC201.
 
-
-      *     DISPLAY R1-PATNAME
-      *     display r2-phone " r2-phone"
-      *
-      *     displAy R2-DOC " R2-DOC"
-      *     displAy R2-REFIND " R2-REFIND"
-      *     displAy R2-NPI  " R2-NPI"
-      *     displAy R2-ADMIT-DATE-DUPLICATE "R2-ADMIT-DATE-DUPLICATE"
-      *     displAy R2-PATSEX " R2-PAYSEX"
-      *     displAy R2-PATDOB " R2-PATDOB"
-      *     displAy R2-DISCHARGE " R2-DISCHARGE"
-
-
-      *    ACCEPT OMITTED
            MOVE R2-MEDREC1 TO X-MEDREC1
            MOVE R2-MEDREC2 TO X-MEDREC2
            MOVE R2-MEDREC3 TO X-MEDREC3
            MOVE X-MEDREC TO R2-MEDREC
 
            MOVE SPACE TO A-GARNAME LNAME FNAME
-           UNSTRING R1-PATNAME DELIMITED BY ", "
-            INTO LNAME FNAME
+           UNSTRING R1-PATNAME DELIMITED BY ", " INTO LNAME FNAME
            STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-GARNAME
+           
            IF R2-MEDREC = "00000000"
-           MOVE R1-PATNUM TO R2-MEDREC
-           DISPLAY R1-PATNAME " MED-REC".
+               MOVE R1-PATNUM TO R2-MEDREC
+               DISPLAY R1-PATNAME " MED-REC"
+           END-IF
+
            MOVE R1-GARZIP TO ZIPCODE
+           
            IF ZIPCODE-6 = "-"
-           MOVE SPACE TO ZIPCODE-6 ZIPCODE-7-10.
+               MOVE SPACE TO ZIPCODE-6 ZIPCODE-7-10
+           END-IF
+
            MOVE ZIPCODE TO A-ZIP.
-            IF R1-GARSTATE NOT = SPACE
-           MOVE R1-GARCITY TO A-CITY MOVE R1-GARSTATE TO A-STATE
-           GO TO Q1.
+           
+           IF R1-GARSTATE NOT = SPACE
+               MOVE R1-GARCITY TO A-CITY
+               MOVE R1-GARSTATE TO A-STATE
+               GO TO Q1
+           END-IF
+
            MOVE SPACE TO CITY1 CITY2 CITY3 CITY4
            UNSTRING R1-GARCITY DELIMITED BY " " INTO CITY1
-           CITY2 CITY3 CITY4.
+               CITY2 CITY3 CITY4.
+           
            IF (CITY2 = SPACE) AND (CITY3 = SPACE) AND (CITY4 = SPACE)
-           MOVE "VT" TO A-STATE MOVE CITY1 TO A-CITY GO TO Q1.
-           IF CITY4 NOT = SPACE MOVE CITY4 TO A-STATE
-           STRING CITY1 "%" CITY2 "%" CITY3 DELIMITED BY " " INTO
-           A-CITY INSPECT A-CITY REPLACING ALL "%" BY " " GO TO Q1.
-           IF CITY3 NOT = SPACE MOVE CITY3 TO A-STATE
-           STRING CITY1 "%" CITY2 DELIMITED BY " " INTO A-CITY
-           INSPECT A-CITY REPLACING ALL "%" BY " " GO TO Q1.
-           MOVE CITY1 TO A-CITY MOVE CITY2 TO A-STATE.
+               MOVE "VT" TO A-STATE
+               MOVE CITY1 TO A-CITY
+               GO TO Q1
+           END-IF
+
+           IF CITY4 NOT = SPACE
+               MOVE CITY4 TO A-STATE
+               STRING CITY1 "%" CITY2 "%" CITY3 DELIMITED BY " " INTO
+                   A-CITY
+               INSPECT A-CITY REPLACING ALL "%" BY " "
+               GO TO Q1
+           END-IF
+
+           IF CITY3 NOT = SPACE
+               MOVE CITY3 TO A-STATE
+               STRING CITY1 "%" CITY2 DELIMITED BY " " INTO A-CITY
+               INSPECT A-CITY REPLACING ALL "%" BY " "
+               GO TO Q1
+           END-IF
+
+           MOVE CITY1 TO A-CITY
+           MOVE CITY2 TO A-STATE.
+
        Q1.
-           IF A-STATE = "T " MOVE "VT" TO A-STATE
-           MOVE SPACE TO CITY1 CITY2
-           UNSTRING A-CITY DELIMITED BY " VT " INTO CITY1 CITY2
-           MOVE CITY1 TO A-CITY.
+           IF A-STATE = "T "
+               MOVE "VT" TO A-STATE
+               MOVE SPACE TO CITY1 CITY2
+               UNSTRING A-CITY DELIMITED BY " VT " INTO CITY1 CITY2
+               MOVE CITY1 TO A-CITY
+           END-IF
+
            MOVE R2-PHONE1 TO A-PHONE1
            MOVE R2-PHONE2 TO A-PHONE2
            MOVE R2-PHONE3 TO A-PHONE3
            MOVE R1-GARADDR1 TO A-BILLADD
            MOVE R1-GARADDR2 TO A-STREET
-           IF R1-GARADDR1 = SPACE
-            AND R1-GARADDR2 = SPACE
-            AND A-CITY = SPACE
+           
+           IF R1-GARADDR1 = SPACE AND
+              R1-GARADDR2 = SPACE AND
+              A-CITY = SPACE
 
-            MOVE R1-PATADDR1 TO A-BILLADD
-            MOVE R1-PATADDR2 TO A-STREET
-            MOVE R1-PATCITY TO  A-CITY
-            MOVE R1-PATSTATE TO A-STATE
-            MOVE R1-PATZIP TO A-ZIP
+               MOVE R1-PATADDR1 TO A-BILLADD
+               MOVE R1-PATADDR2 TO A-STREET
+               MOVE R1-PATCITY TO A-CITY
+               MOVE R1-PATSTATE TO A-STATE
+               MOVE R1-PATZIP TO A-ZIP
            END-IF
+
            INSPECT A-BILLADD REPLACING ALL "*" BY " "
            INSPECT A-STREET REPLACING ALL "*" BY " "
            MOVE "00000000" TO A-DOB
@@ -769,26 +800,30 @@
            MOVE R2-DOBYY TO TYY
            MOVE R2-DOBMM TO TMM
            MOVE R2-DOBDD TO TDD
+           
            IF DATE-TODAY < TDATE
-           MOVE "19" TO TCC.
+               MOVE "19" TO TCC
+           END-IF
+
            MOVE TDATE TO A-DOB
-      *     MOVE "5" TO IOPAT
-      *     IF R1-IO = "A" OR "B" OR "GYN" OR "I" OR "J"
-      *     OR "K" OR "L" OR "M" OR "MAT" OR "FMED" OR "MPED"
-      *     OR "N" OR "MBOH" OR "NEW" OR "P" OR "PSY" OR "FORT"
-      *     OR "REHB" OR "S" OR "SORT" OR "SPOR" OR "SPSU"
-      *     OR "SUR" OR "T" OR "W" MOVE "3" TO IOPAT.
-      *     IF R1-IO = "ED" OR "EDFT" OR "MED" MOVE "E" TO IOPAT.
            MOVE SPACE TO C-DATE-A
            STRING "20" R2-ACCYY R2-ACCMM R2-ACCDD DELIMITED BY "!@#"
-           INTO C-DATE-A.
-           IF C-DATE-A = "20      " MOVE "00000000" TO C-DATE-A.
-           IF DATE-TODAY < C-DATE-A
-           STRING "19" R2-ACCYY R2-ACCMM R2-ACCDD DELIMITED BY "!@#"
-           INTO C-DATE-A.
+               INTO C-DATE-A.
+           
+           IF C-DATE-A = "20      "
+               MOVE "00000000" TO C-DATE-A
+           END-IF
 
-           IF C-DATE-A NOT NUMERIC DISPLAY C-DATE-A  " BAD DATE"
-           MOVE "00000000" TO C-DATE-A.
+           IF DATE-TODAY < C-DATE-A
+               STRING "19" R2-ACCYY R2-ACCMM R2-ACCDD DELIMITED BY "!@#"
+               INTO C-DATE-A
+           END-IF
+               
+           IF C-DATE-A NOT NUMERIC
+               DISPLAY C-DATE-A  " BAD DATE"
+              MOVE "00000000" TO C-DATE-A
+           END-IF
+              
            MOVE SPACE TO A-GARNO.
 
            PERFORM NPI-METHOD THRU NPI-EXIT.
@@ -826,11 +861,17 @@
                GO TO REF-2
            END-READ
 
-           IF REF-NPI = SPACE GO TO 4B-REF.
+           IF REF-NPI = SPACE
+               GO TO 4B-REF
+           END-IF    
            
-           IF REF-NAME(1:1) > REF-KEY(1:1) GO TO REF-2.
+           IF REF-NAME(1:1) > REF-KEY(1:1)
+               GO TO REF-2
+           END-IF    
            
-           IF REF-NAME(1:4) NOT = ALF4 GO TO 4B-REF.
+           IF REF-NAME(1:4) NOT = ALF4
+               GO TO 4B-REF
+           END-IF    
            
            ADD 1 TO Y
            MOVE R2-DOC TO NUMKEYTAB(Y)
@@ -840,12 +881,11 @@
 
        REF-2.
            IF Y = 0 GO TO P2-0.
+
        REF-3.
            PERFORM REF-PICK VARYING X FROM 1 BY 1 UNTIL X > Y.
            DISPLAY R2-REFDOC " " R2-DOC
-
            ACCEPT ALF-3
-
            MOVE ALF-3 TO REF-KEY
            READ REFPHY
              INVALID
@@ -1396,7 +1436,7 @@
            IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V")
                MOVE SPACE TO ERRFILE01
                STRING "ADDING V TO 002 POLICY FOR " A-GARNAME " "
-                   A-ACTNO " " A-PRIPOL DELIMITED BY SIZE INTO ERRFILE01
+                   R1-PATNUM " " A-PRIPOL DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
                MOVE SPACE TO ALF-BCBSVT
                STRING ALF-16-1 "V" DELIMITED BY SIZE INTO ALF-BCBSVT-1
@@ -1645,19 +1685,21 @@
            MOVE R2-DIAG TO C-ADMIT-DIAG
            MOVE R3-CPT TO C-CPT
            STRING R3-MOD1 R3-MOD2 R3-MOD3 DELIMITED BY SIZE 
-               INTO C3-MODS
+               INTO C-MODS
 
       *  new format which has hcpcs and a mod
-      *  but no place in ordfile to store mod?
-      *  maybe take a few chars from c-admit-diag?
              
-           IF R3-CPT = SPACE
-               MOVE SPACE TO ERRFILE01
-               STRING A-GARNAME " HAD NO CPT BUT HAD HCPCS " R3-HCPCS
+           IF R3-CPT = SPACE            
+               MOVE R3-HCPCS TO C-CPT           
+               IF R3-HCPCS = SPACE
+                   MOVE SPACE TO ERRFILE01
+                   STRING A-GARNAME " HAD NO CPT " R3-CPT
+                        " AND NO HCPCS TO BILL WITH " R3-HCPCS 
+                        ". Call somebody."
                    DELIMITED BY SIZE INTO ERRFILE01
-               WRITE ERRFILE01
-           
-               MOVE R3-HCPCS TO C-CPT
+                   WRITE ERRFILE01
+                   GO TO B1
+               END-IF    
            END-IF
 
            MOVE "001" TO ORD3

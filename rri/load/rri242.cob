@@ -4,24 +4,30 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI242.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rri242.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT ACTFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC        RECORD KEY IS A-ACTNO
            ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
            ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
+
            SELECT FILEIN ASSIGN TO "S35"ORGANIZATION 
            LINE SEQUENTIAL.
+
            SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION LINE
            SEQUENTIAL.
+
        DATA DIVISION.
        FILE SECTION.
+
        FD  FILEIN.
        01  FILEIN01 PIC X(8).
+
        FD  FILEOUT.
        01  FILEOUT01.
            02 FO-1 PIC X(9).
@@ -29,8 +35,8 @@
            02 FO-3 PIC X(15).
            02 FO-4 PIC X(13).
            02 FO-5 PIC X(16).
+
        FD ACTFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS ACTFILE01.
        01 ACTFILE01.
            02 A-ACTNO PIC X(8).
@@ -84,15 +90,25 @@
            02 A-PRGRPNAME PIC X(15).
            02 A-SEGRPNAME PIC X(15).
            02 NAME-KEY PIC XXX.
+
        WORKING-STORAGE SECTION.
        01  X PIC 99.
        01  ALF7 PIC X(7).
        01 ALF3 PIC XXX.
+
        PROCEDURE DIVISION.
+
        0005-START.
-           OPEN I-O   ACTFILE INPUT FILEIN OUTPUT FILEOUT.
+           OPEN I-O ACTFILE
+           OPEN INPUT FILEIN
+           OUTPUT FILEOUT.
+
        P1.
-           READ FILEIN AT END GO TO P2.
+           READ FILEIN
+             AT END
+               GO TO P2
+           END-READ
+
            MOVE FILEIN01 TO A-ACTNO
            READ ACTFILE INVALID DISPLAY FILEIN01 " BAD ACTNO"
            GO TO P1.
@@ -239,7 +255,9 @@
            MOVE "A" TO A-SE-ASSIGN
            PERFORM A1 GO TO P1.
            GO TO P1.
-       A1. MOVE SPACE TO A-PR-GROUP
+
+       A1. 
+           MOVE SPACE TO A-PR-GROUP
            MOVE ALF7 TO A-PR-GROUP
            MOVE A-ACTNO TO FO-1
            MOVE ALF3    TO FO-2
@@ -250,5 +268,5 @@
            REWRITE ACTFILE01.
 
        P2.
-           CLOSE ACTFILE.
+           CLOSE ACTFILE FILEIN FILEOUT.
            STOP RUN.

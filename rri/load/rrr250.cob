@@ -10,38 +10,49 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT ACTFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
              ACCESS MODE IS RANDOM RECORD KEY IS A-ACTNO
              ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
              ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES
              LOCK MODE MANUAL.
+
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
              ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
              ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
              LOCK MODE MANUAL.
       *       STATUS IS GAR-STAT.
+
            SELECT ORDFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
              ACCESS MODE IS DYNAMIC RECORD KEY IS ORDNO
              ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES
              LOCK MODE MANUAL.
+
            SELECT PROCFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
              ACCESS MODE IS DYNAMIC  RECORD KEY IS PROC-KEY
              LOCK MODE MANUAL.
+
            SELECT CHARFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
              ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
              LOCK MODE MANUAL.
+
            SELECT CLAIMFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
              ACCESS IS DYNAMIC  RECORD KEY IS CLAIM-KEY
              STATUS IS CLM-STAT
              LOCK MODE MANUAL.
+
            SELECT ORD-DELETES ASSIGN TO "S60" ORGANIZATION IS LINE
              SEQUENTIAL.
+
            SELECT NEW-GARNOS ASSIGN TO "S70" ORGANIZATION IS LINE
              SEQUENTIAL.
+
            SELECT WORK249 ASSIGN TO "S75" ORGANIZATION LINE
              SEQUENTIAL.
+
            SELECT FILEIN ASSIGN TO "S80" ORGANIZATION LINE
              SEQUENTIAL.
+
            SELECT INSFILE ASSIGN TO "S85" ORGANIZATION IS INDEXED
              ACCESS IS DYNAMIC  RECORD KEY IS INS-KEY
              ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
@@ -51,14 +62,11 @@
              ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
              ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
              LOCK MODE MANUAL.
-           SELECT CIGPROCFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
-             ACCESS MODE IS DYNAMIC  RECORD KEY IS CIGPROC-KEY
-             LOCK MODE MANUAL.
-
+          
        DATA DIVISION.
        FILE SECTION.
+
        FD  INSFILE
-     *     BLOCK CONTAINS 6 RECORDS
            DATA RECORD IS INSFILE01.
        01  INSFILE01.
            02 INS-KEY PIC XXX.
@@ -81,8 +89,8 @@
            02 INS-CAID PIC XXX.
            02 INS-REFWARN PIC X.
            02 INS-FUTURE PIC X(8).
+
        FD  CHARFILE
-           BLOCK CONTAINS 2 RECORDS
            DATA RECORD IS CHARFILE01.
        01  CHARFILE01.
            02 CHARFILE-KEY.
@@ -127,8 +135,8 @@
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(30).
+
        FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS GARFILE01.
        01 GARFILE01.
            02 G-GARNO.
@@ -178,8 +186,8 @@
            02 G-ACCT PIC X(8).
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
+
        FD ACTFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS ACTFILE01.
        01 ACTFILE01.
            02 A-ACTNO PIC X(8).
@@ -237,41 +245,39 @@
            02 A-PRGRPNAME PIC X(15).
            02 A-SEGRPNAME PIC X(15).
            02 NAME-KEY PIC XXX.
+
        FD  FILEIN.
        01 FILEIN01 PIC X(8).
+
        FD  WORK249.
        01 WORK24901 PIC X(8).
+       
        FD NEW-GARNOS.
        01 NEW-GARNOS01.
            02 NEW-GARNOS2 PIC X(8).
            02 NEW-GARNOS1 PIC X(8).
+
        FD  ORD-DELETES.
        01 ORD-DELETES01 PIC X(11).
+
        FD  CLAIMFILE
            DATA RECORD IS CLAIM01.
        01  CLAIM01.
            02 CLAIM-KEY PIC X.
            02 CLAIMNO PIC 9(6).
+
        FD PROCFILE
            DATA RECORD PROCFILE01.
        01 PROCFILE01.
            02 PROC-KEY.
              03 PK1 PIC X(4).
-             03 PK2 PIC X(7).
+             03 PK2 PIC X(5).
+             03 PK3 PIC XX.
            02 PROC-TYPE PIC X.
            02 PROC-TITLE PIC X(28).
            02 PROC-AMOUNT PIC 9(4)V99.
-       FD CIGPROCFILE
-           DATA RECORD CIGPROCFILE01.
-       01 CIGPROCFILE01.
-           02 CIGPROC-KEY.
-             03 CIGPK1 PIC X(4).
-             03 CIGPK2 PIC X(7).
-           02 CIGPROC-TYPE PIC X.
-           02 CIGPROC-TITLE PIC X(28).
-           02 CIGPROC-AMOUNT PIC 9(4)V99.
+     
        FD ORDFILE
-           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS ORDFILE01.
        01 ORDFILE01.
            02 ORDNO.
@@ -287,13 +293,17 @@
            02 C-ORDER PIC XXXX.
            02 C-CLINICAL PIC X(38).
            02 C-DOCP PIC XX.
-           02 C-ADMIT-DIAG PIC X(30).
+           02 C-ADMIT-DIAG PIC X(24).
+           02 C-MOD2 PIC XX.
+           02 C-MOD3 PIC XX.
+           02 C-MOD4 PIC XX.           
            02 C-DATE-E PIC X(8).
            02 C-CPT PIC X(5).
+
        WORKING-STORAGE SECTION.
        01  ANS PIC X.
        01  GAR-STAT PIC XX.
-       01 CLM-STAT PIC XX.
+       01  CLM-STAT PIC XX.
        01  CHARBACK PIC X(258).
        01  INPUT-DATE-S.      
            05 T-MM  PIC 99.
@@ -354,57 +364,79 @@
 
       *
        PROCEDURE DIVISION.
+
        0005-START.
-           OPEN INPUT ACTFILE ORDFILE PROCFILE WORK249 FILEIN
-           INSFILE CIGPROCFILE.
+           OPEN INPUT ACTFILE ORDFILE PROCFILE WORK249 FILEIN INSFILE.
            OPEN I-O GARFILE CHARFILE CLAIMFILE.
            OPEN OUTPUT ORD-DELETES NEW-GARNOS.
-           MOVE "A" TO CLAIM-KEY READ CLAIMFILE WITH LOCK INVALID
-           DISPLAY "CLAIMFILE IS BAD. THIS PROG. IS TERMINATED"
-           GO TO P11.
-           IF CLM-STAT = "61" DISPLAY "CLAIMFILE IS BEING WRITTEN"
-           DISPLAY "TRY 250 RUN WHEN CLAIMFILE IS FREE" GO TO P11.
-           READ FILEIN AT END DISPLAY "NO HIGH DATE RECORD."
-           GO TO P11.
-       P1. 
-           READ WORK249 AT END GO TO P11.
-           IF WORK24901 NOT NUMERIC 
-           DISPLAY WORK24901 "  NON-NUMERIC ACCOUNT"
-           ACCEPT X-ACCTSTAT
-           GO TO P1.
-           MOVE WORK24901 TO A-ACTNO
-           READ ACTFILE INVALID DISPLAY "BAD ACCT " A-ACTNO
-           ACCEPT X-ACCTSTAT
-           GO TO P1.
-           IF A-PRINS = "456"
-           DISPLAY A-GARNAME "  CANADA"
-           ACCEPT X-ACCTSTAT
-           GO TO P1.
-           IF (A-GARNO = SPACE) GO TO P2.
-           MOVE A-GARNO TO G-GARNO.
-       P1-0.
-           READ GARFILE WITH LOCK INVALID
-            DISPLAY A-GARNO " " A-ACTNO
-            DISPLAY "A NEW ACCOUNT IS CREATED"
-            GO TO P2.
-           IF
-              (A-PRINS = "004" AND A-PRIPOL NUMERIC)
-             AND
-              (G-PRINS = "004" AND G-PRIPOL(1:9) NOT NUMERIC)
-            MOVE G-PRIPOL TO A-PRIPOL0
+           MOVE "A" TO CLAIM-KEY
+           READ CLAIMFILE WITH LOCK
+             INVALID
+               DISPLAY "CLAIMFILE IS BAD. THIS PROG. IS TERMINATED"
+               GO TO P11
+           END-READ
+
+           IF CLM-STAT = "61"
+               DISPLAY "CLAIMFILE IS BEING WRITTEN"
+               DISPLAY "TRY 250 RUN WHEN CLAIMFILE IS FREE"
+               GO TO P11
            END-IF
 
-           IF
-              (A-SEINS = "004" AND A-SECPOL NUMERIC)
-             AND
-              (G-SEINS = "004" AND G-SECPOL(1:9) NOT NUMERIC)
-            MOVE G-SECPOL TO A-SECPOL0
+           READ FILEIN
+             AT END
+               DISPLAY "NO HIGH DATE RECORD."
+               GO TO P11
+           END-READ.
+
+       P1. 
+           READ WORK249
+             AT END
+               GO TO P11
+           END-READ
+
+           IF WORK24901 NOT NUMERIC 
+               DISPLAY WORK24901 " NON-NUMERIC ACCOUNT"
+               ACCEPT X-ACCTSTAT
+               GO TO P1
            END-IF
+
+           MOVE WORK24901 TO A-ACTNO
+           READ ACTFILE
+             INVALID
+               DISPLAY "BAD ACCT " A-ACTNO
+               ACCEPT X-ACCTSTAT
+               GO TO P1
+           END-READ
+
+           IF A-PRINS = "456"
+               DISPLAY A-GARNAME " CANADA"
+               ACCEPT X-ACCTSTAT
+               GO TO P1
+           END-IF
+
+           IF (A-GARNO = SPACE)
+               GO TO P2
+           END-IF
+
+           MOVE A-GARNO TO G-GARNO.
+
+       P1-0.
+       
+           READ GARFILE WITH LOCK
+             INVALID
+               DISPLAY A-GARNO " " A-ACTNO
+               DISPLAY "A NEW ACCOUNT IS CREATED"
+               GO TO P2
+           END-READ           
 
            IF G-DUNNING NOT = "1"
-             DISPLAY G-GARNO " " G-GARNAME " NEW ACCOUNT STARTED"
-              GO TO P2.
+               DISPLAY G-GARNO " " G-GARNAME " NEW ACCOUNT STARTED"
+                   " SINCE GARNO WAS IN COLLECTION"
+               GO TO P2
+           END-IF
+
            GO TO REWRITE-NEW.
+
        P2. 
            MOVE ACTFILE01 TO GARFILE01
            MOVE A-ACTNO TO G-ACCT
@@ -412,10 +444,15 @@
            MOVE YD2 TO G-PRIVATE.
            MOVE G-GARNAME TO NAME-CYCLE.
            MOVE "4" TO G-BILLCYCLE.
+
            IF NC1 = "1" MOVE NC2 TO NC1.
+           
            IF NC1 < "T" MOVE "3" TO G-BILLCYCLE.
+           
            IF NC1 < "K" MOVE "2" TO G-BILLCYCLE.
+           
            IF NC1 < "F" MOVE "1" TO G-BILLCYCLE.
+
        P3.
            MOVE SPACE TO G-GARNO.
            MOVE GARFILE01 TO GARBACK
@@ -423,48 +460,70 @@
            MOVE G-GN1 TO ID1.
            MOVE 0 TO XYZ.
            MOVE "G" TO ID4.
+
        P4.
            ADD 1 TO XYZ.
-           MOVE XYZ  TO ID3.
+           MOVE XYZ TO ID3.
            MOVE G-GARNO TO HOLD-GARNO.
-           READ GARFILE INVALID KEY GO TO P5.
-           IF XYZ = 9 ADD 1 TO NUM-3
-           MOVE NUM-3 TO ID2 MOVE 0 TO XYZ. GO TO P4.
+           READ GARFILE
+             INVALID KEY 
+               GO TO P5
+           END-READ
+
+           IF XYZ = 9 
+               ADD 1 TO NUM-3
+               MOVE NUM-3 TO ID2
+               MOVE 0 TO XYZ
+           END-IF
+           
+           GO TO P4.
+
        P5.
            MOVE GARBACK TO GARFILE01.
+           
            IF G-PRINS = "003" AND G-SEINS = "076"
-           MOVE "662" TO G-SEINS
-           MOVE "A" TO G-SE-ASSIGN.
+               MOVE "662" TO G-SEINS
+               MOVE "A" TO G-SE-ASSIGN
+           END-IF
+           
            MOVE HOLD-GARNO TO A-GARNO.
            IF (G-PRINS = "003" AND G-SEINS = "715")
-           MOVE "062" TO G-SEINS
-           MOVE "A" TO G-SE-ASSIGN
-           MOVE SPACE TO G-PR-GROUP
-           MOVE "0099001" TO G-PR-GROUP.
+               MOVE "062" TO G-SEINS
+               MOVE "A" TO G-SE-ASSIGN
+               MOVE SPACE TO G-PR-GROUP
+               MOVE "0099001" TO G-PR-GROUP
+           END-IF
+
            MOVE "1" TO G-DELETE
-           IF (G-PRINS = "003")
-             AND (G-SEINS = "108" OR "116")
-           MOVE SPACE TO G-PR-GROUP
-           MOVE "0000567" TO G-PR-GROUP
-           MOVE "062" TO G-SEINS.
-            MOVE SPACE TO LNAME FNAME MNAME
+           IF (G-PRINS = "003") AND (G-SEINS = "108" OR "116")
+               MOVE SPACE TO G-PR-GROUP
+               MOVE "0000567" TO G-PR-GROUP
+               MOVE "062" TO G-SEINS
+           END-IF
+
+           MOVE SPACE TO LNAME FNAME MNAME
                LNAME2 FNAME2 MNAME2
-            UNSTRING G-GARNAME DELIMITED BY ";" INTO
-              LNAME FNAME MNAME
-            UNSTRING G-PRNAME DELIMITED BY ";" INTO
-              LNAME2 FNAME2 MNAME2
-            IF LNAME = LNAME2
-             AND FNAME = FNAME2
-             AND G-RELATE NOT = G-PR-RELATE
-             MOVE G-GARNAME TO G-PRNAME
-             MOVE G-RELATE TO G-PR-RELATE
-            END-IF.
+           UNSTRING G-GARNAME DELIMITED BY ";" INTO
+               LNAME FNAME MNAME
+           UNSTRING G-PRNAME DELIMITED BY ";" INTO
+               LNAME2 FNAME2 MNAME2
+
+           IF LNAME = LNAME2
+               AND FNAME = FNAME2
+               AND G-RELATE NOT = G-PR-RELATE
+               MOVE G-GARNAME TO G-PRNAME
+               MOVE G-RELATE TO G-PR-RELATE
+           END-IF
+           
            INSPECT G-STREET REPLACING ALL ":" BY " ".
            INSPECT G-BILLADD REPLACING ALL ":" BY " ".
-           WRITE GARFILE01 INVALID
-           DISPLAY "NO UPDATE " G-GARNO
-           ACCEPT CD-DX3
-           GO TO P1.
+           WRITE GARFILE01
+             INVALID
+               DISPLAY "NO UPDATE " G-GARNO
+               ACCEPT CD-DX3
+               GO TO P1
+           END-WRITE
+
       *     IF GAR-STAT = "61" GO TO P4.
            MOVE HOLD-GARNO TO NEW-GARNOS2
            MOVE A-ACTNO TO NEW-GARNOS1 
@@ -479,12 +538,18 @@
 
        P5-0.
            MOVE G-PRINS TO INS-KEY
-           READ INSFILE INVALID DISPLAY G-GARNO " " G-PRINS
-           " " G-GARNAME "  HAS AN INVALID PRIMARY INSURANCE"
-           DISPLAY " FIX IT FOR NEXT 250 RUN!" GO TO P1.
+           READ INSFILE
+             INVALID
+               DISPLAY G-GARNO " " G-PRINS " " G-GARNAME 
+                   "  HAS AN INVALID PRIMARY INSURANCE"
+               DISPLAY " FIX IT FOR NEXT 250 RUN!"
+               GO TO P1
+           END-READ
+
            MOVE G-GARNO TO CD-PATID
            MOVE "0000000" TO CD-DIAG CD-DX2 CD-DX3 CD-DX4
            MOVE SPACE TO CD-MOD2 CD-MOD3 CD-MOD4 CD-DX5 CD-DX6
+           
            MOVE G-PRINS TO CD-PAYCODE
            MOVE "0" TO CD-STAT
            MOVE "01" TO CD-WORK
@@ -500,18 +565,35 @@
            MOVE INS-CLAIMTYPE TO CD-PAPER
            MOVE INS-ASSIGN TO CD-ASSIGN
            MOVE INS-NEIC-ASSIGN TO CD-NEIC-ASSIGN.
+
        P6. 
            MOVE A-ACTNO TO ORD8  
            MOVE "   " TO ORD3.
-           START ORDFILE KEY NOT < ORDNO INVALID GO TO P1.
+           
+           START ORDFILE KEY NOT < ORDNO
+             INVALID
+               GO TO P1
+           END-START
+
            MOVE G-GARNAME TO CD-NAME
            MOVE 0 TO XXX
            MOVE G-GARNO TO CD-KEY8 
            MOVE "000" TO CD-KEY3.
+
        P7. 
-           READ ORDFILE NEXT AT END GO TO P1.
-           IF ORD8 NOT = A-ACTNO GO TO P1.
-           IF CHARGE2 = "-" GO TO P7.
+           READ ORDFILE NEXT
+             AT END
+               GO TO P1
+           END-READ
+
+           IF ORD8 NOT = A-ACTNO
+               GO TO P1
+           END-IF
+
+           IF CHARGE2 = "-"
+               GO TO P7
+           END-IF
+
            MOVE C-DOCP TO CD-DOCP
            MOVE C-REF TO CD-DOCR
            MOVE C-DATE-A TO CD-DAT1.
@@ -523,53 +605,59 @@
            ACCEPT CD-DATE-E FROM CENTURY-DATE.
 
            MOVE CHARGE1 TO PK1
-           MOVE SPACE TO PK2.
-           START PROCFILE KEY NOT < PROC-KEY INVALID
-           DISPLAY "BAD PROC " A-ACTNO " " CHARGE1
-           GO TO P7.
-           MOVE 0 TO FLAGPROC.
-       P8. READ PROCFILE NEXT AT END GO TO P8-EXIT.
-           IF PK1 NOT = CHARGE1 GO TO P8-EXIT.
-           IF PROC-AMOUNT = 0 GO TO P8.
-           IF PK2(1:5) NOT = C-CPT GO TO P8.
-           MOVE 1 TO FLAGPROC
-           MOVE PROC-KEY TO CD-PROC
+           MOVE C-CPT TO PK2
+           MOVE "26" TO PK3.
            
-           MOVE SPACE TO CD-MOD2
+       P8. 
+           READ PROCFILE 
+            INVALID
+               MOVE "  " TO PK3
+               READ PROCFILE
+                 INVALID
+                   GO TO P8-EXIT
+               END-READ    
+           END-READ
 
+           MOVE PROC-KEY TO CD-PROC           
+           MOVE C-MOD2 TO CD-MOD2
+           MOVE C-MOD3 TO CD-MOD3
+           MOVE C-MOD4 TO CD-MOD4
            MOVE PROC-AMOUNT TO CD-AMOUNT
            MOVE PROC-TYPE TO CD-SERVICE
-           ACCEPT CD-ORDER FROM TIME.
+           ACCEPT CD-ORDER FROM TIME
+
            ADD 1 TO CLAIMNO 
            MOVE CLAIMNO TO CD-CLAIM
            MOVE CHARFILE01 TO CHARBACK.
+
        P9.
            ADD 1 TO XXX 
-           MOVE XXX TO CD-KEY3.
-           READ CHARFILE INVALID GO TO P10.
+           MOVE XXX TO CD-KEY3
+           READ CHARFILE
+             INVALID
+               GO TO P10
+           END-READ
+
            GO TO P9.
+
        P10.
            MOVE CHARBACK TO CHARFILE01
            MOVE XXX TO CD-KEY3.
-           MOVE SPACE TO CD-MOD2
            MOVE "01" TO CD-WORK
            WRITE CHARFILE01. 
            WRITE ORD-DELETES01 FROM ORDNO
            GO TO P8.
        
        P8-EXIT.
-           IF FLAGPROC = 0
-             DISPLAY CD-NAME
-             DISPLAY C-CPT
-             DISPLAY CD-DATE-T
-             DISPLAY "NON MATCHING CPT BETWEEN HOSPRRI AND PROCFILE"
-             DISPLAY "FOR HOSP CODE " PK1 "." 
-             DISPLAY "THIS RECORD WILL BE DISCARDED"
-             DISPLAY "BUT MUST BE CORRECTED IN HOSPRRI AND USED"
-             DISPLAY "NOTIFY STEPHEN IMMEDIATELY FOR WHAT TO DO,"
-             DISPLAY "UNLESS IT IS A9552 WHICH IS OK TO DISCARD."
-             ACCEPT OMITTED
-           END-IF
+           DISPLAY CD-NAME
+           DISPLAY C-CPT
+           DISPLAY CD-DATE-T
+           DISPLAY "NON MATCHING CPT BETWEEN HOSPRRI AND PROCFILE"
+           DISPLAY "FOR HOSP CODE " PK1 "." 
+           DISPLAY "THIS RECORD WILL BE DISCARDED"
+           DISPLAY "BUT MUST BE CORRECTED IN HOSPRRI AND USED"
+           DISPLAY "NOTIFY STEPHEN IMMEDIATELY FOR WHAT TO DO,"
+           ACCEPT OMITTED
            GO TO P7.
 
        REWRITE-NEW. 
@@ -589,35 +677,49 @@
            MOVE X-LASTBILL TO G-LASTBILL
            MOVE X-BILLCYCLE TO G-BILLCYCLE
            MOVE "1" TO G-DELETE
+
            IF NOT (G-BILLCYCLE = "1" OR "2" OR "3" OR "4")
                MOVE "1" TO G-BILLCYCLE
            END-IF    
+           
            IF (G-PRINS = "003") AND (G-SEINS = "108" OR "116")
                MOVE SPACE TO G-PR-GROUP
                MOVE "0000567" TO G-PR-GROUP
                MOVE "062" TO G-SEINS
            END-IF    
+           
            MOVE SPACE TO LNAME FNAME MNAME LNAME2 FNAME2 MNAME2
            UNSTRING G-GARNAME DELIMITED BY ";" INTO LNAME FNAME MNAME
            UNSTRING G-PRNAME DELIMITED BY ";" INTO LNAME2 FNAME2 MNAME2
+           
            IF (LNAME = LNAME2 AND FNAME = FNAME2
                AND G-RELATE NOT = G-PR-RELATE)
                MOVE G-GARNAME TO G-PRNAME
                MOVE G-RELATE TO G-PR-RELATE
            END-IF
+           
            INSPECT G-BILLADD REPLACING ALL ":" BY " ".
            INSPECT G-STREET REPLACING ALL ":" BY " ".
-           REWRITE GARFILE01 INVALID 
+
+           REWRITE GARFILE01
+             INVALID 
                DISPLAY "NO REWRITE ON " G-GARNO
                DISPLAY "ACCOUNT IS SKIPPED UNTIL NEXT 250 RUN"
                ACCEPT ANS
                GO TO P1
            END-REWRITE    
+
            GO TO P5-0.
+
        P11.
            REWRITE CLAIM01.
-           IF CLM-STAT = "61" DISPLAY CLAIM01 GO TO P11.
-           CLOSE CHARFILE GARFILE CLAIMFILE ORD-DELETES NEW-GARNOS
-           PROCFILE INSFILE CIGPROCFILE.
+           
+           IF CLM-STAT = "61" 
+               DISPLAY CLAIM01
+               GO TO P11
+           END-IF    
+           
+           CLOSE ACTFILE ORDFILE PROCFILE WORK249 FILEIN INSFILE
+               GARFILE CHARFILE CLAIMFILE ORD-DELETES NEW-GARNOS.
            DISPLAY "POSTING PROGRAM HAS ENDED".
            STOP RUN.

@@ -4,31 +4,38 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI222.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rri222.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT ACTFILE ASSIGN TO "S30"     ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC        RECORD KEY IS A-ACTNO
+
+           SELECT ACTFILE ASSIGN TO  "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC 
+           RECORD KEY IS A-ACTNO
            ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
            ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES.
+
            SELECT FILE-OUT ASSIGN TO "S35" ORGANIZATION LINE
            SEQUENTIAL.
-           SELECT ORDFILE ASSIGN TO "S40"     ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC        RECORD KEY IS ORDNO
+
+           SELECT ORDFILE ASSIGN TO  "S40" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC
+           RECORD KEY IS ORDNO
            ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
+
        DATA DIVISION.
+
        FILE SECTION.
+
        FD ORDFILE
-           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS ORDFILE01.
        01 ORDFILE01.
            02 ORDNO.
              03 ORD8 PIC X(8).
              03 ORD3 PIC XXX.
            02 C-CHARGE1 PIC X(4).
-          02 C-CHARGE2 PIC X.
+           02 C-CHARGE2 PIC X.
            02 C-REF PIC XXX.
            02 C-IOPAT PIC X.
            02 C-DATE-A PIC X(8).
@@ -39,8 +46,8 @@
            02 C-ADMIT-DIAG PIC X(30).
            02 C-DATE-E PIC X(8).
            02 C-CPT PIC X(5).
+
        FD ACTFILE
-           BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS ACTFILE01.
        01 ACTFILE01.
            02 A-ACTNO PIC X(8).
@@ -96,10 +103,13 @@
            02 A-PRGRPNAME PIC X(15).
            02 A-SEGRPNAME PIC X(15).
            02 NAME-KEY PIC XXX.
+
        FD FILE-OUT
            DATA RECORD IS FILE-OUT01.
        01  FILE-OUT01 PIC X(133).
+
        WORKING-STORAGE SECTION.
+
        01 ORD-TAB01.
            02 ORD-TAB02 OCCURS 300 TIMES.
              03 ORD PIC 9(4).
@@ -107,6 +117,7 @@
              03 CHARGE2 PIC X.
              03 DATE-T PIC 9(8).
              03 ORD-KEY PIC 999.
+
        01  LINE-1.
            02 L1F0 PIC X(8).
            02 L1F1 PIC XXX.
@@ -122,6 +133,7 @@
            02 L1F5 PIC X(24).
            02 FILLER PIC X VALUE SPACE.
            02 L1F6 PIC X(24).
+
        01  A PIC 999.
        01  X PIC 999.
        01  T PIC 999.
@@ -129,27 +141,44 @@
        01 Z PIC 999.
        01  NUM4 PIC 9(4).
        01  FLAG PIC 9.
+
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT ORDFILE ACTFILE OUTPUT FILE-OUT.
+           OPEN INPUT ORDFILE ACTFILE
+           OPEN OUTPUT FILE-OUT
            MOVE SPACE TO ORDNO
-           START ORDFILE KEY > ORDNO INVALID GO TO P4.
+           START ORDFILE KEY > ORDNO
+             INVALID
+               GO TO P4
+           END-START.
+
        P1. 
-           READ ORDFILE NEXT AT END GO TO P4.
+           READ ORDFILE NEXT
+             AT END
+               GO TO P4
+           END-READ.
+
        P1-1.
            MOVE ORD8 TO A-ACTNO
-           READ ACTFILE INVALID
-            DISPLAY A-ACTNO " NOT ON FILE???"
-            GO TO P1
+           READ ACTFILE
+             INVALID
+               DISPLAY A-ACTNO " NOT ON FILE???"
+               GO TO P1
            END-READ.
-           MOVE 0 TO X GO TO P2-1.
+
+           MOVE 0 TO X
+           GO TO P2-1.
+
        P2.
-           READ ORDFILE NEXT AT END 
+           READ ORDFILE NEXT
+             AT END 
                GO TO P4
            END-READ    
+           
            IF ORD8 NOT = A-ACTNO
                GO TO P3
            END-IF.    
+
        P2-1.
            ADD 1 TO X 
            MOVE C-ORDER TO ORD(X)
@@ -158,27 +187,34 @@
            MOVE C-CHARGE2 TO CHARGE2(X)
            MOVE ORD3 TO ORD-KEY(X)
            GO TO P2.
+           
        P3.
            MOVE 0 TO FLAG
            PERFORM A1 THRU A1-EXIT 
                VARYING Y FROM 1 BY 1 UNTIL Y > X
            END-PERFORM.    
+           
        P3-1.
            GO TO P1-1.
+
        A1.
            IF (CHARGE2(Y) = "-") AND (DATE-T(Y) NOT = 0)
                PERFORM A2 VARYING T FROM 1 BY 1 UNTIL T > X
            ELSE 
                GO TO A1-EXIT
            END-IF    
-           IF FLAG = 0 PERFORM A3.
-           IF FLAG = 1 PERFORM A4 MOVE 0 TO FLAG.
+           
+           IF FLAG = 0 
+               PERFORM A3
+           END-IF    
+           
+           IF FLAG = 1 
+               PERFORM A4
+               MOVE 0 TO FLAG
+           END-IF.
+
        A1-EXIT.
            EXIT.
-      * I CHANGED BACK TO "NOT <" IN RECORD 182
-      * I THINK THIS PROGRAM IS DOING ECACTLY WHAT YOU WANT
-      * I AM GOING WITH MARY TO PICK UP A QUILT
-      * BE BACK IN 1 HR
 
        A2.
            IF (CHARGE1(Y) = CHARGE1(T))
@@ -187,14 +223,18 @@
                MOVE 1 TO FLAG
                MOVE T TO Z
            END-IF.    
+
        A3.
-           MOVE A-ACTNO TO L1F0 MOVE "000" TO L1F1
+           MOVE A-ACTNO TO L1F0
+           MOVE "000" TO L1F1
            MOVE ORD(Y) TO L1F2
-           MOVE CHARGE1(Y) TO L1F31 MOVE CHARGE2(Y) TO L1F32
+           MOVE CHARGE1(Y) TO L1F31
+           MOVE CHARGE2(Y) TO L1F32
            MOVE DATE-T(Y) TO L1F4
            MOVE A-GARNAME TO L1F5
            MOVE "*** DANGLING CREDIT ***" TO L1F6
            WRITE FILE-OUT01 FROM LINE-1.
+
        A4.
            MOVE SPACE TO L1F6
            MOVE A-ACTNO TO L1F0 
@@ -205,6 +245,7 @@
            MOVE DATE-T(Z) TO L1F4
            MOVE A-GARNAME TO L1F5
            WRITE FILE-OUT01 FROM LINE-1
+           
            MOVE A-ACTNO TO L1F0
            MOVE ORD-KEY(Y) TO L1F1
            MOVE ORD(Y) TO L1F2
@@ -213,7 +254,9 @@
            MOVE DATE-T(Y) TO L1F4
            MOVE A-GARNAME TO L1F5
            WRITE FILE-OUT01 FROM LINE-1
+           
            MOVE 0 TO DATE-T(Y) DATE-T(Z).
+
        P4.
            PERFORM P3
            CLOSE FILE-OUT ORDFILE ACTFILE.

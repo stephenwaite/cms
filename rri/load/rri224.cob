@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI224.
+       PROGRAM-ID. rri224.
        AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -20,7 +20,9 @@
                SEQUENTIAL.
        
        DATA DIVISION.
+
        FILE SECTION.
+
        FD ORDFILE
            DATA RECORD IS ORDFILE01.
        01 ORDFILE01.
@@ -39,6 +41,7 @@
            02 C-ADMIT-DIAG PIC X(30).
            02 C-DATE-E PIC X(8).
            02 C-CPT PIC X(5).
+
        FD ORDFILEBK
            DATA RECORD IS ORDFILEBK01.
        01 ORDFILEBK01.
@@ -57,8 +60,11 @@
            02 C-ADMIT-DIAGBK PIC X(30).
            02 C-DATEBK-E PIC X(8).
            02 C-CPTBK PIC X(5).
+
        WORKING-STORAGE SECTION.
+
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN INPUT ORDFILE
            OPEN OUTPUT ORDFILEBK.
@@ -75,8 +81,8 @@
                GO TO P2
            END-READ
     
-           IF CHARGE1 = "1131" OR "1321" OR "1838" OR
-           "1911" OR "1950" OR "1951" OR "1956" OR "1958" OR "1959"
+           IF CHARGE1 = "1131" OR "1321" OR "1838"
+           OR "1911" OR "1950" OR "1951" OR "1956" OR "1958" OR "1959"
            OR "1985"  OR "4052" OR "0700" OR "0502" OR "0518" 
            OR "1408" OR "1853"  OR "1400" OR "1401" OR "0901"
            OR "0531" OR "0532" OR "0533" OR "0534" OR "0544" OR "8818"

@@ -572,9 +572,9 @@
        01 CCLEN-TAB01-RE.
            02 FILLER PIC X(30) VALUE "110806010707060302030102080602".
            02 FILLER PIC X(24) VALUE "240108010106010107070801".
-           02 FILLER PIC X(14) VALUE "01080202010107".
+           02 FILLER PIC X(16) VALUE "0108020201010702".
        01 CCLEN-TAB01 REDEFINES CCLEN-TAB01-RE.
-           10 CCLEN-TAB   PIC 99 OCCURS 34 TIMES.
+           10 CCLEN-TAB   PIC 99 OCCURS 35 TIMES.
        01  CCDES-CONSTANT.
                10 FILLER PIC X(24) VALUE "REC NO  PATNO   CLAIM   ".
                10 FILLER PIC X(24) VALUE "TYP SERVDX1     PROCEDUR".
@@ -587,11 +587,11 @@
                10 FILLER PIC X(24) VALUE "DX-3    CLM-DATECOLLT   ".
                10 FILLER PIC X(24) VALUE "ACC-TYPEADMIT-DTMOD3    ".
                10 FILLER PIC X(24) VALUE "XXXX    ASSIGN  NEICASGN".
-               10 FILLER PIC X(24) VALUE "DX4     ".
+               10 FILLER PIC X(24) VALUE "DX4     MOD4".
       *         DX5     DX6     ".
 
        01  CCGD-TABLE REDEFINES CCDES-CONSTANT.
-             05 CCDES-KEY PIC X(8) OCCURS 34 TIMES INDEXED BY CCINDX.
+             05 CCDES-KEY PIC X(8) OCCURS 35 TIMES INDEXED BY CCINDX.
        01  INPUT-DATE.
            05 T-MM  PIC 99.
            05 T-DD  PIC 99.
@@ -3209,15 +3209,14 @@
            IF DATAIN = "?"
                DISPLAY "ENTER THE FIELD # AND DATA FOR THAT FIELD"
                DISPLAY "TO BE CHANGED. VALID CODES ARE:"
-               DISPLAY "  2=PATID   4=TYPE SERV   5=DIAG     6=PROC" 
-               DISPLAY "  7=AMOUNT  8=REF PHYS    9=PRVDR   10=INS"
+               DISPLAY " 2=PATID   4=TYPE SERV   5=DIAG     6=PROC" 
+               DISPLAY " 7=AMOUNT  8=REF PHYS    9=PRVDR   10=INS"
                DISPLAY "12=UNITS  13=ACC DATE   14=PAPER   15=PLACE"
                DISPLAY "17=EPSDT  18=CHRGDATE   19=RESULT  20=ACTION"
                DISPLAY "21=MOD2   22=REC-STAT   23=SORCREF 24=DX2" 
                DISPLAY "25=DX3    26=CLM-DATE   27=COLLT   28=ACCTYPE" 
-               DISPLAY "29=ADMTDT 30=MOD3       31=AUTH/NDC 32=ASSIGN" 
-               DISPLAY "33=NEICASGM  34=DX4"
-      *      35=DX5 36=DX6 "
+               DISPLAY "29=ADMTDT 30=MOD3       31=AUTH/NDC32=ASSIGN" 
+               DISPLAY "33=NEICASG              34=DX4     35=MOD4"
                DISPLAY "L TO LIST THE RECORD"
                DISPLAY "UP = UPDATE CHANGES"
                DISPLAY "X = NO UPDATE"
@@ -3234,7 +3233,7 @@
            END-IF
 
            IF RIGHT-2 = "00" OR "01" OR "03" OR "16" 
-                        OR RIGHT-2 > "34" 
+                        OR RIGHT-2 > "35" 
                DISPLAY "INVALID FIELD-CODE"
                GO TO 1400CPC
            END-IF
@@ -3272,7 +3271,7 @@
            CC-2196-ACTION CC-2-MOD2 CC-2-REC-STAT CC-2-SORCREF
            CC-2-DX2 CC-2-DX3 CC-2-DATE-A CC-2-COLLT
            CC-2-ACC-TYPE CC-2-ADMIT CC-2-MOD3 CC-2-AUTH CC-2-ASSIGN
-           CC-2-NEIC-ASSIGN CC-2-DX4
+           CC-2-NEIC-ASSIGN CC-2-DX4 CC-2-MOD4
       *     CC-2-DX5 CC-2-DX6
            DEPENDING ON CCINDX.
        CC-2000TI.
@@ -3736,11 +3735,13 @@
       *     MOVE "?" TO IN-FIELD GO TO CC-4000-DATE-T.
            MOVE TEST-DATE TO CC-DATE-T
            GO TO 4900CPC.
+           
        CC-2-MOD2.
            IF IN-FIELD = "?"
            DISPLAY "TYPE THE 2ND MODIFIER OR <CR>"
            GO TO CC-2000TI.
            MOVE IN-FIELD-2 TO CC-MOD2 GO TO 4900CPC.
+
        CC-2-REC-STAT.
            IF IN-FIELD = "?"
            DISPLAY "0=NEW 1=BEEN BILLED 2=CLAIM SENT 3=BILL/CLAIM SENT"
@@ -3790,11 +3791,19 @@
            IF IN-FIELD-1 NOT NUMERIC DISPLAY "INVALID" GO TO CC-2000TI.
            MOVE IN-FIELD-1 TO CC-COLLT.
            GO TO 4900CPC.
+
        CC-2-MOD3.
            IF IN-FIELD = "?"
            DISPLAY "TYPE THE 3RD MODIFIER OR <CR>"
            GO TO CC-2000TI.
            MOVE IN-FIELD-2 TO CC-MOD3 GO TO 4900CPC.
+
+       CC-2-MOD4.
+           IF IN-FIELD = "?"
+           DISPLAY "TYPE THE 4TH MODIFIER OR <CR>"
+           GO TO CC-2000TI.
+           MOVE IN-FIELD-2 TO CC-MOD4 GO TO 4900CPC.           
+
        CC-2-ASSIGN.
            IF IN-FIELD = "?"
            DISPLAY "A=ASSIGNED U= UNASSIGNED"
@@ -3987,10 +3996,22 @@
            END-IF
            
            GO TO CC-1200-SEARCH.
-       CC-1200-SEARCH-EXIT.   EXIT.
-       LC-0. READ CHARCUR INVALID DISPLAY "INVALID" GO TO LC-0-EXIT.
+
+       CC-1200-SEARCH-EXIT.
+           EXIT.
+
+       LC-0.
+           READ CHARCUR
+             INVALID
+               DISPLAY "INVALID"
+               GO TO LC-0-EXIT
+           END-READ
+
            PERFORM LC-1.
-       LC-0-EXIT. EXIT.
+
+       LC-0-EXIT.
+           EXIT.
+
        LC-1.
            MOVE CC-AMOUNT TO NEF-8
            MOVE CC-DAT1 TO TEST-DATE MOVE CORR TEST-DATE
@@ -4000,9 +4021,10 @@
            PERFORM LC-2.
 
            DISPLAY CHARCUR-KEY " " CC-PATID " "CC-CLAIM " " CC-PLACE
-           "  " CC-PROC " " CC-MOD2  "  " CC-MOD3  NEF-8
+           "  " CC-PROC " " CC-MOD2  "   " CC-MOD3 "   " CC-MOD4  NEF-8
            DISPLAY
-           "KEY         PATIENT  CLAIM  PL     PROC    MOD2 MOD3   $$$"
+           "KEY         PATIENT  CLAIM  PL     PROC    MOD2 MOD3 MOD4"
+           "   $$$"
 
 
            DISPLAY " "
