@@ -1648,7 +1648,7 @@
            
       *    add auth for VA/VACCN outpatient claims
            MOVE 0 TO AUTH-FLAG
-           IF (HOLD-PAYCODE = "079" OR HOLD-PAYCODE = "225")
+           IF (HOLD-PAYCODE = "079" OR "225" OR "926")
               MOVE HOLD-KEY8 TO AUTH-KEY8
               MOVE HOLD-CLAIM TO AUTH-KEY6
               READ AUTHFILE INVALID
@@ -2033,30 +2033,38 @@
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
            
-           READ CHARCUR WITH LOCK INVALID CONTINUE
-           NOT INVALID 
-           IF CC-REC-STAT = "0"  MOVE "2" TO CC-REC-STAT
-           END-IF
-           IF CC-REC-STAT = "1"  MOVE "3" TO CC-REC-STAT
-           END-IF
-           MOVE BHT-DATE TO CC-DATE-A
-      *     REWRITE CHARCUR01
+           READ CHARCUR WITH LOCK
+             INVALID CONTINUE
+           
+             NOT INVALID 
+               
+               IF CC-REC-STAT = "0"
+                   MOVE "2" TO CC-REC-STAT
+               END-IF
+               
+               IF CC-REC-STAT = "1"
+                   MOVE "3" TO CC-REC-STAT
+               END-IF
+           
+               MOVE BHT-DATE TO CC-DATE-A
+           REWRITE CHARCUR01
            END-READ.
+
        2400SRV-EXIT.
            EXIT.
+
        2420A.
            MOVE FI-DOCP TO DOC-NUM
-               MOVE "000" to DOC-INS
-               
+           MOVE "000" TO DOC-INS
+           READ DOCFILENEW
+             INVALID
+               MOVE "000" TO DOC-INS              
                READ DOCFILENEW
                  INVALID
-                   MOVE "000" TO DOC-INS
-                   
-                   READ DOCFILENEW
-                     INVALID
-                       GO TO START-BEGIN
-                   END-READ
+                   GO TO START-BEGIN
                END-READ
+           END-READ
+           
            MOVE "82 " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE "XX" TO NM1-EINSS
