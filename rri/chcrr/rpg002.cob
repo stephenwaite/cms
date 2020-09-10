@@ -1012,6 +1012,11 @@
                MOVE SPACE TO RPG-MOD2
            END-IF    
 
+           IF RPG-PROC = "73590" AND RPG-MOD2 = SPACE
+               DISPLAY "RT or LT? DX is " RPG-DIAG
+               ACCEPT RPG-MOD2
+           END-IF        
+
            MOVE RPG-ACTNO TO RPG-KEY8
            MOVE 0 TO XYZ
            MOVE RPGCHARFILE01 TO SAVE-RPGCHARFILE.

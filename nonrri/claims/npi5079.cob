@@ -1674,8 +1674,6 @@
 
       *    add auth for VA/VACCN outpatient claims
            MOVE 0 TO AUTH-FLAG
-           DISPLAY "HOLD-NEIC " HOLD-NEIC
-           ACCEPT ANS
            IF (HOLD-NEIC = "VACCN" OR HOLD-PAYCODE = "12115")
               MOVE HOLD-KEY8 TO AUTH-KEY8
               MOVE HOLD-CLAIM TO AUTH-KEY6
