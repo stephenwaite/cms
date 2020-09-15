@@ -645,6 +645,7 @@
        01  PERM-ID PIC X(10).
        01  PAYORID1 PIC X(5).
        01  PROV-FLAG PIC X.
+       01  EQUITY-ID PIC X(9).
        
        PROCEDURE DIVISION.
        0005-START.
@@ -750,6 +751,7 @@
               UNSTRING FILEIN01 DELIMITED BY "*" INTO
                   N1-0 N1-1 N1-2 N1-3 N1-ID
               MOVE N1-ID(1:5) TO PAYORID1
+              MOVE N1-ID TO EQUITY-ID
            END-IF
         
            IF (F1 = "REF" AND F21 = "*2U")
@@ -782,12 +784,16 @@
            END-IF
 
       *    FOR HEALTHEQUITY EFT 835s
-           IF  ((N1-ID = "411410766")
+      *     DISPLAY "EQUITY-ID " EQUITY-ID " PERM-ID " PERM-ID " PF-1 "
+      *              PF-1
+      *              ACCEPT OMITTED
+
+           IF ((EQUITY-ID = "411410766")
                AND (PERM-ID = PF-1))
                MOVE 0 TO PROV-FLAG
            END-IF
 
-           IF  (PROV-FLAG = 1)
+           IF (PROV-FLAG = 1)
                GO TO P00
            END-IF
            
@@ -949,6 +955,8 @@
                BY 1 UNTIL X > SVC-CNTR
                
            IF FIND-CNTR = SVC-CNTR
+      *         DISPLAY "GOING TO P4-SVC-LOOP"
+      *         ACCEPT OMITTED
                GO TO P4-SVC-LOOP
            END-IF.
 
@@ -978,7 +986,7 @@
                GO TO P9-SVC-LOOP
            END-IF.
 
-        P4-UNITED-START.
+       P4-UNITED-START.
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT 
                VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP.
@@ -990,11 +998,17 @@
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
                SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
-           
+
+      *    eliminate qpp codes from printing to error list 
+      *    mammo measure    
            IF SVC-1PROCMOD(8:1) = "F"
                GO TO P5-SVC-LOOP-EXIT
            END-IF    
-           
+      *    other measures
+           IF SVC-1PROCMOD(4:3) = "G95" OR "G96"
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF    
+                      
            MOVE SPACE TO ALF8
            MOVE SVC-3PAYAMT to ALF8
            IF ALF8 = "-"
@@ -1008,6 +1022,8 @@
 
            IF PD-AMOUNT = 0
                MOVE 0 TO FLAG
+      *         DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
+      *         ACCEPT OMITTED                   
                PERFORM DUMP50 
                IF FLAG = 1
                    PERFORM P1-LOST-SVC
@@ -1338,7 +1354,8 @@
                        MOVE 1 TO FLAG
                        MOVE Z TO CAS-CNTR
                    END-IF               
-               END-IF.
+               END-IF               
+           END-PERFORM.    
 
        P9-SVC-LOOP.
            MOVE SAVEFILE01 TO FILEIN01
@@ -1729,13 +1746,16 @@
        
        LOOK-CHG.       
            MOVE SPACE TO SVC01 FILEIN01
-           MOVE SVC-TAB(X) TO FILEIN01                      
+           MOVE SVC-TAB(X) TO FILEIN01  
+      *     display filein01
+      *     accept omitted                    
            
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
                SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
+
            MOVE SPACE TO ALF-17
-           
+
            IF SVC-6COMPOSITE = SPACE
                MOVE SVC-1PROCMOD TO ALF-17
            ELSE
@@ -1819,7 +1839,8 @@
            ADD 1 TO FIND-CNTR
            MOVE CHARCUR-KEY TO FOUND-KEY(X).
 
-           
+           DISPLAY CHARCUR-KEY
+           ACCEPT OMITTED.
 
       *     MOVE CC-AMOUNT TO TOT-CLAIM
       *     PERFORM DMP4 THRU DMP5
