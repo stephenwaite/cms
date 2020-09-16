@@ -95,7 +95,7 @@
                REWRITE PROC202101
                MOVE SPACE TO CHANGEDX01
                STRING PROC2021-KEY " " PROC2021-TITLE " " 
-                   SAVE-AMT "  " PROC2021-AMOUNT 
+                   SAVE-AMT " " PROC2021-AMOUNT 
                    DELIMITED BY SIZE INTO CHANGEDX01
                WRITE CHANGEDX01       
                REWRITE PROC202101

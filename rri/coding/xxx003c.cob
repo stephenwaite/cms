@@ -15,8 +15,8 @@
                ALTERNATE RECORD KEY IS TAG-ICD9 WITH DUPLICATES
                LOCK MODE MANUAL.
 
-           SELECT CHARFILE ASSIGN TO  "S30" ORGANIZATION IS INDEXED
-               ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+           SELECT CHARNEW ASSIGN TO  "S30" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS CHARNEW-KEY
                LOCK MODE MANUAL.
            
            SELECT FILE-OUT ASSIGN TO  "S35" ORGANIZATION
@@ -128,11 +128,11 @@
            02 DIAG9-KEY PIC X(5).
            02 DIAG9-TITLE PIC X(25).
            02 DIAG9-MEDB PIC X(5).
-       FD  CHARFILE
+       FD  CHARNEW
            BLOCK CONTAINS 2 RECORDS
-           DATA RECORD IS CHARFILE01.
-       01  CHARFILE01.
-           02 CHARFILE-KEY.
+           DATA RECORD IS CHARNEW01.
+       01  CHARNEW01.
+           02 CHARNEW-KEY.
              03 CD-KEY8 PIC X(8).
              03 CD-KEY3 PIC XXX.
            02 CD-PATID PIC X(8).
@@ -244,6 +244,7 @@
        01  Y PIC 99.
        01  NUM-2 PIC 99.
        01  HOLD-DIAG PIC X(7).
+       01  HOLD-DOCP PIC X(2).
        PROCEDURE DIVISION.
 
        P0.
@@ -251,7 +252,7 @@
            OPEN INPUT DIAGFILE FILE-OUT PROCFILE ALLOWFILE GARFILE
                       TAGDIAG DIAG9FILE.
            OPEN EXTEND OUTFILE.
-           OPEN I-O CHARFILE.
+           OPEN I-O CHARNEW.
            DISPLAY "0 = start new, 1 = skip ahead to undone"
            ACCEPT ALF1.
        P1.
@@ -259,9 +260,9 @@
                GO TO P99
            END-READ
 
-           MOVE FO-KEY TO CHARFILE-KEY
+           MOVE FO-KEY TO CHARNEW-KEY
            
-           READ CHARFILE WITH LOCK INVALID
+           READ CHARNEW WITH LOCK INVALID
                PERFORM A3
                GO TO P1
            END-READ    
@@ -280,6 +281,17 @@
            PERFORM P2
            DISPLAY "For MRN " G-ACCT " DOS " FO-DATE " " FO-PROC
                    " our ACCT " G-GARNO
+
+      * auto-DOC and auto-code G1004 for AUC program 
+           IF CD-PROC2 = "G1004  "
+               MOVE HOLD-DOCP TO CD-DOCP
+               IF HOLD7 NOT = "0000000"
+                   MOVE HOLD7 TO CD-DIAG
+               END-IF
+               REWRITE CHARNEW01
+               GO TO P1
+           END-IF
+
            IF CD-DOCP = "00"
                DISPLAY "RRMC tape says study not read, is it read now?"
                DISPLAY "If so enter doc ## or 02 to leave unread."
@@ -309,6 +321,9 @@
                    WRITE OUTFILE01
                END-IF    
            END-IF
+
+      * Need to save a doc
+           MOVE CD-DOCP TO HOLD-DOCP      
 
       * auto-code call back mammos     
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
@@ -342,7 +357,7 @@
 
                END-IF
                
-               REWRITE CHARFILE01 
+               REWRITE CHARNEW01 
                GO TO P1
 
            END-IF
@@ -351,7 +366,7 @@
            IF CD-PROC1 = "1449"
                MOVE "Z1231  " TO CD-DIAG   
                DISPLAY "Autocoded tomosynthesis"
-               REWRITE CHARFILE01
+               REWRITE CHARNEW01
                GO TO P1               
            END-IF
       
@@ -360,14 +375,14 @@
                DISPLAY "unilateral tomosynthesis -> added modifier 52"
                MOVE "Z1231  " TO CD-DIAG
                MOVE "52" TO CD-MOD2
-               REWRITE CHARFILE01
+               REWRITE CHARNEW01
                GO TO P1
            END-IF.
 
       * high risk aren't regular screen mammos     
            IF (CD-PROC1 = "1097" OR "1098")
                MOVE "Z1231  " TO CD-DIAG
-               REWRITE CHARFILE01 
+               REWRITE CHARNEW01 
                GO TO P1
            END-IF
 
@@ -387,7 +402,7 @@
            IF (CD-PROC1 = "5232")
                DISPLAY "LD lung screen -> auto coded"
                MOVE "Z87891 " TO CD-DIAG
-               REWRITE CHARFILE01
+               REWRITE CHARNEW01
                GO TO P1
            END-IF.
 
@@ -407,7 +422,7 @@
 
                IF ANS1 = SPACE
                    MOVE "R928   " TO CD-DIAG
-                   REWRITE CHARFILE01
+                   REWRITE CHARNEW01
                    GO TO P1
                END-IF  
            END-IF.     
@@ -431,7 +446,7 @@
 
            DISPLAY "Non medicare screening mammo -> auto coded"
                    CD-KEY8 " " FO-NAME               
-           REWRITE CHARFILE01
+           REWRITE CHARNEW01
            GO TO P1.
        P2.
            MOVE FO-KEY(1:8) TO G-GARNO
@@ -468,7 +483,7 @@
                           CD-PAYCODE " DOS " FO-DATE " PROC " FO-PROC
                           DELIMITED BY SIZE INTO OUTFILE01
                    WRITE OUTFILE01
-                   REWRITE CHARFILE01
+                   REWRITE CHARNEW01
                    GO TO P1        
                END-IF    
            END-IF
@@ -497,12 +512,13 @@
                
                IF CD-QP1(1:1) = "B"
                    DISPLAY FO-KEY " has been skipped"
+                   REWRITE CHARNEW01    
                    GO TO P1
                END-IF
 
                DISPLAY "medicare screening mammo -> auto coded"
                MOVE "Z1231  " TO CD-DIAG
-               REWRITE CHARFILE01
+               REWRITE CHARNEW01
                GO TO P1
            END-IF
 
@@ -613,12 +629,15 @@
                    GO TO P2-0
                END-IF
            END-IF.
+
        P2-000.
            IF CD-DOCP = "02"
                DISPLAY "Skipping coding since not read"
-               REWRITE CHARFILE01    
+               REWRITE CHARNEW01    
                GO TO P1        
            END-IF    
+
+
            DISPLAY " DIAG? "
            ACCEPT IN-FIELD-7.
            IF IN-FIELD-7 = "?"
@@ -702,9 +721,11 @@
                MOVE "0000000" TO CD-DX2
            END-IF
 
-           REWRITE CHARFILE01 INVALID 
+           REWRITE CHARNEW01 INVALID 
                DISPLAY FILE-OUT01
            END-REWRITE
+
+           MOVE CD-DIAG TO HOLD7
 
            IF DIAG2 NOT = SPACE
                MOVE SPACE TO DIAG2
@@ -1169,7 +1190,7 @@
        F1-EXIT.
            EXIT.
        P99.
-           CLOSE CHARFILE PROCFILE GARFILE DIAGFILE DIAG9FILE
+           CLOSE CHARNEW PROCFILE GARFILE DIAGFILE DIAG9FILE
                  ALLOWFILE FILE-OUT OUTFILE TAGDIAG.
            STOP RUN.
 

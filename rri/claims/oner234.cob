@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. DATA234.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. oner234.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -239,7 +239,9 @@
            
            MOVE NUM3 TO CC-PAYCODE
            START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P6.
-       P1. READ CHARCUR NEXT AT END GO TO P6.
+
+       P1. 
+           READ CHARCUR NEXT AT END GO TO P6.
            IF CC-PAYCODE NOT = NUM3 GO TO P6.
            IF CC-ASSIGN = "U" AND ALF2 = "A" GO TO P1.
            IF CC-ASSIGN = "A" AND ALF2 = "U" GO TO P1.
@@ -250,7 +252,7 @@
            END-IF.
            COMPUTE CLAIM-TOT = CC-AMOUNT
            PERFORM S4 THRU S4-EXIT.
-      *     IF CLAIM-TOT NOT > 0 GO TO P1.
+           IF CLAIM-TOT NOT > 0 GO TO P1.
            MOVE CORR CHARCUR01 TO FILEOUT01
            MOVE CC-PAYCODE TO FO-PAYCODE
            MOVE CHARCUR-KEY TO FO-KEY

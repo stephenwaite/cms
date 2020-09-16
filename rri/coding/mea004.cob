@@ -25,7 +25,6 @@
        DATA DIVISION.
        FILE SECTION.
        FD  CHARFILE
-      *    BLOCK CONTAINS 2 RECORDS
            DATA RECORD IS CHARFILE01.
        01  CHARFILE01.
            02 CHARFILE-KEY.
@@ -77,11 +76,14 @@
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).
+
        FD  CLAIMFILE.
        01  CLAIM01.
            02 CLAIM-KEY PIC X.
            02 CLAIMNO PIC 9(6).
+
        WORKING-STORAGE SECTION.
+
        01  CHARBACK01.
            02 CHARBACK-KEY.
              03 BK-KEY8 PIC X(8).
@@ -127,6 +129,7 @@
            02 BK-DX5 PIC X(7).
            02 BK-DX6 PIC X(7).
            02 BK-FUTURE PIC X(6).
+
        01  XYZ PIC 999.
        01  HOLD8 PIC X(8).
        01  FLAG PIC 999.
@@ -136,24 +139,32 @@
        01  PROC-HOLD PIC X(5).
        01  DIAG-HOLD PIC X(7).
        01  ALF1 PIC X.
+
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN I-O CHARFILE CLAIMFILE. 
            OPEN OUTPUT FILEOUT.
+
            MOVE SPACE TO CHARFILE-KEY.
            MOVE "A" TO CLAIM-KEY.
-           READ CLAIMFILE WITH LOCK INVALID KEY 
+           READ CLAIMFILE WITH LOCK 
+             INVALID KEY 
                DISPLAY "BAD CLAIM #"
                ACCEPT ALF1
                GO TO P2
            END-READ    
+           
            MOVE SPACE TO CHARFILE-KEY.
+
        P0.
            START CHARFILE KEY NOT < CHARFILE-KEY INVALID
                GO TO P2
            END-START.    
+
        P1. 
-           READ CHARFILE NEXT WITH LOCK AT END
+           READ CHARFILE NEXT WITH LOCK
+             AT END
                GO TO P2
            END-READ
 
@@ -177,7 +188,7 @@
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
                GO TO P0
-           END-IF.
+           END-IF
 	
            IF CD-PAYCODE = "009"
                MOVE SPACE TO FILEOUT01
@@ -191,7 +202,7 @@
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
                GO TO P0
-           END-IF.
+           END-IF
 
            IF CD-PAYCODE = "010"
                MOVE SPACE TO FILEOUT01
@@ -205,7 +216,7 @@
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
                GO TO P0
-           END-IF.
+           END-IF
 
            IF CD-PAYCODE = "011"
                MOVE SPACE TO FILEOUT01
@@ -219,7 +230,7 @@
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
                GO TO P0
-           END-IF.
+           END-IF
 	
            IF CD-PAYCODE = "012"
                MOVE SPACE TO FILEOUT01
@@ -233,7 +244,7 @@
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
                GO TO P0
-           END-IF.
+           END-IF
 	
            IF CD-PAYCODE = "013"
                MOVE SPACE TO FILEOUT01
@@ -284,6 +295,7 @@
            END-IF
 
            GO TO P1.
+
       *  create quality code charges     
        A1. 
       *  set key counter to 0, increment in B1 
@@ -359,7 +371,7 @@
                END-IF
 
                GO TO A1-EXIT
-           END-IF.
+           END-IF
 	
            IF FLAG = 405
                IF CD-QP1 = "1 "
@@ -512,6 +524,7 @@
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
            END-IF.
+
        A1-1.
            STRING "225 " CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
@@ -521,6 +534,7 @@
            PERFORM B1 THRU B2 
            STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
            GO TO A1-EXIT.
+
        B1.
            MOVE CHARFILE01 TO CHARBACK01
            ADD 1 TO XYZ.
@@ -539,6 +553,7 @@
            END-IF    
            
            GO TO B1.
+
        B2.
            MOVE CHARBACK01 TO CHARFILE01
            MOVE HOLD-ID TO CHARFILE-KEY
@@ -552,9 +567,11 @@
            MOVE CLAIMNO TO CD-CLAIM
            MOVE CHARFILE-KEY TO SAVE-KEY
            WRITE CHARFILE01.
+
        A1-EXIT.
            EXIT.
+
        P2.
            REWRITE CLAIM01
-           CLOSE CHARFILE CLAIMFILE.
+           CLOSE CHARFILE CLAIMFILE FILEOUT.
            STOP RUN.

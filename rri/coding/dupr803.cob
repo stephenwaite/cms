@@ -59,7 +59,9 @@
            02 CD-ASSIGN PIC X.
            02 CD-NEIC-ASSIGN PIC X.
            02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
+           02 CD-QP1 PIC XX.
+           02 CD-QP2 PIC XX.
+           02 CD-DX5-3 PIC X(3).
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
        FD  CHARCUR
@@ -104,7 +106,9 @@
            02 CC-ASSIGN PIC X.
            02 CC-NEIC-ASSIGN PIC X.
            02 CC-DX4 PIC X(7).
-           02 CC-DX5 PIC X(7).
+           02 CD-QP1 PIC XX.
+           02 CD-QP2 PIC XX.
+           02 CD-DX5-3 PIC X(3).
            02 CC-DX7 PIC X(7).
            02 CC-FUTURE PIC X(6).
        WORKING-STORAGE SECTION.
@@ -112,27 +116,35 @@
        01  X PIC 9999.
        01  CLAIM-TOT PIC S9(5)V99.
        PROCEDURE DIVISION.
+
        P0.
            OPEN INPUT CHARCUR CHARFILE.
            OPEN OUTPUT FILEOUT.
+
        P1. 
            READ CHARFILE AT END
                GO TO P6
            END-READ
+
            MOVE CD-KEY8 TO CC-KEY8.
            MOVE "000" TO CC-KEY3.
-           START CHARCUR KEY NOT < CHARCUR-KEY INVALID 
+           START CHARCUR KEY NOT < CHARCUR-KEY
+             INVALID 
                GO TO P1
            END-START.    
+           
        S7. 
-           READ CHARCUR NEXT AT END
+           READ CHARCUR NEXT
+             AT END
                GO TO P1
            END-READ    
+
            IF CC-KEY8 NOT = CD-KEY8 
                GO TO P1
            END-IF
 
-           IF (CC-DATE-T = CD-DATE-T) AND (CC-PROC2 = CD-PROC2)
+           IF (CC-DATE-T = CD-DATE-T) AND (CC-PROC2 = CD-PROC2) AND
+               (CC-MOD2 = CD-MOD2)
                STRING "CHARGE FOR " CD-KEY8 " HAS SAME DOS " CD-DATE-T
                       " AND SAME PROC " CD-PROC2 " IN CHARCUR"
                DELIMITED BY SIZE INTO FILEOUT01       

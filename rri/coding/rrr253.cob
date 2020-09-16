@@ -9,19 +9,19 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY.
+           SELECT CHARNEW ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARNEW-KEY.
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
        DATA DIVISION.
        FILE SECTION.
        FD FILEOUT.
        01 FILEOUT01 PIC X(40).
-       FD  CHARFILE
+       FD  CHARNEW
            BLOCK CONTAINS 4 RECORDS
-           DATA RECORD IS CHARFILE01.
-       01  CHARFILE01.
-           02 CHARFILE-KEY.
+           DATA RECORD IS CHARNEW01.
+       01  CHARNEW01.
+           02 CHARNEW-KEY.
              03 CD-KEY8 PIC X(8).
              03 CD-KEY3 PIC XXX.
            02 CD-PATID PIC X(8).
@@ -61,7 +61,9 @@
            02 CD-ASSIGN PIC X.
            02 CD-NEIC-ASSIGN PIC X.
            02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
+           02 CD-QP1 PIC XX.
+           02 CD-QP2 PIC XX.
+           02 CD-DX5-3 PIC X(3).
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(30).
@@ -71,6 +73,7 @@
            02 DATE-TAB PIC 9(8) OCCURS 90 TIMES.
            02 PROC-TAB PIC X(11) OCCURS 90 TIMES.
            02 CHARGE-TAB PIC X(7) OCCURS 90 TIMES.
+           02 MOD-TAB PIC X(2) OCCURS 90 TIMES.
            02 KEY-TAB PIC X(11) OCCURS 90 TIMES.
        01  X PIC 99.
        01  Y PIC 99.
@@ -82,29 +85,32 @@
       *
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT CHARFILE OUTPUT FILEOUT.
-           MOVE SPACE TO CHARFILE-KEY.
+           OPEN INPUT CHARNEW OUTPUT FILEOUT.
+           MOVE SPACE TO CHARNEW-KEY.
+
        P0-1. 
-           START CHARFILE KEY NOT < CHARFILE-KEY INVALID
+           START CHARNEW KEY NOT < CHARNEW-KEY
+             INVALID
                GO TO P4
            END-START.    
-       P1. 
-           READ CHARFILE NEXT AT END
-               GO TO P4
-           END-READ    
 
-           IF CD-PAYCODE NOT = "003"
-               GO TO P1
-           END-IF.    
+       P1. 
+           READ CHARNEW NEXT
+             AT END
+               GO TO P4
+           END-READ.    
+           
        P1-1.
            MOVE CD-KEY8 TO HOLDIT
            MOVE 1 TO X
-           MOVE CHARFILE-KEY TO KEY-TAB(X)
+           MOVE CHARNEW-KEY TO KEY-TAB(X)
            MOVE CD-DATE-T    TO DATE-TAB(X)
            MOVE CD-PROC2     TO CHARGE-TAB(X)
            MOVE CD-PROC      TO PROC-TAB(X).
+
        P2. 
-           READ CHARFILE NEXT AT END
+           READ CHARNEW NEXT
+             AT END
                GO TO P4
            END-READ
 
@@ -114,22 +120,25 @@
 
            ADD 1 TO X
            MOVE CD-DATE-T    TO DATE-TAB(X)
-           MOVE CHARFILE-KEY TO KEY-TAB(X)
+           MOVE CHARNEW-KEY  TO KEY-TAB(X)
            MOVE CD-PROC2     TO CHARGE-TAB(X)
            MOVE CD-PROC      TO PROC-TAB(X)
+           MOVE CD-MOD2      TO MOD-TAB(X)
            GO TO P2.
+
        P14.
            IF X < 2
                GO TO P1-1
            END-IF
 
-           MOVE CHARFILE-KEY TO CHARBACK.
+           MOVE CHARNEW-KEY TO CHARBACK.
            PERFORM P15
-           MOVE CHARBACK TO CHARFILE-KEY
+           MOVE CHARBACK TO CHARNEW-KEY
            GO TO P0-1.
        P15.
            SUBTRACT 1 FROM X GIVING Y.
            PERFORM C1 THRU C1-EXIT VARYING Z FROM 1 BY 1 UNTIL Z > Y.
+
        C1. 
            IF DATE-TAB(Z) = 0
                GO TO C1-EXIT
@@ -138,11 +147,14 @@
            MOVE 0 TO FLAGX.
            ADD 1 TO Z GIVING A 
            PERFORM C2 THRU C2-EXIT VARYING T FROM A BY 1 UNTIL T > X.
+
        C1-EXIT.
            EXIT.
+
        C2. 
            IF (DATE-TAB(Z) NOT = DATE-TAB(T)) 
-               OR (CHARGE-TAB(Z) NOT =  CHARGE-TAB(T)) 
+               OR (CHARGE-TAB(Z) NOT =  CHARGE-TAB(T))
+               OR (MOD-TAB(Z) NOT = MOD-TAB(T)) 
                OR (DATE-TAB(T) = 0)
                GO TO C2-EXIT
            END-IF    
@@ -157,5 +169,5 @@
            EXIT.
        P4. 
            PERFORM P15.
-           CLOSE CHARFILE FILEOUT. 
+           CLOSE CHARNEW FILEOUT. 
            STOP RUN.

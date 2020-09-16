@@ -191,8 +191,7 @@
        P3.
            MOVE 0 TO FLAG
            PERFORM A1 THRU A1-EXIT 
-               VARYING Y FROM 1 BY 1 UNTIL Y > X
-           END-PERFORM.    
+               VARYING Y FROM 1 BY 1 UNTIL Y > X.
            
        P3-1.
            GO TO P1-1.

@@ -66,7 +66,9 @@
            02 CD-ASSIGN PIC X.
            02 CD-NEIC-ASSIGN PIC X.
            02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
+           02 CD-QP1 PIC XX.
+           02 CD-QP2 PIC XX.
+           02 CD-DX5-3 PIC X(3).
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(30).
@@ -113,11 +115,13 @@
            02 CD-ASSIGN PIC X.
            02 CD-NEIC-ASSIGN PIC X.
            02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
+           02 CD-QP1 PIC XX.
+           02 CD-QP2 PIC XX.
+           02 CD-DX5-3 PIC X(3).
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(80).   
+       01  FILEOUT01 PIC X(120).   
 
        WORKING-STORAGE SECTION.
 
@@ -147,10 +151,11 @@
       *    is this for all CPT 78815 and 78816?
 
            IF (CD-PROC0 OF CHARFILEBK01 = "4080" OR "4082" OR "4087")
-               MOVE "Q0" TO CD-MOD2 OF CHARFILEBK01
-               MOVE "Z006   " TO CD-DX2 OF CHARFILEBK01
+      *         MOVE "Q0" TO CD-MOD2 OF CHARFILEBK01
+      *         MOVE "Z006   " TO CD-DX2 OF CHARFILEBK01
                STRING "FOR ACCT " CD-KEY8 OF CHARFILEBK01 
-                      " MADE PET SCAN MOD " CD-MOD2 OF CHARFILEBK01
+                   " used to add PET SCAN MOD Q0 AND DX Z006 " 
+                   " rrmc sent mod of " CD-MOD2 OF CHARFILEBK01     
                       " FOR DATE " CD-DATE-T OF CHARFILEBK01
                       " PROCEDURE " CD-PROC1 OF CHARFILEBK01
                DELIMITED BY SIZE INTO FILEOUT01
