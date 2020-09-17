@@ -247,18 +247,18 @@
            02 NAME-KEY PIC XXX.
 
        FD  FILEIN.
-       01 FILEIN01 PIC X(8).
+       01  FILEIN01 PIC X(8).
 
        FD  WORK249.
-       01 WORK24901 PIC X(8).
+       01  WORK24901 PIC X(8).
        
-       FD NEW-GARNOS.
-       01 NEW-GARNOS01.
+       FD  NEW-GARNOS.
+       01  NEW-GARNOS01.
            02 NEW-GARNOS2 PIC X(8).
            02 NEW-GARNOS1 PIC X(8).
 
        FD  ORD-DELETES.
-       01 ORD-DELETES01 PIC X(11).
+       01  ORD-DELETES01 PIC X(11).
 
        FD  CLAIMFILE
            DATA RECORD IS CLAIM01.
@@ -266,9 +266,9 @@
            02 CLAIM-KEY PIC X.
            02 CLAIMNO PIC 9(6).
 
-       FD PROCFILE
+       FD  PROCFILE
            DATA RECORD PROCFILE01.
-       01 PROCFILE01.
+       01  PROCFILE01.
            02 PROC-KEY.
              03 PK1 PIC X(4).
              03 PK2 PIC X(5).
@@ -277,9 +277,9 @@
            02 PROC-TITLE PIC X(28).
            02 PROC-AMOUNT PIC 9(4)V99.
      
-       FD ORDFILE
+       FD  ORDFILE
            DATA RECORD IS ORDFILE01.
-       01 ORDFILE01.
+       01  ORDFILE01.
            02 ORDNO.
              03 ORD8 PIC X(8).
              03 ORD3 PIC XXX.
@@ -646,7 +646,7 @@
            MOVE "01" TO CD-WORK
            WRITE CHARFILE01. 
            WRITE ORD-DELETES01 FROM ORDNO
-           GO TO P8.
+           GO TO P7.
        
        P8-EXIT.
            DISPLAY CD-NAME

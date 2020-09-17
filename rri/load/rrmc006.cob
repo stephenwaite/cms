@@ -833,9 +833,9 @@
            END-IF.    
 
        P2-0.
-           DISPLAY R2-REFDOC " " R2-DOC " " R2-NPI " TO BE ADDED"
-               " FOR " R1-PATNAME " CITY " R1-GARCITY " STATE "
-                   R1-GARSTATE
+           DISPLAY "ENTER 3 CHAR REFPHY CODE FOR PROVIDER " R2-REFDOC
+           DISPLAY "AFTER ADDING to DB WITH RRI-62"
+           DISPLAY " PT " R1-PATNAME " ADDR " R1-GARCITY " " R1-GARSTATE
            ACCEPT REF
            MOVE REF TO REF-KEY
            READ REFPHY
@@ -1436,7 +1436,8 @@
            IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V")
                MOVE SPACE TO ERRFILE01
                STRING "ADDING V TO 002 POLICY FOR " A-GARNAME " "
-                   R1-PATNUM " " A-PRIPOL DELIMITED BY SIZE INTO ERRFILE01
+                   R1-PATNUM " " A-PRIPOL 
+                   DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
                MOVE SPACE TO ALF-BCBSVT
                STRING ALF-16-1 "V" DELIMITED BY SIZE INTO ALF-BCBSVT-1
@@ -1671,7 +1672,7 @@
                MOVE " " TO C-IND
            END-IF
 
-           MOVE "02" TO C-DOCP
+           MOVE "00" TO C-DOCP
                                             
            IF R3-DOCP = "MITC" MOVE "06" TO C-DOCP.
                       

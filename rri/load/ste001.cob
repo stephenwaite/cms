@@ -30,6 +30,12 @@
            SELECT FILEOUT2 ASSIGN TO "S45" ORGANIZATION
            LINE SEQUENTIAL.
 
+           SELECT FILEOUT3 ASSIGN TO "S50" ORGANIZATION
+           LINE SEQUENTIAL.
+
+           SELECT FILEOUT4 ASSIGN TO "S55" ORGANIZATION
+           LINE SEQUENTIAL.           
+
        DATA DIVISION.
 
        FILE SECTION.
@@ -96,6 +102,12 @@
        FD  FILEOUT2.
        01  FILEOUT201 PIC X(160).
 
+       FD  FILEOUT3.
+       01  FILEOUT301 PIC X(160).
+
+       FD  FILEOUT4.
+       01  FILEOUT401 PIC X(160).
+
        FD GARFILE
            DATA RECORD IS GARFILE01.
        01 GARFILE01.
@@ -158,7 +170,7 @@
        
        0005-START.
            OPEN INPUT FILEIN GARFILE CHARCUR
-           OPEN OUTPUT FILEOUT1 FILEOUT2.
+           OPEN OUTPUT FILEOUT1 FILEOUT2 FILEOUT3 FILEOUT4.
 
        P00.
            MOVE SPACE TO FILEIN01
@@ -208,6 +220,14 @@
            
            IF CC-PROC1 NOT = FI-PROC GO TO P1.
            
+           IF CC-DOCP = "00" 
+               WRITE FILEOUT301 FROM CHARCUR01
+           END-IF
+
+           IF CC-DOCP = "02" 
+               WRITE FILEOUT401 FROM CHARCUR01
+           END-IF
+
            WRITE FILEOUT201 FROM CHARCUR01.
            
            GO TO P00.
@@ -218,6 +238,7 @@
            GO TO P00.
 
        P2.
-           CLOSE GARFILE CHARCUR FILEOUT1 FILEOUT2.
+           CLOSE GARFILE CHARCUR FILEOUT1 FILEOUT2
+               FILEOUT3 FILEOUT4.
            STOP RUN.
 
