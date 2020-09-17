@@ -413,19 +413,22 @@
                END-IF
 
                DISPLAY "Quick code of diag mammo due to callback?"
-               DISPLAY "Hit <Enter> for R92.8 or type N"
-               ACCEPT ANS1     
-               
-               IF NOT (ANS1 = SPACE OR "N")
-                   GO TO P1-0
-               END-IF
+               DISPLAY "Hit Y for R92.8"
+               ACCEPT ANS1                                  
 
-               IF ANS1 = SPACE
+               IF ANS1 = "Y"
                    MOVE "R928   " TO CD-DIAG
                    REWRITE CHARNEW01
                    GO TO P1
-               END-IF  
-           END-IF.     
+               END-IF    
+           END-IF
+
+           IF (CD-PROC1 = "1450" AND ANS1 = "Y")
+               MOVE "R928   " TO CD-DIAG
+               REWRITE CHARNEW01
+               GO TO P1
+           END-IF.
+               
        P1-1.
            IF (CD-PAYCODE = "008" OR "010" OR "011" OR "012"
                OR "013" OR "014" OR "015")  

@@ -246,7 +246,9 @@
            02 ALFTEST14-3 PIC XXX.
            02 ALFTEST14-9 PIC X(9).
            02 FILLER PIC X(4).
-       01 TITLE-FLAG PIC 9.
+
+       01  TITLE-FLAG PIC 9.
+       01  ANS PIC X.
       
        PROCEDURE DIVISION.
        P0.
@@ -257,10 +259,13 @@
              AT END 
                GO TO P20
            END-READ
+           
 
            MOVE WORK-1 TO A-ACTNO
            READ ACTFILE
              INVALID 
+               DISPLAY "BAD MRN, THIS CAN'T BE! LOOK IN ERRORFILE AFTER"
+               ACCEPT ANS     
                WRITE ERROR-FILE01 FROM WORK24501
                GO TO P8
            END-READ
@@ -316,7 +321,7 @@
                WRITE ERROR-FILE01
            END-IF
 
-           IF C-DOCP = "00"
+           IF C-DOCP = "00" AND C-CPT NOT = "G1004"
                MOVE C-REF TO ER-3
                MOVE "NOT READ" TO ER-4
                MOVE C-DATE-T TO ER-0
@@ -340,7 +345,7 @@
            END-READ    
 
            IF PROC-AMOUNT = 0 AND
-              C-CPT(1:1) NOT = "G"
+              C-CPT = "G1004"
                GO TO P13
            END-IF
                       
