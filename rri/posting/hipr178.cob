@@ -1839,8 +1839,8 @@
            ADD 1 TO FIND-CNTR
            MOVE CHARCUR-KEY TO FOUND-KEY(X).
 
-           DISPLAY CHARCUR-KEY
-           ACCEPT OMITTED.
+      *     DISPLAY CHARCUR-KEY
+      *     ACCEPT OMITTED.
 
       *     MOVE CC-AMOUNT TO TOT-CLAIM
       *     PERFORM DMP4 THRU DMP5

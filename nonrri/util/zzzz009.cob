@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRRR009.
+       PROGRAM-ID. zzzz009.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -388,7 +388,7 @@
            02 FILLER PIC X VALUE SPACE.
            02 L2FG PIC X(7).
            02 FILLER PIC X VALUE SPACE.
-           02 L2F5 PIC X(12).
+           02 L2F5 PIC X(16).
            02 F25 PIC X.
            02 L2F6 PIC XXX.
        01  LINE-3.
