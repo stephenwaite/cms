@@ -1648,7 +1648,7 @@
            
            IF R3-PLACE = "INPT" MOVE "3" TO C-IOPAT.
            
-           IF (REF = "G0A" OR "H27" OR "J06" OR "R1D"
+           IF (REF = "G0A" OR "H27" OR "J06" OR "R1D" OR "G4U"
                     OR "D55" OR "B1T" OR "B51" OR "R2A"
                     OR "F34" OR "G36" OR "H1B" OR "M6A"
                     OR "S7O" OR "S91" OR "S1O" OR "T0E" OR "T21"
