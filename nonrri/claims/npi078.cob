@@ -57,6 +57,10 @@
            SELECT FILEOUT2 ASSIGN TO "S85" ORGANIZATION
            LINE SEQUENTIAL.
 
+           SELECT AUTHFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS AUTH-KEY
+           LOCK MODE MANUAL. 
+
        DATA DIVISION.
        FILE SECTION.
        FD  PLACEFILE.
@@ -230,6 +234,17 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
+
+       FD  AUTHFILE
+           DATA RECORD IS AUTHFILE01.
+       01  AUTHFILE01.
+           02 AUTH-KEY.
+              03 AUTH-KEY8 PIC X(8).
+              03 AUTH-KEY6 PIC X(6).
+           02 AUTH-NUM PIC X(15).
+           02 AUTH-QNTY PIC XX.
+           02 AUTH-DATE-E PIC X(8).
+           02 AUTH-FILLER PIC XXX.           
  
        WORKING-STORAGE SECTION.
        01  INSTAB01.
@@ -264,11 +279,15 @@
              03 PL-STATE PIC XX.
              03 PL-ZIP PIC X(9).
        01  ALF11 PIC X(11).
+
        PROCEDURE DIVISION.
+
        P0.
            OPEN OUTPUT FILE-OUT FILEOUT FILEOUT2 ERRORFILE.
+           
            OPEN INPUT PAYCUR INSIN CHARCUR DOCFILE GARFILE
-           FILEIN INSFILE PLACEFILE.
+             FILEIN INSFILE PLACEFILE AUTHFILE.
+
            MOVE SPACE TO ERRORFILE01
            MOVE "  COMMERCIAL ELECTRONIC CLAIMS ERRORS      "
             TO ERRORFILE01
@@ -277,7 +296,9 @@
 
            PERFORM A4 VARYING X FROM 1 BY 1 UNTIL X = 999.
            PERFORM A3 VARYING X FROM 1 BY 1 UNTIL X > 20.
-       Z00. READ PLACEFILE AT END GO TO PZ.
+
+       Z00.
+           READ PLACEFILE AT END GO TO PZ.
            ADD 1 TO PLINDX.
            MOVE DF1 TO PL-TAB(PLINDX)
            MOVE DF2 TO PL-NUM(PLINDX)
@@ -288,50 +309,73 @@
            MOVE DF7 TO PL-ZIP(PLINDX)
            GO TO Z00.
 
-       PZ. READ DOCFILE AT END GO TO P00.
+       PZ. 
+           READ DOCFILE AT END GO TO P00.
            MOVE DF-2 TO DOCTAB(DF-1) GO TO PZ.
-       P00. READ INSIN AT END GO TO P000.
+
+       P00.
+           READ INSIN AT END GO TO P000.
            MOVE INS-2 TO INSTAB(INS-1) GO TO P00.
 
        P000.
            MOVE 100 TO CC-PAYCODE
            START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P6.
            
-       P1. READ CHARCUR NEXT AT END GO TO P6.
+       P1. 
+           READ CHARCUR NEXT AT END GO TO P6.
            IF CC-PAYCODE > 199 GO TO P6.
            PERFORM A1 THRU A2 GO TO P1.
+
        A1.
            MOVE CHARCUR-KEY TO EF1
            IF CC-PROC = "1      " OR "2       " GO TO A2.
+
            IF CC-PROC < "00100  " GO TO A2.
+
            IF CC-AMOUNT = 0 GO TO A2.
+
            IF CC-REC-STAT > "1" GO TO A2.
+
            IF DOCTAB(CC-DOCP) = 99 
            OR INSTAB(CC-PAYCODE) = 99 GO TO A2.
+
            IF INSTAB(CC-PAYCODE) NOT = 0
             MOVE INSTAB(CC-PAYCODE) TO CC-DOCP.
+
            IF DOCTAB(CC-DOCP) NOT = 0
             MOVE DOCTAB(CC-DOCP) TO CC-DOCP.
+
            MOVE CC-KEY8 TO G-GARNO
            READ GARFILE INVALID
            MOVE "BAD GARNO           " TO EF2
            MOVE SPACE TO EF3 EF5 PERFORM E1 GO TO A2.
+
            IF CC-DIAG  = "0000000" 
-           MOVE "MISSING DIAG." TO EF2
-           MOVE G-GARNAME TO EF5
-           MOVE CC-PROC TO EF3 PERFORM E1 GO TO A2.
+             MOVE "MISSING DIAG." TO EF2
+             MOVE G-GARNAME TO EF5
+             MOVE CC-PROC TO EF3
+             PERFORM E1
+             GO TO A2.
+
            MOVE G-GARNAME TO EF5
            MOVE G-PRINS TO NUM3
+           
            IF G-STREET = SPACE AND G-BILLADD = SPACE
-           MOVE "ADDRESS IS BLANK" TO EF2
-           MOVE G-GARNAME TO EF5
-           MOVE CC-KEY8 TO EF3 PERFORM E1 GO TO A2.
+             MOVE "ADDRESS IS BLANK" TO EF2
+             MOVE G-GARNAME TO EF5
+             MOVE CC-KEY8 TO EF3
+             PERFORM E1
+             GO TO A2.
 
            IF (NUM3 NOT = CC-PAYCODE) AND (CC-PAPER = "E")
            MOVE "P" TO CC-PAPER.
+
            IF CC-PAYCODE = 153 OR "122" OR "123" MOVE "P" TO CC-PAPER.
+
            IF CC-PAPER = "E" GO TO A1-1.
+
            PERFORM PAPER-1 GO TO A2.
+
        A1-1.
            MOVE CC-PAYCODE TO INS-KEY
            READ INSFILE
@@ -351,30 +395,54 @@
            END-IF
 
            PERFORM DF-SEARCH
+
            IF INS-NEIC = "57106" AND CC-DATE-M = "00000000"
-           AND CC-PL = "3"
-           MOVE "ADMIT DATE - TRICARE " TO EF2 
-           MOVE G-GARNAME TO EF5 
-           PERFORM E1 GO TO A2.
+             AND CC-PL = "3"
+             MOVE "ADMIT DATE - TRICARE " TO EF2 
+             MOVE G-GARNAME TO EF5 
+             PERFORM E1
+             GO TO A2.
+
+           IF (INS-NEIC = "VACCN")
+               MOVE CC-KEY8 TO AUTH-KEY8
+               MOVE CC-CLAIM TO AUTH-KEY6
+               READ AUTHFILE                  
+                 INVALID 
+                   MOVE "NO AUTH FOR " TO EF2
+                   PERFORM E1
+                   GO TO A2
+               END-READ
+           END-IF      
+
            IF INS-NEIC = SPACE
-           MOVE "NO NEIC CODE PRESENT" TO EF2
-           MOVE INS-KEY TO EF3
-           PERFORM E1 GO TO A2.
+             MOVE "NO NEIC CODE PRESENT" TO EF2
+             MOVE INS-KEY TO EF3
+             PERFORM E1
+             GO TO A2.
+
            IF G-PRIPOL = SPACE
-           MOVE "POLICY NUMBER MISSING" TO EF2
-           MOVE G-PRINS TO EF3
-           PERFORM E1 GO TO A2.
+             MOVE "POLICY NUMBER MISSING" TO EF2
+             MOVE G-PRINS TO EF3
+             PERFORM E1
+             GO TO A2.
+
            IF G-PRIPOL = ZEROES
-           MOVE "POLICY CANT BE 0" TO EF2
-           MOVE G-PRIPOL TO EF3
-           PERFORM E1 GO TO A2.
+             MOVE "POLICY CANT BE 0" TO EF2
+             MOVE G-PRIPOL TO EF3
+             PERFORM E1
+             GO TO A2.
 
            IF INS-NEIC = "23742"
-           PERFORM PAPER-1 GO TO P1.
+             PERFORM PAPER-1
+             GO TO P1.
+
            IF G-PR-GROUP = G-PRIPOL
-           MOVE "GRP & POLICY ARE =" TO EF2
-           MOVE G-GARNAME TO EF5
-           MOVE G-PR-GROUP TO EF3 PERFORM E1 GO TO A2.
+             MOVE "GRP & POLICY ARE =" TO EF2
+             MOVE G-GARNAME TO EF5
+             MOVE G-PR-GROUP TO EF3
+             PERFORM E1
+             GO TO A2.
+
       *     IF (INS-NEIC = "14165") 
       *     MOVE G-PRIPOL TO ALF11
       *     IF ALF11 NOT NUMERIC
@@ -384,9 +452,9 @@
            STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE INTO FILEOUT01
            
            IF INS-NEIC = "14165" 
-               WRITE FILEOUT201 FROM FILEOUT01
+             WRITE FILEOUT201 FROM FILEOUT01
            ELSE
-               WRITE FILEOUT01
+             WRITE FILEOUT01
            END-IF
            
            GO TO A2.
@@ -401,33 +469,60 @@
            MOVE CC-DOCP TO FO-DOCP
            MOVE CC-PAPER TO FO-PAPER
            WRITE FILE-OUT01.
+
        A2.
            EXIT.
+
        E1.
            MOVE CC-DATE-T TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            MOVE DISPLAY-DATE TO EF4
            WRITE ERRORFILE01.
-       DF-SEARCH. MOVE CC-PLACE TO CC-PL.
-           PERFORM DF-SEARCH2 VARYING Y FROM 1 BY 1 UNTIL Y > PLINDX.
-       DF-SEARCH2. IF CC-PLACE = PL-TAB(Y) MOVE PL-NUM(Y) TO CC-PL
-           MOVE PLINDX TO Y.
 
-       A4. MOVE 0 TO INSTAB(X).
-       A3. MOVE 0 TO DOCTAB(X).
-       S4. MOVE CC-KEY8 TO PC-KEY8.
+       DF-SEARCH.
+           MOVE CC-PLACE TO CC-PL.
+           PERFORM DF-SEARCH2 VARYING Y FROM 1 BY 1 UNTIL Y > PLINDX.
+
+       DF-SEARCH2. 
+           IF CC-PLACE = PL-TAB(Y)
+             MOVE PL-NUM(Y) TO CC-PL
+             MOVE PLINDX TO Y.
+
+       A4. 
+           MOVE 0 TO INSTAB(X).
+
+       A3. 
+           MOVE 0 TO DOCTAB(X).
+
+       S4. 
+           MOVE CC-KEY8 TO PC-KEY8.
            MOVE "000" TO PC-KEY3.
            START PAYCUR KEY > PAYCUR-KEY INVALID GO TO S4-EXIT.
-       S7. READ PAYCUR NEXT AT END GO TO S4-EXIT.
+
+       S7. 
+           READ PAYCUR NEXT AT END GO TO S4-EXIT.
            IF PC-KEY8 NOT = CC-KEY8 GO TO S4-EXIT.
            IF PC-CLAIM NOT = CC-CLAIM GO TO S7.
            ADD PC-AMOUNT TO CC-AMOUNT GO TO S7.
-       S4-EXIT. EXIT.
-       P6. READ FILEIN AT END GO TO P9.
+
+       S4-EXIT. 
+           EXIT.
+
+       P6. 
+           READ FILEIN AT END GO TO P9.
+
            MOVE FILEIN01 TO CC-PAYCODE
            START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P6.
-       P7. READ CHARCUR NEXT AT END GO TO P6.
+
+       P7. 
+           READ CHARCUR NEXT AT END GO TO P6.
+
            IF CC-PAYCODE NOT = FILEIN01 GO TO P6.
            PERFORM A1 THRU A2 GO TO P7.
-       P9. CLOSE FILE-OUT FILEOUT FILEOUT2 ERRORFILE.
+
+       P9.
+           CLOSE FILE-OUT FILEOUT FILEOUT2 ERRORFILE
+             PAYCUR INSIN CHARCUR DOCFILE GARFILE FILEIN INSFILE
+             PLACEFILE AUTHFILE.
+
            STOP RUN.

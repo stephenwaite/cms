@@ -76,7 +76,10 @@
        FD PROCFILE
            DATA RECORD PROCFILE01.
        01 PROCFILE01.
-           02 PROC-KEY PIC X(11).
+           02 PROC-KEY.
+             03 PROC-KEY1 PIC X(4).
+             03 PROC-KEY2 PIC X(5).
+             03 PROC-KEY3 PIC XX.
            02 PROC-TYPE PIC X.
            02 PROC-TITLE PIC X(28). 
            02 PROC-AMOUNT PIC 9(4)V99.
@@ -161,6 +164,11 @@
                WRITE FILEOUT01
                GO TO P1
            END-READ
+
+      * adding cdms that rrmc can't get mod right
+           IF PROC-KEY1 NOT = "1284"
+             GO TO P1 
+           END-IF    
 
            MOVE SPACE TO ALF28 ALF28X
            UNSTRING PROC-TITLE DELIMITED BY " LTD"

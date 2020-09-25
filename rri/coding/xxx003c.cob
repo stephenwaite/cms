@@ -515,6 +515,7 @@
                
                IF CD-QP1(1:1) = "B"
                    DISPLAY FO-KEY " has been skipped"
+
                    REWRITE CHARNEW01    
                    GO TO P1
                END-IF
@@ -678,6 +679,7 @@
            IF IN-FIELD-7 = "B"
                DISPLAY FO-KEY " HAS BEEN SKIPPED"
                DISPLAY "PLEASE RECORD THIS FACT"
+               MOVE SPACE TO HOLD-DIAG    
                GO TO P1
            END-IF    
            

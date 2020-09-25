@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI278.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. npi278.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -209,55 +209,97 @@
        P0.
            OPEN OUTPUT FILE-OUT FILEOUT FILEOUT2.
            OPEN INPUT PAYFILE INSIN CHARFILE DOCFILE GARFILE
-           INSFILE FILEIN.
+             INSFILE FILEIN.
            PERFORM A1 VARYING X FROM 1 BY 1 UNTIL X > 999.
            PERFORM A2 VARYING X FROM 1 BY 1 UNTIL X > 90.
            MOVE SPACE TO CHARFILE-KEY
            START CHARFILE KEY > CHARFILE-KEY INVALID GO TO P6.
-       PZ. READ DOCFILE AT END GO TO P00.
+
+       PZ. 
+           READ DOCFILE AT END GO TO P00.
            MOVE DF-2 TO DOCTAB(DF-1) GO TO PZ.
-       P00. READ INSIN AT END GO TO P000.
+
+       P00. 
+           READ INSIN AT END GO TO P000.
            MOVE INS-2 TO INSTAB(INS-1)
            GO TO P00.
-       P000. READ FILEIN AT END GO TO P1.
+
+       P000. 
+           READ FILEIN AT END GO TO P1.
            MOVE 1 TO PAYTAB(FI-1)
            IF FI-2 = "x" MOVE 2 TO PAYTAB(FI-1).
            GO TO P000.
-       P1. READ CHARFILE NEXT AT END GO TO P6.
+
+       P1. 
+           READ CHARFILE NEXT AT END GO TO P6.
+
            IF CD-PAYCODE = 122 OR 123 GO TO P1.
+
            IF PAYTAB(CD-PAYCODE) = "2" GO TO P1.
+
            IF (CD-PAYCODE > 99 AND < 200) 
            OR (PAYTAB(CD-PAYCODE) = 1) NEXT SENTENCE
            ELSE GO TO P1.
+
            IF (CD-AMOUNT = 0) AND (CD-PAYCODE NOT = "141") GO TO P1.
+
            IF CD-PROC = "1      " OR "2       " GO TO P1.
+
            IF CD-PROC < "00100  " GO TO P1.
+
            IF CD-DIAG = "0000000" GO TO P1.
+
            IF CD-STAT > "1" GO TO P1.
+
            IF CD-PAPER NOT = "E" GO TO P1.
+
            IF INSTAB(CD-PAYCODE) NOT = 0
            MOVE INSTAB(CD-PAYCODE) TO CD-DOCP.
+
            IF DOCTAB(CD-DOCP) = 99 
            OR INSTAB(CD-PAYCODE) = 99 GO TO P1.
+
            IF DOCTAB(CD-DOCP) NOT = 0
            MOVE DOCTAB(CD-DOCP) TO CD-DOCP.
+
            MOVE CD-KEY8 TO G-GARNO
-           READ GARFILE INVALID DISPLAY "BAD BAD BAD BAD " G-GARNO
-           GO TO P1.
+           READ GARFILE 
+             INVALID
+               DISPLAY "BAD BAD BAD BAD " G-GARNO
+               GO TO P1
+           END-READ    
+
            IF G-STREET = SPACE AND G-BILLADD = SPACE
              DISPLAY "NO ADDRESS " G-GARNAME
               GO TO P1.
 
            IF CD-PAYCODE NOT = G-PRINS GO TO P1.
+
            IF G-PRINS = 003 OR 028 GO TO P1.
+
            MOVE CD-PAYCODE TO INS-KEY
-           READ INSFILE INVALID DISPLAY "BAD " INS-KEY GO TO P1.
-           IF INS-NEIC = SPACE DISPLAY "NO NEIC CODE " INS-KEY
-            GO TO P1.
+           READ INSFILE
+             INVALID
+               DISPLAY "BAD " INS-KEY
+               GO TO P1
+           END-READ    
+
+           IF INS-NEIC = SPACE
+             DISPLAY "NO NEIC CODE " INS-KEY
+             GO TO P1
+           END-IF  
+
+           IF INS-NEIC =  "VACCN"
+               DISPLAY INS-NEIC " only putting auth on posted charges"
+                   " so will wait to send fri/sat"
+               GO TO P1   
+           END-IF
+
            IF INS-CITY = SPACE OR INS-STREET = SPACE
              OR INS-STATE = SPACE OR INS-ZIP = SPACE
              DISPLAY "NO ADDRESS " INS-KEY
               GO TO P1.
+
            MOVE SPACE TO FILEOUT01
            STRING CHARFILE01 INS-NEIC DELIMITED BY SIZE INTO FILEOUT01
            IF INS-NEIC = "14165" 
