@@ -882,7 +882,7 @@
                    AND (FILEIN01(8:5) = "G9500" OR "G9547" OR "G9548"
                    OR "G9549" OR "G9550" OR "G9551" OR "G9552"
                    OR "G9553" OR "G9554" OR "G9555" OR "G9556"
-                   OR "G9557" OR "G9637")
+                   OR "G9557" OR "G9637" OR "G1004")
                    GO TO P1-SVC-LOOP
                END-IF 
              

@@ -30,46 +30,57 @@
            02 TITL-1 PIC X.
            02 TITL-2 PIC X(60).
        PROCEDURE DIVISION.
-       P0. OPEN INPUT FILEIN I-O DIAGFILE. 
+       P0. 
+           OPEN INPUT FILEIN
+           OPEN I-O DIAGFILE. 
+
        P1.
            MOVE SPACE TO FILEIN01.
            READ FILEIN AT END GO TO P9.
+           
            IF FILEIN01(1:3) = "ADD"
              MOVE FILEIN01(14:7) TO DIAG-KEY
              MOVE FILEIN01(22:61) TO DIAG-TITLE
              MOVE SPACE TO DIAG-MEDB
-             WRITE DIAG01 INVALID
-               DISPLAY "INVALID ADD"
-               DISPLAY FILEIN01
-               ACCEPT OMITTED
+             WRITE DIAG01
+               INVALID
+                 DISPLAY "INVALID ADD"
+                 DISPLAY FILEIN01
+                 ACCEPT OMITTED
              END-WRITE
              GO TO P1
            END-IF  
            
            IF FILEIN01(1:7) = "DELETE:"
              MOVE FILEIN01(14:7) TO DIAG-KEY
-             READ DIAGFILE WITH LOCK INVALID
-               DISPLAY "RECORD NOT FOUND"
-               DISPLAY FILEIN01
-               ACCEPT OMITTED
-               GO TO P1
+             READ DIAGFILE WITH LOCK
+               INVALID
+                 DISPLAY "RECORD NOT FOUND"
+                 DISPLAY FILEIN01
+                 ACCEPT OMITTED
+                 GO TO P1
              END-READ
+             
              DELETE DIAGFILE RECORD
              GO TO P1
            END-IF
            
            IF FILEIN01(1:9) = "REVISE TO"
              MOVE FILEIN01(14:7) TO DIAG-KEY
-             READ DIAGFILE WITH LOCK INVALID
-               DISPLAY "RECORD NOT FOUND on REVISE"
-               DISPLAY FILEIN01
-               ACCEPT OMITTED
-               GO TO P1
+             READ DIAGFILE WITH LOCK
+               INVALID
+                 DISPLAY "RECORD NOT FOUND on REVISE"
+                 DISPLAY FILEIN01
+                 ACCEPT OMITTED
+                 GO TO P1
              END-READ
+             
              MOVE FILEIN01(22:61) TO DIAG-TITLE
              REWRITE DIAG01
              GO TO P1
            END-IF
            GO TO P1.
-       P9. CLOSE DIAGFILE FILEIN. 
+
+       P9. 
+           CLOSE DIAGFILE FILEIN. 
            STOP RUN.
