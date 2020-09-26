@@ -244,7 +244,7 @@
            02 AUTH-NUM PIC X(15).
            02 AUTH-QNTY PIC XX.
            02 AUTH-DATE-E PIC X(8).
-           02 AUTH-FILLER PIC XXX.           
+           02 AUTH-FILLER PIC X(41).           
  
        WORKING-STORAGE SECTION.
        01  INSTAB01.
