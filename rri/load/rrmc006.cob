@@ -131,7 +131,6 @@
            02 MOBL-TITLE PIC X(28).
 
        FD  HOSPFILE
-           BLOCK CONTAINS 6 RECORDS
            DATA RECORD IS HOSPFILE01.
        01  HOSPFILE01.
            02 HOSP-KEY PIC X(5).
@@ -147,7 +146,6 @@
            02 FI-2 PIC X(1068).
 
        FD  REFPHY
-           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS REFPHY01.
        01  REFPHY01.
            02 REF-KEY PIC XXX.
@@ -402,6 +400,7 @@
              03 R2-PHONE3 PIC X(4).
            02 R2-DOC PIC X(8).
            02 R2-REFIND PIC X.
+      * col 1005     
            02 R2-NPI PIC X(10).
            02 R2-ADMIT-DATE-DUPLICATE PIC X(6).
            02 R2-PATSEX PIC X.
@@ -649,7 +648,23 @@
            02 ZIPCODE-7-10 PIC X(4).
        01  NUM2 PIC 99.
        01  ANS PIC X.
-      *
+       01  LASTNAME PIC X(22).
+       01  FIRSTNAME PIC X(22).
+       01  ALFATAB1RE.
+           02 FILLER PIC X(36) VALUE
+           "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".
+       01  ALFATAB101 REDEFINES ALFATAB1RE.
+           02 ALFATAB1 PIC X OCCURS 36 TIMES.
+       01  ALFATAB2RE.
+           02 FILLER PIC X(36) VALUE
+           "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ".
+       01  ALFATAB201 REDEFINES ALFATAB2RE.
+           02 ALFATAB2 PIC X OCCURS 36 TIMES.
+       01  TEST-KEY PIC XXX.
+       01  TEST-NAME.
+           02 TN1 PIC X.
+           02 TN14 PIC X(23).
+
        PROCEDURE DIVISION.
        0005-START.
            OPEN I-O ACTFILE EMAILAUTHFILE ORDFILE COMPFILE.
@@ -830,9 +845,23 @@
            
            IF FLAG = 1
                GO TO P2
-           END-IF.    
+           END-IF
 
-       P2-0.
+      * if FLAG = 0 but we have npi and name can't we add for Cady/M? 
+           IF (R2-REFDOC NOT = SPACE) AND (R2-NPI(10:1) NOT = SPACE)
+             DISPLAY "WOULD YOU LIKE TO ADD " R2-REFDOC  " NPI " R2-NPI
+               " AUTOMATICALLY? Type Y for YES."
+             ACCEPT ANS
+             IF ANS = "Y"
+               PERFORM P62                 
+             END-IF  
+           END-IF
+ 
+           IF FLAG = 1
+             GO TO P2
+           END-IF.
+
+       P2-0.     
            DISPLAY "ENTER 3 CHAR REFPHY CODE FOR PROVIDER " R2-REFDOC
            DISPLAY "AFTER ADDING to DB WITH RRI-62"
            DISPLAY " PT " R1-PATNAME " ADDR " R1-GARCITY " " R1-GARSTATE
@@ -1798,6 +1827,60 @@
 
        EA-1-EXIT.
            EXIT.
+
+       P62.
+      *    CHECK THIS OUT!!!
+
+      *     MOVE SPACE TO LASTNAME FIRSTNAME
+      *     UNSTRING R2-REFDOC DELIMITED BY "," INTO
+      *      LASTNAME FIRSTNAME    
+      *     STRING LASTNAME FIRSTNAME DELIMITED BY ";" INTO
+      *      REF-NAME
+      *
+      *    elegant!
+      *
+           INSPECT R2-REFDOC REPLACING ALL "," BY ";"
+      *     
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 36
+             PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > 36
+               STRING R2-REFDOC(1:1) ALFATAB1(Z) ALFATAB2(Y) 
+                 DELIMITED BY SIZE INTO TEST-KEY
+               MOVE TEST-KEY TO REF-KEY
+               READ REFPHY
+                 INVALID
+      *             DISPLAY TEST-KEY " INVALID"
+                   MOVE 1 TO FLAG
+                   MOVE 37 TO Y
+                   MOVE 37 TO Z
+                 NOT INVALID
+      *             DISPLAY TEST-KEY " NOT INVALID"
+                   IF REF-NAME = TEST-NAME
+                     DISPLAY REF-KEY " " REF-NAME
+                     DISPLAY "ON FILE ALREADY. FALLING BACK TO RRI-62"
+                     MOVE 37 TO Y
+                     MOVE 37 TO Z
+                   END-IF
+               END-READ
+             END-PERFORM
+           END-PERFORM 
+
+           IF FLAG = 1            
+             CLOSE REFPHY
+             OPEN I-O REFPHY
+             MOVE TEST-KEY TO REF-KEY
+             MOVE SPACE TO REF-BSNUM
+             MOVE SPACE TO REF-CRNUM
+             MOVE SPACE TO REF-UPIN
+             MOVE SPACE TO REF-CDNUM
+             MOVE R2-REFDOC TO REF-NAME
+             MOVE R2-NPI TO REF-NPI
+             WRITE REFPHY01
+               INVALID
+                 DISPLAY "BAD WRITE ON REFPHY"  
+             END-WRITE
+             CLOSE REFPHY
+             OPEN INPUT REFPHY
+           END-IF.          
 
        9100CMF.
            CLOSE ACTFILE EMAILAUTHFILE ORDFILE COMPFILE

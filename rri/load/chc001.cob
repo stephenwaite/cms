@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. CHC001.
+       PROGRAM-ID. chc001.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -461,9 +461,10 @@
            PERFORM LI-1 THRU LI-1-EXIT GO TO HOSP-TI.
        2-HOSP.
            IF IN-FIELD = "?"
-               DISPLAY "ENTER NAME OF THE INSURANCE"
+              DISPLAY "ENTER NAME OF THE INSURANCE"
               DISPLAY "ON PERSONAL STATEMENTS AND CLAIM FORMS"
               GO TO HOSP-TI.
+              
            IF IN-FIELD-1 = SPACE OR IN-FIELD = SPACE
            DISPLAY "LEADING BLANKS OR A BLANK NAME IS NOT ALLOWED"
            GO TO HOSP-TI.
