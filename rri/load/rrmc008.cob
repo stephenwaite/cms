@@ -318,7 +318,7 @@
            MOVE SPACE TO ERRFILE01.    
 
            STRING "UNDEFINED PROCEDURE FOR " MEDREC " " R3-PROC 
-                  " " R3-CPT " DOS " R3-DATE ". Sheesh."
+                  " " R3-CPT " DOS " R3-DATE ". This should be fixed."
                DELIMITED BY SIZE INTO ERRFILE01
 
            WRITE ERRFILE01.
@@ -328,8 +328,8 @@
        BAD-2.
            MOVE SPACE TO ERRFILE01.    
 
-           STRING "ZERO DOLLAR PROCEDURE FOR " MEDREC " " R3-PROC 
-                  " " R3-CPT " " R3-DATE ". CALL CADY :)"
+           STRING "ZERO DOLLAR PROCEDURE FOR " MEDREC " CDM " PROC-KEY1 
+                  " CPT " PROC-KEY2 " DOS " R3-DATE " safe to ignore?" 
                DELIMITED BY SIZE INTO ERRFILE01
 
            WRITE ERRFILE01.
