@@ -10,11 +10,12 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT ACTFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS A-ACTNO
-           ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
-           ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES
-           STATUS IS ACCT-STAT.
+             ACCESS MODE IS DYNAMIC RECORD KEY IS A-ACTNO
+             ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
+             ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES
+             STATUS IS ACCT-STAT.
            
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
@@ -214,17 +215,18 @@
                GO TO P1
            END-READ           
            MOVE A-GARNO TO X-GARNO.
-           MOVE A-ACTNO TO X-ACTNO.
-           IF A-GARNO = SPACE
-               GO TO P1-1
-           END-IF
+           MOVE A-ACTNO TO X-ACTNO.          
+
            MOVE A-GARNO TO G-GARNO
            READ GARFILE INVALID
                GO TO P1-1
            END-READ
+
            MOVE 0 TO FLAG
+
       *    validate current garno on actfile     
            PERFORM A1 THRU A2
+
            IF FLAG = 0
                MOVE SPACE TO ERRORFILE01
                STRING "FOR MRN " A-ACTNO " NO CHANGE TO " G-GARNO
@@ -233,25 +235,42 @@
                WRITE ERRORFILE01  
                GO TO P1
            END-IF.    
-      *    fall into p1-1 searching garfile for a candidate     
+
+      *    fall into p1-1 searching garfile for a candidate    
+
        P1-1.
            MOVE A-ACTNO TO G-ACCT
-           START GARFILE KEY NOT < G-ACCT INVALID
+           START GARFILE KEY NOT < G-ACCT
+             INVALID
                MOVE SPACE TO X-GARNO
       *    no matches in garfile
-               GO TO P4
-           END-START.    
+               MOVE SPACE TO ERRORFILE01
+               STRING "MRN " A-ACTNO " HAS NO GARNOS IN GARFILE"
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01             
+               GO TO P1
+           END-START.  
+
        P2.
-           READ GARFILE NEXT AT END
+           READ GARFILE NEXT
+             AT END
                MOVE SPACE TO X-GARNO
       *        no good candidates
-               GO TO P4
+               MOVE SPACE TO ERRORFILE01
+               STRING "MRN " A-ACTNO " GARNOS DO NOT HAVE USABLE DEMOS"
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01             
+               GO TO P1
            END-READ   
 
            IF (G-ACCT NOT = A-ACTNO)
-               MOVE SPACE TO X-GARNO
-      *    no good candidates i.e. biden         
-               GO TO P4
+             MOVE SPACE TO X-GARNO
+      *    no good candidates          
+             MOVE SPACE TO ERRORFILE01
+             STRING "MRN " A-ACTNO " GARNOS DO NOT HAVE USABLE DEMOS"
+               DELIMITED BY SIZE INTO ERRORFILE01
+             WRITE ERRORFILE01             
+             GO TO P1
            END-IF    
       *    reset X-GARNO 
            MOVE G-GARNO TO X-GARNO 
@@ -259,34 +278,61 @@
       *    set flag to zero again for another validate run
            MOVE 0 TO FLAG      
            PERFORM A1 THRU A2 
+           
            IF FLAG = 0
       *    we need to update actfile
-               GO TO P4
+             GO TO P4
            END-IF
-           GO TO P2.    
+
+           GO TO P2.
+
        A1.    
            IF (G-GN1 NOT = A-GN1)
                MOVE 1 TO FLAG
+               MOVE SPACE TO ERRORFILE01
+               STRING G-GARNO " " A-ACTNO " NAMES DON'T MATCH" 
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01             
+               GO TO A2
            END-IF    
 
            IF (G-DUNNING NOT = "1" AND A-PRINS NOT = "003")
                MOVE 1 TO FLAG
+               MOVE SPACE TO ERRORFILE01
+               STRING G-GARNO " " A-ACTNO " IN COLLT" 
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01             
+               GO TO A2
            END-IF    
            
            IF A-DOB NOT = G-DOB
                MOVE 1 TO FLAG
+               STRING G-GARNO " " A-ACTNO " DOB MISMATCH" 
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01             
+               GO TO A2
            END-IF    
            
            IF (A-PRINS NOT = G-PRINS) 
                MOVE 1 TO FLAG
+               STRING G-GARNO " " A-ACTNO " NO INS MATCH" 
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01             
+               GO TO A2
            END-IF
            
            IF (A-SEINS NOT = G-SEINS) AND 
              (G-SEINS NOT = "062" OR G-SE-ASSIGN NOT = "U")
                MOVE 1 TO FLAG   
+               STRING G-GARNO " " A-ACTNO " 2NDARY INS MISMATCH" 
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01             
+               GO TO A2
            END-IF.
+
        A2.
            EXIT.
+
        P4.
            MOVE SPACE TO ERRORFILE01
            STRING "FOR MRN " A-ACTNO " CHANGED " A-GARNO " TO " X-GARNO
@@ -304,6 +350,7 @@
            CLOSE ACTFILE
            OPEN INPUT ACTFILE
            GO TO P1.
+
        P6. 
            CLOSE GARFILE ACTFILE ORDFILE ERRORFILE.
            STOP RUN.

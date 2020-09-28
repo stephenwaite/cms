@@ -421,23 +421,26 @@
            MOVE A-GARNO TO G-GARNO.
 
        P1-0.
-       
+
            READ GARFILE WITH LOCK
              INVALID
                DISPLAY A-GARNO " " A-ACTNO
-               DISPLAY "A NEW ACCOUNT IS CREATED"
+               DISPLAY "INVALID GARNO, A NEW ACCOUNT WILL BE CREATED"
+               ACCEPT OMITTED                      
                GO TO P2
            END-READ           
 
            IF G-DUNNING NOT = "1"
                DISPLAY G-GARNO " " G-GARNAME " NEW ACCOUNT STARTED"
-                   " SINCE GARNO WAS IN COLLECTION"
+                 " SINCE GARNO WAS IN COLLECTION"
+               ACCEPT OMITTED      
                GO TO P2
            END-IF
 
            GO TO REWRITE-NEW.
 
        P2. 
+
            MOVE ACTFILE01 TO GARFILE01
            MOVE A-ACTNO TO G-ACCT
            ACCEPT YEARDAY FROM DAY.
@@ -541,9 +544,10 @@
            READ INSFILE
              INVALID
                DISPLAY G-GARNO " " G-PRINS " " G-GARNAME 
-                   "  HAS AN INVALID PRIMARY INSURANCE"
-               DISPLAY " FIX IT FOR NEXT 250 RUN!"
-               GO TO P1
+                 "  HAS AN INVALID PRIMARY INSURANCE"
+               DISPLAY " FIX THIS IN GP AND LET STEVE KNOW"
+               ACCEPT OMITTED    
+               MOVE "001" TO G-PRINS
            END-READ
 
            MOVE G-GARNO TO CD-PATID
@@ -661,12 +665,16 @@
            GO TO P7.
 
        REWRITE-NEW. 
+
+      * save some G details
            MOVE G-COLLT TO X-COLLT
            MOVE G-DUNNING TO X-DUNNING
            MOVE G-ACCTSTAT TO X-ACCTSTAT
            MOVE G-INSPEND TO X-INSPEND
            MOVE G-LASTBILL TO X-LASTBILL
            MOVE G-BILLCYCLE TO X-BILLCYCLE
+      * overwrite garfile with actfile and bring billing details back
+      * and the garno from actfile
            MOVE ACTFILE01 TO GARFILE01
            MOVE A-GARNO TO G-GARNO
            MOVE A-ACTNO TO G-ACCT
@@ -693,9 +701,9 @@
            UNSTRING G-PRNAME DELIMITED BY ";" INTO LNAME2 FNAME2 MNAME2
            
            IF (LNAME = LNAME2 AND FNAME = FNAME2
-               AND G-RELATE NOT = G-PR-RELATE)
-               MOVE G-GARNAME TO G-PRNAME
-               MOVE G-RELATE TO G-PR-RELATE
+             AND G-RELATE NOT = G-PR-RELATE)
+             MOVE G-GARNAME TO G-PRNAME
+             MOVE G-RELATE TO G-PR-RELATE
            END-IF
            
            INSPECT G-BILLADD REPLACING ALL ":" BY " ".

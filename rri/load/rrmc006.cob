@@ -711,6 +711,7 @@
            END-IF
 
            MOVE FILEIN01 TO REC101.
+
            READ FILEIN
              AT END
                DISPLAY "BAD ENDING"
@@ -844,7 +845,8 @@
            PERFORM NPI-METHOD THRU NPI-EXIT.
            
            IF FLAG = 1
-               GO TO P2
+             MOVE REF-KEY TO REF
+             GO TO P2
            END-IF
 
       * if FLAG = 0 but we have npi and name can't we add for Cady/M? 
@@ -858,6 +860,7 @@
            END-IF
  
            IF FLAG = 1
+             MOVE REF-KEY TO REF
              GO TO P2
            END-IF.
 
@@ -970,7 +973,6 @@
            
            IF REF-NPI = R2-NPI
                MOVE 1 TO FLAG
-               MOVE REF-KEY TO REF
                GO TO NPI-EXIT
            END-IF
            
@@ -1225,97 +1227,119 @@
        SEL-SEINS.
            MOVE 0 TO FLAG
            MOVE X-IP TO HOSP-KEY
+
            IF X-IP = SPACE GO TO SEL-SEINS-EXIT.
+
            READ HOSPFILE INVALID
+             MOVE X-CERT TO A-SECPOL
+             MOVE X-GRP TO A-SE-GROUP
+             MOVE SPACE TO FILEOUT01
+             STRING "HOSP=" HOSP-KEY " " R2-MEDREC " " A-GARNAME
+             " BAD HOSPITAL CODE" DELIMITED BY "?/?" INTO FILEOUT01
+             DISPLAY FILEOUT01
+             WRITE FILEOUT01
+             GO TO SEL-SEINS-EXIT.
 
-           MOVE X-CERT   TO A-SECPOL
-           MOVE X-GRP TO A-SE-GROUP
-
-           MOVE SPACE TO FILEOUT01
-           STRING "HOSP=" HOSP-KEY " " R2-MEDREC " " A-GARNAME
-           " BAD HOSPITAL CODE" DELIMITED BY "?/?" INTO FILEOUT01
-           DISPLAY FILEOUT01
-           WRITE FILEOUT01 GO TO SEL-SEINS-EXIT.
            MOVE H-INS-KEY TO INS-KEY
-           READ INSFILE INVALID DISPLAY H-INS-KEY " MISSING"
-            DISPLAY HOSP-KEY " " R2-MEDREC " " A-GARNAME
-            MOVE SPACE TO FILEOUT01
-            STRING "HOSP=" HOSP-KEY " " H-INS-KEY " " R2-MEDREC " "
-            A-GARNAME " BAD INSURANCE CODE" DELIMITED BY ".."
-            INTO FILEOUT01 WRITE FILEOUT01
-            MOVE "001" TO H-INS-KEY.
+           READ INSFILE
+             INVALID
+               DISPLAY H-INS-KEY " MISSING"
+               DISPLAY HOSP-KEY " " R2-MEDREC " " A-GARNAME
+               MOVE SPACE TO FILEOUT01
+               STRING "HOSP=" HOSP-KEY " " H-INS-KEY " " R2-MEDREC " "
+                 A-GARNAME " BAD INSURANCE CODE" DELIMITED BY ".."
+                 INTO FILEOUT01 WRITE FILEOUT01
+               MOVE "001" TO H-INS-KEY.
+
            MOVE INS-ASSIGN TO A-SE-ASSIGN.
            MOVE 1 TO FLAG
            MOVE H-INS-KEY TO A-SEINS
-           MOVE X-CERT   TO A-SECPOL
-           MOVE X-GRP TO A-SE-GROUP
+           MOVE X-CERT    TO A-SECPOL
+           MOVE X-GRP     TO A-SE-GROUP
            MOVE X-GRPNAME TO A-SEGRPNAME
+
            IF X-SUBNAME = "SELF" OR "UNK" OR SPACE OR "X" OR "XX"
-           MOVE A-GARNAME TO A-SENAME GO TO SEL-2.
-
-
+             MOVE A-GARNAME TO A-SENAME
+             GO TO SEL-2.
 
            MOVE SPACE TO A-SENAME LNAME FNAME
            UNSTRING X-SUBNAME DELIMITED BY ", " OR ","
-            INTO LNAME FNAME
+             INTO LNAME FNAME
+    
            IF FNAME = SPACE
              MOVE SPACE TO LNAME FNAME
              UNSTRING X-SUBNAME DELIMITED BY " " INTO FNAME LNAME
              STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-SENAME
            ELSE
-            STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-SENAME
+             STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-SENAME
            END-IF.
+
        SEL-2.
-           IF X-CERT = SPACE MOVE X-SSN TO A-SECPOL.
+           IF X-CERT = SPACE
+             MOVE X-SSN TO A-SECPOL.
+
            IF NOT (X-GENDER = "F" OR "M")
              DISPLAY X-SUBNAME " GENDER F OR M"
-              IF X-SUBNAME = SPACE
+             IF X-SUBNAME = SPACE
                DISPLAY A-GARNAME
-              END-IF
-
+             END-IF
              ACCEPT X-GENDER 
-            END-IF.
-           IF X-GENDER = "F" MOVE "K" TO RELATECODE
-           ELSE MOVE "2" TO RELATECODE.
+           END-IF
+           
+           IF X-GENDER = "F" 
+             MOVE "K" TO RELATECODE
+           ELSE
+             MOVE "2" TO RELATECODE.
+
            MOVE X-RELATE TO Y-RELATE
            PERFORM RELATE-1 THRU RELATE-1-EXIT
            MOVE RELATECODE TO A-SE-RELATE.
+           
            IF X-IP = "00058   " AND A-PRINS = "003"
-           MOVE "0005199     " TO A-PR-GROUP
-           MOVE "062" TO A-SEINS.
-           IF X-IP = "00061   " AND A-PRINS = "003"
-           MOVE "0000731     " TO A-PR-GROUP
-           MOVE "062" TO A-SEINS.
-           IF A-SEINS = "091"
-           MOVE R1-EMPLOYNAME22 TO A-SEGRPNAME.
+             MOVE "0005199     " TO A-PR-GROUP
+             MOVE "062" TO A-SEINS.
 
-       SEL-SEINS-EXIT. EXIT.
+           IF X-IP = "00061   " AND A-PRINS = "003"
+             MOVE "0000731     " TO A-PR-GROUP
+             MOVE "062" TO A-SEINS.
+
+           IF A-SEINS = "091"
+             MOVE R1-EMPLOYNAME22 TO A-SEGRPNAME.
+
+       SEL-SEINS-EXIT. 
+           EXIT.
+
        RELATE-1.
            IF (Y-RELATE = "03" OR "04" OR "06"
-           OR "07" OR "13" OR "14" OR "17")
-           AND (X-GENDER = "M")
-           MOVE "2" TO RELATECODE
-           GO TO RELATE-1-EXIT.
+             OR "07" OR "13" OR "14" OR "17")
+             AND (X-GENDER = "M")
+             MOVE "2" TO RELATECODE
+             GO TO RELATE-1-EXIT.
+
            IF (Y-RELATE = "03" OR "04" OR "06"
-           OR "07" OR "13" OR "14" OR "17")
-           AND (X-GENDER = "F")
-           MOVE "K" TO RELATECODE
-           GO TO RELATE-1-EXIT.
+             OR "07" OR "13" OR "14" OR "17")
+             AND (X-GENDER = "F")
+             MOVE "K" TO RELATECODE
+             GO TO RELATE-1-EXIT.
+
            IF (Y-RELATE = "05")
-           AND (X-GENDER = "2")
-           MOVE "2" TO RELATECODE
-           GO TO RELATE-1-EXIT.
+             AND (X-GENDER = "2")
+             MOVE "2" TO RELATECODE
+             GO TO RELATE-1-EXIT.
+
            IF (Y-RELATE = "05")
-           AND (X-GENDER = "F")
-           MOVE "K" TO RELATECODE
-           GO TO RELATE-1-EXIT.
+             AND (X-GENDER = "F")
+             MOVE "K" TO RELATECODE
+             GO TO RELATE-1-EXIT.
+
        RELATE-1-EXIT.
            EXIT.
+
        REPLACE-1.
            IF R1-INSCITY1 = "SALT LAKE CITY"
-            AND R1-INSADDR11 = "PO BOX 31353"
-            MOVE "665" TO INS-KEY
-            GO TO REPLACE-1-EXIT
+             AND R1-INSADDR11 = "PO BOX 31353"
+             MOVE "665" TO INS-KEY
+             GO TO REPLACE-1-EXIT
            END-IF
 
            DISPLAY R1-PATNAME INSURANCE-1
@@ -1324,9 +1348,14 @@
       *     DISPLAY "523 = ADVANTRA"
            ACCEPT A-PRINS
            MOVE A-PRINS TO INS-KEY
-           READ INSFILE INVALID DISPLAY "BAD" GO TO REPLACE-1.
+           READ INSFILE
+             INVALID 
+               DISPLAY "BAD"
+               GO TO REPLACE-1.
+
        REPLACE-1-EXIT.
            EXIT.
+
        REPLACE-2.
            DISPLAY R1-PATNAME INSURANCE-1
            DISPLAY "ENTER A PRIMARY INS CODE MAYBE ELECTRONIC?"
@@ -1345,15 +1374,16 @@
            DISPLAY R1-PATNAME
 
            IF A-PRINS = "003"
-               DISPLAY "MEDICARE PATIENT"
+             DISPLAY "MEDICARE PATIENT"
            END-IF
 
            DISPLAY R1-PATNAME INSURANCE-2
            DISPLAY "ENTER 2NDARY INS CODE"
            ACCEPT A-SEINS
            MOVE A-SEINS TO INS-KEY
-           READ INSFILE INVALID
-             DISPLAY "BAD"
+           READ INSFILE
+             INVALID
+               DISPLAY "BAD"
                GO TO REPLACE-3
            END-READ.
 
@@ -1370,68 +1400,68 @@
 
        P2-2.
            IF A-PRINS = "004"
-            MOVE A-RELATE TO A-PR-RELATE.
+             MOVE A-RELATE TO A-PR-RELATE.
            
            IF A-SEINS = "004"
-            MOVE A-RELATE TO A-SE-RELATE.
+             MOVE A-RELATE TO A-SE-RELATE.
            
            IF A-PRINS NOT = "245"
-               SET YNDX TO 1
-               MOVE A-PRIPOL TO TAB1601
-               MOVE SPACE TO NEWTAB01
-               PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
-               MOVE NEWTAB01 TO A-PRIPOL
+             SET YNDX TO 1
+             MOVE A-PRIPOL TO TAB1601
+             MOVE SPACE TO NEWTAB01
+             PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
+             MOVE NEWTAB01 TO A-PRIPOL
            END-IF    
            
            IF A-SEINS NOT = "245"
-               SET YNDX TO 1
-               MOVE A-SECPOL TO TAB1601
-               MOVE SPACE TO NEWTAB01
-               PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
-               MOVE NEWTAB01 TO A-SECPOL
+             SET YNDX TO 1
+             MOVE A-SECPOL TO TAB1601
+             MOVE SPACE TO NEWTAB01
+             PERFORM PACK-1 VARYING X FROM 1 BY 1 UNTIL X > 16
+             MOVE NEWTAB01 TO A-SECPOL
            END-IF
 
            IF (A-PRINS = "003")
-               MOVE A-PRIPOL TO POLTEST
-               IF ((POLTEST1 = "WA" OR "MA" OR "WD")
-                 OR (POLTEST1-1 = "A"))
-                   MOVE "028" TO A-PRINS
-               END-IF
+             MOVE A-PRIPOL TO POLTEST
+             IF ((POLTEST1 = "WA" OR "MA" OR "WD")
+               OR (POLTEST1-1 = "A"))
+               MOVE "028" TO A-PRINS
+             END-IF
            END-IF
 
            IF (A-SEINS = "003")
-               MOVE A-SECPOL TO POLTEST
-               IF ((POLTEST1 = "WA" OR "MA" OR "WD")
-                 OR (POLTEST1-1 = "A"))
-                   MOVE "028" TO A-SEINS
-               END-IF
-           END-IF.
+             MOVE A-SECPOL TO POLTEST
+             IF ((POLTEST1 = "WA" OR "MA" OR "WD")
+               OR (POLTEST1-1 = "A"))
+                 MOVE "028" TO A-SEINS
+             END-IF
+           END-IF
            
            IF (A-PRINS = "003") AND (A-SEINS NOT = "062")
-               MOVE SPACE TO A-PR-GROUP
+             MOVE SPACE TO A-PR-GROUP
            END-IF
 
            IF A-SEINS = "003"
-               MOVE SPACE TO A-SE-GROUP
+             MOVE SPACE TO A-SE-GROUP
            END-IF
 
            MOVE SPACE TO A-PR-OFFICE.
            
            IF A-PRINS = "121"
-               MOVE "X100" TO A-PR-OFFICE
+             MOVE "X100" TO A-PR-OFFICE
            END-IF
 
            IF (A-PRIPOL = A-PR-GROUP)
-               MOVE SPACE TO A-PR-GROUP
+             MOVE SPACE TO A-PR-GROUP
            END-IF
 
            IF (A-SECPOL = A-SE-GROUP)
-               MOVE SPACE TO A-SE-GROUP
+             MOVE SPACE TO A-SE-GROUP
            END-IF
 
            IF (A-PRINS = "003" AND A-SEINS = "005")
-               AND (A-PRIPOL1 = A-SECPOL1)
-               MOVE A-PRIPOL2 TO A-SECPOL2
+             AND (A-PRIPOL1 = A-SECPOL1)
+             MOVE A-PRIPOL2 TO A-SECPOL2
            END-IF
    
            MOVE A-PRIPOL TO ALF-16
@@ -1639,6 +1669,7 @@
            MOVE SAVEMASTER TO ACTFILE01
            REWRITE ACTFILE01.
            GO TO B1.
+           
        B1. 
            READ FILEIN
              AT END
@@ -1867,7 +1898,7 @@
            IF FLAG = 1            
              CLOSE REFPHY
              OPEN I-O REFPHY
-             MOVE TEST-KEY TO REF-KEY
+             MOVE TEST-KEY TO REF-KEY             
              MOVE SPACE TO REF-BSNUM
              MOVE SPACE TO REF-CRNUM
              MOVE SPACE TO REF-UPIN
