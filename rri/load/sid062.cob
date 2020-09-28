@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
         IDENTIFICATION DIVISION.
-       PROGRAM-ID. SID062.
+       PROGRAM-ID. sid062.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -173,16 +173,21 @@
            DISPLAY "LASTNAME;FIRSTNAME".
            ACCEPT TEST-NAME.
            IF TEST-NAME = "?"
-           DISPLAY "BK = BACK TO FUNCTION"
-           DISPLAY "TYPE IN LAST NAME,FIRST INITIAL "
-           GO TO A1.
-           IF TEST-NAME = "X" OR "BK" DISPLAY "NO UPDATE" GO TO A1-EXIT.
+             DISPLAY "BK = BACK TO FUNCTION"
+             DISPLAY "TYPE IN LAST NAME,FIRST INITIAL "
+             GO TO A1.
+           
+           IF TEST-NAME = "X" OR "BK"
+             DISPLAY "NO UPDATE"
+             GO TO A1-EXIT.
+
            MOVE SPACE TO NAMELAST NAMEFIRST
            UNSTRING TEST-NAME DELIMITED BY ";" INTO
-           NAMELAST NAMEFIRST
+             NAMELAST NAMEFIRST
+
            IF (NAMEFIRST = SPACE) OR (NAMELAST = SPACE)
-           DISPLAY "BOTH FIRST AND LAST NAMES ARE MANDATORY!"
-           GO TO A1.
+             DISPLAY "FIRST AND LAST NAMES ARE MANDATORY."
+             GO TO A1.
            IF NAMEFIRST(1:1) NOT ALPHABETIC
            DISPLAY "INVALID FIRST NAME"
            GO TO A1.
@@ -194,30 +199,34 @@
        A3.
            MOVE SPACE TO TEST-KEY.
            MOVE 0 TO FLAG
-            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 36
+           
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 36
              PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > 36
-             STRING TN1 ALFATAB1(Z) ALFATAB2(Y) DELIMITED BY SIZE
-             INTO TEST-KEY
-             MOVE TEST-KEY TO REF-KEY
-             READ REFPHY
-           INVALID
-      *        DISPLAY TEST-KEY " INVALID"
-              MOVE 1 TO FLAG
-              MOVE 37 TO Y
-              MOVE 37 TO Z
-           NOT INVALID
-      *      DISPLAY TEST-KEY " NOT INVALID"
-            IF REF-NAME = TEST-NAME DISPLAY REF-KEY " " REF-NAME
-             DISPLAY "ON FILE ALREADY. MAKE NAME UNIQUE TO ADD!"
-              MOVE 37 TO Y
-              MOVE 37 TO Z
-             GO TO A1
-            END-IF
-           END-READ
+               STRING TN1 ALFATAB1(Z) ALFATAB2(Y) DELIMITED BY SIZE
+                 INTO TEST-KEY
+               MOVE TEST-KEY TO REF-KEY
+               READ REFPHY
+                 INVALID
+      *             DISPLAY TEST-KEY " INVALID"
+                   MOVE 1 TO FLAG
+                   MOVE 37 TO Y
+                   MOVE 37 TO Z
+                 NOT INVALID
+      *             DISPLAY TEST-KEY " NOT INVALID"
+                   IF REF-NAME = TEST-NAME DISPLAY REF-KEY " " REF-NAME
+                     DISPLAY "ON FILE ALREADY. MAKE NAME UNIQUE TO ADD!"
+                     MOVE 37 TO Y
+                     MOVE 37 TO Z
+                     GO TO A1
+                   END-IF
+               END-READ
              END-PERFORM
-            END-PERFORM.
+           END-PERFORM
+
            IF FLAG = 0  DISPLAY "TOO MANY PHYS. WITH SAME LETTER!"
-           GO TO A1.
+             GO TO A1
+           END-IF.
+
        A4.
            MOVE TEST-KEY TO REF-KEY.
            MOVE TEST-NAME TO REF-NAME.
