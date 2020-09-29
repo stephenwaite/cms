@@ -166,7 +166,7 @@
            END-READ
 
       * adding cdms that rrmc can't get mod right
-           IF PROC-KEY1 NOT = "1284"
+           IF PROC-KEY1 NOT = "1284" OR "0111" OR "1285"
              GO TO P1 
            END-IF    
 

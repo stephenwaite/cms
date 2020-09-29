@@ -12,13 +12,13 @@
        FILE-CONTROL.
 
            SELECT ACTFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-             ACCESS MODE IS RANDOM RECORD KEY IS A-ACTNO
+             ACCESS MODE IS DYNAMIC RECORD KEY IS A-ACTNO
              ALTERNATE RECORD KEY IS A-GARNO WITH DUPLICATES
              ALTERNATE RECORD KEY IS NAME-KEY WITH DUPLICATES
              LOCK MODE MANUAL.
 
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
-             ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
+             ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
              ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
              LOCK MODE MANUAL.
       *       STATUS IS GAR-STAT.
@@ -29,7 +29,7 @@
              LOCK MODE MANUAL.
 
            SELECT PROCFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
-             ACCESS MODE IS DYNAMIC  RECORD KEY IS PROC-KEY
+             ACCESS MODE IS DYNAMIC RECORD KEY IS PROC-KEY
              LOCK MODE MANUAL.
 
            SELECT CHARFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
@@ -37,7 +37,7 @@
              LOCK MODE MANUAL.
 
            SELECT CLAIMFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
-             ACCESS IS DYNAMIC  RECORD KEY IS CLAIM-KEY
+             ACCESS IS DYNAMIC RECORD KEY IS CLAIM-KEY
              STATUS IS CLM-STAT
              LOCK MODE MANUAL.
 
@@ -54,7 +54,7 @@
              SEQUENTIAL.
 
            SELECT INSFILE ASSIGN TO "S85" ORGANIZATION IS INDEXED
-             ACCESS IS DYNAMIC  RECORD KEY IS INS-KEY
+             ACCESS IS DYNAMIC RECORD KEY IS INS-KEY
              ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
              ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
              ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
@@ -403,41 +403,38 @@
            MOVE WORK24901 TO A-ACTNO
            READ ACTFILE
              INVALID
-               DISPLAY "BAD ACCT " A-ACTNO
+               DISPLAY "BAD ACCT " A-ACTNO " SHOULD NEVER HAPPEN!"
                ACCEPT X-ACCTSTAT
                GO TO P1
-           END-READ
-
-           IF A-PRINS = "456"
-               DISPLAY A-GARNAME " CANADA"
-               ACCEPT X-ACCTSTAT
-               GO TO P1
-           END-IF
+           END-READ           
 
            IF (A-GARNO = SPACE)
-               GO TO P2
+             GO TO P2
            END-IF
 
            MOVE A-GARNO TO G-GARNO.
 
        P1-0.
-       
+
            READ GARFILE WITH LOCK
              INVALID
                DISPLAY A-GARNO " " A-ACTNO
-               DISPLAY "A NEW ACCOUNT IS CREATED"
+               DISPLAY "INVALID GARNO, A NEW ACCOUNT WILL BE CREATED"
+               ACCEPT OMITTED                      
                GO TO P2
            END-READ           
 
-           IF G-DUNNING NOT = "1"
+           IF (G-DUNNING NOT = "1" AND G-PRINS NOT = "003")
                DISPLAY G-GARNO " " G-GARNAME " NEW ACCOUNT STARTED"
-                   " SINCE GARNO WAS IN COLLECTION"
+                 " SINCE GARNO WAS IN COLLECTION"
+               ACCEPT OMITTED      
                GO TO P2
            END-IF
 
            GO TO REWRITE-NEW.
 
        P2. 
+
            MOVE ACTFILE01 TO GARFILE01
            MOVE A-ACTNO TO G-ACCT
            ACCEPT YEARDAY FROM DAY.
@@ -479,6 +476,7 @@
            GO TO P4.
 
        P5.
+
            MOVE GARBACK TO GARFILE01.
            
            IF G-PRINS = "003" AND G-SEINS = "076"
@@ -541,9 +539,10 @@
            READ INSFILE
              INVALID
                DISPLAY G-GARNO " " G-PRINS " " G-GARNAME 
-                   "  HAS AN INVALID PRIMARY INSURANCE"
-               DISPLAY " FIX IT FOR NEXT 250 RUN!"
-               GO TO P1
+                 "  HAS AN INVALID PRIMARY INSURANCE"
+               DISPLAY " FIX THIS IN GP AND LET STEVE KNOW"
+               ACCEPT OMITTED    
+               MOVE "001" TO G-PRINS
            END-READ
 
            MOVE G-GARNO TO CD-PATID
@@ -656,17 +655,21 @@
            DISPLAY "FOR HOSP CODE " PK1 "." 
            DISPLAY "THIS RECORD WILL BE DISCARDED"
            DISPLAY "BUT MUST BE CORRECTED IN HOSPRRI AND USED"
-           DISPLAY "NOTIFY STEPHEN IMMEDIATELY FOR WHAT TO DO,"
+           DISPLAY "NOTIFY STEPHEN IMMEDIATELY."
            ACCEPT OMITTED
            GO TO P7.
 
        REWRITE-NEW. 
+
+      * save some G details
            MOVE G-COLLT TO X-COLLT
            MOVE G-DUNNING TO X-DUNNING
            MOVE G-ACCTSTAT TO X-ACCTSTAT
            MOVE G-INSPEND TO X-INSPEND
            MOVE G-LASTBILL TO X-LASTBILL
            MOVE G-BILLCYCLE TO X-BILLCYCLE
+      * overwrite garfile with actfile and bring billing details back
+      * and the garno from actfile
            MOVE ACTFILE01 TO GARFILE01
            MOVE A-GARNO TO G-GARNO
            MOVE A-ACTNO TO G-ACCT
@@ -693,9 +696,9 @@
            UNSTRING G-PRNAME DELIMITED BY ";" INTO LNAME2 FNAME2 MNAME2
            
            IF (LNAME = LNAME2 AND FNAME = FNAME2
-               AND G-RELATE NOT = G-PR-RELATE)
-               MOVE G-GARNAME TO G-PRNAME
-               MOVE G-RELATE TO G-PR-RELATE
+             AND G-RELATE NOT = G-PR-RELATE)
+             MOVE G-GARNAME TO G-PRNAME
+             MOVE G-RELATE TO G-PR-RELATE
            END-IF
            
            INSPECT G-BILLADD REPLACING ALL ":" BY " ".
@@ -704,7 +707,7 @@
            REWRITE GARFILE01
              INVALID 
                DISPLAY "NO REWRITE ON " G-GARNO
-               DISPLAY "ACCOUNT IS SKIPPED UNTIL NEXT 250 RUN"
+               DISPLAY "CHARGE(S) WILL BE LOST! CALL STEVE."
                ACCEPT ANS
                GO TO P1
            END-REWRITE    
