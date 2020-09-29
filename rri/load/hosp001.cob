@@ -9,8 +9,6 @@
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
-      *    SPECIAL-NAMES.
-      *    "OPCOM" IS OPCOM.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
 
@@ -112,14 +110,14 @@
 
        01  HOSP-GD-TABLE.
            05 HOSP-DES-CONSTANT.
-               10 FILLER PIC X(24) VALUE "        INS-KEY TITLE   ".
+               10 FILLER PIC X(24) VALUE "RRMCCODEINS-KEY TITLE   ".
            05 HOSP-DESC-FLD REDEFINES HOSP-DES-CONSTANT 
                 OCCURS 3 TIMES INDEXED BY HOSP-INDX.
                10 HOSP-DES-KEY PIC X(8).
        01  HOSP-ADD-FIELD-TABLE.
-             05 HOSP-ADD-CON PIC X(18) VALUE "010203040506070809".
+             05 HOSP-ADD-CON PIC X(6) VALUE "010203".
              05 HOSP-A-FLD PIC 99 REDEFINES HOSP-ADD-CON 
-                OCCURS 9 TIMES INDEXED BY HOSP-A-KEY.
+                OCCURS 3 TIMES INDEXED BY HOSP-A-KEY.
        01     NAME-LAST.
              03 NL-3.
                04 NL-31 PIC X.
@@ -279,7 +277,7 @@
            END-IF
 
            IF DATAIN = "?"
-             DISPLAY "INSURE. RTNE. <LI,AI,CI,FI>,<INS-CODE>"
+             DISPLAY "INSURE. RTNE. <LI,AI,CI,FI,DI>,<INS-CODE>"
              DISPLAY "END = END PROGRAM"
              GO TO 1000-ACTION
            END-IF
@@ -292,7 +290,7 @@
              MOVE ALF-1 TO NUM-1
              MOVE GAR-TAB(NUM-1) TO GARNO.
 
-           IF ACTION = "LI" OR "AI" OR "CI" OR "FI"  
+           IF ACTION = "LI" OR "AI" OR "CI" OR "FI" OR "DI" 
              NEXT SENTENCE
            ELSE
              DISPLAY "WHAT?"
@@ -301,7 +299,7 @@
            IF ACTION = "AI" 
              GO TO 2000-AI.
 
-           IF ACTION = "FI" OR "LI" OR "CI" 
+           IF ACTION = "FI" OR "LI" OR "CI" OR "DI"
              GO TO HOSP-LOOK.
            
        HOSP-LOOK.
@@ -324,13 +322,21 @@
              UNLOCK HOSPFILE RECORD
              GO TO 1000-ACTION.
 
+           IF ACTION = "DI"
+             PERFORM LI-1
+             DISPLAY "WANT TO DELETE? Y"
+             ACCEPT ANS
+             IF ANS NOT = "Y"
+               GO TO 1000-ACTION.
+             PERFORM DEL-1
+             GO TO 1000-ACTION.     
            GO TO HOSP-CP.
-      * BEGIN HOSPURANCE FILE MAINTAINENCE ROUTINE *
+      * BEGIN HOSP INSURANCE FILE MAINTAINENCE ROUTINE *
 
        2000-AI.
            MOVE SPACE TO HOSPFILE01
            PERFORM HOSP-ADD-LOOP VARYING HOSP-A-KEY FROM 1 BY 1
-             UNTIL HOSP-A-KEY > 9
+             UNTIL HOSP-A-KEY > 3
 
            IF IN-FIELD = "X"
              DISPLAY "NO UPDATE"
@@ -399,7 +405,7 @@
        HOSP-INPUT.
            MOVE SPACE TO IN-FIELD
            ACCEPT IN-FIELD.
-           IF IN-FIELD = "??"
+           IF IN-FIELD-1 = "?"
              DISPLAY "LI = LIST HOSPFILE RECORD BUILT SO FAR"
              DISPLAY "X = CANCEL ADD OF THIS RECORD"
              DISPLAY "BK = BACK TO PREVIOUS PROMPT"
@@ -408,13 +414,13 @@
              GO TO HOSP-DISPLAY.
              
            IF IN-FIELD = "BK" AND HOSP-A-KEY = 1 MOVE "X" TO IN-FIELD
-             SET HOSP-A-KEY TO 10 GO TO HOSPDEEX.
+             SET HOSP-A-KEY TO 4 GO TO HOSPDEEX.
 
            IF IN-FIELD = "BK" GO TO HOSP-BACK.
 
            IF IN-FIELD = "LI" PERFORM LI-1 GO TO HOSP-DISPLAY.
 
-           IF IN-FIELD = "X" SET HOSP-A-KEY TO 9
+           IF IN-FIELD = "X" SET HOSP-A-KEY TO 4
              GO TO HOSPDEEX.
 
            GO TO HOSP-GO-TO.
@@ -440,7 +446,25 @@
 
            IF FLAG = 1 AND ACT-1 = "A" GO TO HOSP-DISPLAY.
 
-           GO TO HOSP-CP 2-HOSP 3-HOSP DEPENDING ON HOSP-INDX.   
+           GO TO 1-HOSP 2-HOSP 3-HOSP DEPENDING ON HOSP-INDX.
+
+       1-HOSP.
+           IF IN-FIELD = "?" 
+             DISPLAY "ENTER 5 CHARACTER RRMC CODE"
+             GO TO HOSP-TI.
+
+           IF IN-FIELD-5 NOT NUMERIC
+             DISPLAY "MUST BE NUMBERS"  
+             GO TO HOSP-TI.    
+
+           MOVE IN-FIELD TO HOSP-KEY
+           READ HOSPFILE
+             INVALID
+               GO TO HOSPDEE.
+
+           DISPLAY "ALREADY ON FILE"
+           PERFORM LI-1 THRU LI-1-EXIT
+           GO TO HOSP-TI.                  
                         
        2-HOSP.
            IF IN-FIELD = "?" 
@@ -722,6 +746,12 @@
        INS-1-EXIT.
             EXIT.
 
+       DEL-1.
+           DELETE HOSPFILE RECORD
+             INVALID
+               DISPLAY "COULDN'T DELETE"
+             NOT INVALID
+               DISPLAY "BYE BYE".                       
        
        9100-CLOSE-MASTER-FILE.
            CLOSE HOSPFILE INSFILE.
