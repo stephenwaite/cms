@@ -327,9 +327,12 @@
              DISPLAY "WANT TO DELETE? Y"
              ACCEPT ANS
              IF ANS NOT = "Y"
-               GO TO 1000-ACTION.
+               GO TO 1000-ACTION
+             END-IF  
              PERFORM DEL-1
-             GO TO 1000-ACTION.     
+             GO TO 1000-ACTION
+           END-IF   
+
            GO TO HOSP-CP.
       * BEGIN HOSP INSURANCE FILE MAINTAINENCE ROUTINE *
 
