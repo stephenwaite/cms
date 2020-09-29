@@ -193,27 +193,41 @@
        01  ACCT-STAT PIC XX.
        
        PROCEDURE DIVISION.
+
        P0.
+
            OPEN INPUT ACTFILE GARFILE ORDFILE
            OPEN OUTPUT ERRORFILE
+
            MOVE SPACE TO HOLD8
+           
            MOVE SPACE TO ORDNO
-           START ORDFILE KEY NOT < ORDNO INVALID GO TO P6.
+           START ORDFILE KEY NOT < ORDNO
+             INVALID
+               GO TO P6.
+
        P1.
-           READ ORDFILE NEXT AT END 
+
+           READ ORDFILE NEXT
+             AT END 
                GO TO P6
-           END-READ    
+           END-READ   
+
            IF ORD8 = HOLD8
-               GO TO P1
+             GO TO P1
            END-IF    
+           
            MOVE ORD8 TO HOLD8
+           
            MOVE ORD8 TO A-ACTNO
-           READ ACTFILE INVALID 
+           READ ACTFILE
+             INVALID 
                DISPLAY "THIS SHOULD NEVER HAPPEN, CALL STEVE"
                DISPLAY "BAD READ ON ACTFILE " ORD8
                ACCEPT X 
                GO TO P1
-           END-READ           
+           END-READ
+
            MOVE A-GARNO TO X-GARNO.
            MOVE A-ACTNO TO X-ACTNO.          
 
@@ -242,7 +256,6 @@
            MOVE A-ACTNO TO G-ACCT
            START GARFILE KEY NOT < G-ACCT
              INVALID
-               MOVE SPACE TO X-GARNO
       *    no matches in garfile
                MOVE SPACE TO ERRORFILE01
                STRING "MRN " A-ACTNO " HAS NO GARNOS IN GARFILE"
@@ -254,7 +267,6 @@
        P2.
            READ GARFILE NEXT
              AT END
-               MOVE SPACE TO X-GARNO
       *        no good candidates
                MOVE SPACE TO ERRORFILE01
                STRING "MRN " A-ACTNO " GARNOS DO NOT HAVE USABLE DEMOS"
@@ -264,7 +276,6 @@
            END-READ   
 
            IF (G-ACCT NOT = A-ACTNO)
-             MOVE SPACE TO X-GARNO
       *    no good candidates          
              MOVE SPACE TO ERRORFILE01
              STRING "MRN " A-ACTNO " GARNOS DO NOT HAVE USABLE DEMOS"
@@ -307,6 +318,7 @@
            
            IF A-DOB NOT = G-DOB
                MOVE 1 TO FLAG
+               MOVE SPACE TO ERRORFILE01
                STRING G-GARNO " " A-ACTNO " DOB MISMATCH" 
                  DELIMITED BY SIZE INTO ERRORFILE01
                WRITE ERRORFILE01             
@@ -315,15 +327,17 @@
            
            IF (A-PRINS NOT = G-PRINS) 
                MOVE 1 TO FLAG
+               MOVE SPACE TO ERRORFILE01
                STRING G-GARNO " " A-ACTNO " NO INS MATCH" 
                  DELIMITED BY SIZE INTO ERRORFILE01
                WRITE ERRORFILE01             
                GO TO A2
            END-IF
-           
-           IF (A-SEINS NOT = G-SEINS) AND 
-             (G-SEINS NOT = "062" OR G-SE-ASSIGN NOT = "U")
+      
+      * simplify logic so only trigger on assigned non matches of 2ndary     
+           IF (A-SEINS NOT = G-SEINS) AND (G-SE-ASSIGN NOT = "U")
                MOVE 1 TO FLAG   
+               MOVE SPACE TO ERRORFILE01
                STRING G-GARNO " " A-ACTNO " 2NDARY INS MISMATCH" 
                  DELIMITED BY SIZE INTO ERRORFILE01
                WRITE ERRORFILE01             
