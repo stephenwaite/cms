@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI240.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. rri240.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -18,18 +18,24 @@
              STATUS IS ACCT-STAT.
            
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
-           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
+             ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+             ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
            
            SELECT ORDFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS ORDNO
-           ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
+             ACCESS MODE IS DYNAMIC RECORD KEY IS ORDNO
+             ALTERNATE RECORD KEY IS C-DATE-E WITH DUPLICATES.
            
            SELECT ERRORFILE ASSIGN TO "S45" ORGANIZATION
-           LINE SEQUENTIAL.
+             LINE SEQUENTIAL.
+
+           SELECT CHARCUR ASSIGN TO "S50" ORGANIZATION INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+             ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+             LOCK MODE MANUAL.
 
        DATA DIVISION.
        FILE SECTION.
+
        FD ORDFILE
            BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS ORDFILE01.
@@ -49,6 +55,8 @@
            02 C-ADMIT-DIAG PIC X(30).
            02 C-DATE-E PIC X(8).
            02 C-CPT PIC X(5).
+
+
        FD GARFILE
            BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS GARFILE01.
@@ -158,6 +166,49 @@
        FD  ERRORFILE.
        01  ERRORFILE01 PIC X(80).
 
+       FD  CHARCUR.
+       01  CHARCUR01.
+           02 CHARCUR-KEY.
+             03 CC-KEY8 PIC X(8).
+             03 CC-KEY3 PIC XXX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-SERVICE PIC X.
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(11).
+           02 CC-MOD2 PIC XX.
+           02 CC-MOD3 PIC XX.
+           02 CC-MOD4 PIC XX.
+           02 CC-AMOUNT PIC S9(4)V99.
+           02 CC-DOCR PIC X(3).
+           02 CC-DOCP PIC X(2).
+           02 CC-PAYCODE PIC XXX.
+           02 CC-STUD PIC X.
+           02 CC-WORK PIC XX.
+           02 CC-DAT1 PIC X(8).
+           02 CC-RESULT PIC X.
+           02 CC-ACT PIC X.
+           02 CC-SORCREF PIC X.
+           02 CC-COLLT PIC X.
+           02 CC-AUTH PIC X.
+           02 CC-PAPER PIC X.
+           02 CC-PLACE PIC X.
+           02 CC-EPSDT PIC X.
+           02 CC-DATE-T PIC X(8).
+           02 CC-DATE-A PIC X(8).
+           02 CC-DATE-P PIC X(8).
+           02 CC-REC-STAT PIC X.
+           02 CC-DX2 PIC X(7).
+           02 CC-DX3 PIC X(7).
+           02 CC-ACC-TYPE PIC X.
+           02 CC-DATE-M PIC X(8).
+           02 CC-ASSIGN PIC X.
+           02 CC-NEIC-ASSIGN PIC X.
+           02 CC-DX4 PIC X(7).
+           02 CC-DX5 PIC X(7).
+           02 CC-DX6 PIC X(7).
+           02 CC-FUTURE PIC X(6).
+
        WORKING-STORAGE SECTION.
        01  GARTAB01.
            02 GARTAB PIC X(8) OCCURS 15 TIMES.
@@ -191,12 +242,17 @@
        01  X-GARNO PIC X(8).
        01  X-ACTNO PIC X(8).
        01  ACCT-STAT PIC XX.
+       01  CNTR PIC 99.
+       01  GAR-TABLE.
+           02 GAR-TAB PIC X(8) OCCURS 99 TIMES.
+           02 DATE-TAB PIC X(8) OCCURS 99 TIMES.    
+       01  DATE-X PIC X(8).    
        
        PROCEDURE DIVISION.
 
        P0.
 
-           OPEN INPUT ACTFILE GARFILE ORDFILE
+           OPEN INPUT ACTFILE GARFILE ORDFILE CHARCUR
            OPEN OUTPUT ERRORFILE
 
            MOVE SPACE TO HOLD8
@@ -228,71 +284,46 @@
                GO TO P1
            END-READ
 
-           MOVE A-GARNO TO X-GARNO.
-           MOVE A-ACTNO TO X-ACTNO.          
+           MOVE A-GARNO TO X-GARNO
+           MOVE A-ACTNO TO X-ACTNO G-ACCT
 
-           MOVE A-GARNO TO G-GARNO
-           READ GARFILE INVALID
-               GO TO P1-1
-           END-READ
-
-           MOVE 0 TO FLAG
-
-      *    validate current garno on actfile     
-           PERFORM A1 THRU A2
-
-           IF FLAG = 0
-               MOVE SPACE TO ERRORFILE01
-               STRING "FOR MRN " A-ACTNO " NO CHANGE TO " G-GARNO
-               " A-GARNO WAS " A-GARNO
-               DELIMITED BY SIZE INTO ERRORFILE01
-               WRITE ERRORFILE01  
-               GO TO P1
-           END-IF.    
-
-      *    fall into p1-1 searching garfile for a candidate    
-
-       P1-1.
-           MOVE A-ACTNO TO G-ACCT
            START GARFILE KEY NOT < G-ACCT
              INVALID
-      *    no matches in garfile
+      *    no mrn in garfile, need to blank out A-GARNO if not space
+               IF A-GARNO NOT = SPACE
+                 MOVE SPACE TO X-GARNO
+                 PERFORM P5                                                          
+               END-IF
+
                MOVE SPACE TO ERRORFILE01
-               STRING "MRN " A-ACTNO " HAS NO GARNOS IN GARFILE"
+               STRING "MRN " A-ACTNO " IS NEW TO US"
                  DELIMITED BY SIZE INTO ERRORFILE01
-               WRITE ERRORFILE01             
-               GO TO P1
-           END-START.  
+               WRITE ERRORFILE01                    
+               GO TO P1  
+           END-START
+
+           MOVE 0 TO CNTR.
 
        P2.
            READ GARFILE NEXT
              AT END
       *        no good candidates
-               MOVE SPACE TO ERRORFILE01
-               STRING "MRN " A-ACTNO " GARNOS DO NOT HAVE USABLE DEMOS"
-                 DELIMITED BY SIZE INTO ERRORFILE01
-               WRITE ERRORFILE01             
-               GO TO P1
+                 GO TO P3                
            END-READ   
 
-           IF (G-ACCT NOT = A-ACTNO)
+           IF (G-ACCT NOT = X-ACTNO)
       *    no good candidates          
-             MOVE SPACE TO ERRORFILE01
-             STRING "MRN " A-ACTNO " GARNOS DO NOT HAVE USABLE DEMOS"
-               DELIMITED BY SIZE INTO ERRORFILE01
-             WRITE ERRORFILE01             
-             GO TO P1
+             GO TO P3            
            END-IF    
-      *    reset X-GARNO 
-           MOVE G-GARNO TO X-GARNO 
 
-      *    set flag to zero again for another validate run
+      *    set flag to zero for validate run
            MOVE 0 TO FLAG      
            PERFORM A1 THRU A2 
            
            IF FLAG = 0
-      *    we need to update actfile
-             GO TO P4
+      *    we've got 1      
+             ADD 1 TO CNTR
+             MOVE G-GARNO TO GAR-TAB(CNTR)
            END-IF
 
            GO TO P2.
@@ -342,29 +373,107 @@
                  DELIMITED BY SIZE INTO ERRORFILE01
                WRITE ERRORFILE01             
                GO TO A2
-           END-IF.
+           END-IF
+
+           ADD 1 TO CNTR.
 
        A2.
            EXIT.
 
+       P3.
+           IF CNTR = 0
+             MOVE SPACE TO X-GARNO
+             PERFORM P5
+             MOVE SPACE TO ERRORFILE01
+             STRING "MRN " A-ACTNO " END OF GARFILE SEARCH"
+               DELIMITED BY SIZE INTO ERRORFILE01
+             WRITE ERRORFILE01             
+             GO TO P1             
+           END-IF  
+
+           IF CNTR = 1
+             MOVE SPACE TO ERRORFILE01
+             STRING "MRN " A-ACTNO " ONLY 1 IN GARFILE AND IS A MATCH"
+               DELIMITED BY SIZE INTO ERRORFILE01
+             WRITE ERRORFILE01 
+
+             IF A-GARNO = SPACE
+               PERFORM P5
+             END-IF              
+
+             GO TO P1
+           END-IF
+      
+      *    more than 1, let's find the 1 with most recent charges
+           PERFORM P4 THRU P4-EXIT
+             VARYING X FROM 1 BY 1 UNTIL X > CNTR
+
+           MOVE ZEROES TO DATE-X
+           PERFORM VARYING X FROM 1 BY 1 UNTIL X > CNTR     
+             IF DATE-TAB(X) > DATE-X
+               MOVE DATE-TAB(X) TO DATE-X
+               MOVE GAR-TAB(X) TO X-GARNO
+             END-IF
+           END-PERFORM
+
+           IF X-GARNO NOT = A-GARNO
+             PERFORM P5
+           ELSE
+             MOVE SPACE TO ERRORFILE01
+             STRING "MRN " A-ACTNO " AND " A-GARNO " WAS FINE"
+               DELIMITED BY SIZE INTO ERRORFILE01
+             WRITE ERRORFILE01               
+           END-IF  
+
+           GO TO P1.  
+
        P4.
-           MOVE SPACE TO ERRORFILE01
-           STRING "FOR MRN " A-ACTNO " CHANGED " A-GARNO " TO " X-GARNO
-             DELIMITED BY SIZE INTO ERRORFILE01
-           WRITE ERRORFILE01  
+           MOVE GAR-TAB(X) TO CC-KEY8           
+           MOVE 999 TO CC-KEY3
+           START CHARCUR KEY NOT > CHARCUR-KEY
+             INVALID
+               MOVE ZEROES TO DATE-TAB(X)
+               GO TO P4-EXIT.
+
+       P4-1.
+           READ CHARCUR PREVIOUS
+             AT END 
+               GO TO P4-EXIT. 
+
+           IF CC-KEY8 NOT = GAR-TAB(X)
+             GO TO P4-EXIT
+           END-IF
+
+           MOVE CC-DATE-T TO DATE-TAB(X).               
+
+       P4-EXIT.
+           EXIT.                  
+
+       P5.    
            CLOSE ACTFILE
            OPEN I-O ACTFILE
            READ ACTFILE WITH LOCK INVALID
-               DISPLAY "ACTFILE LOCKED STATUS IS " ACCT-STAT
+             DISPLAY "ACTFILE LOCKED STATUS IS " ACCT-STAT
            END-READ
+
       *     DISPLAY "A-ACTNO IS " A-ACTNO " A-GARNO IS " A-GARNO
+      *       " X-GARNO IS " X-GARNO
       *     ACCEPT OMITTED
+
+           MOVE SPACE TO ERRORFILE01
+           STRING "MRN " A-ACTNO " UPDATED FROM " A-GARNO " TO " X-GARNO
+             DELIMITED BY SIZE INTO ERRORFILE01
+           WRITE ERRORFILE01
+
            MOVE X-GARNO TO A-GARNO     
            REWRITE ACTFILE01
+             INVALID
+               DISPLAY "UH OH, CALL STEVE".                  
+           
            CLOSE ACTFILE
-           OPEN INPUT ACTFILE
-           GO TO P1.
+           OPEN INPUT ACTFILE.
+
 
        P6. 
-           CLOSE GARFILE ACTFILE ORDFILE ERRORFILE.
+           CLOSE GARFILE ACTFILE ORDFILE ERRORFILE CHARCUR.
            STOP RUN.

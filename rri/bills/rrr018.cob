@@ -5,7 +5,7 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. PED018.
+       PROGRAM-ID. rrr018.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -263,28 +263,48 @@
            READ BILLPARM AT END GO TO R20.
            MOVE SPACE TO G-GARNO
            START GARFILE KEY > G-GARNO INVALID GO TO R20.
-       R1. READ GARFILE NEXT WITH LOCK AT END GO TO R20.
+
+       R1. 
+           READ GARFILE NEXT WITH LOCK
+             AT END
+              GO TO R20.
+
            IF G-ACCTSTAT NOT NUMERIC
-           DISPLAY G-GARNO " " G-GARNAME "   G-ACCTSTAT NOT NUMBER"
-           MOVE 1 TO G-ACCTSTAT.
+             DISPLAY G-GARNO " " G-GARNAME "   G-ACCTSTAT NOT NUMBER"
+             MOVE 1 TO G-ACCTSTAT.
+           
            IF G-ACCTSTAT = 9 GO TO R1.
+           
            IF G-ACCTSTAT = 7 
-           DISPLAY G-GARNO " " G-GARNAME "   ACCTSTAT=7"
-           MOVE "0" TO TB-4 
-           GO TO R10.
-           IF G-ACCTSTAT = 8 MOVE "1" TO TB-4 
-           DISPLAY G-GARNO " " G-GARNAME "   ACCTSTAT=8"
-           MOVE 1 TO G-ACCTSTAT
-           GO TO R10.
+             DISPLAY G-GARNO " " G-GARNAME "   ACCTSTAT=7"
+             MOVE "0" TO TB-4 
+             GO TO R10.
+
+           IF G-ACCTSTAT = 8
+             MOVE "1" TO TB-4 
+             DISPLAY G-GARNO " " G-GARNAME "   ACCTSTAT=8"
+             MOVE 1 TO G-ACCTSTAT
+             GO TO R10.
+
            IF G-BILLCYCLE < "1" OR > "4" 
-           MOVE TC1 TO G-BILLCYCLE.
+             MOVE TC1 TO G-BILLCYCLE.
+
            IF G-DUNNING NOT NUMERIC MOVE "1" TO G-DUNNING.
-       R3. MOVE 0 TO PHR X-BALCUR X-BAL30 X-BAL60 X-BALCOL NEW-CHARGE
-            CHAR-FLAG.
+
+       R3. 
+           MOVE 0 TO PHR X-BALCUR X-BAL30 X-BAL60 X-BALCOL NEW-CHARGE
+             CHAR-FLAG.
            MOVE G-GARNO TO PC-KEY8.
            MOVE ZEROES TO PC-KEY3.
-           START PAYCUR KEY > PAYCUR-KEY INVALID GO TO R1-1.
-       R8. READ PAYCUR NEXT AT END GO TO R1-1.
+           START PAYCUR KEY > PAYCUR-KEY
+             INVALID
+               GO TO R1-1.
+
+       R8. 
+           READ PAYCUR NEXT
+             AT END
+               GO TO R1-1.
+
            IF G-GARNO NOT = PC-KEY8 GO TO R1-1.
            ADD 1 TO PHR.
            IF PHR > 990 DISPLAY G-GARNO " "  G-GARNAME
@@ -299,6 +319,7 @@
            MOVE PC-PAYCODE TO PHR-PAYCODE(PHR)
            MOVE PC-AMOUNT TO PHR-AMOUNT(PHR)
            GO TO R8.
+
        R1-1.
            MOVE G-GARNO TO CC-KEY8.
            MOVE ZEROES TO CC-KEY3.
