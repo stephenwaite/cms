@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRR017.
+       PROGRAM-ID. rrr017.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -141,13 +141,18 @@
        01  NEWDATE PIC 9(8).
        01  HOLDGARNO PIC X(8) VALUE SPACE.
        PROCEDURE DIVISION.
+
        0005-START.
+
            OPEN INPUT GARFILE PAYCUR AGEDATE.
            OPEN I-O   CHARCUR OUTPUT FILEOUT.
            READ AGEDATE AT END DISPLAY "NO AGEDATE" GO TO P4.
            MOVE AGEDATE01 TO NEWDATE
            READ AGEDATE AT END DISPLAY "NO AGEDATE" GO TO P4.
-       P1. READ PAYCUR AT END  GO TO P4.
+
+       P1. 
+           READ PAYCUR AT END  GO TO P4.
+
        P1-1.
       *     IF PC-DATE-T < AGEDATE01 GO TO P1.
            IF (PC-PAYCODE = 001 OR 021 OR 022 OR 062) 
@@ -166,7 +171,9 @@
            IF G-DUNNING > "3" GO TO P1.
            MOVE G-GARNO TO CC-KEY8 MOVE SPACE TO CC-KEY3
            START CHARCUR KEY > CHARCUR-KEY INVALID GO TO P1.
-       P2.  READ CHARCUR NEXT WITH LOCK AT END GO TO P3.
+
+       P2.  
+           READ CHARCUR NEXT WITH LOCK AT END GO TO P3.
            IF CC-KEY8 NOT = G-GARNO GO TO P3.
            IF CC-ASSIGN = "A" GO TO P2.
            IF CC-DATE-A = "00000000" GO TO P2.
@@ -176,9 +183,12 @@
            MOVE NEWDATE TO CC-DATE-A
            REWRITE CHARCUR01
            GO TO P2.
-       P3. READ PAYCUR AT END GO TO P4.
+
+       P3.
+           READ PAYCUR AT END GO TO P4.
            IF PC-KEY8 NOT = G-GARNO GO TO P1-1.
            GO TO P3.
+
        P4.
            CLOSE CHARCUR.
            STOP RUN.
