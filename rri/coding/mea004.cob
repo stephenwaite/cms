@@ -468,7 +468,7 @@
                    OR "71250" OR "71260" OR "71270" OR "71275"
                    OR "72125" OR "72126" OR "72127")
                    MOVE "0000G9637  " TO  X-PROC
-      *             PERFORM B1 THRU B2
+                   PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
