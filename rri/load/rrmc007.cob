@@ -236,6 +236,12 @@
        01  X-IP PIC X(5).
        01  PLANNUM PIC 9.
        01  ALF1 PIC X.
+       01  X-MEDREC.
+            02 X-MEDREC0 PIC XX VALUE "00".
+            02 X-MEDREC1 PIC XX.
+            02 X-MEDREC2 PIC XX.
+            02 X-MEDREC3 PIC XX.
+
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT HOSPFILE FILEIN INSFILE.
@@ -274,6 +280,11 @@
            MOVE R2-IP3 TO X-IP
            MOVE 3 TO PLANNUM
 
+           MOVE R2-MEDREC1 TO X-MEDREC1
+           MOVE R2-MEDREC2 TO X-MEDREC2
+           MOVE R2-MEDREC3 TO X-MEDREC3
+           MOVE X-MEDREC TO R2-MEDREC
+
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT.
 
            MOVE R2-IP4 TO X-IP
@@ -310,25 +321,25 @@
            MOVE SPACE TO FILEOUT01
            IF PLANNUM = 1 
                STRING X-IP " " INS-KEY " " R1-INSPHONE1 " " INSURANCE-1
-                   DELIMITED BY SIZE INTO FILEOUT01
+                   " " R2-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 2    
                STRING X-IP " " INS-KEY " " R1-INSPHONE2 " " INSURANCE-2
-                   DELIMITED BY SIZE INTO FILEOUT01
+                   " " R2-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 3          
                STRING X-IP " " INS-KEY " " R2-INSPHONE3 " " INSURANCE-3
-                   DELIMITED BY SIZE INTO FILEOUT01
+                   " " R2-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 4             
                STRING X-IP " " INS-KEY " " R2-INSPHONE4 " " INSURANCE-4
-                   DELIMITED BY SIZE INTO FILEOUT01
+                   " " R2-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF.
 

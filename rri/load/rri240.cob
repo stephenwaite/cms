@@ -365,8 +365,9 @@
                GO TO A2
            END-IF
       
-      * simplify logic so only trigger on assigned non matches of 2ndary     
-           IF (A-SEINS NOT = G-SEINS) AND (G-SE-ASSIGN NOT = "U")
+      *    non matches of non-medicare 2ndary     
+           IF (A-SEINS NOT = G-SEINS) AND (G-PRINS NOT = "003" 
+               OR G-SE-ASSIGN = "U")
                MOVE 1 TO FLAG   
                MOVE SPACE TO ERRORFILE01
                STRING G-GARNO " " A-ACTNO " 2NDARY INS MISMATCH" 
