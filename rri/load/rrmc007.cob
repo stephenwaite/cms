@@ -320,25 +320,25 @@
            MOVE SPACE TO FILEOUT01
            IF PLANNUM = 1 
                STRING X-IP " " INS-KEY " " INSURANCE-1
-                   " " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
+                   " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 2    
                STRING X-IP " " INS-KEY " " INSURANCE-2
-                   " " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
+                   " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 3          
                STRING X-IP " " INS-KEY " " INSURANCE-3
-                   " " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
+                   " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 4             
                STRING X-IP " " INS-KEY " " INSURANCE-4
-                   " " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
+                   " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF.
 
