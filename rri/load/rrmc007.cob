@@ -258,13 +258,7 @@
 
            MOVE FILEIN01 TO REC101
 
-           MOVE R1-IP1 TO X-IP
-           MOVE 1 TO PLANNUM
-           PERFORM SEL-PRINS THRU SEL-PRINS-EXIT.
-
-           MOVE R1-IP2 TO X-IP
-           MOVE 2 TO PLANNUM
-           PERFORM SEL-PRINS THRU SEL-PRINS-EXIT.
+          
 
            READ FILEIN
              AT END
@@ -276,20 +270,25 @@
            END-IF
 
            MOVE FILEIN01 TO REC201.
-
-           MOVE R2-IP3 TO X-IP
-           MOVE 3 TO PLANNUM
-
+      *    grab MRN for output listing     
            MOVE R2-MEDREC1 TO X-MEDREC1
            MOVE R2-MEDREC2 TO X-MEDREC2
            MOVE R2-MEDREC3 TO X-MEDREC3
-           MOVE X-MEDREC TO R2-MEDREC
+           
+           MOVE R1-IP1 TO X-IP
+           MOVE 1 TO PLANNUM
+           PERFORM SEL-PRINS THRU SEL-PRINS-EXIT.
 
+           MOVE R1-IP2 TO X-IP
+           MOVE 2 TO PLANNUM
+           PERFORM SEL-PRINS THRU SEL-PRINS-EXIT.
+
+           MOVE R2-IP3 TO X-IP
+           MOVE 3 TO PLANNUM          
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT.
 
            MOVE R2-IP4 TO X-IP
            MOVE 4 TO PLANNUM
-
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT.
 
            GO TO P1.
@@ -320,26 +319,26 @@
        SEL-1.
            MOVE SPACE TO FILEOUT01
            IF PLANNUM = 1 
-               STRING X-IP " " INS-KEY " " R1-INSPHONE1 " " INSURANCE-1
-                   " " R2-MEDREC DELIMITED BY SIZE INTO FILEOUT01
+               STRING X-IP " " INS-KEY " " INSURANCE-1
+                   " " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 2    
-               STRING X-IP " " INS-KEY " " R1-INSPHONE2 " " INSURANCE-2
-                   " " R2-MEDREC DELIMITED BY SIZE INTO FILEOUT01
+               STRING X-IP " " INS-KEY " " INSURANCE-2
+                   " " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 3          
-               STRING X-IP " " INS-KEY " " R2-INSPHONE3 " " INSURANCE-3
-                   " " R2-MEDREC DELIMITED BY SIZE INTO FILEOUT01
+               STRING X-IP " " INS-KEY " " INSURANCE-3
+                   " " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 4             
-               STRING X-IP " " INS-KEY " " R2-INSPHONE4 " " INSURANCE-4
-                   " " R2-MEDREC DELIMITED BY SIZE INTO FILEOUT01
+               STRING X-IP " " INS-KEY " " INSURANCE-4
+                   " " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF.
 
