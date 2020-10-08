@@ -1666,6 +1666,7 @@
                GO TO B1
            END-READ
 
+           MOVE A-GARNO TO S-GARNO  
            MOVE SAVEMASTER TO ACTFILE01
            REWRITE ACTFILE01.
            GO TO B1.
