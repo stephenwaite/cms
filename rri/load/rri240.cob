@@ -365,9 +365,8 @@
                GO TO A2
            END-IF
       
-      *    non matches of non-medicare 2ndary     
-           IF (A-SEINS NOT = G-SEINS) AND (G-PRINS NOT = "003" 
-               OR G-SE-ASSIGN NOT = "U")
+      *    non matches of non-medicare 2ndary insurance     
+           IF ((A-SEINS NOT = G-SEINS) AND (G-PRINS NOT = "003"))
                MOVE 1 TO FLAG   
                MOVE SPACE TO ERRORFILE01
                STRING G-GARNO " " A-ACTNO " 2NDARY INS MISMATCH" 
@@ -376,6 +375,17 @@
                GO TO A2
            END-IF
 
+      *    non matches of medigaps on assigned policies
+           IF ((G-SE-ASSIGN NOT = "U") AND
+               (A-SECPOL NOT = G-SECPOL))
+               MOVE 1 TO FLAG   
+               MOVE SPACE TO ERRORFILE01
+               STRING G-GARNO " " A-ACTNO " 2NDARY INS MISMATCH" 
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01             
+               GO TO A2
+           END-IF
+            
            ADD 1 TO CNTR.
 
        A2.
