@@ -309,7 +309,7 @@
                    GO TO P16-1   
                END-IF 
 
-               IF (CD-MOD2 NOT = "76" OR NOT = "77")
+               IF (CD-MOD2 NOT = "76")
                    MOVE "76" TO CD-MOD3
                    
                    IF DOC-TAB(A) NOT = DOC-TAB(Z)
