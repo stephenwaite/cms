@@ -246,7 +246,8 @@
        01  GAR-TABLE.
            02 GAR-TAB PIC X(8) OCCURS 99 TIMES.
            02 DATE-TAB PIC X(8) OCCURS 99 TIMES.    
-       01  DATE-X PIC X(8).    
+       01  DATE-X PIC X(8).   
+       01  GAR-FLAG PIC X.  
        
        PROCEDURE DIVISION.
 
@@ -278,9 +279,10 @@
            MOVE ORD8 TO A-ACTNO
            READ ACTFILE
              INVALID 
-               DISPLAY "THIS SHOULD NEVER HAPPEN, CALL STEVE"
-               DISPLAY "BAD READ ON ACTFILE " ORD8
-               ACCEPT X 
+               MOVE SPACE TO ERRORFILE01
+               STRING "THIS SHOULD NEVER HAPPEN, CALL STEVE"
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01  
                GO TO P1
            END-READ
 
@@ -289,19 +291,21 @@
 
            START GARFILE KEY NOT < G-ACCT
              INVALID
-      *    no mrn in garfile, need to blank out A-GARNO if not space
+      *    no mrn in garfile, need to blank out A-GARNO
                IF A-GARNO NOT = SPACE
                  MOVE SPACE TO X-GARNO
                  PERFORM P5                                                          
                END-IF
 
                MOVE SPACE TO ERRORFILE01
-               STRING "MRN " A-ACTNO " IS NEW TO US"
+               STRING "COULD NOT START GAR SEARCH WITH " A-GARNO
                  DELIMITED BY SIZE INTO ERRORFILE01
-               WRITE ERRORFILE01                    
+               WRITE ERRORFILE01  
+                              
                GO TO P1  
            END-START
 
+           MOVE 0 TO GAR-FLAG
            MOVE 0 TO CNTR.
 
        P2.
@@ -314,9 +318,11 @@
            IF (G-ACCT NOT = X-ACTNO)
       *    no good candidates          
              GO TO P3            
-           END-IF    
+           END-IF  
 
-      *    set flag to zero for validate run
+      *    set flag to zero for validate run, and 1 to gar-flag
+      *    since was able to find at least 1 GARNO with that MRN
+           MOVE 1 TO GAR-FLAG
            MOVE 0 TO FLAG      
            PERFORM A1 THRU A2 
            
@@ -366,7 +372,8 @@
            END-IF
       
       *    non matches of non-medicare 2ndary insurance     
-           IF ((A-SEINS NOT = G-SEINS) AND (G-PRINS NOT = "003"))
+           IF ((A-SEINS NOT = G-SEINS) AND 
+               NOT (G-PRINS = "003" OR "200" OR "245"))
                MOVE 1 TO FLAG   
                MOVE SPACE TO ERRORFILE01
                STRING G-GARNO " " A-ACTNO " 2NDARY INS MISMATCH" 
@@ -396,9 +403,17 @@
              MOVE SPACE TO X-GARNO
              PERFORM P5
              MOVE SPACE TO ERRORFILE01
-             STRING "MRN " A-ACTNO " END OF GARFILE SEARCH"
-               DELIMITED BY SIZE INTO ERRORFILE01
-             WRITE ERRORFILE01             
+             
+             IF GAR-FLAG = 1
+               STRING "MRN " A-ACTNO " END OF GARFILE SEARCH"
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01             
+             ELSE
+               STRING "MRN " A-ACTNO " IS NEW"
+                 DELIMITED BY SIZE INTO ERRORFILE01
+               WRITE ERRORFILE01
+             END-IF                
+             
              GO TO P1             
            END-IF  
 
