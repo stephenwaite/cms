@@ -268,7 +268,7 @@
            OPEN INPUT INSFILE.
 
        1000-ACTION.
-           MOVE SPACES TO ACTION GARNO
+           MOVE SPACES TO ACTION GARNO DATAIN
            DISPLAY "OPTION,ID HOSPINS"
            ACCEPT DATAIN
            
