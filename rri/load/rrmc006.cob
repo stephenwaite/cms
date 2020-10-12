@@ -329,11 +329,13 @@
              03 R2-ACCDD PIC XX.
              03 R2-ACCYY PIC XX.
              03 R2-ACCHHMM PIC X(5).
+      * 13       
            02 R2-REFDOC.
              03 R2-REFDOC4 PIC XXXX.
              03 R2-REFDOC22 PIC X(18).
+      * 35       
            02 R2-DIAG PIC X(130).
-
+      * 165
            02 R2-IP3 PIC X(5).
            02 R2-ID3 PIC X(30).
            02 R2-CERT33 PIC X(20).
@@ -346,6 +348,7 @@
            02 R2-DOB33 PIC X(10).
            02 R2-SSN33 PIC X(9).
            02 R2-RELATE3 PIC XX.
+      * 358     
            02 INSURANCE-3.
             03  R2-INSNAME3 PIC X(25).
             03  R2-INSCONTACT3 PIC X(25).
