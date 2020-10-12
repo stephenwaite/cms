@@ -4,28 +4,37 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. KRU135.
+       PROGRAM-ID. carer009.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS IS RANDOM RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS  CC-PAYCODE WITH DUPLICATES.
+
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
            ACCESS IS RANDOM RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
+
            SELECT CAREFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS CARE-KEY
            LOCK MODE MANUAL.
+
            SELECT FILEIN ASSIGN TO "S45" ORGANIZATION
            LINE SEQUENTIAL.
+           
            SELECT FILEOUT ASSIGN TO "S50" ORGANIZATION 
            LINE SEQUENTIAL.
+
            SELECT FILEOUT2 ASSIGN TO "S55" ORGANIZATION 
            LINE SEQUENTIAL.
+
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  FILEIN.
        01  FILEIN01.
            02 FI-PC PIC 999.
@@ -38,14 +47,13 @@
            02 FILLER PIC X(19).
            02 FI-PS PIC X.
 
-       FD FILEOUT.
+       FD  FILEOUT.
        01  FILEOUT01 PIC X(160).
-       FD FILEOUT2.
+
+       FD  FILEOUT2.
        01  FILEOUT201 PIC X(160).
 
-       FD  CHARCUR
-           BLOCK CONTAINS 5 RECORDS
-           DATA RECORD IS CHARCUR01.
+       FD  CHARCUR.
        01  CHARCUR01.
            02 CHARCUR-KEY.
              03 CC-KEY8.
@@ -94,9 +102,8 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
-       FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS G-MASTER.
+
+       FD GARFILE.
        01 G-MASTER.
            02 G-GARNO PIC X(8).
            02 G-GARNAME.
@@ -145,7 +152,6 @@
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
 
-
        FD  CAREFILE.
        01  CAREFILE01.
            02 CARE-KEY.
@@ -171,50 +177,106 @@
            02 CR-INSNAME PIC X(30).
 
        WORKING-STORAGE SECTION.
+
        01  ALF1 PIC X.
+       01  XOVER-FLAG PIC X.
+
        PROCEDURE DIVISION.
+
        P0.
            OPEN OUTPUT FILEOUT FILEOUT2
                 INPUT FILEIN CHARCUR GARFILE CAREFILE.
-       P1. READ FILEIN AT END GO TO P99.
-           IF FI-PS = "O" PERFORM A1 GO TO P1.
+
+       P1. 
+           READ FILEIN
+             AT END
+               GO TO P99.
+
+           IF FI-PS = "O"
+             PERFORM A1
+             GO TO P1.
+
            MOVE FI-KEY TO CHARCUR-KEY
-           READ CHARCUR INVALID
-           DISPLAY FI-KEY
-           ACCEPT ALF1
-           PERFORM A1
-           GO TO P1.
+           READ CHARCUR
+             INVALID
+               DISPLAY FI-KEY
+               ACCEPT ALF1
+               PERFORM A1
+               GO TO P1.
+
            MOVE CC-KEY8 TO G-GARNO
-           READ GARFILE INVALID
-           DISPLAY CC-KEY8
-           ACCEPT ALF1
-           PERFORM A1
-           GO TO P1.
-           IF G-PRINS NOT = "003"  PERFORM A1 GO TO P1.
+           READ GARFILE
+             INVALID
+               DISPLAY CC-KEY8
+               ACCEPT ALF1
+               PERFORM A1
+               GO TO P1.
+
+           IF G-PRINS NOT = "003"
+             PERFORM A1
+             GO TO P1.
+
            MOVE CC-KEY8 TO CR-KEY8
            MOVE CC-DATE-T TO CR-DATE
            MOVE CC-PROC1 TO CR-PROC
            MOVE SPACE TO CR-PROC CR-MOD1 CR-MOD2
-           START CAREFILE KEY NOT < CARE-KEY INVALID
-           PERFORM A1 GO TO P1.
+           START CAREFILE KEY NOT < CARE-KEY
+             INVALID
+             PERFORM A1
+             GO TO P1.
            
-       P2. READ CAREFILE NEXT AT END PERFORM A1 GO TO P1.
-           IF CR-KEY8 NOT = CC-KEY8 PERFORM A1 GO TO P1.
+       P2. 
+           READ CAREFILE NEXT
+             AT END
+               PERFORM A1
+               GO TO P1.
+
+           IF CR-KEY8 NOT = CC-KEY8
+             PERFORM A1
+             GO TO P1.
+
+           MOVE 0 TO XOVER-FLAG      
+
            IF CR-DATE NOT = CC-DATE-T GO TO P2.
+
            IF CR-PROC NOT = CC-PROC1  GO TO P2.
-           IF CR-DENIAL1 = "MA18" OR "N89 " PERFORM A2 GO TO P1.
-           IF CR-DENIAL2 = "MA18" OR "N89 " PERFORM A2 GO TO P1.
-           IF CR-DENIAL3 = "MA18" OR "N89 " PERFORM A2 GO TO P1.
-           IF CR-DENIAL4 = "MA18" OR "N89 " PERFORM A2 GO TO P1.
-           IF CR-INSNAME NOT = SPACE PERFORM A2
+
+           IF CR-DENIAL1 = "MA18" OR "N89 "
+             MOVE 1 TO XOVER-FLAG   
+             PERFORM A2
+             GO TO P1.
+
+           IF CR-DENIAL2 = "MA18" OR "N89 "
+             MOVE 1 TO XOVER-FLAG   
+             PERFORM A2
+             GO TO P1.
+
+           IF CR-DENIAL3 = "MA18" OR "N89 "
+             MOVE 1 TO XOVER-FLAG   
+             PERFORM A2
+             GO TO P1.
+           
+           IF CR-DENIAL4 = "MA18" OR "N89 "
+             MOVE 1 TO XOVER-FLAG   
+             PERFORM A2
+             GO TO P1.
+
+           IF CR-INSNAME NOT = SPACE
+             PERFORM A2
+             GO TO P1.
+
+           PERFORM A1
            GO TO P1.
-           PERFORM A1.
-           GO TO P1.
+
        A1.
            WRITE FILEOUT01 FROM FILEIN01.
+
        A2.
+      *     DISPLAY FILEIN01 " CROSSED OVER"
+      *       ACCEPT OMITTED     
            WRITE FILEOUT201 FROM FILEIN01.
 
        P99.
-           CLOSE FILEOUT FILEOUT2
+           CLOSE FILEOUT FILEOUT2 FILEIN CHARCUR GARFILE CAREFILE
+                
            STOP RUN.
