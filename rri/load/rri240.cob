@@ -384,6 +384,7 @@
 
       *    non matches of medigaps on assigned policies
            IF ((G-SE-ASSIGN NOT = "U") AND
+      *    add special policy check for medicomp     
                (A-SECPOL(1:3) NOT = G-SECPOL(1:3) OR
                (A-SECPOL(5:8) NOT = G-SECPOL(5:8)))
                MOVE 1 TO FLAG   
