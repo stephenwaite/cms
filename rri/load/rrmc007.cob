@@ -327,25 +327,25 @@
        SEL-1.
            MOVE SPACE TO FILEOUT01
            IF PLANNUM = 1 
-               STRING X-IP " " INS-KEY " " INSURANCE-1
+               STRING "PRIMARY INS " X-IP " " INS-KEY " " INSURANCE-1
                    " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 2    
-               STRING X-IP " " INS-KEY " " INSURANCE-2
+               STRING "SECONDARY INS " X-IP " " INS-KEY " " INSURANCE-2
                    " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 3          
-               STRING X-IP " " INS-KEY " " INSURANCE-3
+               STRING "TERTIARY INS " X-IP " " INS-KEY " " INSURANCE-3
                    " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 4             
-               STRING X-IP " " INS-KEY " " INSURANCE-4
+               STRING "QUATERNARY INS " X-IP " " INS-KEY " " INSURANCE-4
                    " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF.
