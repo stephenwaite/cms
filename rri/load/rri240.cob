@@ -384,7 +384,7 @@
 
       *    non matches of medigaps on assigned policies
            IF ((G-SE-ASSIGN NOT = "U") AND
-               (A-SECPOL NOT = G-SECPOL))
+               (A-SECPOL(1:12) NOT = G-SECPOL(1:12)))
                MOVE 1 TO FLAG   
                MOVE SPACE TO ERRORFILE01
                STRING G-GARNO " " A-ACTNO " 2NDARY INS MISMATCH" 
