@@ -4,19 +4,26 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI146.
+       PROGRAM-ID. carer303.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
+
        FILE-CONTROL.
+
            SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT PARMFILE ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT CAREFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS CARE-KEY
            LOCK MODE MANUAL.
+
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  CAREFILE.
        01  CAREFILE01.
            02 CARE-KEY.
@@ -40,15 +47,19 @@
            02 CR-ICN PIC X(13).
            02 CR-CK-EFT PIC X(9).
            02 CR-INSNAME PIC X(30).
+
        FD  PARMFILE.
        01  PARMFILE01 PIC X(40).
+
        FD FILEIN.
        01  FILEIN01.
            02 F0.
              03 F1 PIC XXX.
              03 F2 PIC X(4).
            02 F3 PIC X(113).
+
        WORKING-STORAGE SECTION.
+
        01  BACKFILE01.
            02 BACK-KEY.
               03 BK-KEY8 PIC X(8).
@@ -350,18 +361,28 @@
            02 N1-4 PIC X(10).
 
        01  ANS PIC X.
+
        PROCEDURE DIVISION.
+
        0005-START.
+
            OPEN INPUT FILEIN PARMFILE.
+
            READ PARMFILE AT END GO TO P99.
+
            READ PARMFILE AT END GO TO P99.
+           
            MOVE SPACE TO PROV-1 PROV-2
            UNSTRING PARMFILE01 DELIMITED BY " " INTO PROV-1 PROV-2
+           
            READ PARMFILE AT END GO TO P99.
            MOVE PARMFILE01 TO PROV-FED.
+           
            READ PARMFILE AT END GO TO P99.
            MOVE PARMFILE01 TO PROV-LEG.
+           
            OPEN I-O CAREFILE.
+
        P00.
            
            MOVE SPACE TO FILEIN01 IN-LEG IN-NPI

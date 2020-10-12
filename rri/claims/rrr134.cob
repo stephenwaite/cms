@@ -209,8 +209,8 @@
        01  X USAGE IS INDEX.
        01  INSTAB01.
            02 INSTAB PIC 999 OCCURS 999 TIMES.
-       01 TOT-AMT PIC S9(4)V99.
-      *
+       01  TOT-AMT PIC S9(4)V99.
+      
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT PAYCUR INSIN CHARCUR GARFILE CAREFILE
@@ -264,15 +264,24 @@
            END-IF
            
            IF CC-PAPER = "P" OR "O" GO TO P1-1.
+
            IF CC-ASSIGN = "U" GO TO P1.
+
            IF CC-PAYCODE = 062 GO TO P1-3.
-           IF CC-PAPER = " " GO TO P1.           
+
+           IF CC-PAPER = " " GO TO P1.  
+
        P1-1.
            MOVE CC-KEY8 TO G-GARNO
-           READ GARFILE INVALID DISPLAY CHARCUR-KEY " BAD GARNO"
-           GO TO P1.
+           READ GARFILE
+             INVALID
+               DISPLAY CHARCUR-KEY " BAD GARNO"
+               GO TO P1.
+
            IF (CC-PAYCODE = G-PRINS)
-            AND (CC-PAPER = "E")  GO TO P1.
+             AND (CC-PAPER = "E")
+             GO TO P1.
+
            MOVE SPACE TO FO-CHCRR
            IF (CC-PLACE = "M" OR "C")
              IF CC-PAYCODE = G-PRINS
@@ -282,6 +291,7 @@
                MOVE G-SE-GROUP TO FO-CHCRR
              END-IF
            END-IF
+           
            MOVE CHARCUR-KEY TO FILEOUT-KEY
            MOVE CC-PATID TO FO-PATID.
            MOVE CC-PAYCODE TO FO-PC

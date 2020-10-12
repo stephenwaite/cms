@@ -4,25 +4,30 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. GARY2K.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. secr001.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT GARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
-           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
-           LOCK MODE MANUAL.
+             ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+             ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+             LOCK MODE MANUAL.
+
            SELECT FILEIN ASSIGN TO "S35" ORGANIZATION
-           LINE SEQUENTIAL.
+             LINE SEQUENTIAL.
+
            SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION
-           LINE SEQUENTIAL.
+             LINE SEQUENTIAL.
+
            SELECT MPLRFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY.
+             ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY.
 
        DATA DIVISION.
        FILE SECTION.
+
        FD FILEIN.
        01 FILEIN01.
            02 FI-INS PIC X(3).
@@ -30,10 +35,12 @@
            02 FI-KEY8 PIC X(8).
            02 FI-FILLER PIC X(31).
            02 FI-PAPER PIC X.
+
        FD FILEOUT.
        01 FILEOUT01. 
           02 FO-1 PIC X(51).
           02 FO-SORTFIELD PIC X(9).
+
        FD  MPLRFILE.
        01  MPLRFILE01.
            02 MPLR-KEY PIC X(8). 
@@ -100,6 +107,7 @@
            02 G-ACCT PIC X(8).
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
+
        WORKING-STORAGE SECTION.
        01  TEST-DATE.
            05  T-CC            PIC XX.
@@ -109,32 +117,61 @@
        01  ALF8 PIC X(8).
        01  ALF24 PIC X(24).
        01  ALF25 PIC X(24).
+
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT GARFILE MPLRFILE FILEIN OUTPUT FILEOUT.
-       P1.  READ FILEIN AT END GO TO P9.
-            MOVE FILEIN01 TO FO-1
-            MOVE FI-KEY8 TO G-GARNO
-            READ GARFILE INVALID DISPLAY "BAD " FI-KEY8 
-            GO TO P1.
-            MOVE "T" TO fo-1(51:1).
-            IF FI-INS = "004" OR "281" MOVE "O" TO FO-1(51:1)
+           OPEN INPUT GARFILE MPLRFILE FILEIN
+           OPEN OUTPUT FILEOUT.
+
+       P1. 
+           READ FILEIN
+             AT END
+               GO TO P9.
+
+           MOVE FILEIN01 TO FO-1
+           MOVE FI-KEY8 TO G-GARNO
+           READ GARFILE
+             INVALID 
+               DISPLAY "BAD " FI-KEY8 
+               GO TO P1.
+
+           MOVE "T" TO FO-1(51:1)
+            
+           IF FI-INS = "004" OR "281"
+             MOVE "O" TO FO-1(51:1)
              MOVE SPACE TO FO-SORTFIELD
-            GO TO P2.
-            IF FI-INS = G-PRINS MOVE "P" TO FO-1(51:1).
-            IF FI-INS = G-SEINS MOVE "S" TO FO-1(51:1).
-            IF FI-PAPER = "O" MOVE FI-PAPER TO FO-1(51:1).
-            MOVE SPACE TO FO-SORTFIELD
-            IF FI-INS = "062" MOVE G-PR-GROUP TO FO-SORTFIELD.
-            IF FI-INS NOT = "091" GO TO P2.
-             MOVE SPACE TO FO-SORTFIELD
-             IF G-ADDRCODE NOT = SPACE MOVE G-ADDRCODE TO FO-SORTFIELD.
+             GO TO P2.
+
+           IF FI-INS = G-PRINS MOVE "P" TO FO-1(51:1).
+           
+           IF FI-INS = G-SEINS MOVE "S" TO FO-1(51:1).
+           
+           IF FI-PAPER = "O" MOVE FI-PAPER TO FO-1(51:1).
+           
+           MOVE SPACE TO FO-SORTFIELD
+           
+           IF FI-INS = "062" MOVE G-PR-GROUP TO FO-SORTFIELD.
+           
+           IF FI-INS NOT = "091" GO TO P2.
+           
+           MOVE SPACE TO FO-SORTFIELD
+           
+           IF G-ADDRCODE NOT = SPACE
+             MOVE G-ADDRCODE TO FO-SORTFIELD.
              MOVE G-GARNO TO MPLR-KEY
-             READ MPLRFILE INVALID GO TO P2.
-             IF MPLR-NAME = SPACE GO TO P2.
-             MOVE G-GARNO TO FO-SORTFIELD.
+             READ MPLRFILE
+               INVALID
+                 GO TO P2.
+
+           IF MPLR-NAME = SPACE GO TO P2.
+           
+           MOVE G-GARNO TO FO-SORTFIELD.
+
        P2.
-            WRITE FILEOUT01
-            GO TO P1.
-       P9. CLOSE FILEOUT GARFILE MPLRFILE FILEIN
+           
+           WRITE FILEOUT01
+           GO TO P1.
+
+       P9. 
+           CLOSE FILEOUT GARFILE MPLRFILE FILEIN
            STOP RUN.
