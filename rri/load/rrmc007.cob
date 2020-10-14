@@ -67,12 +67,13 @@
            02 H-INS-NAME PIC X(18).
 
        FD FILEOUT.
-       01  FILEOUT01 PIC X(180).
+       01  FILEOUT01 PIC X(120).
 
        FD  FILEIN.
        01  FILEIN01.
            02 FI-1 PIC XX.
            02 FI-2 PIC X(998).
+
        WORKING-STORAGE SECTION.
 
        01  REC101.
@@ -325,29 +326,38 @@
            END-IF.
 
        SEL-1.
-           MOVE SPACE TO FILEOUT01
+           MOVE SPACE TO FILEOUT01           
+
            IF PLANNUM = 1 
-               STRING "PRIMARY INS " X-IP " " INS-KEY " " INSURANCE-1
-                   " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
+               STRING "PRIMARY    " X-IP " " INS-KEY " " R1-ID1 " "
+                 R1-INSCITY1 " " R1-INSSTATE1 " " R1-INSZIP1 " "
+                 R1-INSPHONE1 " MRN " X-MEDREC 
+                 DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 2    
-               STRING "SECONDARY INS " X-IP " " INS-KEY " " INSURANCE-2
-                   " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01
+               STRING "SECONDARY  " X-IP " " INS-KEY " " R1-ID2 " "
+                 R1-INSCITY2 " " R1-INSSTATE2 " " R1-INSZIP2 " "
+                 R1-INSPHONE2 " MRN " X-MEDREC 
+                 DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
            END-IF
 
            IF PLANNUM = 3          
-               STRING "TERTIARY INS " X-IP " " INS-KEY " " INSURANCE-3
-                   " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
+               STRING "TERTIARY   " X-IP " " INS-KEY " " R2-ID3 " "
+                 R2-INSCITY3 " " R2-INSSTATE3 " " R2-INSZIP3 " "
+                 R2-INSPHONE3 " MRN " X-MEDREC 
+                 DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
 
            IF PLANNUM = 4             
-               STRING "QUATERNARY INS " X-IP " " INS-KEY " " INSURANCE-4
-                   " MRN " X-MEDREC DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01
+               STRING "QUATERNARY " X-IP " " INS-KEY " " R2-ID4 " "
+                 R2-INSCITY4 " " R2-INSSTATE4 " " R2-INSZIP4 " "
+                 R2-INSPHONE4 " MRN " X-MEDREC 
+                 DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
            END-IF.
 
        SEL-PRINS-EXIT.
