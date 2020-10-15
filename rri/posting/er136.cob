@@ -4,35 +4,46 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI146.
+       PROGRAM-ID. er136.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT GARFILE ASSIGN TO "S35"     ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT CHARCUR ASSIGN TO "S40"     ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT ERROR-FILE ASSIGN TO "S45" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT FILEOUT ASSIGN TO "S50" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT FILEOUT2 ASSIGN TO "S55" ORGANIZATION
            LINE SEQUENTIAL.
 
        DATA DIVISION.
+
        FILE SECTION.
+
        FD ERROR-FILE.
        01 ERROR-FILE01 PIC X(132).
+
        FD FILEOUT.
        01 FILEOUT01 PIC X(136).
+
        FD FILEOUT2.
        01 FILEOUT201 PIC X(136).
+
        FD  FILEIN
            RECORD CONTAINS 1 TO 124 CHARACTERS.
        01  FILEIN01.
@@ -48,9 +59,8 @@
            02 FILLER PIC X(53).
            02 FI-DENIAL PIC XXX.
            02 FILLER PIC X(6).
-       FD  CHARCUR
-           BLOCK CONTAINS 5 RECORDS
-           DATA RECORD IS CHARCUR01.
+
+       FD  CHARCUR.
        01  CHARCUR01.
            02 CHARCUR-KEY.
              03 CC-KEY8 PIC X(8).
@@ -95,9 +105,8 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
-       FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS G-MASTER.
+
+       FD GARFILE.
        01 G-MASTER.
            02 G-GARNO.
              03 ID1 PIC XXX.
@@ -185,18 +194,32 @@
            OPEN OUTPUT ERROR-FILE FILEOUT FILEOUT2.
        P1.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
+           READ FILEIN
+             AT END
+               GO TO P9.
+
            MOVE FI-GARNO TO G-GARNO
-           READ GARFILE INVALID GO TO E1.
+           READ GARFILE
+             INVALID
+               GO TO E1.
+
            IF FI-DATE = SPACE  OR FI-PROC = SPACE GO TO E1.
+           
            MOVE FI-DATE TO INPUT-DATE
            MOVE CORR INPUT-DATE TO TEST-DATE
            MOVE G-GARNO TO CC-KEY8
            MOVE SPACE TO CC-KEY3
-           START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO E1.
+           START CHARCUR KEY NOT < CHARCUR-KEY
+             INVALID
+               GO TO E1.
+
        P2. 
-           READ CHARCUR NEXT AT END GO TO E1.
+           READ CHARCUR NEXT
+             AT END
+               GO TO E1.
+
            IF CC-KEY8 NOT = G-GARNO GO TO E1.
+
            IF NOT
               ((CC-DATE-T = TEST-DATE) AND (CC-PROC1 = FI-PROC))
            GO TO P2.
@@ -205,8 +228,10 @@
              DISPLAY G-GARNAME " " CC-PAYCODE
              ACCEPT ALF1
            GO TO P1.
+           
            WRITE FILEOUT201 FROM FILEIN01
            GO TO P1.
+           
        E1. 
            WRITE ERROR-FILE01 FROM FILEIN01
            GO TO P1.

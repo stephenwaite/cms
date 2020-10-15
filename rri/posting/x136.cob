@@ -3,31 +3,42 @@
       * @author  s waite <cmswest@sover.net>
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
-        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI146.
+       IDENTIFICATION DIVISION.
+
+       PROGRAM-ID. x136.
+
        ENVIRONMENT DIVISION.
+
        INPUT-OUTPUT SECTION.
+
        FILE-CONTROL.
            SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT GARFILE ASSIGN TO "S35"     ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT CHARCUR ASSIGN TO "S40"     ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT ERROR-FILE ASSIGN TO "S45" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT FILEOUT ASSIGN TO "S50" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT PAYFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC        RECORD KEY IS PAYFILE-KEY
            LOCK MODE MANUAL.
+
            SELECT PAYCUR ASSIGN TO "S60" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY
            LOCK MODE MANUAL.
+
            SELECT INSFILE ASSIGN TO "S65" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS INS-KEY
            ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
@@ -37,11 +48,10 @@
            ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
            ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
            LOCK MODE MANUAL.
+
        DATA DIVISION.
        FILE SECTION.
-       FD  INSFILE
-     *     BLOCK CONTAINS 6 RECORDS
-           DATA RECORD IS INSFILE01.
+       FD  INSFILE.
        01  INSFILE01.
            02 INS-KEY PIC XXX.
            02 INS-NAME PIC X(22).
@@ -64,9 +74,7 @@
            02 INS-REFWARN PIC X.
            02 INS-FUTURE PIC X(8).
 
-       FD  PAYCUR
-           BLOCK CONTAINS 6 RECORDS
-           DATA RECORD IS PAYCUR01.
+       FD  PAYCUR.
        01  PAYCUR01.
            02 PAYCUR-KEY.
              03 PC-KEY8 PIC X(8).
@@ -78,9 +86,8 @@
            02 PC-DATE-T PIC X(8).
            02 PC-DATE-E PIC X(8).
            02 PC-BATCH PIC X(6).
-       FD  PAYFILE
-      *    BLOCK CONTAINS 4 RECORDS
-           DATA RECORD IS PAYFILE01.
+
+       FD  PAYFILE.
        01  PAYFILE01.
            02 PAYFILE-KEY.
              03 PD-KEY8 PIC X(8).
@@ -94,10 +101,13 @@
            02 PD-DATE-E PIC X(8).
            02 PD-ORDER PIC X(6).
            02 PD-BATCH PIC X(6).
+
        FD ERROR-FILE.
        01 ERROR-FILE01 PIC X(132).
+
        FD FILEOUT.
        01 FILEOUT01 PIC X(160).
+
        FD FILEIN.
        01  FILEIN01.
            02 FI-NAME PIC X(20).
@@ -122,9 +132,8 @@
            02 FILLER PIC X.     
            02 FI-CENT-REDUCE PIC XX.
            02 FILLER PIC X(37).
-       FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS CHARCUR01.
+
+       FD  CHARCUR.
        01  CHARCUR01.
            02 CHARCUR-KEY.
              03 CC-KEY8 PIC X(8).
@@ -169,9 +178,8 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
-       FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS G-MASTER.
+
+       FD GARFILE.
        01 G-MASTER.
            02 G-GARNO.
              03 ID1 PIC XXX.
@@ -224,7 +232,6 @@
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
 
-
        WORKING-STORAGE SECTION.
 
        01  HL01.
@@ -261,44 +268,74 @@
        01  NUM6 PIC 9(6).
        01  PAYBACK01 PIC X(80).
        01  ALF1 PIC X.
+
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN INPUT FILEIN CHARCUR GARFILE PAYCUR INSFILE.
            OPEN OUTPUT ERROR-FILE FILEOUT.
-           OPEN I-O PAYFILE.
-           READ FILEIN AT END GO TO P9.
+           OPEN I-O PAYFILE
+
+           READ FILEIN
+             AT END
+               GO TO P9.
+
            MOVE FILEIN01(1:8) TO PAYDATE.
+
        P1.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P9.
-           DISPLAY FI-GARNO.
-           DISPLAY FI-DATE.
-           DISPLAY FI-DOLLAR-PAID. 
-           DISPLAY FI-CENT-PAID.
-           DISPLAY FI-DOLLAR-REDUCE. 
-           DISPLAY FI-CENT-REDUCE.
-           IF FI-DATE = SPACE  OR FI-PROC = SPACE GO TO E1.
+           READ FILEIN
+             AT END
+               GO TO P9.
+
+      *     DISPLAY FI-GARNO.
+      *     DISPLAY FI-DATE.
+      *     DISPLAY FI-DOLLAR-PAID. 
+      *     DISPLAY FI-CENT-PAID.
+      *     DISPLAY FI-DOLLAR-REDUCE. 
+      *     DISPLAY FI-CENT-REDUCE.
+
+           IF FI-PROC1 = "3341F" OR "3570F" OR "7025F" OR
+             "G1004" OR "G9551" OR "G9552" OR "G9557" OR "G9637"
+             GO TO P1.    
+      
+           IF FI-DATE = SPACE OR FI-PROC = SPACE GO TO E1.
+
            MOVE FI-GARNO TO G-GARNO
-           READ GARFILE INVALID GO TO E1.
+           READ GARFILE
+             INVALID
+               GO TO E1.
+
            MOVE FI-DATE TO INPUT-DATE
            MOVE CORR INPUT-DATE TO TEST-DATE
            MOVE G-GARNO TO CC-KEY8
            MOVE SPACE TO CC-KEY3
-           START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO E1.
+           START CHARCUR KEY NOT < CHARCUR-KEY
+             INVALID
+               GO TO E1.
+
        P2. 
            READ CHARCUR NEXT AT END GO TO E1.
+
            IF CC-KEY8 NOT = G-GARNO GO TO E1.
+
            IF NOT (CC-DATE-T = TEST-DATE AND  CC-PROC1 = FI-PROC1)
-            GO TO P2.
+             GO TO P2.
+
            INSPECT FI-DOLLAR-PAID REPLACING ALL " " BY "0"
            MOVE FI-DOLLAR-PAID TO ALF4
            MOVE FI-CENT-PAID TO ALF2
            MOVE ALF6 TO NUM6
            COMPUTE PD-AMOUNT =  -1 * (NUM6 / 100)
+
+
            IF (PD-AMOUNT = 0) AND (FILEIN01(120:3) NOT = "131")
-           GO TO E1.
+             GO TO E1.
+
            MOVE SPACE TO PD-DENIAL
+
            IF FI-ADJ = "-" GO TO E1.
+           
            MOVE PAYDATE TO PD-DATE-T
            MOVE PAYDATE TO PD-DATE-E
            ACCEPT PD-ORDER FROM TIME
@@ -309,81 +346,126 @@
            MOVE G-GARNAME TO PD-NAME
            MOVE CC-PAYCODE TO PD-PAYCODE
            MOVE CC-PAYCODE TO INS-KEY
-           READ INSFILE INVALID MOVE SPACE TO INS-CAID
+           READ INSFILE
+             INVALID
+               MOVE SPACE TO INS-CAID
            END-READ
+
            IF (INS-CAID NOT = "EE")
-            AND (PD-PAYCODE NOT = "023")
-           PERFORM PAY-1 THRU PAY-2
+             AND (PD-PAYCODE NOT = "023")
+             PERFORM PAY-1 THRU PAY-2
            END-IF
+
            MOVE PAYFILE01 TO PAYBACK01
            MOVE 0 TO FLAG
            PERFORM A1 THRU A4
            WRITE FILEOUT01 FROM CHARCUR01
+
            IF FLAG = 1 GO TO E1.
+
            MOVE PAYBACK01 TO PAYFILE01
            MOVE 0 TO XYZ.
            PERFORM P3 THRU P4.
            WRITE FILEOUT01 FROM CHARCUR01.
+           
            IF G-SEINS = "003" GO TO P1.
+           
            INSPECT FI-DOLLAR-REDUCE REPLACING ALL " " BY "0"
            MOVE FI-DOLLAR-REDUCE TO ALF4
            MOVE FI-CENT-REDUCE TO ALF2
            MOVE ALF6 TO NUM6
            COMPUTE PD-AMOUNT =  -1 * (NUM6 / 100)
+           
            IF PD-AMOUNT = 0 GO TO P1.
+           
            IF PD-PAYCODE = G-SEINS GO TO P1.
+
        P2-1.
            MOVE "14" TO PD-DENIAL
            MOVE PAYFILE01 TO PAYBACK01
            PERFORM P3 THRU P4
            GO TO P1.
+
        P3.
            ADD 1 TO XYZ
            MOVE XYZ TO PD-KEY3
            READ PAYFILE INVALID KEY GO TO P4.
            GO TO P3.
+
        P4.
            MOVE PAYBACK01 TO PAYFILE01
            MOVE XYZ TO PD-KEY3
            WRITE PAYFILE01
            DISPLAY PAYFILE-KEY " " PD-NAME.
            DISPLAY "RECORD IS ADDED".
-       S4. MOVE CC-KEY8 TO PC-KEY8 MOVE "000" TO PC-KEY3.
+
+       S4. 
+           MOVE CC-KEY8 TO PC-KEY8 MOVE "000" TO PC-KEY3.
            START PAYCUR KEY NOT <  PAYCUR-KEY INVALID GO TO S5.
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT.
-       S41. READ PAYCUR NEXT AT END GO TO S5.
+
+       S41.
+           READ PAYCUR NEXT AT END GO TO S5.
+
            IF PC-KEY8 NOT = CC-KEY8 GO TO S5.
+           
            IF PC-CLAIM NOT = CC-CLAIM GO TO S41. 
+           
            ADD PC-AMOUNT TO CLAIM-TOT.
+           
            IF PC-DENIAL = "CP" MOVE 1 TO FLAG.
-           IF PC-PAYCODE = "001" OR "021" OR "022" MOVE 1 TO FLAG.
+           
+           IF PC-PAYCODE = "001" OR "021" OR "022"
+             MOVE 1 TO FLAG.
+           
            GO TO S41.
-       S5. EXIT.
-       A1. MOVE CC-KEY8 TO PD-KEY8 MOVE "000" TO PD-KEY3.
+
+       S5. 
+           EXIT.
+
+       A1. 
+           MOVE CC-KEY8 TO PD-KEY8 MOVE "000" TO PD-KEY3.
            START PAYFILE KEY NOT <  PAYFILE-KEY INVALID GO TO A4.
-       A2. READ PAYFILE NEXT AT END GO TO A4.
+
+       A2. 
+           READ PAYFILE NEXT AT END GO TO A4.
+           
            IF PD-KEY8 NOT = CC-KEY8 GO TO A4.
+           
            IF PD-CLAIM NOT = CC-CLAIM GO TO A2.
+           
            MOVE 1 TO FLAG.
+
        A4.
            EXIT.
+
        PAY-1.
            MOVE G-PRINS TO INS-KEY
            MOVE SPACE TO INS-CAID
-           READ INSFILE INVALID CONTINUE
+           READ INSFILE
+             INVALID
+               CONTINUE
            END-READ
+
            IF INS-CAID = "EE" MOVE G-PRINS TO PD-PAYCODE
-           GO TO PAY-2.
+             GO TO PAY-2.
+
            MOVE G-SEINS TO INS-KEY
            MOVE SPACE TO INS-CAID
-           READ INSFILE INVALID CONTINUE
+           READ INSFILE
+             INVALID
+               CONTINUE
            END-READ
+           
            IF INS-CAID = "EE " MOVE G-SEINS TO PD-PAYCODE.
+
        PAY-2.
            EXIT.
 
-       E1. WRITE ERROR-FILE01 FROM FILEIN01
+       E1. 
+           WRITE ERROR-FILE01 FROM FILEIN01
            GO TO P1.
+
        P9.
            CLOSE CHARCUR GARFILE ERROR-FILE FILEOUT PAYFILE PAYCUR
            STOP RUN.
