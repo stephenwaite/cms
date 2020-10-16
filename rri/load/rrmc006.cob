@@ -1697,8 +1697,7 @@
            STRING R3-MOD1 R3-MOD2 R3-MOD3 DELIMITED BY SIZE 
                INTO C-MODS
 
-      *  new format which has hcpcs and a mod
-             
+      *  new format which has hcpcs and a mod             
            IF R3-CPT = SPACE            
                MOVE R3-HCPCS TO C-CPT           
                IF R3-HCPCS = SPACE
@@ -1742,18 +1741,23 @@
 
        WORK-COMP.
            MOVE SPACE TO COMPFILE01
-           STRING A-ACTNO  C-DATE-T C-PROC INSURANCE-1
+           STRING A-ACTNO C-DATE-T C-PROC INSURANCE-1
            DELIMITED BY SIZE INTO COMPFILE01
-           WRITE COMPFILE01 INVALID CONTINUE.
+           WRITE COMPFILE01
+             INVALID
+               CONTINUE.
            
            IF R1-INSNAME1 = SPACE
-               DISPLAY A-GARNAME " BLANK WORK COMP1 ADDRESS"
-               DISPLAY A-PRINS " " A-SEINS
+              MOVE SPACE TO ERRFILE01
+              STRING A-GARNAME " BLANK WORK COMP1 ADDRESS "
+                A-PRINS " " A-SEINS
+              DELIMITED BY SIZE INTO ERRFILE01
+              WRITE ERRFILE01
            END-IF.    
 
        WORK-COMP2.
            MOVE SPACE TO COMPFILE01
-           STRING A-ACTNO  C-DATE-T C-PROC INSURANCE-2
+           STRING A-ACTNO C-DATE-T C-PROC INSURANCE-2
            DELIMITED BY SIZE INTO COMPFILE01
            WRITE COMPFILE01
              INVALID
@@ -1761,20 +1765,19 @@
            END-WRITE
 
            IF R1-INSNAME2 = SPACE
-               MOVE SPACE TO COMPFILE01
-               STRING A-ACTNO C-DATE-T C-PROC INSURANCE-3
-               DELIMITED BY SIZE INTO COMPFILE01           
-               WRITE COMPFILE01
-                 INVALID 
-                   CONTINUE
-               END-WRITE
+             MOVE SPACE TO COMPFILE01
+             STRING A-ACTNO C-DATE-T C-PROC INSURANCE-3
+             DELIMITED BY SIZE INTO COMPFILE01           
+             WRITE COMPFILE01
+               INVALID 
+                 CONTINUE
+             END-WRITE
            END-IF.        
 
-       PACK-1. 
-           
+       PACK-1.            
            IF NOT (TAB16(X) = " " OR "-" OR "/")
-               MOVE TAB16(X) TO NEWTAB(YNDX)
-               SET YNDX UP BY 1
+             MOVE TAB16(X) TO NEWTAB(YNDX)
+             SET YNDX UP BY 1
            END-IF.
 
        EA-1.
@@ -1808,19 +1811,9 @@
        EA-1-EXIT.
            EXIT.
 
-       P62.
-      *    CHECK THIS OUT!!!
-
-      *     MOVE SPACE TO LASTNAME FIRSTNAME
-      *     UNSTRING R2-REFDOC DELIMITED BY "," INTO
-      *      LASTNAME FIRSTNAME    
-      *     STRING LASTNAME FIRSTNAME DELIMITED BY ";" INTO
-      *      REF-NAME
-      *
-      *    elegant!
-      *
+       P62.     
            INSPECT R2-REFDOC REPLACING ALL "," BY ";"
-      *     
+           
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 36
              PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > 36
                STRING R2-REFDOC(1:1) ALFATAB1(Z) ALFATAB2(Y) 
