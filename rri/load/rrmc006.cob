@@ -1492,8 +1492,15 @@
            IF ((A-PRINS = "268")
                AND  ((ALF-16-1 = "FAC") OR (ALF-16-1 = "EVT")
                OR (ALF-16-1 = "FVT") OR (ALF-16-1 = "VEI")
-               OR (ALF-16-1 = "FAO") OR (ALF-16-1(1:2) = "ZI" )))
+               OR (ALF-16-1 = "FAO")))
                MOVE "002" TO A-PRINS
+           END-IF
+
+           IF ((A-PRINS = "002")
+               AND  NOT ((ALF-16-1 = "FAC") OR (ALF-16-1 = "EVT")
+               OR (ALF-16-1 = "FVT") OR (ALF-16-1 = "VEI")
+               OR (ALF-16-1 = "FAO") OR ALF-16-1(1:2) = "ZI"))
+               MOVE "268" TO A-PRINS
            END-IF
 
            IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V")
