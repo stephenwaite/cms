@@ -1478,12 +1478,6 @@
                MOVE "A" TO A-PR-ASSIGN
            END-IF
 
-           IF A-PRINS = "268" AND ALF-16-11 = "Y"
-               AND ALF-16-12 = "L" AND ALF-16-13 = "S"
-               MOVE "U" TO A-PR-ASSIGN
-               MOVE "149" TO A-PRINS
-           END-IF
-
            IF (A-PRINS = "268") 
                AND ((ALF-16-11 = "Z") AND (ALF-16-12 = "I"))
                MOVE "002" TO A-PRINS
