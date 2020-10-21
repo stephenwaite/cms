@@ -354,7 +354,13 @@
            IF CC-PROC < "00100  "
                GO TO A2
            END-IF    
-           
+
+      *    medicare advantage might like to see quality codes
+      *    maybe even the G1004 for AUC
+      *    so if we receive a G1004 from rrmc then we should look
+      *    to see if we should report any applicable measures 
+      *    are you up for the challenge?
+                 
            IF CC-AMOUNT = 0
                GO TO A2
            END-IF    
