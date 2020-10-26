@@ -681,7 +681,7 @@
            IF IN-FIELD-8 NOT NUMERIC 
                DISPLAY "NOT NUMERIC"
                GO TO 10-ACTION
-           END-IF
+           END-IF     
 
            MOVE IN-FIELD-8 TO INPUT-DATE
            
