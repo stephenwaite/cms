@@ -134,10 +134,8 @@
        01  HOLD8 PIC X(8).
        01  FLAG PIC 999.
        01  HOLD-ID PIC X(11).
-       01  SAVE-KEY PIC X(11).
        01  X-PROC PIC X(11).
        01  PROC-HOLD PIC X(5).
-       01  DIAG-HOLD PIC X(7).
        01  ALF1 PIC X.
 
        PROCEDURE DIVISION.
@@ -166,15 +164,15 @@
            READ CHARFILE NEXT WITH LOCK
              AT END
                GO TO P2
-           END-READ
-
-           MOVE CD-PROC1 TO PROC-HOLD
-           MOVE CD-DIAG TO DIAG-HOLD
+           END-READ          
 
            IF NOT (CD-PAYCODE = "008" OR "009" OR "010" OR "011" 
                OR "012" OR "013" OR "014" OR "015")
                GO TO P1
            END-IF
+
+           MOVE CHARFILE01 TO CHARBACK01
+           MOVE CD-PROC1 TO PROC-HOLD           
 
            IF CD-PAYCODE = "008"
                MOVE SPACE TO FILEOUT01
@@ -183,7 +181,6 @@
                WRITE FILEOUT01 
                MOVE 145 TO FLAG
                MOVE "003" TO CD-PAYCODE
-               MOVE CHARFILE01 TO CHARBACK01
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
@@ -197,7 +194,6 @@
                WRITE FILEOUT01 
                MOVE 146 TO FLAG
                MOVE "003" TO CD-PAYCODE
-               MOVE CHARFILE01 TO CHARBACK01
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
@@ -211,7 +207,6 @@
                WRITE FILEOUT01 
                MOVE 147 TO FLAG
                MOVE "003" TO CD-PAYCODE
-               MOVE CHARFILE01 TO CHARBACK01
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
@@ -225,7 +220,6 @@
                WRITE FILEOUT01 
                MOVE 195 TO FLAG
                MOVE "003" TO CD-PAYCODE
-               MOVE CHARFILE01 TO CHARBACK01
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
@@ -239,7 +233,6 @@
                WRITE FILEOUT01 
                MOVE 405 TO FLAG
                MOVE "003" TO CD-PAYCODE
-               MOVE CHARFILE01 TO CHARBACK01
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
@@ -266,7 +259,6 @@
                WRITE FILEOUT01 
                MOVE 436 TO FLAG
                MOVE "003" TO CD-PAYCODE
-               MOVE CHARFILE01 TO CHARBACK01
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
@@ -287,7 +279,6 @@
       *    using 999 to flag 2 measures         
                MOVE 999 TO FLAG
                MOVE "003" TO CD-PAYCODE
-               MOVE CHARFILE01 TO CHARBACK01
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
@@ -536,8 +527,7 @@
            GO TO A1-EXIT.
 
        B1.
-           MOVE CHARFILE01 TO CHARBACK01
-           ADD 1 TO XYZ.
+           ADD 1 TO XYZ
            MOVE XYZ TO CD-KEY3
            MOVE BK-KEY8 TO CD-KEY8
            
@@ -558,14 +548,12 @@
            MOVE CHARBACK01 TO CHARFILE01
            MOVE HOLD-ID TO CHARFILE-KEY
            MOVE X-PROC TO CD-PROC
-           MOVE DIAG-HOLD TO CD-DIAG
            MOVE "0000000" TO CD-DX2 CD-DX3 CD-DX4
            MOVE 0 TO CD-AMOUNT
            MOVE 003 TO CD-PAYCODE
            MOVE SPACE TO CD-MOD2 CD-MOD3 CD-MOD4
            ADD 1 TO CLAIMNO
            MOVE CLAIMNO TO CD-CLAIM
-           MOVE CHARFILE-KEY TO SAVE-KEY
            WRITE CHARFILE01.
 
        A1-EXIT.
