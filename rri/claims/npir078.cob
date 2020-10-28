@@ -402,7 +402,7 @@
                GO TO A2
            END-READ
 
-           MOVE G-GARNAME TO EF5
+           STRING " " G-ACCT DELIMITED BY SIZE INTO EF5
            MOVE G-PRINS TO NUM3
            
            IF G-STREET = SPACE AND G-BILLADD = SPACE
@@ -500,7 +500,8 @@
                MOVE CC-CLAIM TO AUTH-KEY6
                READ AUTHFILE                  
                  INVALID 
-                   MOVE "NO AUTH " TO EF2
+                   STRING "NO AUTH " CC-PROC " " CC-AMOUNT
+                     DELIMITED BY SIZE INTO EF2
                    PERFORM E1
                    GO TO A2
                END-READ
@@ -508,12 +509,12 @@
                     
            MOVE SPACE TO FILEOUT01
            STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE
-           INTO FILEOUT01
+             INTO FILEOUT01
 
            IF INS-NEIC = "14165"
-            WRITE FILEOUT201 FROM FILEOUT01
+             WRITE FILEOUT201 FROM FILEOUT01
            ELSE
-            WRITE FILEOUT01
+             WRITE FILEOUT01
            END-IF
 
            GO TO A2.
