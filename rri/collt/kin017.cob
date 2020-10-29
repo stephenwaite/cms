@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI803.
+       PROGRAM-ID. kin017.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -20,9 +20,7 @@
        FD FILEOUT
            DATA RECORD IS FILEOUT01.
        01  FILEOUT01 PIC X(160).
-       FD  CHARCUR
-           BLOCK CONTAINS 5 RECORDS
-           DATA RECORD IS CHARCUR01.
+       FD  CHARCUR.
        01  CHARCUR01.
            02 CHARCUR-KEY.
              03 CC-KEY8 PIC X(8).
@@ -67,16 +65,29 @@
        WORKING-STORAGE SECTION.
        01  ALF3 PIC XXX.
        01  ALF6 PIC X(6).
+
        PROCEDURE DIVISION.
+
        P0.
            OPEN OUTPUT FILEOUT INPUT CHARCUR.
            MOVE "018" TO CC-PAYCODE
-           START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P99.
-       P1. READ CHARCUR NEXT AT END GO TO P99.
+           START CHARCUR KEY NOT < CC-PAYCODE
+             INVALID
+               GO TO P99.
+
+       P1. 
+           READ CHARCUR NEXT
+             AT END
+               GO TO P99.
+
            IF CC-PAYCODE NOT = "018" GO TO P99.
+
            IF CC-COLLT NOT = "0" GO TO P1.
+
            WRITE FILEOUT01 FROM CHARCUR01.
+
            GO TO P1.
+
        P99.
            CLOSE FILEOUT CHARCUR.
            STOP RUN.
