@@ -765,7 +765,7 @@
              MOVE SVC-CNTR TO CAS-SVC(CAS-CNTR)
              GO TO P1-SVC-LOOP.
            
-           IF F1 = "DTM" AND F2 = "*150"
+           IF F1 = "DTM" AND (F2 = "*150" OR F2 = "*472")
              MOVE SPACE TO DTM01
              UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                DTM-0 DTM-1 DTM-2
