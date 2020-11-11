@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI146.
+       PROGRAM-ID. kin011.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -165,11 +165,14 @@
        01  NEF-6 PIC Z,ZZ9.99CR.
        01  TOT-CLAIM PIC S9(4)V99.
        01  REDUCT PIC S9(4)V99.
+
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN I-O KINFILE
-           INPUT INSFILE CHARCUR PAYCUR
-           OUTPUT FILEOUT.
+           OPEN INPUT INSFILE CHARCUR PAYCUR
+           OPEN OUTPUT FILEOUT.
+
            MOVE "ACCT" TO FO-ACCT
            MOVE "NAME" TO FO-NAME
            MOVE SPACE TO FO-PAYCODE
@@ -178,51 +181,82 @@
            MOVE "PAID" TO FO-AMOUNT
            MOVE "WRITE-OFF" TO FO-REDUCT
            WRITE FILEOUT01.
+
            MOVE "0" TO KIN-STAT
            START KINFILE KEY NOT <  KIN-STAT
-           INVALID GO TO P9.
+             INVALID
+               GO TO P9.
+
        P1.
-           READ KINFILE NEXT WITH LOCK AT END GO TO P9.
+           READ KINFILE NEXT WITH LOCK
+             AT END
+               GO TO P9.
+
            IF KIN-STAT NOT = "0" GO TO P9.
+
            MOVE KIN-KEY8 TO FO-ACCT
            MOVE KIN-NAME TO FO-NAME
            MOVE KIN-PAYCODE TO FO-PAYCODE
            MOVE KIN-PAYCODE TO INS-KEY
-           READ INSFILE INVALID MOVE SPACE TO INS-NAME
+
+           READ INSFILE
+             INVALID
+               MOVE SPACE TO INS-NAME
            END-READ
+
            MOVE INS-NAME TO FO-INSNAME
            MOVE KIN-DATE-T TO FO-DATE
            MOVE KIN-AMOUNT TO NEF-6
            MOVE NEF-6 TO FO-AMOUNT
            MOVE SPACE TO FO-PIF
+
            PERFORM PAID-1 THRU PAID-1-EXIT
+
            MOVE REDUCT TO NEF-6
            MOVE NEF-6 TO FO-REDUCT
            WRITE FILEOUT01
+
            MOVE "1" TO KIN-STAT
            ACCEPT KIN-DATE-E FROM CENTURY-DATE.
            REWRITE KINFILE01
            GO TO P1.
+
        PAID-1.
+
            MOVE KIN-CHARCUR-KEY TO CHARCUR-KEY
-           READ CHARCUR INVALID GO TO PAID-1-EXIT.
+           READ CHARCUR
+             INVALID
+               GO TO PAID-1-EXIT.
+
            MOVE CC-KEY8 TO PC-KEY8
            MOVE SPACE TO PC-KEY3
-           START PAYCUR KEY NOT < PAYCUR-KEY INVALID
-           GO TO PAID-1-EXIT.
+           START PAYCUR KEY NOT < PAYCUR-KEY
+             INVALID
+               GO TO PAID-1-EXIT.
+
            MOVE CC-AMOUNT TO TOT-CLAIM.
            MOVE 0 to REDUCT.
+
        PAID-2.
-           READ PAYCUR NEXT AT END GO TO PAID-3.
+           READ PAYCUR NEXT
+             AT END
+               GO TO PAID-3.
+
            IF PC-KEY8 NOT = CC-KEY8 GO TO PAID-3.
+
            IF PC-CLAIM NOT = CC-CLAIM GO TO PAID-2.
+
            IF PC-DENIAL = "14" ADD PC-AMOUNT TO REDUCT.
+
            ADD PC-AMOUNT TO TOT-CLAIM
            GO TO PAID-2.
+
        PAID-3.
            IF TOT-CLAIM = 0 MOVE "PIF" TO FO-PIF.
+
        PAID-1-EXIT.
            EXIT.
+
        P9.
-           CLOSE FILEOUT KINFILE.
+           CLOSE FILEOUT KINFILE INSFILE CHARCUR PAYCUR.
            STOP RUN.

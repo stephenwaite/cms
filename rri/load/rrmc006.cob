@@ -741,8 +741,7 @@
            STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-GARNAME
            
            IF R2-MEDREC = "00000000"
-               MOVE R1-PATNUM TO R2-MEDREC
-               DISPLAY R1-PATNAME " MED-REC"
+               DISPLAY "MRN IS ZEROES FOR " R1-PATNAME
            END-IF
 
            MOVE R1-GARZIP TO ZIPCODE
@@ -1504,7 +1503,7 @@
            IF (A-PRINS = "002") AND (ALF-16(4:1) NOT = "V")
                MOVE SPACE TO ERRFILE01
                STRING "ADDING V TO 002 POLICY FOR " A-GARNAME " "
-                   R1-PATNUM " " A-PRIPOL 
+                   R2-MEDREC " " A-PRIPOL 
                    DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
                MOVE SPACE TO ALF-BCBSVT

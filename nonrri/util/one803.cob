@@ -106,7 +106,7 @@
 
        FD  FILEIN.
        01  FILEIN01. 
-           02 FI-1 PIC X(7).      
+           02 FI-1 PIC X(5).      
 
        FD  FILEOUT.
        01  FILEOUT01.
@@ -133,7 +133,12 @@
            READ FILEIN 
              AT END
                GO TO P9
-           END-READ.           
+           END-READ. 
+
+           MOVE LOW-VALUES TO CHARCUR-KEY
+           START CHARCUR KEY > CHARCUR-KEY
+             INVALID 
+               CONTINUE.      
 
        P2.               
            READ CHARCUR NEXT             
@@ -144,7 +149,7 @@
            IF CC-DATE-T < DATE-LOW OR > DATE-HIGH
               GO TO P2.
 
-           IF CC-PROC NOT = FI-1
+           IF CC-PROC(1:5) NOT = FI-1(1:5)
              GO TO P2.   
 
            MOVE CC-PAYCODE TO INS-KEY
