@@ -765,7 +765,7 @@
              MOVE SVC-CNTR TO CAS-SVC(CAS-CNTR)
              GO TO P1-SVC-LOOP.
            
-           IF F1 = "DTM" AND F2 = "*150"
+           IF F1 = "DTM" AND (F2 = "*150" OR F2 = "*472")
              MOVE SPACE TO DTM01
              UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                DTM-0 DTM-1 DTM-2
@@ -895,7 +895,7 @@
               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
               IF (CAS-1 = "PR")
-                IF (CAS-2 = "96")
+                IF (CAS-2 = "96" OR CAS-2 = "27" OR CAS-2 = "29")
                  PERFORM P1-LOST-SVC
                  GO TO P5-SVC-LOOP-EXIT
                 END-IF
@@ -1107,6 +1107,7 @@
                  OR (CAS-1 = "CO" AND CAS-2 = "18   ")
                  OR (CAS-1 = "CO" AND CAS-2 = "58   ")
                  OR (CAS-1 = "CO" AND CAS-2 = "96   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "55   ")
                     MOVE 1 TO FLAG
                     MOVE CAS-CNTR TO Z
                     GO TO DUMP50-EXIT

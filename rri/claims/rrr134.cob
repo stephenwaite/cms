@@ -258,7 +258,10 @@
            
            IF CC-DOCP = "02"
                MOVE SPACE TO ERRORFILE01
-               MOVE "BAD DOC ## AND/OR DIAG ?" TO EF2
+               STRING CC-PROC " " CC-AMOUNT
+                 DELIMITED BY SIZE INTO EF2
+               STRING " BAD DOC # AND/OR DIAG?"
+                 DELIMITED BY SIZE INTO EF3
                PERFORM S1 
                GO TO P1
            END-IF

@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI008.
+       PROGRAM-ID. rrr008.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -18,14 +18,19 @@
            ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
            ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
            ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES.
+
            SELECT OUT ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT POSTDATE ASSIGN TO "S40" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT CHARFILE ASSIGN TO "S45" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT PARMFILE ASSIGN TO "S50" ORGANIZATION
            LINE SEQUENTIAL.
+
        DATA DIVISION.
        FILE SECTION.
        FD  INSFILE
@@ -98,14 +103,17 @@
            02 CD-DX5 PIC X(7).
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
-       FD OUT.
+       FD  OUT.
        01  OUT01 PIC X(133).
+
        FD  POSTDATE.
-       01 POSTDATE01 PIC X(8).
+       01  POSTDATE01 PIC X(8).
+
        FD  PARMFILE.
        01  PARMFILE01.
            02 PF1 PIC X(9).
            02 PF2 PIC X(40).
+
        WORKING-STORAGE SECTION.
        01  CHAR-CNT01.
            02 CHAR-CNT PIC 99999 OCCURS 999 TIMES.
@@ -211,10 +219,11 @@
        01  ADJ-AMT PIC S9(8)V99.
        01  DOT01 PIC X(48).
        PROCEDURE DIVISION.
+
        0005-START.
            MOVE ALL " -" TO DOT01.
            MOVE ALL ZEROES TO CHAR-CNT01 CHAR-AMT01 CNT-TOT01
-           AMT-TOT01.
+             AMT-TOT01.
       *    PERFORM B1 VARYING Y FROM 1 BY 1 UNTIL Y > 999.
            OPEN INPUT POSTDATE CHARFILE PARMFILE INSFILE.
            OPEN OUTPUT OUT.

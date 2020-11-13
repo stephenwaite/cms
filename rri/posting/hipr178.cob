@@ -1197,19 +1197,19 @@
                    IF (CAS-2 = "104") MOVE CAS-3 TO ALF8
                    END-IF
               
-                   IF (CAS-5 = "104") MOVE CAS-5 TO ALF8
+                   IF (CAS-5 = "104") MOVE CAS-6 TO ALF8
                    END-IF
               
-                   IF (CAS-8 = "104") MOVE CAS-8 TO ALF8
+                   IF (CAS-8 = "104") MOVE CAS-9 TO ALF8
                    END-IF
               
-                   IF (CAS-11 = "104") MOVE CAS-11 TO ALF8
+                   IF (CAS-11 = "104") MOVE CAS-12 TO ALF8
                    END-IF
               
-                   IF (CAS-14 = "104") MOVE CAS-14 TO ALF8
+                   IF (CAS-14 = "104") MOVE CAS-15 TO ALF8
                    END-IF
               
-                   IF (CAS-17 = "104") MOVE CAS-17 TO ALF8
+                   IF (CAS-17 = "104") MOVE CAS-18 TO ALF8
                    END-IF
               
                    IF ALF8 NOT = SPACE
@@ -1240,7 +1240,7 @@
                                 "59" OR "253" OR "131")
                                OR
                       (CAS-5 = "A2" OR "42" OR "45" OR "B6" OR "B10" OR 
-                               "59" OR "253"OR "131"))
+                               "59" OR "253" OR "131"))
                                AND NOT (CLP-2CLMSTAT = "2 " OR "3 ")
                        
                        IF CAS-3 NOT = SPACE
@@ -1350,7 +1350,7 @@
                      CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
                      CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-                   IF CAS-2 = "50" OR "5 "
+                   IF CAS-2 = "50" OR "5 " OR "234"
                        MOVE 1 TO FLAG
                        MOVE Z TO CAS-CNTR
                    END-IF               
