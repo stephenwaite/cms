@@ -22,7 +22,7 @@
                    
         // Call RemoteFunction ()
         //var_dump($sh_param);
-        echo "sending $file to ngs";
+        echo "sending " . $argv[1] . " to ngs";
         $error = 0;
         try {
             $info = $soapClient->NGSUploadFile($sh_param);
@@ -34,7 +34,7 @@
             ");
         }
 
-        var_dump($info);
+        var_dump($info->NGSUploadFileResult);
 
 
     
