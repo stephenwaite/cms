@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NPI079.
+       PROGRAM-ID. mvp5r079.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -1989,30 +1989,35 @@
            MOVE BHT-DATE TO CC-DATE-A
            REWRITE CHARCUR01
            END-READ.
-       2400SRV-EXIT.  EXIT.
+
+       2400SRV-EXIT.  
+           EXIT.
+
        2420A.
+           MOVE FI-DOCP TO DOC-NUM
+           MOVE "000" TO DOC-INS
+           READ DOCFILENEW
+             INVALID
+               MOVE "000" TO DOC-INS              
+               READ DOCFILENEW
+                 INVALID
+                   GO TO START-BEGIN
+               END-READ
+           END-READ
            MOVE "82 " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE "XX" TO NM1-EINSS
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
            UNSTRING DOC-NAME DELIMITED BY ";"
                 INTO NM1-NAMEL NM1-NAMEF 
-      *     MOVE SPACE TO NM1-NAMEL NM1-NAMEF
            MOVE DOC-NPI TO NM1-CODE
            MOVE SPACE TO SEGFILE01
-      *     WRITE SEGFILE01 FROM NM101.
+           WRITE SEGFILE01 FROM NM101.
            MOVE "PE" TO PRV-1
            MOVE "PXC" TO PRV-2
            MOVE DOC-TAXONOMY TO PRV-TAX
            MOVE SPACE TO SEGFILE01
-      *     WRITE SEGFILE01 FROM PRV01.
-           MOVE "SY" TO REF-CODE
-           MOVE DOC-SSNUM TO REF-ID
-           IF INS-NEIC = "57106"
-           MOVE "N5" TO REF-CODE
-           MOVE DOC-PVNUM TO REF-ID.
-           MOVE SPACE TO SEGFILE01.
-      *     WRITE SEGFILE01 FROM REF01.
+           WRITE SEGFILE01 FROM PRV01.
 
        2420A-EXIT.
            EXIT.
