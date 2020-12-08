@@ -1567,6 +1567,11 @@
            IF (A-PRINS = A-SEINS)
                AND (A-PR-ASSIGN = "A")
                MOVE "020" TO A-SEINS
+               MOVE SPACE TO ERRFILE01
+               STRING "PRI AND SEC SAME INS " A-GARNAME " "
+                   R2-MEDREC " " A-PRIPOL 
+                   DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
                DISPLAY A-PRINS "  SAME AS SECONDARY INSURANCE "
                    R2-MEDREC
            END-IF.                        
