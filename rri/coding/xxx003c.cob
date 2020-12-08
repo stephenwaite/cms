@@ -590,9 +590,10 @@
                    DISPLAY "no known thyroid disease and an "    
                    DISPLAY "incidentally-detected thyroid nodule"
                    DISPLAY " < 1.0 cm noted"
-                   DISPLAY " 1 = follow up images recommended"
-                   DISPLAY " 2 = medical reasons for no f/u images"
-                   DISPLAY " 3 = f/u not recommended, perf not met!"
+                   DISPLAY " 1 = follow up images recommended, oh no"
+                   DISPLAY " 2 = medical reasons for f/u images, ok"
+                   DISPLAY " 3 = f/u not recommended, perf not met,"
+                           " an inverse measure so very good we hope"
                    GO TO P2-0
                END-IF
                IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
