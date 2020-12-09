@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI038.
+       PROGRAM-ID. npi036.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
