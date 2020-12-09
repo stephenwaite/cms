@@ -5,7 +5,7 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
        PROGRAM-ID. npi5037.
-       AUTHOR. SID WAITE.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -1390,10 +1390,7 @@
             END-IF
            END-IF.
            MOVE SPACE TO NM1-CODE
-           MOVE G-PRIPOL TO NM1-CODE
-           IF G-PRINS = "002"
-            MOVE "   " TO NM1-CODE(14:3)
-           END-IF  
+           MOVE G-PRIPOL TO NM1-CODE             
            MOVE "MI" TO NM1-EINSS
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.

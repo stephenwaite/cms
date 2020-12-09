@@ -4691,6 +4691,7 @@
            MOVE 1 TO FLAG
            CLOSE PAYFILE
            OPEN INPUT PAYFILE
+           DISPLAY PAYFILE-KEY
            DISPLAY "RECORD ADDED".
        WRITE-PAYFILE-EXIT.
            EXIT.

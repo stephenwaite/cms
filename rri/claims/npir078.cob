@@ -495,17 +495,17 @@
                GO TO A2
            END-IF
 
-           IF (INS-NEIC = "VACCN")
-               MOVE CC-KEY8 TO AUTH-KEY8
-               MOVE CC-CLAIM TO AUTH-KEY6
-               READ AUTHFILE                  
-                 INVALID 
-                   STRING "NO AUTH " CC-PROC " " CC-AMOUNT
-                     DELIMITED BY SIZE INTO EF2
-                   PERFORM E1
-                   GO TO A2
-               END-READ
-           END-IF    
+      *     IF (INS-NEIC = "VACCN")
+      *         MOVE CC-KEY8 TO AUTH-KEY8
+      *         MOVE CC-CLAIM TO AUTH-KEY6
+      *         READ AUTHFILE                  
+      *           INVALID 
+      *             STRING "NO AUTH " CC-PROC " " CC-AMOUNT
+      *               DELIMITED BY SIZE INTO EF2
+      *             PERFORM E1
+      *             GO TO A2
+      *         END-READ
+      *     END-IF    
                     
            MOVE SPACE TO FILEOUT01
            STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE
