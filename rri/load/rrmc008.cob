@@ -318,10 +318,22 @@
            MOVE SPACE TO ERRFILE01.    
 
            STRING "UNDEFINED PROCEDURE FOR " MEDREC " " R3-PROC 
-                  " " R3-CPT " DOS " R3-DATE ". This should be fixed."
+                  " " R3-CPT " DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01
 
-           WRITE ERRFILE01.
+           WRITE ERRFILE01
+
+           IF R3-PROC = "6327"
+               DISPLAY "WOULD YOU LIKE TO CHANGE THIS TO CPT 77049, Y?"
+               ACCEPT ANS
+               IF ANS = "Y"
+                   MOVE "77049" TO R3-CPT
+                   WRITE FILEOUT01 FROM REC301
+                   MOVE SPACE TO ERRFILE01
+                   MOVE "77049 USED FOR CDM 6327"
+                   WRITE ERRFILE01    
+               END-IF
+           END-IF        
            
            GO TO P1.
 
