@@ -24,7 +24,7 @@
            SELECT FILEOUT ASSIGN TO "S40"
              ORGANIZATION LINE SEQUENTIAL.
 
-           SELECT PARMOUT ASSIGN TO "S45"
+           SELECT CPTIN ASSIGN TO "S45"
              ORGANIZATION LINE SEQUENTIAL.
 
            SELECT DOCFILE ASSIGN TO "S50"
@@ -63,8 +63,8 @@
            02 LOW-PAYDATE PIC X(8).
            02 HIGH-PAYDATE PIC X(8).
 
-       FD  PARMOUT.
-       01  PARMOUT01 PIC X(16).
+       FD  CPTIN.
+       01  CPTIN01 PIC X(5).
        
        FD  FILEOUT.
        01  FILEOUT01.
@@ -108,13 +108,12 @@
        PROCEDURE DIVISION.
        
        P0.
-           OPEN INPUT DOCFILE GARFILE CHARDATE PAYDATE CHARCUR PAYCUR 
-           OPEN OUTPUT PARMOUT FILEOUT.
+           OPEN INPUT DOCFILE GARFILE CHARDATE PAYDATE CHARCUR PAYCUR
+             CPTIN.
+           OPEN OUTPUT FILEOUT.
+           READ CPTIN.
            READ CHARDATE.
            READ PAYDATE.
-           MOVE PAYDATE01 TO PARMOUT01.
-           WRITE PARMOUT01.
-           CLOSE PARMOUT.            
            READ DOCFILE AT END GO TO P00.
 
        P00. 
@@ -130,7 +129,7 @@
              AT END
                GO TO P99.
 
-           IF CC-PROC(5:5) NOT = "32555" 
+           IF CC-PROC(5:5) NOT = CPTIN01 
              GO TO P1.                      
            
            IF CC-DATE-T < LOW-CHARDATE OR > HIGH-CHARDATE
@@ -213,5 +212,5 @@
 
        P99. 
            CLOSE DOCFILE GARFILE CHARDATE PAYDATE CHARCUR
-             PAYCUR FILEOUT.
+             PAYCUR CPTIN FILEOUT.
            STOP RUN.
