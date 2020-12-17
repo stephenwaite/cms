@@ -437,8 +437,8 @@
                END-IF
 
                DISPLAY "Mod for 76882? RT, LT, or enter for none."
-               ACCEPT ANS1                                  
-               MOVE ANS1 TO CD-MOD2
+               ACCEPT ANS                                  
+               MOVE ANS TO CD-MOD2
            END-IF
 
       *    bilat knee
@@ -451,14 +451,25 @@
                END-IF
 
                DISPLAY "Quick code of bilat knee?"
-               DISPLAY "Hit Y for M170"
+               DISPLAY "Y for M170"
                ACCEPT ANS1                                  
 
                IF ANS1 = "Y"
                    MOVE "M170   " TO CD-DIAG
                    REWRITE CHARNEW01
                    GO TO P1
-               END-IF    
+               END-IF
+
+               DISPLAY "then what about knee pain?"
+               DISPLAY "Y for M25561 and M25562"
+               ACCEPT ANS1                                  
+
+               IF ANS1 = "Y"
+                   MOVE "M25561 " TO CD-DIAG
+                   MOVE "M25562 " TO CD-DX2
+                   REWRITE CHARNEW01
+                   GO TO P1
+               END-IF               
            END-IF.
 
                
@@ -525,14 +536,13 @@
            END-IF
 
            IF CD-PAYCODE = "009" 
-               MOVE "Z1231  " TO CD-DIAG             
                DISPLAY "Enter assessment code"
                DISPLAY "? for help"            
                ACCEPT CD-QP1
                
-               IF NOT (    CD-QP1(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
+               IF NOT (CD-QP1(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
                                        OR "4" OR "5" OR "6" OR "B")
-                   GO TO P2-0
+                 GO TO P2-0
                END-IF
 
                IF CD-QP1 = "?"
@@ -548,7 +558,6 @@
                
                IF CD-QP1(1:1) = "B"
                    DISPLAY FO-KEY " has been skipped"
-
                    REWRITE CHARNEW01    
                    GO TO P1
                END-IF
