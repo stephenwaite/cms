@@ -427,7 +427,40 @@
                MOVE "R928   " TO CD-DIAG
                REWRITE CHARNEW01
                GO TO P1
+           END-IF
+
+      *    us extremity non vasc 76882
+           IF (CD-PROC1 = "2098")
+
+               IF CD-DOCP = "02"
+                   GO TO P1-1
+               END-IF
+
+               DISPLAY "Mod for 76882? RT, LT, or enter for none."
+               ACCEPT ANS1                                  
+               MOVE ANS1 TO CD-MOD2
+           END-IF
+
+      *    bilat knee
+           IF (CD-PROC1 = "1285" AND CD-MOD2 = "50")
+      *     
+              COMPUTE CD-AMOUNT = 2 * CD-AMOUNT
+
+               IF CD-DOCP = "02"
+                   GO TO P1-1
+               END-IF
+
+               DISPLAY "Quick code of bilat knee?"
+               DISPLAY "Hit Y for M170"
+               ACCEPT ANS1                                  
+
+               IF ANS1 = "Y"
+                   MOVE "M170   " TO CD-DIAG
+                   REWRITE CHARNEW01
+                   GO TO P1
+               END-IF    
            END-IF.
+
                
        P1-1.
            IF (CD-PAYCODE = "008" OR "010" OR "011" OR "012"

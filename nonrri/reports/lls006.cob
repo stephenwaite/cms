@@ -145,6 +145,7 @@
            end-read
   
            IF CR-KEY8 NOT = CC-KEY8
+             MOVE SPACE TO OUTFILE01
              STRING CHARCUR-KEY " " "   "
                " NO MATCH OF CHARGE IN CAREFILE " 
                CARE-KEY " " delimited BY SIZE INTO OUTFILE01

@@ -1255,7 +1255,7 @@
            MOVE FILEIN01 TO SAVE01
            PERFORM 2300CLM THRU 2300CLM-EXIT
            PERFORM HI-DIAG THRU HI-DIAG-EXIT
-           PERFORM 2310A THRU 2310A-EXIT
+      *     PERFORM 2310A THRU 2310A-EXIT
            
       *     IF EINSS-TYPE = "E" PERFORM 2310B.
 
@@ -2034,6 +2034,11 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
+      *    humana barked at not sending referring provider
+      *    in svc loop if it's in claim loop
+      *    let's try moving it all to service loop
+      
+           PERFORM 2310A THRU 2310A-EXIT.
            PERFORM 2420A THRU 2420A-EXIT
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
