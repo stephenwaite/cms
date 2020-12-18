@@ -255,11 +255,15 @@
        01  ALF13 PIC X(13).
        01  ALF20 PIC X(20).  
        01  MEDREC PIC X(6).
+       01  BILAT-FLAG PIC X.
 
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN INPUT FILEIN PROCFILE.
            OPEN OUTPUT FILEOUT ERRFILE.
+           MOVE "0" TO BILAT-FLAG.
+
        P1.
            READ FILEIN
              AT END
@@ -309,7 +313,23 @@
            IF PROC-AMOUNT = 0
                AND R3-GLC NOT = 0
                GO TO BAD-2
-           END-IF                       
+           END-IF                
+
+           IF (R3-PROC = "1285" AND R3-MOD1 = "  "
+             AND BILAT-FLAG = "1")
+             STRING "DELETING REDUNDANT BILAT KNEE 73562 " MEDREC " " 
+               R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
+               DELIMITED BY SIZE INTO ERRFILE01
+             WRITE ERRFILE01
+      *    special handling for cdm 1285 cpt 73562 from rrmc
+      *    set flag back to 0
+             MOVE "0" TO BILAT-FLAG
+             GO TO P1
+           end-if                
+
+           IF R3-PROC = "1285" AND R3-MOD1 = "50"
+             MOVE "1" TO BILAT-FLAG
+           end-if                  
 
            WRITE FILEOUT01 FROM REC301
            GO TO P1.
@@ -330,7 +350,7 @@
                    MOVE "77049" TO R3-CPT
                    WRITE FILEOUT01 FROM REC301
                    MOVE SPACE TO ERRFILE01
-                   MOVE "77049 USED FOR CDM 6327"
+                   MOVE "77049 USED FOR CDM 6327" TO ERRFILE01
                    WRITE ERRFILE01    
                END-IF
            END-IF        
