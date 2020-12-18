@@ -470,8 +470,24 @@
                    REWRITE CHARNEW01
                    GO TO P1
                END-IF               
-           END-IF.
+           END-IF
 
+      * prompt for quick code on bone density
+           IF (CD-PROC1 = "1430")
+               IF CD-DOCP = "02"
+                   GO TO P1-1
+               END-IF
+
+               DISPLAY "Quick code of bone density?"
+               DISPLAY "Hit Y for Z13.820 "
+               ACCEPT ANS1                                  
+
+               IF ANS1 = "Y"
+                   MOVE "Z13820 " TO CD-DIAG
+                   REWRITE CHARNEW01
+                   GO TO P1
+               END-IF    
+           END-IF.
                
        P1-1.
            IF (CD-PAYCODE = "008" OR "010" OR "011" OR "012"

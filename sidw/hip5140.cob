@@ -9,22 +9,22 @@
            
            SELECT PARMFILE ASSIGN TO "S40" ORGANIZATION LINE SEQUENTIAL.
            
-           SELECT REMITIN ASSIGN TO "S45".
-
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  PARMFILE.
        01  PARMFILE01 PIC X(40).
+
        FD  FILEIN.
        01  FILEIN01.
            02.
              03 FI-1 PIC XXX.
              03 FI-2 PIC X(4).
            02 FI-3 PIC X(113).
+
        FD  FILEOUT.
        01  FILEOUT01 PIC X.
-       FD  REMITIN.
-       01  REMITIN01 PIC X.
 
        WORKING-STORAGE SECTION.
        01  ALF1 PIC X.
@@ -55,11 +55,37 @@
            02 N1-2 PIC X(20).
            02 N1-3 PIC XX.
            02 N1-4 PIC X(10).
+       01  GS01.
+           02 GS-0 PIC XX.
+           02 GS-1 PIC XX.
+           02 GS-2 PIC X(20).
+           02 GS-3 PIC X(10).
+           02 GS-4 PIC X(8).
+           02 GS-5 PIC X(10).
+           02 GS-6 PIC X(6). 
+       01  ISA01.
+           02 ISA-0 PIC XX.
+           02 ISA-1 PIC XX.
+           02 ISA-2 PIC X(9).
+           02 ISA-3 PIC XX.
+           02 ISA-4 PIC X(9).
+           02 ISA-5 PIC XX.
+           02 ISA-6 PIC X(15).   
+           02 ISA-7 PIC XX.
+           02 ISA-8 PIC X(15).
+           02 ISA-9 PIC X(6). 
+           02 ISA-10 PIC X(4).
+           02 ISA-11 PIC X.
+           02 ISA-12 PIC X(5).
+           02 ISA-13 PIC X(9).
+           02 ISA-14 PIC X.
+           02 ISA-15 PIC X.       
+
        01  ANS PIC X.
 
        PROCEDURE DIVISION.
        0005-START.
-           OPEN INPUT FILEIN PARMFILE REMITIN OUTPUT FILEOUT. 
+           OPEN INPUT FILEIN PARMFILE OUTPUT FILEOUT. 
 
            READ PARMFILE AT END GO TO P99.
            READ PARMFILE AT END GO TO P99.
@@ -71,21 +97,29 @@
            MOVE PARMFILE01 TO PROV-LEG.
 
        P000.
-           READ FILEIN AT END GO TO P99.
+           perform p-read
 
            IF FI-1 NOT = "ISA" GO TO P000.
+           MOVE SPACE TO   ISA01
+           UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               ISA-0 ISA-1 ISA-2 ISA-3 ISA-4 ISA-5 ISA-6 ISA-7
+               ISA-8 ISA-9 ISA-10 ISA-11 ISA-12 ISA-13 
            
            MOVE FILEIN01 TO SAVE-TAB(1).
 
        P00.
-           READ FILEIN AT END GO TO P99.
+           perform p-read
 
            IF FI-1 NOT = "GS*" GO TO P00.
+           MOVE SPACE TO GS01
+           UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               GS-0 GS-1 GS-2 GS-3 GS-4 GS-5 GS-6
            
            MOVE FILEIN01 TO SAVE-TAB(2).
 
+
        P0.
-           READ FILEIN AT END GO TO P99.
+           perform p-read
 
            IF FI-1 NOT = "ST*" GO TO P0.
            
@@ -93,9 +127,7 @@
            MOVE 3 TO X.
            
        P1-2.
-           READ FILEIN
-             AT END 
-             GO TO P99.
+           perform p-read.
            
            IF FILEIN01(1:6) NOT = "N1*PE*"
              ADD 1 TO X
@@ -109,8 +141,8 @@
            
            IF NOT ((N1-4 = PROV-1) OR (N1-4 = PROV-2)) GO TO P0.
            
-           ADD 1 TO X
-           MOVE FILEIN01 TO SAVE-TAB(X).
+      *     ADD 1 TO X
+      *     MOVE FILEIN01 TO SAVE-TAB(X).
 
            PERFORM WRITE-THE-TOP
              VARYING A FROM 1 BY 1 UNTIL A > X 
@@ -118,16 +150,13 @@
            PERFORM WRITE-THE-BODY.
 
        P2. 
-           READ FILEIN
-             AT END 
-               DISPLAY "BAD" 
-               GO TO P99.
+           perform P-READ
            
            PERFORM WRITE-THE-BODY
            
            IF FI-1 NOT = "SE*" GO TO P2.
            
-      *     PERFORM WRITE-THE-END
+           PERFORM WRITE-THE-END
            
            GO TO P0.
 
@@ -142,12 +171,14 @@
            PERFORM TEST-1.
 
        WRITE-THE-END.
-           MOVE SPACE TO FILEOUT01.
-           MOVE "GE*6*90~" to FILEOUT01
-           WRITE FILEOUT01
-           MOVE SPACE TO FILEOUT01
-           MOVE "IEA*1*999999~" TO FILEOUT01
-           WRITE FILEOUT01.
+           MOVE SPACE TO TEST-TAB01.
+           STRING "GE*15*" GS-6 DELIMITED BY SIZE
+             INTO TEST-TAB01
+           PERFORM TEST-1
+           MOVE SPACE TO TEST-TAB01.
+           STRING "IEA*1*" ISA-13 DELIMITED BY SIZE
+             INTO TEST-TAB01
+           PERFORM TEST-1.
 
        TEST-1.
            PERFORM VARYING Y FROM 185 BY -1 UNTIL Y < 1
@@ -155,11 +186,18 @@
                ADD 1 TO Y
                MOVE "~" TO TEST-TAB(Y)
                PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > Y
-                 WRITE FILEOUT01 FROM TEST-TAB(Z)
+                 WRITE FILEOUT01 FROM TEST-TAB(Z)                 
                END-PERFORM
                MOVE 1 TO Y
              END-IF
            END-PERFORM.
 
-       P99. CLOSE REMITIN FILEIN PARMFILE FILEOUT.
+       P99. CLOSE FILEIN PARMFILE FILEOUT.
             STOP RUN.
+
+       P-READ.
+           READ FILEIN
+             AT END 
+               DISPLAY "END OR BAD?" 
+               GO TO P99.         
+                   

@@ -50,6 +50,10 @@
            SELECT rarcfile ASSIGN TO "S80" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS rarc-key
            LOCK MODE MANUAL.                  
+
+           SELECT MIPSFILE ASSIGN TO "S85" ORGANIZATION
+           LINE SEQUENTIAL.
+
        
        DATA DIVISION.
        
@@ -80,13 +84,13 @@
        FD  PARMFILE.
        01  PARMFILE01 PIC X(40).
        
-       FD ERROR-FILE.
-       01 ERROR-FILE01 PIC X(132).
+       FD  ERROR-FILE.
+       01  ERROR-FILE01 PIC X(132).
        
        FD ERRORCOR-FILE.
        01 ERRORCOR-FILE01 PIC X(132).
 
-       FD FILEIN.
+       FD  FILEIN.
        01  FILEIN01.
            02 F0.
              03 F1 PIC XXX.
@@ -108,6 +112,10 @@
            02 PD-DATE-E PIC X(8).
            02 PD-ORDER PIC X(6).
            02 PD-BATCH PIC X(6).
+
+       FD  MIPSFILE.
+       01  MIPSFILE01 PIC X(132).
+
                    
        WORKING-STORAGE SECTION.
 
@@ -211,17 +219,17 @@
        01  TOT-PAY PIC S9(5)V99 VALUE 0.
        01  TOT-CHARGE PIC S9(5)V99 VALUE 0.
        01  TOT-REDUCE PIC S9(5)V99 VALUE 0.
-       01 FLAGY PIC 9.
-       01 FIND-CNTR PIC 99.
-       01 CNTRY PIC 99.
-       01 CNTR PIC 99.
+       01  FLAGY PIC 9.
+       01  FIND-CNTR PIC 99.
+       01  CNTRY PIC 99.
+       01  CNTR PIC 99.
        01  MULTCHAR PIC 99.
        01  X PIC 99.
        01  Y PIC 99.
        01  Z PIC 999.
        01  A PIC 99.
-       01 HOLDKEY PIC X(11).
-       01 HOLDAMT PIC S9(4)V99.
+       01  HOLDKEY PIC X(11).
+       01  HOLDAMT PIC S9(4)V99.
        01  RIGHT-4 PIC X(4) JUST RIGHT.
        01  ALF-3 PIC XXX.
        01  ALF3 PIC XXX.
@@ -343,7 +351,7 @@
            
            OPEN I-O PAYFILE. 
            
-           OPEN OUTPUT ERROR-FILE ERRORCOR-FILE.
+           OPEN OUTPUT ERROR-FILE ERRORCOR-FILE MIPSFILE.
            
            MOVE SPACE TO ERRORCOR-FILE01
            MOVE "###" TO ERRORCOR-FILE01
@@ -500,7 +508,8 @@
            END-PERFORM
            
            MOVE 0 TO CAS-CNTR
-           MOVE 0 TO SVC-CNTR.
+           MOVE 0 TO SVC-CNTR
+           MOVE 0 TO LQ-CNTR.
            
        P1-NM1.
            MOVE SPACE TO FILEIN01
@@ -668,8 +677,9 @@
 
            MOVE 0 TO FIND-CNTR 
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
-            BY 1 UNTIL X > SVC-CNTR
+             BY 1 UNTIL X > SVC-CNTR
            IF FIND-CNTR = SVC-CNTR GO TO P4-SVC-LOOP.
+
        P3-SVC-LOOP.    
             MOVE 0 TO FIND-CNTR 
             PERFORM FIND-GARNO THRU FIND-GARNO-EXIT
@@ -1231,7 +1241,8 @@
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                  LQ-0 LQ-1 LQ-2 
 
-               IF NOT (LQ-2 = SPACE OR "N807" OR "MA130")
+               IF NOT (LQ-2 = SPACE OR "N807" OR "MA130" OR "N620"
+                   OR "N535")
                  MOVE LQ-2 TO rarc-key
                  READ rarcfile with lock
                    invalid
@@ -1240,10 +1251,28 @@
                  MOVE SPACE TO ERROR-FILE01
                  STRING rarc-reason DELIMITED BY size INTO ERROR-FILE01
                  WRITE ERROR-FILE01
-               end-if
-             end-if
+               end-if           
            END-PERFORM. 
 
+       LQ-1.
+           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
+             IF LQ-SVC(Y) = X               
+               MOVE SPACE TO FILEIN01
+               MOVE LQ-TAB(Y) TO FILEIN01
+               MOVE SPACE TO LQ01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                 LQ-0 LQ-1 LQ-2 
+           IF LQ-2 = "N620"
+                 MOVE LQ-2 TO rarc-key
+                 READ rarcfile with lock
+                   invalid
+                     continue
+                 end-read
+                 MOVE SPACE TO MIPSFILE01
+                 STRING rarc-reason DELIMITED BY size INTO MIPSFILE01
+                 WRITE MIPSFILE01
+               end-if                 
+             end-if
        NAR-1.
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 216 
             IF ALF3 = NAR-KEY(Z)
@@ -1313,28 +1342,35 @@
            MOVE SPACE TO SVC01 FILEIN01
            MOVE SVC-TAB(X) TO FILEIN01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-           SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
-           SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
+             SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
+             SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
            MOVE SPACE TO ALF-17
+           
            IF SVC-6COMPOSITE = SPACE
-           MOVE SVC-1PROCMOD TO ALF-17
-           ELSE MOVE SVC-6COMPOSITE TO ALF-17.
+             MOVE SVC-1PROCMOD TO ALF-17
+           ELSE
+             MOVE SVC-6COMPOSITE TO ALF-17
+           end-if
+
            MOVE SPACE TO CC-PROC1X CC-PROC2X CC-MOD2X CC-MOD3X
            UNSTRING ALF-14 DELIMITED BY ":" INTO CC-PROC1X
-           CC-PROC2X CC-MOD2X CC-MOD3X.
-           MOVE G-GARNO TO CC-KEY8 MOVE "000" TO CC-KEY3
-           START CHARCUR KEY NOT < CHARCUR-KEY INVALID 
+             CC-PROC2X CC-MOD2X CC-MOD3X.
+           MOVE G-GARNO TO CC-KEY8
+           MOVE "000" TO CC-KEY3
+           START CHARCUR KEY NOT < CHARCUR-KEY
+             INVALID 
               GO TO LOOK-CHG-EXIT.
+
        LOOK-1. 
            READ CHARCUR NEXT AT END GO TO LOOK-CHG-EXIT.
            IF CC-KEY8 NOT = G-GARNO GO TO LOOK-CHG-EXIT.
            IF CC-PAYCODE NOT = "003" GO TO LOOK-1.
-           IF CC-PROC(1:5) NOT = CC-PROC1X GO TO LOOK-1.
-           IF (CC-PROC(6:2) = SPACE) AND (CC-MOD2 NOT = SPACE)
-            MOVE CC-MOD2 TO CC-PROC(6:2) 
+           IF CC-PROC(5:5) NOT = CC-PROC1X GO TO LOOK-1.
+           IF (CC-PROC(10:2) = SPACE) AND (CC-MOD2 NOT = SPACE)
+            MOVE CC-MOD2 TO CC-PROC(10:2) 
             MOVE SPACE TO CC-MOD2.
-           IF NOT ((CC-PROC(6:2) = CC-PROC2X) 
-            OR ((CC-PROC(6:2) = SPACE) AND (CC-PROC2X = "EP" OR "QW")))
+           IF NOT ((CC-PROC(10:2) = CC-PROC2X) 
+            OR ((CC-PROC(10:2) = SPACE) AND (CC-PROC2X = "EP" OR "QW")))
               GO TO LOOK-1.
            IF NOT ((CC-DATE-T = SVC-DATE(X)) OR (CC-DATE-T = DATE-CC)) 
            GO TO LOOK-1.
@@ -1430,7 +1466,8 @@
             END-IF
            END-PERFORM.
            CLOSE PAYFILE GARFILE CHARCUR ERROR-FILE ERRORCOR-FILE 
-             cascodefile rarcfile parmfile filein paycur mplrfile.
+             cascodefile rarcfile parmfile filein paycur mplrfile
+             MIPSFILE.
 
            STOP RUN.
       

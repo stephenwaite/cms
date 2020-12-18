@@ -196,6 +196,7 @@
            02 FI-NEIC PIC X(5).
        FD  SEGFILE.
        01  SEGFILE01 PIC X(160).
+       
        FD  CHARCUR
            BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS CHARCUR01.
@@ -1109,6 +1110,7 @@
            OPEN OUTPUT SEGFILE ERRFILE.   
            
            OPEN I-O CHARCUR WEBFILE.
+
        P00.
            READ PLACEFILE
              AT END
@@ -1126,6 +1128,7 @@
            MOVE DF8 TO PL-NPI(PLINDX)
            
            GO TO P00.
+
        P00-X.
            ACCEPT BHT-DATE FROM CENTURY-DATE.
            MOVE BHT-DATE TO WEB-KEY
@@ -1155,6 +1158,7 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM GS01
            MOVE SPACE TO SEGFILE01.
+
        START-ST.
            ADD 1 TO ST-CNTR.
            MOVE ST-CNTR TO ST-NUM
@@ -1178,11 +1182,13 @@
            MOVE "133052274" TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
+
        START-BEGIN.
            READ FILEIN
              AT END
                GO TO P98
            END-READ.    
+
        START-HIGHER.
            MOVE FILEIN01 TO HOLD-FILEIN01
            MOVE FI-PAYCODE TO DOC-INS
@@ -1197,11 +1203,13 @@
                END-READ
            END-READ
            
+      *    get POS for claim
            PERFORM DF-SEARCH
            PERFORM 2000A THRU 2000B.
            MOVE FI-PAYCODE TO INS-KEY
-           READ INSFILE INVALID
-           DISPLAY FI-PAYCODE.
+           READ INSFILE 
+             INVALID
+               DISPLAY FI-PAYCODE.
       *     MOVE INS-NAME TO RECNM1-NAMEL
       *     MOVE INS-NEIC TO RECNM1-CODE
       *     WRITE SEGFILE01 FROM RECNM101.
@@ -1210,60 +1218,67 @@
        P0000.
            MOVE FILEIN01 TO HOLD-FILEIN01.
            PERFORM DF-SEARCH.
+
        P0000-1.
            MOVE 0 TO CNTR DIAG-CNTR TOT-AMOUNT MAMMO-FLAG
            GO TO P1-1.
+
        P1. 
            READ FILEIN
              AT END
                MOVE 1 TO END-FLAG
                GO TO P2
-           END-READ.    
+           END-READ.
+
        P1-1. 
-           IF FI-NEIC NOT = HOLD-NEIC GO TO P2.
+           IF FI-NEIC NOT = HOLD-NEIC 
+             GO TO P2.
 
-           IF DIAG-CNTR > 11 GO TO P2.
+           IF DIAG-CNTR > 11 
+             GO TO P2.
                       
-           IF FI-PLACE = HOLD-PLACE
-               AND FI-KEY8 = HOLD-KEY8
-               AND FI-PATID = HOLD-PATID
-      *         AND FI-DOCP = HOLD-DOCP
-               AND FI-DOCR = HOLD-DOCR
-      *         AND FI-DATE-T = HOLD-DATE-T
-               AND FI-DAT1 = HOLD-DAT1
-               AND FI-ACC-TYPE = HOLD-ACC-TYPE
-               AND CNTR < 50
+           IF (FI-PLACE      = HOLD-PLACE
+             AND FI-KEY8     = HOLD-KEY8
+             AND FI-PATID    = HOLD-PATID
+             AND FI-DOCP = HOLD-DOCP
+             AND FI-DOCR = HOLD-DOCR
+             AND FI-DATE-T   = HOLD-DATE-T
+             AND FI-DAT1     = HOLD-DAT1
+             AND FI-ACC-TYPE = HOLD-ACC-TYPE
+             AND CNTR < 50)
                
-               PERFORM DIAG-1 THRU DIAG-EXIT 
+             PERFORM DIAG-1 THRU DIAG-EXIT 
                
-               IF DIAG-CNTR > 12
-                   GO TO P2
-               END-IF
+             IF DIAG-CNTR > 12
+               GO TO P2
+             END-IF
 
-               ADD 1 TO CNTR 
+             ADD 1 TO CNTR 
            
-               IF FI-PROC1 = "76090" OR "76091" OR "76092"
-                 OR "77055" OR "77056" OR "77057"
-                   MOVE 1 TO MAMMO-FLAG
-               END-IF
+             IF FI-PROC1 = "76090" OR "76091" OR "76092"
+               OR "77055" OR "77056" OR "77057"
+               MOVE 1 TO MAMMO-FLAG
+             END-IF
 
-               MOVE FILEIN01 TO FILETAB(CNTR)
-               ADD FI-AMOUNT TO TOT-AMOUNT
-               GO TO P1
+             MOVE FILEIN01 TO FILETAB(CNTR)
+             ADD FI-AMOUNT TO TOT-AMOUNT
+             GO TO P1
            END-IF.    
+
        P2.  
            MOVE FILEIN01 TO SAVE01
+
            PERFORM 2300CLM THRU 2300CLM-EXIT
+
            PERFORM HI-DIAG THRU HI-DIAG-EXIT
-      *     PERFORM 2310A THRU 2310A-EXIT
+
+           PERFORM 2310A THRU 2310A-EXIT
            
-      *     IF EINSS-TYPE = "E" PERFORM 2310B.
+           IF EINSS-TYPE = "E" PERFORM 2310B.
 
            PERFORM 2310D THRU 2310D-EXIT
 
            PERFORM 2310E THRU 2310E-EXIT
-
-      *     PERFORM 2320A THRU 2320A-EXIT
            
            PERFORM 2400SRV THRU 2400SRV-EXIT
               VARYING X FROM 1 BY 1 UNTIL X > CNTR
@@ -2034,12 +2049,12 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-      *    humana barked at not sending referring provider
-      *    in svc loop if it's in claim loop
-      *    let's try moving it all to service loop
-      
-           PERFORM 2310A THRU 2310A-EXIT.
-           PERFORM 2420A THRU 2420A-EXIT
+      *    decided it's too weird to try to put different
+      *    rendering docs below a clm level so
+      *    commenting out     
+
+      *     PERFORM 2310A THRU 2310A-EXIT.
+      *     PERFORM 2420A THRU 2420A-EXIT
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
            
@@ -2100,19 +2115,21 @@
 
        2310A.
            IF HOLD-DOCR = "000" GO TO REF-2.
+
            MOVE HOLD-DOCR TO REF-KEY
            READ REFPHY INVALID GO TO REF-2.
            MOVE "DN " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
            UNSTRING REF-NAME DELIMITED BY ", " OR " ,"
-           OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
+            OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
            MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
            MOVE "XX" TO NM1-EINSS
            MOVE REF-NPI TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
            GO TO 2310A-EXIT.
+
        REF-2.
            MOVE "DN" TO NM1-1
            MOVE "1" TO NM1-SOLO
@@ -2125,6 +2142,7 @@
            MOVE DOC-NPI TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
+
        2310A-EXIT.
            EXIT.
 
@@ -2327,15 +2345,18 @@
            MOVE "1" TO CC-PL
            MOVE "11" TO CLM-5.
            PERFORM DF-SEARCH2 VARYING Y FROM 1 BY 1 UNTIL Y > PLINDX.
+           
            IF HOLD-PLACE = "2" MOVE "12" TO CLM-5.
+
        DF-SEARCH2.  
       *     DISPLAY HOLD-PROC1 " " HOLD-PLACE " " HOLD-KEY8 
            IF HOLD-PLACE = PL-TAB(Y) 
-           MOVE PL-NUM(Y) TO CC-PL
-           MOVE Y TO PLACE-POINTER
-           PERFORM PLACE-OF-SERVICE THRU POS-EXIT
+             MOVE PL-NUM(Y) TO CC-PL
+             MOVE Y TO PLACE-POINTER
+             PERFORM PLACE-OF-SERVICE THRU POS-EXIT
       *    DISPLAY HOLD-PROC1 " " HOLD-PLACE " " CLM-5
-           MOVE PLINDX TO Y.
+             MOVE PLINDX TO Y.
+
        PLACE-OF-SERVICE.
            IF CC-PL = "1" MOVE "11" TO CLM-5.
            IF CC-PL = "3" MOVE "21" TO CLM-5.
