@@ -5,8 +5,8 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. zeror001.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. ari_inventory.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
@@ -45,9 +45,9 @@
 
        fd  filein.
        01  filein01.
-           02 filler pic x(8).
+           02 filler pic x(9).
            02 fi-acct pic x(8).
-           02 filler pic x(75).
+           02 filler pic x(73).
            02 fi-bal pic x(7).
            02 filler pic x(10).
            02 fi-stat pic x(6).
@@ -64,23 +64,23 @@
        FD  error-gar.
        01  error-gar01 PIC X(120).
 
-       FD  ERROR-amt.
-       01  ERROR-amt01 PIC X(120).
+       FD  error-amt.
+       01  error-amt01 PIC X(120).
 
        fd  fileout.
        01  fileout01 pic x(120).
        
        WORKING-STORAGE SECTION.    
 
-       01  CLAIM-TOT PIC S9(6)V99.
+       01  CLAIM-TOT PIC S9(4)V99.
        01  GARBACK PIC X(315).          
        01  numx pic x(7).    
        01  SIGN-DOLLAR PIC X(4).
        01  CENTS PIC XX.
        01  RIGHT-4 PIC X(4) JUST RIGHT.
        01  ALF6 PIC X(6).
-       01  NUM-6 PIC 9(4)V99.
-
+       01  NUM6 PIC 9(6).
+       01  NUM-6 PIC S9(4)V99.
 
        PROCEDURE DIVISION.
 
@@ -100,8 +100,8 @@
            READ GARFILE with lock
              invalid 
                write error-gar01 from filein01
-               go to p1.
-           end-read.
+               go to p1
+           end-read.              
 
        p3.    
            move space to numx
@@ -146,10 +146,16 @@
            GO TO R4.
 
        R5.
-           IF CLAIM-TOT NOT = num6
-             display "ari and cms balance mismatch"
-             accept omitted
-             write ERROR-amt01 from filein01
+           if claim-tot = 0
+             go to P1
+           end-if
+
+           IF CLAIM-TOT not = num-6
+             string g-garno " our total " claim-tot 
+             " their total " num-6 delimited by size
+             into error-amt01
+             write error-amt01 
+             
              GO TO p1
            END-IF
 
@@ -159,7 +165,8 @@
                     
 
        p99.
-           CLOSE filein GARFILE CHARCUR PAYCUR fileout ERROR-FILE
+           CLOSE filein GARFILE CHARCUR PAYCUR error-gar error-amt
+             fileout.
            STOP RUN.
 
        a1.
@@ -167,12 +174,12 @@
            UNSTRING NUMX DELIMITED BY "." INTO SIGN-DOLLAR CENTS.
                                  
            MOVE SPACES TO RIGHT-4.
-           UNSTRING SIGN-DOLLAR DELIMITED BY " " INTO RIGHT-4
+           move SIGN-DOLLAR to right-4
            INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
            
            IF RIGHT-4 NOT NUMERIC
              DISPLAY FILEIN01 " DOLLARS not numeric"
-             ACCEPT ALF1
+             ACCEPT omitted
              GO TO P1.
 
            STRING RIGHT-4 CENTS DELIMITED BY SIZE INTO ALF6
