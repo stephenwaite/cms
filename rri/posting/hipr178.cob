@@ -889,6 +889,7 @@
            GO TO P1-NM1.
                
        P1-SVC-LOOP.  
+
            MOVE SPACE TO FILEIN01
            READ FILEIN
              AT END
@@ -900,11 +901,24 @@
                GO TO P2-SVC-LOOP
            END-IF.
 
-       P1-SVC-LOOP-0.    
+       P1-SVC-LOOP-0.               
            IF F1 = "SVC" 
-               ADD 1 TO SVC-CNTR
-               MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
+
+             iF FILEIN01(12:1) = "F"
                GO TO P1-SVC-LOOP
+             END-IF
+
+             IF (FILEIN01(8:1) = "G")
+               AND (FILEIN01(8:5) = "G9500" OR "G9547" OR "G9548"
+               OR "G9549" OR "G9550" OR "G9551" OR "G9552"
+               OR "G9553" OR "G9554" OR "G9555" OR "G9556"
+               OR "G9557" OR "G9637" OR "G1004")
+               GO TO P1-SVC-LOOP
+             END-IF        
+           
+             ADD 1 TO SVC-CNTR
+             MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
+             GO TO P1-SVC-LOOP
            END-IF    
            
            IF F1 = "CAS" 
