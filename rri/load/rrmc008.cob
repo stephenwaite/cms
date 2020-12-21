@@ -315,9 +315,9 @@
                GO TO BAD-2
            END-IF                
 
-           IF (R3-PROC = "1285" AND R3-MOD1 = "  "
+           IF ((R3-PROC = "1284" or "1285") AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1")
-             STRING "DELETING REDUNDANT BILAT KNEE 73562 " MEDREC " " 
+             STRING "DELETING REDUNDANT BILAT KNEE " MEDREC " " 
                R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01
              WRITE ERRFILE01
@@ -327,7 +327,7 @@
              GO TO P1
            end-if                
 
-           IF R3-PROC = "1285" AND R3-MOD1 = "50"
+           IF (R3-PROC = "1284" or "1285") AND R3-MOD1 = "50"
              MOVE "1" TO BILAT-FLAG
            end-if                  
 

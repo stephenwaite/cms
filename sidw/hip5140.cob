@@ -198,6 +198,6 @@
        P-READ.
            READ FILEIN
              AT END 
-               DISPLAY "END OR BAD?" 
+      *         DISPLAY "END OR BAD?" 
                GO TO P99.         
                    
