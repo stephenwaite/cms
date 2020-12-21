@@ -75,15 +75,7 @@
 
            IF PC-AMOUNT = 0 AND PC-DENIAL = "  "
              GO TO P0.
-               
-           IF PC-CLAIM = "147977"
-             DISPLAY "WHY DID WE GRAB THIS? pc-denial " pc-denial               
-             IF PC-DENIAL = space
-               DISPLAY "PC-DENIAL = SPACE"
-             END-IF                
-             ACCEPT OMITTED
-           end-if  
-
+                         
            MOVE PC-KEY8 TO CC-KEY8
            MOVE "  " TO CC-KEY3
            START CHARCUR KEY NOT < CHARCUR-KEY
@@ -161,8 +153,9 @@
 
            MOVE SPACE TO OUTFILE01
 
-           STRING G-PRNAME ", " G-PRIPOL ", " CC-DATE-T ", " CR-ICN ", "
-             CC-PROC DELIMITED BY SIZE INTO OUTFILE01 
+           STRING charcur-key ", ", G-PRNAME ", " G-PRIPOL ", " 
+             CC-DATE-T ", " CR-ICN ", " CC-PROC 
+             DELIMITED BY SIZE INTO OUTFILE01 
 
            WRITE OUTFILE01.
 

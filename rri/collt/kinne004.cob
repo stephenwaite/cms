@@ -5,18 +5,24 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
-           LINE SEQUENTIAL.
+             LINE SEQUENTIAL.
+           
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
-           LINE SEQUENTIAL.
+             LINE SEQUENTIAL.
+           
            SELECT FILEOUT2 ASSIGN TO "S40" ORGANIZATION
-           LINE SEQUENTIAL.
+             LINE SEQUENTIAL.
 
        DATA DIVISION.
+
        FILE SECTION.
+       
        FD  FILEIN
            RECORD CONTAINS 1 TO 132 CHARACTERS.
        01  FILEIN01 PIC X(132).
+
        FD  FILEOUT.
        01  FILEOUT01.
            02 FO-GARNO PIC X(8).
@@ -24,23 +30,24 @@
            02 FO-DEDUCT PIC 9(4)V99.
            02 FILLER PIC X VALUE SPACES.
            02 FO-PAID PIC 9(4)V99.
+       
        FD  FILEOUT2.
        01  FILEOUT201 PIC X(132).
 
        WORKING-STORAGE SECTION.
-       01 FL1 PIC X.
-       01 FL2 PIC X.
-       01 FL3 PIC X.
-       01 FL5 PIC X.
-       01 FL6 PIC XXX.
-       01 FL4 PIC X.
-       01 FL7 PIC X.
-       01 FL8 PIC X.
-       01 RIGHT-4 PIC X(4) JUST RIGHT.
-       01 SIGN-DOLLAR PIC X(4).
-       01 CENTS PIC XX.
-       01 NUMX PIC X(7).
-       01 NUM6 PIC 9(6).
+       01  FL1 PIC X.
+       01  FL2 PIC X.
+       01  FL3 PIC X.
+       01  FL5 PIC X.
+       01  FL6 PIC XXX.
+       01  FL4 PIC X.
+       01  FL7 PIC X.
+       01  FL8 PIC X.
+       01  RIGHT-4 PIC X(4) JUST RIGHT.
+       01  SIGN-DOLLAR PIC X(4).
+       01  CENTS PIC XX.
+       01  NUMX PIC X(7).
+       01  NUM6 PIC 9(6).
        01  FO-COMMIS PIC X(6).
        01  FO-PAIDX PIC X(6).
        01  ALF6 PIC X(6).
@@ -87,7 +94,6 @@
            GO TO P1.
 
        A1.
-
            MOVE SPACE TO SIGN-DOLLAR CENTS
            UNSTRING NUMX DELIMITED BY "." INTO SIGN-DOLLAR CENTS.
            INSPECT CENTS REPLACING ALL " " BY "0"

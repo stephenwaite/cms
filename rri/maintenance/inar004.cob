@@ -1746,9 +1746,12 @@
            MOVE DF-DATE TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            DISPLAY "DATE " DISPLAY-DATE.
+
            IF FZ = -1
-           DISPLAY "INCLUDE ZERO BALANCED CLAIMS." ELSE
-           DISPLAY "NO LISTING FOR 0 BAL. CLAIMS.".
+             DISPLAY "INCLUDE ZERO BALANCED CLAIMS." 
+           ELSE
+             DISPLAY "NO LISTING FOR 0 BAL. CLAIMS.".
+
            IF DI = -1
            DISPLAY "NO DEFERRED INCOME PROMPT." ELSE
            DISPLAY "PROMPT FOR DEFERRED INCOME.". 
@@ -1827,19 +1830,23 @@
 
            IF CC-KEY8 NOT = G-GARNO GO TO FC6.
            
-           IF ALF-3 = "000" OR ALF-3 = CC-PAYCODE NEXT SENTENCE
-           ELSE GO TO FC3.
+           IF ALF-3 = "000" OR ALF-3 = CC-PAYCODE 
+             NEXT SENTENCE
+           ELSE 
+             GO TO FC3.
            
-           IF (CD = 0)
-           OR ((CD = 1) AND (DATE-OF-CHARGE = CC-DATE-T OR SPACE))
-           NEXT SENTENCE
-           ELSE GO TO FC3.
+           IF (CD = 0) OR ((CD = 1) 
+             AND (DATE-OF-CHARGE = CC-DATE-T OR SPACE))
+             NEXT SENTENCE
+           ELSE 
+             GO TO FC3.
            
            IF (IN-FIELD = "FT") OR (ACTION = "FT")
-           MOVE CC-CLAIM TO CLAIM
-           MOVE CC-AMOUNT TO TOT-AMOUNT
-           MOVE CC-ASSIGN TO ALF-1-1
-           PERFORM FT1 GO TO FC3.
+             MOVE CC-CLAIM TO CLAIM
+             MOVE CC-AMOUNT TO TOT-AMOUNT
+             MOVE CC-ASSIGN TO ALF-1-1
+             PERFORM FT1
+             GO TO FC3.
            
            MOVE CC-AMOUNT TO TOT-AMOUNT NEF-8
            MOVE CC-CLAIM TO CLAIM
@@ -1857,6 +1864,7 @@
            READ PATFILE  MOVE P-PATNAME TO DATAIN.
            
            UNSTRING DATAIN DELIMITED BY ";" INTO ALF-14 ALF-5.
+
        FC33-0.
            IF IN-FIELD = "FCC" OR ACTION = "FCC" GO TO FC33.
 
@@ -1867,6 +1875,7 @@
            IF TOT-AMOUNT = 0 GO TO FC3.
            
            MOVE CC-AMOUNT TO TOT-AMOUNT.
+
        FC33.
            ADD 1 TO Z
            MOVE CC-CLAIM TO LAST-CLAIM(Z)
@@ -1911,7 +1920,8 @@
            START CHARFILE KEY > CHARFILE-KEY 
              INVALID 
                GO TO FP1-EXIT
-           END-START.    
+           END-START.   
+            
        FC5. 
            READ CHARFILE NEXT AT END GO TO FP1-EXIT.
            
@@ -2048,12 +2058,18 @@
            ALF10.
            ADD 1 TO Y.
 
-       FPZ.  IF C-TAB(XIND) = CLAIM
-           ADD A-TAB(XIND) TO TOT-AMOUNT.
-       FT1. PERFORM FPZ VARYING XIND FROM 1 BY 1 UNTIL XIND
-           > P-IND.
-           IF ALF-1-1 = "A" ADD TOT-AMOUNT TO TOT-ASSIGNED
-           ELSE ADD TOT-AMOUNT TO TOT-UNASSIGNED.
+       FPZ.  
+           IF C-TAB(XIND) = CLAIM
+             ADD A-TAB(XIND) TO TOT-AMOUNT.
+
+       FT1. 
+           PERFORM FPZ VARYING XIND FROM 1 BY 1 UNTIL XIND > P-IND.
+           
+           IF ALF-1-1 = "A" 
+             ADD TOT-AMOUNT TO TOT-ASSIGNED
+           ELSE 
+             ADD TOT-AMOUNT TO TOT-UNASSIGNED.
+
        1205-ADD-LOOP.
            SET INDX TO ADD-FLD(ADD-KEY).
            PERFORM 2050-DISPLAY THRU 4910DEE.
@@ -3030,8 +3046,10 @@
        FZ1.
            MULTIPLY FZ BY -1 GIVING FZ.
            IF FZ = -1
-           DISPLAY "INCLUDE ZERO BALANCED CLAIMS" ELSE
-           DISPLAY "NO LISTING FOR 0 BAL. CLAIMS".
+             DISPLAY "INCLUDE ZERO BALANCED CLAIMS" 
+           ELSE
+             DISPLAY "NO LISTING FOR 0 BAL. CLAIMS".
+
        ZZ-1.
            IF ZERO-FLAG = 1
            MOVE 0 TO ZERO-FLAG

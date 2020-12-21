@@ -442,7 +442,7 @@
            END-IF
 
       *    bilat knee
-           IF (CD-PROC1 = "1285" AND CD-MOD2 = "50")
+           IF ((CD-PROC1 = "1284" or "1285") AND CD-MOD2 = "50")
       *     
               COMPUTE CD-AMOUNT = 2 * CD-AMOUNT
 
