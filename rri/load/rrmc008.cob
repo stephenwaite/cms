@@ -332,7 +332,7 @@
            end-if    
 
            IF R3-PROC = "1204" AND R3-MOD1 = "  "
-             AND BILAT-FLAG = "1")
+             AND BILAT-FLAG = "1"
              STRING "DELETING REDUNDANT BILAT orbit " MEDREC " " 
                R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01

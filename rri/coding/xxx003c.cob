@@ -528,7 +528,9 @@
            END-IF
 
            DISPLAY "Non medicare screening mammo -> auto coded"
-                   CD-KEY8 " " FO-NAME               
+                   CD-KEY8 " " FO-NAME  
+
+      *    this is the rewrite for any autocodes like above and in p1-0                          
            REWRITE CHARNEW01
            GO TO P1.
        P2.
