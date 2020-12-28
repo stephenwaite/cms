@@ -329,7 +329,21 @@
 
            IF (R3-PROC = "1284" or "1285") AND R3-MOD1 = "50"
              MOVE "1" TO BILAT-FLAG
-           end-if                  
+           end-if    
+
+           IF R3-PROC = "1204" AND R3-MOD1 = "  "
+             AND BILAT-FLAG = "1")
+             STRING "DELETING REDUNDANT BILAT orbit " MEDREC " " 
+               R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
+               DELIMITED BY SIZE INTO ERRFILE01
+             WRITE ERRFILE01
+             MOVE "0" TO BILAT-FLAG
+             GO TO P1
+           end-if                           
+
+           IF R3-PROC = "1204" AND R3-MOD1 = "50"
+             MOVE "1" TO BILAT-FLAG
+           end-if                                            
 
            WRITE FILEOUT01 FROM REC301
            GO TO P1.
