@@ -119,7 +119,7 @@
                    
        WORKING-STORAGE SECTION.
 
-       COPY hip5010_835.CPY IN "C:\Users\sid\cms\copylib".      
+       COPY "hip5010_835.cpy" IN "C:\Users\sid\cms\copylib".      
 
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.
@@ -344,6 +344,7 @@
        01  IN-LEG PIC X(6).
        01  SEQ-AMT PIC S9(4)V99.
        01  ANS PIC X.
+       01  MIPS-ONLY PIC 9.
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT FILEIN CHARCUR GARFILE MPLRFILE PARMFILE PAYCUR
@@ -496,15 +497,16 @@
        P1-CLP-1.
            MOVE SPACE TO CLP01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
-           CLP-0 CLP-1 CLP-2CLMSTAT CLP-3TOTCLMCHG CLP-4TOTCLMPAY 
-           CLP-5PATRESP CLP-6PLANCODE CLP-7ICN CLP-8FACILITY 
-           CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN CLP-13PERCENT.
+             CLP-0 CLP-1 CLP-2CLMSTAT CLP-3TOTCLMCHG CLP-4TOTCLMPAY 
+             CLP-5PATRESP CLP-6PLANCODE CLP-7ICN CLP-8FACILITY 
+             CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN CLP-13PERCENT.
+
            MOVE CLP-2CLMSTAT TO EF8
            MOVE SPACE TO NM101 NM1COR01 CLMCAS01.
            MOVE SPACE TO SVC-DATE01
            
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 64
-               MOVE 0 TO ALLW-TAB(X) PR-TAB(X)
+             MOVE 0 TO ALLW-TAB(X) PR-TAB(X)
            END-PERFORM
            
            MOVE 0 TO CAS-CNTR
@@ -519,6 +521,7 @@
            END-READ
 
            IF F1 = "SVC"
+               MOVE 0 TO MIPS-ONLY
                GO TO P1-SVC-LOOP-0
            END-IF    
            
@@ -605,21 +608,22 @@
 
        P1-SVC-LOOP-0.    
            IF F1 = "SVC"               
-               IF FILEIN01(12:1) = "F"
-                   GO TO P1-SVC-LOOP
-               END-IF
-
-               IF (FILEIN01(8:1) = "G")
-                   AND (FILEIN01(8:5) = "G9500" OR "G9547" OR "G9548"
-                   OR "G9549" OR "G9550" OR "G9551" OR "G9552"
-                   OR "G9553" OR "G9554" OR "G9555" OR "G9556"
-                   OR "G9557" OR "G9637" OR "G1004")
-                   GO TO P1-SVC-LOOP
-               END-IF 
-             
-               ADD 1 TO SVC-CNTR
-               MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
+             IF FILEIN01(12:1) = "F"
+               MOVE 1 TO MIPS-ONLY
                GO TO P1-SVC-LOOP
+             END-IF
+
+             IF (FILEIN01(8:5) = "G9500" OR "G9547" OR "G9548"
+               OR "G9549" OR "G9550" OR "G9551" OR "G9552"
+               OR "G9553" OR "G9554" OR "G9555" OR "G9556"
+               OR "G9557" OR "G9637" OR "G1004")
+               MOVE 1 TO MIPS-ONLY
+               GO TO P1-SVC-LOOP
+             END-IF 
+             
+             ADD 1 TO SVC-CNTR
+             MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
+             GO TO P1-SVC-LOOP
            END-IF    
            
            IF F1 = "CAS"
@@ -661,9 +665,11 @@
 
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
-           IF SVC-CNTR = 0
+           IF (SVC-CNTR = 0 AND MIPS-ONLY = 0)
                PERFORM P1-NO-SVC 
                GO TO P9-SVC-LOOP
+           ELSE
+               GO TO P9-SVC-LOOP    
            END-IF
 
            MOVE CLP-1 TO G-GARNO
@@ -713,12 +719,14 @@
            MOVE SVC-TAB(X) TO FILEIN01
            MOVE SPACE TO SVC01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-           SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
-           SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
+             SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
+             SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
            MOVE SPACE TO ALF8
            MOVE SVC-3PAYAMT TO ALF8
+           
            IF ALF8-1 = "-" 
-           PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
+             PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
+           
            PERFORM AMOUNT-1
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
 
@@ -796,7 +804,6 @@
                IF CAS-1 = "CO" AND CAS-2 = "236"
                  MOVE ZEROES TO CAS-3
                END-IF
-
 
                IF CAS-1 = "PR"
                  IF CAS-3 NOT = SPACE
@@ -1233,8 +1240,7 @@
            END-IF.    
 
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
-             IF LQ-SVC(Y) = X
-               
+             IF LQ-SVC(Y) = X               
                MOVE SPACE TO FILEIN01
                MOVE LQ-TAB(Y) TO FILEIN01
                MOVE SPACE TO LQ01
@@ -1242,7 +1248,7 @@
                  LQ-0 LQ-1 LQ-2 
 
                IF NOT (LQ-2 = SPACE OR "N807" OR "MA130" OR "N620"
-                   OR "N535")
+                 OR "N535")
                  MOVE LQ-2 TO rarc-key
                  READ rarcfile with lock
                    invalid
@@ -1251,7 +1257,8 @@
                  MOVE SPACE TO ERROR-FILE01
                  STRING rarc-reason DELIMITED BY size INTO ERROR-FILE01
                  WRITE ERROR-FILE01
-               end-if           
+               end-if
+             end-if               
            END-PERFORM. 
 
        LQ-1.
@@ -1262,17 +1269,20 @@
                MOVE SPACE TO LQ01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                  LQ-0 LQ-1 LQ-2 
-           IF LQ-2 = "N620"
+               IF LQ-2 = "N620"
                  MOVE LQ-2 TO rarc-key
                  READ rarcfile with lock
                    invalid
                      continue
                  end-read
                  MOVE SPACE TO MIPSFILE01
-                 STRING rarc-reason DELIMITED BY size INTO MIPSFILE01
+                 STRING rarc-reason " " filein01 
+                   DELIMITED BY size INTO MIPSFILE01
                  WRITE MIPSFILE01
-               end-if                 
-             end-if
+               end-if   
+             end-if                  
+           end-perform.     
+             
        NAR-1.
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 216 
             IF ALF3 = NAR-KEY(Z)

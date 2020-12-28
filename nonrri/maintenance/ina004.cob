@@ -883,11 +883,20 @@
            IF ACTION = "LPC" MOVE PAYFILE-KEY TO CHARCUR-KEY
            PERFORM LC-0 THRU LC-0-EXIT GO TO 1000-ACTION.
 
-           IF KEYFLAG = 1 AND ACTION = "COM"
+           IF ACTION = "COM"
            MOVE PAYFILE-KEY TO IN-FIELD
            MOVE IN-FIELD-1 TO FLAG
            MOVE LAST-TAB(FLAG) TO G-GARNO
            READ GARFILE
+             invalid
+               MOVE PAYFILE-KEY TO G-GARNO
+               READ GARFILE
+                 invalid
+                 DISPLAY "bad read on garfile " G-GARNO
+                 go to 1000-ACTION  
+               end-read    
+           end-read      
+
            DISPLAY G-GARNO " " G-GARNAME " " G-PRINS "/" G-SEINS
            MOVE G-GARNO TO ALF-8
            CLOSE CMNTFILE CALL "/home/sidw/tri000.b" USING ALF-8

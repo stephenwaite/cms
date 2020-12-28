@@ -362,7 +362,16 @@
            IF IND-X = "0"
                MOVE SPACE TO FILEOUT01
                STRING KEY-TAB(A) " " KEY-TAB(Z) " "
-                   "CAN NOT BILL THESE 2 TOGETHER PER NCCI."
+                   "CAN NOT BILL THESE 2 TOGETHER PER NCCI (0)."
+                   DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01        
+               GO TO P19-EXIT
+           END-IF.
+
+           IF IND-X = "9"
+               MOVE SPACE TO FILEOUT01
+               STRING KEY-TAB(A) " " KEY-TAB(Z) " "
+                   "CCI DOES NOT APPLY PER NCCI (9)."
                    DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01        
                GO TO P19-EXIT
