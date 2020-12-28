@@ -63,6 +63,7 @@
            02 GS-4 PIC X(8).
            02 GS-5 PIC X(10).
            02 GS-6 PIC X(6). 
+           
        01  ISA01.
            02 ISA-0 PIC XX.
            02 ISA-1 PIC XX.
@@ -84,6 +85,7 @@
        01  ANS PIC X.
 
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN INPUT FILEIN PARMFILE OUTPUT FILEOUT. 
 

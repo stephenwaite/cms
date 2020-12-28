@@ -968,8 +968,9 @@
            MOVE RIGHT-3 TO ALF-3.
 
            IF (PAYFILE-KEY = "1" OR "2" OR "3" OR "4" OR "5" OR
-           "6" OR "7" OR "8" OR "9") MOVE 1 TO KEYFLAG
-           ELSE MOVE 0 TO KEYFLAG.
+             "6" OR "7" OR "8" OR "9") MOVE 1 TO KEYFLAG
+           ELSE 
+             MOVE 0 TO KEYFLAG.
 
            IF KEYFLAG = 1 AND ACTION = "D"
                MOVE PAYFILE-KEY TO IN-FIELD
@@ -1036,11 +1037,19 @@
                GO TO 1000-ACTION
            END-IF
                
-           IF KEYFLAG = 1 AND ACTION = "COM"
+           IF ACTION = "COM"
                MOVE PAYFILE-KEY TO IN-FIELD
                MOVE IN-FIELD-1 TO FLAG
                MOVE LAST-TAB(FLAG) TO G-GARNO
                READ GARFILE
+                 invalid
+                   MOVE PAYFILE-KEY TO G-GARNO
+                   READ GARFILE
+                     invalid
+                     DISPLAY "bad read on garfile " G-GARNO
+                     go to 1000-ACTION  
+                   end-read    
+               end-read      
                DISPLAY G-GARNO " " G-GARNAME " " G-PRINS "/" G-SEINS
                MOVE G-GARNO TO ALF-8
                CLOSE CMNTFILE
@@ -1106,8 +1115,10 @@
            MOVE PAYFILE-KEY TO IN-FIELD
            MOVE IN-FIELD-1 TO FLAG
            MOVE LAST-TAB(FLAG) TO PAYFILE-KEY.
+
            IF NOT (ACTION = "FC" OR  "FT" OR  "FCC" OR "FX")
-           GO TO PPPP.
+             GO TO PPPP.
+
            MOVE PD-KEY8 TO G-GARNO.
            MOVE PAYFILE01 TO PAYFILE-BACK.
            PERFORM FP1 THRU FP1-EXIT
@@ -1223,11 +1234,13 @@
 
            DISPLAY "WHAT ?" 
            GO TO 1000-ACTION.
+
        LG-1.
            MOVE PAYFILE-KEY TO G-GARNO
            IF G-GARNO = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
-           OR "7" OR "8" OR "9" MOVE G-GARNO TO FLAG
-           MOVE LAST-TAB(FLAG) TO G-GARNO.
+             OR "7" OR "8" OR "9" MOVE G-GARNO TO FLAG
+             MOVE LAST-TAB(FLAG) TO G-GARNO.
+
            READ GARFILE INVALID DISPLAY "INVALID" GO TO LG-1-EXIT.
            MOVE G-GARNO TO MPLR-KEY
            MOVE "1" TO G-TRINSIND
