@@ -230,6 +230,7 @@
            02 FILLER PIC X(35).
            02 R3-LOCO PIC X(4).
 
+       01  HOLDNAME PIC X(15).    
 
        PROCEDURE DIVISION.
 

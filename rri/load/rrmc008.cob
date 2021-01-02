@@ -351,11 +351,17 @@
        BAD-1.
            MOVE SPACE TO ERRFILE01.    
 
-           STRING "UNDEFINED PROCEDURE FOR " MEDREC " " R3-PROC 
-                  " " R3-CPT " DOS " R3-DATE
-               DELIMITED BY SIZE INTO ERRFILE01
-
+           STRING "UNDEFINED PROCEDURE FOR MRN " MEDREC 
+             " CDM " R3-PROC " CPT " R3-CPT " HCPCS " R3-HCPCS
+             " DOS " R3-DATE DELIMITED BY SIZE INTO ERRFILE01
+             
            WRITE ERRFILE01
+
+           IF R3-GLC = 0
+             STRING "DON'T WORRY ABOUT IT DUE TO RRMC AUC "
+               delimited BY size INTO ERRFILE01
+             WRITE ERRFILE01
+           END-IF      
 
            IF R3-PROC = "6327"
                DISPLAY "WOULD YOU LIKE TO CHANGE THIS TO CPT 77049, Y?"
@@ -374,9 +380,10 @@
        BAD-2.
            MOVE SPACE TO ERRFILE01.    
 
-           STRING "ZERO DOLLAR PROCEDURE FOR " MEDREC " CDM " PROC-KEY1 
-                  " CPT " PROC-KEY2 " DOS " R3-DATE " safe to ignore?" 
-               DELIMITED BY SIZE INTO ERRFILE01
+           STRING "ZERO DOLLAR PROCEDURE FOR MRN " MEDREC
+             "CDM " PROC-KEY1 " CPT " R3-CPT " HCPCS " R3-HCPCS
+             " DOS " R3-DATE " safe to ignore?" 
+             DELIMITED BY SIZE INTO ERRFILE01
 
            WRITE ERRFILE01.
            
