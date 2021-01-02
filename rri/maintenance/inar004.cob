@@ -3192,7 +3192,7 @@
                END-IF
            END-IF     
 
-           MOVE CC-PATID TO G-GARNO
+           MOVE CC-KEY8 TO G-GARNO
            
            READ GARFILE INVALID
                DISPLAY "INVALID ACCT FOR THIS RECORD"

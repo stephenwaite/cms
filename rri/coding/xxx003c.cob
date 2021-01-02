@@ -479,11 +479,11 @@
                END-IF
 
                DISPLAY "Quick code of bone density?"
-               DISPLAY "Hit Y for Z13820 "
+               DISPLAY "Hit Y for Z780   "
                ACCEPT ANS1                                  
 
                IF ANS1 = "Y"
-                   MOVE "Z13820 " TO CD-DIAG
+                   MOVE "Z780   " TO CD-DIAG
                    REWRITE CHARNEW01
                    GO TO P1
                END-IF    
