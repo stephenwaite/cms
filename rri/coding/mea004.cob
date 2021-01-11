@@ -436,7 +436,8 @@
                         DELIMITED BY SIZE INTO CHARFILE-KEY
       *  log measure fails                  
                    STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                          " PERFORMANCE NOT MET! please review" 
+                          " PERFORMANCE NOT MET which is great "
+                          " it's an inverse measure :)"   
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF

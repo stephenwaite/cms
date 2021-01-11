@@ -31,10 +31,10 @@
        01  Z PIC 999.
        01  REF-1 PIC XXX.
        01  REF-2 PIC XX.
-       01  REF-3 PIC X(6).
+       01  REF-3 PIC X(7).
 
        01  SAVE-TAB01.
-           02 SAVE-TAB PIC X(150) OCCURS 13 TIMES.
+           02 SAVE-TAB PIC X(150) OCCURS 14 TIMES.
            
        01  TEST-TAB01.
            02 TEST-TAB PIC X OCCURS 260 TIMES.
@@ -46,11 +46,11 @@
 
        01  PROV-2 PIC X(10).
        01  PROV-FED PIC X(9).
-       01  PROV-LEG PIC X(6).
+       01  PROV-LEG PIC X(7).
 
        01  IN-NPI PIC X(10).
        01  IN-FEDID PIC X(9).
-       01  IN-LEG PIC X(6).
+       01  IN-LEG PIC X(7).
 
        01 N101.
            02 N1-0 PIC XX.
@@ -119,7 +119,7 @@
            END-PERFORM.
 
        P1. 
-           READ FILEIN AT END GO TO P99.
+           READ FILEIN AT END GO TO P99.           
 
            IF FI-1 = "ISA"
              MOVE SPACE TO   ISA01
@@ -173,22 +173,35 @@
              MOVE FILEIN01 TO SAVE-TAB(X)
            END-PERFORM.
 
-           READ FILEIN AT END GO TO P99.
+           READ FILEIN 
+             AT END
+               GO TO P99.
+
            MOVE SPACE TO REF-1 REF-2 REF-3
            UNSTRING FILEIN01 DELIMITED BY "*" INTO REF-1 REF-2 REF-3
            
-           IF REF-2 = "1D" MOVE REF-3 TO IN-LEG.
-           
-           IF NOT ((IN-NPI = PROV-1 OR PROV-2) OR (PROV-LEG = IN-LEG))
-             GO TO P1.
+           IF REF-2 = "PQ" MOVE REF-3 TO IN-LEG.
 
            MOVE 13 TO X
            MOVE FILEIN01 TO SAVE-TAB(13)
 
-           PERFORM WRITE-THE-TOP VARYING X FROM 1 BY 1 UNTIL X > 13
+           READ FILEIN 
+             AT END
+               GO TO P99.
 
-           PERFORM WRITE-THE-BODY.
+           MOVE SPACE TO REF-1 REF-2 REF-3
+           UNSTRING FILEIN01 DELIMITED BY "*" INTO REF-1 REF-2 REF-3
+           
+           IF REF-2 = "TJ" MOVE REF-3 TO PROV-FED.
 
+           MOVE 14 TO X
+           MOVE FILEIN01 TO SAVE-TAB(14)
+
+           IF NOT ((IN-NPI = PROV-1 OR PROV-2) OR (PROV-LEG = IN-LEG))
+             GO TO P1.
+           
+           PERFORM WRITE-THE-TOP VARYING X FROM 1 BY 1 UNTIL X > 14.
+                     
        P2. 
            READ FILEIN 
              AT END

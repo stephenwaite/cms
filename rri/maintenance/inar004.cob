@@ -547,7 +547,7 @@
                05 FILLER PIC X.
               04  FILLER              PIC X(5).
        01 IN-FIELD-TAB01 REDEFINES IN-FIELD.
-           02 IN-FIELD-TAB   PIC X OCCURS 15 TIMES.
+           02 IN-FIELD-TAB PIC X OCCURS 15 TIMES.
       
        01 LEN-TAB01-RE.
            02 FILLER PIC X(14) VALUE "11240703020608".
@@ -4393,49 +4393,72 @@
        CD-SET.
            DISPLAY "CHARGE DATE?"
            ACCEPT DATE-OF-CHARGE
+           
            IF DATE-OF-CHARGE = "?"
-           DISPLAY "ENTER DATE OF CHARGE TO LIST"  
-           DISPLAY "DD MMDD MMDDYY OR MMDDYYYY FORMAT"
-           DISPLAY "<CR> = ALL CHARGE DATES"
-           GO TO CD-SET.
+             DISPLAY "ENTER DATE OF CHARGE TO LIST"  
+             DISPLAY "DD MMDD MMDDYY OR MMDDYYYY FORMAT"
+             DISPLAY "<CR> = ALL CHARGE DATES"
+             GO TO CD-SET.
+
            IF DATE-OF-CHARGE = SPACE GO TO CD-EXIT.
+           
            MOVE DATE-OF-CHARGE TO IN-FIELD-8
+           
            IF IN-FIELD-2 NUMERIC AND
-           IN-FIELD-TAB(3) = " " AND IN-FIELD-TAB(4) = " "
-           AND IN-FIELD-TAB(5) = " " AND IN-FIELD-TAB(6) = " "
-           AND IN-FIELD-TAB(7) = " " AND IN-FIELD-TAB(8) = " "
-           MOVE T-DATE TO TEST-DATE
-           MOVE CORR TEST-DATE TO INPUT-DATE
-           MOVE IN-FIELD-2 TO T-DD OF INPUT-DATE
-           MOVE INPUT-DATE TO IN-FIELD-8.
+             IN-FIELD-TAB(3) = " " AND IN-FIELD-TAB(4) = " "
+             AND IN-FIELD-TAB(5) = " " AND IN-FIELD-TAB(6) = " "
+             AND IN-FIELD-TAB(7) = " " AND IN-FIELD-TAB(8) = " "
+             MOVE T-DATE TO TEST-DATE
+             MOVE CORR TEST-DATE TO INPUT-DATE
+             MOVE IN-FIELD-2 TO T-DD OF INPUT-DATE
+             MOVE INPUT-DATE TO IN-FIELD-8.
+           
            IF IN-FIELD-4 NUMERIC AND
-           IN-FIELD-TAB(5) = " " AND IN-FIELD-TAB(6) = " "
-           AND IN-FIELD-TAB(7) = " " AND IN-FIELD-TAB(8) = " "
-           STRING IN-FIELD-4 YEAR4 DELIMITED BY "!!" INTO IN-FIELD-8.
+             IN-FIELD-TAB(5) = " " AND IN-FIELD-TAB(6) = " "
+             AND IN-FIELD-TAB(7) = " " AND IN-FIELD-TAB(8) = " "
+             STRING IN-FIELD-4 YEAR4 DELIMITED BY "!!" INTO IN-FIELD-8.
+           
            IF IN-FIELD-6 NUMERIC 
-           AND IN-FIELD-TAB(7) = " " AND IN-FIELD-TAB(8) = " "           
-           AND IN-FIELD-TAB(5) = "9" AND IN-FIELD-TAB(6) = "9"
-           STRING IN-FIELD-4 "1999" DELIMITED BY "!!" INTO IN-FIELD-8
-           DISPLAY "1999 ASSUMED".
+             AND IN-FIELD-TAB(7) = " " AND IN-FIELD-TAB(8) = " "           
+             AND IN-FIELD-TAB(5) = "9" AND IN-FIELD-TAB(6) = "9"
+             STRING IN-FIELD-4 "1999" DELIMITED BY "!!" INTO IN-FIELD-8
+             DISPLAY "1999 ASSUMED".
+
            IF IN-FIELD-6 NUMERIC 
-           AND IN-FIELD-TAB(7) = " " AND IN-FIELD-TAB(8) = " "           
-           MOVE T-DATE TO TEST-DATE
-           MOVE IN-FIELD-8 TO INPUT-DATE
-           MOVE T-CC OF INPUT-DATE TO T-YY OF INPUT-DATE
-           MOVE T-CC OF TEST-DATE TO T-CC OF INPUT-DATE
+             AND IN-FIELD-TAB(7) = " " AND IN-FIELD-TAB(8) = " "           
+             MOVE T-DATE TO TEST-DATE
+             MOVE IN-FIELD-8 TO INPUT-DATE
+             MOVE T-CC OF INPUT-DATE TO T-YY OF INPUT-DATE
+             MOVE T-CC OF TEST-DATE TO T-CC OF INPUT-DATE
       *     DISPLAY T-CC OF INPUT-DATE T-YY OF INPUT-DATE " ASSUMED"
-           MOVE INPUT-DATE TO IN-FIELD-8.
+             MOVE INPUT-DATE TO IN-FIELD-8.
+
            IF IN-FIELD-8 NOT NUMERIC DISPLAY "BAD" GO TO CD-SET.
+           
            MOVE IN-FIELD-8 TO INPUT-DATE.
+           
            IF T-MM OF INPUT-DATE < 01 OR > 12
-           DISPLAY "BAD" GO TO CD-SET.
+             DISPLAY "BAD"
+             GO TO CD-SET.
+
            IF T-DD OF INPUT-DATE > DAYS-IN-MONTH(T-MM OF INPUT-DATE)
-           DISPLAY "BAD" GO TO CD-SET.    
+             DISPLAY "BAD" 
+             GO TO CD-SET.    
+           
            MOVE CORR INPUT-DATE TO TEST-DATE
-           IF T-DATE < TEST-DATE DISPLAY "FUTURE DATE NOT ALLOWED"
-           DISPLAY "BAD" GO TO CD-SET.
+           
+           IF TEST-DATE > T-DATE
+                 MOVE T-DATE(3:2) TO NUM-2
+                 COMPUTE NUM-2 = NUM-2 - 1
+                 MOVE NUM-2 TO TEST-DATE(3:2)
+                 DISPLAY TEST-DATE 
+           END-IF
+
            MOVE TEST-DATE TO DATE-OF-CHARGE.
-       CD-EXIT. EXIT.
+
+       CD-EXIT. 
+           EXIT.
+
        D3. 
            MOVE ALF-T TO IN-FIELD-8
            IF IN-FIELD-2 NUMERIC AND

@@ -77,6 +77,7 @@
            02 REF-CDNUM PIC X(7).
            02 REF-NAME PIC X(24).
            02 REF-NPI PIC X(10).
+           
        FD GAPFILE.
        01 GAPFILE01.
            02 GAPKEY PIC X(7).
@@ -163,10 +164,13 @@
            02 FO-DOC PIC XX.
            02 filler pic x(16).
            02 fo-paper pic x.
+
        FD  FILEIN.
        01  FILEIN01 PIC XXX.
-       FD FILEOUT.
+
+       FD  FILEOUT.
        01  FILEOUT01 PIC X(160).
+
        FD  CHARCUR
            BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS CHARCUR01.
@@ -214,7 +218,9 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
+
        WORKING-STORAGE SECTION.
+
        01  DIAGFLAG PIC 9.
        01  ALF7 PIC X(7).
        01  NAMEFIRST PIC X(24).
@@ -225,47 +231,60 @@
               03 ALF16-32 PIC X.
            02 ALF16-9 PIC X(9).
            02 ALF-END PIC X(4).
-       01 ALF9.
-          02 ALF9-1 PIC X.
-          02 ALF9-8 PIC X(8).
+       01  ALF9.
+           02 ALF9-1 PIC X.
+           02 ALF9-8 PIC X(8).
 
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN INPUT FILEIN CHARCUR REFPHY GARFILE 
-           GAPFILE DIAGFILE PROCFILE.
+             GAPFILE DIAGFILE PROCFILE.
+           
            OPEN OUTPUT PAPEROUT FILEOUT ERRORFILE.
-           MOVE SPACE TO ERRORFILE01
+           
            MOVE "BCBSVT ELECTRONIC CLAIMS ERRORS" TO ERRORFILE01
            WRITE ERRORFILE01.
 
        P0. 
-           READ FILEIN AT END GO TO P6.
+           READ FILEIN
+             AT END
+               GO TO P6.
+
            MOVE FILEIN01 TO CC-PAYCODE
-           START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P0.
+           START CHARCUR KEY NOT < CC-PAYCODE
+             INVALID
+               GO TO P0.
+
        P1. 
-           READ CHARCUR NEXT AT END GO TO P0.
+           MOVE SPACE TO ERRORFILE01
+
+           READ CHARCUR NEXT
+             AT END
+               GO TO P0.
+
            IF CC-PAYCODE NOT = FILEIN01 GO TO P0.
+
            IF CC-PROC1 < "00100  "
-           OR CC-CLAIM = "999995"
-           OR CC-REC-STAT > "1"
-           OR CC-AMOUNT = 0
-           GO TO P1.
-           
-           IF CC-DOCP = "02"
-               MOVE SPACE TO ERRORFILE01
-               MOVE "BAD DOC ## AND/OR DIAG ?" TO EF2
-               PERFORM S1 
-               GO TO P1
-           END-IF 
+             OR CC-CLAIM = "999995"
+             OR CC-REC-STAT > "1"
+             OR CC-AMOUNT = 0
+             GO TO P1.                      
                
            MOVE CC-KEY8 TO G-GARNO.
            
            READ GARFILE INVALID 
-               MOVE SPACE TO ERRORFILE01
                MOVE "NO GARNO" TO EF2
                PERFORM S1
                GO TO P1
            END-READ
+
+            IF CC-DOCP = "02"
+             STRING G-ACCT  " BAD DOC ##"
+               DELIMITED BY SIZE INTO EF2
+             PERFORM S1 
+             GO TO P1
+           END-IF
 
            IF (CC-PAYCODE NOT = G-PRINS)
                OR (CC-PAPER = "P" OR "O") 
@@ -374,6 +393,6 @@
            MOVE G-GARNAME TO EF3
            WRITE ERRORFILE01.
 
-       P6. CLOSE FILEOUT PAPEROUT ERRORFILE.
+       P6. CLOSE FILEIN FILEOUT CHARCUR PAPEROUT ERRORFILE.
            CLOSE GARFILE DIAGFILE REFPHY GAPFILE PROCFILE
            STOP RUN.
