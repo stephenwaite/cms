@@ -331,7 +331,7 @@
                MOVE "R928   " TO CD-DIAG
       * medicare and adv plans don't follow vt call back policy         
                IF (CD-PAYCODE = "003" OR "200" OR "245" OR "270" 
-                   OR "868" OR "912")
+                   or "697" OR "868" OR "912")
 
                    IF (CD-PROC1 = "1446")
                        MOVE "LT" TO CD-MOD2
