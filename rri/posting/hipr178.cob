@@ -58,8 +58,18 @@
            ACCESS IS DYNAMIC RECORD KEY IS TRNPAYFILE-KEY
            LOCK MODE MANUAL.
 
+           SELECT rarcfile ASSIGN TO "S85" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS rarc-key
+           LOCK MODE MANUAL.   
+
        DATA DIVISION.
        FILE SECTION.
+
+       FD  rarcfile.
+       01  rarcfile01.
+           02 rarc-key pic x(8).
+           02 rarc-reason pic x(112).   
+
        FD  INSFILE
            DATA RECORD IS INSFILE01.
        01  INSFILE01.
@@ -570,6 +580,8 @@
        01  DATE-CC PIC X(8).
        01  SVC-CNTR PIC 99.
        01  CAS-CNTR PIC 99.
+       01  LQ-CNTR PIC 99.
+       
        01  CLP-TAB01.
            02 CLP-TAB PIC XX OCCURS 64 TIMES.
        01  SVC-TAB01.
@@ -586,6 +598,13 @@
            02 CAS-TAB PIC X(120) OCCURS 64 TIMES.
        01  CAS-SVC01.
            02 CAS-SVC PIC 99 OCCURS 64 TIMES.
+
+       01  LQ-TAB01.
+           02 LQ-TAB PIC X(120) OCCURS 64 TIMES.
+
+       01  LQ-SVC01.
+           02 LQ-SVC PIC 99 OCCURS 64 TIMES.           
+
        01  SAVEFILE01 PIC X(120).
        01  CC-PROCX01.
            02 CC-PROC1X PIC X(5).
@@ -650,7 +669,7 @@
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE
-                      PAYCUR CAIDFILE.
+                      PAYCUR CAIDFILE rarcfile.
            OPEN I-O PAYFILE 
            OPEN OUTPUT TRNPAYFILE ERROR-FILE.
            MOVE SPACE TO NAR-KEY01 
@@ -938,6 +957,13 @@
                MOVE AMOUNT-X TO ALLW-TAB(SVC-CNTR)
                GO TO P1-SVC-LOOP
            END-IF    
+
+           IF F1 = "LQ*" 
+             ADD 1 TO LQ-CNTR
+             MOVE FILEIN01 TO LQ-TAB(LQ-CNTR)
+             MOVE SVC-CNTR TO LQ-SVC(LQ-CNTR)
+             GO TO P1-SVC-LOOP
+           end-if  
 
            IF (F1 = "DTM") AND (F2 = "*150" OR "*472")
                MOVE SPACE TO DTM01
@@ -1675,6 +1701,29 @@
              MOVE EF-TAB(36) TO EF3-DENIAL6
              MOVE SPACE TO ERROR-FILE01
              WRITE ERROR-FILE01 FROM ERR301.
+
+           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
+             IF LQ-SVC(Y) = X               
+               MOVE SPACE TO FILEIN01
+               MOVE LQ-TAB(Y) TO FILEIN01
+               MOVE SPACE TO LQ01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                 LQ-0 LQ-1 LQ-2 
+
+               IF NOT (LQ-2 = SPACE OR "N807" OR "MA130" OR "N620"
+                 OR "N535")
+                 MOVE LQ-2 TO rarc-key
+                 READ rarcfile with lock
+                   invalid
+                     continue
+                 end-read
+                 MOVE SPACE TO ERROR-FILE01
+                 STRING rarc-reason DELIMITED BY size INTO ERROR-FILE01
+                 WRITE ERROR-FILE01
+               end-if
+             end-if               
+           END-PERFORM. 
+
        DUMP-1.
            MOVE SPACE TO ERROR-FILE01
            STRING "NM1 " NM1-NAMEL ";" NM1-NAMEF DELIMITED

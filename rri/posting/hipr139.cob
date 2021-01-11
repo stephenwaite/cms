@@ -1259,9 +1259,8 @@
                  WRITE ERROR-FILE01
                end-if
              end-if               
-           END-PERFORM. 
+           END-PERFORM
 
-       LQ-1.
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
              IF LQ-SVC(Y) = X               
                MOVE SPACE TO FILEIN01
