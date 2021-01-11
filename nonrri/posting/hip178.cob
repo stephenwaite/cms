@@ -57,8 +57,19 @@
                ACCESS IS DYNAMIC RECORD KEY IS TRNPAYFILE-KEY
                LOCK MODE MANUAL.
 
+           SELECT rarcfile ASSIGN TO "S85" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS rarc-key
+             LOCK MODE MANUAL.    
+
        DATA DIVISION.
+
        FILE SECTION.
+
+       FD  rarcfile.
+       01  rarcfile01.
+           02 rarc-key pic x(8).
+           02 rarc-reason pic x(112). 
+
        FD  INSFILE
            DATA RECORD IS INSFILE01.
        01  INSFILE01.
@@ -570,10 +581,19 @@
        01  DATE-CC PIC X(8).
        01  SVC-CNTR PIC 99.
        01  CAS-CNTR PIC 99.
+       01  LQ-CNTR PIC 99.
+
        01  CLP-TAB01.
            02 CLP-TAB PIC XX OCCURS 64 TIMES.
        01  SVC-TAB01.
            02 SVC-TAB PIC X(120) OCCURS 64 TIMES.
+
+       01  LQ-TAB01.
+           02 LQ-TAB PIC X(120) OCCURS 64 TIMES.
+
+       01  LQ-SVC01.
+           02 LQ-SVC PIC 99 OCCURS 64 TIMES.
+
        01  SVC-DATE01.
            02 SVC-DATE PIC X(8) OCCURS 64 TIMES.
        01  FOUND-TAB01.
@@ -650,7 +670,7 @@
        0005-START.
            OPEN I-O PAYFILE 
            OPEN INPUT INSFILE FILEIN CHARCUR GARFILE MPLRFILE 
-                      PARMFILE PAYCUR CAIDFILE.
+                      PARMFILE PAYCUR CAIDFILE rarcfile.
            OPEN OUTPUT ERROR-FILE TRNPAYFILE
            MOVE SPACE TO NAR-KEY01 
            MOVE ALL ZEROES TO NAR-CNTR01 STATUSCODES01 
@@ -805,6 +825,7 @@
            MOVE SPACE TO SVC-DATE01
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR
+           MOVE 0 TO LQ-CNTR.
            MOVE ALL ZEROES TO ALLW-TAB01.
 
        P1-NM1.
@@ -849,6 +870,13 @@
                MOVE DTM-2 TO DATE-CC
                GO TO P1-NM1
            END-IF
+
+           IF F1 = "LQ*" 
+             ADD 1 TO LQ-CNTR
+             MOVE FILEIN01 TO LQ-TAB(LQ-CNTR)
+             MOVE SVC-CNTR TO LQ-SVC(LQ-CNTR)
+             GO TO P1-SVC-LOOP
+           end-if  
 
            GO TO P1-NM1.
 
@@ -1282,19 +1310,30 @@
 
        DUMP50.
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
-            IF CAS-SVC(Z) = X
-              MOVE SPACE TO CAS01 
-              MOVE CAS-TAB(Z) TO FILEIN01
-              UNSTRING FILEIN01 DELIMITED BY "*" INTO
-              CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-              CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-              CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+             IF CAS-SVC(Z) = X
+               MOVE SPACE TO CAS01 
+               MOVE CAS-TAB(Z) TO FILEIN01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                 CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+                 CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+                 CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-              IF CAS-2 = "50"
-                MOVE 1 TO FLAG
-                MOVE Z TO CAS-CNTR
-              END-IF
-            END-IF.
+               IF (CAS-2 = "50" OR "109" OR "167" OR "B13")
+                 OR (CAS-1 = "PI" AND CAS-2 = "97   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "97   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "197  ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "4    ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "16   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "18   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "58   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "96   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "55   ")
+                 MOVE 1 TO FLAG
+                 MOVE Z TO CAS-CNTR
+               END-IF
+             END-IF
+           end-perform.
+             
        P9-SVC-LOOP.
            MOVE SAVEFILE01 TO FILEIN01
            IF F1 = "CLP" GO TO P1-CLP-1.
@@ -1447,98 +1486,107 @@
             INTO EF-PROC
            MOVE SPACE TO EF-TAB01
            MOVE 0 TO DENIAL-CNTR  INS-REDUCE
+
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > CAS-CNTR
            
-            IF CAS-SVC(Y) = X 
-             MOVE SPACE TO FILEIN01
-             MOVE CAS-TAB(Y) TO FILEIN01
-             MOVE SPACE TO CAS01
-             UNSTRING FILEIN01 DELIMITED BY "*" INTO
-             CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-             CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-             CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+             IF CAS-SVC(Y) = X 
+               MOVE SPACE TO FILEIN01
+               MOVE CAS-TAB(Y) TO FILEIN01
+               MOVE SPACE TO CAS01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                 CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+                 CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+                 CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
              
-             IF CAS-2 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-2 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-2 TO ALF3
-              PERFORM NAR-1
-             END-IF
-             IF CAS-5 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-5 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-5 TO ALF3
-              PERFORM NAR-1
-             END-IF
-             IF CAS-8 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-8 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-8 TO ALF3
-              PERFORM NAR-1
-             END-IF
-
-             IF CAS-11 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-11 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-11 TO ALF3
-              PERFORM NAR-1
-             END-IF
-
-             IF CAS-14 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-14 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-14 TO ALF3
-              PERFORM NAR-1
-             END-IF
-
-             IF CAS-17 NOT = SPACE
-              ADD 1 TO DENIAL-CNTR
-              MOVE CAS-17 TO EF-TAB(DENIAL-CNTR)
-              MOVE CAS-17 TO ALF3
-              PERFORM NAR-1
-             END-IF
-
-             IF CAS-1 = "CO"
-             AND (CLP-2CLMSTAT = "1 ")
-               IF CAS-3 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-3 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+               IF CAS-2 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-2 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-2 TO ALF3
+                 PERFORM NAR-1
                END-IF
-               IF CAS-6 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-6 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                END-IF
-               IF CAS-9 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-9 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                END-IF
-               IF CAS-12 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-12 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                END-IF
-               IF CAS-15 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-15 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                END-IF
-               IF CAS-18 NOT = SPACE
-                MOVE SPACE TO ALF8
-                MOVE CAS-18 TO ALF8
-                PERFORM AMOUNT-1
-                COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+             
+               IF CAS-5 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-5 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-5 TO ALF3
+                 PERFORM NAR-1
                END-IF
-             END-IF
-            END-IF
-           END-PERFORM.
+
+               IF CAS-8 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-8 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-8 TO ALF3
+                 PERFORM NAR-1
+               END-IF
+
+               IF CAS-11 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-11 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-11 TO ALF3
+                 PERFORM NAR-1
+               END-IF
+
+               IF CAS-14 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-14 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-14 TO ALF3
+                 PERFORM NAR-1
+               END-IF
+
+               IF CAS-17 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-17 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-17 TO ALF3
+                 PERFORM NAR-1
+               END-IF
+
+               IF CAS-1 = "CO" AND (CLP-2CLMSTAT = "1 ")
+               
+                 IF CAS-3 NOT = SPACE
+                   MOVE SPACE TO ALF8
+                   MOVE CAS-3 TO ALF8
+                   PERFORM AMOUNT-1
+                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                 END-IF
+
+                 IF CAS-6 NOT = SPACE
+                   MOVE SPACE TO ALF8
+                   MOVE CAS-6 TO ALF8
+                   PERFORM AMOUNT-1
+                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                 END-IF
+                 
+                 IF CAS-9 NOT = SPACE
+                   MOVE SPACE TO ALF8
+                   MOVE CAS-9 TO ALF8
+                   PERFORM AMOUNT-1
+                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                 END-IF
+                 
+                 IF CAS-12 NOT = SPACE
+                   MOVE SPACE TO ALF8
+                   MOVE CAS-12 TO ALF8
+                   PERFORM AMOUNT-1
+                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                 END-IF
+                 
+                 IF CAS-15 NOT = SPACE
+                   MOVE SPACE TO ALF8
+                   MOVE CAS-15 TO ALF8
+                   PERFORM AMOUNT-1
+                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                 END-IF
+                 
+                 IF CAS-18 NOT = SPACE
+                   MOVE SPACE TO ALF8
+                   MOVE CAS-18 TO ALF8
+                   PERFORM AMOUNT-1
+                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                 END-IF
+
+               END-IF
+             END-IF           
+           END-PERFORM
            
            MOVE INS-REDUCE TO EF-REDUCE.
            ADD INS-REDUCE TO TOT-REDUCE
@@ -1600,6 +1648,28 @@
              MOVE EF-TAB(36) TO EF3-DENIAL6
              MOVE SPACE TO ERROR-FILE01
              WRITE ERROR-FILE01 FROM ERR301.
+
+           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
+             IF LQ-SVC(Y) = X
+               
+               MOVE SPACE TO FILEIN01
+               MOVE LQ-TAB(Y) TO FILEIN01
+               MOVE SPACE TO LQ01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                 LQ-0 LQ-1 LQ-2 
+
+               IF NOT (LQ-2 = SPACE OR "N807" OR "MA130")
+                 MOVE LQ-2 TO rarc-key
+                 READ rarcfile with lock
+                   invalid
+                     continue
+                 end-read
+                 MOVE SPACE TO ERROR-FILE01
+                 STRING rarc-reason DELIMITED BY size INTO ERROR-FILE01
+                 WRITE ERROR-FILE01
+               end-if
+             end-if
+           END-PERFORM.   
 
        DUMP-1.           
            MOVE SPACE TO ERROR-FILE01
@@ -1887,7 +1957,8 @@
              WRITE ERROR-FILE01
             END-IF
            END-PERFORM.
-           CLOSE PAYFILE TRNPAYFILE GARFILE CHARCUR
+           CLOSE PAYFILE insfile filein charcur garfile mplrfile
+             parmfile paycur caidfile rarcfile error-file trnpayfile.
            STOP RUN.
        P169.
             PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
