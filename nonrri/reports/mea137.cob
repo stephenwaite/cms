@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. mea138.
+       PROGRAM-ID. mea137.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -107,7 +107,9 @@
                     OR "D0321  " or "D0322  " or "D0330  " or "D0339  "
                     OR "D034   " or "D0351  " or "D0352  " or "D0359  "
                     OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
-                    OR "D0371  " or "D0372  " or "D038   " or "D039   ")
+                    OR "D0371  " or "D0372  " or "D038   " or "D039   "
+                    OR "Z85820 " OR "Z86006 ")
+
                MOVE CC-DIAG TO DX-0
                GO TO P2
            END-IF
@@ -124,7 +126,9 @@
                     OR "D0321  " or "D0322  " or "D0330  " or "D0339  "
                     OR "D034   " or "D0351  " or "D0352  " or "D0359  "
                     OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
-                    OR "D0371  " or "D0372  " or "D038   " or "D039   ")
+                    OR "D0371  " or "D0372  " or "D038   " or "D039   "
+                    OR "Z85820 " OR "Z86006 ")
+
                MOVE CC-DX2 TO DX-0
                GO TO P2
            END-IF
@@ -141,7 +145,8 @@
                     OR "D0321  " or "D0322  " or "D0330  " or "D0339  "
                     OR "D034   " or "D0351  " or "D0352  " or "D0359  "
                     OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
-                    OR "D0371  " or "D0372  " or "D038   " or "D039   ")
+                    OR "D0371  " or "D0372  " or "D038   " or "D039   "
+                    OR "Z85820 " OR "Z86006 ")
                MOVE CC-DX3 TO DX-0
                GO TO P2
            END-IF
@@ -158,7 +163,8 @@
                     OR "D0321  " or "D0322  " or "D0330  " or "D0339  "
                     OR "D034   " or "D0351  " or "D0352  " or "D0359  "
                     OR "D0360  " or "D0361  " or "D0362  " or "D0370  "
-                    OR "D0371  " or "D0372  " or "D038   " or "D039   ")
+                    OR "D0371  " or "D0372  " or "D038   " or "D039   "
+                    OR "Z85820 " OR "Z86006 ")  
                MOVE CC-DX4 TO DX-0
                GO TO P2
            END-IF
@@ -202,7 +208,7 @@
            MOVE CHARCUR-KEY TO KEY-OUT
            MOVE "ICD10" TO DESC
            MOVE CC-PROC TO F-PROC
-           MOVE "5050F  " TO F-ICD
+           MOVE "7010F  " TO F-ICD
            WRITE FILEOUT01
            GO TO P1.
        P99.

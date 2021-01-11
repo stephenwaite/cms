@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. mea138.
+       PROGRAM-ID. mea138exc.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -88,11 +88,15 @@
            IF NOT (CC-DATE-T(1:4) = "2020" )
              GO TO P1.
              
-           IF NOT (CC-PROC(1:5) = "99201" OR "99202" OR "99203"
-             OR "99204" OR "99205" OR "99212" OR "99213"
-             OR "99214" OR "99215")
-             GO TO P1
-           END-IF.
+           IF NOT (CC-PROC(1:5) = "11600" or "11601" or "11602" 
+             or "11603"
+             or "11604" or "11606" or "11620" or "11621"
+             or "11622" or "11623" or "11624" or "11626"
+             or "11640" or "11641" or "11642" or "11643"
+             or "11644" or "11646" or "14000" or "14001"
+             or "14020" or "14021" or "14040" or "14041"
+             or "14060" or "14061" or "14301" or "17311"
+             or "17313")
 
            MOVE SPACE TO DX-0
            IF  (CC-DIAG = "C430   " or "C4310  " or "C43111 "
