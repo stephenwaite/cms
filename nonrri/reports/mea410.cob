@@ -85,10 +85,10 @@
            IF CC-PLACE NOT = "1" 
              GO TO P1.
 
-           IF NOT (CC-DATE-T(1:4) = "2020" )
+           IF CC-DATE-T(1:4) not = "2020"
              GO TO P1.
              
-           IF NOT (CC-PROC2 = "99201" OR "99202" OR "99203"
+           IF NOT (CC-PROC(1:5) = "99201" OR "99202" OR "99203"
              OR "99204" OR "99205" OR "99212" OR "99213"
              OR "99214" OR "99215")
              GO TO P1
@@ -119,9 +119,11 @@
 
        P2.
            MOVE CC-KEY8 TO G-GARNO
-           READ GARFILE INVALID DISPLAY G-GARNO " HAS NO ACCT"
-           ACCEPT ALF1
-           GO TO P1
+           READ GARFILE 
+             INVALID 
+               DISPLAY G-GARNO " invalid has CHARGE " CHARCUR-KEY
+               ACCEPT omitted
+               GO TO P1
            END-READ.
 
       *     IF G-PRINS NOT = "003" GO TO P1.
@@ -160,8 +162,8 @@
            DELIMITED BY SIZE INTO DATE1
            MOVE CHARCUR-KEY TO KEY-OUT
            MOVE "ICD10" TO DESC
-           MOVE CC-PROC2 TO F-PROC
-           MOVE "7010F  " TO F-ICD
+           MOVE CC-PROC TO F-PROC
+           MOVE "G9649  " TO F-ICD
            WRITE FILEOUT01
 
            GO TO P1.
