@@ -142,13 +142,24 @@
        WORKING-STORAGE SECTION.
        01  ALF1 PIC X.
        01  DX-0 PIC X(7).
+
        PROCEDURE DIVISION.
+
        0005-START.
+
            OPEN INPUT DIAGFILE GARFILE CHARCUR OUTPUT FILEOUT.
+           
        P1. 
-           READ CHARCUR NEXT AT END GO TO P99.
-           IF CC-PLACE NOT = "1" GO TO P1.
-           IF NOT (CC-DATE-T(1:4) = "2019" ) GO TO P1.
+           READ CHARCUR NEXT
+             AT END
+               GO TO P99.
+
+      *     IF CC-PLACE NOT = "1" 
+      *       GO TO P1.
+
+           IF NOT (CC-DATE-T(1:4) = "2020" )
+             GO TO P1.
+             
       *     IF NOT (CC-PROC2 = "99201" OR "99202" OR "99203"
       *                  OR "99204" OR "99205" OR "99212" OR "99213"
       *                  OR "99214" OR "99215")
@@ -238,10 +249,12 @@
            MOVE "MCCAULIFFE" TO PROV-LNAME
            MOVE SPACE TO PAT-LNAME PAT-FNAME
            IF CC-DOCP = "02"
-           MOVE "KERRY" TO PROV-FNAME
-           MOVE "LANE" TO PROV-LNAME.
+             MOVE "KERRY" TO PROV-FNAME
+             MOVE "LANE" TO PROV-LNAME.
+
            UNSTRING G-GARNAME DELIMITED BY ";"
              INTO PAT-LNAME PAT-FNAME ALF1
+           
            MOVE SPACE TO PAT-DOB
            STRING G-DOB(5:2) "/" G-DOB(7:2) "/" G-DOB(1:4)
            DELIMITED BY SIZE INTO PAT-DOB

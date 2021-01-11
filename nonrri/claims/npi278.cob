@@ -290,8 +290,10 @@
            END-IF  
 
            IF INS-NEIC =  "VACCN"
-               DISPLAY INS-NEIC " only putting auth on posted charges"
-                   " so will wait to send fri/sat"
+               MOVE SPACE TO FILEOUT01
+               STRING CD-KEY8 " " INS-NEIC " chance to add real auth "
+                 "before send all 9s with posted charge" 
+                   DELIMITED BY SIZE INTO FILEOUT01
                GO TO P1   
            END-IF
 

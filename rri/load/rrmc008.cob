@@ -290,6 +290,16 @@
            END-IF
 
            MOVE FILEIN01 TO REC301
+
+           if r3-cpt not = space and r3-hcpcs not = space
+             move space to ERRFILE01
+             STRING "for " MEDREC " rrmc sent us both a hcpcs " 
+               R3-hcpcs " AND a cpt " R3-CPT " with mod " R3-MOD1 
+               " for DOS " R3-DATE
+               DELIMITED BY SIZE INTO ERRFILE01
+             WRITE ERRFILE01
+           end-if  
+
            MOVE R3-PROC TO PROC-KEY1
            
            IF R3-CPT = SPACE
@@ -317,6 +327,7 @@
 
            IF ((R3-PROC = "1284" or "1285") AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1")
+             MOVE SPACE TO ERRFILE01
              STRING "DELETING REDUNDANT BILAT KNEE " MEDREC " " 
                R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01
@@ -333,6 +344,7 @@
 
            IF R3-PROC = "1204" AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1"
+             MOVE SPACE TO ERRFILE01  
              STRING "DELETING REDUNDANT BILAT orbit " MEDREC " " 
                R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01
