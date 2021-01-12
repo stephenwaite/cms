@@ -44,7 +44,7 @@
            ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY
            LOCK MODE IS MANUAL.
 
-           SELECT rarcfile ASSIGN TO "S80" ORGANIZATION IS INDEXED
+           SELECT rarcfile ASSIGN TO "S75" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS rarc-key
            LOCK MODE MANUAL.
 
@@ -365,23 +365,27 @@
        01 CAS-CNTR PIC 99.
        01  LQ-CNTR PIC 99.
 
-       01 SVC-TAB01.
-          02 SVC-TAB PIC X(120) OCCURS 32 TIMES.
-       01 SVC-DATE01.
-          02 SVC-DATE PIC X(8) OCCURS 32 TIMES.
+       01  SVC-TAB01.
+           02 SVC-TAB PIC X(120) OCCURS 32 TIMES.
 
-       01 FOUND-TAB01.
-          02 FOUND-KEY PIC X(11) OCCURS 32 TIMES.
+       01  SVC-DATE01.
+           02 SVC-DATE PIC X(8) OCCURS 32 TIMES.
 
-       01 CAS-TAB01.
-          02 CAS-TAB PIC X(120) OCCURS 32 TIMES.
-       01 CAS-SVC01.
-          02 CAS-SVC PIC 99 OCCURS 32 TIMES.
-        01  LQ-TAB01.
+       01  FOUND-TAB01.
+           02 FOUND-KEY PIC X(11) OCCURS 32 TIMES.
+
+       01  CAS-TAB01.
+           02 CAS-TAB PIC X(120) OCCURS 32 TIMES.
+
+       01  CAS-SVC01.
+           02 CAS-SVC PIC 99 OCCURS 32 TIMES.
+
+        01 LQ-TAB01.
            02 LQ-TAB PIC X(120) OCCURS 32 TIMES.
 
        01  LQ-SVC01.
            02 LQ-SVC PIC 99 OCCURS 32 TIMES.   
+           
        01 SAVEFILE01 PIC X(120).
        01 CC-PROC1X PIC X(5).
        01 CC-PROC2X PIC XX.
@@ -468,34 +472,38 @@
       *     REF-0 REF-1 REF-2
       *     MOVE REF-2 TO ALF7
       *     GO TO P000.
+           
            IF F1 = "N1*" 
-            MOVE SPACE TO N101
-            UNSTRING FILEIN01 DELIMITED BY "*" INTO
-            N1-0 N1-1 N1-2 N1-3 N1-4
-             IF N1-1 = "PE"
-              AND N1-3 = "XX"
+             MOVE SPACE TO N101
+             UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               N1-0 N1-1 N1-2 N1-3 N1-4
+             IF N1-1 = "PE" AND N1-3 = "XX"
                MOVE N1-4 TO ALF10
              END-IF
-           END-IF.
-           GO TO P000.
-       XXX.
+           END-IF
 
+           GO TO P000.
+
+       XXX.
            IF (ALF10 NOT = PROV-1)
-           GO TO P00.
+             GO TO P00.
+
            IF WRITE-FLAG = 0
-           MOVE 1 TO WRITE-FLAG
-           MOVE DATE-X TO TEST-DATE
-           MOVE CORR TEST-DATE TO DISPLAY-DATE
-           MOVE DISPLAY-DATE TO T12
-           MOVE SPACE TO ERROR-FILE01
-           MOVE TITLE01 TO ERROR-FILE01-1
-           MOVE "B" TO FO-SORT
-           WRITE ERROR-FILE01.
+             MOVE 1 TO WRITE-FLAG
+             MOVE DATE-X TO TEST-DATE
+             MOVE CORR TEST-DATE TO DISPLAY-DATE
+             MOVE DISPLAY-DATE TO T12
+             MOVE SPACE TO ERROR-FILE01
+             MOVE TITLE01 TO ERROR-FILE01-1
+             MOVE "B" TO FO-SORT
+             WRITE ERROR-FILE01.
 
        P1-CLP. 
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P9.
+
            IF F1 NOT = "CLP" GO TO P1-CLP.
+
        P1-CLP-1.
            MOVE SPACE TO CLP01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
@@ -511,11 +519,15 @@
            
        P1-NM1.
            MOVE SPACE TO FILEIN01
+
            READ FILEIN AT END GO TO P9.
+
            IF F1 = "SVC" GO TO P1-SVC-LOOP-0.
+
            IF F1 = "CLP" OR "SE*" 
             MOVE FILEIN01 TO SAVEFILE01
             GO TO P2-SVC-LOOP.
+
            IF F1 = "CAS" 
              MOVE SPACE TO CAS01
              UNSTRING FILEIN01 DELIMITED BY "*" INTO
@@ -525,18 +537,21 @@
              MOVE CAS01 TO CLMCAS01
              MOVE SPACE TO CAS01
             GO TO P1-NM1.
+
            IF (F1 = "NM1" AND F2 = "*QC*") 
             MOVE SPACE TO NM101
             UNSTRING FILEIN01 DELIMITED BY "*" INTO
             NM1-0 NM1-1 NM1-SOLO NM1-NAMEL NM1-NAMEF NM1-NAMEM 
             NM1-NAMES NM1-EINSS NM1-PREFIX NM1-CODE
            GO TO P1-NM1.
+
            IF F1 = "DTM" AND F2 = "*233"
             MOVE SPACE TO DTM01
             UNSTRING FILEIN01 DELIMITED BY "*" INTO
             DTM-0 DTM-1 DTM-2 
             MOVE DTM-2 TO DATE-CC.
            GO TO P1-NM1.
+
        P1-SVC-LOOP.  
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P2-SVC-LOOP.
@@ -544,9 +559,9 @@
            IF F1 = "CLP" OR "SE*" 
             MOVE FILEIN01 TO SAVEFILE01
             GO TO P2-SVC-LOOP.
+
        P1-SVC-LOOP-0.    
            IF F1 = "SVC" 
-
              iF FILEIN01(12:1) = "F"
                GO TO P1-SVC-LOOP
              END-IF
@@ -558,15 +573,16 @@
                GO TO P1-SVC-LOOP
              END-IF        
              
-           ADD 1 TO SVC-CNTR
-           MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
-           GO TO P1-SVC-LOOP.
+             ADD 1 TO SVC-CNTR
+             MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
+             GO TO P1-SVC-LOOP
+           end-if  
            
            IF F1 = "CAS" 
-           ADD 1 TO CAS-CNTR
-           MOVE FILEIN01 TO CAS-TAB(CAS-CNTR)
-           MOVE SVC-CNTR TO CAS-SVC(CAS-CNTR)
-           GO TO P1-SVC-LOOP.
+             ADD 1 TO CAS-CNTR
+             MOVE FILEIN01 TO CAS-TAB(CAS-CNTR)
+             MOVE SVC-CNTR TO CAS-SVC(CAS-CNTR)
+             GO TO P1-SVC-LOOP.
            
            IF F1 = "DTM" AND F2 = "*150"
              MOVE SPACE TO DTM01
@@ -586,25 +602,37 @@
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
            
-           IF SVC-CNTR = 0 PERFORM P1-NO-SVC
-              GO TO P9-SVC-LOOP.
-           MOVE CLP-1 TO G-GARNO
-           READ GARFILE INVALID
-            GO TO P3-SVC-LOOP
-           END-READ.
-           MOVE 0 TO FIND-CNTR 
-           PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
-            BY 1 UNTIL X > SVC-CNTR
-           IF FIND-CNTR = SVC-CNTR
-           GO TO P4-SVC-LOOP.
-       P3-SVC-LOOP.    
-            MOVE 0 TO FIND-CNTR
-            PERFORM FIND-GARNO THRU FIND-GARNO-EXIT
-            IF FIND-CNTR NOT = SVC-CNTR
-             PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
-             VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
+           IF SVC-CNTR = 0 
+             PERFORM P1-NO-SVC
              GO TO P9-SVC-LOOP
-            END-IF.
+           end-if  
+
+           MOVE CLP-1 TO G-GARNO
+           
+           READ GARFILE 
+             INVALID
+               GO TO P3-SVC-LOOP
+           END-READ
+           
+           MOVE 0 TO FIND-CNTR 
+           
+           PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
+             BY 1 UNTIL X > SVC-CNTR
+             
+           IF FIND-CNTR = SVC-CNTR
+             GO TO P4-SVC-LOOP
+           end-if.
+
+       P3-SVC-LOOP.    
+           MOVE 0 TO FIND-CNTR
+
+           PERFORM FIND-GARNO THRU FIND-GARNO-EXIT
+
+           IF FIND-CNTR NOT = SVC-CNTR
+             PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
+               VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
+             GO TO P9-SVC-LOOP
+           END-IF.
 
       * RECORDS ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.
@@ -616,6 +644,7 @@
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT 
              VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
            GO TO P9-SVC-LOOP.
+
        P5-SVC-LOOP.
            MOVE SPACE TO FILEIN01
            MOVE SVC-TAB(X) TO FILEIN01

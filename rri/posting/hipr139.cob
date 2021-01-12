@@ -506,7 +506,8 @@
            
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR
-           MOVE 0 TO LQ-CNTR.
+           MOVE 0 TO LQ-CNTR
+           MOVE 0 TO MIPS-ONLY.
            
        P1-NM1.
            MOVE SPACE TO FILEIN01
@@ -516,7 +517,6 @@
            END-READ
 
            IF F1 = "SVC"
-               MOVE 0 TO MIPS-ONLY
                GO TO P1-SVC-LOOP-0
            END-IF    
            
@@ -604,7 +604,9 @@
        P1-SVC-LOOP-0.    
            IF F1 = "SVC"               
              IF FILEIN01(12:1) = "F"
-               MOVE 1 TO MIPS-ONLY
+               IF SVC-CNTR = 0
+                 MOVE 1 TO MIPS-ONLY
+               END-IF  
                GO TO P1-SVC-LOOP
              END-IF
 
@@ -612,33 +614,35 @@
                OR "G9549" OR "G9550" OR "G9551" OR "G9552"
                OR "G9553" OR "G9554" OR "G9555" OR "G9556"
                OR "G9557" OR "G9637" OR "G1004")
-               MOVE 1 TO MIPS-ONLY
+               IF SVC-CNTR = 0
+                 MOVE 1 TO MIPS-ONLY
+               END-IF  
                GO TO P1-SVC-LOOP
              END-IF 
              
-             move 0 to MIPS-ONLY
              ADD 1 TO SVC-CNTR
+             move 0 to MIPS-ONLY
              MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
              GO TO P1-SVC-LOOP
            END-IF    
            
            IF F1 = "CAS"
-              MOVE SPACE TO CAS01 
-              UNSTRING FILEIN01 DELIMITED BY "*" INTO
-              CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-              CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-              CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+             MOVE SPACE TO CAS01 
+             UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
 
-           ADD 1 TO CAS-CNTR
-           MOVE FILEIN01 TO CAS-TAB(CAS-CNTR)
-           MOVE SVC-CNTR TO CAS-SVC(CAS-CNTR)
-           GO TO P1-SVC-LOOP.
+             ADD 1 TO CAS-CNTR
+             MOVE FILEIN01 TO CAS-TAB(CAS-CNTR)
+             MOVE SVC-CNTR TO CAS-SVC(CAS-CNTR)
+             GO TO P1-SVC-LOOP.
            
            IF F1 = "DTM" AND F2 = "*472"
-           MOVE SPACE TO DTM01
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-           DTM-0 DTM-1 DTM-2
-           MOVE DTM-2 TO SVC-DATE(SVC-CNTR).
+             MOVE SPACE TO DTM01
+             UNSTRING FILEIN01 DELIMITED BY "*" INTO 
+               DTM-0 DTM-1 DTM-2
+             MOVE DTM-2 TO SVC-DATE(SVC-CNTR).
            
            IF F1 = "AMT" AND F2 = "*B6*"
              MOVE SPACE TO AMT01
@@ -661,12 +665,12 @@
 
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
-           IF (SVC-CNTR = 0 AND MIPS-ONLY = 0)
+           IF SVC-CNTR = 0 
+             IF MIPS-ONLY = 0
                PERFORM P1-NO-SVC 
+             END-IF  
                GO TO P9-SVC-LOOP
-           ELSE
-               GO TO P9-SVC-LOOP    
-           END-IF
+           END-IF                             
 
            MOVE CLP-1 TO G-GARNO
            READ GARFILE INVALID GO TO P3-SVC-LOOP.
@@ -680,6 +684,7 @@
            MOVE 0 TO FIND-CNTR 
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
              BY 1 UNTIL X > SVC-CNTR
+             
            IF FIND-CNTR = SVC-CNTR GO TO P4-SVC-LOOP.
 
        P3-SVC-LOOP.    
