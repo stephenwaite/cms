@@ -54,6 +54,10 @@
            ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
            LOCK MODE MANUAL.
 
+           SELECT rarcfile ASSIGN TO "S80" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS rarc-key
+           LOCK MODE MANUAL. 
+
        DATA DIVISION.
        FILE SECTION.
 
@@ -248,7 +252,17 @@
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
 
+       FD  rarcfile.
+       01  rarcfile01.
+           02 rarc-key pic x(8).
+           02 rarc-reason pic x(112).       
+
        WORKING-STORAGE SECTION.
+
+       01  LQ01.
+           02 LQ-0 PIC XX.
+           02 LQ-1 PIC XX.
+           02 LQ-2 PIC X(5).
 
        01 AMT01.
           02 AMT-0 PIC XXX.
@@ -542,21 +556,31 @@
            05 T-YY  PIC XX.
        01  OVERFLAG PIC 9.
        01  CO-PAY-PAID PIC S9(7)V99.
-       01 DATE-X PIC X(8).
-       01 DATE-CC PIC X(8).
-       01 SVC-CNTR PIC 99.
-       01 CAS-CNTR PIC 99.
-       01 SVC-TAB01.
-          02 SVC-TAB PIC X(120) OCCURS 64 TIMES.
-       01 SVC-DATE01.
-          02 SVC-DATE PIC X(8) OCCURS 64 TIMES.
-       01 FOUND-TAB01.
-          02 FOUND-KEY PIC X(11) OCCURS 64 TIMES.
+       01  DATE-X PIC X(8).
+       01  DATE-CC PIC X(8).
+       01  SVC-CNTR PIC 99.
+       01  CAS-CNTR PIC 99.
+       01  LQ-CNTR PIC 99.
 
-       01 CAS-TAB01.
-          02 CAS-TAB PIC X(120) OCCURS 64 TIMES.
+       01  SVC-TAB01.
+           02 SVC-TAB PIC X(120) OCCURS 64 TIMES.
+       01  SVC-DATE01.
+           02 SVC-DATE PIC X(8) OCCURS 64 TIMES.
+       01  FOUND-TAB01.
+           02 FOUND-KEY PIC X(11) OCCURS 64 TIMES.
+
+       01  CAS-TAB01.
+           02 CAS-TAB PIC X(120) OCCURS 64 TIMES.
+
        01 CAS-SVC01.
-          02 CAS-SVC PIC 99 OCCURS 64 TIMES.
+           02 CAS-SVC PIC 99 OCCURS 64 TIMES.
+
+        01 LQ-TAB01.
+           02 LQ-TAB PIC X(120) OCCURS 64 TIMES.
+
+       01  LQ-SVC01.
+           02 LQ-SVC PIC 99 OCCURS 64 TIMES.
+
        01 SAVEFILE01 PIC X(120).
        01 CC-PROC1X PIC X(5).
        01 CC-PROC2X PIC XX.
@@ -607,7 +631,7 @@
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT FILEIN CHARCUR GARFILE CAIDFILE
-           MPLRFILE PARMFILE PAYCUR INSFILE.
+             MPLRFILE PARMFILE PAYCUR INSFILE RARCFILE.
            OPEN I-O PAYFILE 
            OPEN OUTPUT ERROR-FILE.
            MOVE SPACE TO NAR-KEY01 
@@ -703,6 +727,7 @@
            MOVE SPACE TO SVC-DATE01
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR.
+           MOVE 0 TO LQ-CNTR.
            MOVE CLP-4TOTCLMPAY TO ALF8
            PERFORM AMOUNT-1
            MOVE AMOUNT-X TO CLAIM-PAID.
@@ -776,13 +801,21 @@
              MOVE FILEIN01 TO CAS-TAB(CAS-CNTR)
              MOVE SVC-CNTR TO CAS-SVC(CAS-CNTR)
              GO TO P1-SVC-LOOP.
+
+           IF F1 = "LQ*" 
+             ADD 1 TO LQ-CNTR
+             MOVE FILEIN01 TO LQ-TAB(LQ-CNTR)
+             MOVE SVC-CNTR TO LQ-SVC(LQ-CNTR)
+             GO TO P1-SVC-LOOP
+           end-if   
            
            IF F1 = "DTM" AND (F2 = "*150" OR F2 = "*472")
              MOVE SPACE TO DTM01
              UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                DTM-0 DTM-1 DTM-2
              MOVE DTM-2 TO SVC-DATE(SVC-CNTR).
-             GO TO P1-SVC-LOOP.
+
+           GO TO P1-SVC-LOOP.
 
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
@@ -1120,6 +1153,7 @@
                  OR (CAS-1 = "CO" AND CAS-2 = "58   ")
                  OR (CAS-1 = "CO" AND CAS-2 = "96   ")
                  OR (CAS-1 = "CO" AND CAS-2 = "55   ")
+                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
                     MOVE 1 TO FLAG
                     MOVE CAS-CNTR TO Z
                     GO TO DUMP50-EXIT
@@ -1396,7 +1430,27 @@
              MOVE SPACE TO ERROR-FILE01
              WRITE ERROR-FILE01 FROM ERR301.
 
+           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
+             IF LQ-SVC(Y) = X
+               
+               MOVE SPACE TO FILEIN01
+               MOVE LQ-TAB(Y) TO FILEIN01
+               MOVE SPACE TO LQ01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                 LQ-0 LQ-1 LQ-2 
 
+               IF NOT (LQ-2 = SPACE OR "N807" OR "MA130")
+                 MOVE LQ-2 TO rarc-key
+                 READ rarcfile with lock
+                   invalid
+                     continue
+                 end-read
+                 MOVE SPACE TO ERROR-FILE01
+                 STRING rarc-reason DELIMITED BY size INTO ERROR-FILE01
+                 WRITE ERROR-FILE01
+               end-if
+             end-if
+           END-PERFORM.    
 
        NAR-1.
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 216 
@@ -1559,7 +1613,9 @@
              WRITE ERROR-FILE01
             END-IF
            END-PERFORM.
-           CLOSE PAYFILE GARFILE CHARCUR
+           CLOSE FILEIN CHARCUR GARFILE CAIDFILE
+             MPLRFILE PARMFILE PAYCUR INSFILE RARCFILE PAYFILE 
+             ERROR-FILE.
            STOP RUN.
        P999.
                IF (CAS-2 = "42 " OR "45 " OR "B6 " OR "131")

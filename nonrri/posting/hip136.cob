@@ -43,8 +43,19 @@
            ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY
            LOCK MODE IS MANUAL.
 
+           SELECT rarcfile ASSIGN TO "S75" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS rarc-key
+           LOCK MODE MANUAL.
+
        DATA DIVISION.
+
        FILE SECTION.
+
+       FD  rarcfile.
+       01  rarcfile01.
+           02 rarc-key pic x(8).
+           02 rarc-reason pic x(112). 
+
        FD  MPLRFILE.
        01  MPLRFILE01.
            02 MPLR-KEY PIC X(8). 
@@ -207,154 +218,11 @@
            02 G-BILLCYCLE PIC X.
            02 G-DELETE PIC X.
            02 G-FILLER PIC XXX.
+
        WORKING-STORAGE SECTION.
-       01 AMT01.
-          02 AMT-0 PIC XXX.
-          02 AMT-1 PIC XX.
-          02 AMT-2 PIC X(9).
-          02 AMT-3 PIC X.
-       01 BPR01.
-          02 BPR-0 PIC XXX.
-          02 BPR-1 PIC XX.
-          02 BPR-2 PIC X(9).
-          02 BPR-3 PIC X.
-          02 BPR-4 PIC XXX.
-          02 BPR-5 PIC X(10).
-          02 BPR-6 PIC XX.
-          02 BPR-7 PIC X(12).
-          02 BPR-8 PIC XXX.
-          02 BPR-9 PIC X(35).
-          02 BPR-10 PIC X(10).
-          02 BPR-11 PIC X(9).
-          02 BPR-12 PIC XX.
-          02 BPR-13 PIC X(12).
-          02 BPR-14 PIC XXX.
-          02 BPR-15 PIC X(35).
-          02 BPR-16 PIC X(8).
-       01 CAS01.
-          02 CAS-0 PIC XXX.
-          02 CAS-1 PIC XX.
-          02 CAS-2 PIC X(3).
-          02 CAS-3 PIC X(8).
-          02 CAS-4 PIC XX.
-          02 CAS-5 PIC X(5).
-          02 CAS-6 PIC X(8).
-          02 CAS-7 PIC XX.
-          02 CAS-8 PIC X(5).
-          02 CAS-9 PIC X(8).
-          02 CAS-10 PIC XX.
-          02 CAS-11 PIC X(5).
-          02 CAS-12 PIC X(8).
-          02 CAS-13 PIC XX.
-          02 CAS-14 PIC X(5).
-          02 CAS-15 PIC X(8).
-          02 CAS-16 PIC XX.
-          02 CAS-17 PIC X(5).
-          02 CAS-18 PIC X(8).
-          02 CAS-19 PIC XX.
-       01 CLMCAS01.
-          02 CLMCAS-0 PIC XXX.
-          02 CLMCAS-1 PIC XX.
-          02 CLMCAS-2 PIC X(5).
-          02 CLMCAS-3 PIC X(8).
-          02 CLMCAS-4 PIC XX.
-          02 CLMCAS-5 PIC X(5).
-          02 CLMCAS-6 PIC X(8).
-          02 CLMCAS-7 PIC XX.
-          02 CLMCAS-8 PIC X(5).
-          02 CLMCAS-9 PIC X(8).
-          02 CLMCAS-10 PIC XX.
-          02 CLMCAS-11 PIC X(5).
-          02 CLMCAS-12 PIC X(8).
-          02 CLMCAS-13 PIC XX.
-          02 CLMCAS-14 PIC X(5).
-          02 CLMCAS-15 PIC X(8).
-          02 CLMCAS-16 PIC XX.
-          02 CLMCAS-17 PIC X(5).
-          02 CLMCAS-18 PIC X(8).
-          02 CLMCAS-19 PIC XX.
 
-       01 CLP01.
-          02 CLP-0 PIC XXX.
-          02 CLP-1 PIC X(14).
-          02 CLP-2CLMSTAT PIC X.
-          02 CLP-3TOTCLMCHG PIC X(8).
-          02 CLP-4TOTCLMPAY PIC X(8).
-          02 CLP-5PATRESP PIC X(8).
-          02 CLP-6PLANCODE PIC XX.
-          02 CLP-7ICN PIC X(30).
-          02 CLP-8FACILITY PIC XX.
-          02 CLP-9FREQ PIC X.
-          02 CLP-10PATSTAT PIC X(4).
-          02 CLP-11DRG PIC X.
-          02 CLP-12QUAN PIC XXX.
-          02 CLP-13PERCENT PIC XXX.
-          
-       01 DTM01.
-          02 DTM-0 PIC XXX.
-          02 DTM-1 PIC XXX.
-          02 DTM-2 PIC X(8).
-          
-       01 N101.
-          02 N1-0 PIC XX.
-          02 N1-1 PIC XX.
-          02 N1-2 PIC X(30).
-          02 N1-3 PIC XX.
-          02 N1-4 PIC X(10).
-       01 REF01.
-          02 REF-0 PIC XXX.
-          02 REF-1 PIC XXX.
-          02 REF-2 PIC X(30).
-         
-       01 SVC01.
-           02 SVC-0 PIC XXX.
-           02 SVC-1PROCMOD PIC X(17).
-           02 SVC-2CHRGAMT PIC X(8).
-           02 SVC-3PAYAMT  PIC X(8).
-           02 SVC-4NUBC PIC XXX.
-           02 SVC-5QUAN PIC X(5).
-           02 SVC-6COMPOSITE PIC X(80).
-           02 SVC-7QUAN PIC X(5).
-           
-       01 NM101.
-           02 NM1-0 PIC XXX.
-           02 NM1-1 PIC XXX.
-           02 NM1-SOLO PIC X.
-           02 NM1-NAMEL PIC X(24).
-           02 NM1-NAMEF PIC X(24).
-           02 NM1-NAMEM PIC X.
-           02 NM1-NAMES PIC XXX.
-           02 NM1-EINSS PIC XX.
-           02 NM1-PREFIX PIC XX.
-           02 NM1-CODE PIC X(14).
-           
-       01 TS301.
-          02 TS3-0 PIC XXX.
-          02 TS3-1 PIC X(7).
-          02 TS3-2 PIC XX.
-          02 TS3-3 PIC X(8).
-          02 TS3-4 PIC XXXX.
-          02 TS3-5TOTCLM PIC X(9).
-          02 TS3-6TOTCVR PIC X(9).
-          02 TS3-7TOTNONCVR PIC X(9).
-          02 TS3-8TOTDENY PIC X(9).
-          02 TS3-9TOTPAID PIC X(9).
-          02 TS3-10INTEREST PIC X(9).
-          02 TS3-11TOTCONADJ PIC X(9).
-          02 TS3-12TOTGR PIC X(9).
-          02 TS3-13TOTMSP PIC X(9).
-          02 TS3-14TOTBLOOD PIC X(9).
-          02 TS3-15TOTNONLABCHRG PIC X(9).
-          02 TS3-16TOTCOINS PIC X(9).
-          02 TS3-17TOTHCPCSCHG PIC X(9).
-          02 TS3-18TOTHCPCSPAY PIC X(9).
-          02 TS3-19TOTDEDUCT PIC X(9).
-          02 TS3-20TOTPC PIC X(9).
-          02 TS3-21TOTMSPLIAB PIC X(9).
-          02 TS3-22TOTPATPAY PIC X(9).
-          02 TS3-23TOTPIPCNTR PIC X(9).
-          02 TS3-24TOTPIPPAY PIC X(9).
-
+           COPY "hip5010_835.cpy" IN "C:\Users\sid\cms\copylib".      
+      
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.
            02 FILLER PIC X(21) VALUE SPACE.
@@ -503,6 +371,8 @@
        01  DATE-CC PIC X(8).
        01  SVC-CNTR PIC 99.
        01  CAS-CNTR PIC 99.
+       01  LQ-CNTR PIC 99.
+
        01  SVC-TAB01.
            02 SVC-TAB PIC X(120) OCCURS 64 TIMES.
        01  SVC-DATE01.
@@ -514,6 +384,13 @@
            02 CAS-TAB PIC X(120) OCCURS 64 TIMES.
        01  CAS-SVC01.
            02 CAS-SVC PIC 99 OCCURS 64 TIMES.
+
+        01  LQ-TAB01.
+           02 LQ-TAB PIC X(120) OCCURS 64 TIMES.
+
+       01  LQ-SVC01.
+           02 LQ-SVC PIC 99 OCCURS 64 TIMES.
+
        01  SAVEFILE01 PIC X(120).
        01  CC-PROC1X PIC X(5).
        01  CC-PROC2X PIC XX.
@@ -566,9 +443,9 @@
        01  DELIM PIC X.
        PROCEDURE DIVISION.
        0005-START.
-           OPEN INPUT FILEIN CHARCUR GARFILE MPLRFILE PARMFILE PAYCUR.
+           OPEN INPUT FILEIN CHARCUR GARFILE MPLRFILE PARMFILE PAYCUR
+             caidfile rarcfile.
            OPEN I-O PAYFILE 
-           INPUT CAIDFILE.
            OPEN OUTPUT ERROR-FILE.
            MOVE SPACE TO NAR-KEY01 
            MOVE ALL ZEROES TO NAR-CNTR01
@@ -652,7 +529,8 @@
            MOVE SPACE TO NM101 CLMCAS01.
            MOVE SPACE TO SVC-DATE01
            MOVE 0 TO CAS-CNTR
-           MOVE 0 TO SVC-CNTR.
+           MOVE 0 TO SVC-CNTR
+           move 0 to lq-cntr.
            
        P1-NM1.
            MOVE SPACE TO FILEIN01
@@ -714,9 +592,17 @@
              MOVE SPACE TO DTM01
              UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                DTM-0 DTM-1 DTM-2
-             MOVE DTM-2 TO SVC-DATE(SVC-CNTR).
-             
-           GO TO P1-SVC-LOOP.
+             MOVE DTM-2 TO SVC-DATE(SVC-CNTR)             
+             GO TO P1-SVC-LOOP.
+
+           IF F1 = "LQ*" 
+             ADD 1 TO LQ-CNTR
+             MOVE FILEIN01 TO LQ-TAB(LQ-CNTR)
+             MOVE SVC-CNTR TO LQ-SVC(LQ-CNTR)
+             GO TO P1-SVC-LOOP
+           end-if   
+
+           GO TO P1-SVC-LOOP.  
 
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
@@ -1411,17 +1297,38 @@
              MOVE EF-TAB(30) TO EF3-DENIAL6
              MOVE SPACE TO ERROR-FILE01
              WRITE ERROR-FILE01 FROM ERR301.
+
              IF DENIAL-CNTR > 30
-             MOVE EF-TAB(31) TO EF3-DENIAL1
-             MOVE EF-TAB(32) TO EF3-DENIAL2
-             MOVE EF-TAB(33) TO EF3-DENIAL3
-             MOVE EF-TAB(34) TO EF3-DENIAL4
-             MOVE EF-TAB(35) TO EF3-DENIAL5
-             MOVE EF-TAB(36) TO EF3-DENIAL6
-             MOVE SPACE TO ERROR-FILE01
-             WRITE ERROR-FILE01 FROM ERR301.
+               MOVE EF-TAB(31) TO EF3-DENIAL1
+               MOVE EF-TAB(32) TO EF3-DENIAL2
+               MOVE EF-TAB(33) TO EF3-DENIAL3
+               MOVE EF-TAB(34) TO EF3-DENIAL4
+               MOVE EF-TAB(35) TO EF3-DENIAL5
+               MOVE EF-TAB(36) TO EF3-DENIAL6
+               MOVE SPACE TO ERROR-FILE01
+               WRITE ERROR-FILE01 FROM ERR301.
 
+             PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
+               IF LQ-SVC(Y) = X
+                 MOVE SPACE TO FILEIN01
+                 MOVE LQ-TAB(Y) TO FILEIN01
+                 MOVE SPACE TO LQ01
+                 UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                   LQ-0 LQ-1 LQ-2 
 
+                 IF NOT (LQ-2 = SPACE OR "N807" OR "MA130")
+                   MOVE LQ-2 TO rarc-key
+                   READ rarcfile with lock
+                     invalid
+                       continue
+                   end-read
+                   MOVE SPACE TO ERROR-FILE01
+                   STRING rarc-reason DELIMITED BY size 
+                     INTO ERROR-FILE01
+                   WRITE ERROR-FILE01
+                 end-if
+               end-if
+             END-PERFORM.
 
        NAR-1.
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 216 
@@ -1661,7 +1568,9 @@
              WRITE ERROR-FILE01
             END-IF
            END-PERFORM.
-           CLOSE PAYFILE GARFILE CHARCUR
+
+           CLOSE filein charcur garfile mplrfile parmfile paycur
+             caidfile rarcfile payfile error-file.
            STOP RUN.
 
        P999.

@@ -283,6 +283,12 @@
            02 G-FILLER PIC XXX.
 
        WORKING-STORAGE SECTION.
+
+       01  LQ01.
+           02 LQ-0 PIC XX.
+           02 LQ-1 PIC XX.
+           02 LQ-2 PIC X(5).
+
        01  AMT01.
            02 AMT-0 PIC XXX.
            02 AMT-1 PIC XX.
@@ -870,14 +876,7 @@
                MOVE DTM-2 TO DATE-CC
                GO TO P1-NM1
            END-IF
-
-           IF F1 = "LQ*" 
-             ADD 1 TO LQ-CNTR
-             MOVE FILEIN01 TO LQ-TAB(LQ-CNTR)
-             MOVE SVC-CNTR TO LQ-SVC(LQ-CNTR)
-             GO TO P1-SVC-LOOP
-           end-if  
-
+          
            GO TO P1-NM1.
 
        P1-SVC-LOOP.  
@@ -916,6 +915,13 @@
                MOVE AMOUNT-X TO ALLW-TAB(SVC-CNTR)
                GO TO P1-SVC-LOOP
            END-IF    
+
+           IF F1 = "LQ*" 
+             ADD 1 TO LQ-CNTR
+             MOVE FILEIN01 TO LQ-TAB(LQ-CNTR)
+             MOVE SVC-CNTR TO LQ-SVC(LQ-CNTR)
+             GO TO P1-SVC-LOOP
+           end-if  
 
            IF (F1 = "DTM") AND (F2 = "*150" OR "*472")
                MOVE SPACE TO DTM01

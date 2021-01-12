@@ -109,7 +109,7 @@
             
        WORKING-STORAGE SECTION.
 
-           COPY hip5010.CPY IN "C:\Users\sid\cms\copylib".      
+           COPY "hip5010_835.cpy" IN "C:\Users\sid\cms\copylib".      
 
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.

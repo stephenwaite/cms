@@ -284,6 +284,12 @@
            02 G-SEGRPNAME PIC X(15).
 
        WORKING-STORAGE SECTION.
+
+       01  LQ01.
+           02 LQ-0 PIC XX.
+           02 LQ-1 PIC XX.
+           02 LQ-2 PIC X(5).
+
        01  AMT01.
            02 AMT-0 PIC XXX.
            02 AMT-1 PIC XX.
@@ -586,6 +592,7 @@
            02 CLP-TAB PIC XX OCCURS 64 TIMES.
        01  SVC-TAB01.
            02 SVC-TAB PIC X(120) OCCURS 64 TIMES.
+           
        01  SVC-DATE01.
            02 SVC-DATE PIC X(8) OCCURS 64 TIMES.
        01  FOUND-TAB01.
@@ -856,6 +863,7 @@
            MOVE SPACE TO SVC-DATE01
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR
+           move 0 to LQ-CNTR
            MOVE ALL ZEROES TO ALLW-TAB01.
 
        P1-NM1.
@@ -903,7 +911,8 @@
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    DTM-0 DTM-1 DTM-2 
                MOVE DTM-2 TO DATE-CC
-           END-IF
+               GO TO P1-NM1
+           END-IF          
 
            GO TO P1-NM1.
                
