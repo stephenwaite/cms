@@ -1154,6 +1154,7 @@
                  OR (CAS-1 = "CO" AND CAS-2 = "96   ")
                  OR (CAS-1 = "CO" AND CAS-2 = "55   ")
                  OR (CAS-1 = "PR" AND CAS-2 = "31   ")
+                 OR (CAS-1 = "PR" AND CAS-2 = "96   ")
                     MOVE 1 TO FLAG
                     MOVE CAS-CNTR TO Z
                     GO TO DUMP50-EXIT
