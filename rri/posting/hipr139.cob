@@ -684,6 +684,7 @@
            MOVE 0 TO FIND-CNTR 
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
              BY 1 UNTIL X > SVC-CNTR
+             
            IF FIND-CNTR = SVC-CNTR GO TO P4-SVC-LOOP.
 
        P3-SVC-LOOP.    

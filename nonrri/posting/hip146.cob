@@ -410,20 +410,22 @@
        01  SVC-CNTR PIC 99.
        01  CAS-CNTR PIC 99.
        01  lq-cntr pic 99.
-       01 SVC-TAB01.
-          02 SVC-TAB PIC X(120) OCCURS 32 TIMES.
-       01 SVC-DATE01.
-          02 SVC-DATE PIC X(8) OCCURS 32 TIMES.
 
-       01 FOUND-TAB01.
-          02 FOUND-KEY PIC X(11) OCCURS 32 TIMES.
+       01  SVC-TAB01.
+           02 SVC-TAB PIC X(120) OCCURS 32 TIMES.
+       
+       01  SVC-DATE01.
+           02 SVC-DATE PIC X(8) OCCURS 32 TIMES.
 
-       01 CAS-TAB01.
-          02 CAS-TAB PIC X(120) OCCURS 32 TIMES.
-       01 CAS-SVC01.
-          02 CAS-SVC PIC 99 OCCURS 32 TIMES.
+       01  FOUND-TAB01.
+           02 FOUND-KEY PIC X(11) OCCURS 32 TIMES.
 
-        01  LQ-TAB01.
+       01  CAS-TAB01.
+           02 CAS-TAB PIC X(120) OCCURS 32 TIMES.
+       01  CAS-SVC01.
+           02 CAS-SVC PIC 99 OCCURS 32 TIMES.
+
+        01 LQ-TAB01.
            02 LQ-TAB PIC X(120) OCCURS 32 TIMES.
 
        01  LQ-SVC01.
@@ -597,13 +599,6 @@
              UNSTRING FILEIN01 DELIMITED BY "*" INTO
                DTM-0 DTM-1 DTM-2 
              MOVE DTM-2 TO DATE-CC.
-             GO TO P1-NM1.
-
-           IF F1 = "LQ*" 
-             ADD 1 TO LQ-CNTR
-             MOVE FILEIN01 TO LQ-TAB(LQ-CNTR)
-             MOVE SVC-CNTR TO LQ-SVC(LQ-CNTR)
-             GO TO P1-nm1.           
 
            GO TO P1-nm1.    
 
@@ -632,10 +627,18 @@
            GO TO P1-SVC-LOOP.
            
            IF F1 = "DTM" AND F2 = "*150"
-           MOVE SPACE TO DTM01
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-           DTM-0 DTM-1 DTM-2
-           MOVE DTM-2 TO SVC-DATE(SVC-CNTR).
+             MOVE SPACE TO DTM01
+             UNSTRING FILEIN01 DELIMITED BY "*" INTO 
+               DTM-0 DTM-1 DTM-2
+             MOVE DTM-2 TO SVC-DATE(SVC-CNTR).
+             GO TO P1-SVC-LOOP.
+
+           IF F1 = "LQ*" 
+             ADD 1 TO LQ-CNTR
+             MOVE FILEIN01 TO LQ-TAB(LQ-CNTR)
+             MOVE SVC-CNTR TO LQ-SVC(LQ-CNTR)
+           end-if
+
            GO TO P1-SVC-LOOP.
 
       * VALIDATE INCOMING DATA AGAINST CHARGES
