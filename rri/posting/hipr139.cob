@@ -50,10 +50,7 @@
            SELECT rarcfile ASSIGN TO "S80" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS rarc-key
            LOCK MODE MANUAL.                  
-
-           SELECT MIPSFILE ASSIGN TO "S85" ORGANIZATION
-           LINE SEQUENTIAL.
-
+          
        
        DATA DIVISION.
        
@@ -111,11 +108,7 @@
            02 PD-DATE-T PIC X(8).
            02 PD-DATE-E PIC X(8).
            02 PD-ORDER PIC X(6).
-           02 PD-BATCH PIC X(6).
-
-       FD  MIPSFILE.
-       01  MIPSFILE01 PIC X(132).
-
+           02 PD-BATCH PIC X(6).     
                    
        WORKING-STORAGE SECTION.
 
@@ -345,14 +338,16 @@
        01  SEQ-AMT PIC S9(4)V99.
        01  ANS PIC X.
        01  MIPS-ONLY PIC 9.
+
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN INPUT FILEIN CHARCUR GARFILE MPLRFILE PARMFILE PAYCUR
                       cascodefile rarcfile.
            
            OPEN I-O PAYFILE. 
            
-           OPEN OUTPUT ERROR-FILE ERRORCOR-FILE MIPSFILE.
+           OPEN OUTPUT ERROR-FILE ERRORCOR-FILE.
            
            MOVE SPACE TO ERRORCOR-FILE01
            MOVE "###" TO ERRORCOR-FILE01
@@ -621,6 +616,7 @@
                GO TO P1-SVC-LOOP
              END-IF 
              
+             move 0 to MIPS-ONLY
              ADD 1 TO SVC-CNTR
              MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
              GO TO P1-SVC-LOOP
@@ -1237,7 +1233,7 @@
                MOVE EF-TAB(36) TO EF3-DENIAL6
                MOVE SPACE TO ERROR-FILE01
                WRITE ERROR-FILE01 FROM ERR301
-           END-IF.    
+           END-IF.               
 
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
              IF LQ-SVC(Y) = X               
@@ -1246,9 +1242,7 @@
                MOVE SPACE TO LQ01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                  LQ-0 LQ-1 LQ-2 
-
-               IF NOT (LQ-2 = SPACE OR "N807" OR "MA130" OR "N620"
-                 OR "N535")
+               IF NOT (LQ-2 = SPACE OR "N807" OR "MA130" or "N620")
                  MOVE LQ-2 TO rarc-key
                  READ rarcfile with lock
                    invalid
@@ -1257,27 +1251,6 @@
                  MOVE SPACE TO ERROR-FILE01
                  STRING rarc-reason DELIMITED BY size INTO ERROR-FILE01
                  WRITE ERROR-FILE01
-               end-if
-             end-if               
-           END-PERFORM
-
-           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
-             IF LQ-SVC(Y) = X               
-               MOVE SPACE TO FILEIN01
-               MOVE LQ-TAB(Y) TO FILEIN01
-               MOVE SPACE TO LQ01
-               UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                 LQ-0 LQ-1 LQ-2 
-               IF LQ-2 = "N620"
-                 MOVE LQ-2 TO rarc-key
-                 READ rarcfile with lock
-                   invalid
-                     continue
-                 end-read
-                 MOVE SPACE TO MIPSFILE01
-                 STRING rarc-reason " " filein01 
-                   DELIMITED BY size INTO MIPSFILE01
-                 WRITE MIPSFILE01
                end-if   
              end-if                  
            end-perform.     
@@ -1474,9 +1447,9 @@
              WRITE ERROR-FILE01
             END-IF
            END-PERFORM.
+           
            CLOSE PAYFILE GARFILE CHARCUR ERROR-FILE ERRORCOR-FILE 
-             cascodefile rarcfile parmfile filein paycur mplrfile
-             MIPSFILE.
+             cascodefile rarcfile parmfile filein paycur mplrfile.
 
            STOP RUN.
       
