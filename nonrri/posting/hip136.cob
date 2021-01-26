@@ -974,6 +974,7 @@
 
                IF (CAS-2 = "50" OR "109" OR "167" OR "B13")
                  OR (CAS-1 = "PI" AND CAS-2 = "97   ")
+                 OR (CAS-1 = "PI" AND CAS-2 = "204  ")
                  OR (CAS-1 = "CO" AND CAS-2 = "97   ")
                  OR (CAS-1 = "CO" AND CAS-2 = "197  ")
                  OR (CAS-1 = "CO" AND CAS-2 = "4    ")
