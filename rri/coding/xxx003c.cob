@@ -760,7 +760,8 @@
            IF IN-FIELD-7 = "B"
                DISPLAY FO-KEY " HAS BEEN SKIPPED"
                DISPLAY "PLEASE RECORD THIS FACT"
-               MOVE SPACE TO HOLD-DIAG    
+               MOVE SPACE TO HOLD-DIAG  
+               MOVE "0000000" TO HOLD7  
                GO TO P1
            END-IF    
            

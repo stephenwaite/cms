@@ -70,65 +70,20 @@
            02 rarc-key pic x(8).
            02 rarc-reason pic x(112).   
 
-       FD  INSFILE
-           DATA RECORD IS INSFILE01.
-       01  INSFILE01.
-           02 INS-KEY PIC XXX.
-           02 INS-NAME PIC X(22).
-           02 INS-STREET PIC X(24).
-           02 INS-CITY PIC X(15).
-           02 INS-STATE PIC XX.
-           02 INS-ZIP PIC X(9).
-           02 INS-ASSIGN PIC X.
-           02 INS-CLAIMTYPE PIC X.
-           02 INS-NEIC PIC X(5).
-           02 INS-NEICLEVEL PIC X.
-           02 INS-NEIC-ASSIGN PIC X.
-           02 INS-PPO PIC X.
-           02 INS-PRVNUM PIC X(10).
-           02 INS-HMO PIC X(3).
-           02 INS-STATUS PIC X.
-           02 INS-LEVEL PIC X.
-           02 INS-LASTDATE PIC X(8).
-           02 INS-CAID PIC XXX.
-           02 INS-REFWARN PIC X.
-           02 INS-FUTURE PIC X(8).
-       
+       FD  INSFILE.
+           COPY INSFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+
        FD  MPLRFILE.
-       01  MPLRFILE01.
-           02 MPLR-KEY PIC X(8). 
-           02 MPLR-NAME PIC X(22).
-           02 MPLR-STREET PIC X(24).
-           02 MPLR-CITY PIC X(15).
-           02 MPLR-STATE PIC XX.
-           02 MPLR-ZIP PIC X(9).
-           02 MPLR-CLAIMNO PIC X(15).
-           02 MPLR-TRINS PIC XXX.
-           02 MPLR-TR-ASSIGN PIC X.
-           02 MPLR-TR-GROUP PIC X(10).
-           02 MPLR-TRIPOL0. 
-              03 MPLR-TRIPOL PIC X(9).
-              03 MPLR-TR-FILLER PIC X(7).
-           02 MPLR-TR-NAME PIC X(24).
-           02 MPLR-TR-RELATE PIC X.
-           02 MPLR-FUTURE PIC X(6).
+           COPY MPLRFILE.CPY IN "C:\Users\sid\cms\copylib\rri".           
+
        FD  CAIDFILE.
        01  CAIDFILE01.
            02 CAID-KEY PIC XXX.
            02 CAID-REASON PIC X(70).
-       FD  PAYCUR
-           DATA RECORD IS PAYCUR01.
-       01  PAYCUR01.
-           02 PAYCUR-KEY.
-             03 PC-KEY8 PIC X(8).
-             03 PC-KEY3 PIC XXX.
-           02 PC-AMOUNT PIC S9(4)V99.
-           02 PC-PAYCODE PIC XXX.
-           02 PC-DENIAL PIC XX.
-           02 PC-CLAIM PIC X(6).
-           02 PC-DATE-T PIC X(8).
-           02 PC-DATE-E PIC X(8).
-           02 PC-BATCH PIC X(6).
+
+       FD  PAYCUR.
+           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+      
        FD  PARMFILE.
        01  PARMFILE01.
            02 PF-1 PIC X(9).
@@ -136,10 +91,10 @@
            02 PARMCODE PIC XXX.
            02 PF-3 PIC X(27).
 
-       FD ERROR-FILE.
-       01 ERROR-FILE01 PIC X(150).
+       FD  ERROR-FILE.
+       01  ERROR-FILE01 PIC X(150).
 
-       FD FILEIN.
+       FD  FILEIN.
        01  FILEIN01.
            02 F0.
              03 F1 PIC XXX.
@@ -148,21 +103,8 @@
                 04 FILLER PIC X.
            02 F3 PIC X(113).
 
-       FD  PAYFILE
-           DATA RECORD IS PAYFILE01.
-       01  PAYFILE01.
-           02 PAYFILE-KEY.
-             03 PD-KEY8 PIC X(8).
-             03 PD-KEY3 PIC XXX.
-           02 PD-NAME PIC X(24).
-           02 PD-AMOUNT PIC S9(4)V99.
-           02 PD-PAYCODE PIC XXX.
-           02 PD-DENIAL PIC XX.
-           02 PD-CLAIM PIC X(6).
-           02 PD-DATE-T PIC X(8).
-           02 PD-DATE-E PIC X(8).
-           02 PD-ORDER PIC X(6).
-           02 PD-BATCH PIC X(6).
+       FD  PAYFILE.
+           COPY payfile.CPY IN "C:\Users\sid\cms\copylib".      
 
        FD  TRNPAYFILE
            DATA RECORD IS TRNPAYFILE01.
@@ -182,270 +124,16 @@
            02 TRN-BATCH PIC X(6).
            02 TRN-CHKNO PIC X(30).
 
-       FD  CHARCUR
-           DATA RECORD IS CHARCUR01.
-       01  CHARCUR01.
-           02 CHARCUR-KEY.
-             03 CC-KEY8 PIC X(8).
-             03 CC-KEY3 PIC XXX.
-           02 CC-PATID PIC X(8).
-           02 CC-CLAIM PIC X(6).
-           02 CC-SERVICE PIC X.
-           02 CC-DIAG PIC X(7).
-           02 CC-PROC. 
-              03 CC-PROC0 PIC X(4).
-              03 CC-PROC1 PIC X(5).
-              03 CC-PROC2 PIC XX.
-           02 CC-MOD2 PIC XX.
-           02 CC-MOD3 PIC XX.
-           02 CC-MOD4 PIC XX.
-           02 CC-AMOUNT PIC S9(4)V99.
-           02 CC-DOCR PIC X(3).
-           02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC XXX.
-           02 CC-STUD PIC X.
-           02 CC-WORK PIC XX.
-           02 CC-DAT1 PIC X(8).
-           02 CC-RESULT PIC X.
-           02 CC-ACT PIC X.
-           02 CC-SORCREF PIC X.
-           02 CC-COLLT PIC X.
-           02 CC-AUTH PIC X.
-           02 CC-PAPER PIC X.
-           02 CC-PLACE PIC X.
-           02 CC-EPSDT PIC X.
-           02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A PIC X(8).
-           02 CC-DATE-P PIC X(8).
-           02 CC-REC-STAT PIC X.
-           02 CC-DX2 PIC X(7).
-           02 CC-DX3 PIC X(7).
-           02 CC-ACC-TYPE PIC X.
-           02 CC-DATE-M PIC X(8).
-           02 CC-ASSIGN PIC X.
-           02 CC-NEIC-ASSIGN PIC X.
-           02 CC-DX4 PIC X(7).
-           02 CC-DX5 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
+       FD  CHARCUR.
+           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
 
-       FD GARFILE
-           DATA RECORD IS G-MASTER.
-       01 G-MASTER.
-           02 G-GARNO.
-             03 ID1 PIC XXX.
-             03 ID2 PIC XXX.
-             03 ID3 PIC XX.
-           02 G-GARNAME PIC X(24).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-TRINSIND PIC X.
-           02 G-TRINS PIC XXX.
-           02 G-PR-GROUP PIC X(10).
-           02 G-PRIPOL0.
-             03 G-PRIPOL PIC X(9).
-             03 G-PR-SUFX PIC XXX.
-             03 G-PR-FILLER PIC X(4).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-SE-OFFICE PIC X(4).
-           02 G-SE-GROUP PIC X(10).
-           02 G-SECPOL0. 
-              03 G-SECPOL PIC X(9).
-              03 G-SE-FILLER PIC X(7).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-INSPEND PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
+       FD GARFILE.
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".       
 
        WORKING-STORAGE SECTION.
 
-       01  LQ01.
-           02 LQ-0 PIC XX.
-           02 LQ-1 PIC XX.
-           02 LQ-2 PIC X(5).
-
-       01  AMT01.
-           02 AMT-0 PIC XXX.
-           02 AMT-1 PIC XX.
-           02 AMT-2 PIC X(9).
-           02 AMT-3 PIC X.
-       01  BPR01.
-           02 BPR-0 PIC XXX.
-           02 BPR-1 PIC XX.
-           02 BPR-2 PIC X(9).
-           02 BPR-3 PIC X.
-           02 BPR-4 PIC XXX.
-           02 BPR-5 PIC X(10).
-           02 BPR-6 PIC XX.
-           02 BPR-7 PIC X(12).
-           02 BPR-8 PIC XXX.
-           02 BPR-9 PIC X(35).
-           02 BPR-10 PIC X(10).
-           02 BPR-11 PIC X(9).
-           02 BPR-12 PIC XX.
-           02 BPR-13 PIC X(12).
-           02 BPR-14 PIC XXX.
-           02 BPR-15 PIC X(35).
-           02 BPR-16 PIC X(8).
-       01  TRN01.
-           02 TRN-0 PIC XXX.
-           02 TRN-1 PIC X.
-           02 TRN-2 PIC X(30).
-       01  N101.
-           02 N1-0 PIC XX. 
-           02 N1-1 PIC XX. 
-           02 N1-2 PIC X(30). 
-           02 N1-3 PIC XX.
-           02 N1-ID PIC X(10).
-       01  N301.
-           02 N3-0 PIC XX.
-           02 N3-STREET PIC X(11).
-           02 N3-STREET2 PIC X(11).
-       01  CAS01.
-           02 CAS-0 PIC XXX.
-           02 CAS-1 PIC XX.
-           02 CAS-2 PIC X(5).
-           02 CAS-3 PIC X(8).
-           02 CAS-4 PIC XX.
-           02 CAS-5 PIC X(5).
-           02 CAS-6 PIC X(8).
-           02 CAS-7 PIC XX.
-           02 CAS-8 PIC X(5).
-           02 CAS-9 PIC X(8).
-           02 CAS-10 PIC XX.
-           02 CAS-11 PIC X(5).
-           02 CAS-12 PIC X(8).
-           02 CAS-13 PIC XX.
-           02 CAS-14 PIC X(5).
-           02 CAS-15 PIC X(8).
-           02 CAS-16 PIC XX.
-           02 CAS-17 PIC X(5).
-           02 CAS-18 PIC X(8).
-           02 CAS-19 PIC XX.
-       01  CLMCAS01.
-           02 CLMCAS-0 PIC XXX.
-           02 CLMCAS-1 PIC XX.
-           02 CLMCAS-2 PIC X(5).
-           02 CLMCAS-3 PIC X(8).
-           02 CLMCAS-4 PIC XX.
-           02 CLMCAS-5 PIC X(5).
-           02 CLMCAS-6 PIC X(8).
-           02 CLMCAS-7 PIC XX.
-           02 CLMCAS-8 PIC X(5).
-           02 CLMCAS-9 PIC X(8).
-           02 CLMCAS-10 PIC XX.
-           02 CLMCAS-11 PIC X(5).
-           02 CLMCAS-12 PIC X(8).
-           02 CLMCAS-13 PIC XX.
-           02 CLMCAS-14 PIC X(5).
-           02 CLMCAS-15 PIC X(8).
-           02 CLMCAS-16 PIC XX.
-           02 CLMCAS-17 PIC X(5).
-           02 CLMCAS-18 PIC X(8).
-           02 CLMCAS-19 PIC XX. 
-
-       01  CLP01.
-           02 CLP-0 PIC XXX.
-           02 CLP-1 PIC X(14).
-           02 CLP-2CLMSTAT PIC XX.
-           02 CLP-3TOTCLMCHG PIC X(8).
-           02 CLP-4TOTCLMPAY PIC X(8).
-           02 CLP-5PATRESP PIC X(8).
-           02 CLP-6PLANCODE PIC XX.
-           02 CLP-7ICN PIC X(30).
-           02 CLP-8FACILITY PIC XX.
-           02 CLP-9FREQ PIC X.
-           02 CLP-10PATSTAT PIC X(4).
-           02 CLP-11DRG PIC X.
-           02 CLP-12QUAN PIC XXX.
-           02 CLP-13PERCENT PIC XXX.
-           
-       01  DTM01.
-           02 DTM-0 PIC XXX.
-           02 DTM-1 PIC XXX.
-           02 DTM-2 PIC X(8).
-           
-       01  REF01.
-           02 REF-0 PIC XXX.
-           02 REF-1 PIC XXX.
-           02 REF-2 PIC X(30).
-          
-       01  SVC01.
-           02 SVC-0 PIC XXX.
-           02 SVC-1PROCMOD PIC X(17).
-           02 SVC-2CHRGAMT PIC X(8).
-           02 SVC-3PAYAMT  PIC X(8).
-           02 SVC-4NUBC PIC XXX.
-           02 SVC-5QUAN PIC X(5).
-           02 SVC-6COMPOSITE PIC X(80).
-           02 SVC-7QUAN PIC X(5).
-           
-       01  NM101.
-           02 NM1-0 PIC XXX.
-           02 NM1-1 PIC XXX.
-           02 NM1-SOLO PIC X.
-           02 NM1-NAMEL PIC X(24).
-           02 NM1-NAMEF PIC X(24).
-           02 NM1-NAMEM PIC X.
-           02 NM1-NAMES PIC XXX.
-           02 NM1-EINSS PIC XX.
-           02 NM1-PREFIX PIC XX.
-           02 NM1-CODE0. 
-              03 NM1-CODE PIC X(9).
-              03 NM1-CODE2 PIC XX.
-       01  TS301.
-           02 TS3-0 PIC XXX.
-           02 TS3-1 PIC X(7).
-           02 TS3-2 PIC XX.
-           02 TS3-3 PIC X(8).
-           02 TS3-4 PIC XXXX.
-           02 TS3-5TOTCLM PIC X(9).
-           02 TS3-6TOTCVR PIC X(9).
-           02 TS3-7TOTNONCVR PIC X(9).
-           02 TS3-8TOTDENY PIC X(9).
-           02 TS3-9TOTPAID PIC X(9).
-           02 TS3-10INTEREST PIC X(9).
-           02 TS3-11TOTCONADJ PIC X(9).
-           02 TS3-12TOTGR PIC X(9).
-           02 TS3-13TOTMSP PIC X(9).
-           02 TS3-14TOTBLOOD PIC X(9).
-           02 TS3-15TOTNONLABCHRG PIC X(9).
-           02 TS3-16TOTCOINS PIC X(9).
-           02 TS3-17TOTHCPCSCHG PIC X(9).
-           02 TS3-18TOTHCPCSPAY PIC X(9).
-           02 TS3-19TOTDEDUCT PIC X(9).
-           02 TS3-20TOTPC PIC X(9).
-           02 TS3-21TOTMSPLIAB PIC X(9).
-           02 TS3-22TOTPATPAY PIC X(9).
-           02 TS3-23TOTPIPCNTR PIC X(9).
-           02 TS3-24TOTPIPPAY PIC X(9).
-
+       COPY "HIP5010_835.CPY" IN "C:\Users\sid\cms\copylib".
+      
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.
            02 FILLER PIC X(21) VALUE SPACE.
@@ -676,7 +364,7 @@
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE
-                      PAYCUR CAIDFILE rarcfile.
+             PAYCUR CAIDFILE rarcfile.
            OPEN I-O PAYFILE 
            OPEN OUTPUT TRNPAYFILE ERROR-FILE.
            MOVE SPACE TO NAR-KEY01 
@@ -806,6 +494,7 @@
            IF (PERM-ID NOT = ID-NPI1)
                AND (PERM-ID NOT = ID-NPI)
                AND (REF-2 NOT =  PF-1)
+               AND (PERM-ID NOT = PF-1)
                MOVE 1 TO PROV-FLAG
            END-IF
 
@@ -931,7 +620,6 @@
 
        P1-SVC-LOOP-0.               
            IF F1 = "SVC" 
-
              iF FILEIN01(12:1) = "F"
                GO TO P1-SVC-LOOP
              END-IF
@@ -1430,9 +1118,11 @@
            STRING NM1-NAMEL ";" NM1-NAMEF 
            DELIMITED BY "  " INTO EF1
            MOVE NM1-CODE0 TO EF2
+
            IF NOT-FLAG = 1
             MOVE "?NOT YOURS?" TO EF2
            END-IF
+
            IF NOT-FLAG = 2
             MOVE "PAIN OTHER?" TO EF2
            END-IF
@@ -1444,20 +1134,26 @@
            MOVE SPACE TO ALF8
            MOVE CLP-3TOTCLMCHG TO ALF8
            MOVE SPACE TO EFSIGN
+
            IF ALF8-1 = "-"
            MOVE "-" TO EFSIGN
            END-IF
+
            PERFORM AMOUNT-1
            MOVE AMOUNT-X TO EF5
            MOVE SPACE TO ALF8
            MOVE CLP-4TOTCLMPAY TO ALF8 
+
            IF ALF8-1 = "-"
            MOVE "-" TO EFSIGN
            END-IF
+
            PERFORM AMOUNT-1
+
            IF EFSIGN NOT = "-"
            ADD AMOUNT-X TO TOT-PAY
            END-IF
+
            MOVE AMOUNT-X TO EF6
            MOVE CLP-7ICN TO EF7
            MOVE CLP-2CLMSTAT TO EF8
@@ -1470,6 +1166,7 @@
            MOVE CLMCAS-17 TO EF-DENIAL6
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
+           
            IF CLMCAS-2 NOT = SPACE
             MOVE CLMCAS-2 TO ALF3
             PERFORM NAR-1.
