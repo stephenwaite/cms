@@ -11,37 +11,33 @@
        CONFIGURATION SECTION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT PROCFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS PROC-KEY.
-           SELECT MEDFILE2013 ASSIGN TO "S35" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS MED-KEY
-           LOCK MODE MANUAL.
+             ACCESS MODE IS DYNAMIC RECORD KEY IS PROC-KEY.
+           
+           SELECT medfile ASSIGN TO "S35" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS MED-KEY
+             LOCK MODE MANUAL.
+           
            SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION
            LINE SEQUENTIAL.
 
        DATA DIVISION.
        FILE SECTION.
-       FD MEDFILE2013.
-       01 MEDFILE201301.
+       
+       FD  medfile.
+       01  medfile01.
            02 MED-KEY.
              03 MED-KEY1 PIC X(5).
              03 MED-KEY2 PIC XX.
            02 MED-AMOUNT PIC 9(4)V99.
-       FD PROCFILE
-           DATA RECORD PROCFILE01.
-       01 PROCFILE01.
-           02 PROC-KEY. 
-              03 PROC-KEY1 PIC X(5).
-              03 PROC-KEY2 PIC XX.
-           02 PROC-OLD PIC X(7).
-           02 PROC-TYPE PIC X.
-           02 PROC-BCBS PIC X(4).
-           02 PROC-TITLE PIC X(28).
-           02 PROC-AMOUNT PIC 9(4)V99.
-           02 CARE-AMOUNT PIC 9(4)V99.
+
+       FD  PROCFILE.
+           COPY procfile.CPY IN "C:\Users\sid\cms\copylib".
        
-       FD FILEOUT.
+       FD  FILEOUT.
        01  FILEOUT01 PIC X(80).
+
        WORKING-STORAGE SECTION.
        01  DISPLAY-DATE.
            02 T-MM PIC XX.
@@ -52,17 +48,31 @@
            02 T-YY PIC XX.
        
        PROCEDURE DIVISION.
-       P0. OPEN INPUT MEDFILE2013 I-O PROCFILE.
+
+       P0. 
+           OPEN INPUT medfile 
+           open I-O PROCFILE.
            OPEN OUTPUT FILEOUT.
-       P1. READ PROCFILE NEXT WITH LOCK AT END GO TO P99.
+
+       P1. 
+           READ PROCFILE NEXT WITH LOCK 
+             AT END 
+               GO TO P99.
+
            IF PROC-AMOUNT = 0 GO TO P1.
+
            MOVE PROC-KEY TO MED-KEY
            MOVE SPACE TO MED-KEY2
-           READ MEDFILE2013 INVALID
-           WRITE FILEOUT01 FROM PROCFILE01
-           GO TO P1.
+
+           READ medfile 
+             INVALID
+               WRITE FILEOUT01 FROM PROCFILE01
+               GO TO P1.
+
            COMPUTE CARE-AMOUNT = MED-AMOUNT
            REWRITE PROCFILE01
            GO TO P1.
-       P99. CLOSE PROCFILE FILEOUT. 
+
+       P99. 
+           CLOSE medfile PROCFILE FILEOUT. 
            STOP RUN.
