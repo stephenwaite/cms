@@ -1667,6 +1667,7 @@
                WRITE ERRFILE01
              end-if
            end-if
+
            
            IF (REF = "G0A" OR "H27" OR "J06" OR "R1D" OR "G4U"
                     OR "D55" OR "B1T" OR "B51" OR "R2A" OR "L4Q"
@@ -1682,6 +1683,13 @@
                " IS ED" DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
            END-IF
+
+           IF (C-IOPAT = "3") AND (C-DATE-ADMIT = space)
+               MOVE SPACE TO ERRFILE01
+               STRING A-GARNAME " WAS SENT AS INPT BUT NO ADMIT DATE!"                 
+                  DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+           end-if
            
            MOVE REF TO C-REF.
            MOVE R3-PROC TO C-PROC

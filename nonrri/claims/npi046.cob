@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI038.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. npi046.
+       AUTHOR. SWAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -297,7 +297,9 @@
        P0. READ FILEIN AT END GO TO P6.
            MOVE FILEIN01 TO CC-PAYCODE
            START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P0.
-       P1. READ CHARCUR NEXT WITH LOCK AT END GO TO P0.
+
+       P1. 
+           READ CHARCUR NEXT WITH LOCK AT END GO TO P0.
            IF CC-PAYCODE NOT = FILEIN01 GO TO P0.
            IF CC-PROC < "00100  "
            OR CC-CLAIM = "999995"
@@ -359,6 +361,7 @@
               ELSE PERFORM PAPER-1 GO TO P1
              END-IF
            END-IF.
+           
        TEST-IT.
            IF CC-DIAG = "0000000" MOVE "NO DIAG" TO EF2 PERFORM S1
            GO TO P1.

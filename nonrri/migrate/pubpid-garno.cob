@@ -4,74 +4,45 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. die038.
+       PROGRAM-ID. pubpid-garno.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
+
        FILE-CONTROL.
 
            SELECT FILEIN ASSIGN TO "S30" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT ERRFILE ASSIGN TO "S40" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT GARFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
              ACCESS IS DYNAMIC RECORD KEY IS G-GARNO
              LOCK MODE MANUAL.
+
            SELECT ERRFILE2 ASSIGN TO "S50" ORGANIZATION
            LINE SEQUENTIAL.
+
        DATA DIVISION.
        FILE SECTION.
+
        FD  ERRFILE.
        01  ERRFILE01 PIC X(90).
+
        FD  ERRFILE2.
        01  ERRFILE201 PIC X(90).
-       FD  GARFILE.
-       01  G-MASTER.
-           02 G-GARNO PIC X(8).
-           02 G-GARNAME PIC X(24).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(10).
-           02 G-PRIPOL PIC X(16).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-TRINSIND PIC X.
-           02 G-TRINS PIC XXX.
-           02 G-SE-GROUP PIC X(10).
-           02 G-SECPOL PIC X(16).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-COPAY PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-       
+      
+       Fd  garfile.
+           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".
+      
        FD  FILEIN.
        01  F01 PIC X(90).
+
        FD  FILEOUT.
        01  FILEOUT01 pic x(90).
 
@@ -94,69 +65,73 @@
 
        P0.
            OPEN OUTPUT FILEOUT ERRFILE ERRFILE2.
-           OPEN INPUT FILEIN GARFILE.
-           READ FILEIN AT END GO TO P99.
-       P0-1.    
-
-           MOVE SPACE TO F-DATEHLD
-           MOVE SPACE TO LNAMEHLD
-           MOVE SPACE TO FNAMEHLD 
-           MOVE SPACE TO F-DOBHLD 
-           MOVE SPACE TO F-SEXHLD
-           MOVE SPACE TO F-MRHLD.
-           UNSTRING F01 DELIMITED BY "," INTO
-            F-DATEHLD LNAMEHLD FNAMEHLD F-DOBHLD F-SEXHLD F-MRHLD
-           MOVE F01 TO ERRFILE01.
+           OPEN INPUT FILEIN GARFILE.                  
             
        P1.
-           READ FILEIN AT END 
-             PERFORM P2 THRU P2-EXIT
-             GO TO P99
+           READ FILEIN 
+             AT END 
+               PERFORM P2 THRU P2-EXIT
+               GO TO P99
            END-READ.  
+
            MOVE SPACE TO F-DATE LNAME FNAME F-DOB F-SEX F-MR.
+
            UNSTRING F01 DELIMITED BY "," INTO
-            F-DATE LNAME FNAME F-DOB F-SEX F-MR
-           IF F-MR = F-MRHLD GO TO P1.
+             F-DATE LNAME FNAME F-DOB F-SEX F-MR
+
+      *     DISPLAY "LNAME " LNAME " FNAME " FNAME " DOB " F-DOB
+      *       " SEX " F-SEX " MR " F-MR
+      *     ACCEPT omitted    
+                      
            PERFORM P2 THRU P2-EXIT
-           GO TO P0-1.
+
+           GO TO P1.
+
        P2.
            MOVE SPACE TO G-GARNO       
-           MOVE LNAMEHLD(1:3) TO G-GARNO(1:3)
+           MOVE LNAME(1:3) TO G-GARNO(1:3)
+
            START GARFILE KEY NOT < G-GARNO
-            INVALID PERFORM E1
-            GO TO P2-EXIT
+             INVALID 
+               PERFORM E1
+               GO TO P2-EXIT
            END-START. 
            
-        P3.
-           READ GARFILE NEXT AT END 
-              PERFORM E1 
-              GO TO P2-EXIT
+       P3.
+           READ GARFILE NEXT 
+             AT END 
+               PERFORM E1 
+               GO TO P2-EXIT
            END-READ.
+
       *     DISPLAY G-GARNO.
       *     ACCEPT OMITTED.
-           IF G-GARNO(1:3) > LNAMEHLD(1:3)
+
+           IF G-GARNO(1:3) > LNAME(1:3)
                PERFORM E1
                GO TO P2-EXIT
            END-IF
+
            MOVE SPACE TO TESTDOB
-           STRING F-DOBHLD(1:4) F-DOBHLD(6:2) F-DOBHLD(9:2) DELIMITED
+           
+           STRING F-DOB(1:4) F-DOB(6:2) F-DOB(9:2) DELIMITED
                BY SIZE INTO TESTDOB
-           MOVE SPACE TO LNAME FNAME           
-           UNSTRING G-GARNAME DELIMITED BY ";" INTO LNAME FNAME
+               
+           MOVE SPACE TO LNAMEHLD FNAMEHLD
+
+           UNSTRING G-GARNAME DELIMITED BY ";" INTO LNAMEHLD FNAMEHLD
+           
            IF (LNAMEHLD(1:3) = LNAME(1:3))
-              AND
-               (FNAMEHLD(1:3) = FNAME(1:3))
-              AND
-              (F-SEXHLD(1:1) = G-SEX)
-              AND 
-              (TESTDOB = G-DOB)
+             AND (FNAMEHLD(1:3) = FNAME(1:3))
+             AND (F-SEX(1:1) = G-SEX)
+             AND (TESTDOB = G-DOB)
              MOVE SPACE TO FILEOUT01
-             STRING  F-MRHLD(1:5) G-GARNO " " LNAMEHLD " " FNAMEHLD
-             " " G-GARNAME DELIMITED BY SIZE
-               INTO FILEOUT01
+             STRING  F-MR(1:5) G-GARNO " " LNAMEHLD " " FNAMEHLD
+               " " G-GARNAME DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01
              GO TO P2-EXIT
-           END-IF           
+           END-IF 
+
            IF (LNAMEHLD(1:3) = LNAME(1:3))
               AND
                (FNAMEHLD(1:3) = FNAME(1:3))
@@ -165,19 +140,24 @@
               PERFORM E2
               GO TO P2-EXIT
            END-IF         
+
            GO TO P3. 
 
        P2-EXIT.
            EXIT.       
+
        E1.
       *    DISPLAY "G-GARNO " G-GARNO " IS GREATER THAN LNAMEHLD "
       *         LNAMEHLD " " FNAMEHLD " " F-DOBHLD " " F-SEXHLD " "
       *         F-MRHLD
       *         ACCEPT OMITTED
+           MOVE F01 TO ERRFILE01
            WRITE ERRFILE01.   
+
        E2.
-           MOVE ERRFILE01 TO ERRFILE201
+           MOVE F01 TO ERRFILE201
            WRITE ERRFILE201.    
+
         P99.
            WRITE FILEOUT01
            CLOSE FILEOUT ERRFILE GARFILE ERRFILE2

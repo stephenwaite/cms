@@ -23,6 +23,11 @@
            02 BPR-15 PIC X(35).
            02 BPR-16 PIC X(8).
 
+       01  TRN01.
+           02 TRN-0 PIC XXX.
+           02 TRN-1 PIC X.
+           02 TRN-2 PIC X(30).
+
        01  CAS01.
            02 CAS-0 PIC XXX.
            02 CAS-1 PIC XX.
@@ -108,7 +113,7 @@
            02 N1-1 PIC XX.
            02 N1-2 PIC X(20).
            02 N1-3 PIC XX.
-           02 N1-4 PIC X(10).
+           02 N1-ID PIC X(10).
 
        01  NM101.
            02 NM1-0 PIC XXX.
@@ -120,7 +125,10 @@
            02 NM1-NAMES PIC XXX.
            02 NM1-EINSS PIC XX.
            02 NM1-PREFIX PIC XX.
-           02 NM1-CODE PIC X(16).
+           02 NM1-CODE0.
+             03 NM1-CODE PIC X(9).
+             03 NM1-CODE2 PIC XX.
+
 
        01  NM1COR01.
            02 NM1COR-0 PIC XXX.

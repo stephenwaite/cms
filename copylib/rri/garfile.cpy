@@ -1,5 +1,8 @@
        01  GARFILE01.
-           02 G-GARNO PIC X(8).
+           02 G-GARNO.
+             03 ID1 PIC XXX.
+             03 ID2 PIC XXX.
+             03 ID3 PIC XX.
            02 G-GARNAME PIC X(24).
            02 G-BILLADD PIC X(22).
            02 G-STREET PIC X(22).
