@@ -371,7 +371,7 @@
            IF IND-X = "9"
                MOVE SPACE TO FILEOUT01
                STRING KEY-TAB(A) " " KEY-TAB(Z) " "
-                   "CCI DOES NOT APPLY PER NCCI (9)."
+                 "CCI DOES NOT APPLY PER NCCI (9), WAS PREV DELETED."
                    DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01        
                GO TO P19-EXIT

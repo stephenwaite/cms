@@ -4,17 +4,21 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. TWO001.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. cci000.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
+
        FILE-CONTROL.
+
            SELECT CCIFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS CCI-KEY
            LOCK MODE MANUAL.
+
            SELECT FILEIN ASSIGN TO "S35" ORGANIZATION IS
            LINE SEQUENTIAL.
+           
        DATA DIVISION.
        FILE SECTION.
        FD  FILEIN.
