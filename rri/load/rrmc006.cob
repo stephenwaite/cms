@@ -1653,19 +1653,25 @@
            MOVE DATE-X TO C-DATE-E
            MOVE SPACE TO C-DATE-ADMIT
            STRING R1-ADMITYY R1-ADMITMM R1-ADMITDD DELIMITED
-           BY SIZE INTO C-DATE-ADMIT.
+             BY SIZE INTO C-DATE-ADMIT.
 
            MOVE "5" TO C-IOPAT
            
            IF R3-PLACE = "EMER" MOVE "E" TO C-IOPAT.
            
            IF R3-PLACE = "INPT" 
-             MOVE "3" TO C-IOPAT             
-           end-if                 
+             MOVE "3" TO C-IOPAT
+             IF C-DATE-ADMIT = SPACE
+               STRING A-GARNAME " WAS SENT AS INPT WITH NO ADMIT DATE"
+                 DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+             end-if
+           end-if
+
            
            IF (REF = "G0A" OR "H27" OR "J06" OR "R1D" OR "G4U"
-                    OR "D55" OR "B1T" OR "B51" OR "R2A"
-                    OR "F34" OR "G36" OR "H1B" OR "M6A"
+                    OR "D55" OR "B1T" OR "B51" OR "R2A" OR "L4Q"
+                    OR "F34" OR "G36" OR "H1B" OR "M6A" OR "V1I"
                     OR "S7O" OR "S91" OR "S1O" OR "T0E" OR "T21"
                     OR "T0G" OR "V12" OR "W2I" OR "Z0I")
                  MOVE "E" TO C-IOPAT
