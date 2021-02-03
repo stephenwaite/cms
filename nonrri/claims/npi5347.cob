@@ -1301,28 +1301,39 @@
            GO TO P1.
   
        P2.  
-            MOVE FILEIN01 TO SAVE01
-            PERFORM 2300CLM 
-            PERFORM HI-DIAG THRU HI-DIAG-EXIT
-            PERFORM 2310A THRU 2310A-EXIT.
-            IF EINSS-TYPE NOT = "S"
-            PERFORM 2310B.
-            PERFORM 2320A THRU 2320A-EXIT
-            MOVE 0 TO CAS-TOT-REDUCE 
-            MOVE 0 TO CAS-TOT-CHARGE
-            MOVE 0 TO CAS-TOT-ALLOWED
-            MOVE 0 TO CAS-TOT-PAID
-            MOVE 0 TO TOT-BAL
-            PERFORM CAS-TOT THRU CAS-TOT-EXIT
-              VARYING X FROM 1 BY 1 UNTIL X > CNTR
-            PERFORM 2320S THRU 2320S-EXIT
-            PERFORM 2400SRV THRU 2400SRV-EXIT
+           MOVE FILEIN01 TO SAVE01
+           PERFORM 2300CLM 
+           PERFORM HI-DIAG THRU HI-DIAG-EXIT
+           PERFORM 2310A THRU 2310A-EXIT.
+           
+           IF EINSS-TYPE NOT = "S"
+             PERFORM 2310B.
+           
+           PERFORM 2310D 
+
+           PERFORM 2320A THRU 2320A-EXIT
+           MOVE 0 TO CAS-TOT-REDUCE 
+           MOVE 0 TO CAS-TOT-CHARGE
+           MOVE 0 TO CAS-TOT-ALLOWED
+           MOVE 0 TO CAS-TOT-PAID
+           MOVE 0 TO TOT-BAL
+           PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
+           
+
+           PERFORM 2320S THRU 2320S-EXIT
+           
+           PERFORM 2400SRV THRU 2400SRV-EXIT
+             VARYING X FROM 1 BY 1 UNTIL X > CNTR
+           
            IF END-FLAG = 1 GO TO P98.
+           
            MOVE SAVE01 TO FILEIN01
+           
            IF FI-DOCP NOT = HOLD-DOCP 
-           MOVE FILEIN01 TO HOLD-FILEIN01
-           PERFORM DOCP-1.
+             MOVE FILEIN01 TO HOLD-FILEIN01
+             PERFORM DOCP-1.
+           
            MOVE FILEIN01 TO HOLD-FILEIN01
            PERFORM 2000B 
            GO TO P0000.
@@ -1600,26 +1611,26 @@
              IF HOLD-PLACE = "4"
                MOVE "IL " TO NM1-1
              END-IF
-           MOVE "2" TO NM1-SOLO
-           MOVE PL-NAME(PLACE-POINTER) TO NM1-NAMEL
-           MOVE SPACE TO NM1-NAMEF NM1-NAMEM NM1-NAMES
-           MOVE "  " TO NM1-EINSS
-           MOVE SPACE TO NM1-CODE
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM NM101
-           MOVE SPACE TO N3-STREET N3-BILLADD
-           MOVE PL-STREET(PLACE-POINTER) TO N3-STREET
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM N301
-           MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
-           MOVE PL-CITY(PLACE-POINTER) TO N4-CITY
-           MOVE PL-STATE(PLACE-POINTER) TO N4-STATE
-           MOVE PL-ZIP(PLACE-POINTER) TO N4-ZIP
-           IF N4-ZIP(6:4) = SPACE
-            MOVE "9999" TO N4-ZIP(6:4)
-           END-IF
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM N401.
+             MOVE "2" TO NM1-SOLO
+             MOVE PL-NAME(PLACE-POINTER) TO NM1-NAMEL
+             MOVE SPACE TO NM1-NAMEF NM1-NAMEM NM1-NAMES
+             MOVE "  " TO NM1-EINSS
+             MOVE SPACE TO NM1-CODE
+             MOVE SPACE TO SEGFILE01
+             WRITE SEGFILE01 FROM NM101
+             MOVE SPACE TO N3-STREET N3-BILLADD
+             MOVE PL-STREET(PLACE-POINTER) TO N3-STREET
+             MOVE SPACE TO SEGFILE01
+             WRITE SEGFILE01 FROM N301
+             MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
+             MOVE PL-CITY(PLACE-POINTER) TO N4-CITY
+             MOVE PL-STATE(PLACE-POINTER) TO N4-STATE
+             MOVE PL-ZIP(PLACE-POINTER) TO N4-ZIP
+             IF N4-ZIP(6:4) = SPACE
+               MOVE "9999" TO N4-ZIP(6:4)
+             END-IF
+             MOVE SPACE TO SEGFILE01
+             WRITE SEGFILE01 FROM N401.
 
        2320A.
            GO TO 2320A-EXIT.
@@ -2336,6 +2347,7 @@
 
        2310A-EXIT.
            EXIT.
+
        2310B.
            MOVE "82" TO NM1-1
            MOVE "1" TO NM1-SOLO

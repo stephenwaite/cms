@@ -10,9 +10,11 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT PROCFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS PROC-KEY
            LOCK MODE MANUAL.
+
            SELECT PROCcci ASSIGN TO "S35" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS PROCcci-KEY
            LOCK MODE MANUAL.
@@ -28,24 +30,33 @@
            02 PROC-TYPE PIC X.
            02 PROC-TITLE PIC X(28).
            02 PROC-AMOUNT PIC 9(4)V99.
+
        FD  PROCcci.
        01  PROCcci01.
            02 PROCcci-KEY.
              03 PROCcci-KEY1 PIC X(5).
+
        WORKING-STORAGE SECTION.
-       01  HOLDKEY PIC X(807) VALUE SPACE.
+
        PROCEDURE DIVISION.
+       
        0005-START.
            open output proccci
            close proccci
            open i-o proccci
            OPEN INPUT procfile.
+           
        P1.
-           READ procfile next AT END GO TO P2.
+           READ procfile next 
+             AT END 
+               GO TO P2.
+
            move proc-key2 to proccci-key
-           read proccci invalid
-           write proccci01
-           end-read
+
+           read proccci 
+             invalid
+               write proccci01
+             end-read
            GO TO P1.
        P2. 
            CLOSE proccci 
