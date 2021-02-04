@@ -1662,7 +1662,8 @@
            IF R3-PLACE = "INPT" 
              MOVE "3" TO C-IOPAT
              IF C-DATE-ADMIT = SPACE
-               STRING A-GARNAME " WAS SENT AS INPT WITH NO ADMIT DATE"
+               STRING A-GARNAME " WAS SENT AS INPT WITH NO ADMIT DATE "
+                 "THIS MUST BE FIXED OR CLAIM FILE WILL REJECT."
                  DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
              end-if
