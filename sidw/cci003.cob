@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. TWO001.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. cci003.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -13,26 +13,30 @@
        FILE-CONTROL.
 
            SELECT FILEIN ASSIGN TO "S30"
-           ORGANIZATION LINE SEQUENTIAL.
+             ORGANIZATION LINE SEQUENTIAL.
 
            SELECT CCIfile ASSIGN TO "S35" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC  RECORD KEY IS CCI-KEY
-           LOCK MODE MANUAL.
+             ACCESS IS DYNAMIC RECORD KEY IS CCI-KEY
+             LOCK MODE MANUAL.
 
            SELECT FILEOUT ASSIGN TO "S40"
-           ORGANIZATION LINE SEQUENTIAL.
+             ORGANIZATION LINE SEQUENTIAL.
 
            SELECT PROCCCI ASSIGN TO "S45" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC  RECORD KEY IS PROCCCI-KEY
-           LOCK MODE MANUAL.
+             ACCESS IS DYNAMIC  RECORD KEY IS PROCCCI-KEY
+             LOCK MODE MANUAL.
 
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  PROCCCI.
        01  PROCCCI01.
            02 PROCCCI-KEY PIC X(5).
+
        FD  FILEOUT.
        01  FILEOUT01 PIC X(11).
+
        FD  FILEIN.
        01  FILEIN01.
            02 FI-1 PIC X(5).
@@ -80,7 +84,7 @@
              INVALID
                write FILEOUT01 FROM FILEIN01.
              GO TO P1.
-             
+
        P2. 
            CLOSE CCIfile FILEOUT FILEIN PROCCCI
            STOP RUN.

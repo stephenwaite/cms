@@ -4,32 +4,26 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. TWO001.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. cci002.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
 
            SELECT PROCFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC  RECORD KEY IS PROC-KEY
-           LOCK MODE MANUAL.
+             ACCESS IS DYNAMIC  RECORD KEY IS PROC-KEY
+             LOCK MODE MANUAL.
 
            SELECT PROCcci ASSIGN TO "S35" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC  RECORD KEY IS PROCcci-KEY
-           LOCK MODE MANUAL.
+             ACCESS IS DYNAMIC  RECORD KEY IS PROCcci-KEY
+             LOCK MODE MANUAL.
 
        DATA DIVISION.
        FILE SECTION.
-       FD  PROCFILE
-           DATA RECORD PROCFILE01.
-       01  PROCFILE01.
-           02 PROC-KEY.
-             03 PROC-KEY1 PIC X(4).
-             03 PROC-KEY2 PIC X(7).
-           02 PROC-TYPE PIC X.
-           02 PROC-TITLE PIC X(28).
-           02 PROC-AMOUNT PIC 9(4)V99.
+
+       FD  PROCFILE.
+           COPY procfile.CPY IN "C:\Users\sid\cms\copylib".
 
        FD  PROCcci.
        01  PROCcci01.
@@ -51,7 +45,7 @@
              AT END 
                GO TO P2.
 
-           move proc-key2 to proccci-key
+           move proc-key to proccci-key
 
            read proccci 
              invalid
