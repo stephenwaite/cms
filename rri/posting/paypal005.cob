@@ -146,7 +146,7 @@
       *     IF FLAG = 1 GO TO P2.
 
            MOVE SPACE TO PD-DENIAL 
-           MOVE "022" TO PD-PAYCODE
+           MOVE "077" TO PD-PAYCODE
            ACCEPT PD-ORDER FROM TIME.
            MOVE PAYDATE TO PD-DATE-T
            ACCEPT PD-DATE-E FROM DATE YYYYMMDD.
@@ -188,7 +188,9 @@
            MOVE "14" TO PD-DENIAL
            MOVE PAYFILE01 TO PAYBACK01
            PERFORM P3 THRU P4
+
            IF FI-DEDUCT = 0 GO TO P1.
+           
            GO TO P2.
 
        P3.

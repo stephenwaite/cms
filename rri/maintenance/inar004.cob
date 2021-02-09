@@ -91,10 +91,12 @@
                LOCK MODE MANUAL.
 
            SELECT MPLRFILE ASSIGN TO "S165" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY
-           LOCK MODE IS MANUAL.
+             ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY
+             LOCK MODE IS MANUAL.
+
            SELECT FILEOUT ASSIGN TO "S200" ORGANIZATION
-           LINE SEQUENTIAL.
+             LINE SEQUENTIAL.
+
            SELECT ADDRFILE ASSIGN TO "S230" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS ADDR-KEY
            ALTERNATE RECORD KEY IS ADDR-NAME WITH DUPLICATES
@@ -166,31 +168,18 @@
 
        FD  RPGPROCFILE.
        01  RPGPROCFILE01.
-	     02 RPGPROC-KEY.
-	       03 RPGPROC-KEY1 PIC X(7).
-	       03 RPGPROC-KEY2 PIC X(4).
-	     02 RPGPROC-TYPE PIC X.
-	     02 RPGPROC-TITLE. 
-	       03 RPG-NT1 PIC X(4).
-	       03 RPG-NT2 PIC X(24).
-	     02 RPGPROC-AMOUNT PIC 9(4)V99.
+	       02 RPGPROC-KEY.
+	         03 RPGPROC-KEY1 PIC X(7).
+	         03 RPGPROC-KEY2 PIC X(4).
+	       02 RPGPROC-TYPE PIC X.
+	       02 RPGPROC-TITLE. 
+	         03 RPG-NT1 PIC X(4).
+	         03 RPG-NT2 PIC X(24).
+	       02 RPGPROC-AMOUNT PIC 9(4)V99.
 
        FD  MPLRFILE.
-       01  MPLRFILE01.
-           02 MPLR-KEY PIC X(8). 
-           02 MPLR-NAME PIC X(22).
-           02 MPLR-STREET PIC X(24).
-           02 MPLR-CITY PIC X(15).
-           02 MPLR-STATE PIC XX.
-           02 MPLR-ZIP PIC X(9).
-           02 MPLR-CLAIMNO PIC X(15).
-           02 MPLR-TRINS PIC XXX.
-           02 MPLR-TR-ASSIGN PIC X.
-           02 MPLR-TR-GROUP PIC X(10).
-           02 MPLR-TRIPOL PIC X(16).
-           02 MPLR-TR-NAME PIC X(24).
-           02 MPLR-TR-RELATE PIC X.
-           02 MPLR-FUTURE PIC X(6).
+           COPY mplrfile.CPY IN "C:\Users\sid\cms\copylib".           
+          
        FD  AUTHFILE
            BLOCK CONTAINS 6 RECORDS
            DATA RECORD IS AUTHFILE01.
@@ -202,30 +191,10 @@
            02 AUTH-QNTY PIC XX.
            02 AUTH-DATE-E PIC X(8).
            02 AUTH-FILLER PIC XXX.
-       FD  INSFILE
-     *     BLOCK CONTAINS 6 RECORDS
-           DATA RECORD IS INSFILE01.
-       01  INSFILE01.
-           02 INS-KEY PIC XXX.
-           02 INS-NAME PIC X(22).
-           02 INS-STREET PIC X(24).
-           02 INS-CITY PIC X(15).
-           02 INS-STATE PIC XX.
-           02 INS-ZIP PIC X(9).
-           02 INS-ASSIGN PIC X.
-           02 INS-CLAIMTYPE PIC X.
-           02 INS-NEIC PIC X(5).
-           02 INS-NEICLEVEL PIC X.
-           02 INS-NEIC-ASSIGN PIC X.
-           02 INS-PPO PIC X.
-           02 INS-PRVNUM PIC X(10).
-           02 INS-HMO PIC X(3).
-           02 INS-STATUS PIC X.
-           02 INS-LEVEL PIC X.
-           02 INS-LASTDATE PIC X(8).
-           02 INS-CAID PIC XXX.
-           02 INS-REFWARN PIC X.
-           02 INS-FUTURE PIC X(8).
+
+       FD  INSFILE.
+           COPY insfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+      
        FD GAPFILE.
        01 GAPFILE01.
            02 GAPKEY PIC X(7).
@@ -236,6 +205,7 @@
            02 GAP-ZIP PIC X(9).
            02 GAP-TYPE PIC X.
            02 GAP-FUTURE PIC X(40).
+
        FD  DOCPARM
            DATA RECORD IS DOCPARM01.
        01  DOCPARM01.
@@ -243,17 +213,10 @@
              03 DP-1-1 PIC X.
              03 DP-1-2 PIC X.
            02 DP-2 PIC X(22).
-       FD  REFPHY
-      *    BLOCK CONTAINS 5 RECORDS
-           DATA RECORD IS REFPHY01.
-       01  REFPHY01.
-           02 REF-KEY PIC XXX.
-           02 REF-BSNUM PIC X(5).
-           02 REF-CRNUM PIC X(6).
-           02 REF-UPIN PIC X(6).
-           02 REF-CDNUM PIC X(7).
-           02 REF-NAME PIC X(24).
-           02 REF-NPI PIC X(10).
+
+       FD  REFPHY.
+           COPY refphy.CPY IN "C:\Users\sid\cms\copylib".
+      
        FD  DIAGFILE.
        01  DIAG01.
            02 DIAG-KEY.
@@ -263,15 +226,10 @@
              03 DIAG-T1 PIC XXXXX.
              03 DIAG-T2 PIC X(56).
            02 DIAG-MEDB PIC X(5).
-       FD  PROCFILE
-           DATA RECORD PROCFILE01.
-       01  PROCFILE01.
-           02 PROC-KEY.
-             03 PROC-KEY1 PIC X(4).
-             03 PROC-KEY2 PIC X(7).
-           02 PROC-TYPE PIC X.
-           02 PROC-TITLE PIC X(28).
-           02 PROC-AMOUNT PIC 9(4)V99.
+
+       FD  PROCFILE.
+           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+      
        FD  CMNTFILE
       *    BLOCK CONTAINS 2 RECORDS
            DATA RECORD IS CMNTFILE01.
@@ -282,110 +240,16 @@
            02 CMNT PIC X(78).
            02 CMNT2 PIC XX.
            02 CMNT-DATE-E PIC X(8).
-       FD  CHARFILE
-      *    BLOCK CONTAINS 2 RECORDS
-           DATA RECORD IS CHARFILE01.
-       01  CHARFILE01.
-           02 CHARFILE-KEY.
-             03 CD-KEY8 PIC X(8).
-             03 CD-KEY3 PIC XXX.
-           02 CD-PATID PIC X(8).
-           02 CD-CLAIM PIC X(6).
-           02 CD-SERVICE PIC X.
-           02 CD-DIAG PIC X(7).
-           02 CD-PROC PIC X(11).
-           02 CD-MOD2 PIC XX.
-           02 CD-MOD3 PIC XX.
-           02 CD-MOD4 PIC XX.
-           02 CD-AMOUNT PIC S9(4)V99.
-           02 CD-DOCR PIC X(3).
-           02 CD-DOCP PIC X(2).
-           02 CD-PAYCODE PIC XXX.
-           02 CD-STAT PIC X.
-           02 CD-WORK PIC XX.
-           02 CD-DAT1 PIC X(8).
-           02 CD-RESULT PIC X.
-           02 CD-ACT PIC X.
-           02 CD-SORCREF PIC X.
-           02 CD-COLLT PIC X.
-           02 CD-AUTH PIC X.
-           02 CD-PAPER PIC X.
-           02 CD-PLACE PIC X.
-           02 CD-NAME PIC X(24).
-           02 CD-ESPDT PIC X.
-           02 CD-DATE-T PIC X(8).
-           02 CD-DATE-E PIC X(8).
-           02 CD-ORDER PIC X(6).
-           02 CD-DX2 PIC X(7).
-           02 CD-DX3 PIC X(7).
-           02 CD-DATE-A PIC X(8).
-           02 CD-ACC-TYPE PIC X.
-           02 CD-DATE-M PIC X(8).
-           02 CD-ASSIGN PIC X.
-           02 CD-NEIC-ASSIGN PIC X.
-           02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
-           02 CD-DX6 PIC X(7).
 
-           02 CD-FUTURE PIC X(6).
-       FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS CHARCUR01.
-       01  CHARCUR01.
-           02 CHARCUR-KEY.
-             03 CC-KEY8 PIC X(8).
-             03 CC-KEY3 PIC XXX.
-           02 CC-PATID PIC X(8).
-           02 CC-CLAIM PIC X(6).
-           02 CC-SERVICE PIC X.
-           02 CC-DIAG PIC X(7).
-           02 CC-PROC PIC X(11).
-           02 CC-MOD2 PIC XX.
-           02 CC-MOD3 PIC XX.
-           02 CC-MOD4 PIC XX.
-           02 CC-AMOUNT PIC S9(4)V99.
-           02 CC-DOCR PIC X(3).
-           02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC XXX.
-           02 CC-STUD PIC X.
-           02 CC-WORK PIC XX.
-           02 CC-DAT1 PIC X(8).
-           02 CC-RESULT PIC X.
-           02 CC-ACT PIC X.
-           02 CC-SORCREF PIC X.
-           02 CC-COLLT PIC X.
-           02 CC-AUTH PIC X.
-           02 CC-PAPER PIC X.
-           02 CC-PLACE PIC X.
-           02 CC-EPSDT PIC X.
-           02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A PIC X(8).
-           02 CC-DATE-P PIC X(8).
-           02 CC-REC-STAT PIC X.
-           02 CC-DX2 PIC X(7).
-           02 CC-DX3 PIC X(7).
-           02 CC-ACC-TYPE PIC X.
-           02 CC-DATE-M PIC X(8).
-           02 CC-ASSIGN PIC X.
-           02 CC-NEIC-ASSIGN PIC X.
-           02 CC-DX4 PIC X(7).
-           02 CC-DX5 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
+       FD  CHARFILE.
+           COPY charfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+     
+       FD  CHARCUR.
+           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".
+
        FD  PAYFILE.
-       01  PAYFILE01.
-           02 PAYFILE-KEY.
-             03 PD-KEY8 PIC X(8).
-             03 PD-KEY3 PIC XXX.
-           02 PD-NAME PIC X(24).
-           02 PD-AMOUNT PIC S9(4)V99.
-           02 PD-PAYCODE PIC XXX.
-           02 PD-DENIAL PIC XX.
-           02 PD-CLAIM PIC X(6).
-           02 PD-DATE-T PIC X(8).
-           02 PD-DATE-E PIC X(8).
-           02 PD-ORDER PIC X(6).
-           02 PD-BATCH PIC X(6).
+           COPY payfile.CPY IN "C:\Users\sid\cms\copylib".
+          
        FD  PAYCUR
       *    BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS PAYCUR01.
@@ -400,70 +264,12 @@
            02 PC-DATE-T PIC X(8).
            02 PC-DATE-E PIC X(8).
            02 PC-BATCH PIC X(6).
-       FD GARFILE
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS G-MASTER.
-       01 G-MASTER.
-           02 G-GARNO PIC X(8).
-           02 G-GARNAME PIC X(24).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE. 
-              03 G-PHONE1 PIC XXX.
-              03 G-PHONE2 PIC XXX.
-              03 G-PHONE3 PIC XXXX.
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB.
-              03 G-DOBYY PIC X(4).
-              03 G-DOBMM PIC XX.
-              03 G-DOBDD PIC XX.
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(10).
-           02 G-PRIPOL PIC X(16).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-ADDRCODE PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-TRINSIND PIC X.
-           02 G-TRINS PIC XXX.
-           02 G-SE-GROUP PIC X(10).
-           02 G-SECPOL PIC X(16).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-INSPEND PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
+       FD GARFILE.
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
 
-       FD PATFILE
-      *    BLOCK CONTAINS 5 RECORDS
-           DATA RECORD IS P-MASTER.
-       01 P-MASTER.
-           02 P-PATNO PIC X(8).
-           02 P-GARNO PIC X(8).
-           02 P-PATNAME PIC X(24).
-           02 P-SEX PIC X.
-           02 P-RELATE PIC X.
-           02 P-MSTAT PIC X.
-           02 P-DOB PIC X(8).
+       FD PATFILE.
+           COPY patfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+      
        WORKING-STORAGE SECTION.
        01 PAY-TAB01.
            02 PAY-TAB02 OCCURS 990 TIMES INDEXED BY PAY-IND.
@@ -656,11 +462,12 @@
                04 NT-32 PIC X.
                04 NT-33 PIC X.
              03 NT-21 PIC X(21).
+
        01  NAME15 PIC X(15).
-       01     ALF-1 PIC X.
-       01     XALF-1 PIC X.
+       01  ALF-1 PIC X.
+       01  XALF-1 PIC X.
        01  ALF-2 PIC XX.
-       01   ALF-3.
+       01  ALF-3.
            02 ALF-3-1 PIC X.
            02 ALF-3-2 PIC XX.
        01  ALF-4 PIC X(4).
@@ -774,7 +581,7 @@
        01  CURRENT-BATCH PIC X(8) VALUE "00000000".
        01  CBN PIC X(10).
        01  KEYFLAG PIC 9.
-       01 NUM-2 PIC 99.
+       01  NUM-2 PIC 99.
        01  PLINDX PIC 99.
        01  CD PIC 9 VALUE 0.
        01  DATE-OF-CHARGE-LOW PIC X(8) VALUE SPACE. 
@@ -801,7 +608,7 @@
        
        01  RATE01.
            02 RATE-1 PIC 99.
-           02 RATE-4 PIC X(22).
+           02 RATE-2 PIC X(22).
 
        01  RATETABLES.
            02 RATETAB02 OCCURS 15 TIMES.
@@ -825,10 +632,11 @@
            go to px0.
 
        DOCRATE-1. 
-           READ DOCPARM AT END GO TO P00.           
+           READ DOCPARM AT END GO TO P00.
+
            MOVE DOCPARM01 TO RATE01
            MOVE RATE-1 TO RATE-PC(RATE-1)
-           MOVE RATE-4 TO RATE-NAME(RATE-1).
+           MOVE RATE-2 TO RATE-NAME(RATE-1).
           
        PX0. 
            READ DOCPARM 
@@ -890,7 +698,7 @@
            IF DATAIN = "AC"
                CLOSE CHARFILE CHARCUR PAYFILE FILEOUT PAYCUR PROCFILE
                      TAGDIAG DIAGFILE
-               CALL "/home/sidw/inar002.b" USING CHAR1
+               CALL "/home/sidw/inar002.acu" USING CHAR1
                MOVE 1 TO CHAR1
                OPEN INPUT CHARFILE PAYCUR PROCFILE TAGDIAG DIAGFILE
                    CHARCUR PAYFILE
@@ -2018,12 +1826,13 @@
            " " CD-PLACE " " CD-PROC " " CD-DIAG " " CD-DOCP
            IF CD-COLLT = "1" DISPLAY "COLLECTION" BELL0.
            IF CD-PAPER = "B" DISPLAY "CLAIM SENT".
-           IF CD-AUTH = "1" PERFORM READ-AUTH-CD 
+      *     IF CD-AUTH = "1" 
+      *       PERFORM READ-AUTH-CD 
       *     ADD 1 TO Z
-            IF AUTH-NUM NOT = SPACE
-             DISPLAY "AUTHNUM= " AUTH-NUM
-            END-IF
-           END-IF
+      *      IF AUTH-NUM NOT = SPACE
+      *       DISPLAY "AUTHNUM= " AUTH-NUM
+      *      END-IF
+      *     END-IF
            MOVE SPACE TO ANS
            IF (IN-FIELD = "FCC" OR ACTION = "FCC") NEXT SENTENCE
            ELSE
@@ -3299,14 +3108,17 @@
            MOVE RIGHT-2 TO NUM-2
            SET CCINDX TO NUM-2
            GO TO CC-2060-GO-TO.
+
        CC-2050.
            DISPLAY CCDES-KEY(CCINDX) "?".
+
        CC-2051.
            ACCEPT IN-FIELD.
            IF IN-FIELD = "L" 
                PERFORM LC-1 
                GO TO CC-2050
            END-IF.    
+
        CC-2060-GO-TO.
            MOVE 0 TO FLAG.
            
@@ -3314,12 +3126,18 @@
                GO TO CC-2061
            END-IF
 
-           MOVE CCLEN-TAB(CCINDX) TO Q ADD 1 TO Q.
-           IF IN-FIELD-TAB(Q) NOT = " " MOVE 1 TO FLAG
-           DISPLAY "DATA TOO LONG, MUST NOT BE GREATER "
-             "THAN " CCLEN-TAB(CCINDX) ".".
+           MOVE CCLEN-TAB(CCINDX) TO Q 
+           ADD 1 TO Q.
+
+           IF IN-FIELD-TAB(Q) NOT = " " 
+             MOVE 1 TO FLAG
+             DISPLAY "DATA TOO LONG, MUST NOT BE GREATER "
+               "THAN " CCLEN-TAB(CCINDX) ".".
+           
            IF FLAG = 1 AND ACTION = "CPC" GO TO 1400CPC.
+           
            IF FLAG = 1 AND ACTION = "APC" GO TO CC-2050.
+
        CC-2061.
            GO TO 2100-CHAR-KEY
            CC-2-PATID CC-2100-CLAIM CC-2130-SERVICE CC-2150-DIAG
@@ -3332,6 +3150,7 @@
            CC-2-NEIC-ASSIGN CC-2-DX4 CC-2-MOD4
       *     CC-2-DX5 CC-2-DX6
            DEPENDING ON CCINDX.
+
        CC-2000TI.
            IF ACTION = "CPC" 
                GO TO 1400CPC
@@ -3591,20 +3410,28 @@
            DISPLAY REF-KEY " " REF-BSNUM " " REF-CRNUM " " REF-UPIN " "
            REF-CDNUM " " REF-NPI " " REF-NAME
            GO TO CC-3REF.
+
        CC-2165-DOCP.
            IF IN-FIELD = "?"
-           DISPLAY "ENTER THE LOCAL DOCTOR CODE (2-DIGITS)"
-           GO TO CC-2000TI.
+             DISPLAY "ENTER THE LOCAL DOCTOR CODE (2-DIGITS)"
+             GO TO CC-2000TI.
+
            MOVE SPACES TO RIGHT-2.
            UNSTRING IN-FIELD-2 DELIMITED BY " " INTO RIGHT-2.
            INSPECT RIGHT-2 REPLACING LEADING " " BY "0".
            IF RIGHT-2 NOT NUMERIC DISPLAY "NOT NUMERIC"
-           GO TO CC-2000TI.
+             GO TO CC-2000TI.
+
            IF RIGHT-2 = "00" MOVE "01" TO RIGHT-2.
+
            IF RIGHT-2 < "01" OR > HIGH-DOC DISPLAY "INVALID"
-           GO TO CC-2000TI.
-           MOVE RIGHT-2 TO CC-DOCP
+             GO TO CC-2000TI.
+
+           MOVE RIGHT-2 TO CC-DOCP NUM-2
+           DISPLAY RATE-NAME(NUM-2).
+
            GO TO 4900CPC.
+
        CC-2170-PAYCODE.
            IF IN-FIELD = "?"
            DISPLAY "ENTER A PAYORCODE CODE "
@@ -4199,12 +4026,14 @@
              CLOSE GARFILE
              OPEN INPUT GARFILE
              GO TO 1000-ACTION
-            END-IF
+           END-IF
+           
            MOVE "1" TO G-DUNNING
-           REWRITE G-MASTER
+           REWRITE GARFILE01
            CLOSE GARFILE
            OPEN INPUT GARFILE.
            DISPLAY "DUNNING CHANGED TO 1".
+
        RA-1-1.   
            MOVE SPACE TO CC-KEY3
            MOVE G-GARNO TO CC-KEY8
