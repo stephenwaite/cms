@@ -23,6 +23,8 @@
 
        DATA DIVISION.
        FILE SECTION.
+  
+      *  THIS IS CHARNEW FROM THE LOAD/CODING
 
        FD  CHARFILE
            DATA RECORD IS CHARFILE01.
@@ -72,6 +74,8 @@
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(30).
+
+      * THIS BECOMES CHARFILE IN AC     
 
        FD  CHARFILEBK
            DATA RECORD IS CHARFILEBK01.

@@ -29,10 +29,10 @@
            STATUS IS CLAIMFILE-STAT.
 
            SELECT DOCPARM ASSIGN TO "S85" ORGANIZATION IS
-           LINE SEQUENTIAL.
+             LINE SEQUENTIAL.
 
            SELECT CHARFILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS CHAR-KEY
+           ACCESS MODE IS DYNAMIC RECORD KEY IS charfile-key
            LOCK MODE MANUAL
            STATUS IS CHARFILE-STAT.
 
@@ -104,22 +104,9 @@
        FD  FILEOUT.
        01  FILEOUT01 PIC X(40).
 
-       FD  PAYFILE
-           DATA RECORD IS PAYFILE01.
-       01  PAYFILE01.
-           02 PAYFILE-KEY.
-             03 PD-KEY8 PIC X(8).
-             03 PD-KEY3 PIC XXX.
-           02 PD-NAME PIC X(24).
-           02 PD-AMOUNT PIC S9(4)V99.
-           02 PD-PAYCODE PIC XXX.
-           02 PD-DENIAL PIC XX.
-           02 PD-CLAIM PIC X(6).
-           02 PD-DATE-T PIC X(8).
-           02 PD-DATE-E PIC X(8).
-           02 PD-ORDER PIC X(6).
-           02 PD-BATCH PIC X(6).
-
+       FD  PAYFILE.
+           COPY payfile.CPY IN "C:\Users\sid\cms\copylib".
+      
        FD GAPFILE.
        01 GAPFILE01.
            02 GAPKEY PIC X(7).
@@ -132,21 +119,7 @@
            02 GAP-FUTURE PIC X(40).
 
        FD  MPLRFILE.
-       01  MPLRFILE01.
-           02 MPLR-KEY PIC X(8). 
-           02 MPLR-NAME PIC X(22).
-           02 MPLR-STREET PIC X(24).
-           02 MPLR-CITY PIC X(15).
-           02 MPLR-STATE PIC XX.
-           02 MPLR-ZIP PIC X(9).
-           02 MPLR-CLAIMNO PIC X(15).
-           02 MPLR-TRINS PIC XXX.
-           02 MPLR-TR-ASSIGN PIC X.
-           02 MPLR-TR-GROUP PIC X(10).
-           02 MPLR-TRIPOL PIC X(16).
-           02 MPLR-TR-NAME PIC X(24).
-           02 MPLR-TR-RELATE PIC X.
-           02 MPLR-FUTURE PIC X(6).
+           COPY mplrfile.CPY IN "C:\Users\sid\cms\copylib".           
 
        FD  AUTHFILE
            DATA RECORD IS AUTHFILE01.
@@ -159,29 +132,8 @@
            02 AUTH-DATE-E PIC X(8).
            02 AUTH-FILLER PIC XXX.
 
-       FD  INSFILE
-           DATA RECORD IS INSFILE01.
-       01  INSFILE01.
-           02 INS-KEY PIC XXX.
-           02 INS-NAME PIC X(22).
-           02 INS-STREET PIC X(24).
-           02 INS-CITY PIC X(15).
-           02 INS-STATE PIC XX.
-           02 INS-ZIP PIC X(9).
-           02 INS-ASSIGN PIC X.
-           02 INS-CLAIMTYPE PIC X.
-           02 INS-NEIC PIC X(5).
-           02 INS-NEICLEVEL PIC X.
-           02 INS-NEIC-ASSIGN PIC X.
-           02 INS-PPO PIC X.
-           02 INS-PRVNUM PIC X(10).
-           02 INS-HMO PIC X(3).
-           02 INS-STATUS PIC X.
-           02 INS-LEVEL PIC X.
-           02 INS-LASTDATE PIC X(8).
-           02 INS-CAID PIC XXX.
-           02 INS-REFWARN PIC X.
-           02 INS-FUTURE PIC X(8).
+       FD  INSFILE.
+           COPY insfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
 
        FD  PARMNDEX.
        01  PARMNDEX01.
@@ -198,125 +150,18 @@
              03 DP-1-2 PIC X.
            02 DP-2 PIC X(22).
 
-       FD  REFPHY
-           DATA RECORD IS REFPHY01.
-       01  REFPHY01.
-           02 REF-KEY PIC XXX.
-           02 REF-BSNUM PIC X(5).
-           02 REF-CRNUM PIC X(6).
-           02 REF-UPIN PIC X(6).
-           02 REF-CDNUM PIC X(7).
-           02 REF-NAME PIC X(24).
-           02 REF-NPI PIC X(10).
+       FD  REFPHY.
+           COPY refphy.CPY IN "C:\Users\sid\cms\copylib".
+       
+       FD  CHARFILE.
+           COPY charfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+     
+       FD  GARFILE.
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
 
-       FD  CHARFILE
-           DATA RECORD IS CHARFILE01.
-       01  CHARFILE01.
-           02 CHAR-KEY. 
-              03 CD-KEY8 PIC X(8).
-              03 CD-KEY3 PIC XXX.
-           02 PATID PIC X(8).
-           02 CLAIM PIC X(6).
-           02 CD-SERVICE PIC X.
-           02 DIAG PIC X(7).
-           02 PROC.
-             03 PROC0 PIC X(4).
-             03 PROC1 PIC X(5).
-             03 PROC2 PIC XX.
-           02 MOD2 PIC XX.
-           02 MOD3 PIC XX.
-           02 MOD4 PIC XX.
-           02 AMOUNT PIC S9(4)V99.
-           02 DOCR PIC X(3).
-           02 DOCP PIC X(2).
-           02 PAYCODE PIC XXX.
-           02 STAT PIC X.
-           02 WORK PIC XX.
-           02 DAT1 PIC X(8).
-           02 RESULT PIC X.
-           02 ACT PIC X.
-           02 CD-SORCREF PIC X.
-           02 CD-COLLT PIC X.
-           02 CD-AUTH PIC X.
-           02 PAPER PIC X.
-           02 PLACE PIC X.
-           02 CD-NAME PIC X(24).
-           02 CD-EPSDT PIC X.
-           02 DATE-T PIC X(8).
-           02 DATE-E PIC X(8).
-           02 CD-ORDER PIC X(6).
-           02 CD-DX2 PIC X(7).
-           02 CD-DX3 PIC X(7).
-           02 CD-DATE-A PIC X(8).
-           02 CD-ACC-TYPE PIC X.
-           02 CD-DATE-M PIC X(8).
-           02 CD-ASSIGN PIC X.
-           02 CD-NEIC-ASSIGN PIC X.
-           02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
-           02 CD-DX6 PIC X(7).
-           02 CD-FUTURE PIC X(6).
-       FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS G-MASTER.
-       01 G-MASTER.
-           02 G-GARNO PIC X(8).
-           02 G-GARNAME PIC X(24).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE. 
-              03 G-PHONE1 PIC XXX.
-              03 G-PHONE2 PIC XXX.
-              03 G-PHONE3 PIC XXXX.
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(10).
-           02 G-PRIPOL PIC X(16).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-TRINSIND PIC X.
-           02 G-TRINS PIC XXX.
-           02 G-SE-GROUP PIC X(10).
-           02 G-SECPOL PIC X(16).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-COPAY PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
+       FD  PATFILE.
+           COPY patfile.CPY IN "C:\Users\sid\cms\copylib\rri".
 
-       FD PATFILE
-           BLOCK CONTAINS 5 RECORDS
-           DATA RECORD IS P-MASTER.
-       01 P-MASTER.
-           02 P-PATNO PIC X(8).
-           02 P-GARNO PIC X(8).
-           02 P-PATNAME PIC X(24).
-           02 P-SEX PIC X.
-           02 P-RELATE PIC X.
-           02 P-MSTAT PIC X.
-           02 P-DOB PIC X(8).
        FD  DIAGFILE.
        01  DIAG01.
            02 DIAG-KEY.
@@ -326,20 +171,16 @@
              03 DIAG-T1 PIC XXXXX.
              03 DIAG-T2 PIC X(56).
            02 DIAG-MEDB PIC X(5).
-       FD  PROCFILE
-           DATA RECORD PROCFILE01.
-       01  PROCFILE01.
-           02 PROC-KEY.
-             03 PROC-KEY1 PIC X(4).
-             03 PROC-KEY2 PIC X(7).
-           02 PROC-TYPE PIC X.
-           02 PROC-TITLE PIC X(28).
-           02 PROC-AMOUNT PIC 9(4)V99.
+
+       FD  PROCFILE.
+           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+      
        FD  CLAIMFILE
            DATA RECORD IS CLAIM01.
        01  CLAIM01.
            02 CLAIM-KEY PIC X.
            02 CLAIMNO PIC 9(6).
+
        WORKING-STORAGE SECTION.
        01  QQQ PIC X(189).
        01  TABDX01.
@@ -588,16 +429,16 @@
        01  LAST-ADD-KEY USAGE INDEX.
        01  BUFFER-PACK01 PIC X(25).
        01  X-AMOUNT PIC S9(4)V99 VALUE 0.
+       
        01  RATE01.
            02 RATE-1 PIC 99.
-           02 RATE-2 PIC 99.
-           02 RATE-3 PIC 99.
-           02 RATE-4 PIC X(18).
-       01 RATETABLES.
-          02 RATETAB02 OCCURS 15 TIMES.
+           02 RATE-2 PIC x(22).
+
+       01  RATETABLES.
+           02 RATETAB02 OCCURS 15 TIMES.
              03 RATE-PC PIC 99. 
-             03 RATE-AMT PIC 99.
-             03 RATE-NAME PIC X(18).
+             03 RATE-NAME PIC X(22).
+
        01  GARPAT1 PIC 9 VALUE 0.
        01  CO-PAY-FLAG PIC 9.
        01  NDC-TAB01.
@@ -634,24 +475,28 @@
            OPEN INPUT GAPFILE.
            OPEN OUTPUT FILEOUT.
            
-           IF CHAR1 = 1 GO TO 1000-ACTION.
+      *     IF CHAR1 = 1 GO TO 1000-ACTION.
            
            MOVE 0 TO CO-PAY-FLAG
            MOVE 1 TO CHAR1
            MOVE SPACE TO CD-FUTURE
-           MOVE "01" TO DOCP
-           MOVE 0 TO STAT PAPER CD-COLLT CD-AUTH
+           MOVE "01" TO CD-DOCP
+           MOVE 0 TO   CD-stat CD-paper CD-COLLT CD-Age
            MOVE "2" TO CD-EPSDT
-           MOVE 0 TO AMOUNT.
+           MOVE 0 TO CD-amount.
            MOVE "00000000" TO CD-DATE-A CD-DATE-M
            MOVE ALL ZEROES TO DF-TAB01.
            ACCEPT T-DATE FROM DATE YYYYMMDD.
-           READ DOCPARM AT END GO TO 9100-CLOSE-MASTER-FILE.
+
+           READ DOCPARM 
+             AT END 
+               GO TO 9100-CLOSE-MASTER-FILE.
            
            MOVE DP1 TO HIGH-DOC.
            
-           IF HIGH-DOC = "01" MOVE 1 TO DF-TAB(9)
-           MOVE "01" TO DOCP.
+           IF HIGH-DOC = "01" 
+             MOVE 1 TO DF-TAB(9)
+             MOVE "01" TO CD-DOCP.
            
            MOVE 0 TO PLINDX.
            MOVE 0 TO KMC-FLAG
@@ -660,23 +505,19 @@
            GO TO P00.
 
        DOCRATE-1. 
-           READ DOCPARM AT END GO TO P00.
+           READ DOCPARM 
+             AT END 
+               GO TO P00.
            
            MOVE DOCPARM01 TO RATE01
-           MOVE RATE-2 TO RATE-PC(RATE-1)
-           COMPUTE RATE-AMT(RATE-1) = RATE-3
-           MOVE RATE-4 TO RATE-NAME(RATE-1).
+
+           MOVE RATE-1 TO RATE-PC(RATE-1)
+           MOVE RATE-2 TO RATE-NAME(RATE-1).
            
        P00. 
            READ DOCPARM AT END GO TO P0.
            
-           IF DP-1-1 = "X" AND
-              DP-1-2 = "X" AND
-              DP-2   = "X"
-               MOVE 1 TO KMC-FLAG
-               MOVE 1 TO PH1
-               GO TO P00
-           END-IF    
+           MOVE 1 TO PH1
            
            MOVE DP-1-1 TO HIGH-PLACE
            ADD 1 TO PLINDX
@@ -767,15 +608,15 @@
            GO TO 1000-ACTION.
 
            MOVE RIGHT-3 TO ALF-3.
-           UNSTRING DATAIN DELIMITED BY "," INTO ACTION CHAR-KEY.
+           UNSTRING DATAIN DELIMITED BY "," INTO ACTION charfile-key.
            
            IF ACTION = "A" GO TO 1200-ADD-PROCESS.
            
            IF ACTION = "F"
             MOVE SPACE TO PAYFLAG
-            IF CHAR-KEY (1:3) NUMERIC
-             MOVE CHAR-KEY(1:3) TO PAYFLAG
-             MOVE SPACE TO CHAR-KEY
+            IF charfile-key (1:3) NUMERIC
+             MOVE charfile-key(1:3) TO PAYFLAG
+             MOVE SPACE TO charfile-key
             END-IF
            MOVE CHARFILE01 TO QQQ
            PERFORM 1200-FIND THRU  1200-FIND-EXIT
@@ -792,14 +633,14 @@
            
            IF ACTION = "LP" GO TO 10-LP.
            
-           IF ACTION = "LI" MOVE CHAR-KEY TO INS-KEY
+           IF ACTION = "LI" MOVE charfile-key TO INS-KEY
            PERFORM LI-1 THRU LI-1-EXIT GO TO 1000-ACTION.
            
            IF ACTION = "CD" PERFORM CD-1 GO TO 1000-ACTION.
            
            IF ACTION = "DD" PERFORM DD-1 GO TO 1000-ACTION.
            
-           IF ACTION = "PH" PERFORM PH-1 GO TO 1000-ACTION.
+      *     IF ACTION = "PH" PERFORM PH-1 GO TO 1000-ACTION.
            
            IF ACTION = "CP" PERFORM CP-1 GO TO 1000-ACTION.
            
@@ -813,38 +654,38 @@
            
            IF ACTION NOT = "LD" GO TO AC-1.
            
-           IF CHAR-KEY = "?"
+           IF charfile-key = "?"
            DISPLAY "4=TYPE 5=DIAG 6=PROC 8=REF PHYS 9=DOC 11=REC-STAT"
            DISPLAY "12=UNITS 13=ACC. DATE  15=PLACE 18=TRANS DATE"
            DISPLAY "22=MOD2 23=SORCREF  24=DX2 25=DX3 26=CLM-DATE"
            DISPLAY "27=COLLT 28=ACC-TYPE 29=ADMIT-DT 30=MOD3 31=XXXX"
            DISPLAY "34=DX4"
-           MOVE SPACE TO CHAR-KEY
+           MOVE SPACE TO charfile-key
            GO TO 1000-ACTION.
            
            PERFORM LDF2 GO TO 1000-ACTION.
            
        LDF2.
            IF DF-TAB(4) = 1 DISPLAY "(4)TYPE= " CD-SERVICE.
-           IF DF-TAB(5) = 1 DISPLAY "(5)DIAG= " DIAG.
+           IF DF-TAB(5) = 1 DISPLAY "(5)DIAG= " cd-DIAG.
            IF DF-TAB(24) = 1 DISPLAY "(24)DX2 = " CD-DX2.
            IF DF-TAB(25) = 1 DISPLAY "(25)DX3 = " CD-DX3.
            IF DF-TAB(34) = 1 DISPLAY "(34)DX4 = " CD-DX4.
       *     IF DF-TAB(35) = 1 DISPLAY "(35)DX5 = " CD-DX5.
       *     IF DF-TAB(36) = 1 DISPLAY "(36)DX6 = " CD-DX6.
-           IF DF-TAB(6) = 1 DISPLAY "(6)PROC= " PROC.
-           IF DF-TAB(8) = 1 DISPLAY "(8)REF PHY= " DOCR.
-           IF DF-TAB(9) = 1 DISPLAY "(9)DR= " DOCP.
-           IF DF-TAB(11) = 1 DISPLAY "(11)REC-STAT= " STAT.
-           IF DF-TAB(12) = 1 DISPLAY "(12)UNITS= " WORK.
-           IF DF-TAB(13) = 1 MOVE DAT1 TO TEST-DATE
+           IF DF-TAB(6) = 1 DISPLAY "(6)PROC= " cd-PROC.
+           IF DF-TAB(8) = 1 DISPLAY "(8)REF PHY= " cd-DOCR.
+           IF DF-TAB(9) = 1 DISPLAY "(9)DR= " CD-DOCP.
+           IF DF-TAB(11) = 1 DISPLAY "(11)REC-STAT= " CD-stat.
+           IF DF-TAB(12) = 1 DISPLAY "(12)UNITS= " cd-WORK.
+           IF DF-TAB(13) = 1 MOVE CD-dat1  TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            DISPLAY "(13)ACC DATE= " DISPLAY-DATE.
-           IF DF-TAB(15) = 1 DISPLAY "(15)PLACE= " PLACE.
-           IF DF-TAB(18) = 1 MOVE DATE-T TO TEST-DATE
+           IF DF-TAB(15) = 1 DISPLAY "(15)PLACE= " cd-PLACE.
+           IF DF-TAB(18) = 1 MOVE  CD-date-t  TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            DISPLAY "(18)TRANS DATE= " DISPLAY-DATE.
-           IF DF-TAB(22) = "1" DISPLAY "(22)MOD2= " MOD2.
+           IF DF-TAB(22) = "1" DISPLAY "(22)MOD2= " cd-MOD2.
            IF DF-TAB(23) = 1 DISPLAY "(23)SORCREF= " CD-SORCREF.
            IF DF-TAB(26) = 1 MOVE CD-DATE-A TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
@@ -854,7 +695,7 @@
            IF DF-TAB(29) = 1 MOVE CD-DATE-M TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            DISPLAY "(29)ADMIT-DT = " DISPLAY-DATE.
-           IF DF-TAB(30) = 1 DISPLAY "(30)MOD3= " MOD3.
+           IF DF-TAB(30) = 1 DISPLAY "(30)MOD3= " cd-MOD3.
        DF1. MOVE SPACE TO ABC ALF-2 IN-FIELD.
            IF ACTION = "DF"
            UNSTRING DATAIN DELIMITED BY "," INTO ABC ALF-2 IN-FIELD
@@ -877,18 +718,19 @@
            IF (ACTION = "C" OR "D" OR "L")
            OR (kmc-flag = 1 AND ACTION = "PCF") NEXT SENTENCE
            ELSE DISPLAY "WHAT ?" GO TO 1000-ACTION.
-           IF CHAR-KEY = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
-           OR "7" OR "8" OR "9" MOVE CHAR-KEY TO IN-FIELD-1
+           IF charfile-key = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
+           OR "7" OR "8" OR "9" MOVE charfile-key TO IN-FIELD-1
            MOVE IN-FIELD-1 TO FLAG
-           MOVE LAST-CHARGE(FLAG) TO CHAR-KEY.
+           MOVE LAST-CHARGE(FLAG) TO charfile-key.
            MOVE CHARFILE01 TO QQQ
-           READ CHARFILE INVALID DISPLAY CHAR-KEY " NOT ON FILE"
+           READ CHARFILE INVALID DISPLAY charfile-key " NOT ON FILE"
              GO TO 1000-ACTION.
            IF ACTION = "PCF"
-           DISPLAY NAME " " DATE-T(5:2) "-" DATE-T(7:2) "-" DATE-T(1:2)
+             DISPLAY CD-NAME " " CD-date-t (5:2) "-" CD-date-t (7:2) "-" 
+               CD-date-t (1:2)
            GO TO KMC-1.
        1150-CONFIRM-IDN.
-           DISPLAY CHAR-KEY " " NAME.
+           DISPLAY charfile-key " " CD-NAME.
            IF ACTION = "L"
            PERFORM LR1 MOVE QQQ TO CHARFILE01 GO TO 1000-ACTION.
            READ CHARFILE WITH LOCK INVALID DISPLAY "NOT ON FILE"
@@ -903,24 +745,27 @@
            GO TO 1400-CHANGE-PROCESS.
       *    DISPLAY "INVALID OPTION" GO TO 1000-ACTION.
        1200-ADD-PROCESS.
-           MOVE "1" TO RESULT 
-           MOVE "4" TO ACT
+           MOVE "1" TO CD-result  
+           MOVE "4" TO cd-ACT
            MOVE "2" TO CD-EPSDT 
-           MOVE "0" TO CD-AUTH
-           MOVE SPACE TO MOD2 MOD3 MOD4.
+           MOVE "0" TO CD-Age
+           MOVE SPACE TO CD-mod2 CD-mod3 CD-mod4.
+           
        M1. PERFORM 1205-ADD-LOOP VARYING ADD-KEY FROM 1 BY 1
              UNTIL ADD-KEY > MULT.
+
            IF IN-FIELD = "X" DISPLAY "NO UPDATE" GO TO 1000-ACTION.
+           
            ACCEPT CD-ORDER FROM TIME.
-           ACCEPT DATE-E FROM DATE YYYYMMDD.
-           IF PROC1 = "09999" MOVE "001" TO PAYCODE.
+           ACCEPT CD-date-e FROM DATE YYYYMMDD.
+           IF CD-proc1 = "09999" MOVE "001" TO CD-paycode.
            MOVE CHARFILE01 TO HOLD-MASTER.
            MOVE 0 TO XYZ.
        1210-ADD-PROCESS.
            ADD 1 TO XYZ.
            MOVE XYZ TO ABC.
-           STRING SAVE-GARNO ABC DELIMITED BY "@" INTO CHAR-KEY.
-           READ CHARFILE INVALID KEY MOVE CHAR-KEY TO HOLD-ID
+           STRING SAVE-GARNO ABC DELIMITED BY "@" INTO charfile-key.
+           READ CHARFILE INVALID KEY MOVE charfile-key TO HOLD-ID
            GO TO 1220-ADD-PROCESS.
            IF XYZ = 999 DISPLAY "THERE ARE 999 CHARGE TRANSACTIONS"
            DISPLAY "FOR THIS GUARANTOR ON FILE. THIS IS THE LIMIT!"
@@ -928,9 +773,10 @@
            DISPLAY "CHARGES CAN BE PROCESSED"
            GO TO 1000-ACTION.
            GO TO 1210-ADD-PROCESS.
+
        1220-ADD-PROCESS.
            MOVE HOLD-MASTER TO CHARFILE01.
-           MOVE HOLD-ID TO CHAR-KEY.
+           MOVE HOLD-ID TO charfile-key.
            MOVE "A" TO CLAIM-KEY.
            READ CLAIMFILE WITH LOCK INVALID KEY DISPLAY "STOP"
            DISPLAY "THIS IS VERY BAD!. CALL C.M.S. IMMEDIATELY"
@@ -946,207 +792,146 @@
            DISPLAY "HAS NOT BEEN ADDED. CALL CMS ABOUT THIS PROBLEM"
            DISPLAY "NO CHARGES CAN BE ADDED UNTIL IT IS FIXED!"
            GO TO 9100-CLOSE-MASTER-FILE.
-           MOVE CLAIMNO TO CLAIM.
+           MOVE CLAIMNO TO cd-CLAIM.
            ADD 1 TO CLAIMNO.
            REWRITE CLAIM01.
            UNLOCK CLAIMFILE RECORD
-           IF INS-REFWARN   = "1"
-           MOVE "1 " TO IN-FIELD-2
-           PERFORM AUTH-1 THRU AUTH-1-EXIT.
-           MOVE DOCP TO NUM-2
-           MOVE AMOUNT TO X-AMOUNT
-           IF (RATE-PC(NUM-2) NOT = 0)
-           AND ( AMOUNT > RATE-AMT(NUM-2))
-           AND (PLACE = "1")
-           AND ((PROC1 > "992  " AND < "99299")
-               OR (PROC1 > "993  " AND < "99399"))
-           COMPUTE AMOUNT = (1 - RATE-PC(NUM-2) / 100) * AMOUNT
-           MOVE AMOUNT TO NEF-8
-           DISPLAY "ADJUSTED FEE " NEF-8.
-           IF (WORK > "01") and (kmc-flag = 1)
-           MOVE WORK TO NUM2
-           COMPUTE AMOUNT = NUM2 * AMOUNT
-           MOVE AMOUNT TO NEF-8
-           DISPLAY "UNIT MULTIPLIED FEE " NEF-8
+
+           IF INS-REFWARN = "1"
+             MOVE "1 " TO IN-FIELD-2
+             PERFORM AUTH-1 THRU AUTH-1-EXIT.
+
+           MOVE CD-DOCP TO NUM-2
+           MOVE     CD-amount TO X-AMOUNT           
+
+           IF (cd-WORK > "01") and (kmc-flag = 1)
+             MOVE CD-work TO NUM2
+             COMPUTE CD-amount = NUM2 * CD-amount
+             MOVE CD-amount TO NEF-8
+             DISPLAY "UNIT MULTIPLIED FEE " NEF-8
            END-IF
+           
            PERFORM DX-1 THRU DX-1-EXIT
            PERFORM DXMOD-1
            WRITE CHARFILE01 INVALID KEY DISPLAY "NO UPDATE"
            DISPLAY "THIS PROGRAM HAS BEEN TERMINATED"
            GO TO 9100-CLOSE-MASTER-FILE.
-           IF AMOUNT NOT = X-AMOUNT
-           MOVE X-AMOUNT TO AMOUNT.
-           IF CD2 = 1   PERFORM LR1.
-           DISPLAY CHAR-KEY " " CLAIM " RECORD IS ADDED".
+             
+           IF CD-amount NOT = X-AMOUNT
+             MOVE X-AMOUNT TO CD-amount.
+           
+           IF CD2 = 1 PERFORM LR1.
+           
+           DISPLAY charfile-key " " CD-claim " RECORD IS ADDED".
            MOVE 0 TO FLAGX
-           IF (PAYCODE = "003" OR "028" OR "141") 
-               AND (CD-DATE-M = "00000000") 
-            AND (PROC1 = "11719" OR "11055" OR "11056" OR "11057" 
-                OR "G0127")
-            MOVE 1 TO FLAGX
-            DISPLAY "ENTER DATE LAST SEEN FIELD 29" BELL0
-            DISPLAY "AND REFERRING PHYSICIAN IN FIELD 8" BELL0
+           
+           IF (CD-paycode = "003" OR "028" OR "141") 
+             AND (CD-DATE-M = "00000000") 
+             AND (CD-proc1 = "11719" OR "11055" OR "11056" OR "11057" 
+             OR "G0127")
+               MOVE 1 TO FLAGX
+               DISPLAY "ENTER DATE LAST SEEN FIELD 29" BELL0
+               DISPLAY "AND REFERRING PHYSICIAN IN FIELD 8" BELL0
            END-IF.
-           IF (PAYCODE = "003" OR "028" OR "141")
-            AND (CD-DATE-M = "00000000") 
-            AND (PLACE NOT NUMERIC)
-            MOVE 0 TO FLAG
-            PERFORM INPAT-1 THRU INPAT-1-EXIT VARYING X
-                             FROM 1 BY 1 UNTIL X > PLINDX
-             IF FLAG = 1
-              DISPLAY "IN-PATIENT: HOSP ADMIT DATE  FIELD 29" BELL0
-              MOVE 1 TO FLAGX
-             END-IF
-           END-IF.
-            IF (DOCR = "000") 
-             AND  ((PROC > "99240  " AND < "99281  ")
-                OR (PROC = "76942  " OR "76872  "))
 
-             DISPLAY "REF. PHYS. REQUIRED IN FIELD 8" BELL0
-             MOVE 1 TO FLAGX
-             END-IF.
-           IF FLAGX = 1
-              MOVE "CC" TO ACTION MOVE CHARFILE01 TO QQQ
-              MOVE HOLD-ID TO CHAR-KEY GO TO CC-1
+           IF (CD-paycode = "003" OR "028" OR "141")
+             AND (CD-DATE-M = "00000000") 
+             AND (cd-PLACE NOT NUMERIC)
+               MOVE 0 TO FLAG
+               PERFORM INPAT-1 THRU INPAT-1-EXIT VARYING X
+                 FROM 1 BY 1 UNTIL X > PLINDX
+               IF FLAG = 1
+                 DISPLAY "IN-PATIENT: HOSP ADMIT DATE  FIELD 29" BELL0
+                 MOVE 1 TO FLAGX
+               END-IF
            END-IF.
+            
+           IF (cd-DOCR = "000") 
+             AND  ((cd-PROC > "99240  " AND < "99281  ")
+             OR (cd-PROC = "76942  " OR "76872  "))
+               DISPLAY "REF. PHYS. REQUIRED IN FIELD 8" BELL0
+               MOVE 1 TO FLAGX
+           END-IF
+
+           IF FLAGX = 1
+             MOVE "CC" TO ACTION MOVE CHARFILE01 TO QQQ
+             MOVE HOLD-ID TO charfile-key GO TO CC-1
+           END-IF.
+
            IF DD = 1 PERFORM LDF2.
-       M2. DISPLAY "MORE CHARGES ? " G-GARNAME.
+
+       M2. 
+           DISPLAY "MORE CHARGES ? " G-GARNAME.
            ACCEPT ANS.
+
            IF ANS = "?"
-           DISPLAY "1=PROC                  2=DATE "
-           DISPLAY "3=DATE PROC             4=PROC DIAGS"  
-           DISPLAY "5=DATE PROC DIAGS        6=PLACE PROC DIAGS"  
-           DISPLAY "7=DATE PLACE PROC DIAGS"
-           DISPLAY "8=DATE PROC DIAGS ADMIT/LAST SEEN FIELD #29"
-           DISPLAY "Y= ALL PROMPTS  <CR> = NO"
-           DISPLAY "CC=CHANGE RECORD JUST ADDED BEFORE CONTINUING"
-           DISPLAY "L= LIST THE RECORD JUST ADDED"
-           GO TO M2.
-           IF ANS = SPACE OR "0" GO TO M3.
+             DISPLAY "1=PROC                  2=DATE "
+             DISPLAY "3=DATE  PROC             4=PROC DIAGS"  
+             DISPLAY "5=DATE PROC DIAGS        6=PLACE PROC DIAGS"  
+             DISPLAY "7=DATE  PLACE PROC DIAGS"
+             DISPLAY "8=DATE PROC DIAGS ADMIT/LAST SEEN FIELD #29"
+             DISPLAY "Y= ALL PROMPTS  <CR> = NO"
+             DISPLAY "CC=CHANGE RECORD JUST ADDED BEFORE CONTINUING"
+             DISPLAY "L= LIST THE RECORD JUST ADDED"
+             GO TO M2.
+
            IF ANS = "L" PERFORM LR1 GO TO M2.
-           IF ANS = "CC   " MOVE "CC" TO ACTION MOVE CHARFILE01 TO QQQ
-           MOVE HOLD-ID TO CHAR-KEY GO TO CC-1.
+
+           IF ANS = "CC   " 
+             MOVE "CC" TO ACTION 
+             MOVE CHARFILE01 TO QQQ
+             MOVE HOLD-ID TO charfile-key 
+             GO TO CC-1.
+
            IF ANS = "1" OR "2" OR "3" OR "4" OR "5" OR "6" OR "7"
-           OR "8" OR "Y" NEXT SENTENCE ELSE DISPLAY "INVALID" GO TO M2.
+             OR "8" OR "Y" 
+             NEXT SENTENCE 
+           ELSE 
+             DISPLAY "INVALID" 
+             GO TO M2.
+
            IF ANS = "1" MOVE "06" TO ADD-CON MOVE 1 TO MULT.
+
            IF ANS = "2" MOVE "18" TO ADD-CON MOVE 1 TO MULT.
+
            IF ANS = "3" MOVE "1806" TO ADD-CON MOVE 2 TO MULT.
+
            IF ANS = "4" MOVE "0605242534" TO ADD-CON MOVE 5 TO MULT.
+
            IF ANS = "5"
                  MOVE "180605242534" TO ADD-CON MOVE 6 TO MULT.
+
            IF ANS = "6"
                  MOVE "150605242534" TO ADD-CON MOVE 6 TO MULT.
+
            IF ANS = "7"
                  MOVE "18150605242534" TO ADD-CON MOVE 7 TO MULT.
+
            IF ANS = "8"
                  MOVE "18060524253429" TO ADD-CON MOVE 7 TO MULT.
-           IF ANS = "Y" MOVE MULT-ADD TO ADD-CON      MOVE 23 TO MULT.              
+
+           IF ANS = "Y" 
+             MOVE MULT-ADD TO ADD-CON 
+             MOVE 23 TO MULT.    
+
            GO TO M1.
-       M3.
-           if kmc-flag = 1  go to kmc-1.
-
-           IF G-COPAY = 0 OR CO-PAY-FLAG = 1 GO TO 1000-ACTION.
-           MOVE G-COPAY TO NEF-7.
-       M4.
-           DISPLAY "CO-PAY " NEF-7.
-           DISPLAY "Y = YES, PAID THE COPAY FOR CHARGES JUST ENTERED" 
-           DISPLAY " ANYTHING ELSE =  NO COPAY ".
-           ACCEPT ANS
-           IF ANS = "?" GO TO M4.
-           IF ANS NOT = "Y" GO TO 1000-ACTION.
-           DISPLAY "1=CASH  21=CHECK  22=CREDIT CARD"
-           ACCEPT PAY-TYPE
-           IF NOT (PAY-TYPE = "1" OR "21" OR "22") GO TO M4.
-           MOVE CHARFILE01 TO QQQ
-           MOVE DATE-T TO HOLD-DATE-T
-           MOVE CD-KEY8 TO HOLD8
-           MOVE PATID TO HOLD-PATID
-           MOVE 0 TO BIG-AMOUNT
-           MOVE "000000" TO HOLD-CLAIM
-           PERFORM M5 THRU M10
-           MOVE QQQ TO CHARFILE01
-           GO TO 1000-ACTION.
-
-       M5. 
-           MOVE HOLD8 TO CD-KEY8
-           MOVE SPACE TO CD-KEY3
-           START CHARFILE KEY NOT < CHAR-KEY INVALID
-           DISPLAY "NO RECORDS FOUND" GO TO M10.
-
-       M6. READ CHARFILE NEXT AT END GO TO M7.
-           IF CD-KEY8 NOT = HOLD8 GO TO M7.
-           IF PLACE NOT = "1" GO TO M6.
-           IF CD-SERVICE NOT = "6" GO TO M6.
-           IF PATID NOT = HOLD-PATID GO TO M6.
-           IF DATE-T = HOLD-DATE-T
-           AND AMOUNT > BIG-AMOUNT
-           MOVE AMOUNT TO BIG-AMOUNT 
-           MOVE CLAIM TO HOLD-CLAIM.
-           GO TO M6.
-       M7. IF HOLD-CLAIM = "000000" OR BIG-AMOUNT = 0    
-           OR BIG-AMOUNT < G-COPAY 
-           DISPLAY "NO VALID CHARGE FOUND TO APPLY COPAY TO"
-           GO TO M10.
-           close payfile
-           OPEN I-O PAYFILE     
-           MOVE HOLD8 TO PD-KEY8
-           MOVE SPACE TO PD-KEY3
-           MOVE HOLD-CLAIM TO PD-CLAIM
-           IF PAY-TYPE = "1"
-           MOVE "001" TO PD-PAYCODE.
-           IF PAY-TYPE = "21"
-           MOVE "021" TO PD-PAYCODE.
-           IF PAY-TYPE = "22"
-           MOVE "022" TO PD-PAYCODE.
-           MOVE "CP" TO PD-DENIAL
-           MOVE HOLD-DATE-T TO PD-DATE-T
-           ACCEPT PD-ORDER FROM TIME
-           ACCEPT PD-DATE-E FROM DATE YYYYMMDD
-           MOVE SPACE TO PD-BATCH
-           COMPUTE PD-AMOUNT =  -1 * G-COPAY 
-           MOVE G-GARNAME TO PD-NAME
-           MOVE PAYFILE01 TO SAVEPAY
-           MOVE 0 TO XYZ
-           MOVE HOLD8 TO PD-KEY8.
-       M8. ADD 1 TO XYZ
-           MOVE XYZ TO PD-KEY3
-           READ PAYFILE INVALID GO TO M9.
-           IF PD-DENIAL = "CP" 
-           AND PD-DATE-T = HOLD-DATE-T
-           AND PD-CLAIM = HOLD-CLAIM
-           DISPLAY "THERE IS A COPAY RECORD ALREADY POSTED"
-           DISPLAY "FOR THIS DATE AND CHARGE" 
-           GO TO M9-1.
-           ADD 1 TO XYZ
-           IF XYZ > 990 DISPLAY "PROBLEM ENCOUNTERED"
-           DISPLAY "NO COPAY ADDED" 
-           GO TO M9-1.
-           GO TO M8.
-       M9. MOVE SAVEPAY TO PAYFILE01
-           MOVE XYZ TO PD-KEY3
-           WRITE PAYFILE01
-           DISPLAY "COPAY PAYMENT ADDED".
-       M9-1.    
-           CLOSE PAYFILE.
-           open input payfile.
-           
-       M10. EXIT.
+      
        kmc-1.
            DISPLAY "PRINT CLAIM FORMS? Y = YES"
            ACCEPT ALF-1
            IF ALF-1 NOT = "Y" GO TO 1000-ACTION.
            MOVE 0 TO KMC-CNTR
-           move date-t to save-date-t
+           move CD-date-t  to save-date-t
            move cd-key8 to save-key8
            move space to cd-key3
-           start charfile key not < char-key invalid
+           start charfile key not < charfile-key invalid
            display "no charges yet" go to 1000-action.
        kmc-2.
            read charfile next at end go to kmc-3.
            if cd-key8 not = save-key8 go to kmc-3.
-           if date-t not = save-date-t go to kmc-2.
-           STRING PAYCODE CD-KEY8 CHAR-KEY DATE-T CD-ASSIGN
-           PLACE DOCP PAPER DELIMITED BY SIZE
+           if CD-date-t  not = save-date-t go to kmc-2.
+           STRING CD-paycode CD-KEY8 charfile-key CD-date-t  CD-ASSIGN
+           CD-place  CD-DOCP CD-paper DELIMITED BY SIZE
            INTO FILEOUT01
            WRITE FILEOUT01
            ADD 1 TO KMC-CNTR
@@ -1162,7 +947,7 @@
        1205-ADD-LOOP.
            SET INDX TO ADD-FLD(ADD-KEY).
            PERFORM 2050-DISPLAY THRU 4910DEE.
-       1200-FIND. START CHARFILE KEY > CHAR-KEY INVALID
+       1200-FIND. START CHARFILE KEY > charfile-key INVALID
            DISPLAY " END OF FILE" GO TO 1200-FIND-EXIT.
        1200-FIND-20.
            MOVE 0 TO X.
@@ -1185,15 +970,18 @@
            READ CHARFILE NEXT AT END MOVE 1 TO FLAG
            GO TO 1200-SEARCH-EXIT.
            MOVE SPACE TO ALF-1
-           IF PAPER NOT NUMERIC MOVE PAPER TO ALF-1.
-           MOVE AMOUNT TO NEF-5
-           MOVE DATE-T TO TEST-DATE-S
+           IF CD-paper NOT NUMERIC MOVE CD-paper TO ALF-1.
+           MOVE CD-amount TO NEF-5
+           MOVE CD-date-t  TO TEST-DATE-S
            MOVE CORR TEST-DATE-S TO DISP-DATE
-           IF (PAYFLAG = SPACE) OR PAYFLAG = PAYCODE
-            ADD 1 TO X
-            DISPLAY X " " CHAR-KEY " " DISP-DATE " " PROC MOD2 " "
-            MOD3 " " NEF-5 " " PAYCODE " " DIAG " " ALF-1 " " NAME
-            MOVE CHAR-KEY TO LAST-CHARGE(X)
+
+           IF (PAYFLAG = SPACE) OR PAYFLAG = CD-paycode
+             ADD 1 TO X
+             DISPLAY X " " charfile-key " " DISP-DATE " "
+               CD-proc CD-mod2  " "
+               CD-mod3  " " NEF-5 " " CD-paycode " " CD-diag" "
+               ALF-1 " " CD-NAME
+             MOVE charfile-key TO LAST-CHARGE(X)
            END-IF
            IF X > 8 GO TO 1200-SEARCH-EXIT.
            GO TO 1200-SEARCH.
@@ -1202,10 +990,10 @@
            EXIT.
        1200-FIND-EXIT. EXIT.
        10-LG.
-           IF CHAR-KEY = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
-           OR "7" OR "8" OR "9" MOVE CHAR-KEY TO IN-FIELD-1
-           MOVE IN-FIELD-1 TO FLAG MOVE GAR-TAB(FLAG) TO CHAR-KEY.
-           MOVE CHAR-KEY TO G-GARNO
+           IF charfile-key = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
+           OR "7" OR "8" OR "9" MOVE charfile-key TO IN-FIELD-1
+           MOVE IN-FIELD-1 TO FLAG MOVE GAR-TAB(FLAG) TO charfile-key.
+           MOVE charfile-key TO G-GARNO
            READ GARFILE INVALID DISPLAY "INVALID" GO TO 10-LG-EXIT.
            MOVE G-GARNO TO MPLR-KEY
            MOVE "1" TO G-TRINSIND
@@ -1250,15 +1038,13 @@
            DISPLAY "  " G-COLLT "     " G-SEX "       " G-RELATE
            "      " G-DUNNING "        " G-ACCTSTAT
            "   " DISPLAY-DATE "  " G-BILLCYCLE.
-           IF G-COPAY NOT = 0 MOVE G-COPAY TO NEF-D
-           DISPLAY " CO-PAY =" NEF-D.
 
        10-LG-EXIT. EXIT.
        10-LP. 
-           IF CHAR-KEY = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
-           OR "7" OR "8" OR "9" MOVE CHAR-KEY TO IN-FIELD-1
-           MOVE IN-FIELD-1 TO FLAG MOVE GAR-TAB(FLAG) TO CHAR-KEY.
-           MOVE CHAR-KEY TO P-PATNO.
+           IF charfile-key = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
+           OR "7" OR "8" OR "9" MOVE charfile-key TO IN-FIELD-1
+           MOVE IN-FIELD-1 TO FLAG MOVE GAR-TAB(FLAG) TO charfile-key.
+           MOVE charfile-key TO P-PATNO.
            READ PATFILE INVALID DISPLAY "INVALID" GO TO 1000-ACTION.
            MOVE P-DOB TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
@@ -1281,8 +1067,9 @@
 
 
            DISPLAY "DELETE  Y/N ?".
-           DISPLAY "DIAG =" DIAG " PROC. = " PROC " DATE = " DATE-T.
-           DISPLAY NAME.
+           DISPLAY "DIAG =" CD-diag" PROC. = " CD-proc 
+             " DATE = " CD-date-t .
+           DISPLAY CD-NAME.
            DISPLAY SPACES.
            ACCEPT ANS.
            IF ANS = "?"
@@ -1303,7 +1090,7 @@
        dont1.
            read payfile next at end go to dont-delete-exit.
            if pd-key8 not = cd-key8 go to dont-delete-exit.
-           if pd-claim not = claim go to dont1.
+           if pd-claim not = CD-claim go to dont1.
            move 1 to flag.
        dont-delete-exit.
            exit.
@@ -1325,15 +1112,15 @@
            GO TO 1000-ACTION.
            IF DATAIN = "L" PERFORM LR1 GO TO 1400-CHANGE-PROCESS.
            IF DATAIN = "UP"
-              IF ((DATE-T > "20150930") AND
-                  (DIAG(6:2) = "??"
+              IF ((cd-DATE-T > "20150930") AND
+                  (cd-DIAG(6:2) = "??"
                   OR CD-DX2(6:2) = "??"
                   OR CD-DX3(6:2) = "??"
                   OR CD-DX4(6:2) = "??"))
       *            OR CD-DX5(6:2) = "??"
       *            OR CD-DX6(6:2) = "??"))
-               OR ((DATE-T < "20151001") AND
-                     NOT ((DIAG(6:2) = "??" OR "00")
+               OR ((cd-DATE-T < "20151001") AND
+                     NOT ((cd-DIAG(6:2) = "??" OR "00")
                  AND (CD-DX2(6:2) = "??" OR "00")
                  AND (CD-DX3(6:2) = "??" OR "00")
                  AND (CD-DX4(6:2) = "??" OR "00")))
@@ -1413,7 +1200,7 @@
            IF (G-PRINS NOT = "004") AND (G-SEINS NOT = "004") AND
               (G-PRINS NOT = "064") AND (G-SEINS NOT = "064")
            GO TO 2062-BACK.
-           IF NOT ( PROC1 = "99391" OR "99392" OR "99393" OR "99394"
+           IF NOT (CD-proc1 = "99391" OR "99392" OR "99393" OR "99394"
            OR "99395" OR "99381" OR "99382" OR "99383" OR "99384"
            OR "99385")
            GO TO 2062-BACK.
@@ -1431,7 +1218,7 @@
            IF FLAG = 1 AND ACTION = "C" GO TO 1400-CHANGE-PROCESS.
            IF FLAG = 1 AND ACTION = "A" GO TO 2050-DISPLAY.
        2061-GO-TO.
-           GO TO 2100-CHAR-KEY
+           GO TO 2100-charfile-key
            2180-PATID 2100-CLAIM  2130-SERVICE 2150-DIAG 2140-PROC
            2200-AMOUNT 2160-DOCR 2165-DOCP 2170-PAYCODE 2740-STAT
             2750-WORK 2190-DAT1 1450-PAPER 2180-PLACE 2120-NAME
@@ -1447,7 +1234,7 @@
            IF ACTION =  "DF" OR "FG" OR "SG" OR "FP" OR "SP" OR "S"
            OR "FA" GO TO 1000-ACTION.
            IF ACTION = "DF2" GO TO PM1.
-       2100-CHAR-KEY.
+       2100-charfile-key.
            IF IN-FIELD = "?"
            DISPLAY "ENTER  A GUARANTOR ACCT #"
            GO TO 2000TI.
@@ -1455,20 +1242,20 @@
            READ GARFILE INVALID KEY DISPLAY " NOT ON FILE"
            GO TO 2000TI.
            DISPLAY G-GARNAME.
-       2120-CHAR-KEY.
+       2120-charfile-key.
            MOVE 0 TO X.
-       2130-CHAR-KEY.
+       2130-charfile-key.
            ADD 1 TO X.
            MOVE SPACE TO ALF-11.
            MOVE X TO ABC.
            STRING IN-FIELD-8 ABC DELIMITED BY "@" INTO ALF-11.
-           MOVE ALF-11 TO CHAR-KEY.
+           MOVE ALF-11 TO charfile-key.
            READ CHARFILE INVALID KEY GO TO 4900DEE.
            ADD 1 TO X.
            IF X = 999 DISPLAY "THIS ACCOUNT HAS 999 TRANSACTIONS"
            DISPLAY "IN THE FILE ALREADY. NO MORE ARE ALLOWED."
            GO TO 2000TI
-           GO TO 2130-CHAR-KEY.
+           GO TO 2130-charfile-key.
        2400-FIND.
            MOVE SPACES TO FFTAB1001 ACTION NAME-LAST.
            UNSTRING DATAIN DELIMITED BY "," INTO ACTION NAME-LAST
@@ -1675,11 +1462,11 @@
            DISPLAY "INS " G-PRINS " " G-PRIPOL " / " G-SEINS " "
            G-SECPOL.
        2181-PATID.
-           MOVE IN-FIELD-8 TO PATID
-           MOVE P-PATNAME TO NAME
+           MOVE IN-FIELD-8 TO cd-PATID
+           MOVE P-PATNAME TO CD-NAME
            GO TO 2183-PATID.
        2140-PATID.
-           IF (ACTION = "C") AND (PATID NOT = G-GARNO)
+           IF (ACTION = "C") AND (cd-PATID NOT = G-GARNO)
            DISPLAY "GARNO NOT OWNER OF RECORD. INVALID" GO TO 2000TI.
            MOVE IN-FIELD-8 TO G-GARNO.
            READ GARFILE INVALID KEY DISPLAY "NOT ON FILE"
@@ -1692,10 +1479,10 @@
            DISPLAY TEMP-FIELD01.
            DISPLAY "INS " G-PRINS " " G-PRIPOL " / " G-SEINS " "
            G-SECPOL " / " G-TRINS.
-           MOVE IN-FIELD-8 TO PATID
-           MOVE G-GARNAME TO NAME.
+           MOVE IN-FIELD-8 TO cd-PATID
+           MOVE G-GARNAME TO CD-NAME.
        2183-PATID.
-           MOVE G-PRINS TO PAYCODE
+           MOVE G-PRINS TO CD-paycode
            MOVE G-PRINS TO INS-KEY
            READ INSFILE INVALID DISPLAY "NO VALID INS." GO TO 2000TI.
            IF INS-REFWARN = "1"
@@ -1704,7 +1491,7 @@
            INS-NAME.
            MOVE G-PR-ASSIGN TO CD-ASSIGN
            MOVE INS-NEIC-ASSIGN TO CD-NEIC-ASSIGN
-           MOVE INS-CLAIMTYPE TO PAPER.
+           MOVE INS-CLAIMTYPE TO CD-paper.
            MOVE G-GARNO TO SAVE-GARNO
            GO TO 4900DEE.
        2100-CLAIM.
@@ -1734,8 +1521,8 @@
            END-IF.
 
        2150-DIAG.
-           IF ACTION = "SDV" MOVE DIAG TO PM-DATA GO TO SDV4.
-           IF IN-FIELD = "/" MOVE DIAG TO IN-FIELD DISPLAY DIAG.
+           IF ACTION = "SDV" MOVE CD-diag TO PM-DATA GO TO SDV4.
+           IF IN-FIELD = "/" MOVE CD-diag TO IN-FIELD DISPLAY cd-DIAG.
            IF IN-FIELD = "?"
                DISPLAY "ENTER A DIAGNOSIS CODE."
            DISPLAY " OR TYPE F TO SEARCH FOR A DIAGNOSIS CODE"
@@ -1744,12 +1531,12 @@
            DISPLAY "DESCRIPTION"
            DISPLAY "OR A <CR> IF NO DIAGNOSIS IS NECESSARY."
                GO TO 2000TI.
-           IF IN-FIELD = "0000000" OR SPACES MOVE ZEROES TO DIAG
+           IF IN-FIELD = "0000000" OR SPACES MOVE ZEROES TO CD-DIAG
            GO TO 4900DEE.
            MOVE 0 TO RETURN-FLAG
            PERFORM  CD10 THRU CD10-EXIT
            IF RETURN-FLAG = 1 GO TO 2000TI.
-           MOVE IN-FIELD-7 TO DIAG.
+           MOVE IN-FIELD-7 TO CD-DIAG.
            GO TO 4900DEE.
        2-DX2.
            IF ACTION = "SDV" MOVE CD-DX2 TO PM-DATA GO TO SDV4.
@@ -1807,50 +1594,12 @@
            PERFORM  CD10 THRU CD10-EXIT
            IF RETURN-FLAG = 1 GO TO 2000TI.
            MOVE IN-FIELD-7 TO CD-DX4.
-           GO TO 4900DEE.
-       2-DX5.
-           IF ACTION = "SDV" MOVE CD-DX5 TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO CD-DX5 GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE CD-DX5 TO IN-FIELD DISPLAY CD-DX5.
-           IF IN-FIELD = "?"
-               DISPLAY "ENTER A FIFTH DX  CODE."
-           DISPLAY " OR TYPE F TO SEARCH FOR A DIAGNOSIS CODE"
-           DISPLAY " OR TYPE M TO MAP ICD9 TO ICD10 CODES"
-           DISPLAY "BY INSERTING THE FIRST LETTER OF DIAGNOSIS"
-           DISPLAY "DESCRIPTION"
-           DISPLAY "OR A <CR> IF NO DIAGNOSIS IS NECESSARY."
-               GO TO 2000TI.
-           IF IN-FIELD = SPACES MOVE ZEROES TO CD-DX5
-           GO TO 4900DEE.
-           MOVE 0 TO RETURN-FLAG
-           PERFORM  CD10 THRU CD10-EXIT
-           IF RETURN-FLAG = 1 GO TO 2000TI.
-           MOVE IN-FIELD-7 TO CD-DX5.
-           GO TO 4900DEE.
-       2-DX6.
-           IF ACTION = "SDV" MOVE CD-DX6 TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO CD-DX6 GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE CD-DX6 TO IN-FIELD DISPLAY CD-DX6.
-           IF IN-FIELD = "?"
-               DISPLAY "ENTER A SIXTH DX  CODE."
-           DISPLAY " OR TYPE F TO SEARCH FOR A DIAGNOSIS CODE"
-           DISPLAY " OR TYPE M TO MAP ICD9 TO ICD10 CODES"
-           DISPLAY "BY INSERTING THE FIRST LETTER OF DIAGNOSIS"
-           DISPLAY "DESCRIPTION"
-           DISPLAY "OR A <CR> IF NO DIAGNOSIS IS NECESSARY."
-               GO TO 2000TI.
-           IF IN-FIELD = SPACES MOVE ZEROES TO CD-DX6
-           GO TO 4900DEE.
-           MOVE 0 TO RETURN-FLAG
-           PERFORM  CD10 THRU CD10-EXIT
-           IF RETURN-FLAG = 1 GO TO 2000TI.
-           MOVE IN-FIELD-7 TO CD-DX6.
-           GO TO 4900DEE.
+           GO TO 4900DEE.      
 
        2140-PROC.
-           IF ACTION = "SDV" MOVE PROC TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO PROC GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE PROC TO IN-FIELD DISPLAY PROC.
+           IF ACTION = "SDV" MOVE CD-proc TO PM-DATA GO TO SDV4.
+           IF ACTION = "DF2" MOVE PM-DATA TO CD-proc GO TO 4900DEE.
+           IF IN-FIELD = "/" MOVE CD-proc TO IN-FIELD DISPLAY CD-PROC.
            IF IN-FIELD = "?"
                DISPLAY "ENTER A PROCEDURE CODE."
            DISPLAY " AND OPTIONALLY OVERRIDE TABLE DRIVEN CHARGE"
@@ -1877,7 +1626,7 @@
                GO TO 2000TI
            END-IF
 
-           MOVE PROC-KEY TO PROC
+           MOVE PROC-KEY TO CD-PROC
            MOVE PROC-TYPE TO CD-SERVICE.
            IF ((G-PRINS = "003" OR "028" OR "093" OR "098")
            AND (FLAG = 0))
@@ -1889,7 +1638,7 @@
            DISPLAY "AMOUNT MUST BE ADDED WHEN PROCEDURE IS ENTERED"
            DISPLAY " USING THE OVERRIDE FEATURE" GO TO 2000TI.
            IF FLAG = 3 DISPLAY PROC-TITLE GO TO 2200-AMOUNT.
-           MOVE PROC-AMOUNT TO NEF-5 AMOUNT.
+           MOVE PROC-AMOUNT TO NEF-5 CD-amount.
            DISPLAY NEF-5 " " PROC-TITLE GO TO 4900DEE.
        2150-PROC. DISPLAY "SEARCH KEY".
            ACCEPT PROC-KEY.
@@ -1898,7 +1647,7 @@
            DISPLAY "THE FILE IS IN INCREASING PROC. # ORDER"
            DISPLAY "TYPE X TO BACK TO PROMPT FOR PROCEDURE."
            GO TO 2150-PROC.
-           IF PROC = "X" GO TO 2000TI.
+           IF CD-proc = "X" GO TO 2000TI.
            START PROCFILE KEY NOT < PROC-KEY INVALID
            DISPLAY "END OF FILE" GO TO 2000TI.
            MOVE 0 TO X.
@@ -1933,31 +1682,31 @@
            GO TO 2000TI.
            STRING RIGHT-4 CENTS DELIMITED BY "Z" INTO ALF-6
            MOVE ALF-6 TO NUM-6
-           DIVIDE NUM-6 BY 100 GIVING AMOUNT.
-           IF FLAG = 3 MOVE 0 TO FLAG MOVE AMOUNT TO NEF-8
+           DIVIDE NUM-6 BY 100 GIVING CD-amount.
+           IF FLAG = 3 MOVE 0 TO FLAG MOVE CD-amount TO NEF-8
            DISPLAY NEF-8 " ".
             GO TO 4900DEE.
        2160-DOCR.
-           IF ACTION = "SDV" MOVE DOCR TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO DOCR GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE DOCR TO IN-FIELD DISPLAY DOCR.
+           IF ACTION = "SDV" MOVE   CD-docr  TO PM-DATA GO TO SDV4.
+           IF ACTION = "DF2" MOVE PM-DATA TO CD-docr  GO TO 4900DEE.
+           IF IN-FIELD = "/" MOVE CD-docr  TO IN-FIELD DISPLAY CD-docr .
            IF IN-FIELD = "?"
            DISPLAY "ENTER THE REFERRING PHYS. CODE"
            DISPLAY "OR TYPE F TO SEARCH FOR CODE"
            DISPLAY "A <CR> IF NO REFERRING PHYSICIAN."
            GO TO 2000TI.
            IF ((IN-FIELD-3 = SPACE)
-           AND (PROC > "99240  " AND < "99281  "))
+           AND (CD-PROC > "99240  " AND < "99281  "))
            OR ((INS-REFWARN = "1") AND (IN-FIELD-3 = SPACE))
            DISPLAY "REFERRING PHYS. REQUIRED ON THIS CHARGE." BELL0.
-           IF IN-FIELD-3 = "000" OR SPACES MOVE ZEROES TO DOCR
+           IF IN-FIELD-3 = "000" OR SPACES MOVE ZEROES TO CD-docr 
            GO TO 4900DEE.
            IF IN-FIELD = "F" GO TO 1REF-SEARCH.
            MOVE IN-FIELD-3 TO REF-KEY.
            READ REFPHY INVALID DISPLAY "NOT ON FILE"
                GO TO 2000TI.
            DISPLAY REF-NAME
-           MOVE IN-FIELD-3 TO DOCR
+           MOVE IN-FIELD-3 TO CD-docr 
            GO TO 4900DEE.
        1REF-SEARCH.
            DISPLAY "SEARCH KEY ?".
@@ -2006,29 +1755,41 @@
            IF IN-FIELD-1 = "1" OR "2" OR "3" OR "4" OR "5"
            MOVE IN-FIELD-1 TO CD-SORCREF GO TO 4900DEE.
            DISPLAY IN-FIELD-1 " BAD" GO TO 2000TI.
+
        2165-DOCP.
-           IF ACTION = "SDV" MOVE DOCP TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO DOCP GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE DOCP TO IN-FIELD DISPLAY DOCP.
+           IF ACTION = "SDV" MOVE CD-DOCP TO PM-DATA GO TO SDV4.
+
+           IF ACTION = "DF2" MOVE PM-DATA TO CD-DOCP GO TO 4900DEE.
+
+           IF IN-FIELD = "/" MOVE CD-DOCP TO IN-FIELD DISPLAY CD-DOCP.
+
            IF IN-FIELD = "?"
-           DISPLAY "ENTER THE LOCAL DOCTOR CODE (2-DIGITS)"
-           GO TO 2000TI.
+             DISPLAY "ENTER THE LOCAL DOCTOR CODE (2-DIGITS)"
+             GO TO 2000TI.
+           
            MOVE SPACES TO RIGHT-2
            UNSTRING IN-FIELD-2 DELIMITED BY " " INTO RIGHT-2
+
            INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
+           
            IF RIGHT-2 NOT NUMERIC DISPLAY "NOT NUMERIC"
-           GO TO 2000TI.
-           IF RIGHT-2 < "01" OR > HIGH-DOC DISPLAY "INVALID"
-           GO TO 2000TI.
+             GO TO 2000TI.
+           
+           IF RIGHT-2 < "02" OR > HIGH-DOC DISPLAY "INVALID"
+             GO TO 2000TI.
+           
            MOVE RIGHT-2 TO NUM-2
+
            IF RATE-PC(NUM-2) = 99
-           DISPLAY "DOCTOR " NUM-2 " CANNOT BE USED."
-           GO TO 2000TI.
-           MOVE RIGHT-2 TO DOCP 
-           IF PH1 = 1 
-           MOVE DOCP TO NUM-2
+             DISPLAY "DOCTOR " NUM-2 " CANNOT BE USED."
+             GO TO 2000TI.
+
+           MOVE RIGHT-2 TO CD-DOCP 
+           
            DISPLAY RATE-NAME(NUM-2).
+
            GO TO 4900DEE.
+
        2170-PAYCODE.
            IF IN-FIELD = "?"
            DISPLAY "TYPE A 3-DIGIT NUMBER FOR A PAYORCODE"
@@ -2044,27 +1805,27 @@
            DISPLAY "ASSIGNMENT ATTRIBUTES ARE NOW CHANGED AS ABOVE"
            MOVE INS-ASSIGN TO CD-ASSIGN
            MOVE INS-NEIC-ASSIGN TO CD-NEIC-ASSIGN
-           MOVE INS-CLAIMTYPE TO PAPER
-           MOVE INS-KEY TO PAYCODE GO TO 4900DEE.
+           MOVE INS-CLAIMTYPE TO CD-paper
+           MOVE INS-KEY TO CD-paycode GO TO 4900DEE.
        2740-STAT.
-           IF ACTION = "SDV" MOVE STAT TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO STAT GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE STAT TO IN-FIELD DISPLAY STAT.
+           IF ACTION = "SDV" MOVE CD-stat TO PM-DATA GO TO SDV4.
+           IF ACTION = "DF2" MOVE PM-DATA TO CD-stat GO TO 4900DEE.
+           IF IN-FIELD = "/" MOVE CD-stat TO IN-FIELD DISPLAY CD-stat.
            IF IN-FIELD = "?"
            DISPLAY "0=NEW 1=BEEN BILLED 2=CLAIM SENT 3=BILL/CLAIM SENT"
            GO TO 2000TI.
            IF IN-FIELD-1 = "0" OR "1" OR "2" OR "3" NEXT SENTENCE
            ELSE DISPLAY "INVALID" GO TO 2000TI.
-           MOVE IN-FIELD-1 TO STAT GO TO 4900DEE.
+           MOVE IN-FIELD-1 TO CD-stat GO TO 4900DEE.
        2750-WORK.
-           IF ACTION = "SDV" MOVE WORK TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO WORK GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE WORK TO IN-FIELD DISPLAY WORK.
+           IF ACTION = "SDV" MOVE CD-work  TO PM-DATA GO TO SDV4.
+           IF ACTION = "DF2" MOVE PM-DATA TO CD-work  GO TO 4900DEE.
+           IF IN-FIELD = "/" MOVE CD-work  TO IN-FIELD DISPLAY CD-work .
            IF IN-FIELD = "?"
            DISPLAY "TYPE # OF UNITS REP. BY CHARGE"
            DISPLAY "1-99 ARE VALID. <CR> = 1"
            GO TO 2000TI.
-           IF IN-FIELD-2 = "01" OR SPACE MOVE "01" TO WORK
+           IF IN-FIELD-2 = "01" OR SPACE MOVE "01" TO CD-work 
            GO TO 4900DEE.
            MOVE SPACE TO RIGHT-2
            UNSTRING IN-FIELD-2 DELIMITED BY " " INTO RIGHT-2
@@ -2072,28 +1833,28 @@
            IF RIGHT-2 = "00" MOVE "01" TO RIGHT-2.
            IF RIGHT-2 NOT NUMERIC DISPLAY "NOT NUMERIC" GO TO 2000TI.
            IF RIGHT-2 > "09" DISPLAY "CHECK THIS".
-           MOVE RIGHT-2 TO WORK
+           MOVE RIGHT-2 TO CD-work 
            IF RIGHT-2 = "01" GO TO 4900DEE.
-           IF (PROC = "17003  " OR "1700359" OR "11056  " OR "95044  ")
-           OR (PROC > "J      " AND < "JZZZZZZ")
+           IF (CD-PROC = "17003  " OR "1700359" OR "11056  "
+              OR "95044  ") OR (CD-PROC > "J      " AND < "JZZZZZZ")
            NEXT SENTENCE 
            ELSE GO TO 4900DEE.
-           IF PROC = "J1245  " GO TO 4900DEE.
+           IF CD-proc = "J1245  " GO TO 4900DEE.
            MOVE RIGHT-2 TO NUM-2
-           MOVE PROC TO PROC-KEY
+           MOVE CD-proc TO PROC-KEY
            READ PROCFILE INVALID DISPLAY "BAD" GO TO 4900DEE.
            IF PROC-AMOUNT = 0 
            DISPLAY "MULTIPLIER NOT IN EFFECT"
            DISPLAY "PRICE MUST BE SET SEPARATELY, IF NECESSARY"
            GO TO 4900DEE.
            IF OVERRIDE-AMOUNT = 0
-              MULTIPLY NUM-2 BY PROC-AMOUNT GIVING AMOUNT
+              MULTIPLY NUM-2 BY PROC-AMOUNT GIVING CD-amount
               MOVE PROC-AMOUNT TO NEF-5
            ELSE
-              MULTIPLY NUM-2 BY OVERRIDE-AMOUNT GIVING AMOUNT
+              MULTIPLY NUM-2 BY OVERRIDE-AMOUNT GIVING CD-amount
               MOVE OVERRIDE-AMOUNT TO NEF-5
            END-IF
-             MOVE AMOUNT TO NEF-8
+             MOVE CD-amount TO NEF-8
            DISPLAY "NEW AMOUNT = " NUM-2 " x " NEF-5 " = " NEF-8
            GO TO 4900DEE.
        1450-PAPER. IF IN-FIELD = "?"
@@ -2101,13 +1862,17 @@
            DISPLAY "O= CLAIM FORM DELIVERED TO OFFICE"
            DISPLAY "<CR> IF NEITHER" GO TO 2000TI.
            IF IN-FIELD-1 = "P" OR "O"  DISPLAY "PAPER CLAIM"
-            MOVE IN-FIELD-1 TO PAPER GO TO 4900DEE.
+            MOVE IN-FIELD-1 TO CD-paper GO TO 4900DEE.
            IF IN-FIELD-1 NOT = " " DISPLAY "INVALID" GO TO 2000TI.
-           MOVE " " TO PAPER GO TO 4900DEE.
+           MOVE " " TO CD-paper GO TO 4900DEE.
+
        2180-PLACE.
-           IF ACTION = "SDV" MOVE PLACE TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO PLACE GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE PLACE TO IN-FIELD DISPLAY PLACE.
+           IF ACTION = "SDV" MOVE CD-place  TO PM-DATA GO TO SDV4.
+
+           IF ACTION = "DF2" MOVE PM-DATA TO CD-place  GO TO 4900DEE.
+
+           IF IN-FIELD = "/" MOVE CD-place TO IN-FIELD DISPLAY CD-place.
+
            IF IN-FIELD = "?"
            DISPLAY "ENTER PLACE OF SERVICE CODE."
            DISPLAY "1=OFFICE 2=PAT. HOME"
@@ -2117,13 +1882,13 @@
                GO TO 2000TI.
            IF IN-FIELD-1 = " "        DISPLAY "INVALID" GO TO 2000TI.
            IF IN-FIELD = "1" OR "2" OR "7" OR "8"
-           MOVE IN-FIELD-1 TO PLACE GO TO 4900DEE.
+           MOVE IN-FIELD-1 TO CD-place  GO TO 4900DEE.
            MOVE 1 TO FLAG
            PERFORM 4500-PL1 THRU 4500-PL1-EXIT VARYING X
            FROM 1 BY 1 UNTIL X > PLINDX
            IF IN-FIELD-2 = "FF" GO TO 2000TI.
            IF FLAG = 1 DISPLAY "INVALID" GO TO 2000TI.
-           MOVE IN-FIELD-1 TO PLACE GO TO 4900DEE.
+           MOVE IN-FIELD-1 TO CD-place  GO TO 4900DEE.
        4500-PL1.
            IF IN-FIELD-2 = "FF"
             MOVE 0 TO FLAG
@@ -2134,7 +1899,7 @@
             MOVE PLINDX TO X.
        4500-PL1-EXIT. EXIT.
        INPAT-1.
-           IF (PL-TAB(X) = PLACE) 
+           IF (PL-TAB(X) = CD-place ) 
             AND (PL-NUM(X) = 3) 
             MOVE 1 TO FLAG 
             MOVE PLINDX TO X.
@@ -2151,9 +1916,9 @@
            MOVE IN-FIELD-1 TO CD-EPSDT GO TO 4900DEE.
            DISPLAY "INVALID" GO TO 2000TI.
        2190-DAT1.
-           IF ACTION = "SDV" MOVE DAT1 TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO DAT1 GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE DAT1 TO TEST-DATE
+           IF ACTION = "SDV" MOVE CD-dat1  TO PM-DATA GO TO SDV4.
+           IF ACTION = "DF2" MOVE PM-DATA TO CD-dat1  GO TO 4900DEE.
+           IF IN-FIELD = "/" MOVE CD-dat1  TO TEST-DATE
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            MOVE INPUT-DATE TO IN-FIELD DISPLAY DISPLAY-DATE.
@@ -2161,9 +1926,9 @@
            DISPLAY "ENTER ACCIDENT/SYMPTOM DATE   T = TODAY""S DATE"
            DISPLAY " OR DD OR MMDD OR MMDDYY OR MMDDYYYY"
            GO TO 2000TI.
-           IF IN-FIELD = "00000000" OR SPACE MOVE ZEROES TO DAT1
+           IF IN-FIELD = "00000000" OR SPACE MOVE ZEROES TO CD-dat1 
            GO TO 4900DEE.
-           IF IN-FIELD-8 = "T" ACCEPT DAT1 FROM DATE YYYYMMDD 
+           IF IN-FIELD-8 = "T" ACCEPT CD-dat1  FROM DATE YYYYMMDD 
            GO TO 4900DEE.
            IF IN-FIELD-2 NUMERIC AND
            IN-FIELD-TAB(3) = " " AND IN-FIELD-TAB(4) = " "
@@ -2201,31 +1966,31 @@
       *     IF T-DATE < TEST-DATE DISPLAY " A FUTURE DATE" BELL 
       *     GO TO 2000TI.
            IF TEST-DATE < "19990101" DISPLAY "VERY OLD" BELL0.
-           MOVE TEST-DATE TO DAT1
+           MOVE TEST-DATE TO CD-dat1 
            GO TO 4900DEE.
        2195-RESULT.
            IF IN-FIELD = "?"
            DISPLAY "ENTER MEDICAID RESULT CODE"
            DISPLAY "1 = NORMAL 2 = ABNORMAL"
            GO TO 2000TI.
-           IF IN-FIELD-1 = "1" OR "2" MOVE IN-FIELD-1 TO RESULT
+           IF IN-FIELD-1 = "1" OR "2" MOVE IN-FIELD-1 TO CD-result 
            GO TO 4900DEE.
            DISPLAY "INVALID" GO TO 2000TI.
        2196-ACTION.
            IF IN-FIELD = "?"
-           DISPLAY "ENTER MEDICAID ACTION CODE"
+           DISPLAY "ENTER MEDICAID  ACTION CODE"
            DISPLAY "1=APPT. MADE OFF SITE 2=CARE INSTIT."
            DISPLAY "3=NO APPT. MADE 4=ALREADY UNDER CARE"
            DISPLAY "5=REFER FOR TREAT. 6=DIAG/TREAT NOT AVAIL."
            DISPLAY "7=PATIENT REFUSED TREATMEMT"
            GO TO 2000TI.
-           IF IN-FIELD-1 > "0" AND < "8" MOVE IN-FIELD-1 TO ACT
+           IF IN-FIELD-1 > "0" AND < "8" MOVE IN-FIELD-1 TO CD-ACT
            GO TO 4900DEE.
            DISPLAY "INVALID" GO TO 2000TI.
        4000-DATE-T.
-           IF ACTION = "SDV" MOVE DATE-T TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO DATE-T GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE DATE-T TO TEST-DATE
+           IF ACTION = "SDV" MOVE CD-date-t  TO PM-DATA GO TO SDV4.
+           IF ACTION = "DF2" MOVE PM-DATA TO CD-date-t  GO TO 4900DEE.
+           IF IN-FIELD = "/" MOVE CD-date-t  TO TEST-DATE
            MOVE CORR TEST-DATE TO INPUT-DATE 
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            MOVE INPUT-DATE TO IN-FIELD DISPLAY DISPLAY-DATE.
@@ -2233,7 +1998,7 @@
            DISPLAY "DATE OF SERVICE    T = TODAY""S DATE"
            DISPLAY "OR DD OR MMDD OR MMDDYY OR MMDDYYYY FORMAT"
            GO TO 2000TI.
-           IF IN-FIELD-8 = "T" ACCEPT DATE-T FROM DATE YYYYMMDD
+           IF IN-FIELD-8 = "T" ACCEPT CD-date-t  FROM DATE YYYYMMDD
            GO TO 4900DEE.
            IF IN-FIELD-2 NUMERIC AND
            IN-FIELD-TAB(3) = " " AND IN-FIELD-TAB(4) = " "
@@ -2272,23 +2037,19 @@
       *     DISPLAY "A FUTURE DATE: INVALID" BELL
       *     GO TO 2000TI.
            IF TEST-DATE < "19990101" DISPLAY "VERY OLD" BELL0.
-           MOVE TEST-DATE TO DATE-T
+           MOVE TEST-DATE TO CD-date-t 
              IF ACTION = "CC"
-              IF ((DATE-T > "20150930") AND
-                  (DIAG(6:2) = "??"
+              IF ((CD-DATE-T > "20150930") AND
+                  (CD-DIAG(6:2) = "??"
                   OR CD-DX2(6:2) = "??"
                   OR CD-DX3(6:2) = "??"
                   OR CD-DX4(6:2) = "??"))
-      *            OR CD-DX5(6:2) = "??"
-      *            OR CD-DX6(6:2) = "??"))
-               OR ((DATE-T < "20151001") AND
-                     (DIAG(6:2) NOT = "??"
+               OR ((CD-DATE-T < "20151001") AND
+                     (CD-DIAG(6:2) NOT = "??"
                  AND CD-DX2(6:2) NOT = "??"
                  AND CD-DX3(6:2) NOT = "??"
                  AND CD-DX4(6:2) NOT = "??"))
-      *           AND CD-DX5(6:2) NOT = "??"
-      *           AND CD-DX6(6:2) NOT = "??"))
-               DISPLAY "DATE CONFLICT WITH DIAGNOSES"
+               DISPLAY "DATE CONFLICT WITH  DIAGNOSES"
                DISPLAY "CHANGE THE DATE TO MATCH DIAGNOSES"
                DISPLAY "OR CHANGE ALL THE DIAGNOSES"
                GO TO 1400-CHANGE-PROCESS
@@ -2314,30 +2075,42 @@
       *     MOVE CD-AUTH TO ALF-1
            PERFORM AUTH-1 THRU AUTH-1-EXIT
            GO TO 4900DEE.
+
        2-MOD2.
-           IF ACTION = "SDV" MOVE MOD2 TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO MOD2 GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE MOD2 TO IN-FIELD DISPLAY MOD2.
+           IF ACTION = "SDV" MOVE CD-mod2  TO PM-DATA GO TO SDV4.
+
+           IF ACTION = "DF2" MOVE PM-DATA TO CD-mod2  GO TO 4900DEE.
+
+           IF IN-FIELD = "/" MOVE CD-mod2  TO IN-FIELD DISPLAY CD-mod2.
+
            IF IN-FIELD = "?"
-           DISPLAY "TYPE THE 2ND MODIFIER OR <CR>"
-           GO TO 2000TI.
+             DISPLAY "TYPE THE 2ND MODIFIER OR <CR>"
+             GO TO 2000TI.
+
            MOVE IN-FIELD-2 TO ALFX-2
+
            IF ALFX-21 = SPACE
-           OR ALFX-22 = SPACE
-           MOVE SPACE TO IN-FIELD-2.
-           MOVE IN-FIELD-2 TO MOD2 GO TO 4900DEE.
+             OR ALFX-22 = SPACE
+               MOVE SPACE TO IN-FIELD-2.
+
+           MOVE IN-FIELD-2 TO CD-mod2  GO TO 4900DEE.
+
        2-MOD3.
-           IF ACTION = "SDV" MOVE MOD3 TO PM-DATA GO TO SDV4.
-           IF ACTION = "DF2" MOVE PM-DATA TO MOD3 GO TO 4900DEE.
-           IF IN-FIELD = "/" MOVE MOD3 TO IN-FIELD DISPLAY MOD3.
+           IF ACTION = "SDV" MOVE CD-mod3  TO PM-DATA GO TO SDV4.
+
+           IF ACTION = "DF2" MOVE PM-DATA TO CD-mod3  GO TO 4900DEE.
+
+           IF IN-FIELD = "/" MOVE CD-mod3  TO IN-FIELD DISPLAY CD-mod3.
+
            IF IN-FIELD = "?"
-           DISPLAY "TYPE THE 3RD MODIFIER OR <CR>"
-           GO TO 2000TI.
+             DISPLAY "TYPE THE 3RD MODIFIER OR <CR>"
+             GO TO 2000TI.
+
            MOVE IN-FIELD-2 TO ALFX-2
            IF ALFX-21 = SPACE
            OR ALFX-22 = SPACE
            MOVE SPACE TO IN-FIELD-2.
-           MOVE IN-FIELD-2 TO MOD3 GO TO 4900DEE.
+           MOVE IN-FIELD-2 TO CD-mod3  GO TO 4900DEE.
        2-XXXX.
            IF IN-FIELD = "?"
            DISPLAY "NOT A DEFINE FIELD" GO TO 2000TI.
@@ -2386,7 +2159,7 @@
            DISPLAY "INVALID" GO TO 2000TI.
            MOVE CORR INPUT-DATE TO TEST-DATE
            MOVE TEST-DATE TO CD-DATE-A.
-           IF DATE-T > CD-DATE-A DISPLAY "UNLIKELY" GO TO 2000TI.
+           IF CD-date-t  > CD-DATE-A DISPLAY "UNLIKELY" GO TO 2000TI.
            GO TO 4900DEE.
        2-COLLT.
            IF ACTION = "SDV" MOVE CD-COLLT TO PM-DATA GO TO SDV4.
@@ -2474,7 +2247,7 @@
            ELSE GO TO 4910DEE.
            IF ( G-PRINS = "004" OR G-SEINS = "004" OR
            G-PRINS = "064" OR G-SEINS = "064") AND
-           ( PROC1 = "99391" OR "99392" OR "99393" OR "99394"
+           (CD-proc1 = "99391" OR "99392" OR "99393" OR "99394"
            OR "99395" OR "99381" OR "99382" OR "99383" OR "99384"
            OR "99385")
            GO TO 4910DEE.
@@ -2482,31 +2255,40 @@
        4910DEE.
            EXIT.
        LR1.
-           MOVE AMOUNT TO NEF-8
-           MOVE DAT1 TO TEST-DATE MOVE CORR TEST-DATE
+           MOVE CD-amount TO NEF-8
+           MOVE CD-dat1  TO TEST-DATE MOVE CORR TEST-DATE
            TO DISPLAY-DATE
-           MOVE DATE-T TO TEST-DATE MOVE CORR TEST-DATE
+           MOVE CD-date-t  TO TEST-DATE MOVE CORR TEST-DATE
            TO DISPLAY-DATE-TOO
            
-           DISPLAY "PATIENT NAME: " NAME
+           DISPLAY "PATIENT NAME: " CD-NAME
 
-           DISPLAY CHAR-KEY " " PATID " " CLAIM " " PLACE "  "
-           PROC " " MOD2 "   " MOD3  NEF-8
+           DISPLAY charfile-key " " cd-PATID " " CD-claim " " 
+             CD-place "  " CD-proc " " CD-mod2  "   " CD-mod3   NEF-8
+
            DISPLAY
            "KEY         PATIENT  CLAIM  PL     PROC    MOD2 MOD3   $$$"
            DISPLAY " "
-           DISPLAY DIAG " " CD-DX2 " " CD-DX3 " " CD-DX4
+             
+           DISPLAY CD-diag " " CD-DX2 " " CD-DX3 " " CD-DX4
       *     " " CD-DX5  " " CD-DX6
+
            DISPLAY "DX1     DX2     DX3     DX4"
       *          DX5     DX6"
+
            DISPLAY " "
-           DISPLAY CD-SERVICE "    " DOCP "    " DOCR "   " WORK "    "
-           DISPLAY-DATE " "  CD-ACC-TYPE "    " DISPLAY-DATE-TOO " "
-           PAYCODE "  " RESULT "    " ACT "   " CD-EPSDT "     "
-           CD-SORCREF
+
+           DISPLAY CD-SERVICE "    " CD-DOCP "    " CD-docr  "   " 
+             CD-work  "    "
+             DISPLAY-DATE " "  CD-ACC-TYPE "    " DISPLAY-DATE-TOO " "
+             CD-paycode "  " CD-result  "    " CD-act "   "
+                CD-EPSDT "     " CD-SORCREF
+
            DISPLAY "TYPE PRVD  REF   UNIT     ACCDT  ACCTP    DATE    IN
       -    "S  RSLT ACT EPSDT SOCR"
+
            DISPLAY " "
+
            MOVE CD-DATE-A TO TEST-DATE MOVE CORR TEST-DATE
            TO DISPLAY-DATE
            MOVE CD-DATE-M TO TEST-DATE MOVE CORR TEST-DATE
@@ -2514,25 +2296,26 @@
            
            DISPLAY CD-ASSIGN "    " CD-NEIC-ASSIGN "        "
            CD-COLLT "      "
-           PAPER "      " STAT "       " DISPLAY-DATE
-           "    " CD-AUTH "    " DISPLAY-DATE-TOO
+           CD-paper "      " CD-stat "       " DISPLAY-DATE
+           "    " CD-Age "    " DISPLAY-DATE-TOO
 
            DISPLAY "ASGN CLM-ASGN COLLT  PAPER  STATUS   CLM-DATE  AUT
       -    "   ADMIT-DT"
-           MOVE DATE-E TO TEST-DATE MOVE CORR TEST-DATE
-           TO DISPLAY-DATE
+           MOVE CD-date-e TO TEST-DATE 
+           MOVE CORR TEST-DATE TO DISPLAY-DATE
            
-           DISPLAY "RECORD ENTERED: " DISPLAY-DATE
-           IF CD-AUTH = "1" PERFORM READ-AUTH
-            IF AUTH-NUM NOT = SPACE
-             DISPLAY "AUTHNUM = " AUTH-NUM
-            END-IF
-           END-IF.
+           DISPLAY "RECORD ENTERED: " DISPLAY-DATE.
+      *     IF CD-AUTH = "1" PERFORM READ-AUTH
+      *      IF AUTH-NUM NOT = SPACE
+      *       DISPLAY "AUTHNUM = " AUTH-NUM
+      *      END-IF
+      *     END-IF.
+
        5000-WRITE-CHARFILE.
-           MOVE CHAR-KEY TO G-GARNO
+           MOVE charfile-key TO G-GARNO
            READ GARFILE INVALID DISPLAY "BAD GARNO" GO TO 1000-ACTION.
-           IF PAYCODE NOT = "001" AND PAYCODE NOT = G-PRINS
-           AND PAYCODE NOT = G-SEINS AND PAYCODE NOT = G-TRINS
+           IF CD-paycode NOT = "001" AND CD-paycode NOT = G-PRINS
+           AND CD-paycode NOT = G-SEINS AND CD-paycode NOT = G-TRINS
            DISPLAY "INSURANCE CODE ON THIS RECORD DOES NOT MATCH"
            DISPLAY "ANY INSURANCE CODE FOR THE ACCOUNT"
            DISPLAY "THIS MAY NOT BE VALID.  THIS IS ONLY A WARNING".
@@ -2548,10 +2331,10 @@
            DISPLAY "UPDATE MADE".
            IF ACTION = "CC" MOVE "A" TO ACTION GO TO M2.
            GO TO 1000-ACTION.
-       FA-1. IF CHAR-KEY = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
-           OR "7" OR "8" OR "9" MOVE CHAR-KEY TO IN-FIELD-1
-           MOVE IN-FIELD-1 TO FLAG MOVE GAR-TAB(FLAG) TO CHAR-KEY.
-           MOVE CHAR-KEY TO G-GARNO
+       FA-1. IF charfile-key = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
+           OR "7" OR "8" OR "9" MOVE charfile-key TO IN-FIELD-1
+           MOVE IN-FIELD-1 TO FLAG MOVE GAR-TAB(FLAG) TO charfile-key.
+           MOVE charfile-key TO G-GARNO
            READ GARFILE INVALID DISPLAY "INVALID" GO TO FA-1-EXIT.
            DISPLAY G-GARNO " " G-PRINS "/" G-SEINS "/" G-TRINS 
            " " G-GARNAME
@@ -2588,9 +2371,17 @@
 
        DD-1. IF DD = 0 MOVE 1 TO DD DISPLAY "DEFAULT LIST"
            ELSE MOVE 0 TO DD DISPLAY "NO DEFAULT LIST AFTER ADD".
-       PH-1. IF PH1 = 0 MOVE 1 TO PH1 DISPLAY "PHYS. NAME DISPLAY"
-           ELSE MOVE 0 TO PH1 DISPLAY "NO PHYS. NAME DISPLAY".
-       CP-1. IF CO-PAY-FLAG = 0 MOVE 1 TO CO-PAY-FLAG 
+
+       PH-1. 
+           IF PH1 = 0 
+             MOVE 1 TO PH1 
+             DISPLAY "PHYS. NAME DISPLAY"
+           ELSE 
+             MOVE 0 TO PH1 
+             DISPLAY "NO PHYS. NAME DISPLAY".
+
+       CP-1. 
+           IF CO-PAY-FLAG = 0 MOVE 1 TO CO-PAY-FLAG 
            DISPLAY "NO CO-PAY PROMPT"
            ELSE MOVE 0 TO CO-PAY-FLAG 
            DISPLAY "CO-PAY PROMPT AFTER ADD".
@@ -2623,14 +2414,14 @@
 
        READ-AUTH.
            MOVE CD-KEY8 TO AUTH-KEY8
-           MOVE CLAIM TO AUTH-KEY6
+           MOVE CD-claim TO AUTH-KEY6
            READ AUTHFILE INVALID MOVE "1" TO FLAG
            MOVE SPACE TO AUTH-NUM.
            IF AUTH-NUM = SPACE AND FLAG = 0 MOVE 1 TO FLAG.
            IF AUTH-NUM NOT = SPACE AND FLAG = 0 MOVE 2 TO FLAG.
        AUTH-1.
            MOVE CD-KEY8 TO AUTH-KEY8
-           MOVE CLAIM TO AUTH-KEY6
+           MOVE CD-claim TO AUTH-KEY6
            READ AUTHFILE WITH LOCK INVALID GO TO AUTH-2.
            DISPLAY "CURRENT NUMBER = " AUTH-NUM
            IF IN-FIELD-2 = "4 " MOVE "1" TO ALF-1 GO TO AUTH-1-EXIT.
@@ -2651,7 +2442,7 @@
            DISPLAY "PRIOR AUTH.NUM. NOT ADDED/CHANGED"
            GO TO AUTH-1-EXIT.
            IF ALF-15 = "Y" OR "N" DISPLAY "INVALID" GO TO AUTH-2.
-           MOVE "1" TO CD-AUTH
+           MOVE "1" TO CD-Age
            MOVE ALF-15 TO AUTH-NUM
            IF FLAG = 2
            REWRITE AUTHFILE01 GO TO AUTH-1-EXIT.
@@ -2670,7 +2461,7 @@
 
 
        DX-1.
-           IF DIAG = "0000000"
+           IF CD-diag = "0000000"
              AND CD-DX2 = "0000000" AND CD-DX3 = "0000000"
              AND CD-DX4 = "0000000"
       *       AND CD-DX5 = "0000000" AND CD-DX6 = "0000000"
@@ -2680,7 +2471,7 @@
            END-IF
 
            MOVE SPACE TO TABDX01
-           STRING DIAG CD-DX2 CD-DX3 CD-DX4
+           STRING CD-diag CD-DX2 CD-DX3 CD-DX4
       *     CD-DX5 CD-DX6
            DELIMITED BY SIZE INTO TABDX01
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 3
@@ -2697,7 +2488,7 @@
              END-IF
             END-PERFORM
            END-PERFORM
-           MOVE TABDX(1) TO DIAG
+           MOVE TABDX(1) TO CD-diag
            MOVE TABDX(2) TO CD-DX2
            MOVE TABDX(3) TO CD-DX3
            MOVE TABDX(4) TO CD-DX4.
@@ -2706,30 +2497,30 @@
        DX-1-EXIT. EXIT.
 
        dxmod-1.
-           IF (PROC2 NOT = SPACE)
-             IF PROC2 = MOD2
-             MOVE MOD3 TO MOD2
-             MOVE SPACE TO MOD3
+           IF (CD-PROC1(6:2) NOT = SPACE)
+             IF CD-PROC1(6:2) = CD-mod2 
+             MOVE CD-mod3  TO CD-mod2 
+             MOVE SPACE TO CD-mod3 
              END-IF
            END-IF
-           IF (PROC2 NOT = SPACE)
-             IF PROC2 = MOD2
-             MOVE MOD3 TO MOD2
-             MOVE SPACE TO MOD3
+           IF (CD-PROC1(6:2) NOT = SPACE)
+             IF CD-PROC1(6:2) = CD-mod2 
+             MOVE CD-mod3  TO CD-mod2 
+             MOVE SPACE TO CD-mod3 
              END-IF
            END-IF
-           IF (MOD2 = MOD3)
-           AND (MOD2 NOT = SPACE)
-           MOVE SPACE TO MOD3
+           IF (cd-MOD2 = CD-mod3 )
+           AND (cd-MOD2 NOT = SPACE)
+           MOVE SPACE TO CD-mod3 
            END-IF
            
-           IF (proc2 = MOD3)
-           MOVE SPACE TO MOD3
+           IF (cd-proc1(6:2) = CD-mod3 )
+           MOVE SPACE TO CD-mod3 
            END-IF
-           IF (mod2 = space)
-           and (MOD3 not = space)
-           move mod3 to mod2
-           MOVE SPACE TO MOD3
+           IF (cd-mod2 = space)
+           and (cd-MOD3 not = space)
+           move CD-mod3  to CD-mod2 
+           MOVE SPACE TO CD-mod3 
            END-IF.
 
        CD10.
@@ -2744,11 +2535,11 @@
            READ DIAGFILE INVALID DISPLAY "NOT ON FILE"
             MOVE 1 TO RETURN-FLAG
            END-READ
-           IF (DATE-T < "20151001" AND DIAG-KEY(6:2) NOT = "??")
+           IF (CD-DATE-T < "20151001" AND DIAG-KEY(6:2) NOT = "??")
             DISPLAY "USE ICD9 CODE WITH THIS DATE"
             MOVE 1 TO RETURN-FLAG
            GO TO CD10-EXIT.
-           IF (DATE-T > "20150930" AND DIAG-KEY(6:2) = "??")
+           IF (CD-DATE-T > "20150930" AND DIAG-KEY(6:2) = "??")
             DISPLAY "USE ICD10 CODE WITH THIS DATE"
             MOVE 1 TO RETURN-FLAG
            GO TO CD10-EXIT.
@@ -2762,7 +2553,7 @@
       *     MOVE 1 TO DIAG-FLAG
       *     IF ANS = "9" MOVE 9 TO DIAG-FLAG.
            MOVE 1 TO DIAG-FLAG
-           IF DATE-T < "20151001" MOVE 9 TO DIAG-FLAG.
+           IF CD-date-t  < "20151001" MOVE 9 TO DIAG-FLAG.
            DISPLAY "SEARCH KEY ?".
            ACCEPT DIAG-TITLE.
            IF DIAG-TITLE = "?"
@@ -2887,9 +2678,10 @@
              MOVE ALF-2 TO NUM-2
              IF (NUM-2 > 0) AND (NUM-2 <= Y)
               MOVE TAGTAB(NUM-2) TO IN-FIELD-7
-              IF DATE-T < "20151001"
+              IF CD-date-t  < "20151001"
                DISPLAY "MUST USE ICD9 CODE FOR THIS DATE"
-               DISPLAY DATE-T(5:2) "-" DATE-T(7:2) "-" DATE-T(1:4)
+               DISPLAY CD-date-t (5:2) "-" CD-date-t (7:2)
+                 "-" CD-date-t (1:4)
                ACCEPT ANS
                MOVE 1 TO RETURN-FLAG
               END-IF
