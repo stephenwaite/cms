@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. kinne005.
+       PROGRAM-ID. paypal005.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -42,6 +42,10 @@
 
        FD  FILEIN.
        01  FILEIN01.
+           02 fi-date pic x(8).
+           02 filler pic x value space.
+           02 fi-name pic x(30).
+           02 filler pic x value space.
            02 FI-GARNO PIC X(8).
            02 FILLER PIC X VALUE SPACES.
            02 FI-DEDUCT PIC 9(4)V99.
@@ -102,66 +106,84 @@
        0005-START.
            OPEN INPUT FILEIN CHARCUR GARFILE PAYCUR.
            OPEN OUTPUT ERROR-FILE FILEOUT.
-           OPEN I-O PAYFILE.
-
-        P2-1.
-           DISPLAY "DATE  YYYYMMDD FORMAT"
-           ACCEPT PD-DATE-T
-           IF PD-DATE-T NOT NUMERIC
-             DISPLAY "BAD DATE"
-             GO TO P2-1
-           END-IF.
+           OPEN I-O PAYFILE.       
 
        P1.
-           READ FILEIN AT END GO TO P9.
+           READ FILEIN 
+             AT END 
+               GO TO P9.
+
+           MOVE FI-DATE TO PAYDATE
+
            MOVE FI-GARNO TO G-GARNO
-           READ GARFILE INVALID GO TO E1.
+           
+           READ GARFILE 
+             INVALID 
+               GO TO E1.
+           
            MOVE G-GARNO TO CC-KEY8
            MOVE SPACE TO CC-KEY3
-           START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO E1.
+           START CHARCUR KEY NOT < CHARCUR-KEY 
+             INVALID 
+               GO TO E1.
 
        P2. 
-           READ CHARCUR NEXT AT END GO TO E1.
-           IF CC-KEY8 NOT = G-GARNO GO TO E1.
-           IF CC-COLLT NOT = "1" GO TO P2.
+           READ CHARCUR NEXT 
+             AT END 
+               GO TO E1.
+
+           IF CC-KEY8 NOT = G-GARNO 
+             GO TO E1.           
+
            MOVE FI-PAID TO NEF-6
            DISPLAY NEF-6 " PAID"
            MOVE FI-DEDUCT TO NEF-6
            DISPLAY NEF-6 " DEDUCT"
-           MOVE 0 TO FLAG
-           PERFORM A1 THRU A3
-           IF FLAG = 1 GO TO P2.
+
+      *     MOVE 0 TO FLAG
+      *     PERFORM A1 THRU A3
+
+      *     IF FLAG = 1 GO TO P2.
+
            MOVE SPACE TO PD-DENIAL 
-           MOVE "018" TO PD-PAYCODE
-           ACCEPT PD-ORDER FROM TIME .
-           MOVE PD-DATE-T TO PD-DATE-E
+           MOVE "022" TO PD-PAYCODE
+           ACCEPT PD-ORDER FROM TIME.
+           MOVE PAYDATE TO PD-DATE-T
+           ACCEPT PD-DATE-E FROM DATE YYYYMMDD.
            MOVE SPACE TO PD-BATCH
            MOVE CC-CLAIM TO PD-CLAIM
            MOVE G-GARNO TO PD-KEY8
            MOVE SPACE TO PD-KEY3
            MOVE G-GARNAME TO PD-NAME
            MOVE 0 TO PD-AMOUNT
-            MOVE PAYFILE01 TO PAYBACK01
-            PERFORM S4 THRU S5 
-            MOVE 0 TO XYZ
+           MOVE PAYFILE01 TO PAYBACK01
+           PERFORM S4 THRU S5 
+           MOVE 0 TO XYZ
+          
            IF FI-PAID NOT = 0
-            IF CLAIM-TOT NOT < FI-PAID 
-             COMPUTE PD-AMOUNT =  -1 * FI-PAID
-            ELSE
-             COMPUTE PD-AMOUNT = -1 * CLAIM-TOT
-            END-IF
-            COMPUTE FI-PAID = FI-PAID + PD-AMOUNT
-            WRITE FILEOUT01 FROM CHARCUR01
-            MOVE PAYFILE01 TO PAYBACK01
-            PERFORM P3 THRU P4
+             IF CLAIM-TOT NOT < FI-PAID 
+               COMPUTE PD-AMOUNT =  -1 * FI-PAID
+             ELSE
+               COMPUTE PD-AMOUNT = -1 * CLAIM-TOT
+             END-IF
+             
+             COMPUTE FI-PAID = FI-PAID + PD-AMOUNT
+             WRITE FILEOUT01 FROM CHARCUR01
+             MOVE PAYFILE01 TO PAYBACK01
+             PERFORM P3 THRU P4
+
            END-IF
-            ADD PD-AMOUNT TO CLAIM-TOT
+           
+           ADD PD-AMOUNT TO CLAIM-TOT
+
            IF CLAIM-TOT = 0 GO TO P2.
+
            IF CLAIM-TOT NOT < FI-DEDUCT 
-           COMPUTE PD-AMOUNT =  -1 * FI-DEDUCT
+             COMPUTE PD-AMOUNT =  -1 * FI-DEDUCT
            ELSE
-           COMPUTE PD-AMOUNT = -1 * CLAIM-TOT
+             COMPUTE PD-AMOUNT = -1 * CLAIM-TOT
            END-IF
+
            COMPUTE FI-DEDUCT = FI-DEDUCT + PD-AMOUNT
            MOVE "14" TO PD-DENIAL
            MOVE PAYFILE01 TO PAYBACK01
@@ -188,7 +210,8 @@
            MOVE CC-AMOUNT TO CLAIM-TOT
            MOVE CC-KEY8 TO PC-KEY8
            MOVE "000" TO PC-KEY3.
-           START PAYCUR KEY NOT <  PAYCUR-KEY INVALID GO TO S5.
+           START PAYCUR KEY NOT < PAYCUR-KEY INVALID GO TO S5.
+
        S41.
            READ PAYCUR NEXT AT END GO TO S5.
            IF PC-KEY8 NOT = CC-KEY8 GO TO S5.
@@ -206,8 +229,11 @@
 
        A2. 
            READ PAYFILE NEXT AT END GO TO A3.
+
            IF PD-KEY8 NOT = CC-KEY8 GO TO A3.
+
            IF PD-CLAIM NOT = CC-CLAIM GO TO A2.
+
            MOVE 1 TO FLAG.
 
        A3.
@@ -220,4 +246,6 @@
 
        P9.
            CLOSE CHARCUR GARFILE ERROR-FILE FILEOUT PAYFILE PAYCUR
+             FILEIN
+
            STOP RUN.

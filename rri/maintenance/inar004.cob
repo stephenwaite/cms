@@ -71,8 +71,10 @@
            ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
            ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT DOCPARM ASSIGN TO "S85" ORGANIZATION IS
            LINE SEQUENTIAL.
+
            SELECT GAPFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS GAPKEY
            ALTERNATE RECORD KEY IS GAP-NAME WITH DUPLICATES
@@ -796,23 +798,49 @@
            02 TAGTAB PIC X(7) OCCURS 20 TIMES.
        01  DIAG-FLAG PIC 9.
        01  ZERO-FLAG PIC 9.
+       
+       01  RATE01.
+           02 RATE-1 PIC 99.
+           02 RATE-4 PIC X(22).
+
+       01  RATETABLES.
+           02 RATETAB02 OCCURS 15 TIMES.
+             03 RATE-PC PIC 99. 
+             03 RATE-NAME PIC X(22).
+
        PROCEDURE DIVISION.
        0005-START.
       *     DISPLAY INITIAL WINDOW.
            COMPUTE DP = -1 * DP
            OPEN INPUT DOCPARM.
-           READ DOCPARM AT END GO TO 9100-CLOSE-MASTER-FILE.
+           READ DOCPARM 
+             AT END 
+             GO TO 9100-CLOSE-MASTER-FILE.
            MOVE 1 TO ZERO-FLAG.
            MOVE DPX TO HIGH-DOC.
+           MOVE HIGH-DOC TO NUM-2
+           PERFORM DOCRATE-1 NUM-2 TIMES.
       *    SET PLINDX TO 0.
            MOVE 0 TO PLINDX.
-       PX0. READ DOCPARM AT END GO TO P00.
-           IF DP-1-1 = "0" OR DPX = "10" GO TO PX0.
+           go to px0.
+
+       DOCRATE-1. 
+           READ DOCPARM AT END GO TO P00.           
+           MOVE DOCPARM01 TO RATE01
+           MOVE RATE-1 TO RATE-PC(RATE-1)
+           MOVE RATE-4 TO RATE-NAME(RATE-1).
+          
+       PX0. 
+           READ DOCPARM 
+             AT END 
+             GO TO P00.
+          
            MOVE DP-1-1 TO HIGH-PLACE.
            ADD 1 TO PLINDX
            MOVE DP-1-1 TO PL-TAB(PLINDX)
            MOVE DP-1-2 TO PL-NUM(PLINDX)
-           MOVE DP-2 TO PL-NAME(PLINDX) GO TO PX0.
+           MOVE DP-2 TO PL-NAME(PLINDX) 
+             GO TO PX0.
        P00.
            ACCEPT T-DATE FROM CENTURY-DATE.
            SET BELL0 TO 7.
