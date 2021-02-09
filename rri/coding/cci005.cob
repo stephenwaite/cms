@@ -400,7 +400,8 @@
 
            MOVE SPACE TO FILEOUT01
            STRING KEY-TAB(A) " " KEY-TAB(Z) " "
-               "ADDING MOD 59 FOR " CD-NAME " DOS " CD-DATE-T
+               "ADDING MOD 59 FOR " proc-tab(a) " " proc-tab(z)
+               " DOS " CD-DATE-T
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01  
 

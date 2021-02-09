@@ -742,17 +742,14 @@
            OPEN I-O GARFILE
            MOVE HOLD-MASTER TO GARFILE01.
            MOVE HOLD-GARNO TO  GARNO.
-           MOVE GARNO TO GAR-TAB(1)
+           MOVE GARNO TO GAR-TAB(1)           
+           
            WRITE GARFILE01 INVALID 
                DISPLAY "THIS RECORD CAN NOT BE ADDED AT THIS TIME"
                DISPLAY GARFILE-STAT
                GO TO 1000-ACTION
            END-WRITE
-           IF GARFILE-STAT NOT = "00"
-               DISPLAY "THIS RECORD CAN NOT BE ADDED AT THIS TIME"
-               DISPLAY GARFILE-STAT
-               GO TO 1000-ACTION
-           END-IF            
+
            CLOSE GARFILE.
            OPEN INPUT GARFILE.
            DISPLAY GARNO " " GARNAME.

@@ -339,7 +339,7 @@
                MOVE "59" TO CD-MOD3
            END-IF.
 
-           REWRITE CHARFILE01.
+      *     REWRITE CHARFILE01.
 
        P19-EXIT.
            EXIT.
