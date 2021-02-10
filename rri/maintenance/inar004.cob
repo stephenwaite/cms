@@ -145,6 +145,7 @@
            02 COMP-STATE    PIC XX.
            02 COMP-ZIP      PIC X(10).
            02 COMP-PHONE    PIC X(12).
+           
        FD  ADDRFILE.
        01  ADDRFILE01.
            02 ADDR-KEY PIC X(4). 
