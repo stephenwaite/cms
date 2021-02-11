@@ -91,7 +91,7 @@
                GO TO P99
            END-READ
             
-           IF NOT (CD-PROC0 = "1235" OR "1316")
+           IF NOT (CD-PROC0 = "1235" OR "1316" or "7356")
                GO TO P1
            END-IF
                    

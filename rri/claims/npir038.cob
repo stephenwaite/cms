@@ -11,9 +11,9 @@
        FILE-CONTROL.
 
            SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC    RECORD KEY IS CHARCUR-KEY
-           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
-           LOCK MODE MANUAL.
+             ACCESS IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+             ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+             LOCK MODE MANUAL.
 
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
@@ -77,34 +77,21 @@
            02 DF6 PIC XX.
            02 DF7 PIC X(9).
 
-       FD  PROCFILE
-           DATA RECORD PROCFILE01.
-       01  PROCFILE01.
-           02 PROC-KEY.
-             03 PROC-KEY1 PIC X(4).
-             03 PROC-KEY2 PIC X(7).
-           02 PROC-TYPE PIC X.
-           02 PROC-TITLE PIC X(28).
-           02 PROC-AMOUNT PIC 9(4)V99.
+       FD  PROCFILE.
+           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
+      
        FD  ERRORFILE
            DATA RECORD IS ERRORFILE01.
        01  ERRORFILE01.
-           02 EF1 PIC X(20).
+           02 EF1 PIC X(34).
            02 FILLER PIC X.
-           02 EF2 PIC X(37).
+           02 EF2 PIC X(22).
+           02 FILLER PIC X.
            02 EF3 PIC X(22).
            
-       FD  REFPHY
-           DATA RECORD IS REFPHY01.
-       01  REFPHY01.
-           02 REF-KEY PIC XXX.
-           02 REF-BSNUM PIC X(5).
-           02 REF-CRNUM PIC X(6).
-           02 REF-UPIN PIC X(6).
-           02 REF-CDNUM PIC X(7).
-           02 REF-NAME PIC X(24).
-           02 REF-NPI PIC X(10).
-
+       FD  REFPHY.
+           COPY refphy.CPY IN "C:\Users\sid\cms\copylib".           
+      
        FD GAPFILE.
        01 GAPFILE01.
            02 GAPKEY PIC X(7).
@@ -123,59 +110,9 @@
            02 DIAG-TITLE PIC X(61).
            02 DIAG-MEDB PIC X(5).
        
-       FD GARFILE
-           DATA RECORD IS G-MASTER.
-       01 G-MASTER.
-           02 G-GARNO PIC X(8).
-           02 G-GARNAME PIC X(24).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP5 PIC X(5).
-           02 G-ZIP4 PIC X(4).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(10).
-           02 G-PRIPOL0.
-             03 G-PRIPOL PIC X(9).
-             03 G-PR-SUFX PIC XXX.
-             03 G-PR-FILLER PIC X(4).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-TRINSIND PIC X.
-           02 G-TRINS PIC XXX.
-           02 G-SE-GROUP PIC X(10).
-           02 G-SECPOL0.
-             03 G-SECPOL PIC X(9).
-             03 G-SE-SUFX PIC XXX.
-             03 G-SE-FILLER PIC X(4).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-INSPEND PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
-
+       FD GARFILE.
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".  
+                    
        FD  PAPEROUT.
        01  PAPEROUT01.
            02 FO-PC PIC 999.
@@ -187,61 +124,18 @@
            02 FO-ASSIGN PIC X.
            02 FO-PLACE PIC X.
            02 FO-DOC PIC XX.
+
        FD  FILEIN.
        01  FILEIN01 PIC XXX.
 
-       FD FILEOUT.
+       FD  FILEOUT.
        01  FILEOUT01 PIC X(160).
 
-       FD FILEOUT2.
+       FD  FILEOUT2.
        01  FILEOUT201 PIC X(160).
 
-       FD  CHARCUR
-           DATA RECORD IS CHARCUR01.
-       01  CHARCUR01.
-           02 CHARCUR-KEY.
-             03 CC-KEY8 PIC X(8).
-             03 CC-KEY3 PIC XXX.
-           02 CC-PATID PIC X(8).
-           02 CC-CLAIM PIC X(6).
-           02 CC-SERVICE PIC X.
-           02 CC-DIAG PIC X(7).
-           02 CC-PROC.
-              03 CC-PROC0 PIC X(4).
-              03 CC-PROC1 PIC X(5).
-              03 CC-PROC2 PIC XX.
-           02 CC-MOD2 PIC XX.
-           02 CC-MOD3 PIC XX.
-           02 CC-MOD4 PIC XX.
-           02 CC-AMOUNT PIC S9(4)V99.
-           02 CC-DOCR PIC X(3).
-           02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC XXX.
-           02 CC-STUD PIC X.
-           02 CC-WORK PIC XX.
-           02 CC-DAT1 PIC X(8).
-           02 CC-RESULT PIC X.
-           02 CC-ACT PIC X.
-           02 CC-SORCREF PIC X.
-           02 CC-COLLT PIC X.
-           02 CC-AGE PIC X.
-           02 CC-PAPER PIC X.
-           02 CC-PLACE PIC X.
-           02 CC-IOPAT PIC X.
-           02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A PIC X(8).
-           02 CC-DATE-P PIC X(8).
-           02 CC-REC-STAT PIC X.
-           02 CC-DX2 PIC X(7).
-           02 CC-DX3 PIC X(7).
-           02 CC-ACC-TYPE PIC X.
-           02 CC-DATE-M PIC X(8).
-           02 CC-ASSIGN PIC X.
-           02 CC-NEIC-ASSIGN PIC X.
-           02 CC-DX4 PIC X(7).
-           02 CC-DX5 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
+       FD  CHARCUR.
+           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".           
 
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.
@@ -312,6 +206,7 @@
              INVALID
                GO TO P0
            END-START.    
+
        P1. 
            MOVE SPACE TO ERRORFILE01           
            
@@ -331,25 +226,21 @@
            MOVE CC-KEY8 TO G-GARNO
            READ GARFILE
              INVALID 
-               MOVE SPACE TO EF2
                MOVE "NO GARNO" TO EF2
-               MOVE SPACE TO EF3
                PERFORM S1 
                GO TO P1
            END-READ    
+
+           MOVE G-GARNAME TO EF3
            
            IF G-DOB NOT NUMERIC
-               MOVE SPACE TO EF2
-               MOVE "BAD DOB" TO EF2
-               MOVE G-DOB TO EF3
+               STRING "BAD DOB " G-DOB DELIMITED BY SIZE INTO EF2
                PERFORM S1 
                GO TO P1
            END-IF
 
            IF G-BILLADD = SPACE AND G-STREET = SPACE
-               MOVE SPACE TO EF2
                MOVE "MISSING STREET ADDRESS" TO EF2
-               MOVE G-DOB TO EF3
                PERFORM S1 
                GO TO P1
            END-IF    
@@ -357,7 +248,6 @@
            IF NOT (G-PRINS = "003" OR 
                    G-SEINS = "003" OR
                    G-TRINS = "003")
-               MOVE SPACE TO EF2
                MOVE "NO MEDICARE INSURANCE DEFINED" TO EF2
                PERFORM S1 
                GO TO P1
@@ -365,7 +255,6 @@
 
            IF (G-PRINS = "003" AND G-SEINS = "003") OR
               (G-PRINS = "003" AND G-TRINS = "003")
-               MOVE SPACE TO EF2
                MOVE "2 MEDICARE INSURANCES DEFINED!" TO EF2
                PERFORM S1 
                GO TO P1 
@@ -380,49 +269,40 @@
                PERFORM PAPER-1
                GO TO P1
            END-IF
-
-           MOVE G-GARNAME TO EF3
+           
            IF (G-SEINS = "004" OR "005" OR "062")
                IF ((G-SECPOL = SPACE) OR (G-SENAME = SPACE)
                     OR (G-SE-RELATE = SPACE))
-                   MOVE SPACE TO EF2
                    MOVE "MISSING 2ND-DARY INSURANCE INFO" TO EF2
                    PERFORM S1
                    GO TO P1
                END-IF
            END-IF
 
-           IF G-PRIPOL0(1:9) NOT NUMERIC
+           IF G-PRIPOL(1:9) NOT NUMERIC
                MOVE 0 TO FLAG
                PERFORM MBI-CHECK
                IF FLAG = 1
-                   MOVE SPACE TO EF1
-                   STRING CHARCUR-KEY " " CC-PROC DELIMITED BY SIZE 
-                   INTO EF1
-                   MOVE CHARCUR-KEY TO EF1 
-                   MOVE SPACE TO EF2
-                   MOVE "MEDICARE POLICY IS INVALID" TO EF2
-                   MOVE G-PRIPOL0(1:11) TO EF3
+                   STRING "MEDICARE POLICY IS INVALID " G-PRIPOL(1:11)
+                     DELIMITED BY SIZE INTO EF2
                    PERFORM S1 
                    GO TO P1           
                END-IF
            END-IF   
            
-           IF G-ZIP5 NOT NUMERIC 
-               MOVE SPACE TO EF2
-               MOVE "BAD ZIP CODE" TO EF2
+           IF G-ZIP(1:5) NOT NUMERIC 
+               STRING "BAD ZIP CODE " G-ZIP(1:5)
+                 DELIMITED BY SIZE INTO EF2
                PERFORM S1 
                GO TO P1
            END-IF     
 
            IF CC-DOCP = "02"
-               MOVE "BAD DOC ##" TO EF2
-               STRING "CPT " CC-PROC1 " DX " CC-DIAG DELIMITED BY SIZE
-                   INTO EF3
+               MOVE "BAD DOC ##, UNREAD?" TO EF2
                PERFORM S1 
                GO TO P1
-           END-IF 
-               
+           END-IF                      
+                           
            IF CC-PAPER = "P" OR "O"
                PERFORM PAPER-1
                GO TO P1
@@ -433,6 +313,7 @@
            END-IF    
 
            GO TO P1.
+
        PAPER-1.
            MOVE CC-PAYCODE TO FO-PC
            MOVE CC-PATID TO FO-PATID
@@ -442,17 +323,19 @@
            MOVE CC-PLACE TO FO-PLACE 
            MOVE CC-DOCP TO FO-DOC 
            WRITE PAPEROUT01.
+
        TEST-IT.           
            IF CC-DIAG = "0000000"
-               MOVE "NO DIAG" TO EF2 
-               PERFORM S1
-               GO TO P1
+             MOVE SPACE TO EF2
+             MOVE "NO DIAG" TO EF2 
+             PERFORM S1
+             GO TO P1
            END-IF    
 
            MOVE CC-DIAG TO DIAG-KEY
            READ DIAGFILE INVALID 
-             MOVE "OLD DIAG CODE" TO EF2
-             MOVE CC-DIAG TO EF3 
+             STRING "OLD DIAG CODE " CC-DIAG 
+               DELIMITED BY SIZE INTO EF2 
              PERFORM S1 
              GO TO P1
            END-READ
@@ -466,10 +349,10 @@
            END-IF
 
            IF DIAGFLAG = 1 
-               MOVE "OLD DX2 CODE" TO EF2 
-               MOVE CC-DX2 TO EF3
-               PERFORM S1
-               GO TO P1
+             STRING "OLD DX2 CODE " CC-DX2
+               DELIMITED BY SIZE INTO EF2 
+             PERFORM S1
+             GO TO P1
            END-IF
 
            IF CC-DX3 NOT = "0000000"
@@ -479,8 +362,8 @@
            END-IF
 
            IF DIAGFLAG = 1 
-               MOVE "OLD DX3 CODE" TO EF2 
-               MOVE CC-DX3 TO EF3
+               STRING "OLD DX3 CODE " CC-DX3 
+                 DELIMITED BY SIZE INTO EF2
                PERFORM S1
                GO TO P1
            END-IF
@@ -492,8 +375,8 @@
            END-IF
 
            IF DIAGFLAG = 1 
-               MOVE "OLD DX4 CODE" TO EF2 
-               MOVE CC-DX4 TO EF3
+               STRING "OLD DX4 CODE " CC-DX4 
+                 DELIMITED BY SIZE INTO EF3
                PERFORM S1
                GO TO P1
            END-IF    
@@ -506,7 +389,6 @@
            END-READ
 
            IF REF-CDNUM = "INVALID"
-               MOVE SPACE TO EF2
                STRING CC-DOCR " IS NOT A VALID REF. PHYS. CODE"
                DELIMITED BY "**" INTO EF2
                PERFORM S1 
@@ -514,7 +396,6 @@
            END-IF    
 
            IF REF-NPI NOT NUMERIC
-               MOVE SPACE TO EF2
                STRING CC-DOCR " / HAS NO NPI" DELIMITED BY "**" INTO EF2
                PERFORM S1 
                GO TO P1
@@ -564,7 +445,7 @@
            READ GARFILE
              INVALID
                MOVE 1 TO FLAG 
-               MOVE SPACE TO EF2 EF3
+               MOVE SPACE TO EF2
                STRING CC-KEY8 " BAD ACCOUNT #" DELIMITED BY "//"
                INTO EF2
                PERFORM S1 
@@ -607,12 +488,13 @@
            END-READ.    
 
        S1. 
-           STRING CHARCUR-KEY " " G-ACCT
+           STRING CHARCUR-KEY " " CC-PROC1 " " CC-AMOUNT " " 
+             CC-DATE-T(5:2) "-" CC-DATE-T(7:2) "-" CC-DATE-T(3:2)
                DELIMITED BY SIZE INTO EF1 
            WRITE ERRORFILE01.
 
        MBI-CHECK.
-           MOVE G-PRIPOL0(1:11) TO MD01
+           MOVE G-PRIPOL(1:11) TO MD01
            MOVE 0 TO FLAG
            
            IF (MD1 NOT NUMERIC) OR (MD1 = "0")
