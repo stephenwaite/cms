@@ -19,11 +19,7 @@
            SELECT CHARCUR ASSIGN TO "S40" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC    RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
-           LOCK MODE MANUAL.
-       
-           SELECT PAYCUR ASSIGN TO "S45" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY
-           LOCK MODE MANUAL.
+           LOCK MODE MANUAL.                 
        
            SELECT FILEOUT ASSIGN TO "S50" ORGANIZATION
            LINE SEQUENTIAL.
@@ -74,128 +70,41 @@
 
        FD  ERRORFILE.
        01  ERRORFILE01.
-           02 EF1 PIC X(12).
-           02 EF2 PIC X(23).
-           02 EF3 PIC X(12).
-           02 EF4 PIC X(10).
-           02 EF5 PIC X(24).
+           02 EF1 PIC X(34).
+           02 FILLER PIC X.
+           02 EF2 PIC X(22).
+           02 FILLER PIC X.
+           02 EF3 PIC X(22).
 
-       FD  REFPHY
-           DATA RECORD IS REFPHY01.
-       01  REFPHY01.
-           02 REF-KEY PIC XXX.
-           02 REF-BSNUM PIC X(5).
-           02 REF-CRNUM PIC X(6).
-           02 REF-UPIN PIC X(6).
-           02 REF-CDNUM PIC X(7).
-           02 REF-NAME PIC X(24).
-           02 REF-NPI PIC X(10).
+       FD  REFPHY.
+           COPY refphy.CPY IN "C:\Users\sid\cms\copylib".                  
 
-       FD  INSFILE
-           DATA RECORD IS INSFILE01.
-       01  INSFILE01.
-           02 INS-KEY PIC XXX.
-           02 INS-NAME PIC X(22).
-           02 INS-STREET PIC X(24).
-           02 INS-CITY PIC X(15).
-           02 INS-STATE PIC XX.
-           02 INS-ZIP PIC X(9).
-           02 INS-ASSIGN PIC X.
-           02 INS-CLAIMTYPE PIC X.
-           02 INS-NEIC PIC X(5).
-           02 INS-NEICLEVEL PIC X.
-           02 INS-NEIC-ASSIGN PIC X.
-           02 INS-PPO PIC X.
-           02 INS-PRVNUM PIC X(10).
-           02 INS-HMO PIC X(3).
-           02 INS-STATUS PIC X.
-           02 INS-LEVEL PIC X.
-           02 INS-LASTDATE PIC X(8).
-           02 INS-CAID PIC XXX.
-           02 INS-REFWARN PIC X.
-           02 INS-FUTURE PIC X(8).
+       FD  INSFILE.
+           COPY insfile.CPY IN "C:\Users\sid\cms\copylib\rri".                  
 
        FD  FILEIN.
        01  FILEIN01 PIC 999.
 
-       FD GARFILE
-           DATA RECORD IS GARFILE01.
-       01 GARFILE01.
-           02 G-GARNO PIC X(8).
-           02 G-GARNAME PIC X(24).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(10).
-           02 G-PRIPOL PIC X(16).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-TRINSIND PIC X.
-           02 G-TRINS PIC XXX.
-           02 G-SE-GROUP PIC X(10).
-           02 G-SECPOL PIC X(16).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-INSPEND PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
+       FD GARFILE.
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".        
 
-        FD  DOCFILE.
-        01  DOCFILE01.
-            02 DF-1 PIC 99.
-            02 DF-2 PIC 99.
+       FD  DOCFILE.
+       01  DOCFILE01.
+           02 DF-1 PIC 99.
+           02 DF-2 PIC 99.
 
-       FD FILEOUT.
-       01 FILEOUT01 PIC X(165).
+       FD  FILEOUT.
+       01  FILEOUT01 PIC X(165).
 
-       FD FILEOUT2.
-       01 FILEOUT201 PIC X(165).
-
-       FD  PAYCUR
-           DATA RECORD IS PAYCUR01.
-       01  PAYCUR01.
-           02 PAYCUR-KEY.
-             03 PC-KEY8 PIC X(8).
-             03 PC-KEY3 PIC XXX.
-           02 PC-AMOUNT PIC S9(4)V99.
-           02 PC-PAYCODE PIC XXX.
-           02 PC-DENIAL PIC XX.
-           02 PC-CLAIM PIC X(6).
-           02 PC-DATE-T PIC X(8).
-           02 PC-DATE-E PIC X(8).
-           02 PC-BATCH PIC X(6).
-
-       FD  INSIN
-           DATA RECORD IS INSIN01.
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(165).
+      
+       FD  INSIN.
        01  INSIN01.
            02 INS-1 PIC 999.
            02 INS-2 PIC XX.
 
-       FD FILE-OUT.
+       FD  FILE-OUT.
        01  FILE-OUT01.
            02 FO-PC PIC XXX.
            02 FO-PATID PIC X(8).
@@ -207,61 +116,12 @@
            02 FILLER PIC X(16).
            02 FO-PAPER PIC X.
 
-       FD  CHARCUR
-           DATA RECORD IS CHARCUR01.
-       01  CHARCUR01.
-           02 CHARCUR-KEY.
-             03 CC-KEY8 PIC X(8).
-             03 CC-KEY3 PIC XXX.
-           02 CC-PATID PIC X(8).
-           02 CC-CLAIM PIC X(6).
-           02 CC-SERVICE PIC X.
-           02 CC-DIAG PIC X(7).
-           02 CC-PROC0 PIC X(4).
-           02 CC-PROC PIC X(7).
-           02 CC-MOD2 PIC XX.
-           02 CC-MOD3 PIC XX.
-           02 CC-MOD4 PIC XX.
-           02 CC-AMOUNT PIC S9(4)V99.
-           02 CC-DOCR PIC X(3).
-           02 CC-DOCP PIC 9(2).
-           02 CC-PAYCODE PIC 999.
-           02 CC-STUD PIC X.
-           02 CC-WORK PIC XX.
-           02 CC-DAT1 PIC X(8).
-           02 CC-RESULT PIC X.
-           02 CC-ACT PIC X.
-           02 CC-SORCREF PIC X.
-           02 CC-COLLT PIC X.
-           02 CC-AGE PIC X.
-           02 CC-PAPER PIC X.
-           02 CC-PLACE PIC X.
-           02 CC-IOPAT PIC X.
-           02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A PIC X(8).
-           02 CC-DATE-P PIC X(8).
-           02 CC-REC-STAT PIC X.
-           02 CC-DX2 PIC X(7).
-           02 CC-DX3 PIC X(7).
-           02 CC-ACC-TYPE PIC X.
-           02 CC-DATE-M PIC X(8).
-           02 CC-ASSIGN PIC X.
-           02 CC-NEIC-ASSIGN PIC X.
-           02 CC-DX4 PIC X(7).
-           02 CC-D65 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
+       FD  CHARCUR.
+           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".           
 
-       FD  AUTHFILE
-           DATA RECORD IS AUTHFILE01.
-       01  AUTHFILE01.
-           02 AUTH-KEY.
-              03 AUTH-KEY8 PIC X(8).
-              03 AUTH-KEY6 PIC X(6).
-           02 AUTH-NUM PIC X(15).
-           02 AUTH-QNTY PIC XX.
-           02 AUTH-DATE-E PIC X(8).
-           02 AUTH-FILLER PIC XXX.           
+       FD  AUTHFILE.
+           COPY authfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
+                 
 
        WORKING-STORAGE SECTION.
        01  X USAGE IS INDEX.
@@ -290,7 +150,7 @@
        P0.
            OPEN OUTPUT FILE-OUT FILEOUT FILEOUT2 ERRORFILE.
            
-           OPEN INPUT PAYCUR INSIN CHARCUR DOCFILE GARFILE
+           OPEN INPUT INSIN CHARCUR DOCFILE GARFILE
                FILEIN INSFILE REFPHY AUTHFILE.
            
            MOVE SPACE TO ERRORFILE01
@@ -301,6 +161,7 @@
 
            PERFORM A4 VARYING X FROM 1 BY 1 UNTIL X > 999.
            PERFORM A3 VARYING X FROM 1 BY 1 UNTIL X > 20.
+
        PZ. 
            READ DOCFILE
              AT END
@@ -309,6 +170,7 @@
 
            MOVE DF-2 TO DOCTAB(DF-1)
            GO TO PZ.
+
        P00.
            READ INSIN
              AT END
@@ -325,7 +187,9 @@
              INVALID
                GO TO P6
            END-START.      
+
        P1.
+           MOVE SPACE TO ERRORFILE01
 
            READ CHARCUR NEXT
              AT END
@@ -341,12 +205,9 @@
            END-IF
 
            PERFORM A1 THRU A2
-
            GO TO P1.
+
        A1.
-           MOVE SPACE TO ERRORFILE01
-           MOVE CHARCUR-KEY TO EF1
-           
            IF CC-PROC = "1      " OR "2       "
                GO TO A2
            END-IF    
@@ -375,18 +236,18 @@
                GO TO A2
            END-IF
 
-           IF DOCTAB(CC-DOCP) = 99
-             OR INSTAB(CC-PAYCODE) = 99
-               GO TO A2
-           END-IF
+      *     IF DOCTAB(CC-DOCP) = 99
+      *       OR INSTAB(CC-PAYCODE) = 99
+      *         GO TO A2
+      *     END-IF
 
-           IF INSTAB(CC-PAYCODE) NOT = 0
-              MOVE INSTAB(CC-PAYCODE) TO CC-DOCP
-           END-IF
+      *     IF INSTAB(CC-PAYCODE) NOT = 0
+      *        MOVE INSTAB(CC-PAYCODE) TO CC-DOCP
+      *     END-IF
 
-           IF DOCTAB(CC-DOCP) NOT = 0
-               MOVE DOCTAB(CC-DOCP) TO CC-DOCP
-           END-IF
+      *     IF DOCTAB(CC-DOCP) NOT = 0
+      *         MOVE DOCTAB(CC-DOCP) TO CC-DOCP
+      *     END-IF
 
            IF CC-PAPER = "O"
                PERFORM PAPER-1
@@ -402,13 +263,10 @@
                GO TO A2
            END-READ
 
-           STRING " " G-ACCT DELIMITED BY SIZE INTO EF5
            MOVE G-PRINS TO NUM3
            
            IF G-STREET = SPACE AND G-BILLADD = SPACE
                MOVE "ADDRESS IS BLANK" TO EF2
-               MOVE G-GARNAME TO EF5
-               MOVE CC-KEY8 TO EF3 
                PERFORM E1 
                GO TO A2
            END-IF
@@ -427,6 +285,7 @@
            IF CC-PAPER = "E" GO TO A1-1.
            
            PERFORM PAPER-1 GO TO A2.
+
        A1-1.
            MOVE CC-PAYCODE TO INS-KEY
            
@@ -439,60 +298,57 @@
            
            IF INS-CITY = SPACE OR INS-STREET = SPACE
              OR INS-STATE = SPACE OR INS-ZIP = SPACE
-             MOVE SPACE TO EF1 EF2
-             MOVE CC-PAYCODE TO EF1
              MOVE  "NO INS. ADDRESS " TO EF2
-             PERFORM E1 GO TO A2.
+             PERFORM E1 
+             GO TO A2.
            
            IF CC-DOCP = "00"
-           MOVE "NO DOCP              " TO EF2 
-           MOVE G-GARNAME TO EF5 
-           PERFORM E1 GO TO A2.
+             MOVE "NO DOCP              " TO EF2 
+             PERFORM E1 
+             GO TO A2.
 
            IF INS-NEIC = "57106" AND CC-DATE-M = "00000000"
-           AND CC-PLACE = "3"
-           MOVE "ADMIT DATE - TRICARE " TO EF2 
-           MOVE G-GARNAME TO EF5 
-           PERFORM E1 GO TO A2.
+             AND CC-PLACE = "3"
+             MOVE "ADMIT DATE - TRICARE " TO EF2 
+             PERFORM E1 
+             GO TO A2.
 
            IF INS-NEIC = SPACE
-           MOVE "NO NEIC CODE PRESENT" TO EF2
-           MOVE INS-KEY TO EF3
-           PERFORM E1 GO TO A2.
+             MOVE "NO NEIC CODE PRESENT" TO EF2
+             PERFORM E1 
+             GO TO A2.
 
            IF G-PRIPOL = SPACE
-           MOVE "POLICY NUMBER MISSING" TO EF2
-           MOVE G-PRINS TO EF3
-           PERFORM E1 GO TO A2.
+             MOVE "POLICY NUMBER MISSING" TO EF2
+             PERFORM E1 
+             GO TO A2.
 
            IF G-PRIPOL = ZEROES
-           MOVE "POLICY CANT BE 0" TO EF2
-           MOVE G-PRIPOL TO EF3
-           PERFORM E1 GO TO A2.
+             MOVE "POLICY CANT BE 0" TO EF2
+             PERFORM E1 
+             GO TO A2.
 
            IF INS-NEIC = "23742"
-           PERFORM PAPER-1 GO TO P1.
+             PERFORM PAPER-1 
+             GO TO P1.
 
            IF G-PR-GROUP = G-PRIPOL
-           MOVE "GRP & POLICY ARE =" TO EF2
-           MOVE G-GARNAME TO EF5
-           MOVE G-PR-GROUP TO EF3 PERFORM E1 GO TO A2.
+             MOVE "GRP & POLICY ARE THE SAME" TO EF2
+             PERFORM E1 
+             GO TO A2.
            
            IF (INS-NEIC = "14165")
-               MOVE G-PRIPOL TO ALF11
-               IF (ALF11 NOT NUMERIC)
-                   IF (G-PRINS = "256" OR "349")
-                       MOVE "BAD POLICY NUMBER " TO EF2
-                       PERFORM E1
-                       GO TO A2
-                    END-IF
-               END-IF
-           END-IF
+             MOVE G-PRIPOL TO ALF11
+             IF (ALF11 NOT NUMERIC)
+               IF (G-PRINS = "256" OR "349")
+                 MOVE "BAD POLICY NUMBER " TO EF2
+                 PERFORM E1
+                 GO TO A2.              
 
            IF CC-DIAG = "0000000"
-               MOVE "NO DIAG. ON CHARGE " TO EF2
-               PERFORM E1
-               GO TO A2
+             MOVE "NO DIAG. ON CHARGE " TO EF2
+             PERFORM E1
+             GO TO A2
            END-IF
 
       *     IF (INS-NEIC = "VACCN")
@@ -534,39 +390,18 @@
 
        A2.
            EXIT.
+
        A4. 
            MOVE 0 TO INSTAB(X).
+
        A3. 
            MOVE 0 TO DOCTAB(X).
+
        E1.
-           MOVE CC-DATE-T TO TEST-DATE
-           MOVE CORR TEST-DATE TO DISPLAY-DATE
-           MOVE DISPLAY-DATE TO EF4
-           WRITE ERRORFILE01.
-       S4.            
-           MOVE CC-KEY8 TO PC-KEY8.
-           MOVE "000" TO PC-KEY3.
-           
-           START PAYCUR KEY > PAYCUR-KEY
-             INVALID
-               GO TO S4-EXIT
-           END-START.
-
-       S7. 
-           READ PAYCUR NEXT
-             AT END
-               GO TO S4-EXIT
-           END-READ
-
-           IF PC-KEY8 NOT = CC-KEY8 GO TO S4-EXIT.
-           
-           IF PC-CLAIM NOT = CC-CLAIM GO TO S7.
-           
-           ADD PC-AMOUNT TO CC-AMOUNT GO TO S7.
-       
-       S4-EXIT.
-       
-           EXIT.
+           STRING CHARCUR-KEY " " CC-PROC1 " " CC-AMOUNT " " 
+             CC-DATE-T(5:2) "-" CC-DATE-T(7:2) "-" CC-DATE-T(3:2)
+             DELIMITED BY SIZE INTO EF1 
+           WRITE ERRORFILE01.       
        
        P6. 
            READ FILEIN
@@ -579,6 +414,7 @@
              INVALID
                GO TO P6
            END-START.    
+
        P7. 
            READ CHARCUR NEXT
              AT END
@@ -588,9 +424,10 @@
            IF CC-PAYCODE NOT = FILEIN01 GO TO P6.
            
            PERFORM A1 THRU A2 GO TO P7.
+
        P9.
-           CLOSE INSIN FILE-OUT CHARCUR PAYCUR 
-                 FILEOUT DOCFILE GARFILE FILEIN
-                 REFPHY ERRORFILE FILEOUT2 AUTHFILE.
+           CLOSE INSIN FILE-OUT CHARCUR  
+             FILEOUT DOCFILE GARFILE FILEIN
+             REFPHY ERRORFILE FILEOUT2 AUTHFILE.
 
            STOP RUN.

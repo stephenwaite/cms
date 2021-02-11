@@ -62,9 +62,11 @@
        FD  ERRORFILE
            DATA RECORD IS ERRORFILE01.
        01  ERRORFILE01.
-           02 EF1 PIC X(12).
-           02 EF2 PIC X(43).
-           02 EF3 PIC X(24).
+           02 EF1 PIC X(34).
+           02 filler pic x.
+           02 EF2 PIC X(22).
+           02 filler pic x.
+           02 EF3 PIC X(22).
        
        FD  REFPHY
       *    BLOCK CONTAINS 5 RECORDS
@@ -279,9 +281,10 @@
                GO TO P1
            END-READ
 
-            IF CC-DOCP = "02"
-             STRING G-ACCT  " BAD DOC ##"
-               DELIMITED BY SIZE INTO EF2
+           MOVE G-GARNAME TO EF3
+
+           IF CC-DOCP = "02"
+             MOVE "BAD DOC ##, UNREAD?" TO EF2
              PERFORM S1 
              GO TO P1
            END-IF
@@ -303,94 +306,117 @@
            MOVE CC-ASSIGN TO FO-ASSIGN.
            MOVE CC-PLACE TO FO-PLACE 
            MOVE CC-DOCP TO FO-DOC 
-           WRITE PAPEROUT01 .
+           WRITE PAPEROUT01.
+
        TEST-IT.
            IF G-DOB NOT NUMERIC
-           MOVE "BAD DOB" TO EF2
-            PERFORM S1 
-            GO TO P1.
+             STRING "BAD DOB " G-DOB DELIMITED BY SIZE INTO EF2
+             PERFORM S1 
+             GO TO P1.
 
            IF G-PRIPOL = SPACE
-           MOVE "POLICY MISSING" TO EF2
-            PERFORM S1 
-            GO TO P1.
+             MOVE "POLICY MISSING" TO EF2
+             PERFORM S1 
+             GO TO P1.
     
            MOVE CC-PROC TO PROC-KEY.
-           READ PROCFILE INVALID
-           MOVE "INVALID PROCEDURE CODE" TO EF2 
-            PERFORM S1 
+           READ PROCFILE 
+             INVALID
+               MOVE "INVALID PROCEDURE CODE" TO EF2 
+             PERFORM S1 
              GO TO P1.
            
-           IF CC-DIAG = "0000000" MOVE "NO DIAG" TO EF2 
+           IF CC-DIAG = "0000000"
+             MOVE "NO DIAG" TO EF2 
              PERFORM S1
-              GO TO P1.
-           IF ( CC-DIAG > "79999" AND < "90000" )
-            AND ( CC-DAT1 = "00000000" )
-            MOVE CC-DATE-T TO CC-DAT1
-            MOVE "NO ACC. DATE, BUT SENT" TO EF2
+             GO TO P1.
+
+           IF (CC-DIAG > "79999" AND < "90000" )
+             AND (CC-DAT1 = "00000000" )
+             MOVE CC-DATE-T TO CC-DAT1
+             MOVE "NO ACC. DATE, BUT SENT" TO EF2
              PERFORM S1 
-            END-IF.
+             END-IF.
+
            MOVE CC-DIAG TO DIAG-KEY
-           READ DIAGFILE INVALID MOVE "OLD DIAG CODE" TO EF2
-            MOVE CC-DIAG TO EF3 
-             PERFORM S1 
-              GO TO P1.
+           READ DIAGFILE
+             INVALID
+               STRING "OLD DIAG CODE " CC-DIAG 
+                 DELIMITED BY SIZE INTO EF2  
+               PERFORM S1 
+               GO TO P1.
+               
            MOVE 0 TO DIAGFLAG
-           IF CC-DX2 NOT = "0000000" MOVE CC-DX2 TO ALF7
-            MOVE 0 TO DIAGFLAG
-            PERFORM DIAG-CHECK.
-           IF DIAGFLAG = 1 MOVE "OLD DX2 CODE" TO EF2 
+           IF CC-DX2 NOT = "0000000" 
+             MOVE CC-DX2 TO ALF7
+             MOVE 0 TO DIAGFLAG
+             PERFORM DIAG-CHECK.
+
+           IF DIAGFLAG = 1 
+             STRING "OLD DX2 CODE " CC-DX2
+               DELIMITED BY SIZE INTO EF2
              PERFORM S1
-              GO TO P1.
-           IF CC-DX3 NOT = "0000000" MOVE CC-DX3 TO ALF7
-            MOVE 0 TO DIAGFLAG
-            PERFORM DIAG-CHECK.
-           IF DIAGFLAG = 1 MOVE "OLD DX3 CODE" TO EF2 
+             GO TO P1.
+
+           IF CC-DX3 NOT = "0000000"
+             MOVE CC-DX3 TO ALF7
+             MOVE 0 TO DIAGFLAG
+             PERFORM DIAG-CHECK.
+
+           IF DIAGFLAG = 1
+             STRING "OLD DX3 CODE " CC-DX3
+               DELIMITED BY SIZE INTO EF2 
              PERFORM S1
-              GO TO P1.
-           IF CC-DX4 NOT = "0000000" MOVE CC-DX4 TO ALF7
-            MOVE 0 TO DIAGFLAG
-            PERFORM DIAG-CHECK.
-           IF DIAGFLAG = 1 MOVE "OLD DX4 CODE" TO EF2 
+             GO TO P1.
+
+           IF CC-DX4 NOT = "0000000" 
+             MOVE CC-DX4 TO ALF7
+             MOVE 0 TO DIAGFLAG
+             PERFORM DIAG-CHECK.
+
+           IF DIAGFLAG = 1 
+             STRING "OLD DX4 CODE " CC-DX4
+               DELIMITED BY SIZE INTO EF2 
              PERFORM S1
-              GO TO P1.
-           IF CC-PROC1 > "99240" AND < "99280"
-            AND CC-DOCR = "000"
-            MOVE "CONSULT NEEDS REF MD" TO EF2 
-             PERFORM S1 
-              GO TO P1.
-           IF CC-DOCR = "000" 
-           WRITE FILEOUT01 FROM CHARCUR01 
-           GO TO P1.
+             GO TO P1.
+                                  
            MOVE CC-DOCR TO REF-KEY.
-           READ REFPHY INVALID MOVE "INVALID" TO REF-CDNUM
-           MOVE SPACE TO REF-NAME.
-           IF  (REF-NPI = SPACE)
-            MOVE SPACE TO EF2
-            STRING CC-DOCR " " REF-NAME " NO NPI"
-            DELIMITED BY "**" INTO EF2
+           READ REFPHY 
+             INVALID 
+               MOVE "INVALID" TO REF-CDNUM
+               MOVE SPACE TO REF-NAME.
+
+           IF (REF-NPI = SPACE)
+             MOVE SPACE TO EF2
+             STRING CC-DOCR " " REF-NAME " NO NPI"
+               DELIMITED BY "**" INTO EF2
              PERFORM S1 
-              GO TO P1.
+             GO TO P1.
+
            MOVE SPACE TO NAMELAST NAMEFIRST
            UNSTRING REF-NAME DELIMITED BY 
-           "; " OR ";" OR " ; " OR " ," OR ", " OR " , " OR ","   
-           INTO NAMELAST NAMEFIRST
-            IF NAMEFIRST = SPACE
-            STRING CC-DOCR  " " REF-NAME " NAME FORMAT ERROR" 
-            DELIMITED BY "!!" INTO EF2 
-            PERFORM S1
-            GO TO P1.
+             "; " OR ";" OR " ; " OR " ," OR ", " OR " , " OR ","   
+             INTO NAMELAST NAMEFIRST
+           IF NAMEFIRST = SPACE
+             STRING CC-DOCR  " " REF-NAME " NAME FORMAT ERROR" 
+               DELIMITED BY "!!" INTO EF2 
+             PERFORM S1
+             GO TO P1.
+
            WRITE FILEOUT01 FROM CHARCUR01 
            GO TO P1.
        
        DIAG-CHECK.
            MOVE 0 TO DIAGFLAG
            MOVE ALF7 TO DIAG-KEY
-           READ DIAGFILE INVALID MOVE 1 TO DIAGFLAG.
+           READ DIAGFILE 
+             INVALID 
+               MOVE 1 TO DIAGFLAG.
 
        S1. 
-           MOVE CHARCUR-KEY TO EF1 
-           MOVE G-GARNAME TO EF3
+           STRING CHARCUR-KEY " " CC-PROC1 " " CC-AMOUNT " " 
+             CC-DATE-T(5:2) "-" CC-DATE-T(7:2) "-" CC-DATE-T(3:2)
+             DELIMITED BY SIZE INTO EF1
            WRITE ERRORFILE01.
 
        P6. CLOSE FILEIN FILEOUT CHARCUR PAPEROUT ERRORFILE.

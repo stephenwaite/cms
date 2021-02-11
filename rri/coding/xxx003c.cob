@@ -42,9 +42,12 @@
                ALTERNATE RECORD KEY IS DIAG9-TITLE WITH DUPLICATES.
 
            SELECT OUTFILE ASSIGN TO   "S65" ORGANIZATION IS 
-               LINE SEQUENTIAL.    
+               LINE SEQUENTIAL.  
+
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  TAGDIAG.
        01  TAGDIAG01.
            02 TAG-KEY.
@@ -53,52 +56,9 @@
            02 TAG-ICD9.
               03 tag-icd9-5 PIC X(5).
               03 tag-icd9-7 PIC X(7).
-       FD  GARFILE
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS G-MASTER.
-       01  G-MASTER.
-           02 G-GARNO PIC X(8).
-           02 G-GARNAME PIC X(24).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(10).
-           02 G-PRIPOL PIC X(16).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-TRINSIND PIC X.
-           02 G-TRINS PIC XXX.
-           02 G-SE-GROUP PIC X(10).
-           02 G-SECPOL PIC X(16).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-COPAY PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
+
+       FD  GARFILE.
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
 
        FD ALLOWFILE
            DATA RECORD ALLOWFILE01.
@@ -107,13 +67,10 @@
              03 ALW-PROC PIC X(7).
              03 ALW-DIAG PIC X(7).
            02 ALW-FLAG PIC X.
-       FD  PROCFILE
-           DATA RECORD IS PROC01.
-       01  PROC01.
-           02 PROC-KEY PIC X(11).
-           02 PROC-TYPE PIC X.
-           02 PROC-TITLE PIC X(28).
-           02 PROC-AMOUNT PIC S9(4)V99.
+
+       FD  PROCFILE.
+           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
+      
        FD  DIAGFILE
            BLOCK CONTAINS 8 RECORDS
            DATA RECORD IS DIAG01.
@@ -123,61 +80,16 @@
              03 DIAG-T1 PIC XXX.
              03 DIAG-T2 PIC X(58).
            02 DIAG-MEDB PIC X(5).
+
        FD  DIAG9FILE.
        01  DIAG901.
            02 DIAG9-KEY PIC X(5).
            02 DIAG9-TITLE PIC X(25).
            02 DIAG9-MEDB PIC X(5).
-       FD  CHARNEW
-           BLOCK CONTAINS 2 RECORDS
-           DATA RECORD IS CHARNEW01.
-       01  CHARNEW01.
-           02 CHARNEW-KEY.
-             03 CD-KEY8 PIC X(8).
-             03 CD-KEY3 PIC XXX.
-           02 CD-PATID PIC X(8).
-           02 CD-CLAIM PIC X(6).
-           02 CD-SERVICE PIC X.
-           02 CD-DIAG PIC X(7).
-           02 CD-PROC.
-             03 CD-PROC1 PIC X(4).
-             03 CD-PROC2 PIC X(7).
-           02 CD-MOD2 PIC XX.
-           02 CD-MOD3 PIC XX.
-           02 CD-MOD4 PIC XX.
-           02 CD-AMOUNT PIC S9(4)V99.
-           02 CD-DOCR PIC X(3).
-           02 CD-DOCP PIC X(2).
-           02 CD-PAYCODE PIC XXX.
-           02 CD-STAT PIC X.
-           02 CD-WORK PIC XX.
-           02 CD-DAT1 PIC X(8).
-           02 CD-RESULT PIC X.
-           02 CD-ACT PIC X.
-           02 CD-SORCREF PIC X.
-           02 CD-COLLT PIC X.
-           02 CD-AGE PIC X.
-           02 CD-PAPER PIC X.
-           02 CD-PLACE PIC X.
-           02 CD-NAME PIC X(24).
-           02 CD-ESPDT PIC X.
-           02 CD-DATE-T PIC X(8).
-           02 CD-DATE-E PIC X(8).
-           02 CD-ORDER PIC X(6).
-           02 CD-DX2 PIC X(7).
-           02 CD-DX3 PIC X(7).
-           02 CD-DATE-A PIC X(8).
-           02 CD-ACC-TYPE PIC X.
-           02 CD-DATE-M PIC X(8).
-           02 CD-ASSIGN PIC X.
-           02 CD-NEIC-ASSIGN PIC X.
-           02 CD-DX4 PIC X(7).
-           02 CD-QP1 PIC XX.
-           02 CD-QP2 PIC XX.
-           02 CD-DX5-3 PIC X(3).
-           02 CD-DX6 PIC X(7).
-           02 CD-CLINICAL PIC X(40).
-           02 CD-ADMIT-DIAG PIC X(30).
+
+       FD  CHARNEW.
+           COPY charnew.CPY IN "C:\Users\sid\cms\copylib\rri".           
+
        FD  FILE-OUT.
        01  FILE-OUT01.
       *    02 FILLER PIC X.
@@ -194,13 +106,16 @@
            02 FO-REFPHY PIC X(10).
            02 FILLER PIC X.
            02 FO-KEY PIC X(11).
+
        FD  OUTFILE.
        01  OUTFILE01 PIC X(132).
+
        WORKING-STORAGE SECTION.
+
        01  BELL0 USAGE INDEX.
        01  HOLD8 PIC X(8) VALUE SPACE.
        01  HOLD7 PIC X(7).
-       01 XX PIC 9 VALUE 0.
+       01  XX PIC 9 VALUE 0.
        01  IN-FIELD.
                04 IN-FIELD-10.
                05  IN-FIELD-9.
@@ -222,9 +137,11 @@
            06 FILLER PIC X.
            05 FILLER PIC X.
                04  FILLER              PIC X(5).
+
        01 IN-FIELD-TAB01 REDEFINES IN-FIELD.
            02 IN-FIELD-TAB   PIC X OCCURS 15 TIMES.
-       01     X PIC 99.
+
+       01  X PIC 99.
        01  ANS. 
            02 ANS1 PIC X.
            02 FILLER PIC XX.
@@ -245,6 +162,7 @@
        01  NUM-2 PIC 99.
        01  HOLD-DIAG PIC X(7).
        01  HOLD-DOCP PIC X(2).
+
        PROCEDURE DIVISION.
 
        P0.
@@ -255,6 +173,7 @@
            OPEN I-O CHARNEW.
            DISPLAY "0 = start new, 1 = skip ahead to undone"
            ACCEPT ALF1.
+
        P1.
            READ FILE-OUT AT END
                GO TO P99
@@ -279,8 +198,8 @@
                
        P1-0.
            PERFORM P2
-           DISPLAY "For MRN " G-ACCT " DOS " FO-DATE " " FO-PROC
-                   " our ACCT " G-GARNO
+           DISPLAY "MRN " G-ACCT " DOS " FO-DATE " " G-GARNO 
+              " CHARGE KEY " FO-PROC
 
       * auto-DOC and auto-code G1004 for AUC program 
            IF CD-PROC2 = "G1004  "
@@ -533,6 +452,7 @@
       *    this is the rewrite for any autocodes like above and in p1-0                          
            REWRITE CHARNEW01
            GO TO P1.
+
        P2.
            MOVE FO-KEY(1:8) TO G-GARNO
            
@@ -542,9 +462,12 @@
            END-READ 
 
            INSPECT G-ACCT REPLACING LEADING "0" BY " ".
+
        P2-00.
-           DISPLAY FO-DATE " " FO-KEY " " FO-PROC " " CD-PAYCODE
-                   " " CD-PLACE " " G-DOB " " G-ACCT " " FO-NAME.
+           DISPLAY CD-DATE-T(5:2) "-" CD-DATE-T(7:2) "-" CD-DATE-T(1:4)
+           " " CD-PROC2 " " CD-MOD2 " " CD-MOD3 " " CD-PAYCODE " " 
+             CD-PLACE " " G-DOB(5:2) "-" G-DOB(7:2) "-" G-DOB(1:4) " "
+               G-ACCT " " FO-NAME.
            MOVE FO-PROC TO PROC-KEY
            READ PROCFILE INVALID
                DISPLAY "bad " FO-PROC
@@ -556,6 +479,7 @@
            DISPLAY CD-CLINICAL
            DISPLAY CD-ADMIT-DIAG
            DISPLAY " ".
+
        P2-0.
            IF (CD-PAYCODE = "008" OR "009" OR "010" OR "011" OR "012"
                OR "013" OR "014" OR "015")

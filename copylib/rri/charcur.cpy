@@ -29,7 +29,7 @@
            02 CC-COLLT PIC X.
            02 CC-AUTH PIC X.
            02 CC-PAPER PIC X.
-      * 82     
+      * 81     
            02 CC-PLACE PIC X.
            02 CC-EPSDT PIC X.
            02 CC-DATE-T PIC X(8).
