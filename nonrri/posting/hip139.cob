@@ -407,10 +407,10 @@
            IF F1 NOT = "N1*" GO TO XX2.
             MOVE SPACE TO N101
             UNSTRING FILEIN01 DELIMITED BY "*"
-                           INTO N1-0 N1-1 N1-2 N1-3 N1-4.
+                           INTO N1-0 N1-1 N1-2 N1-3 N1-ID.
            IF N1-1 NOT = "PE" GO TO XX2. 
-               IF N1-3 = "FI" MOVE N1-4(1:9) TO IN-FEDID GO TO P000.
-               IF N1-3 = "XX" MOVE N1-4 TO IN-NPI GO TO P000.
+               IF N1-3 = "FI" MOVE N1-ID(1:9) TO IN-FEDID GO TO P000.
+               IF N1-3 = "XX" MOVE N1-ID TO IN-NPI GO TO P000.
            GO TO XX2.
 
        P000.
@@ -1296,10 +1296,16 @@
                GO TO S5.
 
        S41. 
-           READ PAYCUR NEXT AT END GO TO S5.
+           READ PAYCUR NEXT 
+             AT END 
+               GO TO S5.
+
            IF PC-KEY8 NOT = CC-KEY8 GO TO S5.
+
            IF PC-CLAIM NOT = CC-CLAIM GO TO S41. 
+
            ADD PC-AMOUNT TO CLAIM-TOT.
+           
            GO TO S41.
 
        S5. 

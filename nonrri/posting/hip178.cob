@@ -1867,20 +1867,25 @@
            
        LOOK-CHG-EXIT.
            EXIT.
+           
        A5. 
            MOVE G-GARNO TO PD-KEY8 MOVE "000" TO PD-KEY3.
            START PAYFILE KEY NOT < PAYFILE-KEY INVALID GO TO A5-EXIT.
+
        A5-1. 
            READ PAYFILE NEXT AT END GO TO A5-EXIT.
            IF PD-KEY8 NOT = CC-KEY8 GO TO A5-EXIT.
            IF PD-CLAIM NOT = CC-CLAIM
            GO TO A5-1.
            MOVE 1 TO FLAGY.
+
        A5-EXIT.
            EXIT.
+
        S4.
            MOVE CC-KEY8 TO PC-KEY8 MOVE "000" TO PC-KEY3.
            START PAYCUR KEY NOT <  PAYCUR-KEY INVALID GO TO S5.
+
        S41. 
            READ PAYCUR NEXT AT END GO TO S5.
            IF PC-KEY8 NOT = CC-KEY8 GO TO S5.
@@ -1889,6 +1894,7 @@
            GO TO S41.
        S5. 
            EXIT.
+
        DMP4.
            MOVE CC-KEY8 TO PC-KEY8 MOVE "000" TO PC-KEY3.
            START PAYCUR KEY NOT <  PAYCUR-KEY INVALID GO TO DMP5.

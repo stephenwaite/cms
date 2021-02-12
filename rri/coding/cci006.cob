@@ -19,11 +19,7 @@
        FILE SECTION.
 
        FD  CCIFILE.
-       01  CCIFILE01.
-           02 CCI-KEY.
-             03 CCI-1 PIC X(5).
-             03 CCI-2 PIC X(5).
-           02 CCI-3 PIC X.
+           COPY ccifile.CPY IN "C:\Users\sid\cms\copylib".                           
        
        WORKING-STORAGE SECTION.
        01  ANS PIC XXX.
@@ -33,6 +29,7 @@
        01  ALF11X PIC X(11).
        01  RIGHT-2 PIC XX JUST RIGHT.
        01  NUM2 PIC 99.
+
        01  CCI-TB01.
            02 CCI-TAB PIC X(11) OCCURS 20 TIMES.
        
@@ -46,16 +43,16 @@
            ACCEPT ANS
 
            IF ANS ="?"
-               DISPLAY "E = END"
-               DISPLAY "F = SEARCH"
-               DISPLAY "A = ADD"
-               DISPLAY "D = DELETE"
-               GO TO P1
+             DISPLAY "E = END"
+             DISPLAY "F = SEARCH"
+             DISPLAY "A = ADD"
+             DISPLAY "D = DELETE"
+             GO TO P1
            END-IF
 
            IF NOT (ANS = "E" OR "F" OR "A" OR "D")
-               DISPLAY "BAD CHOICE"
-               GO TO P1
+             DISPLAY "BAD CHOICE"
+             GO TO P1
            END-IF
 
            IF ANS = "E" GO TO P2.
@@ -70,14 +67,14 @@
 
        FIND-1.
            DISPLAY "ENTER ANY PART OF CODE1"
-           ACCEPT CCI-1
+           ACCEPT CCI-key1
 
-           IF CCI-1 = "?"
+           IF CCI-key1 = "?"
                DISPLAY "X = BACK TO OPTION"
                GO TO FIND-1
            END-IF
 
-           MOVE SPACE TO CCI-2
+           MOVE SPACE TO CCI-key2
            START CCIFILE KEY NOT < CCI-KEY
              INVALID
                DISPLAY "NO RECORDS"
@@ -94,7 +91,7 @@
            END-READ
            
            ADD 1 TO X
-           DISPLAY X " " CCI-KEY " " CCI-3
+           DISPLAY X " " CCI-KEY " " CCI-ind
            MOVE CCIFILE01 TO CCI-TAB(X)
            
            IF X < 20
@@ -134,70 +131,58 @@
                DISPLAY "DELETE FIRST, THEN ADD"
                DISPLAY "IF YOU ARE TRYING TO CHANGE"
                DISPLAY "ONLY THE INDICATOR VALUE"
-               CLOSE CCIFILE
-               OPEN INPUT CCIFILE
-               GO TO P1
-            END-WRITE
+             NOT invalid
+               DISPLAY "RECORD ADDED " CCIFILE01
+           END-WRITE
 
-            GO TO P1.
+           CLOSE CCIFILE
+           OPEN INPUT CCIFILE
+           
+           GO TO P1.
 
        DEL-1.
            DISPLAY "SELECT FROM THE LIST FOUND"
            DISPLAY "USING THE F COMMAND"
            DISPLAY "OR TYPE IN THE 10 DIGITS"
            DISPLAY "ON THE 2 CPT CODES"
-           ACCEPT ALF11 
-           
-           IF ALF11 NUMERIC
-               MOVE ALF11 TO CCI-KEY
-               READ CCIFILE
-                 INVALID
-                   DISPLAY "INVALID CODE"
-                   GO TO DEL-1
-               END-READ
+           ACCEPT ALF11
 
-               DISPLAY CCIFILE01
-               DISPLAY "OKAY TO DELETE Y,N?"
-               ACCEPT ANS
-               
-               IF ANS NOT = "Y"
-                   GO TO DEL-1
-               END-IF
-               
-               CLOSE CCIFILE
-               OPEN I-O CCIFILE
-               DELETE CCIFILE RECORD
-               CLOSE CCIFILE
-               OPEN INPUT CCIFILE
+           IF ALF11 = "X"
                GO TO P1
-
-           END-IF
+           END-IF                       
            
            MOVE SPACE TO RIGHT-2 ALF11X
 
-           UNSTRING ALF11(1:2) DELIMITED BY " " INTO ALF2
-           INSPECT ALF2 REPLACING LEADING " " BY "0"
+           UNSTRING ALF11(1:2) DELIMITED BY " " INTO RIGHT-2
+           INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
            
-           IF ALF2 NOT NUMERIC
-               DISPLAY "BAD SELECTION FROM THE LIST"
+           IF RIGHT-2 NOT NUMERIC
+             DISPLAY RIGHT-2 " IS A BAD SELECTION FROM THE LIST"
                GO TO DEL-1
            END-IF
 
-           MOVE ALF2 TO NUM2
+           MOVE RIGHT-2 TO NUM2
            MOVE CCI-TAB(NUM2) TO CCI-KEY
-           DISPLAY CCI-KEY
+           DISPLAY CCIFILE01
            
            READ CCIFILE INVALID
                DISPLAY " NO SUCH RECORD"
                GO TO DEL-1
            END-READ
 
+           DISPLAY "OKAY TO DELETE Y,N?"
+           ACCEPT ANS
+             
+           IF ANS NOT = "Y"
+             GO TO DEL-1
+           END-IF
+
            CLOSE CCIFILE
            OPEN I-O CCIFILE
            DELETE CCIFILE RECORD
-           CLOSE CCIFILE
-           DELETE CCIFILE RECORD
+           CLOSE CCIFILE           
            DISPLAY " RECORD DELETED"
+           OPEN INPUT CCIFILE  
            
            GO TO P1.
 
