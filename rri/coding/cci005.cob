@@ -34,11 +34,7 @@
            COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".                
 
        FD  CCIFILE.
-       01  CCIFILE01.
-           02 CCI-KEY.
-             03 CCI-KEY1 PIC X(5).
-             03 CCI-KEY2 PIC X(5).
-           02 CCI-IND PIC X.
+           COPY ccifile.CPY IN "C:\Users\sid\cms\copylib".                
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).
@@ -56,6 +52,7 @@
            02 MOD2-TAB PIC  XX  OCCURS 90 TIMES.
            02 MOD3-TAB PIC  XX  OCCURS 90 TIMES.
            02 MOD4-TAB PIC  XX  OCCURS 90 TIMES.
+           
        01  X PIC 99.
        01  Y PIC 99.
        01  Z PIC 99.

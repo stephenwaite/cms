@@ -229,6 +229,18 @@
            IF CC-REC-STAT > "1"
                GO TO A2
            END-IF    
+
+           MOVE CC-KEY8 TO G-GARNO
+
+           READ GARFILE
+             INVALID
+               MOVE "BAD GARNO           " TO EF2
+               PERFORM E1 
+               GO TO A2
+           END-READ
+
+           MOVE G-GARNAME TO EF3
+           MOVE G-PRINS TO NUM3           
            
            IF CC-DOCP = 02
                MOVE "NO READING DOC        " TO EF2
@@ -252,18 +264,7 @@
            IF CC-PAPER = "O"
                PERFORM PAPER-1
                GO TO A2
-           END-IF
-
-           MOVE CC-KEY8 TO G-GARNO
-
-           READ GARFILE
-             INVALID
-               MOVE "BAD GARNO           " TO EF2
-               PERFORM E1 
-               GO TO A2
-           END-READ
-
-           MOVE G-PRINS TO NUM3
+           END-IF          
            
            IF G-STREET = SPACE AND G-BILLADD = SPACE
                MOVE "ADDRESS IS BLANK" TO EF2
