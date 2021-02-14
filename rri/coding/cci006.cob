@@ -91,7 +91,7 @@
            END-READ
            
            ADD 1 TO X
-           DISPLAY X " " CCI-KEY " " CCI-ind
+           DISPLAY X " " CCI-KEY1 " " CCI-KEY2 " " CCI-ind " " CCIFILE01
            MOVE CCIFILE01 TO CCI-TAB(X)
            
            IF X < 20
