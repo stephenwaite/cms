@@ -448,7 +448,7 @@
             03 NDC-NAME PIC X(17).
        01  NDC-PROC PIC X(7).
        01  NDC-CNTR PIC 9.
-       01     PAYFLAG   PIC XXX.
+       01  PAYFLAG   PIC XXX.
        01  kmc-flag pic 9.
        01  TAGTAB01.
            02 TAGTAB PIC X(7) OCCURS 20 TIMES.
@@ -547,7 +547,9 @@
                GO TO 1000-ACTION
            END-READ
 
-           IF PM-KEY8 NOT = "DF2" PERFORM LDF2 GO TO 1000-ACTION.
+           IF PM-KEY8 NOT = "DF2" 
+             PERFORM LDF2 
+             GO TO 1000-ACTION.
            
            MOVE PM-KEY3 TO ALF-3
            MOVE ALF-3 TO NUM-3
@@ -613,15 +615,16 @@
            IF ACTION = "A" GO TO 1200-ADD-PROCESS.
            
            IF ACTION = "F"
-            MOVE SPACE TO PAYFLAG
-            IF charfile-key (1:3) NUMERIC
-             MOVE charfile-key(1:3) TO PAYFLAG
-             MOVE SPACE TO charfile-key
-            END-IF
-           MOVE CHARFILE01 TO QQQ
-           PERFORM 1200-FIND THRU  1200-FIND-EXIT
-           MOVE  QQQ TO CHARFILE01
-           GO TO 1000-ACTION.
+             MOVE SPACE TO PAYFLAG
+             IF charfile-key (1:3) NUMERIC
+               MOVE charfile-key(1:3) TO PAYFLAG
+               MOVE SPACE TO charfile-key
+             END-IF
+
+             MOVE CHARFILE01 TO QQQ
+             PERFORM 1200-FIND THRU 1200-FIND-EXIT
+             MOVE QQQ TO CHARFILE01
+             GO TO 1000-ACTION.
            
            IF ACTION = "ZZ" PERFORM ZZ-1 GO TO 1000-ACTION.
            
@@ -696,7 +699,9 @@
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            DISPLAY "(29)ADMIT-DT = " DISPLAY-DATE.
            IF DF-TAB(30) = 1 DISPLAY "(30)MOD3= " cd-MOD3.
-       DF1. MOVE SPACE TO ABC ALF-2 IN-FIELD.
+
+       DF1. 
+           MOVE SPACE TO ABC ALF-2 IN-FIELD.
            IF ACTION = "DF"
            UNSTRING DATAIN DELIMITED BY "," INTO ABC ALF-2 IN-FIELD
            ELSE UNSTRING DATAIN DELIMITED BY "," INTO ABC ALF-2.
@@ -705,30 +710,42 @@
            MOVE SPACE TO RIGHT-2
            UNSTRING ALF-2 DELIMITED BY " " INTO RIGHT-2
            INSPECT RIGHT-2 REPLACING LEADING " " BY "0".
-           IF ( RIGHT-2 NOT NUMERIC ) OR ( RIGHT-2 < "04" )
-           OR ( RIGHT-2 = "07" OR "10" OR "14" OR "16" OR "17" )
-           OR (RIGHT-2 = "19" OR "20" OR "31" OR "32" OR "33")
-           DISPLAY "INVALID DEFAULT FIELD"
-           GO TO 1000-ACTION.
+
+           IF ( RIGHT-2 NOT NUMERIC ) 
+             OR ( RIGHT-2 < "04" ) 
+             OR ( RIGHT-2 = "07" OR "10" OR "14" OR "16" OR "17" )
+             OR (RIGHT-2 = "19" OR "20" OR "31" OR "32" OR "33")
+             DISPLAY "INVALID DEFAULT FIELD"
+             GO TO 1000-ACTION.
+
            MOVE RIGHT-2 TO NUM-2.
            IF ABC = "RP" MOVE 0 TO DF-TAB(NUM-2) GO TO 1000-ACTION.
            SET INDX TO NUM-2.
            GO TO 2061-GO-TO.
+
        AC-1.
            IF (ACTION = "C" OR "D" OR "L")
-           OR (kmc-flag = 1 AND ACTION = "PCF") NEXT SENTENCE
-           ELSE DISPLAY "WHAT ?" GO TO 1000-ACTION.
+             OR (kmc-flag = 1 AND ACTION = "PCF") 
+             NEXT SENTENCE
+           ELSE 
+             DISPLAY "WHAT ?" 
+             GO TO 1000-ACTION.
+
            IF charfile-key = "1" OR "2" OR "3" OR "4" OR "5" OR "6"
            OR "7" OR "8" OR "9" MOVE charfile-key TO IN-FIELD-1
            MOVE IN-FIELD-1 TO FLAG
            MOVE LAST-CHARGE(FLAG) TO charfile-key.
            MOVE CHARFILE01 TO QQQ
-           READ CHARFILE INVALID DISPLAY charfile-key " NOT ON FILE"
-             GO TO 1000-ACTION.
+           READ CHARFILE 
+             INVALID 
+               DISPLAY charfile-key " NOT ON FILE"
+               GO TO 1000-ACTION.
+
            IF ACTION = "PCF"
              DISPLAY CD-NAME " " CD-date-t (5:2) "-" CD-date-t (7:2) "-" 
                CD-date-t (1:2)
-           GO TO KMC-1.
+             GO TO KMC-1.
+
        1150-CONFIRM-IDN.
            DISPLAY charfile-key " " CD-NAME.
            IF ACTION = "L"
@@ -947,19 +964,28 @@
        1205-ADD-LOOP.
            SET INDX TO ADD-FLD(ADD-KEY).
            PERFORM 2050-DISPLAY THRU 4910DEE.
-       1200-FIND. START CHARFILE KEY > charfile-key INVALID
-           DISPLAY " END OF FILE" GO TO 1200-FIND-EXIT.
+
+       1200-FIND. 
+           START CHARFILE KEY > charfile-key 
+             INVALID
+               DISPLAY " END OF FILE" 
+               GO TO 1200-FIND-EXIT.
+
        1200-FIND-20.
            MOVE 0 TO X.
            MOVE 0 TO FLAG.
            PERFORM 1200-SEARCH THRU 1200-SEARCH-EXIT.
-           IF FLAG = 1 DISPLAY "END OF FILE FOUND"
-           DISPLAY "END OF SEARCH"
-           GO TO 1200-FIND-EXIT.
+           IF FLAG = 1 
+             DISPLAY "END OF FILE FOUND"
+             DISPLAY "END OF SEARCH"
+             GO TO 1200-FIND-EXIT.
+
        1200-FIND-QUES.
            DISPLAY "?".
            ACCEPT ANS.
+
            IF ANS = SPACES GO TO 1200-FIND-20.
+
            IF ANS = "?"
            DISPLAY "A <CR> WILL PRODUCE 10 MORE NAMES"
            DISPLAY "ANYTHING ELSE WILL RETURN YOU TO THE OPTION COMMAND"
@@ -967,20 +993,25 @@
            GO TO 1200-FIND-EXIT.
 
        1200-SEARCH.
-           READ CHARFILE NEXT AT END MOVE 1 TO FLAG
-           GO TO 1200-SEARCH-EXIT.
+           READ CHARFILE NEXT 
+             AT END 
+               MOVE 1 TO FLAG
+               GO TO 1200-SEARCH-EXIT.
+               
            MOVE SPACE TO ALF-1
+           
            IF CD-paper NOT NUMERIC MOVE CD-paper TO ALF-1.
+
            MOVE CD-amount TO NEF-5
            MOVE CD-date-t  TO TEST-DATE-S
            MOVE CORR TEST-DATE-S TO DISP-DATE
 
-           IF (PAYFLAG = SPACE) OR PAYFLAG = CD-paycode
+           IF (PAYFLAG = SPACE) OR (PAYFLAG = CD-paycode)
              ADD 1 TO X
              DISPLAY X " " charfile-key " " DISP-DATE " "
                CD-proc CD-mod2  " "
-               CD-mod3  " " NEF-5 " " CD-paycode " " CD-diag" "
-               ALF-1 " " CD-NAME
+               CD-mod3  " " cd-mod4 " " NEF-5 " " CD-paycode " " 
+               CD-diag " " ALF-1 " " cd-docp " " CD-NAME
              MOVE charfile-key TO LAST-CHARGE(X)
            END-IF
            IF X > 8 GO TO 1200-SEARCH-EXIT.
