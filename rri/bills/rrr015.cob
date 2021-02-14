@@ -4,474 +4,385 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRR015.
+       PROGRAM-ID. rrr015.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
+
        INPUT-OUTPUT SECTION.
+
        FILE-CONTROL.
-	   SELECT INSFILE ASSIGN TO "S35"     ORGANIZATION IS INDEXED
-	     ACCESS IS DYNAMIC        RECORD KEY IS INS-KEY
-	     ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
-	     ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
-	     ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
-	     ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
-	     ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
-	     ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
-	     LOCK MODE MANUAL.
-	   SELECT BILLDATE ASSIGN TO "S40" ORGANIZATION LINE
-	     SEQUENTIAL.
-	   SELECT TB-BILL ASSIGN TO "S45"
-	     ORGANIZATION LINE SEQUENTIAL.
-	   SELECT OUT-FILE ASSIGN TO "S50".
-      *     ORGANIZATION LINE SEQUENTIAL.
-	   SELECT PAYCUR ASSIGN TO "S55" ORGANIZATION IS INDEXED
-	     ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY
-	     LOCK MODE MANUAL.
-	   SELECT CHARCUR ASSIGN TO "S60" ORGANIZATION IS INDEXED
-	     ACCESS MODE IS DYNAMIC RECORD KEY IS CHARCUR-KEY
-	     ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
-	     LOCK MODE MANUAL.
-	     
-	   SELECT GARFILE ASSIGN TO "S65" ORGANIZATION IS INDEXED
-	     ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
-	     ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
-	     LOCK MODE MANUAL.
-	     
-	     SELECT PROCFILE ASSIGN TO "S70" ORGANIZATION IS INDEXED
-	     ACCESS IS RANDOM RECORD KEY IS PROC-KEY
-	     LOCK MODE MANUAL.
-	   SELECT BILLPARM ASSIGN TO "S75"
-	     ORGANIZATION LINE SEQUENTIAL.
-	   SELECT RPGPROCFILE ASSIGN TO "S80" ORGANIZATION IS INDEXED
-	   ACCESS IS DYNAMIC RECORD KEY IS RPGPROC-KEY
-	   LOCK MODE MANUAL.
+
+           SELECT INSFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC
+             RECORD KEY IS INS-KEY
+             ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+             ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+             ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+             ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+             ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+             ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
+             LOCK MODE MANUAL.
+
+           SELECT BILLDATE ASSIGN TO "S40" ORGANIZATION 
+             LINE SEQUENTIAL.
+     
+           SELECT TB-BILL ASSIGN TO "S45" ORGANIZATION 
+             LINE SEQUENTIAL.
+     
+           SELECT OUT-FILE ASSIGN TO "S50" ORGANIZATION 
+             LINE SEQUENTIAL.
+
+           SELECT PAYCUR ASSIGN TO "S55" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY
+             LOCK MODE MANUAL.
+
+           SELECT CHARCUR ASSIGN TO "S60" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+             ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+             LOCK MODE MANUAL.
+       
+           SELECT GARFILE ASSIGN TO "S65" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+             ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+             LOCK MODE MANUAL.
+       
+           SELECT PROCFILE ASSIGN TO "S70" ORGANIZATION IS INDEXED
+             ACCESS IS RANDOM RECORD KEY IS PROC-KEY
+             LOCK MODE MANUAL.
+
+           SELECT BILLPARM ASSIGN TO "S75" ORGANIZATION 
+             LINE SEQUENTIAL.
+
+           SELECT RPGPROCFILE ASSIGN TO "S80" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS RPGPROC-KEY
+             LOCK MODE MANUAL.
 
        DATA DIVISION.
+       
        FILE SECTION.
        
-       FD  INSFILE
-     *     BLOCK CONTAINS 6 RECORDS
-	   DATA RECORD IS INSFILE01.
-       01  INSFILE01.
-	   02 INS-KEY PIC XXX.
-	   02 INS-NAME PIC X(22).
-	   02 INS-STREET PIC X(24).
-	   02 INS-CITY PIC X(15).
-	   02 INS-STATE PIC XX.
-	   02 INS-ZIP PIC X(9).
-	   02 INS-ASSIGN PIC X.
-	   02 INS-CLAIMTYPE PIC X.
-	   02 INS-NEIC PIC X(5).
-	   02 INS-NEICLEVEL PIC X.
-	   02 INS-NEIC-ASSIGN PIC X.
-	   02 INS-PPO PIC X.
-	   02 INS-PRVNUM PIC X(10).
-	   02 INS-HMO PIC X(3).
-	   02 INS-STATUS PIC X.
-	   02 INS-LEVEL PIC X.
-	   02 INS-LASTDATE PIC X(8).
-	   02 INS-CAID PIC XXX.
-	   02 INS-REFWARN PIC X.
-	   02 INS-FUTURE PIC X(8).
-       FD  GARFILE
-      *    BLOCK CONTAINS 3 RECORDS
-	   DATA RECORD IS GARFILE01.
-       01  GARFILE01.
-	   02 G-GARNO PIC X(8).
-	   02 G-GARNAME PIC X(24).
-	   02 G-BILLADD PIC X(22).
-	   02 G-STREET PIC X(22).
-	   02 G-CITY PIC X(18).
-	   02 G-STATE PIC X(2).
-	   02 G-ZIP PIC X(9).
-	   02 G-COLLT PIC X.
-	   02 G-PHONE PIC X(10).
-	   02 G-SEX PIC X.
-	   02 G-RELATE PIC X.
-	   02 G-MSTAT PIC X.
-	   02 G-DOB PIC X(8).
-	   02 G-DUNNING PIC X.
-	   02 G-ACCTSTAT PIC X.
-	   02 G-PR-MPLR PIC X(4).
-	   02 G-PRINS PIC XXX.
-	   02 G-PR-ASSIGN PIC X.
-	   02 G-PR-OFFICE PIC X(4).
-	   02 G-PR-GROUP PIC X(12).
-	   02 G-PRIPOL PIC X(14).
-	   02 G-PRNAME PIC X(24).
-	   02 G-PR-RELATE PIC X.
-	   02 G-SE-MPLR PIC X(4).
-	   02 G-SEINS PIC XXX.
-	   02 G-SE-ASSIGN PIC X.
-	   02 G-TRINSIND PIC X.
-	   02 G-TRINS PIC XXX.
-	   02 G-SE-GROUP PIC X(12).
-	   02 G-SECPOL PIC X(14).
-	   02 G-SENAME PIC X(24).
-	   02 G-SE-RELATE PIC X.
-	   02 G-COPAY PIC S9(5)V99.
-	   02 G-LASTBILL PIC X(8).
-	   02 G-ASSIGNM PIC X.
-	   02 G-PRIVATE PIC X.
-	   02 G-BILLCYCLE PIC X.
-	   02 G-DELETE PIC X.
-	   02 G-FILLER PIC XXX.
-	   02 G-ACCT PIC X(8).
-	   02 G-PRGRPNAME PIC X(15).
-	   02 G-SEGRPNAME PIC X(15).
+       FD  INSFILE.
+           copy insfile.cpy in "c:\users\sid\cms\copylib\rri".
 
+       FD  GARFILE.
+           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
 
-       FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS CHARCUR01.
-       01  CHARCUR01.
-           02 CHARCUR-KEY.
-             03 CC-KEY8 PIC X(8).
-             03 CC-KEY3 PIC XXX.
-           02 CC-PATID PIC X(8).
-           02 CC-CLAIM PIC X(6).
-           02 CC-SERVICE PIC X.
-           02 CC-DIAG PIC X(7).
-           02 CC-PROC PIC X(11).
-           02 CC-MOD2 PIC XX.
-           02 CC-MOD3 PIC XX.
-           02 CC-MOD4 PIC XX.
-           02 CC-AMOUNT PIC S9(4)V99.
-           02 CC-DOCR PIC X(3).
-           02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC XXX.
-           02 CC-STUD PIC X.
-           02 CC-WORK PIC XX.
-           02 CC-DAT1 PIC X(8).
-           02 CC-RESULT PIC X.
-           02 CC-ACT PIC X.
-           02 CC-SORCREF PIC X.
-           02 CC-COLLT PIC X.
-           02 CC-AUTH PIC X.
-           02 CC-PAPER PIC X.
-           02 CC-PLACE PIC X.
-           02 CC-EPSDT PIC X.
-           02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A PIC X(8).
-           02 CC-DATE-P PIC X(8).
-           02 CC-REC-STAT PIC X.
-           02 CC-DX2 PIC X(7).
-           02 CC-DX3 PIC X(7).
-           02 CC-ACC-TYPE PIC X.
-           02 CC-DATE-M PIC X(8).
-           02 CC-ASSIGN PIC X.
-           02 CC-NEIC-ASSIGN PIC X.
-           02 CC-DX4 PIC X(7).
-           02 CC-DX5 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
-       FD  BILLPARM
-	   DATA RECORD IS BILLPARM01.
+       FD  CHARCUR.
+           copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
+
+       FD  BILLPARM.
        01  BILLPARM01.
-	   02 PF1 PIC S999.
-	   02 PF2 PIC S999.
-	   02 PF3 PIC S999.
-	   02 PF4 PIC X(40).
-       FD  BILLDATE
-	   DATA RECORD IS BILLDATE01.
+            02 PF1 PIC S999.
+           02 PF2 PIC S999.
+           02 PF3 PIC S999.
+           02 PF4 PIC X(40).
+
+       FD  BILLDATE.
        01  BILLDATE01.
-	   02 BILL-DATE PIC X(8).
-	   02 BILL-CYCLE PIC X(4).
-       FD  TB-BILL
-	   DATA RECORD IS TB-BILL01.
+           02 BILL-DATE PIC X(8).
+           02 BILL-CYCLE PIC X(4).
+
+       FD  TB-BILL.
        01  TB-BILL01.
-	   02 TB-1 PIC X(8).
-	   02 FILLER PIC X(33).
-	   02 TB-4 PIC X. 
-       FD  PAYCUR
-	   BLOCK CONTAINS 7 RECORDS
-	   DATA RECORD IS PAYCUR01.
-       01  PAYCUR01.
-	   02 PAYCUR-KEY.
-	     03 PC-KEY8 PIC X(8).
-	     03 PC-KEY3 PIC XXX.
-	   02 PC-AMOUNT PIC S9(4)V99.
-	   02 PC-PAYCODE PIC XXX.
-	   02 PC-DENIAL PIC XX.
-	   02 PC-CLAIM PIC X(6).
-	   02 PC-DATE-T PIC X(8).
-	   02 PC-DATE-E PIC X(8).
-	   02 PC-BATCH PIC X(6).
-       FD  OUT-FILE
-	   DATA RECORD IS OUT01.
+           02 TB-1 PIC X(8).
+           02 FILLER PIC X(33).
+           02 TB-4 PIC X. 
+
+       FD  PAYCUR.
+           copy paycur.cpy in "c:\users\sid\cms\copylib\rri".
+
+       FD  OUT-FILE.
        01  OUT01 PIC X(84).
        01  CHNL-2 PIC X.  
        01  CHNL-3 PIC X.
-       FD  PROCFILE
-	   DATA RECORD IS PROC01.
-       01  PROC01.
-	   02 PROC-KEY.
-	     03 PROC-KEY1 PIC X(4).
-	     03 PROC-KEY2 PIC X(7).
-	   02 PROC-TYPE PIC X.
-	   02 PROC-TITLE PIC X(28).
-	   02 PROC-AMOUNT PIC S9(4)V99.
-       FD  RPGPROCFILE
-	   DATA RECORD RPGPROCFILE01.
-       01  RPGPROCFILE01.
-	   02 RPGPROC-KEY.
-	     03 RPGPROC-KEY1 PIC X(7).
-	     03 RPGPROC-KEY2 PIC X(4).
-	   02 RPGPROC-TYPE PIC X.
-	   02 RPGPROC-TITLE. 
-	      03 RPG-NT1 PIC X(4).
-	      03 RPG-NT2 PIC X(24).
-	   02 RPGPROC-AMOUNT PIC 9(4)V99.
 
+       FD  PROCFILE.
+           copy procfile.cpy in "c:\users\sid\cms\copylib\rri".
+
+       FD  RPGPROCFILE.
+           copy rpgprocfile.cpy in "c:\users\sid\cms\copylib\rri".
+       
        WORKING-STORAGE SECTION.
        01  CHR01.
-          02 CHR02 OCCURS 400 TIMES.
-	     03 CHR-DATE-T PIC X(8).
-	     03 CHR-DATE-A PIC X(8).
-	     03 CHR-CLAIM PIC X(6).
-	     03 CHR-AMOUNT PIC S9(4)V99.
-	     03 CHR-PAYCODE PIC X(3).
-            03 CHR-PROC PIC X(11).
-            03 CHR-DIAG PIC X(7).
-	     03 CHR-ASSIGN PIC X.
-	     03 CHR-REC-STAT PIC X.
-	     03 CHR-PLACE PIC X.
+           02 CHR02 OCCURS 400 TIMES.
+             03 CHR-DATE-T PIC X(8).
+             03 CHR-DATE-A PIC X(8).
+             03 CHR-CLAIM PIC X(6).
+             03 CHR-AMOUNT PIC S9(4)V99.
+             03 CHR-PAYCODE PIC X(3).
+             03 CHR-PROC PIC X(11).
+             03 CHR-DIAG PIC X(7).
+             03 CHR-ASSIGN PIC X.
+             03 CHR-REC-STAT PIC X.
+             03 CHR-PLACE PIC X.
+
        01  PHR01.
-          02 PHR02 OCCURS 500 TIMES.
-	     03 PHR-DATE PIC X(8).
-	     03 PHR-CLAIM PIC X(6).
-	     03 PHR-AMOUNT PIC S9(4)V99.
-	     03 PHR-PAYCODE PIC XXX.
-	     03 PHR-DENIAL PIC XX.
+           02 PHR02 OCCURS 500 TIMES.
+             03 PHR-DATE PIC X(8).
+             03 PHR-CLAIM PIC X(6).
+             03 PHR-AMOUNT PIC S9(4)V99.
+             03 PHR-PAYCODE PIC XXX.
+             03 PHR-DENIAL PIC XX.
        
        01 TAB2001.
-	   02 TAB20 PIC X OCCURS 20 TIMES.
+           02 TAB20 PIC X OCCURS 20 TIMES.
+       
        01  TABA2401.
-	   02 TABA24 PIC X OCCURS 24 TIMES.
-       01  TABB2401.
-	   02 TABB24 PIC X OCCURS 24 TIMES.
-       01  MON-TAB01RE.
-	   02 FILLER PIC X(18) VALUE "000031059090120151".
-	   02 FILLER PIC X(18) VALUE "181212243273304334".
-       01  MON-TAB01 REDEFINES MON-TAB01RE.
-	   02 MON-TAB PIC 999 OCCURS 12 TIMES.
-       01  LEAP-TAB01RE.
-	   02 FILLER PIC X(18) VALUE "000031060091121152".
-	   02 FILLER PIC X(18) VALUE "182213244274305335".
-       01  LEAP-TAB01 REDEFINES LEAP-TAB01RE.
-	   02 LEAP-TAB PIC 999 OCCURS 12 TIMES.
+           02 TABA24 PIC X OCCURS 24 TIMES.
 
-       01 DAY-TEST-1.
-	   02 DY1 PIC 9999.
-	   02 DM1 PIC 99.
-	   02 DD1 PIC 99.
+       01  TABB2401.
+           02 TABB24 PIC X OCCURS 24 TIMES.
+
+       01  MON-TAB01RE.
+           02 FILLER PIC X(18) VALUE "000031059090120151".
+           02 FILLER PIC X(18) VALUE "181212243273304334".
+
+       01  MON-TAB01 REDEFINES MON-TAB01RE.
+           02 MON-TAB PIC 999 OCCURS 12 TIMES.
+
+       01  LEAP-TAB01RE.
+           02 FILLER PIC X(18) VALUE "000031060091121152".
+           02 FILLER PIC X(18) VALUE "182213244274305335".
+
+       01  LEAP-TAB01 REDEFINES LEAP-TAB01RE.
+           02 LEAP-TAB PIC 999 OCCURS 12 TIMES.
+
+       01  DAY-TEST-1.
+           02 DY1 PIC 9999.
+           02 DM1 PIC 99.
+           02 DD1 PIC 99.
+
        01  DAY-TEST-2.
-	   02 DY2 PIC 9999.
-	   02 DM2 PIC 99.
-	   02 DD2 PIC 99.
+           02 DY2 PIC 9999.
+           02 DM2 PIC 99.
+           02 DD2 PIC 99.
+
        01  NOINS PIC X(48) VALUE "IF YOU HAVE HEALTH INSURANCE CONTACT U
       -    "S, PLEASE.".                                             
-       01  N9398 PIC X(73) VALUE "SUBMIT THIS STATEMENT TO THE RESPONSIB 
+
+       01  N9398 PIC X(73) VALUE "SUBMIT THIS STATEMENT TO THE RESPONSIB
       -    "LE PARTY FOR PROCESSING, PLEASE. ".
        
        01  LINE-0.
-	   02 L0F1 PIC X(10) VALUE SPACE.
-	   02 L0F2 PIC X(24).
-	   02 FILLER PIC X(29) VALUE SPACE.
-	   02 L1F3 PIC X(8).
-	   02 FILLER PIC X VALUE SPACE.
-	   02 L1F7 PIC XX.
-       01 LINE-1.
-	   02 FILLER PIC X(8) VALUE SPACE.
-	   02 F11 PIC X(2) VALUE SPACE.
-	   02 L1F2 PIC X(22).
-	   02 F12 PIC X(22) VALUE SPACE.
-	   02 L1F1 PIC X(8).
-	   02 F13 PIC X VALUE SPACE.
-	   02 L1F4 PIC X.
-	   02 L1F5 PIC X.
-	   02 L1F51 PIC X.
-	   02 FILLER PIC X VALUE SPACE.
-	   02 L2F3 PIC X(10).
-       01 LINE-2.
-	   02 F21 PIC X(10) VALUE SPACE.
-	   02 L2F2 PIC X(22).
-	   02 F22 PIC X(3) VALUE SPACE.
-	   02 F23 PIC X(3) VALUE SPACE.
-	   02 FILLER PIC X(25) VALUE SPACE.
-	   02 L2F4 PIC XXX.
-	   02 F24 PIC X VALUE SPACE.
-	   02 L2F5 PIC X(12).
+           02 L0F1 PIC X(10) VALUE SPACE.
+           02 L0F2 PIC X(24).
+           02 FILLER PIC X(29) VALUE SPACE.
+           02 L1F3 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L1F7 PIC XX.
+
+       01  LINE-1.
+           02 FILLER PIC X(8) VALUE SPACE.
+           02 F11 PIC X(2) VALUE SPACE.
+           02 L1F2 PIC X(22).
+           02 F12 PIC X(22) VALUE SPACE.
+           02 L1F1 PIC X(8).
+           02 F13 PIC X VALUE SPACE.
+           02 L1F4 PIC X.
+           02 L1F5 PIC X.
+           02 L1F51 PIC X.
+           02 FILLER PIC X VALUE SPACE.
+           02 L2F3 PIC X(10).
+
+       01  LINE-2.
+           02 F21 PIC X(10) VALUE SPACE.
+           02 L2F2 PIC X(22).
+           02 F22 PIC X(3) VALUE SPACE.
+           02 F23 PIC X(3) VALUE SPACE.
+           02 FILLER PIC X(25) VALUE SPACE.
+           02 L2F4 PIC XXX.
+           02 F24 PIC X VALUE SPACE.
+           02 L2F5 PIC X(12).
+
        01  LINE-3.
-	   02 FILLER PIC X(10) VALUE SPACE.
-	   02 L3F1 PIC X(34).
-	   02 FILLER PIC X(10) VALUE SPACE.
-	   02 L2F1 PIC X(8).
-	   02 FILLER PIC X VALUE SPACE.
-	   02 L3F2 PIC XXX.
-	   02 FILLER PIC X VALUE SPACE.
-	   02 L3F5 PIC X(12).
-       01 LINE-PHONE.
-	  02 FILLER PIC X(63) VALUE SPACE.
-	  02 L0F3 PIC X(10).
+           02 FILLER PIC X(10) VALUE SPACE.
+           02 L3F1 PIC X(34).
+           02 FILLER PIC X(10) VALUE SPACE.
+           02 L2F1 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 L3F2 PIC XXX.
+           02 FILLER PIC X VALUE SPACE.
+           02 L3F5 PIC X(12).
+
+       01  LINE-PHONE.
+           02 FILLER PIC X(63) VALUE SPACE.
+           02 L0F3 PIC X(10).
+
        01  LINE-4.
-	   02 L4F1 PIC X(8).
-	   02 F41 PIC X(9).
-	   02 L4F2 PIC X(24).
-	   02 F42 PIC X(3).
-	   02 L4F3 PIC X(5).
-	   02 F43 PIC X(2).
-	   02 L4F4 PIC XXX.
-	   02 F44 PIC X(10).
-	   02 L4F5 PIC X(9).
-       01 LINE-5.
-	   02 L5F1 PIC X(8).
-	   02 FILLER PIC X(4) VALUE SPACE.
-	   02 L5F2.
-	   03 L5F21 PIC X(6).
-	   03 L5F22 PIC X(22).
-	   03 FILLER PIC X VALUE SPACE.
-	   03 L5F23 PIC X(22).
-	   02 FILLER PIC X VALUE SPACE.
-	   02 L5F4 PIC ZZZ9.99CR.
-	   02 FILLER PIC XX VALUE SPACE.
-      *    02 L5F5 PIC ZZZ9.99CR.
+           02 L4F1 PIC X(8).
+           02 F41 PIC X(9).
+           02 L4F2 PIC X(24).
+           02 F42 PIC X(3).
+           02 L4F3 PIC X(5).
+           02 F43 PIC X(2).
+           02 L4F4 PIC XXX.
+           02 F44 PIC X(10).
+           02 L4F5 PIC X(9).
+
+       01  LINE-5.
+           02 L5F1 PIC X(8).
+           02 FILLER PIC X(4) VALUE SPACE.
+           02 L5F2.
+             03 L5F21 PIC X(6).
+             03 L5F22 PIC X(22).
+             03 FILLER PIC X VALUE SPACE.
+             03 L5F23 PIC X(22).
+           02 FILLER PIC X VALUE SPACE.
+           02 L5F4 PIC ZZZ9.99CR.
+           02 FILLER PIC XX VALUE SPACE.
+      *     02 L5F5 PIC ZZZ9.99CR.
+
        01  LINE-6.
-	   02 L6F1 PIC X(8).
-	   02 FILLER PIC X VALUE SPACE.
-	   02 FILLER PIC X VALUE SPACE.
-	   02 L6F2 PIC X(26).
-	   02 FILLER PIC X(4) VALUE SPACE.
-          02 L6F4 PIC X(7).
-          02 FILLER PIC X VALUE SPACE.
-	   02 L6-PROC PIC X(7).
-	   02 FILLER PIC XX VALUE SPACE.
-	   02 L6F5 PIC ZZZ9.99CR.
-	   02 FILLER PIC X(9) VALUE SPACE.
-	   02 L6F7X PIC X(9).
+           02 L6F1 PIC X(8).
+           02 FILLER PIC X VALUE SPACE.
+           02 FILLER PIC X VALUE SPACE.
+           02 L6F2 PIC X(26).
+           02 FILLER PIC X(4) VALUE SPACE.
+           02 L6F4 PIC X(7).
+           02 FILLER PIC X VALUE SPACE.           
+           02 L6-PROC PIC X(7).
+           02 FILLER PIC XX VALUE SPACE.
+           02 L6F5 PIC ZZZ9.99CR.
+           02 FILLER PIC X(9) VALUE SPACE.
+           02 L6F7X PIC X(9).
+
        01  LINE-6P.
-	   02 FILLER PIC X(65).
-	   02 L6PF1 PIC X(11).
+           02 FILLER PIC X(65).
+           02 L6PF1 PIC X(11).
+
        01  LINE-6A.
-	   02 F6A1 PIC X(9).
-	   02 L6AF1 PIC X(9).
-	   02 L6AF2 PIC X(15).
+           02 F6A1 PIC X(9).
+           02 L6AF1 PIC X(9).
+           02 L6AF2 PIC X(15).
+
        01  LINE-7.
-	   02 L7F1 PIC ZZZZ9.99CR.
-	   02 F71 PIC X.
-	   02 L7F2 PIC ZZZ9.99CR.
-	   02 F72 PIC X.
-	   02 L7F3 PIC ZZZ9.99CR.
-	   02 F73 PIC X.
-	   02 L7F4 PIC ZZZ9.99CR.
-	   02 F74 PIC X.
-	   02 L7F5 PIC ZZZ9.99CR.
-	   02 F75 PIC X.
-	   02 L7F6 PIC ZZZ9.99CR.
-	   02 FILLER PIC X(12) VALUE SPACE.
-	   02 L7F7 PIC ZZZZ9.99CR.
+           02 L7F1 PIC ZZZZ9.99CR.
+           02 F71 PIC X.
+           02 L7F2 PIC ZZZ9.99CR.
+           02 F72 PIC X.
+           02 L7F3 PIC ZZZ9.99CR.
+           02 F73 PIC X.
+           02 L7F4 PIC ZZZ9.99CR.
+           02 F74 PIC X.
+           02 L7F5 PIC ZZZ9.99CR.
+           02 F75 PIC X.
+           02 L7F6 PIC ZZZ9.99CR.
+           02 FILLER PIC X(12) VALUE SPACE.
+           02 L7F7 PIC ZZZZ9.99CR.
+
        01 LINE-8.
-	   02 L8F1 PIC X(24).
-	   02 F81 PIC X.
-	   02 L8F2 PIC X(8).
-	   02 F82 PIC X.
-	   02 L8F3 PIC 999.
-	   02 F83 PIC X.
-	   02 L8F4 PIC X(27).
+           02 L8F1 PIC X(24).
+           02 F81 PIC X.
+           02 L8F2 PIC X(8).
+           02 F82 PIC X.
+           02 L8F3 PIC 999.
+           02 F83 PIC X.
+           02 L8F4 PIC X(27).
+
        01  WSL1F1.
-	   02 WSL1F1M PIC XX.
-	   02 FILLER PIC X VALUE " ".
-	   02 WSL1F1D PIC XX.
-	   02 FILLER PIC X VALUE " ".
-	   02 WSL1F1Y PIC XX.
+           02 WSL1F1M PIC XX.
+           02 FILLER PIC X VALUE " ".
+           02 WSL1F1D PIC XX.
+           02 FILLER PIC X VALUE " ".
+           02 WSL1F1Y PIC XX.
+
        01  INPUT-DATE-S.
-	   05 T-MM  PIC XX.
-	   05 T-DD  PIC XX.
-	   05 T-YY  PIC XX.
+           05 T-MM  PIC XX.
+           05 T-DD  PIC XX.
+           05 T-YY  PIC XX.
+
        01  TEST-DATE.
-	   05 T-YY  PIC XX.
-	   05 T-YY  PIC XX.
-	   05 T-MM  PIC XX.
-	   05 T-DD  PIC XX.
+           05 T-YY  PIC XX.
+           05 T-YY  PIC XX.
+           05 T-MM  PIC XX.
+           05 T-DD  PIC XX.
+
        01  FLAGP PIC 9.
+
        01  SUM-DATE. 
-	    02 SUM-DATE-1 PIC X(6).
-	    02 SUM-DATE-2 PIC XX.
-       01     BILL-COUNT PIC 9(5) VALUE 0.
-       01     QY1 PIC S9999.
-       01     QY2 PIC S9999.
-       01     QDAY1 PIC S999.
-       01     QDAY2 PIC S999.
-       01     DAY1 PIC S999.
-       01     DAY2 PIC S999.
-       01     FLAG PIC 9.
-       01     SNUM-6 PIC S9(4)V99.
-       01     TEST-BUSNAME.
-	     03 TEST-BUSNAME-1 PIC X.
-	     03 TEST-BUSNAME-2 PIC X(23).
-       01     CLAIM-TOT PIC S9(5)V99.
-       01     REF-IND PIC 999.
-       01     LINE-CTR PIC 99.
-       01     BILL-PAGE PIC 99.
-       01     AMOUNT-DUE PIC S9(5)V99.
-       01     BAL-FWD PIC S9(5)V99.
-       01     DAYS PIC S9999.
-       01     AT-3.
-	     03 AT-3-1 PIC XX.
-	     03 AT-3-2 PIC X.
-       01     NAME-FIRST PIC X(24).
-       01     NAME-MIDDLE PIC X(24).
-       01     NAME-LAST PIC X(24).
-       01     NAME-TEST PIC X(24).
-       01     PHR-IND PIC 999.
-       01     CHR-IND PIC 999.
-       01     TOTCHAR PIC S9(4)V99.
-       01     TOTPAY PIC S9(4)V99.
-       01     RIGHT-8 PIC X(8) JUST RIGHT.
-       01     RIGHT-2 PIC XX JUST RIGHT.
-       01     RIGHT-3 PIC XXX JUST RIGHT.
-       01     RIGHT-4 PIC X(4) JUST RIGHT.
-       01     ALF-1 PIC X.
-       01     ALF-2 PIC XX.
-       01     ALF-3 PIC XXX.
-       01     ALF-4 PIC XXXX.
-       01     ALF-5 PIC X(5).
-       01     ALF-9 PIC X(9).
-       01     ALF-6 PIC X(6).
-       01     ALF-7 PIC X(7).
-       01     ALF-8 PIC X(8).
-       01     ALF-11 PIC X(11).
-       01     ALF-13 PIC X(13).
-       01     ALF-14 PIC X(14).
-       01     EIGHTPARTID PIC X(8).
-       01     ABC PIC XXX.
-       01     XYZ PIC 999.
-       01     RIGHT-5 PIC X(5) JUST RIGHT.
-       01     RIGHT-7 PIC X(7) JUST RIGHT.
-       01     NUM-2 PIC 99.
-       01     NUM-21 PIC 99.
-       01     NUM-3 PIC 999.
-       01     NUM-9 PIC 9(9).
-       01     NUM-6 PIC 9(6).
-       01     A PIC 999.
-       01     B PIC 999.
-       01     C PIC S999.
-       01     D PIC 999.
-       01     X PIC 999.
-       01     Y PIC 999.
-       01     Z PIC 999.
-       01     ANS PIC X.
-       01     X-INSPEND PIC S9(5)V99.
-       01     G-BALCUR PIC S9(5)V99.
-       01     G-BAL30  PIC S9(5)V99.
-       01     G-BAL60  PIC S9(5)V99.
-       01     G-BALCOL  PIC S9(5)V99.
+           02 SUM-DATE-1 PIC X(6).
+           02 SUM-DATE-2 PIC XX.
+           
+       01  BILL-COUNT PIC 9(5) VALUE 0.
+       01  QY1 PIC S9999.
+       01  QY2 PIC S9999.
+       01  QDAY1 PIC S999.
+       01  QDAY2 PIC S999.
+       01  DAY1 PIC S999.
+       01  DAY2 PIC S999.
+       01  FLAG PIC 9.
+       01  SNUM-6 PIC S9(4)V99.
+
+       01  TEST-BUSNAME.
+           03 TEST-BUSNAME-1 PIC X.
+           03 TEST-BUSNAME-2 PIC X(23).
+
+       01  CLAIM-TOT PIC S9(5)V99.
+       01  REF-IND PIC 999.
+       01  LINE-CTR PIC 99.
+       01  BILL-PAGE PIC 99.
+       01  AMOUNT-DUE PIC S9(5)V99.
+       01  BAL-FWD PIC S9(5)V99.
+       01  DAYS PIC S9999.
+
+       01  AT-3.
+           03 AT-3-1 PIC XX.
+           03 AT-3-2 PIC X.
+
+       01  NAME-FIRST PIC X(24).
+       01  NAME-MIDDLE PIC X(24).
+       01  NAME-LAST PIC X(24).
+       01  NAME-TEST PIC X(24).
+       01  PHR-IND PIC 999.
+       01  CHR-IND PIC 999.
+       01  TOTCHAR PIC S9(4)V99.
+       01  TOTPAY PIC S9(4)V99.
+       01  RIGHT-8 PIC X(8) JUST RIGHT.
+       01  RIGHT-2 PIC XX JUST RIGHT.
+       01  RIGHT-3 PIC XXX JUST RIGHT.
+       01  RIGHT-4 PIC X(4) JUST RIGHT.
+       01  ALF-1 PIC X.
+       01  ALF-2 PIC XX.
+       01  ALF-3 PIC XXX.
+       01  ALF-4 PIC XXXX.
+       01  ALF-5 PIC X(5).
+       01  ALF-9 PIC X(9).
+       01  ALF-6 PIC X(6).
+       01  ALF-7 PIC X(7).
+       01  ALF-8 PIC X(8).
+       01  ALF-11 PIC X(11).
+       01  ALF-13 PIC X(13).
+       01  ALF-14 PIC X(14).
+       01  EIGHTPARTID PIC X(8).
+       01  ABC PIC XXX.
+       01  XYZ PIC 999.
+       01  RIGHT-5 PIC X(5) JUST RIGHT.
+       01  RIGHT-7 PIC X(7) JUST RIGHT.
+       01  NUM-2 PIC 99.
+       01  NUM-21 PIC 99.
+       01  NUM-3 PIC 999.
+       01  NUM-9 PIC 9(9).
+       01  NUM-6 PIC 9(6).
+       01  A PIC 999.
+       01  B PIC 999.
+       01  C PIC S999.
+       01  D PIC 999.
+       01  X PIC 999.
+       01  Y PIC 999.
+       01  Z PIC 999.
+       01  ANS PIC X.
+       01  X-INSPEND PIC S9(5)V99.
+       01  G-BALCUR PIC S9(5)V99.
+       01  G-BAL30  PIC S9(5)V99.
+       01  G-BAL60  PIC S9(5)V99.
+       01  G-BALCOL  PIC S9(5)V99.
        01  LLLL PIC X(8).
        01  L6F7 PIC ZZZ9.99CR.
        01  CHNL-X PIC X VALUE H"1A".
        01  CHNL-Y PIC X VALUE H"1C".
        01  PAGE-FLAG PIC 9 VALUE 0.
+
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT OUT-FILE.
@@ -494,6 +405,7 @@
            READ BILLDATE AT END DISPLAY "NO BILLDATE" GO TO R20.
            MOVE BILL-DATE TO SUM-DATE
            MOVE "00" TO SUM-DATE-2.
+
        R1.
            READ TB-BILL AT END GO TO R20.
            MOVE TB-1 TO G-GARNO.
@@ -509,6 +421,7 @@
            MOVE G-GARNO TO CC-KEY8
            MOVE XYZ TO CC-KEY3
            START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO R7.
+
        R6.
            READ CHARCUR NEXT AT END GO TO R7.
            IF G-GARNO NOT = CC-KEY8 GO TO R7.
@@ -528,11 +441,13 @@
            MOVE CC-REC-STAT TO CHR-REC-STAT(CHR-IND)
            MOVE CC-PLACE TO CHR-PLACE(CHR-IND)
            GO TO R6.
+
        R7.
            MOVE 0 TO XYZ.
            MOVE G-GARNO TO PC-KEY8
            MOVE XYZ TO PC-KEY3
            START PAYCUR KEY NOT < PAYCUR-KEY INVALID GO TO R9.
+
        R8.
            READ PAYCUR NEXT AT END GO TO R9.
            IF G-GARNO NOT = PC-KEY8 GO TO R9.
@@ -562,7 +477,9 @@
            IF PHR-IND > 1
            SUBTRACT 1 FROM PHR-IND GIVING Y
            PERFORM S12 VARYING X FROM 1 BY 1 UNTIL X > Y.
-       FF. GO TO R13.
+
+       FF. 
+           GO TO R13.
 
       *    START WRITING OUTPUT 
        R13.
@@ -596,6 +513,7 @@
            STRING NAME-FIRST " " NAME-LAST DELIMITED BY "@" INTO L0F2
            ELSE STRING NAME-FIRST " " NAME-MIDDLE " " NAME-LAST
            DELIMITED BY "@" INTO L0F2.
+
        R14.
            MOVE G-GARNO TO L1F3.
            MOVE BILL-DATE TO TEST-DATE.
@@ -645,6 +563,7 @@
            PERFORM Q1 VARYING C FROM 17 BY -1 UNTIL C < 1.
            STRING TAB2001 " " AT-3 " " ALF-9 DELIMITED BY "@" INTO
            L3F1.
+
        R14-1.
            INSPECT L3F1 REPLACING ALL "," BY " ".
            MOVE G-SEINS TO L3F2.
@@ -656,6 +575,7 @@
            WRITE OUT01 FROM LINE-4 GO TO R15.
            IF G-PRINS = "091" WRITE OUT01 FROM N9398 ADD 2 TO LINE-CTR
            WRITE OUT01 FROM LINE-4.
+
        R15.
            PERFORM Q2-0 THRU Q10 VARYING A FROM 1 BY 1 UNTIL A >
            CHR-IND.
@@ -697,6 +617,7 @@
            IF G-BAL30 > 0 MOVE "YOUR ACCOUNT IS PAST DUE."
            TO L8F4 GO TO R15-1.
            MOVE SPACES TO L8F4.
+
        R15-1.
            WRITE OUT01 FROM LINE-8  AFTER 2.
       *     GO TO R1.
@@ -706,6 +627,7 @@
            REWRITE GARFILE01.
            STRING ALF-8 "000" DELIMITED BY "@" INTO CHARCUR-KEY.
            START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO R1.
+
        R16.
            READ CHARCUR NEXT WITH LOCK AT END GO TO R1.
            IF CC-KEY8 NOT = ALF-8 GO TO R1.
@@ -716,14 +638,17 @@
            AND (CC-DATE-A NOT = "00000000") GO TO R16.
            IF CC-DATE-A = "00000000"
            MOVE BILL-DATE TO CC-DATE-A.
+
        R16-1.
            IF CC-REC-STAT = "0" MOVE "1" TO CC-REC-STAT.
            IF CC-REC-STAT = "2" MOVE "3" TO CC-REC-STAT.
            REWRITE CHARCUR01
            GO TO R16.
+           
        R20.
            CLOSE GARFILE CHARCUR.
            STOP RUN.
+
       * FIND LAST CHARACTER IN CITY NAME 
        Q1.
            IF TAB20(C) NOT = " "
@@ -732,6 +657,7 @@
            ADD 1 TO B
            MOVE "@" TO TAB20(B)
            MOVE 1 TO C.
+
        Q2-0.
            MOVE CHR-AMOUNT(A) TO CLAIM-TOT MOVE 0 TO FLAGP.
            PERFORM PH3 VARYING X FROM 1 BY 1 UNTIL X > PHR-IND.
@@ -748,25 +674,35 @@
            MOVE T-YY OF INPUT-DATE-S TO WSL1F1Y.
            MOVE WSL1F1 TO L6F1.
            MOVE CHR-PROC(A) TO PROC-KEY.
+
            If (CHR-PLACE(A) = "3" OR "5" OR "E")
-           READ PROCFILE INVALID MOVE SPACE TO PROC-TITLE
-           END-READ
+             READ PROCFILE 
+               INVALID 
+                 MOVE SPACE TO PROC-TITLE
+             END-READ
            ELSE
-           MOVE PROC-KEY2 TO RPGPROC-KEY1
-           MOVE SPACE TO RPGPROC-KEY2
-           START RPGPROCFILE KEY NOT < RPGPROC-KEY
-           INVALID MOVE SPACE TO RPG-NT2
-           NOT INVALID
-           READ RPGPROCFILE NEXT AT END MOVE SPACE TO RPG-NT2
-           END-READ
-           IF RPGPROC-KEY1 NOT = PROC-KEY2
-           MOVE SPACE TO RPG-NT2
-           END-IF
-           MOVE SPACE TO PROC-TITLE
-           MOVE RPG-NT2 TO PROC-TITLE
+             string PROC-cpt proc-mod delimited by size 
+               inTO RPGPROC-KEY1
+             MOVE SPACE TO RPGPROC-KEY2
+             START RPGPROCFILE KEY NOT < RPGPROC-KEY
+               INVALID
+                 MOVE SPACE TO RPG-NT2
+               NOT INVALID
+                 READ RPGPROCFILE NEXT
+                   AT END
+                     MOVE SPACE TO RPG-NT2
+                 END-READ
+                 
+                 IF RPGPROC-KEY1 NOT = PROC-KEY(5:7)
+                   MOVE SPACE TO RPG-NT2
+                 END-IF
+                 
+                 MOVE SPACE TO PROC-TITLE
+                 MOVE RPG-NT2 TO PROC-TITLE
            END-IF.
+
            MOVE PROC-TITLE TO L6F2.
-           MOVE PROC-KEY2 TO L6-PROC.
+           MOVE PROC-KEY(5:7) TO L6-PROC.
            MOVE SPACE TO L6F4.
       *     IF CHR-DIAG(A) = "0000000" MOVE SPACE TO L6F4.
            MOVE CHR-AMOUNT(A) TO L6F5.
@@ -775,6 +711,7 @@
            MOVE CLAIM-TOT TO L6F7
            IF CLAIM-TOT = 0
               MOVE SPACE TO L6F7X ELSE MOVE L6F7 TO L6F7X.
+
       *    SEARCH PAYMENT TABLE FOR PAYMENTS AGAINST THIS CLAIM 
        Q51.
            MOVE 0 TO FLAG.
@@ -806,19 +743,24 @@
            ADD 1 TO LINE-CTR.
            PERFORM T24 THRU T30 VARYING B FROM 1 BY 1 UNTIL B >
            PHR-IND.
+
        Q10.
            EXIT.
+
        T5.
            IF TABA24(C) NOT = " "
            ADD 1 TO C
            MOVE "@" TO TABA24(C)
            MOVE 1 TO C.
+
        T20.
            IF TABA24(C) NOT = " " MOVE C TO X
            MOVE 1 TO C.
+
        T21.
            IF TABB24(C) NOT = " " MOVE C TO Z
            MOVE 1 TO C.
+
        T24.
            IF PHR-CLAIM(X) NOT = CHR-CLAIM(A) GO TO T30.
            IF FLAG = 1 GO TO T25.
@@ -845,6 +787,7 @@
            MOVE "PENDING INS" TO L6PF1
            WRITE OUT01 FROM LINE-6P.
            ADD 1 TO LINE-CTR.
+
        T25.
            MOVE PHR-DATE(X) TO TEST-DATE.
            MOVE CORR TEST-DATE TO INPUT-DATE-S.
@@ -912,14 +855,18 @@
            WRITE OUT01 FROM LINE-5.
            ADD 1 TO LINE-CTR.
            GO TO T30.
+
        T29.
            IF CHR-CLAIM(A) = PHR-CLAIM(Y)
            ADD PHR-AMOUNT(Y) TO SNUM-6.
+           
        T30.
            EXIT.
+
        S10.
            ADD 1 X GIVING Z.
            PERFORM S11 VARYING A FROM Z BY 1 UNTIL A > CHR-IND.
+
        S11.
            IF CHR-DATE-T(X) > CHR-DATE-T(A)
            MOVE CHR-DATE-T(X) TO ALF-8
@@ -949,9 +896,11 @@
            MOVE CHR-DIAG(X) TO ALF-7
            MOVE CHR-DIAG(A) TO CHR-DIAG(X)
            MOVE ALF-7 TO CHR-DIAG(A).
+
        S12.
            ADD 1 X GIVING Z.
            PERFORM S13 VARYING A FROM Z BY 1 UNTIL A > PHR-IND.
+
        S13.
            IF PHR-DATE(X) > PHR-DATE(A)
            MOVE PHR-DATE(X) TO ALF-8
@@ -986,6 +935,7 @@
            MOVE PHR-DENIAL(X) TO ALF-1
            MOVE PHR-DENIAL(A) TO PHR-DENIAL(X)
            MOVE ALF-1 TO PHR-DENIAL(A).
+
        CC1.
            MOVE CHR-AMOUNT(X) TO CLAIM-TOT.
            PERFORM PH2 VARYING Y FROM 1 BY 1 UNTIL Y > PHR-IND.
@@ -1011,17 +961,22 @@
            IF DAYS > PF2 ADD CLAIM-TOT TO G-BAL60 GO TO CC-EXIT.
            IF DAYS > PF1 ADD CLAIM-TOT TO G-BAL30 GO TO CC-EXIT.
            ADD CLAIM-TOT TO G-BALCUR.
+
        CC-EXIT.
            EXIT.
+
        PH2.
            IF CHR-CLAIM(X) = PHR-CLAIM(Y)
            ADD PHR-AMOUNT(Y) CLAIM-TOT GIVING CLAIM-TOT.
+
        PH3.
            IF CHR-CLAIM(A) = PHR-CLAIM(X) ADD PHR-AMOUNT(X) TO
            CLAIM-TOT.
-	    IF (PHR-DATE(X) > SUM-DATE) AND (CHR-CLAIM(A) =
-           PHR-CLAIM(X)) 
-           MOVE 1 TO FLAGP MOVE PHR-IND TO X.
+           
+           IF (PHR-DATE(X) > SUM-DATE) 
+             AND (CHR-CLAIM(A) = PHR-CLAIM(X))            
+               MOVE 1 TO FLAGP MOVE PHR-IND TO X.
+
        PH4.
            IF CHR-CLAIM(A) = PHR-CLAIM(Y)
            ADD PHR-AMOUNT(Y) TO CLAIM-TOT.
