@@ -83,6 +83,10 @@
 
        WORKING-STORAGE SECTION. 
 
+       01  ALF1 PIC X.
+
+       01  DX-0 PIC X(7).
+
        PROCEDURE DIVISION.
 
        P0.
@@ -158,12 +162,7 @@
            MOVE "MALE  " TO PAT-SEX
            IF G-SEX = "F"
            MOVE "FEMALE" TO PAT-SEX.
-           MOVE DX-0 TO DIAG-KEY
-           READ DIAGFILE INVALID 
-             MOVE DX-0 TO ICD10
-            NOT INVALID
-             MOVE DX-0 TO ICD10
-           END-READ
+           
            MOVE SPACE TO DATE1
            STRING CC-DATE-T(5:2) "/" CC-DATE-T(7:2) "/" CC-DATE-T(1:4)
            DELIMITED BY SIZE INTO DATE1
