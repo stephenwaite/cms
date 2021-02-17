@@ -28,7 +28,7 @@
        FILE SECTION.
        
        FD  ERRFILE.
-       01  ERRFILE01 PIC X(80).
+       01  ERRFILE01 PIC X(90).
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(1070).
@@ -246,8 +246,10 @@
            02 R3-MOD3 PIC X(2).
            02 FILLER PIC X(5).
       * col 141     
-           02 R3-OBSERV PIC X(5).
-           02 FILLER PIC X(35).
+           02 R3-OBSERV PIC X(25).
+      * col 166     
+           02 FILLER PIC X(15).
+      * col 181
            02 R3-LOCO PIC X(4).
 
        01  ANS PIC X.
@@ -370,9 +372,16 @@
            WRITE ERRFILE01
 
            IF R3-GLC = 0
-             STRING "DON'T WORRY ABOUT IT DUE TO RRMC AUC "
+             MOVE SPACE TO ERRFILE01    
+             if R3-LOCO = "RVOC"
+               STRING "ANOTHER ORTHO READ SENT TO US IN ERROR? " r3-loco
                delimited BY size INTO ERRFILE01
-             WRITE ERRFILE01
+               WRITE ERRFILE01
+             else
+               STRING "DON'T WORRY ABOUT IT DUE TO RRMC AUC "
+               delimited BY size INTO ERRFILE01
+               WRITE ERRFILE01
+             END-IF
            END-IF      
 
            IF R3-PROC = "6327"

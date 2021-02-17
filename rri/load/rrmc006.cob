@@ -1491,6 +1491,18 @@
                MOVE "002" TO A-PRINS
            END-IF
 
+           IF (A-PRINS = "268") AND (A-SEINS = "149")
+               MOVE A-SEINS TO A-PRINS
+               MOVE "001" TO A-SEINS
+               MOVE A-SECPOL TO A-PRIPOL
+               MOVE SPACE TO A-SECPOL
+               MOVE SPACE TO ERRFILE01
+               STRING "SWITCHEROO FOR BCBS EMPIRE " A-GARNAME " "
+                   R2-MEDREC " " A-PRIPOL 
+                   DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+           END-IF
+
       *    if not bcbsvt policy move to out of state ins code
            IF ((A-PRINS = "002")
                AND  NOT ((ALF-16-1 = "FAC") OR (ALF-16-1 = "EVT")
