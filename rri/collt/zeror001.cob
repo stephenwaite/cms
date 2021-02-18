@@ -27,6 +27,9 @@
              ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY
              LOCK MODE MANUAL.
 
+           SELECT FILEOUT ASSIGN TO "S45" organization is
+             LINE sequential.  
+
        DATA DIVISION.
        
        FILE SECTION.
@@ -39,6 +42,9 @@
       
        FD  GARFILE.
            COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+
+       fd  fileout.
+       01  fileout01 pic x(11).
        
        WORKING-STORAGE SECTION.    
 
@@ -48,8 +54,8 @@
        PROCEDURE DIVISION.
 
        P0.
-           OPEN INPUT GARFILE.
-           OPEN INPUT CHARCUR PAYCUR.
+           OPEN INPUT GARFILE CHARCUR PAYCUR.
+           open output fileout.
 
        R1.
            READ GARFILE NEXT
@@ -96,12 +102,21 @@
              MOVE "1" TO G-DELETE
              PERFORM R6
              GO TO R1
-           END-IF  
+           END-IF       
 
            MOVE SPACE TO G-DELETE
            MOVE "1" TO G-DUNNING
-      *     DISPLAY G-GARNO " " G-DELETE " " G-DUNNING
-           PERFORM R6     
+           PERFORM R6
+ 
+      *    balance on charge is zero
+      *    move zeroes to the clm age date
+      *    for all charcurs for this garno  
+      *    billing program rrr017 will now skip these items          
+
+           PERFORM R7 THRU R7-EXIT  
+           CLOSE charcur
+           OPEN INPUT charcur. 
+
            GO TO R1.    
 
        R6.    
@@ -128,6 +143,36 @@
       *         ACCEPT OMITTED
                GO TO R99.
 
+       R7.    
+           CLOSE CHARCUR           
+           OPEN I-O CHARCUR
+
+           MOVE GARBACK(1:8) TO CC-KEY8
+           MOVE SPACE TO CC-KEY3
+           START CHARCUR KEY NOT < CHARCUR-KEY
+             invalid
+               GO TO R7-EXIT
+           end-start.
+       
+       R7-1.
+           READ CHARCUR NEXT WITH LOCK             
+             AT END 
+               GO TO R7-EXIT  
+           END-READ
+
+           if cc-key8 not = garback(1:8) go to r7-exit.
+
+           IF CC-date-a = "00000000" go to r7-1.
+
+           move "00000000" to cc-date-a
+           REWRITE charcur01.
+           move charcur-key to fileout01
+           write fileout01.
+           go to r7-1.
+     
+       r7-exit.
+           exit.
+
        R99.
-           CLOSE GARFILE CHARCUR PAYCUR 
+           CLOSE GARFILE CHARCUR PAYCUR fileout
            STOP RUN.
