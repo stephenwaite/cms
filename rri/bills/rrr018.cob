@@ -51,6 +51,16 @@
            SELECT MVP-BILL ASSIGN TO "S65" ORGANIZATION
            LINE SEQUENTIAL.
 
+           SELECT EMAILAUTHFILE ASSIGN TO "S70" ORGANIZATION INDEXED
+             ACCESS MODE DYNAMIC RECORD KEY IS EA-KEY
+             ALTERNATE RECORD KEY IS EA-MEDREC WITH DUPLICATES
+             ALTERNATE RECORD KEY IS EA-NAME WITH DUPLICATES
+             ALTERNATE RECORD KEY IS EA-EMAIL WITH DUPLICATES
+             ALTERNATE RECORD KEY IS EA-AUTH WITH DUPLICATES
+             ALTERNATE RECORD KEY IS EA-DATE-E WITH DUPLICATES
+             ALTERNATE RECORD KEY IS EA-SSN WITH DUPLICATES
+             LOCK MODE MANUAL.
+
        DATA DIVISION.
 
        FILE SECTION.
@@ -58,7 +68,7 @@
        01  MVP-BILL01 PIC X(8).
 
        FD  INSFILE.
-           copy insfile.cpy in "c:\users\sid\cms\copylib".
+           copy insfile.cpy in "c:\users\sid\cms\copylib\rri".
        
        FD  BILLPARM.
        01  BILLPARM01.
@@ -84,6 +94,7 @@
            02 TB-5 PIC S9(5)V99.
            02 TB-6 PIC XXX.
            02 TB-7 PIC 9(7).
+           02 tb-email pic x(30).
 
        FD  CHARCUR.
            copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
@@ -93,6 +104,10 @@
 
        FD  GARFILE.
            copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+
+       FD  emailauthfile.
+           copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".
+
 
        WORKING-STORAGE SECTION.    
        01  PHR01.
@@ -149,12 +164,14 @@
        01  PAY-FLAG PIC 9.
        01  CHAR-FLAG PIC 9.
        01  CLAIM-TOT PIC S9(6)V99.
+       01  hold-email pic x(30).
 
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT TB-BILL MVP-BILL.
            OPEN I-O GARFILE.
-           OPEN INPUT CHARCUR PAYCUR INSFILE BILLPARM BILLDATE.
+           OPEN INPUT CHARCUR PAYCUR INSFILE BILLPARM BILLDATE
+             emailauthfile.
            
            READ BILLDATE AT END GO TO R20.
            
@@ -168,12 +185,20 @@
            READ GARFILE NEXT WITH LOCK
              AT END
               GO TO R20.
-
+                      
            IF G-ACCTSTAT NOT NUMERIC
              DISPLAY G-GARNO " " G-GARNAME " G-ACCTSTAT NOT NUMBER"
              MOVE 1 TO G-ACCTSTAT.
            
            IF G-ACCTSTAT = 9 GO TO R1.
+
+           move space to hold-email.
+           move g-acct to ea-medrec.
+           start emailauthfile key not < ea-medrec
+             invalid
+               display "no entry in emailauthssnfile".
+               
+           perform email-1 thru email-exit.   
            
            IF G-ACCTSTAT = 7 
              DISPLAY G-GARNO " " G-GARNAME " ACCTSTAT=7"
@@ -325,23 +350,26 @@
            MOVE "1" TO TB-4.
 
        R10.
-           MOVE G-GARNO TO TB-1
+           MOVE G-GARNO TO TB-1 
 
-           IF G-GARNAME(1:1) = "1" 
+           IF G-GARNAME(1:1) = "1"
              MOVE G-GARNAME(2:23) TO TB-2
            ELSE 
              MOVE G-GARNAME TO TB-2.
 
            MOVE G-ZIP TO TB-3
            MOVE G-PRINS TO TB-6
-           MOVE BAL-FWD TO TB-5 TB-7.
+           MOVE BAL-FWD TO TB-5 TB-7 
+           move hold-email to tb-email            
 
            IF TB-4 < "2" 
              MOVE ZERO TO TB-6 TB-7.
              
            WRITE TB-BILL01
+           
            MOVE BILL-DATE TO G-LASTBILL
            REWRITE GARFILE01
+           
            GO TO R1.
 
       *     IF G-PRINS = "256" OR "349"
@@ -423,7 +451,22 @@
               END-IF
             END-IF.
 
+       email-1.           
+           read emailauthfile next
+             at end
+               go to email-exit.    
+
+           if ea-medrec not = g-acct
+             go to email-exit.
+
+           move ea-email to hold-email.
+
+           go to email-1.
+
+       email-exit.
+           exit.                            
+
        R20. 
            CLOSE billparm billdate tb-BILL paycur charcur
-             garfile insfile MVP-BILL. 
+             garfile insfile MVP-BILL emailauthfile. 
            STOP RUN.
