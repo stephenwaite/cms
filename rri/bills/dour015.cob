@@ -4,136 +4,49 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. MCC015.
+       PROGRAM-ID. dour015.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
        INPUT-OUTPUT SECTION.
+
        FILE-CONTROL.
+
            SELECT TB-BILL ASSIGN TO "S30" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT PAYCUR ASSIGN TO "S35" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY.
+
            SELECT CHARCUR ASSIGN TO "S40"     ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC        RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES.
+
            SELECT OUT-FILE ASSIGN TO "S45" ORGANIZATION 
            LINE SEQUENTIAL.
+
            SELECT BILLDATE ASSIGN TO "S50" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT GARFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
              ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
              ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
-       DATA DIVISION.
-       FILE SECTION.
-       FD  GARFILE
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS GARFILE01.
-       01  GARFILE01.
-           02 G-GARNO PIC X(8).
-           02 G-GARNAME PIC X(24).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(12).
-           02 G-PRIPOL PIC X(14).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-TRINSIND PIC X.
-           02 G-TRINS PIC XXX.
-           02 G-SE-GROUP PIC X(12).
-           02 G-SECPOL PIC X(14).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-COPAY PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
-       FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS CHARCUR01.
-       01  CHARCUR01.
-           02 CHARCUR-KEY.
-             03 CC-KEY8 PIC X(8).
-             03 CC-KEY3 PIC XXX.
-           02 CC-PATID PIC X(8).
-           02 CC-CLAIM PIC X(6).
-           02 CC-SERVICE PIC X.
-           02 CC-DIAG PIC X(7).
-           02 CC-PROC PIC X(11).
-           02 CC-MOD2 PIC XX.
-           02 CC-MOD3 PIC XX.
-           02 CC-MOD4 PIC XX.
-           02 CC-AMOUNT PIC S9(4)V99.
-           02 CC-DOCR PIC X(3).
-           02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC XXX.
-           02 CC-STUD PIC X.
-           02 CC-WORK PIC XX.
-           02 CC-DAT1 PIC X(8).
-           02 CC-RESULT PIC X.
-           02 CC-ACT PIC X.
-           02 CC-SORCREF PIC X.
-           02 CC-COLLT PIC X.
-           02 CC-AUTH PIC X.
-           02 CC-PAPER PIC X.
-           02 CC-PLACE PIC X.
-           02 CC-EPSDT PIC X.
-           02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A PIC X(8).
-           02 CC-DATE-P PIC X(8).
-           02 CC-REC-STAT PIC X.
-           02 CC-DX2 PIC X(7).
-           02 CC-DX3 PIC X(7).
-           02 CC-ACC-TYPE PIC X.
-           02 CC-DATE-M PIC X(8).
-           02 CC-ASSIGN PIC X.
-           02 CC-NEIC-ASSIGN PIC X.
-           02 CC-DX4 PIC X(7).
-           02 CC-DX5 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
 
-       FD  PAYCUR
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS PAYCUR01.
-       01  PAYCUR01.
-           02 PAYCUR-KEY.
-             03 PC-KEY8 PIC X(8).
-             03 PC-KEY3 PIC XXX.
-           02 PC-AMOUNT PIC S9(4)V99.
-           02 PC-PAYCODE PIC XXX.
-           02 PC-DENIAL PIC XX.
-           02 PC-CLAIM PIC X(6).
-           02 PC-DATE-T PIC X(8).
-           02 PC-DATE-E PIC X(8).
-           02 PC-BATCH PIC X(6).
-       FD  TB-BILL
-           DATA RECORD IS TB-BILL01.
+       DATA DIVISION.
+
+       FILE SECTION.
+
+       FD  GARFILE.
+           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+
+       FD  CHARCUR.
+           copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
+
+       FD  PAYCUR.
+           copy paycur.cpy in "c:\users\sid\cms\copylib\rri".
+
+       FD  TB-BILL.
        01  TB-BILL01.
            02 TB-1 PIC X(8).
            02 TB-2 PIC X(24).
@@ -143,12 +56,13 @@
            02 TB-5 PIC S9(5)V99.
            02 TB-DOC PIC XX.
            02 TB-NAME PIC X(24).
-       FD OUT-FILE.
+
+       FD  OUT-FILE.
        01  OUT01. 
            02 TO-1 PIC X(76).
            02 TO-2 PIC X.
-       FD  BILLDATE
-           DATA RECORD IS BILLDATE01.
+
+       FD  BILLDATE.
        01  BILLDATE01.
            02 BILL-DATE PIC X(8).
            02 THIS-CYCLE PIC X(4).
@@ -175,6 +89,7 @@
              03 CHR-PATID PIC X(8).
              03 CHR-REC-STAT PIC X.
              03 CHR-ASSIGN PIC X.
+
        01  PHR01.
            02 PHR02 OCCURS 800 TIMES.
              03 PHR-DATE PIC X(8).
@@ -183,10 +98,13 @@
              03 PHR-PAYCODE PIC XXX.
              03 PHR-DENIAL PIC XX.
              03 PHR-STAT PIC 9.
+
        01  TAB1101.
            02 TAB11 PIC X OCCURS 11 TIMES.
-       01 TAB2001.
+
+       01  TAB2001.
            02 TAB20 PIC X OCCURS 20 TIMES.
+
        01  TABA2401.
            02 TABA24 PIC X OCCURS 24 TIMES.
        01  TABB2401.
@@ -219,8 +137,8 @@
            05 T-YY  PIC XX.
            05 T-MM  PIC XX.
            05 T-DD  PIC XX.
-       01 HOLD-MASTER PIC X(187).
-       01 FLAGP PIC 9.
+       01  HOLD-MASTER PIC X(187).
+       01  FLAGP PIC 9.
        01  SUM-DATE PIC X(8).
        01     BILL-COUNT PIC 9(5) VALUE 0.
        01     QY1 PIC S9999.
@@ -253,7 +171,7 @@
        01     TOTCHAR PIC S9(4)V99.
        01     TOTPAY PIC S9(4)V99.
        01     RIGHT-8 PIC X(8) JUST RIGHT.
-       01 LLLL PIC X(8).
+       01  LLLL PIC X(8).
        01     RIGHT-2 PIC XX JUST RIGHT.
        01     RIGHT-3 PIC XXX JUST RIGHT.
        01     RIGHT-4 PIC X(4) JUST RIGHT.
@@ -304,7 +222,9 @@
        01  XB-4 PIC X VALUE "1".
        01  CHNL-X PIC X VALUE H"1A".
        01  CHNL-Y PIC X VALUE H"1C".
+
        PROCEDURE DIVISION.
+
        P0.
            OPEN OUTPUT OUT-FILE.
            OPEN INPUT CHARCUR PAYCUR TB-BILL BILLDATE GARFILE.
@@ -312,23 +232,38 @@
            MOVE BILL-DATE TO BILLDATE6.
            MOVE BILL-DATE TO DAY-TEST-1 MOVE 0 TO DD1
            MOVE DAY-TEST-1 TO SUM-DATE.
-       R1.  READ TB-BILL AT END GO TO R20.
+
+       R1.  
+           READ TB-BILL AT END GO TO R20.
+
            MOVE TB-BILL01 TO TO-1
-           IF TB-4 > "1" MOVE "3" TO TO-2
-           WRITE OUT01 GO TO R1.
+           IF TB-4 > "1" 
+             MOVE "3" TO TO-2
+             WRITE OUT01 
+             GO TO R1.
+
            MOVE 0 TO TO-2 CHR-IND PHR-IND LINE-CTR AMOUNT-DUE
-           G-BALCUR G-BAL30 G-BAL60 G-BALCOL
+             G-BALCUR G-BAL30 G-BAL60 G-BALCOL
            MOVE TB-1 TO CC-KEY8
            MOVE SPACE TO CC-KEY3
            START CHARCUR KEY > CHARCUR-KEY INVALID GO TO R7.
-       R6. READ CHARCUR NEXT AT END GO TO R7.
+
+       R6. 
+           READ CHARCUR NEXT AT END GO TO R7.
+           
            IF TB-1 NOT = CC-KEY8 GO TO R7.
+           
            ADD 1 TO CHR-IND.
-           IF CHR-IND > 500 DISPLAY TB-1  " CHRS"
-           GO TO R1.
-           IF CC-DATE-A = "00000000" MOVE BILL-DATE TO
-           CHR-DATE-A(CHR-IND)
-           ELSE MOVE CC-DATE-A TO CHR-DATE-A(CHR-IND).
+           
+           IF CHR-IND > 500 
+             DISPLAY TB-1  " CHRS"
+             GO TO R1.
+
+           IF CC-DATE-A = "00000000" 
+             MOVE BILL-DATE TO CHR-DATE-A(CHR-IND)
+           ELSE 
+             MOVE CC-DATE-A TO CHR-DATE-A(CHR-IND).
+
            MOVE CC-DIAG TO CHR-DIAG(CHR-IND)
            MOVE CC-DATE-T TO CHR-DATE-T(CHR-IND)
            MOVE CC-CLAIM TO CHR-CLAIM(CHR-IND)
@@ -340,15 +275,24 @@
            MOVE CC-REC-STAT TO CHR-REC-STAT(CHR-IND)
            MOVE CC-ASSIGN TO CHR-ASSIGN(CHR-IND)
            GO TO R6.
+
        R7. 
            MOVE TB-1 TO PC-KEY8
            MOVE SPACE TO PC-KEY3
            START PAYCUR KEY > PAYCUR-KEY INVALID GO TO R9.
-       R8. READ PAYCUR NEXT AT END GO TO R9.
-           IF TB-1 NOT = PC-KEY8 GO TO R9.
+
+       R8. 
+           READ PAYCUR NEXT AT END GO TO R9.
+           
+           IF TB-1 NOT = PC-KEY8 
+             GO TO R9.
+           
            ADD 1 TO PHR-IND.
-           IF PHR-IND > 800 DISPLAY TB-1 " PAY"
-           GO TO R1.
+
+           IF PHR-IND > 800 
+             DISPLAY TB-1 " PAY"
+             GO TO R1.
+
            MOVE PC-DATE-T TO PHR-DATE(PHR-IND)
            MOVE PC-CLAIM TO PHR-CLAIM(PHR-IND)
            MOVE PC-AMOUNT TO PHR-AMOUNT(PHR-IND)
@@ -361,17 +305,24 @@
 ******* AND AGING ON CURRENT,PAST DUE AND DELINQUENT *******
        R9.
            PERFORM CC1 THRU CC-EXIT VARYING X FROM 1 BY 1 UNTIL
-           X > CHR-IND.
+             X > CHR-IND.
+           
            MOVE TB-1 TO G-GARNO
+           
            READ GARFILE INVALID GO TO R15.
+           
            IF G-PRINS = "001" ADD 2 TO LINE-CTR.
+           
            IF G-PRINS = "091" ADD 2 TO LINE-CTR.
 
-       R15. PERFORM Q2-0 THRU Q10 VARYING A FROM 1 BY 1 UNTIL A >
+       R15. 
+           PERFORM Q2-0 THRU Q10 VARYING A FROM 1 BY 1 UNTIL A >
            CHR-IND.
            WRITE OUT01
            GO TO R1.
-       Q2-0. MOVE CHR-AMOUNT(A) TO CLAIM-TOT MOVE 0 TO FLAGP.
+
+       Q2-0. 
+           MOVE CHR-AMOUNT(A) TO CLAIM-TOT MOVE 0 TO FLAGP.
            PERFORM PH3 VARYING X FROM 1 BY 1 UNTIL X > PHR-IND.
            IF (CLAIM-TOT NOT = 0) OR (FLAGP NOT = 0) GO TO Q2
            ELSE GO TO Q10.
@@ -384,7 +335,10 @@
            GO TO Q10.
            ADD 1 TO LINE-CTR.
            PERFORM T24 THRU T30 VARYING X FROM 1 BY 1 UNTIL X > PHR-IND.
-       Q10. EXIT.
+
+       Q10. 
+           EXIT.
+
        T24. IF PHR-CLAIM(X) NOT = CHR-CLAIM(A) GO TO T30.
            IF LINE-CTR > 14
            MOVE 1 TO TO-2
@@ -392,44 +346,70 @@
            MOVE PHR-IND TO X
            GO TO T30.
            ADD 1 TO LINE-CTR.
-       T30. EXIT.
+
+       T30. 
+           EXIT.
+
        CC1.
            MOVE CHR-AMOUNT(X) TO CLAIM-TOT.
            PERFORM PH2 VARYING Y FROM 1 BY 1 UNTIL Y > PHR-IND.
+
            IF CHR-ASSIGN(X) = "A"
-           ADD CLAIM-TOT TO X-INSPEND GO TO CC-EXIT.
+             ADD CLAIM-TOT TO X-INSPEND 
+             GO TO CC-EXIT.
+
            MOVE CHR-DATE-A(X) TO DAY-TEST-1.
            MOVE 0 TO D.
-           DIVIDE DY1 BY 4 GIVING B REMAINDER D.
-           IF D = 0 COMPUTE DAY1 = LEAP-TAB(DM1) + DD1
-           ELSE COMPUTE DAY1 = MON-TAB(DM1) + DD1.
+           DIVIDE DY1 BY 4 GIVING B REMAINDER D
+
+           IF D = 0 
+             COMPUTE DAY1 = LEAP-TAB(DM1) + DD1
+           ELSE 
+             COMPUTE DAY1 = MON-TAB(DM1) + DD1.
+
            MOVE BILL-DATE TO DAY-TEST-2.
            MOVE 0 TO D.
+
            DIVIDE DY2 BY 4 GIVING B REMAINDER D.
-           IF D = 0 COMPUTE DAY2 = LEAP-TAB(DM2) + DD2
-           ELSE COMPUTE DAY2 = MON-TAB(DM2) + DD2.
+
+           IF D = 0 
+             COMPUTE DAY2 = LEAP-TAB(DM2) + DD2
+           ELSE 
+             COMPUTE DAY2 = MON-TAB(DM2) + DD2.
+
            MOVE DY2 TO QY2
            MOVE DY1 TO QY1
            MOVE DAY1 TO QDAY1
            MOVE DAY2 TO QDAY2.
            COMPUTE DAYS = 365 * (QY2 - QY1) + QDAY2 - QDAY1
-           ON SIZE ERROR MOVE 998 TO DAYS.
+             ON SIZE ERROR MOVE 998 TO DAYS.
       *    DISPLAY DAYS " " PF3 " " CLAIM-TOT " " G-BALCOL
            ADD CLAIM-TOT TO G-BALCUR.
-       CC-EXIT. EXIT.
-       PH2. IF CHR-CLAIM(X) = PHR-CLAIM(Y)
-           ADD PHR-AMOUNT(Y) CLAIM-TOT GIVING CLAIM-TOT.
+
+       CC-EXIT.
+           EXIT.
+
+       PH2.
+           IF CHR-CLAIM(X) = PHR-CLAIM(Y)
+             ADD PHR-AMOUNT(Y) CLAIM-TOT GIVING CLAIM-TOT.
+
        PH3.
-           IF CHR-CLAIM(A) = PHR-CLAIM(X) ADD PHR-AMOUNT(X) TO
-           CLAIM-TOT.
-            IF (PHR-DATE(X) > SUM-DATE) AND (CHR-CLAIM(A) =
-           PHR-CLAIM(X)) 
+           IF CHR-CLAIM(A) = PHR-CLAIM(X) 
+             ADD PHR-AMOUNT(X) TO CLAIM-TOT.
+
+           IF (PHR-DATE(X) > SUM-DATE) AND (CHR-CLAIM(A) =
+             PHR-CLAIM(X)) 
       *    DISPLAY PHR-DATE(X) " " SUM-DATE
-           MOVE 1 TO FLAGP MOVE PHR-IND TO X.
-       PH4. IF CHR-CLAIM(A) = PHR-CLAIM(Y)
-           ADD PHR-AMOUNT(Y) TO CLAIM-TOT.
+               MOVE 1 TO FLAGP 
+               MOVE PHR-IND TO X.
+
+       PH4. 
+           IF CHR-CLAIM(A) = PHR-CLAIM(Y)
+             ADD PHR-AMOUNT(Y) TO CLAIM-TOT.
+           
            WRITE OUT01 
            GO TO R1.
+
        R20.
-           CLOSE OUT-FILE 
+           CLOSE tb-bill paycur charcur OUT-FILE billdate garfile.
            STOP RUN.
