@@ -100,18 +100,19 @@
        R5.
            IF CLAIM-TOT NOT = 0
              MOVE "1" TO G-DELETE
-             PERFORM R6
+             PERFORM R6 thru r6-exit
              GO TO R1
            END-IF       
 
            MOVE SPACE TO G-DELETE
            MOVE "1" TO G-DUNNING
-           PERFORM R6
+           PERFORM R6 thru r6-exit
  
       *    balance on charge is zero
       *    move zeroes to the clm age date
       *    for all charcurs for this garno  
-      *    billing program rrr017 will now skip these items          
+      *    billing program rrr017 will now skip these items since
+      *    clm age date is all zeroes         
 
            PERFORM R7 THRU R7-EXIT  
            CLOSE charcur
@@ -127,13 +128,13 @@
            READ GARFILE WITH LOCK
              INVALID
                DISPLAY "COULD NOT READ GARFILE WITH LOCK"
-               GO TO R1
+
            END-READ
            MOVE GARBACK TO GARFILE01
       *     DISPLAY G-GARNO " " G-DELETE " " G-DUNNING 
       *     DISPLAY " "
            
-           REWRITE GARFILE01.
+      *     REWRITE GARFILE01.
            CLOSE GARFILE
            OPEN INPUT GARFILE.
            MOVE GARBACK(1:8) TO G-GARNO
@@ -141,7 +142,10 @@
              INVALID 
                DISPLAY "LAST GARNO? " G-GARNO
       *         ACCEPT OMITTED
-               GO TO R99.
+               GO TO R6-exit.
+       
+       R6-exit.        
+           exit.
 
        R7.    
            CLOSE CHARCUR           
@@ -162,10 +166,12 @@
 
            if cc-key8 not = garback(1:8) go to r7-exit.
 
+           if cc-assign  = "A" go to r7-1.
+
            IF CC-date-a = "00000000" go to r7-1.
 
            move "00000000" to cc-date-a
-           REWRITE charcur01.
+      *     REWRITE charcur01.
            move charcur-key to fileout01
            write fileout01.
            go to r7-1.
