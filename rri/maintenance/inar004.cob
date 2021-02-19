@@ -3647,27 +3647,42 @@
            IF IN-FIELD-1 = "1" OR "2" OR "3" OR "4" OR "5"
            MOVE IN-FIELD-1 TO CC-SORCREF GO TO 4900CPC.
            DISPLAY IN-FIELD-1 " BAD" GO TO CC-2000TI.
+
        CC-2-DATE-A.
            IF IN-FIELD = "?"
-           DISPLAY "ENTER THE DATE THE CC-CLAIM WAS SENT MMDDYY FORMAT"
-           DISPLAY "T = TODAY""S DATE"
-           GO TO CC-2000TI.
+             DISPLAY "DATE THE CC-CLAIM WAS SENT YYYYMMDD FORMAT"
+             DISPLAY "T = TODAY""S DATE"
+             GO TO CC-2000TI.
+
            IF IN-FIELD-8 = "T"
-                        ACCEPT CC-DATE-A FROM CENTURY-DATE
-                        GO TO 4900CPC
+             ACCEPT CC-DATE-A FROM YYYYMMDD
+             GO TO 4900CPC
            END-IF
-           IF IN-FIELD-8 NUMERIC NEXT SENTENCE ELSE DISPLAY "INVALID"
-           GO TO CC-2000TI.
+
+           IF IN-FIELD-8 NUMERIC 
+             NEXT SENTENCE 
+           ELSE 
+             DISPLAY "INVALID"
+             GO TO CC-2000TI.
+
            MOVE IN-FIELD-8 TO INPUT-DATE.
            IF T-MM OF INPUT-DATE < 01 OR > 12
-           DISPLAY "INVALID" GO TO CC-2000TI.
+             DISPLAY "INVALID" 
+             GO TO CC-2000TI.
+
            IF T-DD OF INPUT-DATE > DAYS-IN-MONTH(T-MM OF INPUT-DATE)
-           DISPLAY "INVALID" GO TO CC-2000TI.
+             DISPLAY "INVALID" 
+             GO TO CC-2000TI.
+
            MOVE CORR INPUT-DATE TO TEST-DATE
            MOVE TEST-DATE TO CC-DATE-A.
-           IF T-DATE < CC-DATE-A DISPLAY "FUTURE DATE" BELL0
-           GO TO CC-2000TI.
+
+           IF T-DATE < CC-DATE-A
+             DISPLAY "FUTURE DATE" BELL0
+             GO TO CC-2000TI.
+
            GO TO 4900CPC.
+           
        CC-2-COLLT.
            IF IN-FIELD = "?"
            DISPLAY "1-9 TO DEFINE A COLLECTION AGENCY THIS CHARGE"

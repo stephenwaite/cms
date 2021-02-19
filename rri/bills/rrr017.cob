@@ -35,6 +35,7 @@
              LINE SEQUENTIAL.             
 
        DATA DIVISION.
+
        FILE SECTION.
        
        FD  FILEOUT.
