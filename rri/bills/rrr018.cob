@@ -68,7 +68,7 @@
        01  MVP-BILL01 PIC X(8).
 
        FD  INSFILE.
-           copy insfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy insfile.cpy in "c:\users\sid\cms\copylib".
        
        FD  BILLPARM.
        01  BILLPARM01.
