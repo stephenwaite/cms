@@ -58,7 +58,7 @@
        01  MVP-BILL01 PIC X(8).
 
        FD  INSFILE.
-           copy insfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy insfile.cpy in "c:\users\sid\cms\copylib".
        
        FD  BILLPARM.
        01  BILLPARM01.
@@ -91,7 +91,7 @@
        FD  PAYCUR.
            copy paycur.cpy in "c:\users\sid\cms\copylib\rri".
 
-       FD GARFILE.
+       FD  GARFILE.
            copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
 
        WORKING-STORAGE SECTION.    
@@ -327,8 +327,8 @@
        R10.
            MOVE G-GARNO TO TB-1
 
-           IF GN-1 = "1" 
-             MOVE GN-2 TO TB-2
+           IF G-GARNAME(1:1) = "1" 
+             MOVE G-GARNAME(2:23) TO TB-2
            ELSE 
              MOVE G-GARNAME TO TB-2.
 

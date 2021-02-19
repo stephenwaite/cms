@@ -134,7 +134,7 @@
       *     DISPLAY G-GARNO " " G-DELETE " " G-DUNNING 
       *     DISPLAY " "
            
-      *     REWRITE GARFILE01.
+           REWRITE GARFILE01.
            CLOSE GARFILE
            OPEN INPUT GARFILE.
            MOVE GARBACK(1:8) TO G-GARNO
@@ -171,7 +171,7 @@
            IF CC-date-a = "00000000" go to r7-1.
 
            move "00000000" to cc-date-a
-      *     REWRITE charcur01.
+           REWRITE charcur01.
            move charcur-key to fileout01
            write fileout01.
            go to r7-1.
