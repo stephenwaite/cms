@@ -120,18 +120,13 @@
            LOCK MODE MANUAL.
             
        DATA DIVISION.
-       FILE SECTION.
-       FD  EMAILAUTHSSNFILE.
-       01  EMAILAUTHFSSNILE01.
-           02 EA-KEY PIC 9(6).
-           02 EA-MEDREC PIC X(8).
-           02 EA-NAME PIC X(24).
-           02 EA-EMAIL PIC X(30).
-           02 EA-AUTH PIC X(20).
-           02 EA-DATE-E PIC X(8).
-           02 EA-SSN PIC X(9).
 
-       FD COMPFILE.
+       FILE SECTION.
+
+       FD  EMAILAUTHSSNFILE.
+           copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".           
+
+       FD  COMPFILE.
        01  COMPFILE01.
            02 COMP-KEY.
              03 COMP-MEDREC PIC X(8).
@@ -155,6 +150,7 @@
            02 ADDR-STATE PIC XX.
            02 ADDR-ZIP PIC X(9).
            02 ADDR-FUTURE PIC X(6).
+
        FD  TAGDIAG.
        01  TAGDIAG01.
            02 TAG-KEY.
@@ -168,44 +164,19 @@
        01  FILEOUT01 PIC X(40).
 
        FD  RPGPROCFILE.
-       01  RPGPROCFILE01.
-	       02 RPGPROC-KEY.
-	         03 RPGPROC-KEY1 PIC X(7).
-	         03 RPGPROC-KEY2 PIC X(4).
-	       02 RPGPROC-TYPE PIC X.
-	       02 RPGPROC-TITLE. 
-	         03 RPG-NT1 PIC X(4).
-	         03 RPG-NT2 PIC X(24).
-	       02 RPGPROC-AMOUNT PIC 9(4)V99.
+           COPY rpgprocfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
 
        FD  MPLRFILE.
            COPY mplrfile.CPY IN "C:\Users\sid\cms\copylib".           
           
-       FD  AUTHFILE
-           BLOCK CONTAINS 6 RECORDS
-           DATA RECORD IS AUTHFILE01.
-       01  AUTHFILE01.
-           02 AUTH-KEY.
-              03 AUTH-KEY8 PIC X(8).
-              03 AUTH-KEY6 PIC X(6).
-           02 AUTH-NUM PIC X(15).
-           02 AUTH-QNTY PIC XX.
-           02 AUTH-DATE-E PIC X(8).
-           02 AUTH-FILLER PIC XXX.
+       FD  AUTHFILE.
+           COPY authfile.CPY IN "C:\Users\sid\cms\copylib".           
 
        FD  INSFILE.
-           COPY insfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY insfile.CPY IN "C:\Users\sid\cms\copylib".      
       
-       FD GAPFILE.
-       01 GAPFILE01.
-           02 GAPKEY PIC X(7).
-           02 GAP-NAME PIC X(25).
-           02 GAP-ADDR PIC X(22).
-           02 GAP-CITY PIC X(15).
-           02 GAP-STATE PIC XX.
-           02 GAP-ZIP PIC X(9).
-           02 GAP-TYPE PIC X.
-           02 GAP-FUTURE PIC X(40).
+       FD  GAPFILE.
+           COPY gapfile.CPY IN "C:\Users\sid\cms\copylib".           
 
        FD  DOCPARM
            DATA RECORD IS DOCPARM01.
@@ -3655,7 +3626,7 @@
              GO TO CC-2000TI.
 
            IF IN-FIELD-8 = "T"
-             ACCEPT CC-DATE-A FROM YYYYMMDD
+             ACCEPT CC-DATE-A FROM date YYYYMMDD
              GO TO 4900CPC
            END-IF
 
@@ -3712,6 +3683,7 @@
            IF IN-FIELD = "A" OR "U"
            MOVE IN-FIELD-1 TO CC-ASSIGN GO TO 4900CPC.
            DISPLAY "INVALID" GO TO CC-2000TI.
+
        CC-2-NEIC-ASSIGN.
            IF IN-FIELD = "?"
            DISPLAY "A=ASSIGNED U=UNASSIGNED  FOR INSURANCE ASSIGNMENT"
@@ -3719,6 +3691,7 @@
            IF IN-FIELD = "A" OR "U"
            MOVE IN-FIELD-1 TO CC-NEIC-ASSIGN GO TO 4900CPC.
            DISPLAY "INVALID" GO TO CC-2000TI.
+
        CC-2-ACC-TYPE.
            IF IN-FIELD = "?"
            DISPLAY "<CR> = NOT AN ACCIDENT 1=EMPLOYM. 2=CAR 3=OTHER"
@@ -3726,6 +3699,7 @@
            IF IN-FIELD = SPACE OR "1" OR "2" OR "3" MOVE IN-FIELD-1
            TO CC-ACC-TYPE GO TO 4900CPC.
            DISPLAY "INVALID" GO TO CC-2000TI.
+
        CC-2-ADMIT.
            IF IN-FIELD = "?"
            DISPLAY "ENTER THE HOSPITAL ADMIT DATE"
@@ -3744,31 +3718,39 @@
            IF T-DATE < CC-DATE-M DISPLAY "FUTURE DATE" BELL0
            GO TO CC-2000TI.
            GO TO 4900CPC.
+
        CC-2-AUTH.
 
            IF IN-FIELD = "?"
-           DISPLAY "1 = ADD A NEW AUTH. NUMBER"
-           DISPLAY "2 = REVISE A AUTH. NUMBER"
-           DISPLAY "3 = UNSET(BLANK OUT) AUTH. NUMBER"
-           DISPLAY "4 = ADD A NEW NDC NUMBER"
-           DISPLAY "5 = REVISE AN NDC NUMBER"
-           DISPLAY "6 = UNSET(BLANK OUT) AN NDC NUMBER"
-           DISPLAY "X  = NO ACTION TAKEN"
-           GO TO CC-2000TI.
+             DISPLAY "1 = ADD A NEW AUTH. NUMBER"
+             DISPLAY "2 = REVISE A AUTH. NUMBER"
+             DISPLAY "3 = UNSET(BLANK OUT) AUTH. NUMBER"
+             DISPLAY "4 = ADD A NEW NDC NUMBER"
+             DISPLAY "5 = REVISE AN NDC NUMBER"
+             DISPLAY "6 = UNSET(BLANK OUT) AN NDC NUMBER"
+             DISPLAY "X  = NO ACTION TAKEN"
+             GO TO CC-2000TI.
+
            IF IN-FIELD = "X" GO TO 4900DEE.
+
            IF NOT (IN-FIELD-2 = "1 " OR "2 " OR "3 " OR "4 "
-                   OR "5 " OR "6 ")
-               DISPLAY "INVALID"
-               GO TO CC-2000TI.
+             OR "5 " OR "6 ")
+             DISPLAY "INVALID"
+             GO TO CC-2000TI.
+           
            MOVE 0 TO FLAG 
       *     MOVE CD-AUTH TO ALF-1
+           
            PERFORM AUTH-1 THRU AUTH-1-EXIT
+           
            GO TO 4900CPC.
 
        4900CPC.
            GO TO 1400CPC.
+
        4910CPC.
            EXIT.
+
        5000-WRITE-CHARCUR.
            IF CC-ASSIGN = "S" OR CC-NEIC-ASSIGN = "S"
                DISPLAY "SET THE ASSIGNMENT FIELDS TO A OR U"
@@ -4161,23 +4143,32 @@
            IF X > 8 MOVE 0 TO X DISPLAY "BY " ALF-8 ACCEPT ANS
            IF ANS NOT = SPACE GO TO INS-1-EXIT.
            GO TO INS-4.
-       INS-1-END. DISPLAY "END OF FILE".
-       INS-1-EXIT. EXIT.
+
+       INS-1-END. 
+           DISPLAY "END OF FILE".
+
+       INS-1-EXIT. 
+           EXIT.
 
        READ-AUTH-CD.
            MOVE CD-KEY8 TO AUTH-KEY8
            MOVE CD-CLAIM TO AUTH-KEY6
            READ AUTHFILE INVALID MOVE 1 TO FLAG
            MOVE SPACE TO AUTH-NUM.
+
        READ-AUTH.
            MOVE CC-KEY8 TO AUTH-KEY8
            MOVE CC-CLAIM TO AUTH-KEY6
            READ AUTHFILE INVALID MOVE 1 TO FLAG
            MOVE SPACE TO AUTH-NUM.
+
        AUTH-1.
            MOVE CC-KEY8 TO AUTH-KEY8
            MOVE CC-CLAIM TO AUTH-KEY6
-           READ AUTHFILE INVALID GO TO AUTH-2.
+           READ AUTHFILE 
+             INVALID 
+               GO TO AUTH-2.
+
            DISPLAY "CURRENT NUMBER = " AUTH-NUM
 
            IF IN-FIELD-2 = "4 "
@@ -4193,12 +4184,18 @@
            END-IF
 
            MOVE 2 TO FLAG.
+
        AUTH-2. 
            IF IN-FIELD-2 = "4 " 
-               DISPLAY "AUTHORIZATION MISSING!"
+               DISPLAY "NDC MISSING!"
                MOVE "0" TO ALF-1
                GO TO AUTH-1-EXIT
            END-IF
+
+           DISPLAY "LOOK FOR AUTH IN EMAILAUTHFILE?"
+           ACCEPT ANS
+           IF ANS = "Y"
+             PERFORM LOOK-AUTH THRU LOOK-AUTH-EXIT.  
 
            DISPLAY "AUTHORIZATION NUMBER"
            ACCEPT ALF-15
@@ -4407,6 +4404,7 @@
            START EMAILAUTHSSNFILE KEY NOT > EA-MEDREC
            INVALID DISPLAY "NO RECORDS" GO TO LM-1-EXIT.
            MOVE 0 TO X.
+           
        LM-2.
            READ EMAILAUTHSSNFILE PREVIOUS AT END GO TO LM-1-EXIT.
            IF EA-MEDREC NOT = RIGHT-8 GO TO LM-1-EXIT.
