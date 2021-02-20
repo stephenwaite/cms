@@ -63,7 +63,7 @@
        FILE SECTION.
        
        FD  INSFILE.
-           copy insfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy insfile.cpy in "c:\users\sid\cms\copylib".
 
        FD  GARFILE.
            copy garfile.cpy in "c:\users\sid\cms\copylib\rri".

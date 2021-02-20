@@ -99,25 +99,23 @@
 
        R5.
            IF CLAIM-TOT NOT = 0
-             MOVE "1" TO G-DELETE
-             PERFORM R6 thru r6-exit
-             GO TO R1
-           END-IF       
+             IF G-DELETE NOT = "1"
+               MOVE "1" TO G-DELETE
+               PERFORM R6 thru r6-exit
+             end-if
+           ELSE
+             IF G-DELETE NOT = SPACE
+               MOVE SPACE TO G-DELETE
+               PERFORM R6 thru r6-exit
+             end-if
+           END-IF
 
-           MOVE SPACE TO G-DELETE
-           MOVE "1" TO G-DUNNING
-           PERFORM R6 thru r6-exit
- 
-      *    balance on charge is zero
-      *    move zeroes to the clm age date
-      *    for all charcurs for this garno  
-      *    billing program rrr017 will now skip these items since
-      *    clm age date is all zeroes         
-
-           PERFORM R7 THRU R7-EXIT  
-           CLOSE charcur
-           OPEN INPUT charcur. 
-
+           IF CLAIM-TOT NOT > 0
+               PERFORM R7 THRU R7-EXIT
+               CLOSE charcur
+               OPEN INPUT charcur 
+           END-IF  
+           
            GO TO R1.    
 
        R6.    

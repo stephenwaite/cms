@@ -20,7 +20,7 @@
              LINE SEQUENTIAL.
 
            SELECT GARFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
-             ACCESS MODE IS RANDOM RECORD KEY IS G-GARNO
+             ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
              ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
              LOCK MODE MANUAL.
 
@@ -87,19 +87,20 @@
        p0.
            start paycur key < paycur-key 
              invalid 
-               display "couldn't start paycur " paycur-key
+               move space to errmsg
+               string "couldn't start paycur " paycur-key 
+                 delimited by size into errmsg 
+               perform perr
                go to p4. 
 
        P1.                    
            READ PAYCUR previous
-             AT END
-               GO TO P4.
+             AT end
+             GO TO P4
+           END-READ  
 
-       P1-1.
       *     IF PC-DATE-T < AGEDATE01 GO TO P1.
-           IF (PC-PAYCODE = 001 OR 021 OR 022 OR 062 OR 075 OR 077) 
-             NEXT SENTENCE 
-           ELSE 
+           IF NOT (PC-PAYCODE = 001 OR 021 OR 022 OR 062 OR 075 OR 077) 
              GO TO P1.
 
            COMPUTE AMT = -1 * PC-AMOUNT.
@@ -119,6 +120,7 @@
              END-READ
            END-IF.
 
+      *    if last bill date for garno is > actual date of payment
            IF G-LASTBILL > PC-DATE-T GO TO P1.
 
            IF G-DUNNING > "3" GO TO P1.
@@ -139,11 +141,11 @@
        P2.  
            READ CHARCUR NEXT WITH LOCK 
              AT END 
-               move "000" to pc-key3
+               MOVE "000" TO PC-KEY3
                GO TO P0.
 
            IF CC-KEY8 NOT = G-GARNO 
-             move "000" to pc-key3
+               MOVE "000" TO PC-KEY3
              GO TO P0.
 
            IF CC-ASSIGN = "A" GO TO P2.
@@ -155,7 +157,7 @@
            WRITE FILEOUT01
 
            MOVE NEWDATE TO CC-DATE-A
-      *     REWRITE CHARCUR01
+           REWRITE CHARCUR01
 
       *    go to p2 since other charges on bill might not have 
       *    had payment but should be reaged

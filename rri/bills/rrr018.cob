@@ -61,6 +61,9 @@
              ALTERNATE RECORD KEY IS EA-SSN WITH DUPLICATES
              LOCK MODE MANUAL.
 
+           select errorfile assign to "S75" organization
+             line sequential.  
+
        DATA DIVISION.
 
        FILE SECTION.
@@ -107,6 +110,9 @@
 
        FD  emailauthfile.
            copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".
+
+       fd  errorfile.
+       01  errorfile01 pic x(80).    
 
 
        WORKING-STORAGE SECTION.    
@@ -164,11 +170,11 @@
        01  PAY-FLAG PIC 9.
        01  CHAR-FLAG PIC 9.
        01  CLAIM-TOT PIC S9(6)V99.
-       01  hold-email pic x(30).
+       01  test-email pic x(30).
 
        PROCEDURE DIVISION.
        P0.
-           OPEN OUTPUT TB-BILL MVP-BILL.
+           OPEN OUTPUT TB-BILL MVP-BILL errorfile.
            OPEN I-O GARFILE.
            OPEN INPUT CHARCUR PAYCUR INSFILE BILLPARM BILLDATE
              emailauthfile.
@@ -179,7 +185,9 @@
            
            MOVE SPACE TO G-GARNO
            
-           START GARFILE KEY > G-GARNO INVALID GO TO R20.
+           START GARFILE KEY > G-GARNO 
+             INVALID 
+               GO TO R20.
 
        R1. 
            READ GARFILE NEXT WITH LOCK
@@ -187,27 +195,28 @@
               GO TO R20.
                       
            IF G-ACCTSTAT NOT NUMERIC
-             DISPLAY G-GARNO " " G-GARNAME " G-ACCTSTAT NOT NUMBER"
+             move space to errorfile01
+             string G-GARNO " " G-GARNAME " G-ACCTSTAT NOT NUMBER"
+               delimited by size into errorfile01
+             write errorfile01.  
              MOVE 1 TO G-ACCTSTAT.
            
            IF G-ACCTSTAT = 9 GO TO R1.
-
-           move space to hold-email.
-           move g-acct to ea-medrec.
-           start emailauthfile key not < ea-medrec
-             invalid
-               display "no entry in emailauthssnfile".
-               
-           perform email-1 thru email-exit.   
-           
+                                         
            IF G-ACCTSTAT = 7 
-             DISPLAY G-GARNO " " G-GARNAME " ACCTSTAT=7"
+             move space to errorfile01
+             string G-GARNO " " G-GARNAME " ACCTSTAT=7"
+               delimited by size into errorfile01
+             write errorfile01
              MOVE "0" TO TB-4 
              GO TO R10.
 
            IF G-ACCTSTAT = 8
+             move space to errorfile01
+             string G-GARNO " " G-GARNAME " ACCTSTAT=8"
+               delimited by size into errorfile01
+             write errorfile01.           
              MOVE "1" TO TB-4 
-             DISPLAY G-GARNO " " G-GARNAME " ACCTSTAT=8"
              MOVE 1 TO G-ACCTSTAT
              GO TO R10.
 
@@ -234,7 +243,11 @@
 
            ADD 1 TO PHR.
 
-           IF PHR > 990 DISPLAY G-GARNO " "  G-GARNAME
+           IF PHR > 990 
+             move space to errorfile01
+             string G-GARNO " " G-GARNAME " PHR > 990"
+               delimited by size into errorfile01
+             write errorfile01 
              GO TO R1.
 
            MOVE 0 TO PHR-FLAG(PHR)
@@ -267,9 +280,13 @@
       *  NEW CHARGE SINCE LAST BILL WITH A BALANCE.           
            IF (CC-DATE-P > G-LASTBILL) AND (G-LASTBILL > "20180930")
              AND (CLAIM-TOT > 0) 
-             DISPLAY G-GARNO " " G-GARNAME " " CC-DATE-P " CHR ENTRY"
+             move space to errorfile01
+             string G-GARNO " " G-GARNAME " " CC-DATE-P
+               " CHR ENTRY" delimited by size into errorfile01
+             write errorfile01
              MOVE 1 TO CHAR-FLAG.
-             GO TO R6.
+
+           GO TO R6.
 
       *  UNASSIGNED PAYMENT SINCE LAST BILL.
       *  SEND A BILL IF ACCOUNT LATER IS SHOWN TO HAVE A BALANCE.
@@ -294,12 +311,11 @@
       
       *    NEW PAYMENT OR NEW CHARGES SINCE LAST BILL WEEK
            IF G-DUNNING < "2"
-            IF CHAR-FLAG = 1 
-              MOVE "1" TO TB-4 
-               IF (G-BILLCYCLE = TC1 OR TC2)
-                 GO TO R10
-               END-IF
-            END-IF
+               MOVE "1" TO TB-4 
+                 IF (G-BILLCYCLE = TC1 OR TC2)
+                   OR (CHAR-FLAG = 1)
+                   GO TO R10
+                 END-IF
            END-IF.
 
       *    STILL BILLING COLLECTION ACCOUNTS 
@@ -309,10 +325,13 @@
            IF (G-DUNNING > "1") 
              AND (G-BILLCYCLE = TC1 OR TC2)
              AND ((X-BALCUR > 0 OR X-BAL30 > 0 OR X-BAL60 > 0)) 
-               DISPLAY G-GARNO " " G-GARNAME "  NOT ALL IN COLLECT"
-               MOVE "1" TO TB-4 
-               MOVE TC1 TO G-BILLCYCLE
-               GO TO R10.
+             move space to errorfile01
+             string G-GARNO " " G-GARNAME " NOT ALL IN COLLECT"
+               delimited by size into errorfile01
+             write errorfile01             
+             MOVE "1" TO TB-4 
+             MOVE TC1 TO G-BILLCYCLE
+             GO TO R10.
 
       *    BILLING SENT TO OFFICE FOR COLLT VALUES
       *    FOR ACCOUNT ON CYCLE.
@@ -342,7 +361,7 @@
       *    FINALLY!
       *    REGULAR MONTHLY BILLING BY DEFINITION:
       *    NOTHING NEW SINCE LAST WEEK
-      *    BALANCE OF AT LEAST $2.00
+      *    BALANCE OF AT LEAST $3.00
       *    DUNNING VALUE = 1
       *    ON CYCLE ACCOUNT
            IF NOT (G-BILLCYCLE = TC1 OR TC2) GO TO R1.
@@ -360,11 +379,31 @@
            MOVE G-ZIP TO TB-3
            MOVE G-PRINS TO TB-6
            MOVE BAL-FWD TO TB-5 TB-7 
-           move hold-email to tb-email            
 
            IF TB-4 < "2" 
              MOVE ZERO TO TB-6 TB-7.
-             
+
+           move space to test-email
+           move g-acct to ea-medrec
+           start emailauthfile key not < ea-medrec
+             invalid
+               move space to errorfile01
+               string G-GARNO " " G-GARNAME " not in email file"
+                 delimited by size into errorfile01
+               write errorfile01
+             not invalid
+               perform email-1 thru email-exit
+           end-start 
+
+           if test-email not = space
+             move space to errorfile01
+             string G-GARNO " " G-GARNAME " " test-email
+               delimited by size into errorfile01
+             write errorfile01
+           end-if  
+
+           move test-email to tb-email
+
            WRITE TB-BILL01
            
            MOVE BILL-DATE TO G-LASTBILL
@@ -452,21 +491,21 @@
             END-IF.
 
        email-1.           
-           read emailauthfile next
+           read emailauthfile previous
              at end
                go to email-exit.    
 
            if ea-medrec not = g-acct
              go to email-exit.
 
-           move ea-email to hold-email.
+           if ea-email = space go to email-1.
 
-           go to email-1.
+           move ea-email to test-email.
 
        email-exit.
            exit.                            
 
        R20. 
            CLOSE billparm billdate tb-BILL paycur charcur
-             garfile insfile MVP-BILL emailauthfile. 
+             garfile insfile MVP-BILL emailauthfile errorfile. 
            STOP RUN.
