@@ -385,7 +385,7 @@
 
            move space to test-email
            move g-acct to ea-medrec
-           start emailauthfile key not < ea-medrec
+           start emailauthfile key not > ea-medrec
              invalid
                move space to errorfile01
                string G-GARNO " " G-GARNAME " not in email file"

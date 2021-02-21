@@ -1516,7 +1516,7 @@
                AND  (ALF-16-12 ALPHABETIC) 
                AND  (ALF-16-13 ALPHABETIC))            
                MOVE "268" TO A-SEINS
-		   END-IF
+		       END-IF
 
            IF A-PRINS = "076" AND A-SEINS = "076"
                MOVE "075" TO A-SEINS
@@ -1566,21 +1566,23 @@
                MOVE A-RELATE TO A-SE-RELATE
            END-IF
 
+      *    since receive auth in R2 instead of R3 $$ charge record 
+      *    might as well perform this somewhere in this paragraph
            PERFORM EA-1 THRU EA-1-EXIT.
            
            IF A-DOB(1:2) = "20" AND A-PRINS = "003"
                MOVE "19" TO A-DOB(1:2)
            END-IF
 
-		   IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
-		       MOVE "A" TO A-PR-ASSIGN
-		   END-IF
+		       IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
+		         MOVE "A" TO A-PR-ASSIGN
+		       END-IF
 
            IF A-SEINS = "268" AND A-SE-ASSIGN = "U"
-		       MOVE "A" TO A-SE-ASSIGN
-		   END-IF 
+		         MOVE "A" TO A-SE-ASSIGN
+		       END-IF 
 
-		   MOVE ACTFILE01 TO SAVEMASTER.
+		       MOVE ACTFILE01 TO SAVEMASTER.
            READ ACTFILE
              INVALID
                MOVE SAVEMASTER TO ACTFILE01
@@ -1687,8 +1689,11 @@
            MOVE R3-CLINICAL TO C-CLINICAL
            MOVE R2-DIAG TO C-ADMIT-DIAG
            MOVE R3-CPT TO C-CPT
+           MOVE R3-MOD1 TO C-MOD2
+           MOVE R3-MOD2 TO C-MOD3
+           MOVE R3-MOD3 TO C-MOD4
            STRING R3-MOD1 R3-MOD2 R3-MOD3 DELIMITED BY SIZE 
-               INTO C-MODS
+               INTO C-MOD2 
 
       *  new format which has hcpcs and a mod             
            IF R3-CPT = SPACE            
@@ -1718,17 +1723,18 @@
            ADD 1 TO XYZ
            MOVE XYZ TO ORD3
            GO TO B2.
+
        B3. 
            MOVE SAVEORD TO ORDFILE01
            MOVE XYZ TO ORD3
            WRITE ORDFILE01
            
            IF (R1-IP1 = "00931" OR "00932")
-           OR (A-PRINS = "075" OR "076" OR "095")
-           PERFORM WORK-COMP.
+             OR (A-PRINS = "075" OR "076" OR "095")
+             PERFORM WORK-COMP.
            
-           IF A-SEINS = "075" OR "076" OR"095"
-           PERFORM WORK-COMP2.
+           IF A-SEINS = "075" OR "076" OR "095"
+             PERFORM WORK-COMP2.
            
            GO TO B1.
 
@@ -1802,10 +1808,12 @@
       *     ACCEPT EA-DATE-E FROM CENTURY-DATE
            
            MOVE R1-EMAIL TO EA-EMAIL
-           MOVE R1-AUTH TO EA-AUTH.
+           
            IF R1-AUTH NOT = space
+             MOVE R1-AUTH TO EA-AUTH
              MOVE 1 TO AUTH-FLAG.
-      *     WRITE EMAILAUTHFILE01.
+      *    used to WRITE EMAILAUTHFILE01 here but now
+      *    wait till all charges are read and write once in B1.
 
        EA-1-EXIT.
            EXIT.

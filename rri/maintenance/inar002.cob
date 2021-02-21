@@ -107,33 +107,17 @@
        FD  PAYFILE.
            COPY payfile.CPY IN "C:\Users\sid\cms\copylib".
       
-       FD GAPFILE.
-       01 GAPFILE01.
-           02 GAPKEY PIC X(7).
-           02 GAP-NAME PIC X(25).
-           02 GAP-ADDR PIC X(22).
-           02 GAP-CITY PIC X(15).
-           02 GAP-STATE PIC XX.
-           02 GAP-ZIP PIC X(9).
-           02 GAP-TYPE PIC X.
-           02 GAP-FUTURE PIC X(40).
+       FD  GAPFILE.
+           COPY gapfile.CPY IN "C:\Users\sid\cms\copylib".          
 
        FD  MPLRFILE.
            COPY mplrfile.CPY IN "C:\Users\sid\cms\copylib".           
 
-       FD  AUTHFILE
-           DATA RECORD IS AUTHFILE01.
-       01  AUTHFILE01.
-           02 AUTH-KEY.
-              03 AUTH-KEY8 PIC X(8).
-              03 AUTH-KEY6 PIC X(6).
-           02 AUTH-NUM PIC X(15).
-           02 AUTH-QNTY PIC XX.
-           02 AUTH-DATE-E PIC X(8).
-           02 AUTH-FILLER PIC XXX.
+       FD  AUTHFILE.
+           COPY authfile.CPY IN "C:\Users\sid\cms\copylib".
 
        FD  INSFILE.
-           COPY insfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY insfile.CPY IN "C:\Users\sid\cms\copylib".      
 
        FD  PARMNDEX.
        01  PARMNDEX01.
@@ -163,14 +147,7 @@
            COPY patfile.CPY IN "C:\Users\sid\cms\copylib\rri".
 
        FD  DIAGFILE.
-       01  DIAG01.
-           02 DIAG-KEY.
-              03 diag-9 PIC X(5).
-              03 diag-10 pic xx.
-           02 DIAG-TITLE.
-             03 DIAG-T1 PIC XXXXX.
-             03 DIAG-T2 PIC X(56).
-           02 DIAG-MEDB PIC X(5).
+           COPY diagfile.CPY IN "C:\Users\sid\cms\copylib".
 
        FD  PROCFILE.
            COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".
@@ -197,7 +174,7 @@
        01  PLINDX PIC 99.
        01  ANS          PIC X(5).
        01  ACTION       PIC XXX.
-       01  DATAIN       PIC X(30).
+       01  DATAIN       PIC X(30). 
        01  IN-FIELD.
                04 IN-FIELD-10.
                05  IN-FIELD-9.
@@ -481,7 +458,7 @@
            MOVE 1 TO CHAR1
            MOVE SPACE TO CD-FUTURE
            MOVE "01" TO CD-DOCP
-           MOVE 0 TO   CD-stat CD-paper CD-COLLT CD-Age
+           MOVE 0 TO CD-stat CD-paper CD-COLLT cd-auth
            MOVE "2" TO CD-EPSDT
            MOVE 0 TO CD-amount.
            MOVE "00000000" TO CD-DATE-A CD-DATE-M
@@ -765,7 +742,7 @@
            MOVE "1" TO CD-result  
            MOVE "4" TO cd-ACT
            MOVE "2" TO CD-EPSDT 
-           MOVE "0" TO CD-Age
+           MOVE "0" TO cd-auth
            MOVE SPACE TO CD-mod2 CD-mod3 CD-mod4.
            
        M1. PERFORM 1205-ADD-LOOP VARYING ADD-KEY FROM 1 BY 1
@@ -2087,17 +2064,20 @@
               END-IF
              END-IF
            GO TO 4900DEE.
+
        2-AUTH.
            IF IN-FIELD = "?"
-           DISPLAY "1 = ADD A NEW AUTH. NUMBER"
-           DISPLAY "2 = REVISE A AUTH. NUMBER"
-           DISPLAY "3 = UNSET(BLANK OUT) AUTH. NUMBER"
-           DISPLAY "4 = ADD A NEW NDC NUMBER"
-           DISPLAY "5 = REVISE AN NDC NUMBER"
-           DISPLAY "6 = UNSET(BLANK OUT) AN NDC NUMBER"
-           DISPLAY "X  = NO ACTION TAKEN"
-           GO TO 2000TI.
+             DISPLAY "1 = ADD A NEW AUTH. NUMBER"
+             DISPLAY "2 = REVISE A AUTH. NUMBER"
+             DISPLAY "3 = UNSET(BLANK OUT) AUTH. NUMBER"
+             DISPLAY "4 = ADD A NEW NDC NUMBER"
+             DISPLAY "5 = REVISE AN NDC NUMBER"
+             DISPLAY "6 = UNSET(BLANK OUT) AN NDC NUMBER"
+             DISPLAY "X  = NO ACTION TAKEN"
+             GO TO 2000TI.
+
            IF IN-FIELD = "X" GO TO 4900DEE.
+           
            IF NOT (IN-FIELD-2 = "1 " OR "2 " OR "3 " OR "4 "
                    OR "5 " OR "6 ")
                DISPLAY "INVALID"
@@ -2328,7 +2308,7 @@
            DISPLAY CD-ASSIGN "    " CD-NEIC-ASSIGN "        "
            CD-COLLT "      "
            CD-paper "      " CD-stat "       " DISPLAY-DATE
-           "    " CD-Age "    " DISPLAY-DATE-TOO
+           "    " cd-auth "    " DISPLAY-DATE-TOO
 
            DISPLAY "ASGN CLM-ASGN COLLT  PAPER  STATUS   CLM-DATE  AUT
       -    "   ADMIT-DT"
@@ -2450,6 +2430,7 @@
            MOVE SPACE TO AUTH-NUM.
            IF AUTH-NUM = SPACE AND FLAG = 0 MOVE 1 TO FLAG.
            IF AUTH-NUM NOT = SPACE AND FLAG = 0 MOVE 2 TO FLAG.
+
        AUTH-1.
            MOVE CD-KEY8 TO AUTH-KEY8
            MOVE CD-claim TO AUTH-KEY6
@@ -2460,6 +2441,7 @@
            ACCEPT IN-FIELD-3
            IF IN-FIELD NOT = "YES" GO TO AUTH-1-EXIT.
            MOVE "2" TO FLAG.
+
        AUTH-2. 
            IF IN-FIELD-2 = "4 " DISPLAY "AUTHORIZATION MISSING!"
            MOVE "0" TO ALF-1
@@ -2473,7 +2455,7 @@
            DISPLAY "PRIOR AUTH.NUM. NOT ADDED/CHANGED"
            GO TO AUTH-1-EXIT.
            IF ALF-15 = "Y" OR "N" DISPLAY "INVALID" GO TO AUTH-2.
-           MOVE "1" TO CD-Age
+           MOVE "1" TO cd-auth
            MOVE ALF-15 TO AUTH-NUM
            IF FLAG = 2
            REWRITE AUTHFILE01 GO TO AUTH-1-EXIT.
@@ -2482,14 +2464,16 @@
            ACCEPT AUTH-DATE-E FROM DATE YYYYMMDD
            WRITE AUTHFILE01 
            MOVE "1" TO FLAG.
-       AUTH-1-EXIT. EXIT.
+
+       AUTH-1-EXIT. 
+           EXIT.
+
        ZZ-1.
            IF ZERO-FLAG = 1
            MOVE 0 TO ZERO-FLAG
            DISPLAY "DISPLAY ALL ACCTS " 
            ELSE MOVE 1 TO ZERO-FLAG
            DISPLAY "SHOW ONLY ACCTS WITH BALANCES.".
-
 
        DX-1.
            IF CD-diag = "0000000"
@@ -2605,14 +2589,14 @@
               (((DIAG-TITLE(1:1) = "V") AND (DIAG-TITLE(2:1) NUMERIC))
               OR
             ((DIAG-TITLE(1:1) NUMERIC) AND (DIAG-TITLE(2:1) NUMERIC)))
-            MOVE DIAG-T1 TO DIAG-KEY
+            MOVE DIAG-TITLE(1:5) TO DIAG-KEY
             GO TO 4DIAG
            END-IF
 
            IF (DIAG-FLAG NOT = 9)
              AND (DIAG-TITLE(1:1) ALPHABETIC)
              AND (DIAG-TITLE(2:1) NUMERIC)
-              MOVE DIAG-T1 TO DIAG-KEY
+              MOVE DIAG-TITLE(1:5) TO DIAG-KEY
               GO TO 4DIAG
            END-IF.
 
