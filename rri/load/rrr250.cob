@@ -32,8 +32,8 @@
              ACCESS MODE IS DYNAMIC RECORD KEY IS PROC-KEY
              LOCK MODE MANUAL.
 
-           SELECT CHARFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
-             ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+           SELECT CHARNEW ASSIGN TO "S50" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS CHARNEW-KEY
              LOCK MODE MANUAL.
 
            SELECT CLAIMFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
@@ -66,185 +66,18 @@
        DATA DIVISION.
        FILE SECTION.
 
-       FD  INSFILE
-           DATA RECORD IS INSFILE01.
-       01  INSFILE01.
-           02 INS-KEY PIC XXX.
-           02 INS-NAME PIC X(22).
-           02 INS-STREET PIC X(24).
-           02 INS-CITY PIC X(15).
-           02 INS-STATE PIC XX.
-           02 INS-ZIP PIC X(9).
-           02 INS-ASSIGN PIC X.
-           02 INS-CLAIMTYPE PIC X.
-           02 INS-NEIC PIC X(5).
-           02 INS-NEICLEVEL PIC X.
-           02 INS-NEIC-ASSIGN PIC X.
-           02 INS-PPO PIC X.
-           02 INS-PRVNUM PIC X(10).
-           02 INS-HMO PIC X(3).
-           02 INS-STATUS PIC X.
-           02 INS-LEVEL PIC X.
-           02 INS-LASTDATE PIC X(8).
-           02 INS-CAID PIC XXX.
-           02 INS-REFWARN PIC X.
-           02 INS-FUTURE PIC X(8).
+       FD  INSFILE.
+           COPY insfile.CPY IN "C:\Users\sid\cms\copylib".      
 
-       FD  CHARFILE
-           DATA RECORD IS CHARFILE01.
-       01  CHARFILE01.
-           02 CHARFILE-KEY.
-             03 CD-KEY8 PIC X(8).
-             03 CD-KEY3 PIC XXX.
-           02 CD-PATID PIC X(8).
-           02 CD-CLAIM PIC X(6).
-           02 CD-SERVICE PIC X.
-           02 CD-DIAG PIC X(7).
-           02 CD-PROC PIC X(11).
-           02 CD-MOD2 PIC XX.
-           02 CD-MOD3 PIC XX.
-           02 CD-MOD4 PIC XX.
-           02 CD-AMOUNT PIC S9(4)V99.
-           02 CD-DOCR PIC X(3).
-           02 CD-DOCP PIC X(2).
-           02 CD-PAYCODE PIC XXX.
-           02 CD-STAT PIC X.
-           02 CD-WORK PIC XX.
-           02 CD-DAT1 PIC X(8).
-           02 CD-RESULT PIC X.
-           02 CD-ACT PIC X.
-           02 CD-SORCREF PIC X.
-           02 CD-COLLT PIC X.
-           02 CD-AGE PIC X.
-           02 CD-PAPER PIC X.
-           02 CD-PLACE PIC X.
-           02 CD-NAME PIC X(24).
-           02 CD-ESPDT PIC X.
-           02 CD-DATE-T PIC X(8).
-           02 CD-DATE-E PIC X(8).
-           02 CD-ORDER PIC X(6).
-           02 CD-DX2 PIC X(7).
-           02 CD-DX3 PIC X(7).
-           02 CD-DATE-A PIC X(8).
-           02 CD-ACC-TYPE PIC X.
-           02 CD-DATE-M PIC X(8).
-           02 CD-ASSIGN PIC X.
-           02 CD-NEIC-ASSIGN PIC X.
-           02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
-           02 CD-DX6 PIC X(7).
-           02 CD-CLINICAL PIC X(40).
-           02 CD-ADMIT-DIAG PIC X(30).
+       FD  CHARNEW.
+           COPY charnew.CPY IN "C:\Users\sid\cms\copylib\rri".      
 
-       FD GARFILE
-           DATA RECORD IS GARFILE01.
-       01 GARFILE01.
-           02 G-GARNO.
-             03 ID1 PIC XXX.
-             03 ID2 PIC XXX.
-             03 ID3 PIC X.
-             03 ID4 PIC X.
-           02 G-GARNAME.
-             03 G-GN1 PIC XXX.
-             03 G-GN2 PIC X(21).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(10).
-           02 G-PRIPOL PIC X(16).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-SE-OFFICE PIC X(4).
-           02 G-SE-GROUP PIC X(10).
-           02 G-SECPOL PIC X(16).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-INSPEND PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
+       FD  GARFILE.
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
 
-       FD ACTFILE
-           DATA RECORD IS ACTFILE01.
-       01 ACTFILE01.
-           02 A-ACTNO PIC X(8).
-           02 A-GARNAME.
-             03 A-GN1 PIC XXX.
-             03 A-GN2 PIC X(21).
-           02 A-BILLADD PIC X(22).
-           02 A-STREET PIC X(22).
-           02 A-CITY PIC X(18).
-           02 A-STATE PIC X(2).
-           02 A-ZIP.
-             03 A-ZIP5 PIC X(5).
-             03 A-ZIP4 PIC X(4).
-           02 A-COLLT PIC X.
-           02 A-PHONE.
-             03 A-PHONE1 PIC XXX.
-             03 A-PHONE2 PIC XXX.
-             03 A-PHONE3 PIC X(4).
-           02 A-SEX PIC X.
-           02 A-RELATE PIC X.
-           02 A-MSTAT PIC X.
-           02 A-DOB PIC X(8).
-           02 A-DUNNING PIC X.
-           02 A-ACCTSTAT PIC X.
-           02 A-PR-MPLR PIC X(4).
-           02 A-PRINS PIC XXX.
-           02 A-PR-ASSIGN PIC X.
-           02 A-PR-OFFICE PIC X(4).
-           02 A-PR-GROUP PIC X(10).
-           02 A-PRIPOL0.
-             03 A-PRIPOL PIC X(9).
-             03 A-PR-SUFX PIC XXX.
-             03 A-PR-FILLER PIC X(4).
-           02 A-PRNAME PIC X(24).
-           02 A-PR-RELATE PIC X.
-           02 A-SE-MPLR PIC X(4).
-           02 A-SEINS PIC XXX.
-           02 A-SE-ASSIGN PIC X.
-           02 A-SE-OFFICE PIC X(4).
-           02 A-SE-GROUP PIC X(10).
-           02 A-SECPOL0.
-             03 A-SECPOL PIC X(9).
-             03 A-SE-SUFX PIC XXX.
-             03 A-SE-FILLER PIC X(4).
-           02 A-SENAME PIC X(24).
-           02 A-SE-RELATE PIC X.
-           02 A-INSPEND PIC X(7).
-           02 A-LASTBILL PIC X(8).
-           02 A-ASSIGNM PIC X.
-           02 A-PRIVATE PIC X.
-           02 A-BILLCYCLE PIC X.
-           02 A-DELETE PIC X.
-           02 A-FILLER PIC XXX.
-           02 A-GARNO PIC X(8).
-           02 A-PRGRPNAME PIC X(15).
-           02 A-SEGRPNAME PIC X(15).
-           02 NAME-KEY PIC XXX.
+       FD  ACTFILE.
+           COPY actfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+      
 
        FD  FILEIN.
        01  FILEIN01 PIC X(8).
@@ -266,39 +99,11 @@
            02 CLAIM-KEY PIC X.
            02 CLAIMNO PIC 9(6).
 
-       FD  PROCFILE
-           DATA RECORD PROCFILE01.
-       01  PROCFILE01.
-           02 PROC-KEY.
-             03 PK1 PIC X(4).
-             03 PK2 PIC X(5).
-             03 PK3 PIC XX.
-           02 PROC-TYPE PIC X.
-           02 PROC-TITLE PIC X(28).
-           02 PROC-AMOUNT PIC 9(4)V99.
-     
-       FD  ORDFILE
-           DATA RECORD IS ORDFILE01.
-       01  ORDFILE01.
-           02 ORDNO.
-             03 ORD8 PIC X(8).
-             03 ORD3 PIC XXX.
-           02 CHARGE1 PIC X(4).
-           02 CHARGE2 PIC X.
-           02 C-REF PIC XXX.
-           02 C-IOPAT PIC X.
-           02 C-DATE-A PIC X(8).
-           02 C-DATE-T PIC X(8).
-           02 C-DATE-ADMIT PIC X(8).
-           02 C-ORDER PIC XXXX.
-           02 C-CLINICAL PIC X(38).
-           02 C-DOCP PIC XX.
-           02 C-ADMIT-DIAG PIC X(24).
-           02 C-MOD2 PIC XX.
-           02 C-MOD3 PIC XX.
-           02 C-MOD4 PIC XX.           
-           02 C-DATE-E PIC X(8).
-           02 C-CPT PIC X(5).
+       FD  PROCFILE.
+           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+
+       FD  ORDFILE.
+           COPY ordfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
 
        WORKING-STORAGE SECTION.
        01  ANS PIC X.
@@ -367,7 +172,7 @@
 
        0005-START.
            OPEN INPUT ACTFILE ORDFILE PROCFILE WORK249 FILEIN INSFILE.
-           OPEN I-O GARFILE CHARFILE CLAIMFILE.
+           OPEN I-O GARFILE CHARNEW CLAIMFILE.
            OPEN OUTPUT ORD-DELETES NEW-GARNOS.
            MOVE "A" TO CLAIM-KEY
            READ CLAIMFILE WITH LOCK
@@ -454,9 +259,9 @@
            MOVE SPACE TO G-GARNO.
            MOVE GARFILE01 TO GARBACK
            MOVE DAY3 TO ID2 NUM-3.
-           MOVE G-GN1 TO ID1.
+           MOVE G-GARNAME(1:3) TO ID1.
            MOVE 0 TO XYZ.
-           MOVE "G" TO ID4.
+           MOVE "G" TO ID3(2:1).
 
        P4.
            ADD 1 TO XYZ.
@@ -547,7 +352,8 @@
 
            MOVE G-GARNO TO CD-PATID
            MOVE "0000000" TO CD-DIAG CD-DX2 CD-DX3 CD-DX4
-           MOVE SPACE TO CD-MOD2 CD-MOD3 CD-MOD4 CD-DX5 CD-DX6
+           MOVE SPACE TO CD-MOD2 CD-MOD3 CD-MOD4 CD-QP1 CD-QP2 CD-DX5-3 
+             CD-DX6.
            
            MOVE G-PRINS TO CD-PAYCODE
            MOVE "0" TO CD-STAT
@@ -558,7 +364,7 @@
            MOVE "0" TO CD-COLLT
            MOVE "0" TO CD-AGE
            MOVE G-GARNAME TO CD-NAME
-           MOVE "0" TO CD-ESPDT
+           MOVE "0" TO CD-EPSDT
            MOVE "00000000" TO CD-DATE-A
            MOVE " " TO CD-ACC-TYPE
            MOVE INS-CLAIMTYPE TO CD-PAPER
@@ -589,7 +395,7 @@
                GO TO P1
            END-IF
 
-           IF CHARGE2 = "-"
+           IF C-IND = "-"
                GO TO P7
            END-IF
 
@@ -603,14 +409,14 @@
            MOVE C-ADMIT-DIAG TO CD-ADMIT-DIAG
            ACCEPT CD-DATE-E FROM CENTURY-DATE.
 
-           MOVE CHARGE1 TO PK1
-           MOVE C-CPT TO PK2
-           MOVE "26" TO PK3.
+           MOVE C-PROC TO PROC-CDM
+           MOVE C-CPT TO PROC-CPT
+           MOVE "26" TO PROC-MOD.
            
        P8. 
            READ PROCFILE 
             INVALID
-               MOVE "  " TO PK3
+               MOVE "  " TO PROC-MOD
                READ PROCFILE
                  INVALID
                    GO TO P8-EXIT
@@ -627,12 +433,12 @@
 
            ADD 1 TO CLAIMNO 
            MOVE CLAIMNO TO CD-CLAIM
-           MOVE CHARFILE01 TO CHARBACK.
+           MOVE CHARNEW01 TO CHARBACK.
 
        P9.
            ADD 1 TO XXX 
            MOVE XXX TO CD-KEY3
-           READ CHARFILE
+           READ CHARNEW
              INVALID
                GO TO P10
            END-READ
@@ -640,10 +446,10 @@
            GO TO P9.
 
        P10.
-           MOVE CHARBACK TO CHARFILE01
+           MOVE CHARBACK TO CHARNEW01
            MOVE XXX TO CD-KEY3.
            MOVE "01" TO CD-WORK
-           WRITE CHARFILE01. 
+           WRITE CHARNEW01. 
            WRITE ORD-DELETES01 FROM ORDNO
            GO TO P7.
        
@@ -652,7 +458,7 @@
            DISPLAY C-CPT
            DISPLAY CD-DATE-T
            DISPLAY "NON MATCHING CPT BETWEEN HOSPRRI AND PROCFILE"
-           DISPLAY "FOR HOSP CODE " PK1 "." 
+           DISPLAY "FOR HOSP CODE " PROC-CDM "." 
            DISPLAY "THIS RECORD WILL BE DISCARDED"
            DISPLAY "BUT MUST BE CORRECTED IN HOSPRRI AND USED"
            DISPLAY "NOTIFY STEPHEN IMMEDIATELY."
@@ -723,6 +529,6 @@
            END-IF    
            
            CLOSE ACTFILE ORDFILE PROCFILE WORK249 FILEIN INSFILE
-               GARFILE CHARFILE CLAIMFILE ORD-DELETES NEW-GARNOS.
+               GARFILE CHARNEW CLAIMFILE ORD-DELETES NEW-GARNOS.
            DISPLAY "POSTING PROGRAM HAS ENDED".
            STOP RUN.

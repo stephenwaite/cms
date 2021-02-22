@@ -23,7 +23,9 @@
            02 CD-ACT PIC X.
            02 CD-SORCREF PIC X.
            02 CD-COLLT PIC X.
-           02 CD-AGE PIC X.
+
+      *    cd-auth used to be cd-age     
+           02 CD-AUTH PIC X.
            02 CD-PAPER PIC X.
            02 CD-PLACE PIC X.
            02 CD-NAME PIC X(24).

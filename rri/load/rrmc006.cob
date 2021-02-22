@@ -74,14 +74,7 @@
        01  ERRFILE01 PIC X(80).
 
        FD  EMAILAUTHFILE.
-       01  EMAILAUTHFILE01.
-           02 EA-KEY PIC 9(6).
-           02 EA-MEDREC PIC X(8).
-           02 EA-NAME PIC X(24).
-           02 EA-EMAIL PIC X(30).
-           02 EA-AUTH PIC X(20).
-           02 EA-DATE-E PIC X(8).
-           02 EA-SSN PIC X(9).
+           copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".           
 
        FD  COMPFILE.
        01  COMPFILE01.
@@ -98,30 +91,8 @@
            02 COMP-INSZIP1 PIC X(10).
            02 COMP-INSPHONE1 PIC X(12).
 
-       FD  INSFILE
-     *     BLOCK CONTAINS 6 RECORDS
-           DATA RECORD IS INSFILE01.
-       01  INSFILE01.
-           02 INS-KEY PIC XXX.
-           02 INS-NAME PIC X(22).
-           02 INS-STREET PIC X(24).
-           02 INS-CITY PIC X(15).
-           02 INS-STATE PIC XX.
-           02 INS-ZIP PIC X(9).
-           02 INS-ASSIGN PIC X.
-           02 INS-CLAIMTYPE PIC X.
-           02 INS-NEIC PIC X(5).
-           02 INS-NEICLEVEL PIC X.
-           02 INS-NEIC-ASSIGN PIC X.
-           02 INS-PPO PIC X.
-           02 INS-PRVNUM PIC X(10).
-           02 INS-HMO PIC X(3).
-           02 INS-STATUS PIC X.
-           02 INS-LEVEL PIC X.
-           02 INS-LASTDATE PIC X(8).
-           02 INS-CAID PIC XXX.
-           02 INS-REFWARN PIC X.
-           02 INS-FUTURE PIC X(8).
+       FD  INSFILE.
+           copy insfile.cpy in "c:\users\sid\cms\copylib".
 
        FD  MOBLFILE.
        01  MOBLFILE01.
@@ -158,27 +129,8 @@
              03 FILLER PIC X(20).
            02 REF-NPI PIC X(10).
 
-       FD  ORDFILE
-           DATA RECORD IS ORDFILE01.
-       01  ORDFILE01.
-           02 ORDNO.
-             03 ORD8 PIC X(8).
-             03 ORD3 PIC XXX.
-           02 C-PROC PIC X(4).
-           02 C-IND PIC X.
-           02 C-REF PIC XXX.
-           02 C-IOPAT PIC X.
-           02 C-DATE-A PIC X(8).
-           02 C-DATE-T PIC X(8).
-           02 C-DATE-ADMIT PIC X(8).
-           02 C-ORDER PIC XXXX.
-           02 C-CLINICAL PIC X(38).
-           02 C-DOCP PIC XX.
-           02 C-ADMIT-DIAG PIC X(24).
-      * took 6 from above to create mods     
-           02 C-MODS PIC X(6).
-           02 C-DATE-E PIC X(8).
-           02 C-CPT PIC X(5).
+       FD  ORDFILE.
+           copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
 
        FD  ACTFILE
            DATA RECORD IS ACTFILE01.
@@ -667,6 +619,8 @@
        01  TEST-NAME.
            02 TN1 PIC X.
            02 TN14 PIC X(23).
+
+       01  AUTH-FLAG PIC X.     
 
        PROCEDURE DIVISION.
        0005-START.
@@ -1562,7 +1516,7 @@
                AND  (ALF-16-12 ALPHABETIC) 
                AND  (ALF-16-13 ALPHABETIC))            
                MOVE "268" TO A-SEINS
-		   END-IF
+		       END-IF
 
            IF A-PRINS = "076" AND A-SEINS = "076"
                MOVE "075" TO A-SEINS
@@ -1612,21 +1566,23 @@
                MOVE A-RELATE TO A-SE-RELATE
            END-IF
 
+      *    since receive auth in R2 instead of R3 $$ charge record 
+      *    might as well perform this somewhere in this paragraph
            PERFORM EA-1 THRU EA-1-EXIT.
            
            IF A-DOB(1:2) = "20" AND A-PRINS = "003"
                MOVE "19" TO A-DOB(1:2)
            END-IF
 
-		   IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
-		       MOVE "A" TO A-PR-ASSIGN
-		   END-IF
+		       IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
+		         MOVE "A" TO A-PR-ASSIGN
+		       END-IF
 
            IF A-SEINS = "268" AND A-SE-ASSIGN = "U"
-		       MOVE "A" TO A-SE-ASSIGN
-		   END-IF 
+		         MOVE "A" TO A-SE-ASSIGN
+		       END-IF 
 
-		   MOVE ACTFILE01 TO SAVEMASTER.
+		       MOVE ACTFILE01 TO SAVEMASTER.
            READ ACTFILE
              INVALID
                MOVE SAVEMASTER TO ACTFILE01
@@ -1646,6 +1602,9 @@
            END-READ
 
            IF FI-1 NOT = "$$"
+               IF AUTH-FLAG = 1
+                 WRITE EMAILAUTHFILE01
+               end-if  
                GO TO P1-1
            END-IF     
            
@@ -1658,10 +1617,14 @@
            MOVE R3-DATEDD TO A-DD
            MOVE R3-DATEYY TO A-YY
            MOVE 20 TO A-CC
-           MOVE A-DATE TO INPUT-DATE
+           MOVE A-DATE TO INPUT-DATE 
            MOVE CORR INPUT-DATE TO TEST-DATE
            MOVE CORR INPUT-DATE TO TEST-DATE
-           MOVE TEST-DATE TO C-DATE-T
+           MOVE TEST-DATE TO C-DATE-T 
+
+           IF AUTH-FLAG = 1
+             MOVE TEST-DATE TO EA-DATE-E.
+
            MOVE DATE-X TO C-DATE-E
            MOVE SPACE TO C-DATE-ADMIT
            STRING R1-ADMITYY R1-ADMITMM R1-ADMITDD DELIMITED
@@ -1726,8 +1689,11 @@
            MOVE R3-CLINICAL TO C-CLINICAL
            MOVE R2-DIAG TO C-ADMIT-DIAG
            MOVE R3-CPT TO C-CPT
+           MOVE R3-MOD1 TO C-MOD2
+           MOVE R3-MOD2 TO C-MOD3
+           MOVE R3-MOD3 TO C-MOD4
            STRING R3-MOD1 R3-MOD2 R3-MOD3 DELIMITED BY SIZE 
-               INTO C-MODS
+               INTO C-MOD2 
 
       *  new format which has hcpcs and a mod             
            IF R3-CPT = SPACE            
@@ -1757,17 +1723,18 @@
            ADD 1 TO XYZ
            MOVE XYZ TO ORD3
            GO TO B2.
+
        B3. 
            MOVE SAVEORD TO ORDFILE01
            MOVE XYZ TO ORD3
            WRITE ORDFILE01
            
            IF (R1-IP1 = "00931" OR "00932")
-           OR (A-PRINS = "075" OR "076" OR "095")
-           PERFORM WORK-COMP.
+             OR (A-PRINS = "075" OR "076" OR "095")
+             PERFORM WORK-COMP.
            
-           IF A-SEINS = "075" OR "076" OR"095"
-           PERFORM WORK-COMP2.
+           IF A-SEINS = "075" OR "076" OR "095"
+             PERFORM WORK-COMP2.
            
            GO TO B1.
 
@@ -1813,6 +1780,8 @@
            END-IF.
 
        EA-1.
+           MOVE 0 TO AUTH-FLAG
+
            IF R1-EMAIL = SPACE AND R1-AUTH = SPACE 
              AND R2-GUARSSN = SPACE GO TO EA-1-EXIT.
 
@@ -1820,7 +1789,8 @@
            
       *    position key at end     
            MOVE 999999 TO EA-KEY
-           START EMAILAUTHFILE KEY < EA-KEY INVALID
+           START EMAILAUTHFILE KEY < EA-KEY 
+             INVALID
                MOVE 999999 TO EA-KEY
                WRITE EMAILAUTHFILE01
            END-START
@@ -1835,10 +1805,15 @@
            MOVE R2-GUARSSN TO EA-SSN
            MOVE A-ACTNO TO EA-MEDREC
            MOVE A-GARNAME TO EA-NAME
-           ACCEPT EA-DATE-E FROM CENTURY-DATE
+      *     ACCEPT EA-DATE-E FROM CENTURY-DATE
+           
            MOVE R1-EMAIL TO EA-EMAIL
-           MOVE R1-AUTH TO EA-AUTH
-           WRITE EMAILAUTHFILE01.
+           
+           IF R1-AUTH NOT = space
+             MOVE R1-AUTH TO EA-AUTH
+             MOVE 1 TO AUTH-FLAG.
+      *    used to WRITE EMAILAUTHFILE01 here but now
+      *    wait till all charges are read and write once in B1.
 
        EA-1-EXIT.
            EXIT.

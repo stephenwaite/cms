@@ -356,7 +356,10 @@
                END-IF
 
                DISPLAY "Mod for 76882? RT, LT, or enter for none."
-               ACCEPT ANS                                  
+               ACCEPT ANS
+               IF NOT (ANS = "RT " OR "LT " OR "   ")
+                 display "BAD MOD, TRY AGAIN PLEASE"
+                 GO TO P1-0.                                 
                MOVE ANS TO CD-MOD2
            END-IF
 

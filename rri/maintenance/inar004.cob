@@ -105,10 +105,12 @@
            ALTERNATE RECORD KEY IS ADDR-STATE WITH DUPLICATES
            ALTERNATE RECORD KEY IS ADDR-ZIP WITH DUPLICATES
            LOCK MODE IS MANUAL.
+
            SELECT COMPFILE ASSIGN TO "S235" ORGANIZATION IS INDEXED
            ACCESS MODE DYNAMIC RECORD KEY IS COMP-KEY
            LOCK MODE MANUAL.
-           SELECT EMAILAUTHSSNFILE ASSIGN TO "S240"
+           
+           SELECT EMAILAUTHFILE ASSIGN TO "S240"
            ORGANIZATION IS INDEXED
            ACCESS MODE DYNAMIC RECORD KEY IS EA-KEY
            ALTERNATE RECORD KEY IS EA-MEDREC WITH DUPLICATES
@@ -117,44 +119,21 @@
            ALTERNATE RECORD KEY IS EA-AUTH WITH DUPLICATES
            ALTERNATE RECORD KEY IS EA-DATE-E WITH DUPLICATES
            ALTERNATE RECORD KEY IS EA-SSN WITH DUPLICATES
-           LOCK MODE MANUAL.
+           LOCK MODE MANUAL.          
             
        DATA DIVISION.
-       FILE SECTION.
-       FD  EMAILAUTHSSNFILE.
-       01  EMAILAUTHFSSNILE01.
-           02 EA-KEY PIC 9(6).
-           02 EA-MEDREC PIC X(8).
-           02 EA-NAME PIC X(24).
-           02 EA-EMAIL PIC X(30).
-           02 EA-AUTH PIC X(20).
-           02 EA-DATE-E PIC X(8).
-           02 EA-SSN PIC X(9).
 
-       FD COMPFILE.
-       01  COMPFILE01.
-           02 COMP-KEY.
-             03 COMP-MEDREC PIC X(8).
-             03 COMP-DATE   PIC X(8).
-             03 COMP-PROC PIC X(4).
-           02 COMP-NAME     PIC X(25).
-           02 COMP-CONTACT  PIC X(25).
-           02 COMP-ADDR1    PIC X(20).
-           02 COMP-ADDR2    PIC X(15).
-           02 COMP-CITY     PIC X(20).
-           02 COMP-STATE    PIC XX.
-           02 COMP-ZIP      PIC X(10).
-           02 COMP-PHONE    PIC X(12).
+       FILE SECTION.
+
+       FD  EMAILAUTHFILE.
+           copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".           
+
+       FD  COMPFILE.
+           copy compfile.cpy in "c:\users\sid\cms\copylib\rri".           
            
        FD  ADDRFILE.
-       01  ADDRFILE01.
-           02 ADDR-KEY PIC X(4). 
-           02 ADDR-NAME PIC X(22).
-           02 ADDR-STREET PIC X(24).
-           02 ADDR-CITY PIC X(15).
-           02 ADDR-STATE PIC XX.
-           02 ADDR-ZIP PIC X(9).
-           02 ADDR-FUTURE PIC X(6).
+           copy addrfile.cpy in "c:\users\sid\cms\copylib\rri".                 
+
        FD  TAGDIAG.
        01  TAGDIAG01.
            02 TAG-KEY.
@@ -168,44 +147,19 @@
        01  FILEOUT01 PIC X(40).
 
        FD  RPGPROCFILE.
-       01  RPGPROCFILE01.
-	       02 RPGPROC-KEY.
-	         03 RPGPROC-KEY1 PIC X(7).
-	         03 RPGPROC-KEY2 PIC X(4).
-	       02 RPGPROC-TYPE PIC X.
-	       02 RPGPROC-TITLE. 
-	         03 RPG-NT1 PIC X(4).
-	         03 RPG-NT2 PIC X(24).
-	       02 RPGPROC-AMOUNT PIC 9(4)V99.
+           COPY rpgprocfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
 
        FD  MPLRFILE.
            COPY mplrfile.CPY IN "C:\Users\sid\cms\copylib".           
           
-       FD  AUTHFILE
-           BLOCK CONTAINS 6 RECORDS
-           DATA RECORD IS AUTHFILE01.
-       01  AUTHFILE01.
-           02 AUTH-KEY.
-              03 AUTH-KEY8 PIC X(8).
-              03 AUTH-KEY6 PIC X(6).
-           02 AUTH-NUM PIC X(15).
-           02 AUTH-QNTY PIC XX.
-           02 AUTH-DATE-E PIC X(8).
-           02 AUTH-FILLER PIC XXX.
+       FD  AUTHFILE.
+           COPY authfile.CPY IN "C:\Users\sid\cms\copylib".           
 
        FD  INSFILE.
-           COPY insfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY insfile.CPY IN "C:\Users\sid\cms\copylib".      
       
-       FD GAPFILE.
-       01 GAPFILE01.
-           02 GAPKEY PIC X(7).
-           02 GAP-NAME PIC X(25).
-           02 GAP-ADDR PIC X(22).
-           02 GAP-CITY PIC X(15).
-           02 GAP-STATE PIC XX.
-           02 GAP-ZIP PIC X(9).
-           02 GAP-TYPE PIC X.
-           02 GAP-FUTURE PIC X(40).
+       FD  GAPFILE.
+           COPY gapfile.CPY IN "C:\Users\sid\cms\copylib".           
 
        FD  DOCPARM
            DATA RECORD IS DOCPARM01.
@@ -265,6 +219,7 @@
            02 PC-DATE-T PIC X(8).
            02 PC-DATE-E PIC X(8).
            02 PC-BATCH PIC X(6).
+
        FD GARFILE.
            COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
 
@@ -355,34 +310,41 @@
                 06 FILLER PIC X.
                05 FILLER PIC X.
               04  FILLER              PIC X(5).
-       01 IN-FIELD-TAB01 REDEFINES IN-FIELD.
+
+       01  IN-FIELD-TAB01 REDEFINES IN-FIELD.
            02 IN-FIELD-TAB PIC X OCCURS 15 TIMES.
       
-       01 LEN-TAB01-RE.
+       01  LEN-TAB01-RE.
            02 FILLER PIC X(14) VALUE "11240703020608".
+
         01 LEN-TAB01 REDEFINES LEN-TAB01-RE.
            02 LEN-TAB   PIC 99 OCCURS 7 TIMES.
+
        01  Q           PIC 99 VALUE ZERO.
+
       * HOLDS THE POSITION OF A FIELD WITHIN IT'S DATA SET
        01  GD-CONSTANT.
            05  DES-CONSTANT.
                10 FIL PIC X(24) VALUE "GARNO   NAME    AMOUNT  ".
                10 FIL PIC X(24) VALUE "PAYCODE DENIAL  CLAIM   ".
                10 FIL PIC X(8) VALUE "DATE    ".
+
        01  GD-TABLE REDEFINES GD-CONSTANT.
            05 DESC-FLD OCCURS 7 TIMES INDEXED BY INDX.
                10 DES-KEY  PIC X(8).
        
        01  ADD-FIELD-CONS.
              06 FILLER PIC X(12) VALUE "010304050706".
+
        01  ADD-FIELD-TABLE REDEFINES ADD-FIELD-CONS.
              06 ADD-FLD PIC 99 OCCURS 6 TIMES INDEXED BY ADD-KEY.
        
-       01 CCLEN-TAB01-RE.
+       01  CCLEN-TAB01-RE.
            02 FILLER PIC X(30) VALUE "110806010707060302030102080602".
            02 FILLER PIC X(24) VALUE "240108010106010107070801".
            02 FILLER PIC X(16) VALUE "0108020201010702".
-       01 CCLEN-TAB01 REDEFINES CCLEN-TAB01-RE.
+
+       01  CCLEN-TAB01 REDEFINES CCLEN-TAB01-RE.
            10 CCLEN-TAB   PIC 99 OCCURS 35 TIMES.
        01  CCDES-CONSTANT.
                10 FILLER PIC X(24) VALUE "REC NO  PATNO   CLAIM   ".
@@ -515,26 +477,31 @@
        01     XX USAGE INDEX.
        01     YY USAGE INDEX.
        01  ZZ USAGE IS INDEX.
-       01     LINE-CNTR PIC 999.
-       01     NUMBER-OF-FIELDS PIC 99.
-       01     FLAG   PIC 9.
-       01     RETURN-FLAG   PIC 9.
-       01     WORK1  PIC X(20) JUST RIGHT.
-       01     LOW-NUM-X  PIC XX JUST RIGHT.
-       01     HIGH-NUM-X PIC XX JUST RIGHT.
-       01     LOW-NUM    PIC 99.
-       01     HIGH-NUM   PIC 99.
-       01     TOTAL-LENGTH  PIC 999.
-       01     CHAR-COUNTER PIC 99 VALUE ZERO.
+       01  LINE-CNTR PIC 999.
+       01  NUMBER-OF-FIELDS PIC 99.
+       01  FLAG   PIC 9.
+       01  RETURN-FLAG   PIC 9.
+       01  WORK1  PIC X(20) JUST RIGHT.
+       01  LOW-NUM-X  PIC XX JUST RIGHT.
+       01  HIGH-NUM-X PIC XX JUST RIGHT.
+       01  LOW-NUM    PIC 99.
+       01  HIGH-NUM   PIC 99.
+       01  TOTAL-LENGTH  PIC 999.
+       01  CHAR-COUNTER PIC 99 VALUE ZERO.
+
        01  ORDER-8.
            02 ORDER-6 PIC X(6).
            02 FILLER PIC XX.
+
        01 TEMP-FIELD01.
            02 TEMP-FIELD  PIC X  OCCURS 80 TIMES.
+
        01 DISPLAY-FIELD01.
            02 DISPLAY-FIELD PIC 99 OCCURS 7 TIMES.
+
        01  LAST-TAB01.
            02 LAST-TAB PIC X(8) OCCURS 9 TIMES.
+
        01  LAST-PAT01.
            02 LAST-PAT PIC X(8) OCCURS 9 TIMES.
        01  LAST-CLAIM01.
@@ -549,19 +516,26 @@
        01  DR PIC S9 VALUE -1.
        01  TOT-CLAIM PIC S9(5)V99.
        01  FLAGX PIC 9 VALUE 0.
-       01 LLTAB2401.
+       01  LLTAB2401.
            02 LLTAB24 PIC X OCCURS 24 TIMES.
-       01 FFTAB1001.
+
+       01  FFTAB1001.
            02 FFTAB10 PIC X OCCURS 10 TIMES.
+
        01  FF USAGE IS INDEX.
-       01 LL USAGE IS INDEX.
-       01 XLLTAB2401.
+       01  LL USAGE IS INDEX.
+
+       01  XLLTAB2401.
            02 XLLTAB24 PIC X OCCURS 24 TIMES.
-       01 XFFTAB1001.
+
+       01  XFFTAB1001.
            02 XFFTAB10 PIC X OCCURS 10 TIMES.
-       01 YYY PIC 9999.
-       01 X-AMOUNT PIC S9(4)V99.
-       01 CM PIC 9 VALUE 1.
+
+       01  YYY PIC 9999.
+
+       01  X-AMOUNT PIC S9(4)V99.
+
+       01  CM PIC 9 VALUE 1.
        01  TOT-ASSIGNED PIC S9(6)V99.
        01  TOT-UNASSIGNED PIC S9(6)V99.
        01  ALF-1-1 PIC X.
@@ -574,11 +548,12 @@
        01     PART11.
              03 PART8 PIC X(8).
              03 FILLER PIC XXX.
-       01 GARPAT1 PIC 9 VALUE 0.
-       01 CHAR1 PIC 9 VALUE 0.
-       01 PB1 PIC 9 VALUE 0.
-       01 DP PIC S9 VALUE 1.
-       01 IP PIC 9 VALUE 1.
+
+       01  GARPAT1 PIC 9 VALUE 0.
+       01  CHAR1 PIC 9 VALUE 0.
+       01  PB1 PIC 9 VALUE 0.
+       01  DP PIC S9 VALUE 1.
+       01  IP PIC 9 VALUE 1.
        01  CURRENT-BATCH PIC X(8) VALUE "00000000".
        01  CBN PIC X(10).
        01  KEYFLAG PIC 9.
@@ -615,6 +590,9 @@
            02 RATETAB02 OCCURS 15 TIMES.
              03 RATE-PC PIC 99. 
              03 RATE-NAME PIC X(22).
+
+       01  HOLD-AUTH PIC X(20). 
+       01  HOLD-AUTH-DATE PIC X(8).
 
        PROCEDURE DIVISION.
        0005-START.
@@ -659,7 +637,7 @@
            OPEN INPUT CHARCUR.
            OPEN INPUT AUTHFILE.
            OPEN OUTPUT FILEOUT
-           OPEN INPUT GARFILE TAGDIAG EMAILAUTHSSNFILE.
+           OPEN INPUT GARFILE TAGDIAG EMAILAUTHFILE.
            OPEN INPUT CMNTFILE.
            OPEN INPUT PATFILE.
            OPEN INPUT CHARFILE.
@@ -3655,7 +3633,7 @@
              GO TO CC-2000TI.
 
            IF IN-FIELD-8 = "T"
-             ACCEPT CC-DATE-A FROM YYYYMMDD
+             ACCEPT CC-DATE-A FROM date YYYYMMDD
              GO TO 4900CPC
            END-IF
 
@@ -3712,6 +3690,7 @@
            IF IN-FIELD = "A" OR "U"
            MOVE IN-FIELD-1 TO CC-ASSIGN GO TO 4900CPC.
            DISPLAY "INVALID" GO TO CC-2000TI.
+
        CC-2-NEIC-ASSIGN.
            IF IN-FIELD = "?"
            DISPLAY "A=ASSIGNED U=UNASSIGNED  FOR INSURANCE ASSIGNMENT"
@@ -3719,6 +3698,7 @@
            IF IN-FIELD = "A" OR "U"
            MOVE IN-FIELD-1 TO CC-NEIC-ASSIGN GO TO 4900CPC.
            DISPLAY "INVALID" GO TO CC-2000TI.
+
        CC-2-ACC-TYPE.
            IF IN-FIELD = "?"
            DISPLAY "<CR> = NOT AN ACCIDENT 1=EMPLOYM. 2=CAR 3=OTHER"
@@ -3726,6 +3706,7 @@
            IF IN-FIELD = SPACE OR "1" OR "2" OR "3" MOVE IN-FIELD-1
            TO CC-ACC-TYPE GO TO 4900CPC.
            DISPLAY "INVALID" GO TO CC-2000TI.
+
        CC-2-ADMIT.
            IF IN-FIELD = "?"
            DISPLAY "ENTER THE HOSPITAL ADMIT DATE"
@@ -3744,31 +3725,39 @@
            IF T-DATE < CC-DATE-M DISPLAY "FUTURE DATE" BELL0
            GO TO CC-2000TI.
            GO TO 4900CPC.
+
        CC-2-AUTH.
 
            IF IN-FIELD = "?"
-           DISPLAY "1 = ADD A NEW AUTH. NUMBER"
-           DISPLAY "2 = REVISE A AUTH. NUMBER"
-           DISPLAY "3 = UNSET(BLANK OUT) AUTH. NUMBER"
-           DISPLAY "4 = ADD A NEW NDC NUMBER"
-           DISPLAY "5 = REVISE AN NDC NUMBER"
-           DISPLAY "6 = UNSET(BLANK OUT) AN NDC NUMBER"
-           DISPLAY "X  = NO ACTION TAKEN"
-           GO TO CC-2000TI.
+             DISPLAY "1 = ADD A NEW AUTH. NUMBER"
+             DISPLAY "2 = REVISE A AUTH. NUMBER"
+             DISPLAY "3 = UNSET(BLANK OUT) AUTH. NUMBER"
+             DISPLAY "4 = ADD A NEW NDC NUMBER"
+             DISPLAY "5 = REVISE AN NDC NUMBER"
+             DISPLAY "6 = UNSET(BLANK OUT) AN NDC NUMBER"
+             DISPLAY "X  = NO ACTION TAKEN"
+             GO TO CC-2000TI.
+
            IF IN-FIELD = "X" GO TO 4900DEE.
+
            IF NOT (IN-FIELD-2 = "1 " OR "2 " OR "3 " OR "4 "
-                   OR "5 " OR "6 ")
-               DISPLAY "INVALID"
-               GO TO CC-2000TI.
+             OR "5 " OR "6 ")
+             DISPLAY "INVALID"
+             GO TO CC-2000TI.
+           
            MOVE 0 TO FLAG 
       *     MOVE CD-AUTH TO ALF-1
+           
            PERFORM AUTH-1 THRU AUTH-1-EXIT
+           
            GO TO 4900CPC.
 
        4900CPC.
            GO TO 1400CPC.
+
        4910CPC.
            EXIT.
+
        5000-WRITE-CHARCUR.
            IF CC-ASSIGN = "S" OR CC-NEIC-ASSIGN = "S"
                DISPLAY "SET THE ASSIGNMENT FIELDS TO A OR U"
@@ -4152,36 +4141,56 @@
            MOVE "CITY    " TO ALF-8
            START INSFILE KEY NOT < INS-CITY INVALID 
            GO TO INS-1-END.
-       INS-4. READ INSFILE NEXT AT END DISPLAY "END OF FILE"
-           GO TO INS-1-EXIT.
+
+       INS-4. 
+           READ INSFILE NEXT AT END DISPLAY "END OF FILE"
+             GO TO INS-1-EXIT.
+           
            DISPLAY INS-KEY " " INS-NAME " " INS-ASSIGN " " INS-CLAIMTYPE
-           " " INS-NEIC " " INS-NEIC-ASSIGN
-           " " INS-STATUS " " INS-CITY " " INS-STREET
+             " " INS-NEIC " " INS-NEIC-ASSIGN
+             " " INS-STATUS " " INS-CITY " " INS-STREET
+           
            ADD 1 TO X
-           IF X > 8 MOVE 0 TO X DISPLAY "BY " ALF-8 ACCEPT ANS
-           IF ANS NOT = SPACE GO TO INS-1-EXIT.
+           
+           IF X > 8 
+             MOVE 0 TO X 
+             DISPLAY "BY " ALF-8 
+             ACCEPT ANS
+             IF ANS NOT = SPACE 
+               GO TO INS-1-EXIT.
+           
            GO TO INS-4.
-       INS-1-END. DISPLAY "END OF FILE".
-       INS-1-EXIT. EXIT.
+
+       INS-1-END. 
+           DISPLAY "END OF FILE".
+
+       INS-1-EXIT. 
+           EXIT.
 
        READ-AUTH-CD.
            MOVE CD-KEY8 TO AUTH-KEY8
            MOVE CD-CLAIM TO AUTH-KEY6
            READ AUTHFILE INVALID MOVE 1 TO FLAG
            MOVE SPACE TO AUTH-NUM.
+
        READ-AUTH.
            MOVE CC-KEY8 TO AUTH-KEY8
            MOVE CC-CLAIM TO AUTH-KEY6
            READ AUTHFILE INVALID MOVE 1 TO FLAG
            MOVE SPACE TO AUTH-NUM.
+
        AUTH-1.
            MOVE CC-KEY8 TO AUTH-KEY8
            MOVE CC-CLAIM TO AUTH-KEY6
-           READ AUTHFILE INVALID GO TO AUTH-2.
-           DISPLAY "CURRENT NUMBER = " AUTH-NUM
+           READ AUTHFILE 
+             INVALID 
+               GO TO AUTH-2.
 
-           IF IN-FIELD-2 = "4 "
-               MOVE "1" TO ALF-1
+           DISPLAY "CURRENT AUTH = " AUTH-NUM
+
+           IF IN-FIELD-2 = "4 " OR "5 " OR "6 "
+               MOVE "0" TO ALF-1
+               DISPLAY "NOT HANDLING NDC FOR RRI YET."
                GO TO AUTH-1-EXIT
            END-IF
            
@@ -4193,33 +4202,45 @@
            END-IF
 
            MOVE 2 TO FLAG.
-       AUTH-2. 
-           IF IN-FIELD-2 = "4 " 
-               DISPLAY "AUTHORIZATION MISSING!"
-               MOVE "0" TO ALF-1
-               GO TO AUTH-1-EXIT
-           END-IF
 
-           DISPLAY "AUTHORIZATION NUMBER"
-           ACCEPT ALF-15
-           
-           IF ALF-15 = "?" 
+       AUTH-2.            
+           DISPLAY "LOOK FOR AUTH IN RRMC'S AUTHFILE? Y FOR YES."
+           ACCEPT ANS
+           IF ANS = "Y"
+             PERFORM LOOK-AUTH THRU LOOK-AUTH-EXIT  
+             if hold-auth = space
+               display "NO AUTH FOUND OR SELECTED"
+             else 
+               DISPLAY "ACCEPT AUTH " HOLD-AUTH " ON " HOLD-AUTH-DATE
+                 "? Y FOR YES."
+               IF ANS = "Y"
+                 MOVE "1" TO CC-AUTH
+                 MOVE HOLD-AUTH TO AUTH-NUM
+                 MOVE HOLD-AUTH-DATE TO AUTH-DATE-E
+               end-if
+             end-if      
+           else
+             DISPLAY "ENTER AUTHORIZATION NUMBER"
+             ACCEPT ALF-15                            
+             IF ALF-15 = "?" 
                DISPLAY "ENTER THE PRIOR AUTHORIZATION OR <CR>"
                GO TO AUTH-2
-           END-IF
+             END-IF
 
-           IF ALF-15 = SPACE OR "BK" OR "X"
-                    MOVE 0 TO FLAG
-                    GO TO AUTH-1-EXIT
-           END-IF
+             IF ALF-15 = SPACE OR "BK" OR "X"
+               MOVE 0 TO FLAG
+               GO TO AUTH-1-EXIT
+             END-IF
            
-           IF ALF-15 = "Y" OR "N"
-                    DISPLAY "INVALID"
-                    GO TO AUTH-2
-           END-IF
+             IF ALF-15 = "Y" OR "N"
+               DISPLAY "INVALID"
+               GO TO AUTH-2
+             END-IF
            
-           MOVE "1" TO CC-AUTH
-           MOVE ALF-15 TO AUTH-NUM
+             MOVE "1" TO CC-AUTH
+             MOVE ALF-15 TO AUTH-NUM
+             MOVE CC-DATE-T TO AUTH-DATE-E
+           end-if  
            
            IF FLAG = 2
                MOVE AUTHFILE01 TO AUTHFILE-BACK
@@ -4229,10 +4250,11 @@
            
            MOVE "01" TO AUTH-QNTY
            MOVE SPACE TO AUTH-FILLER
-           ACCEPT AUTH-DATE-E FROM CENTURY-DATE
            MOVE AUTHFILE01 TO AUTHFILE-BACK
            PERFORM WRITE-AU THRU WRITE-AU-EXIT.
-       AUTH-1-EXIT. EXIT.
+
+       AUTH-1-EXIT. 
+           EXIT.
 
 
        10-PR. 
@@ -4404,11 +4426,12 @@
            UNSTRING DATAIN(4:8) DELIMITED BY " " INTO RIGHT-8.
            INSPECT RIGHT-8 REPLACING LEADING " " BY "0"
            MOVE RIGHT-8 TO EA-MEDREC
-           START EMAILAUTHSSNFILE KEY NOT > EA-MEDREC
+           START EMAILAUTHFILE KEY NOT > EA-MEDREC
            INVALID DISPLAY "NO RECORDS" GO TO LM-1-EXIT.
            MOVE 0 TO X.
+
        LM-2.
-           READ EMAILAUTHSSNFILE PREVIOUS AT END GO TO LM-1-EXIT.
+           READ EMAILAUTHFILE PREVIOUS AT END GO TO LM-1-EXIT.
            IF EA-MEDREC NOT = RIGHT-8 GO TO LM-1-EXIT.
            DISPLAY EA-NAME  " " EA-DATE-E(5:2) "/" EA-DATE-E (7:2)
                             "/" EA-DATE-E(1:4)
@@ -4703,10 +4726,58 @@
        RE-WRITE-AU-EXIT.
            EXIT.
 
+       LOOK-AUTH.
+           MOVE SPACE TO HOLD-AUTH
+           MOVE CC-KEY8 TO G-GARNO
+           READ GARFILE
+             invalid
+               DISPLAY "NO GARNO FOR THIS CHARGE? TROUBLING INDEED."
+               GO TO LOOK-AUTH-EXIT.
+
+           move g-acct to ea-medrec
+           start emailauthfile key not > ea-medrec
+             invalid
+               display "NO RECORDS"
+             not invalid
+               perform emailauth-1 thru emailauth-exit
+           end-start.
+
+       LOOK-AUTH-EXIT.
+           EXIT.       
+
+       emailauth-1.           
+           read emailauthfile previous
+             at end
+               go to emailauth-exit.    
+
+           if ea-medrec not = g-acct
+             go to emailauth-exit.
+
+      *     display EMAILAUTHFILE01
+
+           if ea-auth = space
+             go to emailauth-1.  
+
+           if ea-date-e = cc-date-t
+             move ea-auth TO HOLD-AUTH
+             go to emailauth-exit.
+
+           display "ACCEPT " ea-auth " for AUTH DATE " ea-date-e"?"
+           accept ans 
+           if ans = "Y" 
+             move ea-auth to HOLD-AUTH
+             move ea-date-e to HOLD-AUTH-DATE
+             go to emailauth-exit.
+
+           go to emailauth-1.     
+
+       emailauth-exit.
+           exit.                 
+
        9100-CLOSE-MASTER-FILE.
            CLOSE PAYFILE CHARCUR AUTHFILE
            CLOSE FILEOUT GARFILE TAGDIAG
-           CLOSE EMAILAUTHSSNFILE CMNTFILE
+           CLOSE EMAILAUTHFILE CMNTFILE
            CLOSE PATFILE CHARFILE PAYCUR
            CLOSE PROCFILE DIAGFILE GAPFILE
            CLOSE INSFILE MPLRFILE COMPFILE 

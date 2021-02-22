@@ -33,6 +33,7 @@
            02 CC-PLACE PIC X.
            02 CC-EPSDT PIC X.
            02 CC-DATE-T PIC X(8).
+      *    claim age date     
            02 CC-DATE-A PIC X(8).
            02 CC-DATE-P PIC X(8).
            02 CC-REC-STAT PIC X.
