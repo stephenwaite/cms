@@ -153,22 +153,27 @@
            
            MOVE SPACE TO RIGHT-2 ALF11X
 
-           UNSTRING ALF11(1:2) DELIMITED BY " " INTO RIGHT-2
-           INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
-           
-           IF RIGHT-2 NOT NUMERIC
-             DISPLAY RIGHT-2 " IS A BAD SELECTION FROM THE LIST"
-               GO TO DEL-1
-           END-IF
+           if alf11(1:10) not = space
+             move alf11(1:10) to cci-key
+           else
+             UNSTRING ALF11(1:2) DELIMITED BY " " INTO RIGHT-2
+             INSPECT RIGHT-2 REPLACING LEADING " " BY "0"
+             
+             IF RIGHT-2 NOT NUMERIC
+               DISPLAY RIGHT-2 " IS A BAD SELECTION FROM THE LIST"
+                 GO TO DEL-1
+             END-IF
 
-           MOVE RIGHT-2 TO NUM2
-           MOVE CCI-TAB(NUM2) TO CCI-KEY
-           DISPLAY CCIFILE01
+             MOVE RIGHT-2 TO NUM2
+             MOVE CCI-TAB(NUM2) TO CCI-KEY
+           end-if
            
            READ CCIFILE INVALID
                DISPLAY " NO SUCH RECORD"
                GO TO DEL-1
            END-READ
+
+           DISPLAY CCI-KEY1 " " CCI-KEY2 " " CCI-IND
 
            DISPLAY "OKAY TO DELETE Y,N?"
            ACCEPT ANS

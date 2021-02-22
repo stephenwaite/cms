@@ -53,16 +53,20 @@
            SELECT CHARFILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS CHARFILE-KEY
            LOCK MODE MANUAL.
+
            SELECT CMNTFILE ASSIGN TO "S65" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS CMNT-KEY
            LOCK MODE MANUAL.
+
            SELECT DIAGFILE ASSIGN TO "S70" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS DIAG-KEY
            ALTERNATE RECORD KEY IS DIAG-TITLE WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT PROCFILE ASSIGN TO "S75" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS PROC-KEY
            LOCK MODE MANUAL.
+
            SELECT REFPHY ASSIGN TO "S80" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC  RECORD KEY IS REF-KEY
            ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
@@ -81,10 +85,11 @@
            ALTERNATE RECORD KEY IS GAP-CITY WITH DUPLICATES
            ALTERNATE RECORD KEY IS GAP-STATE WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT AUTHFILE ASSIGN TO "S190" ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC RECORD KEY IS AUTH-KEY
-           LOCK MODE MANUAL
-           STATUS IS AUTHFILE-STAT.
+             ACCESS IS DYNAMIC RECORD KEY IS AUTH-KEY
+             LOCK MODE MANUAL
+             STATUS IS AUTHFILE-STAT.
            
            SELECT RPGPROCFILE ASSIGN TO "S160" ORGANIZATION INDEXED
                ACCESS IS DYNAMIC RECORD KEY IS RPGPROC-KEY
@@ -4183,8 +4188,11 @@
            MOVE CC-KEY8 TO AUTH-KEY8
            MOVE CC-CLAIM TO AUTH-KEY6
            READ AUTHFILE 
-             INVALID 
-               GO TO AUTH-2.
+             INVALID             
+               MOVE 0 TO FLAG 
+               GO TO AUTH-2
+             NOT invalid
+               MOVE 1 TO FLAG.
 
            DISPLAY "CURRENT AUTH = " AUTH-NUM
 
@@ -4194,68 +4202,91 @@
                GO TO AUTH-1-EXIT
            END-IF
            
-           DISPLAY "CHANGE? YES "
-           ACCEPT IN-FIELD-3
-           
-           IF IN-FIELD NOT = "YES"
+           IF IN-FIELD-2 = "2 "
+             DISPLAY "CHANGE? Y "
+             ACCEPT ANS
+
+             IF ANS NOT = "Y"
                GO TO AUTH-1-EXIT
-           END-IF
+             END-IF
 
-           MOVE 2 TO FLAG.
+             MOVE 2 TO FLAG
+           end-if.  
 
-       AUTH-2.            
-           DISPLAY "LOOK FOR AUTH IN RRMC'S AUTHFILE? Y FOR YES."
-           ACCEPT ANS
-           IF ANS = "Y"
-             PERFORM LOOK-AUTH THRU LOOK-AUTH-EXIT  
-             if hold-auth = space
-               display "NO AUTH FOUND OR SELECTED"
-             else 
-               DISPLAY "ACCEPT AUTH " HOLD-AUTH " ON " HOLD-AUTH-DATE
-                 "? Y FOR YES."
-               IF ANS = "Y"
+       AUTH-2.
+           DISPLAY AUTHFILE01
+
+           IF IN-FIELD-2 = "3 "
+             DISPLAY "BLANK OUT, Y?"
+             ACCEPT ANS
+
+             IF ANS NOT = "Y"
+               GO TO AUTH-1-EXIT
+             END-IF
+
+             MOVE 3 TO FLAG
+           end-if
+
+           IF IN-FIELD-2 NOT = "3 "
+             DISPLAY "LOOK FOR AUTH IN RRMC'S AUTHFILE, Y?"
+             ACCEPT ANS
+             IF ANS = "Y"
+               PERFORM LOOK-AUTH THRU LOOK-AUTH-EXIT  
+               if hold-auth = space
+                 display "NO AUTH FOUND OR SELECTED"
+               else 
                  MOVE "1" TO CC-AUTH
                  MOVE HOLD-AUTH TO AUTH-NUM
                  MOVE HOLD-AUTH-DATE TO AUTH-DATE-E
                end-if
-             end-if      
-           else
-             DISPLAY "ENTER AUTHORIZATION NUMBER"
-             ACCEPT ALF-15                            
-             IF ALF-15 = "?" 
-               DISPLAY "ENTER THE PRIOR AUTHORIZATION OR <CR>"
-               GO TO AUTH-2
-             END-IF
+             else
+               DISPLAY "ENTER AUTHORIZATION NUMBER"
+               ACCEPT ALF-15                            
+               IF ALF-15 = "?" 
+                 DISPLAY "ENTER THE PRIOR AUTHORIZATION OR <CR>"
+                 GO TO AUTH-2
+               END-IF
 
-             IF ALF-15 = SPACE OR "BK" OR "X"
-               MOVE 0 TO FLAG
-               GO TO AUTH-1-EXIT
-             END-IF
+               IF ALF-15 = SPACE OR "BK" OR "X"
+                 MOVE 0 TO FLAG
+                 GO TO AUTH-1-EXIT
+               END-IF
+             
+               IF ALF-15 = "Y" OR "N"
+                 DISPLAY "INVALID"
+                 GO TO AUTH-2
+               END-IF
+             
+               MOVE "1" TO CC-AUTH
+               MOVE ALF-15 TO AUTH-NUM
+               MOVE CC-DATE-T TO AUTH-DATE-E
+             end-if  
+           end-if    
            
-             IF ALF-15 = "Y" OR "N"
-               DISPLAY "INVALID"
-               GO TO AUTH-2
-             END-IF
-           
-             MOVE "1" TO CC-AUTH
-             MOVE ALF-15 TO AUTH-NUM
-             MOVE CC-DATE-T TO AUTH-DATE-E
-           end-if  
-           
-           IF FLAG = 2
+           IF FLAG = 1 OR 2
+               DISPLAY AUTHFILE01
                MOVE AUTHFILE01 TO AUTHFILE-BACK
                PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
                GO TO AUTH-1-EXIT
            END-IF
            
-           MOVE "01" TO AUTH-QNTY
-           MOVE SPACE TO AUTH-FILLER
-           MOVE AUTHFILE01 TO AUTHFILE-BACK
-           PERFORM WRITE-AU THRU WRITE-AU-EXIT.
+           IF FLAG = 3
+              MOVE SPACE TO CC-AUTH
+              MOVE SPACE TO AUTH-NUM AUTH-QNTY AUTH-DATE-E AUTH-FILLER
+              MOVE AUTHFILE01 TO AUTHFILE-BACK
+              PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
+              GO TO AUTH-1-EXIT
+           end-if   
+
+           IF FLAG = 0
+             MOVE "01" TO AUTH-QNTY
+             MOVE SPACE TO AUTH-FILLER
+             MOVE AUTHFILE01 TO AUTHFILE-BACK
+             PERFORM WRITE-AU THRU WRITE-AU-EXIT
+           end-IF.  
 
        AUTH-1-EXIT. 
            EXIT.
-
 
        10-PR. 
            MOVE CC-KEY8 TO G-GARNO
@@ -4762,7 +4793,8 @@
              move ea-auth TO HOLD-AUTH
              go to emailauth-exit.
 
-           display "ACCEPT " ea-auth " for AUTH DATE " ea-date-e"?"
+           display "ACCEPT " ea-auth " for AUTH DATE " ea-date-e
+           "? Y FOR YES"
            accept ans 
            if ans = "Y" 
              move ea-auth to HOLD-AUTH
