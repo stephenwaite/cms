@@ -13,7 +13,7 @@
 
            SELECT FILEIN ASSIGN TO "S30"
            ORGANIZATION LINE SEQUENTIAL.
-           
+
            SELECT FILEOUT ASSIGN TO "S35"
            ORGANIZATION LINE SEQUENTIAL.
 
@@ -26,18 +26,18 @@
 
        DATA DIVISION.
        FILE SECTION.
-       
+
        FD  ERRFILE.
        01  ERRFILE01 PIC X(90).
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(1070).
-       
+
        FD  FILEIN.
        01  FILEIN01.
            02 FI-1 PIC XX.
            02 FI-2 PIC X(1068).
-      
+
        FD  PROCFILE
            DATA RECORD PROCFILE01.
        01  PROCFILE01.
@@ -48,7 +48,7 @@
            02 PROC-TYPE PIC X.
            02 PROC-TITLE PIC X(28).
            02 PROC-AMOUNT PIC 9(4)V99.
-       
+
        WORKING-STORAGE SECTION.
 
        01  REC101.
@@ -62,7 +62,7 @@
            02 R1-PATCITY PIC X(25).
            02 R1-PATSTATE PIC XX.
            02 R1-PATZIP PIC X(10).
-           02 R1-ADMIT. 
+           02 R1-ADMIT.
              03 R1-ADMITMM PIC XX.
              03 FILLER PIC X.
              03 R1-ADMITDD PIC XX.
@@ -209,7 +209,7 @@
              03 R2-DOBDD PIC XX.
              03 R2-DOBYY PIC XX.
            02 R2-DISCHARGE PIC X(6).
-    
+
        01  REC301.
            02 R3-1 PIC XX.
            02 R3-IND PIC XXX.
@@ -218,36 +218,36 @@
            02 R3-PROC.
              03 R3-PROC1 PIC X.
              03 FILLER PIC XXX.
-           02 R3-DATE. 
+           02 R3-DATE.
               03 R3-DATEMM PIC XX.
               03 R3-DATEDD PIC XX.
               03 R3-DATEYY PIC XX.
            02 R3-UNIT PIC XXX.
-      * col 22     
+      * col 22
            02 R3-CLINICAL PIC X(40).
            02 FILLER PIC X(24).
-      * col 86     
+      * col 86
            02 R3-PLACE PIC X(4).
            02 R3-DOCP PIC X(4).
            02 R3-DOCPFILLER PIC X(18).
-      * col 112     
+      * col 112
            02 R3-CPT PIC X(5).
            02 FILLER PIC X(3).
-      * col 120     
+      * col 120
            02 R3-HCPCS PIC X(5).
            02 FILLER PIC X(3).
-      * col 128     
+      * col 128
            02 R3-MOD1 PIC X(2).
            02 FILLER PIC X.
-      * col 131     
+      * col 131
            02 R3-MOD2 PIC X(2).
            02 FILLER PIC X.
       * col 134
            02 R3-MOD3 PIC X(2).
            02 FILLER PIC X(5).
-      * col 141     
+      * col 141
            02 R3-OBSERV PIC X(25).
-      * col 166     
+      * col 166
            02 FILLER PIC X(15).
       * col 181
            02 R3-LOCO PIC X(4).
@@ -255,7 +255,7 @@
        01  ANS PIC X.
        01  HOLDNAME PIC X(15).
        01  ALF13 PIC X(13).
-       01  ALF20 PIC X(20).  
+       01  ALF20 PIC X(20).
        01  MEDREC PIC X(6).
        01  BILAT-FLAG PIC X.
 
@@ -274,7 +274,7 @@
 
            IF FI-1 = "##"
                MOVE FILEIN01(10:15) TO HOLDNAME
-           END-IF    
+           END-IF
 
            IF FI-1 = "##"
                MOVE FILEIN01 TO REC101
@@ -295,42 +295,42 @@
 
            if r3-cpt not = space and r3-hcpcs not = space
              move space to ERRFILE01
-             STRING "for " MEDREC " rrmc sent us both a hcpcs " 
-               R3-hcpcs " AND a cpt " R3-CPT " with mod " R3-MOD1 
+             STRING "for " MEDREC " rrmc sent us both a hcpcs "
+               R3-hcpcs " AND a cpt " R3-CPT " with mod " R3-MOD1
                " for DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01
              WRITE ERRFILE01
-           end-if  
+           end-if
 
            MOVE R3-PROC TO PROC-KEY1
-           
+
            IF R3-CPT = SPACE
                MOVE R3-HCPCS TO PROC-KEY2
            ELSE
-               MOVE R3-CPT TO PROC-KEY2    
-           END-IF  
+               MOVE R3-CPT TO PROC-KEY2
+           END-IF
 
            MOVE "26" TO PROC-KEY3.
 
-       P2.               
+       P2.
            READ PROCFILE
              INVALID
                MOVE "  " TO PROC-KEY3
                READ PROCFILE
                  INVALID
                    GO TO BAD-1
-               END-READ    
-           END-READ                      
-           
+               END-READ
+           END-READ
+
            IF PROC-AMOUNT = 0
                AND R3-GLC NOT = 0
                GO TO BAD-2
-           END-IF                
+           END-IF
 
            IF ((R3-PROC = "1284" or "1285") AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1")
              MOVE SPACE TO ERRFILE01
-             STRING "DELETING REDUNDANT BILAT KNEE " MEDREC " " 
+             STRING "DELETING REDUNDANT BILAT KNEE " MEDREC " "
                R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01
              WRITE ERRFILE01
@@ -338,43 +338,45 @@
       *    set flag back to 0
              MOVE "0" TO BILAT-FLAG
              GO TO P1
-           end-if                
+           end-if
 
            IF (R3-PROC = "1284" or "1285") AND R3-MOD1 = "50"
              MOVE "1" TO BILAT-FLAG
-           end-if    
+           end-if
 
            IF R3-PROC = "1204" AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1"
-             MOVE SPACE TO ERRFILE01  
-             STRING "DELETING REDUNDANT BILAT orbit " MEDREC " " 
+             MOVE SPACE TO ERRFILE01
+             STRING "DELETING REDUNDANT BILAT orbit " MEDREC " "
                R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01
              WRITE ERRFILE01
              MOVE "0" TO BILAT-FLAG
              GO TO P1
-           end-if                           
+           end-if
 
            IF R3-PROC = "1204" AND R3-MOD1 = "50"
              MOVE "1" TO BILAT-FLAG
-           end-if                                            
+           end-if
 
            WRITE FILEOUT01 FROM REC301
            GO TO P1.
-           
-       BAD-1.
-           MOVE SPACE TO ERRFILE01.    
 
-           STRING "UNDEFINED PROCEDURE FOR MRN " MEDREC 
+       BAD-1.
+           MOVE SPACE TO ERRFILE01.
+
+           STRING "UNDEFINED PROCEDURE FOR MRN " MEDREC
              " CDM " R3-PROC " CPT " R3-CPT " HCPCS " R3-HCPCS
              " DOS " R3-DATE DELIMITED BY SIZE INTO ERRFILE01
-             
+
            WRITE ERRFILE01
 
            IF R3-GLC = 0
-             MOVE SPACE TO ERRFILE01    
+             MOVE SPACE TO ERRFILE01
              if R3-LOCO = "RVOC"
-               STRING "ANOTHER ORTHO READ SENT TO US IN ERROR? " r3-loco
+               STRING "** STOP! PLEASE ADD THIS CDM-CPT IN THE 52 "
+                 "SO WE CAN CAPTURE THE MISSING CHARGE, and re-run qqq,"
+                 " thank you. " r3-loco " **"
                delimited BY size INTO ERRFILE01
                WRITE ERRFILE01
              else
@@ -382,34 +384,37 @@
                delimited BY size INTO ERRFILE01
                WRITE ERRFILE01
              END-IF
-           END-IF      
+           END-IF
 
            IF R3-PROC = "6327"
-               DISPLAY "WOULD YOU LIKE TO CHANGE THIS TO CPT 77049, Y?"
+               DISPLAY "RRMC SENT US " R3-CPT " " R3-HCPCS
+                 " WOULD YOU LIKE TO CHANGE THIS TO CPT 77049, Y?"
                ACCEPT ANS
                IF ANS = "Y"
                    MOVE "77049" TO R3-CPT
                    WRITE FILEOUT01 FROM REC301
+               else
                    MOVE SPACE TO ERRFILE01
-                   MOVE "77049 USED FOR CDM 6327" TO ERRFILE01
-                   WRITE ERRFILE01    
+                   MOVE "77049 WASN'T USED FOR CDM 6327 for some reason"
+                     TO ERRFILE01
+                   WRITE ERRFILE01
                END-IF
-           END-IF        
-           
+           END-IF
+
            GO TO P1.
 
        BAD-2.
-           MOVE SPACE TO ERRFILE01.    
+           MOVE SPACE TO ERRFILE01.
 
            STRING "ZERO DOLLAR PROCEDURE FOR MRN " MEDREC
              "CDM " PROC-KEY1 " CPT " R3-CPT " HCPCS " R3-HCPCS
-             " DOS " R3-DATE " safe to ignore?" 
+             " DOS " R3-DATE " safe to ignore?"
              DELIMITED BY SIZE INTO ERRFILE01
 
            WRITE ERRFILE01.
-           
-           GO TO P1.    
-           
+
+           GO TO P1.
+
        P99.
            CLOSE PROCFILE FILEIN FILEOUT ERRFILE.
            STOP RUN.

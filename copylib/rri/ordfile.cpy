@@ -16,6 +16,6 @@
       * took 6 from above to create mods     
            02 C-MOD2 PIC X(2).
            02 C-MOD3 PIC X(2).
-           02 C-MOD4 PIC X(4).
+           02 C-MOD4 PIC X(2).
            02 C-DATE-E PIC X(8).
            02 C-CPT PIC X(5).

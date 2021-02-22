@@ -196,57 +196,10 @@
            02 CD-DX5 PIC X(7).
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
-       FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS GARFILE01.
-       01 GARFILE01.
-           02 G-GARNO.
-             03 ID1 PIC XXX.
-             03 ID2 PIC XXX.
-             03 ID3 PIC X.
-             03 ID4 PIC X.
-           02 G-GARNAME.
-             03 G-GN1 PIC XXX.
-             03 G-GN2 PIC X(21).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(10).
-           02 G-PRIPOL PIC X(16).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-SE-OFFICE PIC X(4).
-           02 G-SE-GROUP PIC X(10).
-           02 G-SECPOL PIC X(16).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-INSPEND PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
+
+       FD GARFILE.
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+
        FD  CLAIMFILE
            DATA RECORD IS CLAIM01.
        01  CLAIM01.
@@ -338,12 +291,12 @@
            MOVE "1" TO G-DELETE
            MOVE GARFILE01 TO GARBACK
            MOVE DAY3 TO ID2 NUM-3.
-           MOVE G-GN1 TO ID1.
+           MOVE G-GARNAME(1:3) TO ID1.
            MOVE 0 TO XYZ.
-           MOVE "G" TO ID4.
+           MOVE "G" TO ID3(2:1).
        P4.
            ADD 1 TO XYZ.
-           MOVE XYZ  TO ID3.
+           MOVE XYZ  TO ID3(1:1).
            MOVE G-GARNO TO HOLD-GARNO.
            READ GARFILE INVALID KEY GO TO P5.
            IF XYZ = 9 ADD 1 TO NUM-3

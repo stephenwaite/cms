@@ -265,7 +265,7 @@
 
        P4.
            ADD 1 TO XYZ.
-           MOVE XYZ TO ID3.
+           MOVE XYZ TO ID3(1:1).
            MOVE G-GARNO TO HOLD-GARNO.
            READ GARFILE
              INVALID KEY 
