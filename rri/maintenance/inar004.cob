@@ -591,7 +591,8 @@
              03 RATE-PC PIC 99. 
              03 RATE-NAME PIC X(22).
 
-       01  HOLD-AUTH PIC X(20).      
+       01  HOLD-AUTH PIC X(20). 
+       01  HOLD-AUTH-DATE PIC X(8).
 
        PROCEDURE DIVISION.
        0005-START.
@@ -4185,10 +4186,11 @@
              INVALID 
                GO TO AUTH-2.
 
-           DISPLAY "CURRENT NUMBER = " AUTH-NUM
+           DISPLAY "CURRENT AUTH = " AUTH-NUM
 
-           IF IN-FIELD-2 = "4 "
-               MOVE "1" TO ALF-1
+           IF IN-FIELD-2 = "4 " OR "5 " OR "6 "
+               MOVE "0" TO ALF-1
+               DISPLAY "NOT HANDLING NDC FOR RRI YET."
                GO TO AUTH-1-EXIT
            END-IF
            
@@ -4201,41 +4203,44 @@
 
            MOVE 2 TO FLAG.
 
-       AUTH-2. 
-           IF IN-FIELD-2 = "4 " 
-               DISPLAY "NDC MISSING!"
-               MOVE "0" TO ALF-1
-               GO TO AUTH-1-EXIT
-           END-IF
-
-           DISPLAY "LOOK FOR AUTH IN EMAILAUTHFILE?"
+       AUTH-2.            
+           DISPLAY "LOOK FOR AUTH IN RRMC'S AUTHFILE? Y FOR YES."
            ACCEPT ANS
-
            IF ANS = "Y"
-             PERFORM LOOK-AUTH THRU LOOK-AUTH-EXIT.  
-
-           DISPLAY "hold auth " HOLD-AUTH.      
-
-           DISPLAY "AUTHORIZATION NUMBER"
-           ACCEPT ALF-15
-           
-           IF ALF-15 = "?" 
+             PERFORM LOOK-AUTH THRU LOOK-AUTH-EXIT  
+             if hold-auth = space
+               display "NO AUTH FOUND OR SELECTED"
+             else 
+               DISPLAY "ACCEPT AUTH " HOLD-AUTH " ON " HOLD-AUTH-DATE
+                 "? Y FOR YES."
+               IF ANS = "Y"
+                 MOVE "1" TO CC-AUTH
+                 MOVE HOLD-AUTH TO AUTH-NUM
+                 MOVE HOLD-AUTH-DATE TO AUTH-DATE-E
+               end-if
+             end-if      
+           else
+             DISPLAY "ENTER AUTHORIZATION NUMBER"
+             ACCEPT ALF-15                            
+             IF ALF-15 = "?" 
                DISPLAY "ENTER THE PRIOR AUTHORIZATION OR <CR>"
                GO TO AUTH-2
-           END-IF
+             END-IF
 
-           IF ALF-15 = SPACE OR "BK" OR "X"
-                    MOVE 0 TO FLAG
-                    GO TO AUTH-1-EXIT
-           END-IF
+             IF ALF-15 = SPACE OR "BK" OR "X"
+               MOVE 0 TO FLAG
+               GO TO AUTH-1-EXIT
+             END-IF
            
-           IF ALF-15 = "Y" OR "N"
-                    DISPLAY "INVALID"
-                    GO TO AUTH-2
-           END-IF
+             IF ALF-15 = "Y" OR "N"
+               DISPLAY "INVALID"
+               GO TO AUTH-2
+             END-IF
            
-           MOVE "1" TO CC-AUTH
-           MOVE ALF-15 TO AUTH-NUM
+             MOVE "1" TO CC-AUTH
+             MOVE ALF-15 TO AUTH-NUM
+             MOVE CC-DATE-T TO AUTH-DATE-E
+           end-if  
            
            IF FLAG = 2
                MOVE AUTHFILE01 TO AUTHFILE-BACK
@@ -4245,7 +4250,6 @@
            
            MOVE "01" TO AUTH-QNTY
            MOVE SPACE TO AUTH-FILLER
-           ACCEPT AUTH-DATE-E FROM CENTURY-DATE
            MOVE AUTHFILE01 TO AUTHFILE-BACK
            PERFORM WRITE-AU THRU WRITE-AU-EXIT.
 
@@ -4749,7 +4753,7 @@
            if ea-medrec not = g-acct
              go to emailauth-exit.
 
-           display EMAILAUTHFILE01
+      *     display EMAILAUTHFILE01
 
            if ea-auth = space
              go to emailauth-1.  
@@ -4762,6 +4766,7 @@
            accept ans 
            if ans = "Y" 
              move ea-auth to HOLD-AUTH
+             move ea-date-e to HOLD-AUTH-DATE
              go to emailauth-exit.
 
            go to emailauth-1.     
