@@ -23,7 +23,7 @@
 
            SELECT GARFILE ASSIGN TO "S45" ORGANIZATION IS INDEXED
              ACCESS IS DYNAMIC RECORD KEY IS G-GARNO
-             LOCK MODE MANUAL.
+             LOCK MODE MANUAL.           
 
            SELECT ERRFILE2 ASSIGN TO "S50" ORGANIZATION
            LINE SEQUENTIAL.
@@ -38,13 +38,13 @@
        01  ERRFILE201 PIC X(90).
       
        Fd  garfile.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".      
       
        FD  FILEIN.
        01  F01 PIC X(90).
 
        FD  FILEOUT.
-       01  FILEOUT01 pic x(90).
+       01  FILEOUT01 pic x(120).
 
        WORKING-STORAGE SECTION.
        01  LNAME PIC X(10).
@@ -61,11 +61,13 @@
        01  F-SEX PIC X.
        01  F-MR PIC X(5).
        01  ERRFILEHOLD-01 PIC X(90).
+       01  W-INS-NAME PIC X(22).
+
        PROCEDURE DIVISION.
 
        P0.
            OPEN OUTPUT FILEOUT ERRFILE ERRFILE2.
-           OPEN INPUT FILEIN GARFILE.                  
+           OPEN INPUT FILEIN GARFILE insFILE.                  
             
        P1.
            READ FILEIN 
@@ -123,11 +125,14 @@
            
            IF (LNAMEHLD(1:3) = LNAME(1:3))
              AND (FNAMEHLD(1:3) = FNAME(1:3))
-             AND (F-SEX(1:1) = G-SEX)
+      *       AND (F-SEX(1:1) = G-SEX)
              AND (TESTDOB = G-DOB)
+             PERFORM P-INS THRU P-INS-EXIT.
+             
              MOVE SPACE TO FILEOUT01
-             STRING  F-MR(1:5) G-GARNO " " LNAMEHLD " " FNAMEHLD
-               " " G-GARNAME DELIMITED BY SIZE INTO FILEOUT01
+             STRING G-GARNO " " LNAMEHLD " " FNAMEHLD
+               " " G-GARNAME " " G-SEX " " W-INSNAME
+               DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01
              GO TO P2-EXIT
            END-IF 
@@ -144,7 +149,33 @@
            GO TO P3. 
 
        P2-EXIT.
-           EXIT.       
+           EXIT.
+
+       P-INS.           
+           MOVE SPACE TO W-INS-NAME.
+
+           IF G-PRINS = "001" MOVE "SELF-PAY" TO W-INS-NAME
+             GO TO P-INS-EXIT.
+
+           IF G-PRINS = "002" MOVE "COMMERCIAL" TO W-INS-NAME
+             GO TO P-INS-EXIT.
+          
+           IF G-PRINS = "003" MOVE "MEDICARE" TO W-INSNAME
+             GO TO P-INS-EXIT.
+
+           IF G-PRINS = "004" MOVE "MEDICAID" TO W-INS-NAME
+             GO TO P-INS-EXIT.
+
+           IF G-PRINS = "006" OR "079" OR "225" MOVE "FEDERAL" 
+             TO W-INS-NAME  GO TO P-INS-EXIT.
+
+           IF G-DOB < "19550101" 
+             MOVE "MEDICARE" TO W-INS-NAME
+           ELSE 
+             MOVE "COMMERCIAL" TO W-INS-NAME.             
+
+       P-INS-EXIT.
+           EXIT.
 
        E1.
       *    DISPLAY "G-GARNO " G-GARNO " IS GREATER THAN LNAMEHLD "
