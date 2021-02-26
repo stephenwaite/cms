@@ -44,7 +44,7 @@
        01  F01 PIC X(90).
 
        FD  FILEOUT.
-       01  FILEOUT01 pic x(120).
+       01  FILEOUT01 pic x(180).
 
        WORKING-STORAGE SECTION.
        01  LNAME PIC X(10).
@@ -53,6 +53,8 @@
        01  F-DATEHLD PIC X(10).
        01  LNAMEHLD PIC X(10).
        01  FNAMEHLD PIC X(5).
+       01  F-FILL1 PIC X.
+       01  F-FILL2 PIC X.
        01  F-DATE PIC X(10).
        01  F-DOBHLD PIC X(10).
        01  F-SEXHLD PIC X.
@@ -67,7 +69,7 @@
 
        P0.
            OPEN OUTPUT FILEOUT ERRFILE ERRFILE2.
-           OPEN INPUT FILEIN GARFILE insFILE.                  
+           OPEN INPUT FILEIN GARFILE.                  
             
        P1.
            READ FILEIN 
@@ -76,10 +78,11 @@
                GO TO P99
            END-READ.  
 
-           MOVE SPACE TO F-DATE LNAME FNAME F-DOB F-SEX F-MR.
+           MOVE SPACE TO F-FILL1 F-DATE LNAME FNAME F-SEX F-DOB 
+             F-MR F-FILL2.
 
            UNSTRING F01 DELIMITED BY "," INTO
-             F-DATE LNAME FNAME F-DOB F-SEX F-MR
+             F-FILL1 F-DATE FNAME LNAME F-SEX F-DOB F-MR F-FILL2
 
       *     DISPLAY "LNAME " LNAME " FNAME " FNAME " DOB " F-DOB
       *       " SEX " F-SEX " MR " F-MR
@@ -116,7 +119,7 @@
 
            MOVE SPACE TO TESTDOB
            
-           STRING F-DOB(1:4) F-DOB(6:2) F-DOB(9:2) DELIMITED
+           STRING F-DOB(7:4) F-DOB(1:2) F-DOB(4:2) DELIMITED
                BY SIZE INTO TESTDOB
                
            MOVE SPACE TO LNAMEHLD FNAMEHLD
@@ -125,13 +128,13 @@
            
            IF (LNAMEHLD(1:3) = LNAME(1:3))
              AND (FNAMEHLD(1:3) = FNAME(1:3))
-      *       AND (F-SEX(1:1) = G-SEX)
+             AND (F-SEX(1:1) = G-SEX)
              AND (TESTDOB = G-DOB)
-             PERFORM P-INS THRU P-INS-EXIT.
+             PERFORM P-INS THRU P-INS-EXIT
              
              MOVE SPACE TO FILEOUT01
              STRING G-GARNO " " LNAMEHLD " " FNAMEHLD
-               " " G-GARNAME " " G-SEX " " W-INSNAME
+               " " G-GARNAME " " G-SEX " " W-INS-NAME
                DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01
              GO TO P2-EXIT
@@ -154,25 +157,32 @@
        P-INS.           
            MOVE SPACE TO W-INS-NAME.
 
-           IF G-PRINS = "001" MOVE "SELF-PAY" TO W-INS-NAME
+           IF G-PRINS = "001"
+             MOVE "Self-pay" TO W-INS-NAME
              GO TO P-INS-EXIT.
 
-           IF G-PRINS = "002" MOVE "COMMERCIAL" TO W-INS-NAME
+           IF G-PRINS = "002" 
+             MOVE "Private - BlueCross BlueShield" TO W-INS-NAME
              GO TO P-INS-EXIT.
           
-           IF G-PRINS = "003" MOVE "MEDICARE" TO W-INSNAME
+           IF G-PRINS = "003" 
+             MOVE "Medicare FFS (Part B)" TO W-INS-NAME
              GO TO P-INS-EXIT.
 
-           IF G-PRINS = "004" MOVE "MEDICAID" TO W-INS-NAME
+           IF G-PRINS = "004" 
+             MOVE "Medicaid - Vermont" TO W-INS-NAME
              GO TO P-INS-EXIT.
 
-           IF G-PRINS = "006" OR "079" OR "225" MOVE "FEDERAL" 
-             TO W-INS-NAME  GO TO P-INS-EXIT.
+           IF G-PRINS = "006" OR "079" OR "225" 
+             MOVE "Non-Medicare/Medicaid Government Insurance" 
+               TO W-INS-NAME  
+             GO TO P-INS-EXIT.
 
            IF G-DOB < "19550101" 
-             MOVE "MEDICARE" TO W-INS-NAME
+             MOVE "Medicare Managed Care (Advantage Plans)" 
+               TO W-INS-NAME
            ELSE 
-             MOVE "COMMERCIAL" TO W-INS-NAME.             
+             MOVE "Private pay insurance" TO W-INS-NAME.             
 
        P-INS-EXIT.
            EXIT.
