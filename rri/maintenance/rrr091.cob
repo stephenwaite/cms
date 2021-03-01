@@ -556,6 +556,7 @@
            IF GARPAT1 = 1 GO TO 1000-ACTION.
            MOVE 1 TO GARPAT1.
            MOVE 1 TO ZERO-FLAG.
+           
        1000-ACTION.
            MOVE SPACES TO ACTION GARNO.
            MOVE 0 TO TOWN-FLAG.
@@ -688,11 +689,13 @@
                   GO TO 1000-ACTION
            END-IF
            GO TO MPLR-CP.
+
        MPLR-FIND.
            MOVE GARNO TO MPLR-KEY
            START MPLRFILE KEY NOT < MPLR-KEY INVALID 
            DISPLAY "END OF FILE" GO TO 1000-ACTION.
            MOVE 0 TO X.
+
        MPLR-FIND1. 
            READ MPLRFILE NEXT AT END 
            DISPLAY "END OF FILE" GO TO 1000-ACTION.
@@ -704,6 +707,7 @@
            DISPLAY GARNAME
            ADD 1 TO X
            PERFORM LM-1 GO TO MPLR-FIND1.
+
        1200-AP.
            MOVE ZERO TO G-COPAY LASTBILL MPLR-FLAG
            DOB COLLT.
@@ -762,13 +766,15 @@
            CLOSE MPLRFILE
            OPEN I-O MPLRFILE
            MOVE MPLRBACK TO MPLRFILE01
-           WRITE MPLRFILE01 INVALID
+           WRITE MPLRFILE01 
+             INVALID
                 DISPLAY "THIS RECORD CAN NOT BE ADDED AT THIS TIME"
                 DISPLAY MPLRFILE-STAT
                 CLOSE MPLRFILE
                 OPEN INPUT MPLRFILE
                 GO TO 1000-ACTION
            END-WRITE
+
            IF MPLRFILE-STAT NOT = "00"
                 DISPLAY "THIS RECORD CAN NOT BE ADDED AT THIS TIME"
                 DISPLAY MPLRFILE-STAT

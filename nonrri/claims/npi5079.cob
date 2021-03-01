@@ -1674,7 +1674,8 @@
 
       *    add auth for VA/VACCN outpatient claims
            MOVE 0 TO AUTH-FLAG
-           IF (HOLD-NEIC = "VACCN" OR HOLD-PAYCODE = "12115")
+           IF (HOLD-NEIC = "VACCN" OR HOLD-NEIC = "12115"
+                OR HOLD-NEIC  = "68299")
               MOVE HOLD-KEY8 TO AUTH-KEY8
               MOVE HOLD-CLAIM TO AUTH-KEY6
               READ AUTHFILE
