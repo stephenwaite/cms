@@ -160,7 +160,7 @@
            WRITE FILEOUT01
 
            MOVE NEWDATE TO CC-DATE-A
-      *     REWRITE CHARCUR01
+           REWRITE CHARCUR01
 
       *    go to p2 since other charges on bill might not have 
       *    had payment but should be reaged

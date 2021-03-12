@@ -221,7 +221,7 @@
            COMPUTE CLAIM-TOT = CC-AMOUNT
            PERFORM CC1 THRU CC-EXIT.
       *  NEW CHARGE SINCE LAST BILL WITH A BALANCE.
-           IF (CC-DATE-P > G-LASTBILL) AND (G-LASTBILL > "20020930")
+           IF (CC-DATE-P > G-LASTBILL) AND (G-LASTBILL > "20200930")
            AND (CLAIM-TOT > 0) 
            DISPLAY G-GARNO " " G-GARNAME " " CC-DATE-P " CHR ENTRY"
            MOVE 1 TO CHAR-FLAG.
@@ -338,7 +338,7 @@
 
            WRITE TB-BILL01
            MOVE BILL-DATE TO G-LASTBILL
-      *     REWRITE GARFILE01
+           REWRITE GARFILE01
            GO TO R1.
 
       *     IF G-PRINS = "256" OR "349"
@@ -416,4 +416,4 @@
            CLOSE billparm billdate tb-BILL paycur charcur
              garfile insfile MVP-BILL emailauthfile errorfile. 
        
-       STOP RUN.
+           STOP RUN.
