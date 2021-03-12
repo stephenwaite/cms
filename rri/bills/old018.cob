@@ -305,8 +305,11 @@
            MOVE "1" TO TB-4.
        R10.
            MOVE G-GARNO TO TB-1
-           IF GN-1 = "1" MOVE GN-2 TO TB-2
-           ELSE MOVE G-GARNAME TO TB-2.
+           IF G-GARNAME(1:1) = "1" 
+             MOVE G-GARNAME(2:23) TO TB-2
+           ELSE 
+             MOVE G-GARNAME TO TB-2.
+             
            MOVE G-ZIP TO TB-3
            MOVE G-PRINS TO TB-6
            MOVE BAL-FWD TO TB-5 TB-7.
@@ -393,4 +396,20 @@
                MOVE 1 TO PAY-FLAG
               END-IF
             END-IF.
+
+       email-1.           
+           read emailauthfile previous
+             at end
+               go to email-exit.    
+
+           if ea-medrec not = g-acct
+             go to email-exit.
+
+           if ea-email = space go to email-1.
+
+           move ea-email to test-email.
+
+       email-exit.
+           exit.     
+
        R20. CLOSE GARFILE TB-BILL MVP-BILL. STOP RUN.
