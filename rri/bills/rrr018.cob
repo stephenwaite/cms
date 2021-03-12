@@ -114,7 +114,6 @@
        fd  errorfile.
        01  errorfile01 pic x(80).    
 
-
        WORKING-STORAGE SECTION.    
        01  PHR01.
            02 PHR02 OCCURS 990 TIMES.

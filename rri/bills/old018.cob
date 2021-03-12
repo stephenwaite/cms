@@ -5,30 +5,37 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
 
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. PED018.
+       PROGRAM-ID. old018.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        CONFIGURATION SECTION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT BILLPARM ASSIGN TO "S30" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT BILLDATE ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT TB-BILL ASSIGN TO "S40" ORGANIZATION
            LINE SEQUENTIAL.
+
            SELECT PAYCUR ASSIGN TO "S45" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY
            LOCK MODE MANUAL.
+
            SELECT CHARCUR ASSIGN TO "S50" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT GARFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
            ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT INSFILE ASSIGN TO "S60" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS INS-KEY
            ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
@@ -38,57 +45,49 @@
            ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
            ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
            LOCK MODE MANUAL.
+
            SELECT MVP-BILL ASSIGN TO "S65" ORGANIZATION
            LINE SEQUENTIAL.
 
+           SELECT EMAILAUTHFILE ASSIGN TO "S70" ORGANIZATION INDEXED
+             ACCESS MODE DYNAMIC RECORD KEY IS EA-KEY
+             ALTERNATE RECORD KEY IS EA-MEDREC WITH DUPLICATES
+             ALTERNATE RECORD KEY IS EA-NAME WITH DUPLICATES
+             ALTERNATE RECORD KEY IS EA-EMAIL WITH DUPLICATES
+             ALTERNATE RECORD KEY IS EA-AUTH WITH DUPLICATES
+             ALTERNATE RECORD KEY IS EA-DATE-E WITH DUPLICATES
+             ALTERNATE RECORD KEY IS EA-SSN WITH DUPLICATES
+             LOCK MODE MANUAL.
+
+           select errorfile assign to "S75" organization
+             line sequential.  
+
        DATA DIVISION.
+
        FILE SECTION.
        FD  MVP-BILL.
        01  MVP-BILL01 PIC X(8).
-       FD  INSFILE
-           BLOCK CONTAINS 6 RECORDS
-           DATA RECORD IS INSFILE01.
-       01  INSFILE01.
-           02 INS-KEY PIC XXX.
-           02 INS-NAME PIC X(22).
-           02 INS-STREET PIC X(24).
-           02 INS-CITY PIC X(15).
-           02 INS-STATE PIC XX.
-           02 INS-ZIP PIC X(9).
-           02 INS-ASSIGN PIC X.
-           02 INS-CLAIMTYPE PIC X.
-           02 INS-NEIC PIC X(5).
-           02 INS-NEICLEVEL PIC X.
-           02 INS-NEIC-ASSIGN PIC X.
-           02 INS-PPO PIC X.
-           02 INS-PRVNUM PIC X(10).
-           02 INS-HMO PIC X(3).
-           02 INS-STATUS PIC X.
-           02 INS-LEVEL PIC X.
-           02 INS-LASTDATE PIC X(8).
-           02 INS-CAID PIC XXX.
-           02 INS-REFWARN PIC X.
-           02 INS-FUTURE PIC X(8).
+
+       FD  INSFILE.
+           copy insfile.cpy in "c:\users\sid\cms\copylib".
        
-       FD  BILLPARM
-           DATA RECORD IS BILLPARM01.
+       FD  BILLPARM.
        01  BILLPARM01.
            02 PF1 PIC S999.
            02 PF2 PIC S999.
            02 PF3 PIC S999.
            02 PF4 PIC X(40).
-       FD  BILLDATE
-           DATA RECORD IS BILLDATE01.
+
+       FD  BILLDATE.
        01  BILLDATE01.
            02 BILL-DATE PIC X(8).
            02 TC1 PIC X.
            02 TC2 PIC X.
            02 TC3 PIC X.
            02 TC4 PIC X.
-       FD  TB-BILL
-           DATA RECORD IS TB-BILL01.
-       01  TB-BILL01.
 
+       FD  TB-BILL.
+       01  TB-BILL01.
            02 TB-1 PIC X(8).
            02 TB-2 PIC X(24).
            02 TB-3 PIC X(9).
@@ -96,111 +95,22 @@
            02 TB-5 PIC S9(5)V99.
            02 TB-6 PIC XXX.
            02 TB-7 PIC 9(7).
-       FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS CHARCUR01.
-       01  CHARCUR01.
-           02 CHARCUR-KEY.
-             03 CC-KEY8 PIC X(8).
-             03 CC-KEY3 PIC XXX.
-           02 CC-PATID PIC X(8).
-           02 CC-CLAIM PIC X(6).
-           02 CC-SERVICE PIC X.
-           02 CC-DIAG PIC X(7).
-           02 CC-PROC PIC X(11).
-           02 CC-MOD2 PIC XX.
-           02 CC-MOD3 PIC XX.
-           02 CC-MOD4 PIC XX.
-           02 CC-AMOUNT PIC S9(4)V99.
-           02 CC-DOCR PIC X(3).
-           02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC XXX.
-           02 CC-STUD PIC X.
-           02 CC-WORK PIC XX.
-           02 CC-DAT1 PIC X(8).
-           02 CC-RESULT PIC X.
-           02 CC-ACT PIC X.
-           02 CC-SORCREF PIC X.
-           02 CC-COLLT PIC X.
-           02 CC-AUTH PIC X.
-           02 CC-PAPER PIC X.
-           02 CC-PLACE PIC X.
-           02 CC-EPSDT PIC X.
-           02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A PIC X(8).
-           02 CC-DATE-P PIC X(8).
-           02 CC-REC-STAT PIC X.
-           02 CC-DX2 PIC X(7).
-           02 CC-DX3 PIC X(7).
-           02 CC-ACC-TYPE PIC X.
-           02 CC-DATE-M PIC X(8).
-           02 CC-ASSIGN PIC X.
-           02 CC-NEIC-ASSIGN PIC X.
-           02 CC-DX4 PIC X(7).
-           02 CC-DX5 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
-       FD  PAYCUR
-           BLOCK CONTAINS 6 RECORDS
-           DATA RECORD IS PAYCUR01.
-       01  PAYCUR01.
-           02 PAYCUR-KEY.
-             03 PC-KEY8 PIC X(8).
-             03 PC-KEY3 PIC XXX.
-           02 PC-AMOUNT PIC S9(4)V99.
-           02 PC-PAYCODE PIC XXX.
-           02 PC-DENIAL PIC XX.
-           02 PC-CLAIM PIC X(6).
-           02 PC-DATE-T PIC X(8).
-           02 PC-DATE-E PIC X(8).
-           02 PC-BATCH PIC X(6).
-       FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS GARFILE01.
-       01 GARFILE01.
-           02 G-GARNO PIC X(8).
-           02 G-GARNAME.
-             03 GN-1 PIC X.
-             03 GN-2 PIC X(23).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC 9.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(12).
-           02 G-PRIPOL PIC X(14).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-SE-OFFICE PIC X(4).
-           02 G-SE-GROUP PIC X(12).
-           02 G-SECPOL PIC X(14).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-COPAY PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
+           02 tb-email pic x(30).
+
+       FD  CHARCUR.
+           copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
+
+       FD  PAYCUR.
+           copy paycur.cpy in "c:\users\sid\cms\copylib\rri".
+
+       FD  GARFILE.
+           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+
+       FD  emailauthfile.
+           copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".
+
+       fd  errorfile.
+       01  errorfile01 pic x(80).    
 
        WORKING-STORAGE SECTION.    
        01  PHR01.
@@ -253,6 +163,8 @@
        01     PAY-FLAG PIC 9.
        01     CHAR-FLAG PIC 9.
        01     CLAIM-TOT PIC S9(6)V99.
+       01  test-email pic x(30).
+
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT TB-BILL MVP-BILL.
@@ -399,6 +311,28 @@
            MOVE G-PRINS TO TB-6
            MOVE BAL-FWD TO TB-5 TB-7.
            IF TB-4 < "2" MOVE ZERO TO TB-6 TB-7.
+
+           move space to test-email
+           move g-acct to ea-medrec
+           start emailauthfile key not > ea-medrec
+             invalid
+               move space to errorfile01
+               string G-GARNO " " G-GARNAME " not in email file"
+                 delimited by size into errorfile01
+               write errorfile01
+             not invalid
+               perform email-1 thru email-exit
+           end-start 
+
+           if test-email not = space
+             move space to errorfile01
+             string G-GARNO " " G-GARNAME " " test-email
+               delimited by size into errorfile01
+             write errorfile01
+           end-if  
+
+           move test-email to tb-email
+
            WRITE TB-BILL01
            MOVE BILL-DATE TO G-LASTBILL
       *     REWRITE GARFILE01
