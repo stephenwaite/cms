@@ -82,6 +82,8 @@
 
            READ AGEDATE AT END DISPLAY "NO AGEDATE" GO TO P4.
 
+           READ AGEDATE AT END DISPLAY "NO AGEDATE" GO TO P4.
+
            move high-values to paycur-key.
       
        p0.
@@ -99,13 +101,14 @@
              GO TO P4
            END-READ  
 
-      *     IF PC-DATE-T < AGEDATE01 GO TO P1.
+           IF PC-DATE-T < AGEDATE01 GO TO P1.
+
            IF NOT (PC-PAYCODE = 001 OR 021 OR 022 OR 062 OR 075 OR 077) 
              GO TO P1.
 
            COMPUTE AMT = -1 * PC-AMOUNT.
 
-           IF AMT < 20 GO TO P1.
+           IF AMT < 10 GO TO P1.
 
            IF PC-KEY8 NOT = HOLDGARNO
              MOVE PC-KEY8 TO HOLDGARNO
@@ -157,7 +160,7 @@
            WRITE FILEOUT01
 
            MOVE NEWDATE TO CC-DATE-A
-           REWRITE CHARCUR01
+      *     REWRITE CHARCUR01
 
       *    go to p2 since other charges on bill might not have 
       *    had payment but should be reaged

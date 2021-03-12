@@ -128,6 +128,7 @@
            
            IF (LNAMEHLD(1:3) = LNAME(1:3))
              AND (FNAMEHLD(1:3) = FNAME(1:3))
+      *
              AND (F-SEX(1:1) = G-SEX)
              AND (TESTDOB = G-DOB)
              PERFORM P-INS THRU P-INS-EXIT

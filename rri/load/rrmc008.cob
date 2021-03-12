@@ -366,6 +366,10 @@
                  move r3-mod2 to R3-MOD1
                end-if  
              end-if
+
+             if R3-MOD1 = R3-MOD2
+               MOVE SPACE TO R3-MOD2
+             end-if    
            end-if      
 
            WRITE FILEOUT01 FROM REC301
