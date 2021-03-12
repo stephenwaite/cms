@@ -167,10 +167,10 @@
 
        PROCEDURE DIVISION.
        P0.
-           OPEN OUTPUT TB-BILL MVP-BILL.
+           OPEN OUTPUT TB-BILL MVP-BILL errorfile.
            OPEN I-O GARFILE.
-           OPEN INPUT CHARCUR PAYCUR INSFILE BILLPARM.
-           OPEN INPUT BILLDATE.
+           OPEN INPUT CHARCUR PAYCUR INSFILE BILLPARM BILLDATE
+             emailauthfile.
            READ BILLDATE AT END GO TO R20.
            READ BILLPARM AT END GO TO R20.
            MOVE SPACE TO G-GARNO
@@ -309,7 +309,7 @@
              MOVE G-GARNAME(2:23) TO TB-2
            ELSE 
              MOVE G-GARNAME TO TB-2.
-             
+
            MOVE G-ZIP TO TB-3
            MOVE G-PRINS TO TB-6
            MOVE BAL-FWD TO TB-5 TB-7.
@@ -412,4 +412,8 @@
        email-exit.
            exit.     
 
-       R20. CLOSE GARFILE TB-BILL MVP-BILL. STOP RUN.
+       R20. 
+           CLOSE billparm billdate tb-BILL paycur charcur
+             garfile insfile MVP-BILL emailauthfile errorfile. 
+       
+       STOP RUN.
