@@ -71,7 +71,7 @@
            02 rarc-reason pic x(112).   
 
        FD  INSFILE.
-           COPY INSFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY INSFILE.CPY IN "C:\Users\sid\cms\copylib".
 
        FD  MPLRFILE.
            COPY MPLRFILE.CPY IN "C:\Users\sid\cms\copylib\rri".           
@@ -360,6 +360,7 @@
        01  PAYORID1 PIC X(5).
        01  PROV-FLAG PIC X.
        01  EQUITY-ID PIC X(9).
+       01  INS-NAME-HOLD PIC X(5).
        
        PROCEDURE DIVISION.
        0005-START.
@@ -463,9 +464,12 @@
            IF FILEIN01(1:5) = "N1*PR"
               MOVE SPACE TO N101
               UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                  N1-0 N1-1 N1-2 N1-3 N1-ID
+                  N1-0 N1-1 N1-2 N1-3 N1-ID                  
               MOVE N1-ID(1:5) TO PAYORID1
               MOVE N1-ID TO EQUITY-ID
+              IF N1-2(1:5) = "MVP H" AND PAYORID1 = space
+                MOVE N1-2(1:5) TO INS-NAME-HOLD
+              end-if  
            END-IF
         
            IF (F1 = "REF" AND F21 = "*2U")
@@ -514,6 +518,10 @@
            
            IF PAYORID = SPACE
                MOVE PAYORID1 TO PAYORID
+           END-IF
+
+           IF PAYORID = SPACE
+               MOVE "ZZZZZ" TO PAYORID
            END-IF
 
            IF TITLE-FLAG = 0
@@ -779,37 +787,53 @@
            MOVE DATE-X TO PD-DATE-T
            MOVE G-GARNAME TO PD-NAME.
            
-           IF CC-PAYCODE = "062"
+           IF CC-PAYCODE = "062" AND (CLP-2CLMSTAT NOT = "1")
+               MOVE CC-PAYCODE TO PD-PAYCODE
+               GO TO P7-NEXT
+           END-IF
+           
+           IF (CC-PAYCODE = G-PRINS) AND (CC-PAYCODE NOT = "001")
+             AND (CLP-2CLMSTAT NOT = "2")
+             MOVE CC-PAYCODE TO PD-PAYCODE
+             GO TO P7-NEXT
+           END-IF  
+           
+           IF CC-PAYCODE = G-SEINS AND (CC-PAYCODE NOT = "001")
+               AND (CLP-2CLMSTAT NOT = "1")
                MOVE CC-PAYCODE TO PD-PAYCODE
                GO TO P7-NEXT
            END-IF
 
-           IF (CC-PAYCODE = G-PRINS) AND (CC-PAYCODE NOT = "001")
-               AND (CLP-2CLMSTAT NOT = "2")
-               MOVE CC-PAYCODE TO PD-PAYCODE
-               GO TO P7-NEXT
-           END-IF  
-           
-           IF CC-PAYCODE = G-SEINS AND (CC-PAYCODE NOT = "001")
+           IF CC-PAYCODE = G-TRINS AND (CC-PAYCODE NOT = "001")
+               AND (CLP-2CLMSTAT NOT = "1")
                MOVE CC-PAYCODE TO PD-PAYCODE
                GO TO P7-NEXT
            END-IF
            
-           MOVE "076" TO PD-PAYCODE
-           
+      *     MOVE "076" TO PD-PAYCODE
+           IF INS-NAME-HOLD = "MVP H"
+             MOVE "14156" TO PAYORID
+           end-if  
+             
            MOVE PAYORID TO INS-NEIC
            START INSFILE KEY NOT < INS-NEIC
-             INVALID 
-               GO TO P4-NEXT
+             INVALID
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT                               
            END-START.
 
        P3-NEXT.
            READ INSFILE NEXT
              AT END
                GO TO P4-NEXT
-           END-READ  
-           
-           IF INS-NEIC = PAYORID 
+           END-READ 
+
+           IF INS-NEIC > PAYORID 
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF
+
+           IF INS-NEIC = PAYORID AND INS-KEY = CC-PAYCODE
                MOVE INS-KEY TO PD-PAYCODE
                GO TO P7-NEXT
            END-IF
@@ -824,6 +848,7 @@
            END-READ
 
            IF INS-NEIC = PAYORID  
+              AND INS-KEY = CC-PAYCODE
                MOVE G-PRINS TO PD-PAYCODE
            GO TO P7-NEXT.
 
@@ -848,7 +873,12 @@
 
            IF INS-NEIC = PAYORID 
                MOVE G-TRINS TO PD-PAYCODE
+               go to p7-next.
            END-IF.
+
+                    PERFORM P1-LOST-SVC
+
+
 
        P7-NEXT.
            MOVE "  " TO PD-DENIAL.

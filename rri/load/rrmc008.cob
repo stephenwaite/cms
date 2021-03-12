@@ -366,6 +366,10 @@
                  move r3-mod2 to R3-MOD1
                end-if  
              end-if
+
+             if R3-MOD1 = R3-MOD2
+               MOVE SPACE TO R3-MOD2
+             end-if    
            end-if      
 
            WRITE FILEOUT01 FROM REC301
@@ -383,9 +387,9 @@
            IF R3-GLC = 0
              MOVE SPACE TO ERRFILE01
              if R3-LOCO = "RVOC"
-               STRING "** STOP! PLEASE ADD THIS CDM-CPT IN THE 52 "
-                 "SO WE CAN CAPTURE THE MISSING CHARGE, and re-run qqq,"
-                 " thank you. " r3-loco " **"
+               STRING "** STOP! ADD THIS CDM-CPT IN THE 52 "
+                 "TO CAPTURE THE CHARGE, re-run qqq thank you. " 
+                   r3-loco " **"
                delimited BY size INTO ERRFILE01
                WRITE ERRFILE01
              else

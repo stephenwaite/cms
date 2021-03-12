@@ -171,43 +171,84 @@
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT FILEOUT FILEOUT2
-                INPUT FILEIN CHARCUR GARFILE CAREFILE.
-       P1. READ FILEIN AT END GO TO P99.
-           IF FI-PS = "0" PERFORM A1 GO TO P1.
+           open INPUT FILEIN CHARCUR GARFILE CAREFILE.
+
+       P1. 
+           READ FILEIN AT END GO TO P99.
+           
+           IF FI-PS = "0" 
+             PERFORM A1 
+             GO TO P1.
+           
            MOVE FI-KEY TO CHARCUR-KEY
-           READ CHARCUR INVALID
-           DISPLAY FI-KEY
-           ACCEPT ALF1
-           PERFORM A1
-           GO TO P1.
+           READ CHARCUR 
+             INVALID
+               DISPLAY FI-KEY
+               ACCEPT ALF1
+               PERFORM A1
+               GO TO P1.
+             
            MOVE CC-KEY8 TO G-GARNO
-           READ GARFILE INVALID
-           DISPLAY CC-KEY8
-           ACCEPT ALF1
-           PERFORM A1
-           GO TO P1.
-           IF G-PRINS NOT = "003"  PERFORM A1 GO TO P1.
+           READ GARFILE 
+             INVALID
+               DISPLAY CC-KEY8
+               ACCEPT ALF1
+               PERFORM A1
+               GO TO P1.
+
+           IF G-PRINS NOT = "003" PERFORM A1 GO TO P1.
+
            MOVE CC-KEY8 TO CR-KEY8
            MOVE CC-DATE-T TO CR-DATE
            MOVE CC-PROC1 TO CR-PROC
            MOVE SPACE TO CR-PROC CR-MOD1 CR-MOD2
-           START CAREFILE KEY NOT < CARE-KEY INVALID
-           PERFORM A1 GO TO P1.
+           START CAREFILE KEY NOT < CARE-KEY 
+             INVALID
+               PERFORM A1 
+               GO TO P1.
            
-       P2. READ CAREFILE NEXT AT END PERFORM A1 GO TO P1.
-           IF CR-KEY8 NOT = CC-KEY8 PERFORM A1 GO TO P1.
-           IF CR-DATE NOT = CC-DATE-T GO TO P2.
-           IF CR-PROC NOT = CC-PROC1  GO TO P2.
-           IF CR-DENIAL1 = "MA18" OR "N89 " PERFORM A2 GO TO P1.
-           IF CR-DENIAL2 = "MA18" OR "N89 " PERFORM A2 GO TO P1.
-           IF CR-DENIAL3 = "MA18" OR "N89 " PERFORM A2 GO TO P1.
-           IF CR-DENIAL4 = "MA18" OR "N89 " PERFORM A2 GO TO P1.
-           IF CR-INSNAME NOT = SPACE PERFORM A2
-           GO TO P1.
+       P2. 
+           READ CAREFILE NEXT 
+             AT END 
+               PERFORM A1 
+               GO TO P1.
+
+           IF CR-KEY8 NOT = CC-KEY8 
+             PERFORM A1 
+             GO TO P1.
+
+           IF CR-DATE NOT = CC-DATE-T 
+             GO TO P2.
+
+           IF CR-PROC NOT = CC-PROC1 
+             GO TO P2.
+
+           IF CR-DENIAL1 = "MA18" OR "N89 " 
+             PERFORM A2 
+             GO TO P1.
+
+           IF CR-DENIAL2 = "MA18" OR "N89 " 
+             PERFORM A2 
+             GO TO P1.
+
+           IF CR-DENIAL3 = "MA18" OR "N89 " 
+             PERFORM A2 
+             GO TO P1.
+
+           IF CR-DENIAL4 = "MA18" OR "N89 " 
+             PERFORM A2 
+             GO TO P1.
+
+           IF CR-INSNAME NOT = SPACE 
+             PERFORM A2
+             GO TO P1.
+
            PERFORM A1.
            GO TO P1.
+
        A1.
            WRITE FILEOUT01 FROM FILEIN01.
+           
        A2.
            WRITE FILEOUT201 FROM FILEIN01.
 

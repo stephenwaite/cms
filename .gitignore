@@ -14,3 +14,6 @@
 *.code-workspace
 
 /git-update
+
+# composer ignore
+vendor/
