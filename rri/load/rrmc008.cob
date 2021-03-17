@@ -322,6 +322,15 @@
                END-READ
            END-READ
 
+           IF R3-PROC = "6327" and r3-cpt = "C8908"
+               move space to ERRFILE01
+               string "RRMC SENT US " R3-CPT " " R3-HCPCS
+                 " CHANGING THIS TO CPT 77049" 
+                   delimited by size INTO ERRFILE01    
+               write errfile01               
+               MOVE "77049" TO R3-CPT    
+           END-IF
+
            IF PROC-AMOUNT = 0
                AND R3-GLC NOT = 0
                GO TO BAD-2
@@ -397,22 +406,7 @@
                delimited BY size INTO ERRFILE01
                WRITE ERRFILE01
              END-IF
-           END-IF
-
-           IF R3-PROC = "6327"
-               DISPLAY "RRMC SENT US " R3-CPT " " R3-HCPCS
-                 " WOULD YOU LIKE TO CHANGE THIS TO CPT 77049, Y?"
-               ACCEPT ANS
-               IF ANS = "Y"
-                   MOVE "77049" TO R3-CPT
-                   WRITE FILEOUT01 FROM REC301
-               else
-                   MOVE SPACE TO ERRFILE01
-                   MOVE "77049 WASN'T USED FOR CDM 6327 for some reason"
-                     TO ERRFILE01
-                   WRITE ERRFILE01
-               END-IF
-           END-IF
+           END-IF           
 
            GO TO P1.
 
