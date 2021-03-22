@@ -1,7 +1,10 @@
 ### to build gnucobol with vbisam
 
 ```sh
-git clone https://github.com/opensourcecobol/opensource-cobol/tree/develop/vbisam
+https://sourceforge.net/projects/vbisam/files/vbisam2/
+
+extract and make a couple changes in vbisam-2.0/vbisam.h
+`vbisam_off_t` to `off_t`
 
 wget http://sourceforge.net/projects/open-cobol/files/gnu-cobol/3.0/gnucobol-3.0-rc1.tar.gz
 
@@ -9,15 +12,13 @@ tar xvf gnucobol-3.0-rc1.tar.gz
 
 cd gnu-cobol-3.0-rc1
 
-export CPPFLAGS="-I/usr/local/include"
-
-export LDFLAGS="-L/usr/local/lib -Wl,-R,/usr/local/lib -Wl,--enable-new-dtags"
-
-./configure --with-debug --with-vbisam
+env CPPFLAGS='-I/home/stee/vbisam-2.0/' LDFLAGS='-L/home/stee/vbisam-2.0/libvbisam' ./configure --with-debug --with-vbisam
 
 make
 
 make check
+
+make test
 
 sudo make install
 
