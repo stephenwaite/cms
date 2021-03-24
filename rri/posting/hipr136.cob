@@ -1143,6 +1143,7 @@
                 CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
                 CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
                 CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+                
               IF (CAS-2 = "50" OR "109" OR "167" OR "B13")
                 OR (CAS-1 = "CO" AND CAS-2 = "4    ")
                 OR (CAS-1 = "CO" AND CAS-2 = "16   ")
@@ -1159,6 +1160,8 @@
                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "96   ")
+                OR (CAS-1 = "CO" 
+                  AND CAS-2 = "45   " AND CAS-5 = "B10   ")
                 MOVE 1 TO FLAG
                 MOVE CAS-CNTR TO Z
                 GO TO DUMP50-EXIT

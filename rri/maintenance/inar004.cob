@@ -769,6 +769,8 @@
                DISPLAY "DC= DELETE OLD WC ADDS LA= LIST ACCOUNTS BY "
                        "MEDREC"
                DISPLAY "LM= LIST E-MAIL AND SSN NY MEDREC NUMBER"
+               DISPLAY "AM= ADD E-MAIL"
+
                GO TO 1000-ACTION
            END-IF
 
@@ -970,6 +972,11 @@
 
            IF ACTION = "LM" 
                PERFORM LM-1 THRU LM-1-EXIT
+               GO TO 1000-ACTION
+           END-IF
+
+           IF ACTION = "AM" 
+               PERFORM AM-1 THRU AM-1-EXIT
                GO TO 1000-ACTION
            END-IF
                
@@ -2706,20 +2713,28 @@
            MOVE 1 TO FLAG.
        DAL-END. 
            EXIT.
+
        DC1. 
-           MOVE "000" TO CC-KEY3 MOVE G-GARNO TO CC-KEY8.
+           MOVE "000" TO CC-KEY3
+           MOVE G-GARNO TO CC-KEY8.
            IF ( PD-PAYCODE = "010" OR "015" OR "019" OR "017" )
-           OR (PD-DENIAL = "08" OR "15")
-           OR ( PD-AMOUNT NOT < 0 )
-           DISPLAY "CAN""T DISTRIBUTE DEBIT TYPE PAYMENTS"
-           SET ADD-KEY DOWN BY 1 GO TO DC1-EXIT.
+             OR (PD-DENIAL = "08" OR "15")
+             OR ( PD-AMOUNT NOT < 0 )
+             DISPLAY "CAN""T DISTRIBUTE DEBIT TYPE PAYMENTS"
+             SET ADD-KEY DOWN BY 1 
+             GO TO DC1-EXIT.
+
            SET P-IND TO 1.
            SET PAY-IND TO 1
            PERFORM DP1 THRU DP1-EXIT
            SET PAY-IND DOWN BY 1
            IF PAY-IND = 990 DISPLAY "ACCT TOO LARGE TO USE D ROUTINE"
-           GO TO DC1-EXIT.
-           START CHARCUR KEY > CHARCUR-KEY INVALID GO TO DC5.
+             GO TO DC1-EXIT.
+           
+           START CHARCUR KEY > CHARCUR-KEY 
+             INVALID 
+             GO TO DC5.
+
        DC4.
            READ CHARCUR NEXT AT END GO TO DC5.
            IF CC-KEY8 NOT = G-GARNO GO TO DC5.
@@ -2735,15 +2750,22 @@
            PERFORM DP2 VARYING XX FROM 1 BY 1 UNTIL XX > PAY-IND
            IF A-TAB(P-IND) > 0 SET P-IND UP BY 1.
            GO TO DC4.
-       DC5.   MOVE "000" TO CD-KEY3 MOVE G-GARNO TO CD-KEY8.
+
+       DC5.   
+           MOVE "000" TO CD-KEY3 MOVE G-GARNO TO CD-KEY8.
            START CHARFILE KEY > CHARFILE-KEY INVALID GO TO DC-SORT.
-       DC6.   READ CHARFILE NEXT AT END GO TO DC-SORT.
+       DC6.   
+           READ CHARFILE NEXT AT END GO TO DC-SORT.
+           
            IF CD-KEY8 NOT = G-GARNO GO TO DC-SORT.
+           
            IF CD-ASSIGN = "A" GO TO DC6.
+           
            IF P-IND > 990 DISPLAY "THIS ACCOUNT HAS MORE THAN "
-           DISPLAY "990 CHARGES AND CAN""T BE DISTRIBUTED"
-           SET ADD-KEY DOWN BY 1
-           GO TO DC1-EXIT.
+             DISPLAY "990 CHARGES AND CAN""T BE DISTRIBUTED"
+             SET ADD-KEY DOWN BY 1
+             GO TO DC1-EXIT.
+
            MOVE CD-PAYCODE TO PC-TAB(P-IND)
            MOVE CD-CLAIM TO C-TAB(P-IND)
            MOVE CD-AMOUNT TO A-TAB(P-IND)
@@ -2751,11 +2773,14 @@
            PERFORM DP2 VARYING XX FROM 1 BY 1 UNTIL XX > PAY-IND
            IF A-TAB(P-IND) > 0 SET P-IND UP BY 1.
            GO TO DC6.
+
        DC-SORT.
            SET P-IND DOWN BY 1
-           IF P-IND = 0 DISPLAY "NO PERSONAL BALANCE DUE"
-           SET ADD-KEY DOWN BY 1
-           GO TO DC1-EXIT.
+           IF P-IND = 0 
+             DISPLAY "NO PERSONAL BALANCE DUE"
+             SET ADD-KEY DOWN BY 1
+             GO TO DC1-EXIT.
+           
            MOVE 0 TO TOT-BAL.
            PERFORM SD5 VARYING XX FROM 1 BY 1 UNTIL XX > P-IND.
            MOVE PAYFILE-BACK TO PAYFILE01.
@@ -2768,8 +2793,11 @@
            MOVE TOT-BAL TO NEF-8
            DISPLAY P-IND " CLAIM(S) TO BE PAID TOTALING " NEF-8.
            ADD TOT-BAL TOT-AMOUNT GIVING TOT-BAL.
-           IF TOT-BAL < 0 DISPLAY "CANT""T OVERPAY BY DISTRIBUTION"
-           SET ADD-KEY DOWN BY 1 GO TO DC1-EXIT.
+
+           IF TOT-BAL < 0 
+             DISPLAY "CANT""T OVERPAY BY DISTRIBUTION"
+             SET ADD-KEY DOWN BY 1 
+             GO TO DC1-EXIT.
            PERFORM SD3 THRU SD3-EXIT VARYING XX FROM 1 BY 1 UNTIL XX >
            P-IND.
            MOVE "!)(!" TO IN-FIELD.
@@ -2829,9 +2857,17 @@
            EXIT.
        SD4. 
            IF PC-TAB(XX) = PD-PAYCODE MOVE ZERO TO D-TAB(XX).
-       SD5. ADD A-TAB(XX) TO TOT-BAL.
-       DP1. MOVE G-GARNO TO PC-KEY8 MOVE "000" TO PC-KEY3.
-           START PAYCUR KEY > PAYCUR-KEY INVALID GO TO DP5.
+
+       SD5. 
+           ADD A-TAB(XX) TO TOT-BAL.
+
+       DP1. 
+           MOVE G-GARNO TO PC-KEY8 
+           MOVE "000" TO PC-KEY3.
+           START PAYCUR KEY > PAYCUR-KEY 
+             INVALID 
+               GO TO DP5.
+
        DP4. READ PAYCUR NEXT AT END GO TO DP5.
            IF PC-KEY8 NOT = G-GARNO GO TO DP5.
            MOVE PC-CLAIM TO PAYC-TAB(PAY-IND)
@@ -4457,7 +4493,7 @@
            UNSTRING DATAIN(4:8) DELIMITED BY " " INTO RIGHT-8.
            INSPECT RIGHT-8 REPLACING LEADING " " BY "0"
            MOVE RIGHT-8 TO EA-MEDREC
-           START EMAILAUTHFILE KEY NOT > EA-MEDREC
+           START EMAILAUTHFILE KEY NOT < EA-MEDREC
            INVALID DISPLAY "NO RECORDS" GO TO LM-1-EXIT.
            MOVE 0 TO X.
 
@@ -4479,6 +4515,39 @@
            END-IF.
            GO TO LM-2.
        LM-1-EXIT.
+
+       AM-1.
+           MOVE SPACE TO RIGHT-8
+           UNSTRING DATAIN(4:8) DELIMITED BY " " INTO RIGHT-8.
+           INSPECT RIGHT-8 REPLACING LEADING " " BY "0"
+           MOVE RIGHT-8 TO EA-MEDREC
+           START EMAILAUTHFILE KEY NOT < EA-MEDREC
+           INVALID DISPLAY "NO RECORDS" GO TO AM-1-EXIT.
+           MOVE 0 TO X.
+
+       AM-2.
+           READ EMAILAUTHFILE PREVIOUS AT END GO TO AM-1-EXIT.
+           IF EA-MEDREC NOT = RIGHT-8 GO TO AM-1-EXIT.
+           DISPLAY EA-NAME  " " EA-DATE-E(5:2) "/" EA-DATE-E (7:2)
+                            "/" EA-DATE-E(1:4)
+           DISPLAY EA-MEDREC
+           DISPLAY EA-SSN(1:3) "-" EA-SSN(4:2) "-" EA-SSN(6:4)
+           DISPLAY EA-EMAIL
+           ADD 1 TO X
+           IF X > 5
+             ACCEPT ANS
+              IF ANS = SPACE
+                MOVE 0 TO X
+                GO TO AM-2
+              END-IF
+           END-IF.
+           GO TO AM-2.
+
+       AM-3.     
+
+       AM-1-EXIT.
+           EXIT.
+
        CC10.
            IF IN-FIELD = "F" GO TO 1DIAG-SEARCH.
            IF IN-FIELD = "M" GO TO 1MAP.
