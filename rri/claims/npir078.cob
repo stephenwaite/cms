@@ -80,7 +80,7 @@
            COPY refphy.CPY IN "C:\Users\sid\cms\copylib".                  
 
        FD  INSFILE.
-           COPY insfile.CPY IN "C:\Users\sid\cms\copylib\rri".                  
+           COPY insfile.CPY IN "C:\Users\sid\cms\copylib".                  
 
        FD  FILEIN.
        01  FILEIN01 PIC 999.
@@ -212,7 +212,7 @@
                GO TO A2
            END-IF    
            
-           IF CC-PROC < "00100  "
+           IF (CC-PROC < "00100  ") AND (CC-AMOUNT = 0)
                GO TO A2
            END-IF    
 
@@ -338,10 +338,10 @@
              PERFORM E1 
              GO TO A2.
            
-           IF (INS-NEIC = "14165")
+           IF (INS-NEIC = "14165" OR "SX073")
              MOVE G-PRIPOL TO ALF11
              IF (ALF11 NOT NUMERIC)
-               IF (G-PRINS = "256" OR "349")
+               IF (G-PRINS = "256" OR "349" OR "576")
                  MOVE "BAD POLICY NUMBER " TO EF2
                  PERFORM E1
                  GO TO A2.              

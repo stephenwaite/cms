@@ -1566,7 +1566,7 @@
                MOVE A-RELATE TO A-SE-RELATE
            END-IF
 
-      *    since receive auth in R2 instead of R3 $$ charge record 
+      *    since receive auth in R1 instead of R3 $$ charge record 
       *    might as well perform this somewhere in this paragraph
            PERFORM EA-1 THRU EA-1-EXIT.
            
