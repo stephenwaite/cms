@@ -395,18 +395,16 @@
 
        BAD-1.
            MOVE SPACE TO ERRFILE01.
-
            STRING "UNDEFINED PROCEDURE FOR MRN " MEDREC
              " CDM " R3-PROC " CPT " R3-CPT " HCPCS " R3-HCPCS
              " DOS " R3-DATE DELIMITED BY SIZE INTO ERRFILE01
-
            WRITE ERRFILE01
 
            IF R3-GLC = 0
              MOVE SPACE TO ERRFILE01
              if R3-LOCO = "RVOC"
-               STRING "** STOP! ADD THIS CDM-CPT IN THE 52 "
-                 "TO CAPTURE THE CHARGE, re-run qqq thank you. " 
+               STRING "** STOP and ADD THIS CDM-CPT IN THE 52 "
+                 "TO CAPTURE THE new RVOC CDM, re-run qqq thank you. " 
                    r3-loco " **"
                delimited BY size INTO ERRFILE01
                WRITE ERRFILE01
@@ -415,7 +413,13 @@
                delimited BY size INTO ERRFILE01
                WRITE ERRFILE01
              END-IF
-           END-IF           
+           else
+             STRING "** STOP! And ADD THIS CDM-CPT IN THE 52 "
+               "TO CAPTURE THE NEW RRMC CDM, re-run qqq "
+               "thank you. " r3-loco " **"
+               delimited BY size INTO ERRFILE01
+               WRITE ERRFILE01
+           end-if    
 
            GO TO P1.
 

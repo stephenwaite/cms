@@ -994,7 +994,7 @@
            IF R1-IP1 = "00930"
                PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
            
-           IF R1-IP1 = "00698" OR "00699"
+           IF R1-IP1 = "00433" OR "00698" OR "00699"
                PERFORM REPLACE-2 THRU REPLACE-2-EXIT
            END-IF
 
@@ -1486,6 +1486,18 @@
                MOVE "076" TO A-PRINS
                MOVE "U" TO A-PR-ASSIGN
            END-IF    
+
+      *    for empire plan 
+           IF (A-PRINS = "268")
+               AND (ALF-16-1 = "YLS")
+               AND (A-SEINS = "116")
+               MOVE "116" TO A-PRINS
+               MOVE "001" TO A-SEINS
+               MOVE A-SECPOL TO A-PRIPOL
+               MOVE A-SE-GROUP TO A-PR-GROUP
+               MOVE SPACE TO A-SECPOL
+               MOVE SPACE TO A-SE-GROUP
+           END-IF
            
            IF (A-PRINS = "076") 
                AND ((ALF-16-11 ALPHABETIC)
