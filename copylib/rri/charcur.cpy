@@ -18,7 +18,7 @@
            02 CC-AMOUNT PIC S9(4)V99.
            02 CC-DOCR PIC X(3).
            02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC XXX.
+           02 CC-PAYCODE PIC 999.
            02 CC-STUD PIC X.
       * 65     
            02 CC-WORK PIC XX.

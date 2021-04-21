@@ -366,7 +366,7 @@
 	
            IF FLAG = 405
                IF CD-QP1 = "1 "
-                   MOVE "0000G9550  " TO  X-PROC
+                   MOVE "0000G9548  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
@@ -380,17 +380,20 @@
                END-IF
 
                IF CD-QP1 = "3 "
-                   MOVE "0000G9548  " TO  X-PROC
+                   MOVE "0000G9550  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
            
-               IF CD-QP1 = "1 " OR "2 " OR "3 "
+               IF CD-QP1 = "2 " OR "3 "
                    STRING "405 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
                           " PERFORMANCE NOT MET! please review" 
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01 
+               end-if
+
+               IF CD-QP1 = "1 " OR "2 " OR "3 "      
                    MOVE "0000G9547  " TO  X-PROC
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000"

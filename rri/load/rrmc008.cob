@@ -322,42 +322,49 @@
                END-READ
            END-READ
 
+           IF R3-PROC = "6327" and r3-cpt = "C8908"
+               move space to ERRFILE01
+               string "RRMC SENT US " R3-CPT " " R3-HCPCS
+                 " CHANGING THIS TO CPT 77049" 
+                   delimited by size INTO ERRFILE01    
+               write errfile01               
+               MOVE "77049" TO R3-CPT    
+           END-IF
+
+           IF R3-PROC = "6252" and r3-cpt = "C8902"
+               move space to ERRFILE01
+               string "RRMC SENT US " R3-CPT " " R3-HCPCS
+                 " CHANGING THIS TO CPT 74185" 
+                   delimited by size INTO ERRFILE01    
+               write errfile01               
+               MOVE "74185" TO R3-CPT    
+           END-IF
+
            IF PROC-AMOUNT = 0
                AND R3-GLC NOT = 0
                GO TO BAD-2
            END-IF
 
-           IF ((R3-PROC = "1284" or "1285") AND R3-MOD1 = "  "
+           IF ((R3-PROC = "1204" OR "1284" or "1285" or "3030") 
+             AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1")
              MOVE SPACE TO ERRFILE01
-             STRING "DELETING REDUNDANT BILAT KNEE " MEDREC " "
-               R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
+             STRING "CHANGING BILAT STUDY TO RT LT, THANKS DXC " 
+               MEDREC " " R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01
              WRITE ERRFILE01
       *    special handling for cdm 1285 cpt 73562 from rrmc
       *    set flag back to 0
              MOVE "0" TO BILAT-FLAG
-             GO TO P1
+             MOVE "LT" TO R3-MOD1
            end-if
 
-           IF (R3-PROC = "1284" or "1285") AND R3-MOD1 = "50"
+      *    VT Medicaid threw a wrench
+           IF (R3-PROC = "1204" OR "1284" or "1285" OR "3030") 
+             AND R3-MOD1 = "50"
              MOVE "1" TO BILAT-FLAG
-           end-if
-
-           IF R3-PROC = "1204" AND R3-MOD1 = "  "
-             AND BILAT-FLAG = "1"
-             MOVE SPACE TO ERRFILE01
-             STRING "DELETING REDUNDANT BILAT orbit " MEDREC " "
-               R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
-               DELIMITED BY SIZE INTO ERRFILE01
-             WRITE ERRFILE01
-             MOVE "0" TO BILAT-FLAG
-             GO TO P1
-           end-if
-
-           IF R3-PROC = "1204" AND R3-MOD1 = "50"
-             MOVE "1" TO BILAT-FLAG
-           end-if
+             MOVE "RT" TO R3-MOD1
+           end-if                    
 
            if R3-LOCO = "RVOC"
              if R3-MOD1 = "26"
@@ -377,18 +384,16 @@
 
        BAD-1.
            MOVE SPACE TO ERRFILE01.
-
            STRING "UNDEFINED PROCEDURE FOR MRN " MEDREC
              " CDM " R3-PROC " CPT " R3-CPT " HCPCS " R3-HCPCS
              " DOS " R3-DATE DELIMITED BY SIZE INTO ERRFILE01
-
            WRITE ERRFILE01
 
            IF R3-GLC = 0
              MOVE SPACE TO ERRFILE01
              if R3-LOCO = "RVOC"
-               STRING "** STOP! ADD THIS CDM-CPT IN THE 52 "
-                 "TO CAPTURE THE CHARGE, re-run qqq thank you. " 
+               STRING "** STOP and ADD THIS CDM-CPT IN THE 52 "
+                 "TO CAPTURE THE new RVOC CDM, re-run qqq thank you. " 
                    r3-loco " **"
                delimited BY size INTO ERRFILE01
                WRITE ERRFILE01
@@ -397,22 +402,13 @@
                delimited BY size INTO ERRFILE01
                WRITE ERRFILE01
              END-IF
-           END-IF
-
-           IF R3-PROC = "6327"
-               DISPLAY "RRMC SENT US " R3-CPT " " R3-HCPCS
-                 " WOULD YOU LIKE TO CHANGE THIS TO CPT 77049, Y?"
-               ACCEPT ANS
-               IF ANS = "Y"
-                   MOVE "77049" TO R3-CPT
-                   WRITE FILEOUT01 FROM REC301
-               else
-                   MOVE SPACE TO ERRFILE01
-                   MOVE "77049 WASN'T USED FOR CDM 6327 for some reason"
-                     TO ERRFILE01
-                   WRITE ERRFILE01
-               END-IF
-           END-IF
+           else
+             STRING "** STOP! And ADD THIS CDM-CPT IN THE 52 "
+               "TO CAPTURE THE NEW RRMC CDM, re-run qqq "
+               "thank you. " r3-loco " **"
+               delimited BY size INTO ERRFILE01
+               WRITE ERRFILE01
+           end-if    
 
            GO TO P1.
 

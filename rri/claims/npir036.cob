@@ -143,7 +143,7 @@
 
            IF CC-PAYCODE NOT = FILEIN01 GO TO P0.
 
-           IF CC-PROC1 < "00100  "
+           IF (CC-PROC1 < "00100  " AND CC-AMOUNT = 0)
              OR CC-CLAIM = "999995"
              OR CC-REC-STAT > "1"
              OR CC-AMOUNT = 0

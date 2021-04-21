@@ -220,6 +220,15 @@
            02 STC-2 PIC X(8).
            02 STC-3 PIC XX.
            02 STC-4 PIC X(9).
+           02 STC-5 PIC X.
+           02 STC-6 PIC X.
+           02 STC-7 PIC X.
+           02 STC-8 PIC X.
+           02 STC-9 PIC X.
+           02 STC-10 PIC X(12).
+           02 STC-11 PIC X.
+           02 STC-12 PIC X(80).
+
        01  ALF1 PIC X.
        01  CODE1 PIC XX.
        01  CODE2 PIC XXX.
@@ -299,12 +308,19 @@
        XX1.
            MOVE SPACE TO STC01
            UNSTRING STC-TAB(X) DELIMITED BY "*"
-           INTO STC-0 STC-1 STC-2 STC-3 STC-4
+            INTO STC-0 STC-1 STC-2 STC-3 STC-4 STC-5 STC-6 STC-7 STC-8
+            STC-9 STC-10
            MOVE SPACE TO CODE1 CODE2 CODE3
            UNSTRING STC-1 DELIMITED BY ":" INTO CODE1 CODE2 CODE3
 
-           IF
-           STC-3 NOT = "U " GO TO XX1-EXIT.
+           IF STC-3 NOT = "U " GO TO XX1-EXIT.
+
+           IF CODE1 = "A3" AND CODE2 = "21 "
+             UNSTRING STC-10 DELIMiTED BY ":" INTO CODE1 CODE2 CODE3
+           end-if    
+
+           IF CODE1 = "A7" AND CODE2 = "570"
+
             move space to dtp01
             unstring dtp-tab(x) delimited by "*" into
             dtp-0 dtp-1 dtp-2 dtp-3

@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. DATA234.
+       PROGRAM-ID. data234.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -12,7 +12,9 @@
            SELECT PARMFILE ASSIGN TO "S30"
            ORGANIZATION LINE SEQUENTIAL.
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
-           ACCESS MODE IS RANDOM RECORD KEY IS G-GARNO.
+             ACCESS MODE IS dynamic RECORD KEY IS G-GARNO
+             alternate key is g-acct.
+
            SELECT AGEDATE ASSIGN TO "S40"
            ORGANIZATION LINE SEQUENTIAL.
            SELECT FILEOUT ASSIGN TO "S45"
@@ -22,62 +24,24 @@
            SELECT FILE-OUT ASSIGN TO "S55"
            ORGANIZATION LINE SEQUENTIAL.
            SELECT CHARCUR ASSIGN TO "S60" ORGANIZATION IS INDEXED
-           ACCESS IS SEQUENTIAL RECORD KEY IS CHARCUR-KEY
+           ACCESS IS dynamic RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES.
            SELECT PAYCUR ASSIGN TO "S65" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY.
        DATA DIVISION.
        FILE SECTION.
-       FD  GARFILE
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS G-MASTER.
-       01  G-MASTER.
-           02 G-GARNO PIC X(8).
-           02 G-GARNAME PIC X(24).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOB PIC X(8).
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(10).
-           02 G-PRIPOL PIC X(16).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-TRINSIND PIC X.
-           02 G-TRINS PIC XXX.
-           02 G-SE-GROUP PIC X(10).
-           02 G-SECPOL PIC X(16).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-COPAY PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
+       FD  GARFILE.
+           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+
        FD  PARMFILE.
        01  PARMFILE01 PIC 9.
+
        FD  AGEDATE.
        01  AGEDATE01.
            02 AD1 PIC 99.
            02 AD2 PIC 99.
            02 AD3 PIC 99.
+
        FD  FILEOUT
            DATA RECORD IS FILEOUT01.
        01  FILEOUT01.
@@ -102,69 +66,18 @@
            02 FO-SP PIC X(16).
            02 FO-AGE PIC X(8).
            02 FO-KEY PIC X(11).
-       FD  PAYCUR
-           BLOCK CONTAINS 6 RECORDS
-           DATA RECORD IS PAYCUR01.
-       01  PAYCUR01.
-           02 PAYCUR-KEY.
-             03 PC-KEY8 PIC X(8).
-             03 PC-KEY3 PIC XXX.
-           02 PC-AMOUNT PIC S9(4)V99.
-           02 PC-PAYCODE PIC XXX.
-           02 PC-DENIAL PIC XX.
-           02 PC-CLAIM PIC X(6).
-           02 PC-DATE-T PIC X(8).
-           02 PC-DATE-E PIC X(8).
-           02 PC-BATCH PIC X(6).
-       FD  INSIN
-           DATA RECORD IS INSIN01.
+       FD  PAYCUR.
+           copy paycur.cpy in "c:\users\sid\cms\copylib".
+
+       FD  INSIN.
        01  INSIN01 PIC 999.
-       FD FILE-OUT.
+
+       FD  FILE-OUT.
        01  FILE-OUT01 PIC X(156).
-       FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS CHARCUR01.
-       01  CHARCUR01.
-           02 CHARCUR-KEY.
-             03 CC-KEY8 PIC X(8).
-             03 CC-KEY3 PIC XXX.
-           02 CC-PATID PIC X(8).
-           02 CC-CLAIM PIC X(6).
-           02 CC-SERVICE PIC X.
-           02 CC-DIAG PIC X(7).
-           02 CC-PROC PIC X(7).
-           02 CC-MOD2 PIC XX.
-           02 CC-MOD3 PIC XX.
-           02 CC-MOD4 PIC XX.
-           02 CC-AMOUNT PIC S9(4)V99.
-           02 CC-DOCR PIC X(3).
-           02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC 999.
-           02 CC-STUD PIC X.
-           02 CC-WORK PIC XX.
-           02 CC-DAT1 PIC X(8).
-           02 CC-RESULT PIC X.
-           02 CC-ACT PIC X.
-           02 CC-SORCREF PIC X.
-           02 CC-COLLT PIC X.
-           02 CC-AUTH PIC X.
-           02 CC-PAPER PIC X.
-           02 CC-PLACE PIC X.
-           02 CC-EPSDT PIC X.
-           02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A PIC X(8).
-           02 CC-DATE-P PIC X(8).
-           02 CC-REC-STAT PIC X.
-           02 CC-DX2 PIC X(7).
-           02 CC-DX3 PIC X(7).
-           02 CC-ACC-TYPE PIC X.
-           02 CC-DATE-M PIC X(8).
-           02 CC-ASSIGN PIC X.
-           02 CC-NEIC-ASSIGN PIC X.
-           02 CC-DX4 PIC X(7).
-           02 CC-DX5 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
+
+       FD  CHARCUR.
+           copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
+
        WORKING-STORAGE SECTION.
        01  X PIC 9999.
        01  INSTAB01.
@@ -175,6 +88,7 @@
            02 DATE-MM PIC 99.
            02 DATE-DD PIC 99.
        01  DATE-Y PIC X(8).
+
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT AGEDATE PARMFILE.
@@ -191,13 +105,24 @@
            OPEN INPUT GARFILE PAYCUR INSIN CHARCUR.
            OPEN OUTPUT FILEOUT FILE-OUT.
            PERFORM A1 VARYING X FROM 1 BY 1 UNTIL X > 999.
-       P00. READ INSIN AT END GO TO P1.
+
+       P00. 
+           READ INSIN AT END GO TO P1.
            MOVE 1 TO INSTAB(INSIN01) GO TO P00.
-       P1. READ CHARCUR AT END GO TO P6.
+
+       P1. 
+           READ CHARCUR next
+             AT END 
+               GO TO P6.
+
            IF CC-ASSIGN NOT = "A" GO TO P1.
       *     IF (CC-DATE-A NOT = "00000000")
       *     AND (CC-DATE-A > DATE-Y) GO TO P1.
+           
            IF INSTAB(CC-PAYCODE) = 1 GO TO P1.
+
+           IF CC-PAYCODE = "018" GO TO P1.
+
            MOVE CC-AMOUNT TO CLAIM-TOT
            PERFORM S4 THRU S4-EXIT.
            IF CLAIM-TOT > 0 NEXT SENTENCE ELSE GO TO P1.
