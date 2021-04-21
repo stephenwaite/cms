@@ -182,8 +182,9 @@
            MOVE FO-KEY TO CHARNEW-KEY
            
            READ CHARNEW WITH LOCK INVALID
-               PERFORM A3
-               GO TO P1
+             DISPLAY "CHARGE RECORD NOT AVAILABLE FOR SOME UNKNOWN "
+               "REASON " FO-KEY 
+             GO TO P1
            END-READ    
 
       * skip to undone if coded and prompted
@@ -203,12 +204,21 @@
 
       * auto-DOC and auto-code G1004 for AUC program 
            IF CD-PROC2 = "G1004  "
+      * If rrmc sends a lone G1004 or first in a series of charges
+      * we need to handle it, G-GARNO will be prior person i hope       
+             IF FO-KEY(1:8) = G-GARNO
                MOVE HOLD-DOCP TO CD-DOCP
                IF HOLD7 NOT = "0000000"
                    MOVE HOLD7 TO CD-DIAG
                END-IF
-               REWRITE CHARNEW01
-               GO TO P1
+             else
+               MOVE "02" TO CD-DOCP
+               MOVE "0000000" TO CD-DIAG
+             end-if
+             DISPLAY "Autocoded G1004 with " CD-DIAG
+             DISPLAY " "
+             REWRITE CHARNEW01
+             GO TO P1
            END-IF
 
            IF CD-DOCP = "00"
@@ -246,7 +256,8 @@
 
       * auto-code call back mammos     
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
-               DISPLAY "Autocoding screening call back with R928"
+               DISPLAY "Autocoded screening call back with R928"
+               display " "
                MOVE "R928   " TO CD-DIAG
       * medicare and adv plans don't follow vt call back policy         
                IF (CD-PAYCODE = "003" OR "200" OR "245" OR "270" 
@@ -285,6 +296,7 @@
            IF CD-PROC1 = "1449"
                MOVE "Z1231  " TO CD-DIAG   
                DISPLAY "Autocoded tomosynthesis"
+               display " "
                REWRITE CHARNEW01
                GO TO P1               
            END-IF
@@ -292,14 +304,17 @@
       * auto-code uni tomo
            IF (CD-PROC1 = "1456")
                DISPLAY "unilateral tomosynthesis -> added modifier 52"
+               display " "
                MOVE "Z1231  " TO CD-DIAG
                MOVE "52" TO CD-MOD2
                REWRITE CHARNEW01
                GO TO P1
            END-IF.
 
-      * high risk aren't regular screen mammos     
+      * high risk aren't regular screen mammos but still code as screen    
            IF (CD-PROC1 = "1097" OR "1098")
+               DISPLAY "autocoded high risk screen w Z1231"
+               display " "
                MOVE "Z1231  " TO CD-DIAG
                REWRITE CHARNEW01 
                GO TO P1
@@ -308,18 +323,22 @@
       * needs assessment so will drop down below so *no* go to p1     
            IF (CD-PROC1 = "1099" OR "1442")
                DISPLAY "unilateral screening mammogram -> added mod 52"
+               display " "                 
                MOVE "Z1231  " TO CD-DIAG 
                MOVE "52" TO CD-MOD2
            END-IF
       
       *  putting GG mod on same day screen with diag exam, needs coding
            IF (CD-PROC1 = "1091" OR "1092" OR "1441")
+               DISPLAY "adding GG mod to same day screen with dx exam"
+               display " "           
                MOVE "GG" TO CD-MOD2
            END-IF    
 
       * auto code LD lung screen
            IF (CD-PROC1 = "5232")
                DISPLAY "LD lung screen -> auto coded"
+               display " "
                MOVE "Z87891 " TO CD-DIAG
                REWRITE CHARNEW01
                GO TO P1
@@ -333,6 +352,7 @@
 
                DISPLAY "Quick code of diag mammo due to callback?"
                DISPLAY "Hit Y for R92.8"
+               display " "
                ACCEPT ANS1                                  
 
                IF ANS1 = "Y"
@@ -343,55 +363,64 @@
            END-IF
 
            IF (CD-PROC1 = "1450" AND ANS1 = "Y")
-               MOVE "R928   " TO CD-DIAG
-               REWRITE CHARNEW01
-               GO TO P1
+             MOVE "R928   " TO CD-DIAG
+             DISPLAY "Autocoded diag tomosynthesis"
+             display " "  
+             REWRITE CHARNEW01
+             GO TO P1
            END-IF
 
       *    us extremity non vasc 76882
            IF (CD-PROC1 = "2098")
+             IF CD-DOCP = "02"
+               GO TO P1-1
+             END-IF
 
-               IF CD-DOCP = "02"
-                   GO TO P1-1
-               END-IF
+             DISPLAY "Mod for 76882? RT, LT, or enter for none."
+             display " "  
+             ACCEPT ANS
 
-               DISPLAY "Mod for 76882? RT, LT, or enter for none."
-               ACCEPT ANS
-               IF NOT (ANS = "RT " OR "LT " OR "   ")
-                 display "BAD MOD, TRY AGAIN PLEASE"
-                 GO TO P1-0.                                 
-               MOVE ANS TO CD-MOD2
+             IF NOT (ANS = "RT " OR "LT " OR "   ")
+               display "BAD MOD, TRY AGAIN PLEASE"
+               GO TO P1-0
+             end-if
+
+             MOVE ANS TO CD-MOD2
            END-IF
 
-      *    bilat knee
-           IF ((CD-PROC1 = "1284" or "1285") AND CD-MOD2 = "50")
-      *     
-              COMPUTE CD-AMOUNT = 2 * CD-AMOUNT
+      *    bilat studies
+           IF ((CD-PROC1 = "1204" or "1284" or "1285" or "3030") 
+             AND CD-MOD2 = "50")
 
-               IF CD-DOCP = "02"
-                   GO TO P1-1
-               END-IF
+      *       COMPUTE CD-AMOUNT = 2 * CD-AMOUNT
 
-               DISPLAY "Quick code of bilat knee?"
-               DISPLAY "Y for M170"
-               ACCEPT ANS1                                  
+             IF CD-DOCP = "02"
+                 GO TO P1-1
+             END-IF
 
-               IF ANS1 = "Y"
-                   MOVE "M170   " TO CD-DIAG
-                   REWRITE CHARNEW01
-                   GO TO P1
-               END-IF
+             DISPLAY "Quick code of bilat study? Will be asked twice "
+               " due to VT Medicaid RT LT."
+             DISPLAY "Y for M170, bilat OA of knee"
+             display " "  
+             ACCEPT ANS1                                  
 
-               DISPLAY "then what about knee pain?"
-               DISPLAY "Y for M25561 and M25562"
-               ACCEPT ANS1                                  
+             IF ANS1 = "Y"
+                 MOVE "M170   " TO CD-DIAG
+                 REWRITE CHARNEW01
+                 GO TO P1
+             END-IF
 
-               IF ANS1 = "Y"
-                   MOVE "M25561 " TO CD-DIAG
-                   MOVE "M25562 " TO CD-DX2
-                   REWRITE CHARNEW01
-                   GO TO P1
-               END-IF               
+             DISPLAY "then what about knee pain?"
+             DISPLAY "Y for M25561 and M25562"
+             display " "  
+             ACCEPT ANS1                                  
+
+             IF ANS1 = "Y"
+               MOVE "M25561 " TO CD-DIAG
+               MOVE "M25562 " TO CD-DX2
+               REWRITE CHARNEW01
+               GO TO P1
+             END-IF               
            END-IF
 
       *    prompt for quick code on bone density
@@ -402,6 +431,7 @@
 
                DISPLAY "Quick code of bone density?"
                DISPLAY "Hit Y for Z780   "
+               display " "  
                ACCEPT ANS1                                  
 
                IF ANS1 = "Y"
@@ -422,6 +452,7 @@
 
                DISPLAY "Quick code of bilat orbits?"
                DISPLAY "Hit Y for Z87821 "
+               display " "  
                ACCEPT ANS1                                  
 
                IF ANS1 = "Y"
@@ -444,13 +475,15 @@
            MOVE "Z1231  " TO CD-DIAG  
            
            IF CD-PAYCODE = "009"
-               DISPLAY CD-KEY8 " " FO-NAME "Autocoded sreening mammo "
-                   "now let us proceed to assessment..."
-               GO TO P2-0
+             DISPLAY CD-KEY8 " " FO-NAME "Autocoded sreening mammo "
+               "now let us proceed to assessment..."
+             display " "  
+             GO TO P2-0
            END-IF
 
-           DISPLAY "Non medicare screening mammo -> auto coded"
+           DISPLAY "Non medicare screening mammo -> auto coded "
                    CD-KEY8 " " FO-NAME  
+           display " "        
 
       *    this is the rewrite for any autocodes like above and in p1-0                          
            REWRITE CHARNEW01
@@ -459,8 +492,9 @@
        P2.
            MOVE FO-KEY(1:8) TO G-GARNO
            
-           READ GARFILE INVALID
-               DISPLAY " Bad read on garfile? " G-GARNO
+           READ GARFILE INVALID               
+               DISPLAY "GARNO NOT AVAILABLE FOR SOME UNKNOWN REASON"
+               DISPLAY "PLEASE RECORD THIS FACT " FO-KEY(1:8)
                CONTINUE
            END-READ 
 
@@ -527,7 +561,8 @@
                    GO TO P1
                END-IF
 
-               DISPLAY "medicare screening mammo -> auto coded"
+               DISPLAY "medicare screening mammo -> auto coded "
+               display " "  
                MOVE "Z1231  " TO CD-DIAG
                REWRITE CHARNEW01
                GO TO P1
@@ -548,7 +583,7 @@
            END-IF
 
            IF CD-PAYCODE = "011"
-               DISPLAY " measure 195: 8P or <Enter>"
+               DISPLAY " mea 195: Stenosis carotid 8P or <Enter>"
                ACCEPT CD-QP1
                IF NOT (CD-QP1 = "8P" OR "?" OR SPACE)
                    GO TO P2-0
@@ -608,6 +643,9 @@
                END-IF
            END-IF
 
+      *    CD-PAYCODE 014 does not need any input from coders
+      *    since is hard wired in report, ie rrmc does it for us     
+
            IF CD-PAYCODE = "015"
                DISPLAY " CPT 70498 needs 2 assessments"
                DISPLAY " measure 195: 8P or <Enter>"
@@ -618,11 +656,10 @@
                    GO TO P2-0
                END-IF
                
-               DISPLAY " Measure 406"
+               DISPLAY " Measure 406: Thyroid nodules"
                DISPLAY " < 1cm lesion use 1 or 2 or 3"
                DISPLAY " <Enter> for no lesion"
-               DISPLAY " ? for help but since this is special CPT 70498"
-                       " will have to re-do 195 just completed, sorry"
+               DISPLAY " ? for help, CPT 70498 re-do 195 just completed"
                ACCEPT CD-QP2
                IF CD-QP2 = "?"
                    DISPLAY "CT, CTA, or MR studies of chest or neck"
@@ -644,7 +681,7 @@
 
        P2-000.
            IF CD-DOCP = "02"
-               DISPLAY "Skipping coding since not read"
+               DISPLAY "Skipping since not read"
                REWRITE CHARNEW01    
                GO TO P1        
            END-IF    
@@ -764,17 +801,8 @@
            DISPLAY CD-ADMIT-DIAG
            DISPLAY " ".
            DISPLAY HOLD7
-           GO TO P2-000.
-       A1.
-           DISPLAY "GARNO NOT AVAILABLE FOR SOME UNKNOWN REASON"
-           DISPLAY "PLEASE RECORD THIS FACT" 
-           PERFORM A2.
-       A3.
-           DISPLAY "CHARGE RECORD NOT AVAILABLE FOR SOME UNKNOWN REASON"
-           PERFORM A2.
-       A2. 
-           DISPLAY FO-DATE " " FO-KEY " " FO-NAME  " " FO-PROC " "
-           FO-TITLE.
+           GO TO P2-000.                 
+                  
        A4.
            MOVE CD-PROC2 TO ALW-PROC
            MOVE IN-FIELD-7 TO ALW-DIAG

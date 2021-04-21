@@ -345,37 +345,26 @@
                GO TO BAD-2
            END-IF
 
-           IF ((R3-PROC = "1284" or "1285") AND R3-MOD1 = "  "
+           IF ((R3-PROC = "1204" OR "1284" or "1285" or "3030") 
+             AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1")
              MOVE SPACE TO ERRFILE01
-             STRING "DELETING REDUNDANT BILAT KNEE " MEDREC " "
-               R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
+             STRING "CHANGING BILAT STUDY TO RT LT, THANKS DXC " 
+               MEDREC " " R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01
              WRITE ERRFILE01
       *    special handling for cdm 1285 cpt 73562 from rrmc
       *    set flag back to 0
              MOVE "0" TO BILAT-FLAG
-             GO TO P1
+             MOVE "LT" TO R3-MOD1
            end-if
 
-           IF (R3-PROC = "1284" or "1285") AND R3-MOD1 = "50"
+      *    VT Medicaid threw a wrench
+           IF (R3-PROC = "1204" OR "1284" or "1285" OR "3030") 
+             AND R3-MOD1 = "50"
              MOVE "1" TO BILAT-FLAG
-           end-if
-
-           IF R3-PROC = "1204" AND R3-MOD1 = "  "
-             AND BILAT-FLAG = "1"
-             MOVE SPACE TO ERRFILE01
-             STRING "DELETING REDUNDANT BILAT orbit " MEDREC " "
-               R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
-               DELIMITED BY SIZE INTO ERRFILE01
-             WRITE ERRFILE01
-             MOVE "0" TO BILAT-FLAG
-             GO TO P1
-           end-if
-
-           IF R3-PROC = "1204" AND R3-MOD1 = "50"
-             MOVE "1" TO BILAT-FLAG
-           end-if
+             MOVE "RT" TO R3-MOD1
+           end-if                    
 
            if R3-LOCO = "RVOC"
              if R3-MOD1 = "26"

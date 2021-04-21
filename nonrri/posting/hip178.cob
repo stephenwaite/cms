@@ -1325,15 +1325,20 @@
                  CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
                IF (CAS-2 = "50" OR "109" OR "167" OR "B13")
-                 OR (CAS-1 = "PI" AND CAS-2 = "97   ")
-                 OR (CAS-1 = "CO" AND CAS-2 = "97   ")
-                 OR (CAS-1 = "CO" AND CAS-2 = "197  ")
                  OR (CAS-1 = "CO" AND CAS-2 = "4    ")
                  OR (CAS-1 = "CO" AND CAS-2 = "16   ")
                  OR (CAS-1 = "CO" AND CAS-2 = "18   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "29   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "55   ")
                  OR (CAS-1 = "CO" AND CAS-2 = "58   ")
                  OR (CAS-1 = "CO" AND CAS-2 = "96   ")
-                 OR (CAS-1 = "CO" AND CAS-2 = "55   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "97   ")
+                 OR (CAS-1 = "CO" AND CAS-2 = "197  ")
+                 OR (CAS-1 = "PI" AND CAS-2 = "97   ")
+                 OR (CAS-1 = "PR" AND CAS-2 = "27   ")
+                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
+                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
+                 OR (CAS-1 = "PR" AND CAS-2 = "96   ")                  
                  MOVE 1 TO FLAG
                  MOVE Z TO CAS-CNTR
                END-IF

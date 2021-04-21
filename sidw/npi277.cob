@@ -226,6 +226,8 @@
            02 STC-8 PIC X.
            02 STC-9 PIC X.
            02 STC-10 PIC X(12).
+           02 STC-11 PIC X.
+           02 STC-12 PIC X(80).
 
        01  ALF1 PIC X.
        01  CODE1 PIC XX.
@@ -314,9 +316,10 @@
            IF STC-3 NOT = "U " GO TO XX1-EXIT.
 
            IF CODE1 = "A3" AND CODE2 = "21 "
-             UNSTRING STC-10 DELIMiTED BY ":"
-               INTO CODE1 CODE2 CODE3
+             UNSTRING STC-10 DELIMiTED BY ":" INTO CODE1 CODE2 CODE3
            end-if    
+
+           IF CODE1 = "A7" AND CODE2 = "570"
 
             move space to dtp01
             unstring dtp-tab(x) delimited by "*" into

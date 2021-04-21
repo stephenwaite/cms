@@ -163,8 +163,8 @@
            02 FI-SERVICE PIC X.
            02 FI-DIAG PIC X(7).
            02 FI-PROC.
-       03 FI-PROC1 PIC X(5).
-            03 FI-PROC2 PIC XX.
+             03 FI-PROC1 PIC X(5).
+             03 FI-PROC2 PIC XX.
            02 FI-MOD2 PIC XX.
            02 FI-MOD3 PIC XX.
            02 FI-MOD4 PIC XX.
@@ -399,12 +399,10 @@
            02 GAP-TYPE PIC X.
            02 GAP-FUTURE PIC X(40).
   
-       FD  DIAGFILE
-           BLOCK CONTAINS 15 RECORDS
-           DATA RECORD IS DIAG01.
+       FD  DIAGFILE.
        01  DIAG01.
-           02 DIAG-KEY PIC X(5).
-           02 DIAG-TITLE PIC X(25).
+           02 DIAG-KEY PIC X(7).
+           02 DIAG-TITLE PIC X(61).
            02 DIAG-MEDB PIC X(5).
 
        WORKING-STORAGE SECTION.
@@ -834,7 +832,8 @@
            02 HI9-DX1 PIC X(5).
            02 HI9-DIAG-FILLER PIC X(108).
            02 HI9-END PIC X VALUE "~".
-       01 HI1001.
+
+       01  HI1001.
            02 HI10-0 PIC XX VALUE "HI".
            02 HI10-S0 PIC X VALUE "*".
            02 HI10-1C PIC XXXX VALUE "ABK:".
@@ -1108,17 +1107,17 @@
 
        01  HOLD-FILEIN01.
            02 HOLD-FILEIN-KEY.
-       03 HOLD-KEY8 PIC X(8).
-       03 HOLD-KEY3 PIC XXX.
+             03 HOLD-KEY8 PIC X(8).
+             03 HOLD-KEY3 PIC XXX.
            02 HOLD-PATID.
-       03 HOLD-PATID7 PIC X(7).
-       03 HOLD-PATID8 PIC X.
+             03 HOLD-PATID7 PIC X(7).
+             03 HOLD-PATID8 PIC X.
            02 HOLD-CLAIM PIC X(6).
            02 HOLD-SERVICE PIC X.
            02 HOLD-DIAG PIC X(7).
            02 HOLD-PROC.
-       03 HOLD-PROC1 PIC X(5).
-       03 HOLD-PROC2 PIC XX.
+             03 HOLD-PROC1 PIC X(5).
+             03 HOLD-PROC2 PIC XX.
            02 HOLD-MOD2 PIC XX.
            02 HOLD-MOD3 PIC XX.
            02 HOLD-MOD4 PIC XX.
@@ -1276,7 +1275,10 @@
            GO TO P1-1.
 
        P1. 
-           READ FILEIN AT END MOVE 1 TO END-FLAG GO TO P2.
+           READ FILEIN 
+             AT END 
+               MOVE 1 TO END-FLAG 
+               GO TO P2.
        
        P1-1. 
            IF CNTR > 0 GO TO P2.
@@ -1339,13 +1341,14 @@
            GO TO P0000.
      
        DIAG-1.
-           IF FI-DIAG = "0000000"  GO TO DIAG-EXIT.
+           IF FI-DIAG = "0000000" GO TO DIAG-EXIT.
+
            MOVE FI-DIAG TO DIAG-X
            MOVE 0 TO FLAG
            PERFORM DIAG-2 VARYING X FROM 1 BY 1 UNTIL X > DIAG-CNTR
            IF FLAG = 0
-           ADD 1 TO DIAG-CNTR
-           MOVE FI-DIAG TO DIAGTAB(DIAG-CNTR).
+             ADD 1 TO DIAG-CNTR
+             MOVE FI-DIAG TO DIAGTAB(DIAG-CNTR).
 
            IF FI-DX2 = "0000000"  GO TO DIAG-EXIT.
            MOVE FI-DX2 TO DIAG-X.
@@ -1369,11 +1372,14 @@
            IF FLAG = 0
            ADD 1 TO DIAG-CNTR
            MOVE FI-DX4 TO DIAGTAB(DIAG-CNTR).
+
        DIAG-EXIT.
            EXIT.
-       DIAG-2. IF DIAGTAB(X) = DIAG-X
-           MOVE DIAG-CNTR TO X
-           MOVE 1 TO FLAG.
+
+       DIAG-2. 
+           IF DIAGTAB(X) = DIAG-X
+             MOVE DIAG-CNTR TO X
+             MOVE 1 TO FLAG.
 
        2000A. 
            ADD 1 TO HL-NUM
@@ -1735,24 +1741,25 @@
            MOVE G-PRIPOL TO SBR-GROUP 
            MOVE G-PRINS TO INS-KEY
            MOVE "SP" TO SBR-TYPE 
-           MOVE "CI " TO SBR-INSCODE
            READ INSFILE 
              INVALID 
                MOVE "COMMERCIAL INS" TO INS-NAME
            END-READ
 
            MOVE SPACE TO SBR-GRNAME
-           MOVE INS-NAME TO SBR-GRNAME
+           MOVE INS-NAME TO SBR-GRNAME                     
            
-           IF G-PRINS = "003" OR "028"
+
+           MOVE "CI " TO SBR-INSCODE.
+           IF G-PRINS = "003" OR "116" OR "200"
              MOVE "MB " TO SBR-INSCODE.
 
            IF G-PRINS = "006"
              MOVE "OF " TO SBR-INSCODE.
            IF G-PRINS = "141"
              MOVE "CH " TO SBR-INSCODE.
-           IF (G-PRINS = "002") OR (INS-CAID = "EE ")
-             MOVE "BL " TO SBR-INSCODE.
+           IF (G-PRINS = "002") OR (INS-CAID = "EE " OR "BV ")
+             MOVE "BL " TO SBR-INSCODE.           
 
            MOVE SPACE TO SBR-6 SBR-7 SBR-8 SBR-TYPE
            MOVE SPACE TO SEGFILE01
@@ -2658,15 +2665,19 @@
            GO TO HI-DIAG-EXIT.
        HI-DIAG10.
            MOVE HOLD-DIAG TO DIAG-KEY
-           READ DIAGFILE INVALID MOVE SPACE TO DIAG-MEDB.
-           MOVE DIAG-KEY TO HI10-DX1
+           READ DIAGFILE 
+             INVALID 
+               MOVE SPACE TO DIAG-MEDB.
+
+           MOVE DIAG01(1:7) TO HI10-DX1          
            MOVE SPACE TO HI10-DIAG-FILLER DIAG10-ARRAY01
 
            PERFORM VARYING X FROM 2 BY 1 UNTIL X > DIAG-CNTR
-            MOVE DIAGTAB(X) TO DIAG10-CODE(X - 1)
-            MOVE "*ABF:" TO DIAG10-BF(X - 1)
+             MOVE DIAGTAB(X) TO DIAG10-CODE(X - 1)
+             MOVE "*ABF:" TO DIAG10-BF(X - 1)
            END-PERFORM.
            MOVE DIAG10-ARRAY01 TO HI10-DIAG-FILLER
+           
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM HI1001.
        HI-DIAG-EXIT.

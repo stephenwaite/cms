@@ -861,8 +861,12 @@
                
            IF ACTION = "COM"
                MOVE PAYFILE-KEY TO IN-FIELD
-               MOVE IN-FIELD-1 TO FLAG
-               MOVE LAST-TAB(FLAG) TO G-GARNO
+               IF IN-FIELD-8(8:1) = "G"
+                 MOVE IN-FIELD TO G-GARNO              
+               else  
+                 MOVE IN-FIELD-1 TO FLAG
+                 MOVE LAST-TAB(FLAG) TO G-GARNO
+               end-if  
                READ GARFILE
                  invalid
                    MOVE PAYFILE-KEY TO G-GARNO
