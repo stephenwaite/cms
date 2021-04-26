@@ -320,15 +320,15 @@
                  INVALID
                    GO TO BAD-1
                END-READ
-           END-READ
+           END-READ           
 
-           IF R3-PROC = "6327" and r3-cpt = "C8908"
+           IF R3-PROC = "6250" and r3-cpt = "C8901"
                move space to ERRFILE01
                string "RRMC SENT US " R3-CPT " " R3-HCPCS
-                 " CHANGING THIS TO CPT 77049" 
+                 " CHANGING THIS TO CPT 74185" 
                    delimited by size INTO ERRFILE01    
                write errfile01               
-               MOVE "77049" TO R3-CPT    
+               MOVE "74185   " TO R3-CPT    
            END-IF
 
            IF R3-PROC = "6252" and r3-cpt = "C8902"
@@ -338,6 +338,15 @@
                    delimited by size INTO ERRFILE01    
                write errfile01               
                MOVE "74185" TO R3-CPT    
+           END-IF
+
+           IF R3-PROC = "6327" and r3-cpt = "C8908"
+               move space to ERRFILE01
+               string "RRMC SENT US " R3-CPT " " R3-HCPCS
+                 " CHANGING THIS TO CPT 77049" 
+                   delimited by size INTO ERRFILE01    
+               write errfile01               
+               MOVE "77049" TO R3-CPT    
            END-IF
 
            IF PROC-AMOUNT = 0

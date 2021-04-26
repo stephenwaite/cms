@@ -3265,17 +3265,18 @@
            GO TO 4900CPC.
        CC-2-DX2.
            IF IN-FIELD = "?"
-               DISPLAY "ENTER A SECOND DX CODE."
-           DISPLAY " OR TYPE F TO SEARCH FOR A DIAGNOSIS CODE"
-           DISPLAY "BY NUMBER OR DESCRIPTION"
-           DISPLAY "OR A <CR> IF NO DIAGNOSIS IS NECESSARY."
-           DISPLAY " TYPE F TO FIND DIAGNOSIS CODES"
-           DISPLAY " OR TYPE M TO MAP ICD9 TO ICD10 CODES"
-               GO TO CC-2000TI.
+             DISPLAY "ENTER A SECOND DX CODE."
+             DISPLAY " OR TYPE F TO SEARCH FOR A DIAGNOSIS CODE"
+             DISPLAY "BY NUMBER OR DESCRIPTION"
+             DISPLAY "OR A <CR> IF NO DIAGNOSIS IS NECESSARY."
+             DISPLAY " TYPE F TO FIND DIAGNOSIS CODES"
+             DISPLAY " OR TYPE M TO MAP ICD9 TO ICD10 CODES"
+             GO TO CC-2000TI.
+
            IF IN-FIELD = "0000000" OR SPACES MOVE ZEROES TO CC-DX2
-           GO TO 4900CPC.
+             GO TO 4900CPC.
            MOVE 0 TO RETURN-FLAG
-           PERFORM  CC10 THRU CC10-EXIT
+           PERFORM CC10 THRU CC10-EXIT
            IF RETURN-FLAG = 1 GO TO CC-2000TI.
            MOVE IN-FIELD-7 TO CC-DX2.
            GO TO 4900CPC.
@@ -4560,26 +4561,30 @@
             STRING IN-FIELD-7(1:5) "??" DELIMITED BY SIZE INTO ALF-7
             MOVE ALF-7 TO IN-FIELD-7
            END-IF.
+
            MOVE IN-FIELD-7 TO DIAG-KEY.
            READ DIAGFILE INVALID DISPLAY "NOT ON FILE"
             MOVE 1 TO RETURN-FLAG
            END-READ
+           
            IF DIAG-TITLE(1:1) = "?"
              DISPLAY "THIS CODE IS INACTIVE"
              MOVE 1 TO RETURN-FLAG
              GO TO CC10-EXIT
            END-IF
+           
            IF (CC-DATE-T < "20151001" AND DIAG-KEY(6:2) NOT = "??")
-            DISPLAY "USE ICD9 CODE WITH THIS DATE"
-            MOVE 1 TO RETURN-FLAG
-           GO TO CC10-EXIT.
+             DISPLAY "USE ICD9 CODE WITH THIS DATE"
+             MOVE 1 TO RETURN-FLAG
+             GO TO CC10-EXIT.
+           
            IF (CC-DATE-T > "20150930" AND DIAG-KEY(6:2) = "??")
-            DISPLAY "USE ICD10 CODE WITH THIS DATE"
-            MOVE 1 TO RETURN-FLAG
-           GO TO CC10-EXIT.
+             DISPLAY "USE ICD10 CODE WITH THIS DATE"
+             MOVE 1 TO RETURN-FLAG
+             GO TO CC10-EXIT.
+
            DISPLAY DIAG-TITLE
            GO TO CC10-EXIT.
-
 
        1DIAG-SEARCH.
            MOVE 1 TO DIAG-FLAG
