@@ -512,17 +512,16 @@
                MOVE 0 TO PROV-FLAG
            END-IF
 
+      *     display FILEIN01
+      *     accept omitted
+
            IF (PROV-FLAG = 1)
                GO TO P00
            END-IF
            
            IF PAYORID = SPACE
                MOVE PAYORID1 TO PAYORID
-           END-IF
-
-           IF PAYORID = SPACE
-               MOVE "ZZZZZ" TO PAYORID
-           END-IF
+           END-IF           
 
            IF TITLE-FLAG = 0
                MOVE 1 TO TITLE-FLAG
@@ -786,35 +785,16 @@
            MOVE CC-CLAIM TO PD-CLAIM
            MOVE DATE-X TO PD-DATE-T
            MOVE G-GARNAME TO PD-NAME.
-           
+                     
            IF CC-PAYCODE = "062" AND (CLP-2CLMSTAT NOT = "1")
                MOVE CC-PAYCODE TO PD-PAYCODE
                GO TO P7-NEXT
            END-IF
-           
-           IF (CC-PAYCODE = G-PRINS) AND (CC-PAYCODE NOT = "001")
-             AND (CLP-2CLMSTAT NOT = "2")
-             MOVE CC-PAYCODE TO PD-PAYCODE
-             GO TO P7-NEXT
-           END-IF  
-           
-           IF CC-PAYCODE = G-SEINS AND (CC-PAYCODE NOT = "001")
-               AND (CLP-2CLMSTAT NOT = "1")
-               MOVE CC-PAYCODE TO PD-PAYCODE
-               GO TO P7-NEXT
-           END-IF
 
-           IF CC-PAYCODE = G-TRINS AND (CC-PAYCODE NOT = "001")
-               AND (CLP-2CLMSTAT NOT = "1")
-               MOVE CC-PAYCODE TO PD-PAYCODE
-               GO TO P7-NEXT
-           END-IF
-           
-      *     MOVE "076" TO PD-PAYCODE
-           IF INS-NAME-HOLD = "MVP H"
-             MOVE "14156" TO PAYORID
-           end-if  
-             
+           IF PAYORID = space
+             PERFORM P1-LOST-SVC 
+             GO TO P5-SVC-LOOP-EXIT.
+
            MOVE PAYORID TO INS-NEIC
            START INSFILE KEY NOT < INS-NEIC
              INVALID
@@ -824,61 +804,29 @@
 
        P3-NEXT.
            READ INSFILE NEXT
-             AT END
-               GO TO P4-NEXT
-           END-READ 
-
-           IF INS-NEIC > PAYORID 
+             AT end
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
-           END-IF
+           end-read
 
-           IF INS-NEIC = PAYORID AND INS-KEY = CC-PAYCODE
-               MOVE INS-KEY TO PD-PAYCODE
-               GO TO P7-NEXT
-           END-IF
-           
-           GO TO P3-NEXT.           
+           IF INS-NEIC NOT = PAYORID
+             GO TO P3-NEXT.
 
-       P4-NEXT.
-           MOVE G-PRINS TO INS-KEY
-           READ INSFILE
-             INVALID
-               GO TO P5-NEXT
-           END-READ
-
-           IF INS-NEIC = PAYORID  
-              AND INS-KEY = CC-PAYCODE
+           IF CLP-2CLMSTAT = "1"
+             IF G-PRINS NOT = INS-KEY
+               GO TO P3-NEXT
+             ELSE
                MOVE G-PRINS TO PD-PAYCODE
-           GO TO P7-NEXT.
+               GO TO P7-NEXT.
 
-       P5-NEXT.
-           MOVE G-SEINS TO INS-KEY
-           READ INSFILE
-             INVALID
-               GO TO P6-NEXT
-           END-READ
-
-           IF INS-NEIC = PAYORID 
+           IF CLP-2CLMSTAT = "2"
+             IF G-SEINS NOT = INS-KEY
+               GO TO P3-NEXT
+             ELSE
                MOVE G-SEINS TO PD-PAYCODE
-               GO TO P7-NEXT
-           END-IF.
-
-       P6-NEXT.
-           MOVE G-TRINS TO INS-KEY
-           READ INSFILE
-             INVALID
-               GO TO P7-NEXT
-           END-READ
-
-           IF INS-NEIC = PAYORID 
-               MOVE G-TRINS TO PD-PAYCODE
-               go to p7-next.
-           END-IF.
-
-                    PERFORM P1-LOST-SVC
-
-
+               GO TO P7-NEXT.                                                
+           
+           GO TO P3-NEXT.                 
 
        P7-NEXT.
            MOVE "  " TO PD-DENIAL.
@@ -1127,6 +1075,8 @@
                    OR (CAS-1 = "CO" AND CAS-2 = "96   ")
                    OR (CAS-1 = "CO" AND CAS-2 = "97   ")
                    OR (CAS-1 = "CO" AND CAS-2 = "197  ")
+                   OR (CAS-1 = "CO" AND CAS-2 = "242  ")
+                   OR (CAS-1 = "CO" AND CAS-2 = "288  ")
                    OR (CAS-1 = "PI" AND CAS-2 = "97   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "27   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "31   ")
