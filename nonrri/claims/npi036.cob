@@ -271,28 +271,49 @@
            MOVE DF7 TO PL-ZIP(PLINDX)
            GO TO P00.
 
-       P0. READ FILEIN AT END GO TO P6.
+       P0. 
+           READ FILEIN 
+             AT END 
+               GO TO P6.
+
            MOVE FILEIN01 TO CC-PAYCODE
-           START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P0.
-       P1. READ CHARCUR NEXT AT END GO TO P0.
+           START CHARCUR KEY NOT < CC-PAYCODE 
+             INVALID 
+               GO TO P0.
+
+       P1. 
+           READ CHARCUR NEXT 
+             AT END 
+               GO TO P0.
+
            IF CC-PAYCODE NOT = FILEIN01 GO TO P0.
+
            IF CC-PROC < "00100  "
-           OR CC-CLAIM = "999995"
-           OR CC-REC-STAT > "1"
-           OR CC-AMOUNT = 0
-           GO TO P1.
+             OR CC-CLAIM = "999995"
+             OR CC-REC-STAT > "1"
+             OR CC-AMOUNT = 0
+             GO TO P1.
+
            MOVE CC-KEY8 TO G-GARNO.
-           READ GARFILE INVALID MOVE "NO GARNO" TO EF2
-            PERFORM S1 GO TO P1.
+           READ GARFILE 
+             INVALID 
+               MOVE "NO GARNO" TO EF2
+               PERFORM S1 
+               GO TO P1.
+
            IF (CC-PAYCODE NOT = G-PRINS)
-           OR (CC-PAPER = "P" OR "O") 
-           PERFORM PAPER-1 GO TO P1.
+             OR (CC-PAPER = "P" OR "O") 
+             PERFORM PAPER-1 
+             GO TO P1.
+
            IF (G-BILLADD = SPACE) AND (G-STREET = SPACE)
-           MOVE CHARCUR-KEY TO EF1 
-           MOVE "NO ADDRESS" TO EF2
-           PERFORM S1
-           GO TO P1.
+             MOVE CHARCUR-KEY TO EF1 
+             MOVE "NO ADDRESS" TO EF2
+             PERFORM S1
+             GO TO P1.
+
            GO TO TEST-IT.
+
        PAPER-1.
            MOVE CC-PAYCODE TO FO-PC
            MOVE CC-PATID TO FO-PATID
@@ -302,7 +323,8 @@
            MOVE CC-PLACE TO FO-PLACE 
            MOVE CC-DOCP TO FO-DOC 
            MOVE CC-PAPER TO FO-PAPER
-           WRITE PAPEROUT01 .
+           WRITE PAPEROUT01.
+
        TEST-IT.
            IF G-DOB = "00000000"
            MOVE "NO DOB" TO EF2

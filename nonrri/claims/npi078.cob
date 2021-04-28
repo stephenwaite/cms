@@ -322,8 +322,12 @@
            START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P6.
            
        P1. 
-           READ CHARCUR NEXT AT END GO TO P6.
+           READ CHARCUR NEXT 
+             AT END 
+               GO TO P6.
+           
            IF CC-PAYCODE > 199 GO TO P6.
+           
            PERFORM A1 THRU A2 GO TO P1.
 
        A1.
@@ -368,13 +372,14 @@
              GO TO A2.
 
            IF (NUM3 NOT = CC-PAYCODE) AND (CC-PAPER = "E")
-           MOVE "P" TO CC-PAPER.
+             MOVE "P" TO CC-PAPER.
 
            IF CC-PAYCODE = 153 OR "122" OR "123" MOVE "P" TO CC-PAPER.
 
            IF CC-PAPER = "E" GO TO A1-1.
 
-           PERFORM PAPER-1 GO TO A2.
+           PERFORM PAPER-1 
+           GO TO A2.
 
        A1-1.
            MOVE CC-PAYCODE TO INS-KEY
