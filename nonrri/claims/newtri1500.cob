@@ -1244,18 +1244,25 @@
            WRITE OUT01 FROM LINE-1002(X).
       *    don't print payment detail in body     
       *     PERFORM S4 THRU S4-EXIT.
-       S4. MOVE G-GARNO TO PC-KEY8.
+
+       S4. 
+           MOVE G-GARNO TO PC-KEY8.
            MOVE "000" TO PC-KEY3.
            START PAYCUR KEY NOT < PAYCUR-KEY INVALID GO TO S4-EXIT.
-       S7. READ PAYCUR NEXT AT END GO TO S4-EXIT.
+
+       S7. 
+           READ PAYCUR NEXT AT END GO TO S4-EXIT.
            IF PC-KEY8 NOT = G-GARNO GO TO S4-EXIT.
            IF PC-CLAIM NOT = CLMTAB(X) GO TO S7.
            ADD PC-AMOUNT TO CLAIM-TOT.
+           
            IF PC-DENIAL = "14" GO TO S7.
+           
            IF (PC-PAYCODE = G-PRINS)
              AND (PC-DENIAL = SPACE OR "DD" OR "07" OR "08")
              COMPUTE PRIM-PAID = PRIM-PAID + (-1 * PC-AMOUNT)
            END-IF.
+           
            MOVE PC-DATE-T TO TEST-DATE.
            MOVE S-MM TO L101F1
            MOVE S-DD TO L101F2
@@ -1268,14 +1275,17 @@
            MOVE S-DD TO L101F2S7
            MOVE S-CC TO L101F3CCS7
            MOVE S-YY TO L101F3S7
-           IF LCNTR > 5 MOVE SPACE TO OUT01 WRITE OUT01
-            WRITE OUT01 FROM CONTLINE
-            MOVE 0 TO LCNTR
-            PERFORM A6 PERFORM A3 PERFORM A9.
+           IF LCNTR > 5 
+             MOVE SPACE TO OUT01 
+             WRITE OUT01
+             WRITE OUT01 FROM CONTLINE
+             MOVE 0 TO LCNTR
+             PERFORM A6 PERFORM A3 PERFORM A9.
 
-           WRITE OUT01 FROM LINE101S7 AFTER 2
+      *     WRITE OUT01 FROM LINE101S7 AFTER 2
            ADD 1 TO LCNTR.
            GO TO S7.
+
        S4-EXIT. EXIT.
        A5.
            MOVE SPACE TO OUT01

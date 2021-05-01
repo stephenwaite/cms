@@ -899,7 +899,7 @@
 
            DISPLAY G-GARNO " " G-GARNAME " " G-PRINS "/" G-SEINS
            MOVE G-GARNO TO ALF-8
-           CLOSE CMNTFILE CALL "/home/sidw/tri000.b" USING ALF-8
+           CLOSE CMNTFILE   CALL "/home/sidw/tri000.b" USING ALF-8
            OPEN INPUT CMNTFILE  GO TO 1000-ACTION.
 
            IF KEYFLAG = 1 AND ACTION = "PB"
@@ -908,7 +908,7 @@
            MOVE LAST-TAB(FLAG) TO G-GARNO
            CLOSE CHARCUR
            CLOSE PAYFILE
-           CALL "/home/sidw/tri205.b" USING PB1 G-GARNO
+           CALL "/home/sidw/tri205.acu" USING PB1 G-GARNO
            MOVE 1 TO PB1
            OPEN I-O CHARCUR PAYFILE
            GO TO 1000-ACTION.
