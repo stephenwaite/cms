@@ -331,6 +331,15 @@
                MOVE "74185   " TO R3-CPT    
            END-IF
 
+            IF R3-PROC = "6251" and r3-cpt = "C8900"
+               move space to ERRFILE01
+               string "RRMC SENT US " R3-CPT " " R3-HCPCS
+                 " CHANGING THIS TO CPT 74185" 
+                   delimited by size INTO ERRFILE01    
+               write errfile01               
+               MOVE "74185   " TO R3-CPT    
+           END-IF
+
            IF R3-PROC = "6252" and r3-cpt = "C8902"
                move space to ERRFILE01
                string "RRMC SENT US " R3-CPT " " R3-HCPCS
