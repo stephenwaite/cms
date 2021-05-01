@@ -1,5 +1,6 @@
 {
     "require": {
-        "league/csv": "^9.6"
+        "league/csv": "^9.6",
+        "rospdf/pdf-php": "^0.12.63"
     }
 }
