@@ -791,6 +791,10 @@
                GO TO P7-NEXT
            END-IF
 
+           IF INS-NAME-HOLD = "MVP H"
+             MOVE "14156" TO PAYORID
+           end-if
+
            IF PAYORID = space
              PERFORM P1-LOST-SVC 
              GO TO P5-SVC-LOOP-EXIT.
