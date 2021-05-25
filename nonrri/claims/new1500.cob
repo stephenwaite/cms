@@ -924,7 +924,7 @@
 
            IF FI-PC = 003 MOVE "X" TO L00F1.
 
-           IF FI-PC = 004 OR 064  MOVE "X" TO L00F2.
+           IF FI-PC = 004 OR 064 MOVE "X" TO L00F2.
 
            IF FI-PC = 141 MOVE "X" TO L00F3.
 
@@ -1334,8 +1334,8 @@
             MOVE 0 TO LCNTR
             PERFORM A6 PERFORM A3 PERFORM A9.
 
-           WRITE OUT01 FROM LINE101S7 AFTER 2
-           ADD 1 TO LCNTR.
+      *     WRITE OUT01 FROM LINE101S7 AFTER 2
+      *     ADD 1 TO LCNTR.
            GO TO S7.
        S4-EXIT. EXIT.
        A5.
