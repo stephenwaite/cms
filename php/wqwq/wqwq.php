@@ -1,5 +1,5 @@
 <?php
-include "../../vendor/autoload.php";
+include "/home/stee/src/cms/vendor/autoload.php";
 
 $pdf = new Cezpdf('LETTER');
 $pdf->ezSetMargins(170, 0, 10, 0);
@@ -8,13 +8,15 @@ $page_count = 0;
 $continued = false;
 $is_continued = false;
 $was_continued = false;
-$body_count = 0;
+$line_count = 0;
 $old_body = '';
+$total_line_count = 0;
 
 $content = file_get_contents($argv[1]);
 $pages = explode("\014", $content); // form feeds separate pages
 foreach ($pages as $page) {
-    $body_count = 0;    
+    $line_count = 0;
+    $page_count++;    
     
     $page_lines = explode("\012", $page);
     $page_lines_count = count($page_lines);
@@ -35,7 +37,7 @@ foreach ($pages as $page) {
     $body = '';
     for ($i = 5; $i < ($page_lines_count - 4); $i++) {        
         $body .= $page_lines[$i];
-        $body_count++;
+        $line_count++;
     }
 
     $footer = '';
@@ -50,24 +52,23 @@ foreach ($pages as $page) {
         printHeader($header, $pdf);
         printBody($body, $pdf);
         printFooter($footer, $pdf);
-        $total_body_count = 0;
+        $total_line_count = 0;
     }
 
     if ($is_continued && !$was_continued) {
-        $old_body .= $body;
-        $total_body_count += $body_count;
-
+        $old_body = $body;
+        $total_line_count += $line_count;
     }
 
     if (!$is_continued && $was_continued) {
-        $total_body_count += $body_count;
-        if ($total_body_count < 35) {
-            $old_body .= $body;
+        $total_line_count += $line_count;
+        if ($total_line_count < 35) {
+            $old_body .= substr($body, 2);
             printHeader($header, $pdf);
             printBody($old_body, $pdf);
             printFooter($footer, $pdf);
             $old_body = '';
-            $total_body_count = 0;
+            $total_line_count = 0;
         } else {
             printHeader($header, $pdf);
             printBody($old_body, $pdf);
@@ -77,27 +78,30 @@ foreach ($pages as $page) {
             printBody($body, $pdf);
             printFooter($footer, $pdf);
             $old_body = '';
-            $total_body_count = 0;
+            $total_line_count = 0;
         }    
     }
 
     if ($is_continued && $was_continued) {
-        $total_body_count += $body_count;
-        if ($total_body_count < 41) {
+        $total_line_count += $line_count;
+        if ($total_line_count < 41) {
             $old_body .= $body;
         } else {
             printHeader($header, $pdf);
             printBody($old_body, $pdf);
             printFooter($footer, $pdf);
             $old_body = "\r" . $body ;
-            $total_body_count = $body_count;
+            $total_line_count = $line_count;
         }
     }
 }
 
 function printHeader($header, $pdf) {
     global $argv;
-    $pdf->ezNewPage();        
+    global $page_count;
+    if ($page_count > 1) {
+        $pdf->ezNewPage();        
+    }
     $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
     $pdf->addPngFromFile($argv[2], 0, 0, 612, 792);
     $pdf->ezText($header, 12, array(
@@ -115,7 +119,7 @@ function printBody($content, $pdf) {
 }
 
 function printFooter($footer, $pdf) { 
-    $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin'] - 560);
+    $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin'] - 570);
     $pdf->ezText($footer, 12, array(
         'justification' => 'left',
         'leading' => 12
