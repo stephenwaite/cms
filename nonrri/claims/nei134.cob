@@ -240,6 +240,9 @@
            02 T-MM PIC 99.
            02 T-DD PIC 99.
        01  diff pic 99.    
+
+       01  force-flag pic 9 value 0.
+
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT PAYCUR INSIN CHARCUR GARFILE
@@ -268,7 +271,13 @@
            
            IF CC-PAYCODE = 003 OR 004 OR 028 OR 064 GO TO P1.
                                  
-           IF CC-PAPER = "O" OR "P" GO TO P1-1.
+           IF CC-PAPER = "O"
+      *      guess we have to print this even if claim bal is zero       
+             GO TO P1-1.             
+
+           IF CC-PAPER = "P" 
+             PERFORM P1-2
+           end-if   
                       
            IF INSTAB(CC-PAYCODE) = 2 GO TO P1.
            
@@ -279,7 +288,9 @@
            IF CC-PAYCODE = 62 GO TO P1-3.
            
            MOVE CC-KEY8 TO G-GARNO
-           READ GARFILE INVALID GO TO P1-1.
+           READ GARFILE INVALID 
+      *      guess we have to print these unknown garnos even if zero 
+             GO TO P1-1.
            
            MOVE CC-PAYCODE TO ALF3
            
@@ -287,13 +298,17 @@
            
            MOVE CC-PAYCODE TO INS-KEY
            
-           READ INSFILE INVALID GO TO P1-1.
+           READ INSFILE INVALID 
+      *      gotta print these too
+             GO TO P1-1.
            
-           IF G-PRINS NOT = "003" GO TO P1-1.
+           IF G-PRINS NOT = "003"
+             PERFORM P1-2
+           end-if.  
       *     IF INS-CAID = "EE " GO TO P1.
       *     IF CC-PAYCODE = 002 OR 005 OR 006 OR 074 GO TO P1.
 
-       P1-1.
+       P1-1.                       
            IF ( CC-PAPER = " " )
               AND ( CC-PAYCODE NOT = 62 )
               MOVE "P" TO CC-PAPER.
@@ -311,16 +326,30 @@
 
        GAP-1.
            MOVE CC-KEY8 TO G-GARNO
-           READ GARFILE INVALID GO TO P1-1.
+           READ GARFILE INVALID 
+             GO TO P1-1.
+
            MOVE G-PR-GROUP TO GAPKEY
-           READ GAPFILE INVALID GO TO P1-1.
-           IF GAP-TYPE = "X" OR "Y" GO TO P1.
-           IF CC-ASSIGN = "A" GO TO P1-1.
+           READ GAPFILE INVALID 
+             GO TO P1-1.
+
+      *     IF GAP-TYPE = "X" OR "Y" GO TO P1.
+           
+           IF CC-ASSIGN = "A" 
+             PERFORM S4 THRU S4-EXIT
+             IF CC-AMOUNT NOT > 0
+               GO TO P1
+             end-if
+             GO TO P1-1
+           end-if  
+           
            GO TO P1.
 
        P1-2.
            PERFORM S4 THRU S4-EXIT.
            IF CC-AMOUNT NOT > 0 GO TO P1.
+
+           
            GO TO P1-1.
 
        P1-3.
@@ -329,22 +358,26 @@
            MOVE CC-DATE-T TO CR-DATE
            MOVE SPACE TO CR-MOD1 CR-MOD2
            START CAREFILE KEY NOT < CARE-KEY 
-             INVALID 
+             INVALID
                GO TO P1-1.
 
        P1-4.
-           READ CAREFILE NEXT AT END GO TO P1-1.
+           READ CAREFILE NEXT 
+             AT END 
+             GO TO P1-1.
            
-           IF CR-KEY8 NOT = CC-KEY8 GO TO P1-1.
+           IF CR-KEY8 NOT = CC-KEY8 
+             GO TO P1-1.
            
-           IF CR-DATE NOT = CC-DATE-T GO TO P1-1.
+           IF CR-DATE NOT = CC-DATE-T 
+             GO TO P1-1.
            
            IF CR-PROC NOT = CC-PROC GO TO P1-4.
            
       *    can we add a 60 day dos check here?
            IF CR-INSNAME NOT = SPACE
              compute diff = 12 * (t-yy - cr-yy) + t-mm - cr-mm
-             if diff > 2
+             if diff < 3
                go to P1
              end-if
            end-if                       

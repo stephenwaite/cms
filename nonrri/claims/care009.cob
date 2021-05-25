@@ -9,22 +9,31 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
+
            SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS IS RANDOM RECORD KEY IS CHARCUR-KEY
            ALTERNATE RECORD KEY IS  CC-PAYCODE WITH DUPLICATES.
+
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
            ACCESS IS RANDOM RECORD KEY IS G-GARNO.
+           
            SELECT CAREFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS CARE-KEY
            LOCK MODE MANUAL.
+           
            SELECT FILEIN ASSIGN TO "S45" ORGANIZATION
            LINE SEQUENTIAL.
+           
            SELECT FILEOUT ASSIGN TO "S50" ORGANIZATION 
            LINE SEQUENTIAL.
+           
            SELECT FILEOUT2 ASSIGN TO "S55" ORGANIZATION 
            LINE SEQUENTIAL.
+
        DATA DIVISION.
+
        FILE SECTION.
+       
        FD  FILEIN.
        01  FILEIN01.
            02 FI-PC PIC 999.
@@ -40,14 +49,14 @@
            02 FILLER PIC X(27).
            02 FI-PS PIC X.
            02 FILLER PIC X(70).
-       FD FILEOUT.
+       
+       FD  FILEOUT.
        01  FILEOUT01 PIC X(133).
-       FD FILEOUT2.
+
+       FD  FILEOUT2.
        01  FILEOUT201 PIC X(133).
 
-       FD  CHARCUR
-           BLOCK CONTAINS 5 RECORDS
-           DATA RECORD IS CHARCUR01.
+       FD  CHARCUR.
        01  CHARCUR01.
            02 CHARCUR-KEY.
              03 CC-KEY8.
@@ -95,10 +104,9 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
-       FD GARFILE
-           BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS G-MASTER.
-       01 G-MASTER.
+
+       FD  GARFILE.
+       01  G-MASTER.
            02 G-GARNO PIC X(8).
            02 G-GARNAME.
              03 GN1 PIC X.
@@ -142,6 +150,7 @@
            02 G-BILLCYCLE PIC X.
            02 G-DELETE PIC X.
            02 G-FILLER PIC XXX.
+
        FD  CAREFILE.
        01  CAREFILE01.
            02 CARE-KEY.
@@ -150,7 +159,11 @@
               03 CR-PROC PIC X(5).
               03 CR-MOD1 PIC XX.
               03 CR-MOD2 PIC XX.
-           02 CR-PAYDATE PIC X(8).
+           02 CR-PAYDATE.
+              03 CR-CC PIC 99.
+              03 CR-YY PIC 99.
+              03 CR-MM PIC 99.
+              03 CR-DD PIC 99.
            02 CR-DOCP    PIC X(6).
            02 CR-POS     PIC XX.
            02 CR-BILLED PIC 9(4)V99.
@@ -167,11 +180,32 @@
            02 CR-INSNAME PIC X(30).
 
        WORKING-STORAGE SECTION.
+
        01  ALF1 PIC X.
+       
+       01  TODAYDATE.
+           02 T-CC PIC 99.
+           02 T-YY PIC 99.
+           02 T-MM PIC 99.
+           02 T-DD PIC 99.
+
+       01  diff pic 99.       
+
+       01  CLAIMDATE.
+           02 CL-CC PIC 99.
+           02 CL-YY PIC 99.
+           02 CL-MM PIC 99.
+           02 CL-DD PIC 99.
+       
+
        PROCEDURE DIVISION.
+       
        P0.
            OPEN OUTPUT FILEOUT FILEOUT2
-           open INPUT FILEIN CHARCUR GARFILE CAREFILE.
+           open INPUT FILEIN CHARCUR GARFILE CAREFILE
+
+           accept todaydate from DATE YYYYMMDD.
+
 
        P1. 
            READ FILEIN AT END GO TO P99.
@@ -196,7 +230,14 @@
                PERFORM A1
                GO TO P1.
 
-           IF G-PRINS NOT = "003" PERFORM A1 GO TO P1.
+      *    NEED TO CHECK IF CLAIM HAS BEEN SENT IN LAST COUPLE MONTHS
+      *     MOVE CC-DATE-A TO CLAIMDATE
+      *     compute diff = 12 * (t-yy - cL-yy) + t-mm - cL-mm
+      *     if diff < 3
+      *       perform A2
+      *       GO TO P1.           
+
+           IF G-PRINS NOT = "003" PERFORM A1 GO TO P1.     
 
            MOVE CC-KEY8 TO CR-KEY8
            MOVE CC-DATE-T TO CR-DATE
@@ -223,27 +264,37 @@
            IF CR-PROC NOT = CC-PROC1 
              GO TO P2.
 
-           IF CR-DENIAL1 = "MA18" OR "N89 " 
-             PERFORM A2 
-             GO TO P1.
+      *    we've already checked to see if it's a xover and greater than
+      *    2 months from the medicare paid date in the 134 program
+      *    but we check again for non 062s
 
-           IF CR-DENIAL2 = "MA18" OR "N89 " 
-             PERFORM A2 
-             GO TO P1.
+           IF CR-INSNAME NOT = SPACE
+             compute diff = 12 * (t-yy - cr-yy) + t-mm - cr-mm           
+             if diff < 3
 
-           IF CR-DENIAL3 = "MA18" OR "N89 " 
-             PERFORM A2 
-             GO TO P1.
+               IF CR-DENIAL1 = "MA18" OR "N89 " 
+                 PERFORM A2 
+                 GO TO P1
+               end-if  
 
-           IF CR-DENIAL4 = "MA18" OR "N89 " 
-             PERFORM A2 
-             GO TO P1.
+               IF CR-DENIAL2 = "MA18" OR "N89 " 
+                 PERFORM A2 
+                 GO TO P1
+               end-if  
 
-           IF CR-INSNAME NOT = SPACE 
-             PERFORM A2
-             GO TO P1.
+               IF CR-DENIAL3 = "MA18" OR "N89 " 
+                 PERFORM A2 
+                 GO TO P1
+               end-if  
 
-           PERFORM A1.
+               IF CR-DENIAL4 = "MA18" OR "N89 " 
+                 PERFORM A2 
+                 GO TO P1
+               end-if   
+             end-if  
+           end-if    
+
+           PERFORM A1
            GO TO P1.
 
        A1.

@@ -69,11 +69,17 @@
 
        P1. 
            READ FILEIN AT END GO TO P99.
+           
            MOVE FI-1 TO CHARCUR-KEY
+           
            READ CHARCUR WITH LOCK INVALID GO TO P1.
-           IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT
-            ELSE MOVE "3" TO CC-REC-STAT
-           END-IF.
+           
+           IF CC-REC-STAT = "0" 
+             MOVE "2" TO CC-REC-STAT
+           ELSE 
+             MOVE "3" TO CC-REC-STAT
+           END-IF
+           
            ACCEPT CC-DATE-A FROM CENTURY-DATE.
            REWRITE CHARCUR01
            GO TO P1.
