@@ -1,10 +1,10 @@
 <?php
-include "/../../src/cms/vendor/autoload.php";
+include "/home/stee/src/cms/vendor/autoload.php";
 
 $pdf = new Cezpdf('LETTER');
 $pdf->ezSetMargins(170, 0, 10, 0);
 $pdf->selectFont('Courier');
-$page_count = -1;
+$page_count = 0;
 $continued = false;
 $is_continued = false;
 $was_continued = false;
@@ -20,7 +20,7 @@ foreach ($pages as $page) {
     $page_lines = explode("\012", $page);
     $page_lines_count = count($page_lines);
 
-    error_log("page lines count is $page_lines_count");
+    //error_log("page lines count is $page_lines_count");
 
     $was_continued = $is_continued;
 
