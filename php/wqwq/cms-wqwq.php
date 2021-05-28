@@ -1,5 +1,5 @@
 <?php
-include "/home/stee/src/cms/vendor/autoload.php";
+include "/../../src/cms/vendor/autoload.php";
 
 $pdf = new Cezpdf('LETTER');
 $pdf->ezSetMargins(170, 0, 10, 0);
