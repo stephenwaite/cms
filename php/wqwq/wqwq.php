@@ -62,8 +62,10 @@ foreach ($pages as $page) {
 
     if (!$is_continued && $was_continued) {
         $total_line_count += $line_count;
+        $first_page_is_continued = true;
         if ($total_line_count < 35) {
-            $old_body .= substr($body, 2);
+            error_log("is this true? " . $total_line_count);
+            $old_body .= $body;
             printHeader($header, $pdf);
             printBody($old_body, $pdf);
             printFooter($footer, $pdf);
@@ -99,8 +101,9 @@ foreach ($pages as $page) {
 function printHeader($header, $pdf) {
     global $argv;
     global $page_count;
-    if ($page_count > 1) {
-        $pdf->ezNewPage();        
+    global $first_page_is_continued;
+    if ($page_count > 1 && !$was_continued) {
+      $pdf->ezNewPage();        
     }
     $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
     $pdf->addPngFromFile($argv[2], 0, 0, 612, 792);
@@ -136,7 +139,6 @@ header('Content-type: application/pdf');
 header('Content-Disposition: inline; filename="new_wqwq"');
 header('Content-Transfer-Encoding: binary');
 header('Content-Length: ' . filesize($fname));
-ob_end_clean();
 @readfile($fname);
 unlink($fname);
 exit();
