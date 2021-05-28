@@ -131,8 +131,6 @@ function printFooter($footer, $pdf) {
 
 $fname = tempnam('/tmp', 'PDF');
 file_put_contents($fname, $pdf->ezOutput());
-$fname = tempnam('/tmp', 'PDF');
-file_put_contents($fname, $pdf->ezOutput());
 $command = "cp $fname ~/bill.pdf";
 exec($command);
 
