@@ -1,5 +1,7 @@
 <?php
-include "/home/stee/src/cms/vendor/autoload.php";
+$USER = getenv("USER");
+$filepath = "/home/" . $USER;
+include $filepath . "/src/cms/vendor/autoload.php";
 
 $pdf = new Cezpdf('LETTER');
 $pdf->ezSetMargins(170, 0, 10, 0);
@@ -16,16 +18,16 @@ $content = file_get_contents($argv[1]);
 $pages = explode("\014", $content); // form feeds separate pages
 foreach ($pages as $page) {
     $line_count = 0;
-    $page_count++;    
-    
+    $page_count++;
+
     $page_lines = explode("\012", $page);
     $page_lines_count = count($page_lines);
 
     $was_continued = $is_continued;
 
-    if (!strpos($page, "CONTINUED")) {         
+    if (!strpos($page, "CONTINUED")) {
         $is_continued = false;
-    } else {        
+    } else {
         $is_continued = true;
     }
 
@@ -35,7 +37,7 @@ foreach ($pages as $page) {
     }
 
     $body = '';
-    for ($i = 5; $i < ($page_lines_count - 4); $i++) {        
+    for ($i = 5; $i < ($page_lines_count - 4); $i++) {
         $body .= $page_lines[$i];
         $line_count++;
     }
@@ -46,7 +48,7 @@ foreach ($pages as $page) {
             $footer .= $page_lines[$i] . "\r";
         }
         $footer .= $page_lines[$i];
-    }    
+    }
 
     if (!$is_continued && !$was_continued) {
         printHeader($header, $pdf);
@@ -80,7 +82,7 @@ foreach ($pages as $page) {
             printFooter($footer, $pdf);
             $old_body = '';
             $total_line_count = 0;
-        }    
+        }
     }
 
     if ($is_continued && $was_continued) {
@@ -103,7 +105,7 @@ function printHeader($header, $pdf) {
     global $first_page_is_continued;
     global $was_continued;
     if ($page_count > 1 && $was_continued) {
-      $pdf->ezNewPage();        
+      $pdf->ezNewPage();
     }
     $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
     $pdf->addPngFromFile($argv[2], 0, 0, 612, 792);
@@ -121,7 +123,7 @@ function printBody($content, $pdf) {
     ));
 }
 
-function printFooter($footer, $pdf) { 
+function printFooter($footer, $pdf) {
     $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin'] - 570);
     $pdf->ezText($footer, 12, array(
         'justification' => 'left',
