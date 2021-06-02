@@ -63,8 +63,7 @@ foreach ($pages as $page) {
     if (!$is_continued && $was_continued) {
         $total_line_count += $line_count;
         $first_page_is_continued = true;
-        if ($total_line_count < 35) {
-            error_log("is this true? " . $total_line_count);
+        if ($total_line_count < 41) {
             $old_body .= $body;
             printHeader($header, $pdf);
             printBody($old_body, $pdf);
@@ -102,6 +101,7 @@ function printHeader($header, $pdf) {
     global $argv;
     global $page_count;
     global $first_page_is_continued;
+    global $was_continued;
     if ($page_count > 1 && !$was_continued) {
       $pdf->ezNewPage();        
     }
@@ -131,14 +131,8 @@ function printFooter($footer, $pdf) {
 
 $fname = tempnam('/tmp', 'PDF');
 file_put_contents($fname, $pdf->ezOutput());
-// Send the content for view.
-header("Pragma: public");
-header("Expires: 0");
-header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-header('Content-type: application/pdf');
-header('Content-Disposition: inline; filename="new_wqwq"');
-header('Content-Transfer-Encoding: binary');
-header('Content-Length: ' . filesize($fname));
-@readfile($fname);
-unlink($fname);
+$command = "cp $fname ~/bill.pdf";
+exec($command);
+
 exit();
+
