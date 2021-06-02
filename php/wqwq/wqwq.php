@@ -65,7 +65,7 @@ foreach ($pages as $page) {
     if (!$is_continued && $was_continued) {
         $total_line_count += $line_count;
         $first_page_is_continued = true;
-        if ($total_line_count < 41) {
+        if ($total_line_count < 39) {
             $old_body .= $body;
             printHeader($header, $pdf);
             printBody($old_body, $pdf);
