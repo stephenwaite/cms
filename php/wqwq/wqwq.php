@@ -104,7 +104,7 @@ function printHeader($header, $pdf) {
     global $page_count;
     global $first_page_is_continued;
     global $was_continued;
-    if ($page_count > 1 && $was_continued) {
+    if ($page_count > 1 || $was_continued) {
       $pdf->ezNewPage();
     }
     $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
