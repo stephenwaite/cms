@@ -125,8 +125,8 @@
            02 NM1-NAMES PIC XXX.
            02 NM1-EINSS PIC XX.
            02 NM1-PREFIX PIC XX.
-           02 NM1-CODE0.
-             03 NM1-CODE PIC X(9).
+           02 NM1-CODE.
+             03 NM1-CODE9 PIC X(9).
              03 NM1-CODE2 PIC XX.
 
 
