@@ -363,7 +363,8 @@
                GO TO BAD-2
            END-IF
 
-           IF ((R3-PROC = "1204" OR "1284" or "1285" or "3030") 
+           IF ((R3-PROC = "1204" OR "1283" OR "1284" or "1285" 
+                or "3030" or "3085") 
              AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1")
              MOVE SPACE TO ERRFILE01
@@ -378,7 +379,8 @@
            end-if
 
       *    VT Medicaid threw a wrench
-           IF (R3-PROC = "1204" OR "1284" or "1285" OR "3030") 
+           IF (R3-PROC = "1204" OR "1283" or "1284" or "1285"
+               OR "3030" or "3085") 
              AND R3-MOD1 = "50"
              MOVE "1" TO BILAT-FLAG
              MOVE "RT" TO R3-MOD1
