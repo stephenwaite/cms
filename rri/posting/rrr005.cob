@@ -43,76 +43,76 @@
            ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
            ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
            ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES.
+
            SELECT MPLRFILE ASSIGN TO "S75" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS MPLR-KEY
            LOCK MODE IS MANUAL.
+           
        DATA DIVISION.
        FILE SECTION.
        FD  MPLRFILE.
        01  MPLRFILE01.
-     02 MPLR-KEY PIC X(8). 
-     02 MPLR-NAME PIC X(22).
-     02 MPLR-STREET PIC X(24).
-     02 MPLR-CITY PIC X(15).
-     02 MPLR-STATE PIC XX.
-     02 MPLR-ZIP PIC X(9).
-     02 MPLR-CLAIMNO PIC X(15).
-     02 MPLR-TRINS PIC XXX.
-     02 MPLR-TR-ASSIGN PIC X.
-     02 MPLR-TR-GROUP PIC X(12).
-     02 MPLR-TRIPOL PIC X(14).
-     02 MPLR-TR-NAME PIC X(24).
-     02 MPLR-TR-RELATE PIC X.
-     02 MPLR-FUTURE PIC X(6).
-       FD  GARFILE
-      *    BLOCK CONTAINS 3 RECORDS
-     DATA RECORD IS G-MASTER.
+           02 MPLR-KEY PIC X(8). 
+           02 MPLR-NAME PIC X(22).
+           02 MPLR-STREET PIC X(24).
+           02 MPLR-CITY PIC X(15).
+           02 MPLR-STATE PIC XX.
+           02 MPLR-ZIP PIC X(9).
+           02 MPLR-CLAIMNO PIC X(15).
+           02 MPLR-TRINS PIC XXX.
+           02 MPLR-TR-ASSIGN PIC X.
+           02 MPLR-TR-GROUP PIC X(12).
+           02 MPLR-TRIPOL PIC X(14).
+           02 MPLR-TR-NAME PIC X(24).
+           02 MPLR-TR-RELATE PIC X.
+           02 MPLR-FUTURE PIC X(6).
+
+       FD  GARFILE.
        01  G-MASTER.
-     02 G-GARNO PIC X(8).
-     02 G-GARNAME PIC X(24).
-     02 G-BILLADD PIC X(22).
-     02 G-STREET PIC X(22).
-     02 G-CITY PIC X(18).
-     02 G-STATE PIC X(2).
-     02 G-ZIP PIC X(9).
-     02 G-COLLT PIC X.
-     02 G-PHONE PIC X(10).
-     02 G-SEX PIC X.
-     02 G-RELATE PIC X.
-     02 G-MSTAT PIC X.
-     02 G-DOB PIC X(8).
-     02 G-DUNNING PIC X.
-     02 G-ACCTSTAT PIC X.
-     02 G-PR-MPLR PIC X(4).
-     02 G-PRINS PIC XXX.
-     02 G-PR-ASSIGN PIC X.
-     02 G-PR-OFFICE PIC X(4).
-     02 G-PR-GROUP PIC X(12).
-     02 G-PRIPOL PIC X(14).
-     02 G-PRNAME PIC X(24).
-     02 G-PR-RELATE PIC X.
-     02 G-SE-MPLR PIC X(4).
-     02 G-SEINS PIC XXX.
-     02 G-SE-ASSIGN PIC X.
-     02 G-TRINSIND PIC X.
-     02 G-TRINS PIC XXX.
-     02 G-SE-GROUP PIC X(12).
-     02 G-SECPOL PIC X(14).
-     02 G-SENAME PIC X(24).
-     02 G-SE-RELATE PIC X.
-     02 G-INSPEND PIC S9(5)V99.
-     02 G-LASTBILL PIC X(8).
-     02 G-ASSIGNM PIC X.
-     02 G-PRIVATE PIC X.
-     02 G-BILLCYCLE PIC X.
-     02 G-DELETE PIC X.
-     02 G-FILLER PIC XXX.
-     02 G-ACCT PIC X(8).
-     02 G-PRGRPNAME PIC X(15).
-     02 G-SEGRPNAME PIC X(15).
-       FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS CHARCUR01.
+           02 G-GARNO PIC X(8).
+           02 G-GARNAME PIC X(24).
+           02 G-BILLADD PIC X(22).
+           02 G-STREET PIC X(22).
+           02 G-CITY PIC X(18).
+           02 G-STATE PIC X(2).
+           02 G-ZIP PIC X(9).
+           02 G-COLLT PIC X.
+           02 G-PHONE PIC X(10).
+           02 G-SEX PIC X.
+           02 G-RELATE PIC X.
+           02 G-MSTAT PIC X.
+           02 G-DOB PIC X(8).
+           02 G-DUNNING PIC X.
+           02 G-ACCTSTAT PIC X.
+           02 G-PR-MPLR PIC X(4).
+           02 G-PRINS PIC XXX.
+           02 G-PR-ASSIGN PIC X.
+           02 G-PR-OFFICE PIC X(4).
+           02 G-PR-GROUP PIC X(12).
+           02 G-PRIPOL PIC X(14).
+           02 G-PRNAME PIC X(24).
+           02 G-PR-RELATE PIC X.
+           02 G-SE-MPLR PIC X(4).
+           02 G-SEINS PIC XXX.
+           02 G-SE-ASSIGN PIC X.
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
+           02 G-SE-GROUP PIC X(12).
+           02 G-SECPOL PIC X(14).
+           02 G-SENAME PIC X(24).
+           02 G-SE-RELATE PIC X.
+           02 G-INSPEND PIC S9(5)V99.
+           02 G-LASTBILL PIC X(8).
+           02 G-ASSIGNM PIC X.
+           02 G-PRIVATE PIC X.
+           02 G-BILLCYCLE PIC X.
+           02 G-DELETE PIC X.
+           02 G-FILLER PIC XXX.
+           02 G-ACCT PIC X(8).
+           02 G-PRGRPNAME PIC X(15).
+           02 G-SEGRPNAME PIC X(15).
+
+       FD  CHARCUR.
        01  CHARCUR01.
            02 CHARCUR-KEY.
              03 CC-KEY8 PIC X(8).
@@ -154,9 +154,8 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
-       FD  CHARFILE
-      *    BLOCK CONTAINS 2 RECORDS
-           DATA RECORD IS CHARFILE01.
+
+       FD  CHARFILE.
        01  CHARFILE01.
            02 CHARFILE-KEY.
              03 CD-KEY8 PIC X(8).
@@ -180,7 +179,7 @@
            02 CD-ACT PIC X.
            02 CD-SORCREF PIC X.
            02 CD-COLLT PIC X.
-           02 CD-AUTH PIC X.
+           02 CD-AGE PIC X.
            02 CD-PAPER PIC X.
            02 CD-PLACE PIC X.
            02 CD-NAME PIC X(24).
@@ -197,97 +196,98 @@
            02 CD-NEIC-ASSIGN PIC X.
            02 CD-DX4 PIC X(7).
            02 CD-DX5 PIC X(7).
-           02 CD-DX6 PIC X(7).
+           02 CD-AUTH PIC 9(6)
+           02 CD-DX6 PIC X.
            02 CD-FUTURE PIC X(6).
-       FD  PAYFILE
-      *    BLOCK CONTAINS 4 RECORDS
-     DATA RECORD IS PAYFILE01.
+
+       FD  PAYFILE.
        01  PAYFILE01.
-     02 PAYFILE-KEY.
-       03 PD-KEY8 PIC X(8).
-       03 PD-KEY3 PIC XXX.
-     02 PD-NAME PIC X(24).
-     02 PD-AMOUNT PIC S9(4)V99.
-     02 PD-PAYCODE PIC XXX.
-     02 PD-DENIAL PIC XX.
-     02 PD-CLAIM PIC X(6).
-     02 PD-DATE-T PIC X(8).
-     02 PD-DATE-E PIC X(8).
-     02 PD-ORDER PIC X(6).
-     02 PD-BATCH PIC X(6).
+           02 PAYFILE-KEY.
+             03 PD-KEY8 PIC X(8).
+             03 PD-KEY3 PIC XXX.
+           02 PD-NAME PIC X(24).
+           02 PD-AMOUNT PIC S9(4)V99.
+           02 PD-PAYCODE PIC XXX.
+           02 PD-DENIAL PIC XX.
+           02 PD-CLAIM PIC X(6).
+           02 PD-DATE-T PIC X(8).
+           02 PD-DATE-E PIC X(8).
+           02 PD-ORDER PIC X(6).
+           02 PD-BATCH PIC X(6).
 
-
-       FD  PAYCUR
-      *    BLOCK CONTAINS 3 RECORDS
-     DATA RECORD IS PAYCUR01.
+       FD  PAYCUR.
        01  PAYCUR01.
-     02 PAYCUR-KEY.
-       03 PC-KEY8 PIC X(8).
-       03 PC-KEY3 PIC XXX.
-     02 PC-AMOUNT PIC S9(4)V99.
-     02 PC-PAYCODE PIC XXX.
-     02 PC-DENIAL PIC XX.
-     02 PC-CLAIM PIC X(6).
-     02 PC-DATE-T PIC X(8).
-     02 PC-DATE-E PIC X(8).
-     02 PC-BATCH PIC X(6).
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC XXX.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC X(6).
+           02 PC-DATE-T PIC X(8).
+           02 PC-DATE-E PIC X(8).
+           02 PC-BATCH PIC X(6).
 
-       FD  INSFILE
-     *     BLOCK CONTAINS 6 RECORDS
-     DATA RECORD IS INSFILE01.
+       FD  INSFILE.
        01  INSFILE01.
-     02 INS-KEY PIC XXX.
-     02 INS-NAME PIC X(22).
-     02 INS-STREET PIC X(24).
-     02 INS-CITY PIC X(15).
-     02 INS-STATE PIC XX.
-     02 INS-ZIP PIC X(9).
-     02 INS-ASSIGN PIC X.
-     02 INS-CLAIMTYPE PIC X.
-     02 INS-NEIC PIC X(5).
-     02 INS-NEICLEVEL PIC X.
-     02 INS-NEIC-ASSIGN PIC X.
-     02 INS-PPO PIC X.
-     02 INS-PRVNUM PIC X(10).
-     02 INS-HMO PIC X(3).
-     02 INS-STATUS PIC X.
-     02 INS-LEVEL PIC X.
-     02 INS-LASTDATE PIC X(8).
-     02 INS-CAID PIC XXX.
-     02 INS-REFWARN PIC X.
-     02 INS-FUTURE PIC X(8).
+           02 INS-KEY PIC XXX.
+           02 INS-NAME PIC X(22).
+           02 INS-STREET PIC X(24).
+           02 INS-CITY PIC X(15).
+           02 INS-STATE PIC XX.
+           02 INS-ZIP PIC X(9).
+           02 INS-ASSIGN PIC X.
+           02 INS-CLAIMTYPE PIC X.
+           02 INS-NEIC PIC X(5).
+           02 INS-NEICLEVEL PIC X.
+           02 INS-NEIC-ASSIGN PIC X.
+           02 INS-PPO PIC X.
+           02 INS-PRVNUM PIC X(10).
+           02 INS-HMO PIC X(3).
+           02 INS-STATUS PIC X.
+           02 INS-LEVEL PIC X.
+           02 INS-LASTDATE PIC X(8).
+           02 INS-CAID PIC XXX.
+           02 INS-REFWARN PIC X.
+           02 INS-FUTURE PIC X(8).
+
        FD  PARMCHP.
        01  PARMCHP01 PIC XXX.
+
        FD  POSTDATE.
        01  DATE-X.
-       03 CC PIC XX.
-       03 YY PIC XX.
-       03 MM PIC XX.
-       03 DD PIC XX.
+           03 CC PIC XX.
+           03 YY PIC XX.
+           03 MM PIC XX.
+           03 DD PIC XX.
+
        FD  W1.
        01  W101 PIC X(8).
+
        WORKING-STORAGE SECTION.
+
        01  ALF3 PIC XXX.
        01  X PIC 9.
        01  FLAG PIC 9.
-       01     FLAG12 PIC 9.
-       01     PAYCUR-TOT PIC S9(6)V99.
-       01     CLAIM-TOT PIC S9(6)V99.
-       01     P-FLAG PIC 9.
-       01     S-FLAG PIC 9.
-       01     T-FLAG PIC 9.
-       01     XYZ PIC 999 VALUE 0.
-       01     HOLD-KEY PIC X(11).
-       01     CNT-PAY PIC 999999 VALUE 0.
-       01     CNT-CHAR PIC 999999 VALUE 0.
-       01     TOT-PAY PIC S9(8)V99 VALUE 0.
-       01     TOT-CHAR PIC S9(8)V99 VALUE 0.
-       01     NEF-11 PIC Z,ZZZ,ZZ9.99CR.
+       01  FLAG12 PIC 9.
+       01  PAYCUR-TOT PIC S9(6)V99.
+       01  CLAIM-TOT PIC S9(6)V99.
+       01  P-FLAG PIC 9.
+       01  S-FLAG PIC 9.
+       01  T-FLAG PIC 9.
+       01  XYZ PIC 999 VALUE 0.
+       01  HOLD-KEY PIC X(11).
+       01  CNT-PAY PIC 999999 VALUE 0.
+       01  CNT-CHAR PIC 999999 VALUE 0.
+       01  TOT-PAY PIC S9(8)V99 VALUE 0.
+       01  TOT-CHAR PIC S9(8)V99 VALUE 0.
+       01  NEF-11 PIC Z,ZZZ,ZZ9.99CR.
        01  HOLDIT PIC X(8) VALUE SPACE.
-       01 PARMCHPTAB01.
-    02 CHPTAB PIC XXX OCCURS 9 TIMES.
+       01  PARMCHPTAB01.
+           02 CHPTAB PIC XXX OCCURS 9 TIMES.
+
        01 CHPCNTR PIC 9 VALUE 0.
-      *
+      
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT INSFILE MPLRFILE.
@@ -310,9 +310,13 @@
            READ CHARFILE AT END GO TO P1.
            ADD 1 TO CNT-CHAR.
            ADD CD-AMOUNT TO TOT-CHAR.
-           IF CD-KEY8 NOT = HOLDIT MOVE CD-KEY8 TO HOLDIT
-           MOVE 0 TO XYZ.
+           
+           IF CD-KEY8 NOT = HOLDIT 
+             MOVE CD-KEY8 TO HOLDIT
+             MOVE 0 TO XYZ.
+
            MOVE CD-KEY8 TO CC-KEY8.
+           
        C2.
            ADD 1 TO XYZ.
            MOVE XYZ TO CC-KEY3.
@@ -323,6 +327,7 @@
            DISPLAY "CONTACT THE DATA CENTER"
            GO TO 9100CMF.
            GO TO C2.
+
        C3.
            MOVE CD-PATID TO CC-PATID
            MOVE CD-CLAIM TO CC-CLAIM
@@ -361,6 +366,7 @@
            MOVE CD-DX6 TO CC-DX6
            MOVE CD-FUTURE TO CC-FUTURE
            MOVE CD-STAT TO CC-REC-STAT.
+
        P0-1.
            MOVE HOLD-KEY TO CHARCUR-KEY
            WRITE CHARCUR01 GO TO C1.
@@ -396,8 +402,8 @@
            WRITE PAYCUR01.
            GO TO P1.
 
-*******         ACCEPT ANY UNASSIGNED PAYMENT WITH NO CHANGE
-*******         TO ORIGINAL CHARGE.
+      *    ACCEPT ANY UNASSIGNED PAYMENT WITH NO CHANGE
+      *    TO ORIGINAL CHARGE.
 
        A1.
            IF PD-PAYCODE = "001" GO TO A1-EXIT.
@@ -406,7 +412,7 @@
            PERFORM CHP-ACCT VARYING X FROM 1 BY 1 UNTIL X > CHPCNTR
            IF FLAG = 1 GO TO A1-EXIT.
 
-*******         FIND CHARGE RECORD THIS PAYMENT WILL BE POSTED AGAINST.
+      *    FIND CHARGE RECORD THIS PAYMENT WILL BE POSTED AGAINST.
 
            STRING PD-KEY8 "000" DELIMITED BY "@" INTO CHARCUR-KEY.
            START CHARCUR KEY > CHARCUR-KEY INVALID GO TO A1-EXIT.
@@ -419,14 +425,14 @@
            PERFORM CHP-ACCT VARYING X FROM 1 BY 1 UNTIL X > CHPCNTR
            IF FLAG = 1 GO TO A1-EXIT.
 
-*******         CHARGE RECORD IS NOT ASSIGNED INSURANCE.
-*******OR WAS ASSIGNED ONCE AND ALREADY CONVERTED.
-*******IN EITHER CASE, ACCEPT PAYMENT WITH NO CHANGE
-*******TO ORIGINAL CHARGE RECORD.
+      *    CHARGE RECORD IS NOT ASSIGNED INSURANCE.
+      *    OR WAS ASSIGNED ONCE AND ALREADY CONVERTED.
+      *    IN EITHER CASE, ACCEPT PAYMENT WITH NO CHANGE
+      *    TO ORIGINAL CHARGE RECORD.
 
            IF CC-ASSIGN = "U"  GO TO A1-EXIT.
 
-******* FIND PRIMARY AND SECONDARY CODES FOR THIS ACCOUNT(GARNO)
+      *    FIND PRIMARY AND SECONDARY CODES FOR THIS ACCOUNT(GARNO)
 
            MOVE PC-KEY8 TO G-GARNO.
            READ GARFILE INVALID
@@ -434,10 +440,10 @@
            GO TO A1-EXIT.
 
        A2-1.
-*******CONVERT TO 001 ANY MATCHING INSURANCE PAYMENT
-*******ON THE PAYMENT AND CHARGE BUT NOT THE ACCOUNTS INSURANCE.
-*******SOLVES PENDING INSURANCES CLAIMS AFTER THE ACCOUNT HAS
-*******CHANGED TO ANOTHER PAYMENT.
+      *    CONVERT TO 001 ANY MATCHING INSURANCE PAYMENT
+      *    ON THE PAYMENT AND CHARGE BUT NOT THE ACCOUNTS INSURANCE.
+      *    SOLVES PENDING INSURANCES CLAIMS AFTER THE ACCOUNT HAS
+      *    CHANGED TO ANOTHER PAYMENT.
            IF (PD-PAYCODE = CC-PAYCODE)
            AND (PD-PAYCODE NOT = G-PRINS)
            AND (PD-PAYCODE NOT = G-SEINS)
@@ -520,24 +526,24 @@
       * PRIMARY CC-PAYCODE
            IF PD-PAYCODE = G-PRINS AND S-FLAG = 0 GO TO A7-0.
            IF PD-PAYCODE = G-PRINS AND S-FLAG = 1 
-     AND T-FLAG = 0 GO TO A8-0.
+             AND T-FLAG = 0 GO TO A8-0.
            IF PD-PAYCODE = G-PRINS AND S-FLAG = 1 
-     AND T-FLAG = 1 MOVE 0 TO CLAIM-TOT GO TO A7-0.
+             AND T-FLAG = 1 MOVE 0 TO CLAIM-TOT GO TO A7-0.
            GO TO A1-EXIT.
       * SECONDARY CC-PAYCODE
        SEC-1.
            IF PD-PAYCODE = G-SEINS AND P-FLAG = 0 GO TO A1-EXIT.
            IF PD-PAYCODE = G-SEINS AND P-FLAG = 1 
-     AND T-FLAG = 1 MOVE 0 TO CLAIM-TOT GO TO A7-0.
+             AND T-FLAG = 1 MOVE 0 TO CLAIM-TOT GO TO A7-0.
            IF PD-PAYCODE = G-SEINS AND P-FLAG = 1 
-     AND T-FLAG = 0 GO TO A8-0.
+             AND T-FLAG = 0 GO TO A8-0.
            GO TO A1-EXIT.
       * TERTIARY CC-PAYCODE
        TRI-1.
            IF PD-PAYCODE = G-TRINS AND P-FLAG = 0 GO TO A1-EXIT.
            IF PD-PAYCODE = G-TRINS AND S-FLAG = 0 GO TO A1-EXIT. 
            IF PD-PAYCODE = G-TRINS AND P-FLAG = 1 
-     AND S-FLAG = 1 MOVE 0 TO CLAIM-TOT GO TO A7-0.
+             AND S-FLAG = 1 MOVE 0 TO CLAIM-TOT GO TO A7-0.
            GO TO A1-EXIT.
 
        A7-0.
@@ -551,6 +557,7 @@
            MOVE "001" TO CC-PAYCODE MOVE "U" TO CC-ASSIGN
            MOVE "U" TO CC-NEIC-ASSIGN MOVE " " TO CC-PAPER.
            REWRITE CHARCUR01. GO TO A1-EXIT.
+
        A8-0.
            MOVE "00000000" TO CC-DATE-A.
            IF CC-REC-STAT = "3" MOVE "1" TO CC-REC-STAT.
@@ -559,6 +566,7 @@
            MOVE "001" TO CC-PAYCODE MOVE "U" TO CC-ASSIGN
            MOVE "U" TO CC-NEIC-ASSIGN MOVE " " TO CC-PAPER.
            REWRITE CHARCUR01. GO TO A1-EXIT.
+
        B1.
            MOVE G-SEINS TO CC-PAYCODE
            MOVE G-SE-ASSIGN TO CC-ASSIGN
@@ -569,6 +577,7 @@
            MOVE INS-NEIC-ASSIGN TO CC-NEIC-ASSIGN.
            IF CC-ASSIGN = "S" MOVE "U" TO CC-ASSIGN.
            IF CC-NEIC-ASSIGN = "S" MOVE "A" TO CC-NEIC-ASSIGN.
+
        B2.
            EXIT.
        XC1.
@@ -585,14 +594,17 @@
            MOVE INS-NEIC-ASSIGN TO CC-NEIC-ASSIGN.
            IF CC-ASSIGN = "S" MOVE "U" TO CC-ASSIGN.
            IF CC-NEIC-ASSIGN = "S" MOVE "A" TO CC-NEIC-ASSIGN.
+
        XC2.
            EXIT.
+
        A1-EXIT.
            EXIT.
 
        CHP-ACCT.
            IF ALF3 = CHPTAB(X) MOVE 1 TO FLAG
-     MOVE CHPCNTR TO X.
+             MOVE CHPCNTR TO X.
+
        9100CMF.
            MOVE TOT-CHAR TO NEF-11
            INSPECT CNT-CHAR REPLACING LEADING "0" BY " "
@@ -602,6 +614,7 @@
            DISPLAY CNT-PAY " PAYMENTS POSTED   FOR " NEF-11.
            MOVE DATE-X TO W101.
            WRITE W101.
+
        9200CMF.
            CLOSE PAYCUR CHARCUR W1.
            DISPLAY "POSTING PROGRAM HAS ENDED".
