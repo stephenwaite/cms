@@ -25,6 +25,6 @@ try {
         $fault->faultstring . ". Wassup with stee's script?";
 }
 
-file_put_contents('ngs.zip', $response->NGSDownloadReportsResult);
+file_put_contents($argv[3], $response->NGSDownloadReportsResult);
 
 
