@@ -4,8 +4,8 @@ $soapClient = new SoapClient("https://apps.cortexedi.com/AppsWebService.asmx?WSD
 
 // Prepare SoapHeader parameters
 $sh_param = array(
-            'username'    =>    'cmswest',
-            'password'    =>    'CH4GgoY8');
+            'username'    =>    $argv[1],
+            'password'    =>    $argv[2]);
 //$headers = new SoapHeader('https://cortexedi.com/apps/webservices', 'UserCredentials', $sh_param);
 
 // Prepare Soap Client

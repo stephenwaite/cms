@@ -6,8 +6,8 @@
    
         // Prepare SoapHeader parameters
         $sh_param = array(
-                    'username'    =>    'cmswest',
-                    'password'    =>    'CH4GgoY8',
+                    'username'    =>    $argv[2],
+                    'password'    =>    $argv[3],
                     'buffer'      =>    $file,
                     'filename'    =>    $argv[1]
                 );
