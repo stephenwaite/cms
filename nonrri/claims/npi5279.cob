@@ -1214,10 +1214,7 @@
            PERFORM HI-DIAG THRU HI-DIAG-EXIT
            PERFORM 2310A THRU 2310A-EXIT
             
-           IF EINSS-TYPE = "E" OR SAVE01(152:5) = "03036"
-               PERFORM 2310B
-           END-IF
-
+           PERFORM 2310B
 
            IF NOT ( CLM-5 = "11" AND HOLD-NEIC = "SX065")
                PERFORM 2310D THRU 2310D-EXIT
