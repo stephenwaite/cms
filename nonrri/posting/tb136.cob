@@ -808,7 +808,7 @@
            MOVE CC-CLAIM TO PD-CLAIM
            MOVE DATE-X TO PD-DATE-T
            MOVE G-GARNAME TO PD-NAME.
-           MOVE "002" TO PD-PAYCODE.           
+           MOVE G-SEINS TO PD-PAYCODE.           
            MOVE SPACE TO PD-DENIAL PD-MANAGE PATRESP.
 
             PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR

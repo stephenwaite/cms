@@ -140,7 +140,9 @@
            MOVE G-SEINS TO CC-PAYCODE
            MOVE G-SE-ASSIGN TO CC-ASSIGN CC-NEIC-ASSIGN
            MOVE "2" TO CC-REC-STAT
-           MOVE "20200810" TO CC-DATE-A
+           MOVE "20210630" TO CC-DATE-A
+           move "1" to CC-PLACE
+           move "95" to cc-mod3
            REWRITE CHARCUR01
            GO TO P0.
        P99.
