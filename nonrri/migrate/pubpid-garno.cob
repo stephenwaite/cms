@@ -84,9 +84,9 @@
            UNSTRING F01 DELIMITED BY "," INTO
              F-FILL1 F-DATE FNAME LNAME F-SEX F-DOB F-MR F-FILL2
 
-      *     DISPLAY "LNAME " LNAME " FNAME " FNAME " DOB " F-DOB
-      *       " SEX " F-SEX " MR " F-MR
-      *     ACCEPT omitted    
+           DISPLAY "LNAME " LNAME " FNAME " FNAME " DOB " F-DOB
+             " SEX " F-SEX " MR " F-MR
+           ACCEPT omitted    
                       
            PERFORM P2 THRU P2-EXIT
 
@@ -109,8 +109,8 @@
                GO TO P2-EXIT
            END-READ.
 
-      *     DISPLAY G-GARNO.
-      *     ACCEPT OMITTED.
+           DISPLAY G-GARNO.
+           ACCEPT OMITTED.
 
            IF G-GARNO(1:3) > LNAME(1:3)
                PERFORM E1

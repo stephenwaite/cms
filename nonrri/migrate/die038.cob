@@ -134,6 +134,11 @@
              GO TO P2-EXIT
            END-IF 
 
+      *     DISPLAY "G-GARNO " G-GARNO " LNAMEHLD " LNAMEHLD 
+      *       " FNAMEHLD " FNAMEHLD " F-DOBHLD " F-DOBHLD 
+      *       " FSEXHLD " F-SEXHLD " MRHLD" F-MRHLD
+      *     ACCEPT OMITTED
+
            IF (LNAMEHLD(1:3) = LNAME(1:3))
               AND
                (FNAMEHLD(1:3) = FNAME(1:3))
@@ -142,6 +147,18 @@
               PERFORM E2
               GO TO P2-EXIT
            END-IF         
+
+           IF (LNAMEHLD(1:3) = LNAME(1:3))
+              AND
+               (FNAMEHLD(1:3) = FNAME(1:3))
+              AND
+              (F-SEXHLD(1:1) = G-SEX)
+              AND 
+              (TESTDOB(1:4) = G-DOB(1:4))
+              and
+              (TESTDOB(5:2) = G-DOB(5:2))
+              WRITE FILEOUT01
+           END-IF
            GO TO P3. 
 
        P2-EXIT.

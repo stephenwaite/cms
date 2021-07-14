@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. GARY2K.
+       PROGRAM-ID. scr006.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -30,6 +30,16 @@
            ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
            ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
            LOCK MODE MANUAL.
+
+           SELECT REFPHY ASSIGN TO "S55" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC  RECORD KEY IS REF-KEY
+           ALTERNATE RECORD KEY IS REF-BSNUM  WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-CRNUM WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-UPIN  WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-CDNUM WITH DUPLICATES
+           ALTERNATE RECORD KEY IS REF-NAME  WITH DUPLICATES
+           LOCK MODE MANUAL.
+
        DATA DIVISION.
        FILE SECTION.
        FD  INSFILE
@@ -163,7 +173,12 @@
            02 G-BILLCYCLE PIC X.
            02 G-DELETE PIC X.
            02 G-FILLER PIC XXX.
+       
+       Fd  refphy.
+           COPY refphy.cpy IN "C:\Users\sid\cms\copylib".           
+
        WORKING-STORAGE SECTION.
+       01  ALF8 PIC X(8) VALUE SPACE.
        01  ALF34 PIC X(34) VALUE SPACE.
        01  ALF22 PIC X(22).
        01  NAMEF PIC X(24).
@@ -174,7 +189,7 @@
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT FILEOUT.
-           OPEN INPUT GARFILE CHARCUR AGEDATE INSFILE.
+           OPEN INPUT GARFILE CHARCUR AGEDATE INSFILE refphy.
            READ AGEDATE AT END CONTINUE.
            MOVE SPACE  TO G-GARNO
            START GARFILE KEY NOT < G-GARNO INVALID GO TO P99.
@@ -183,39 +198,55 @@
            MOVE G-GARNO TO CC-KEY8
            MOVE "   " TO CC-KEY3
            START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO P1.
+
        P2.
            READ CHARCUR next AT END GO TO P1.
+
            IF CC-KEY8 NOT = G-GARNO GO TO P1.
+
       *    IF CC-PLACE NOT = "1" GO TO P2.
+
            IF CC-DATE-T < AGE-LOW OR > AGE-HIGH GO TO P2.
+
            MOVE G-PRINS TO INS-KEY
            READ INSFILE INVALID MOVE SPACE TO INS-NAME.
            MOVE SPACE TO ALF22
-           IF G-BILLADD = SPACE MOVE G-STREET TO ALF22
+
+           move cc-docr to ref-key
+           read refphy invalid
+             move space to ref-name ref-npi.
+
+           IF G-BILLADD = SPACE 
+             MOVE G-STREET TO ALF22
            ELSE
-           MOVE G-BILLADD TO ALF22
+             MOVE G-BILLADD TO ALF22
            END-IF
+
            MOVE SPACE TO FILEOUT01 NAMEL NAMEF
            UNSTRING G-GARNAME DELIMITED BY ";" INTO NAMEL NAMEF.
+           
            IF G-PRINS = "003"
-           STRING G-GARNO TB NAMEF(1:10) TB NAMEL(1:14)
-           TB CC-DATE-T(5:2) "-" CC-DATE-T(7:2) "-" CC-DATE-T(1:4)
-           TB G-DOB TB G-SEX
-           TB G-BILLADD TB G-STREET TB G-CITY TB GZIP5 
-           TB G-PH1 "-" G-PH2 "-" G-PH3 " TB MEDICARE "
-           G-PRIPOL(1:11)
-           DELIMITED BY SIZE INTO FILEOUT01
-           WRITE FILEOUT01
+             STRING G-GARNO ref-name ref-npi TB NAMEF(1:10) 
+               TB NAMEL(1:14)
+               TB CC-DATE-T(5:2) "-" CC-DATE-T(7:2) "-" CC-DATE-T(1:4)
+               TB G-DOB TB G-SEX
+               TB G-BILLADD TB G-STREET TB G-CITY TB GZIP5 
+               TB G-PH1 "-" G-PH2 "-" G-PH3 " TB MEDICARE "
+               G-PRIPOL(1:11)
+               DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
            ELSE
-           STRING G-GARNO TB NAMEF(1:10) TB NAMEL(1:14)
-           TB CC-DATE-T(5:2) "-" CC-DATE-T(7:2) "-" CC-DATE-T(1:4)
-           TB G-DOB TB G-SEX
-           TB G-BILLADD TB G-STREET TB G-CITY TB GZIP5  TB
-           G-PH1 "-" G-PH2 "-" G-PH3 TB INS-NAME
-           DELIMITED BY SIZE INTO FILEOUT01
-           WRITE FILEOUT01.
+             STRING G-GARNO ref-name ref-npi TB NAMEF(1:10) 
+               TB NAMEL(1:14)
+               TB CC-DATE-T(5:2) "-" CC-DATE-T(7:2) "-" CC-DATE-T(1:4)
+               TB G-DOB TB G-SEX
+               TB G-BILLADD TB G-STREET TB G-CITY TB GZIP5  TB
+               G-PH1 "-" G-PH2 "-" G-PH3 TB INS-NAME
+               DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01.
 
            MOVE CC-DATE-T TO SAVEDATE.
+
        P3.
            READ CHARCUR NEXT AT END GO TO P1.
            IF CC-KEY8 NOT = G-GARNO GO TO P1.
@@ -223,12 +254,18 @@
            IF CC-DATE-T < AGE-LOW OR > AGE-HIGH GO TO P3.
            IF CC-DATE-T = SAVEDATE GO TO P3.
            MOVE CC-DATE-T TO SAVEDATE
+           
+           move cc-docr to ref-key
+           read refphy invalid
+             move space to ref-name ref-npi.
+
            MOVE SPACE TO FILEOUT01
-           STRING ALF34
+           STRING ALF8 REF-NAME REF-NPI
            " " CC-DATE-T(5:2) " " CC-DATE-T(7:2) " " CC-DATE-T(1:4)
            DELIMITED BY SIZE INTO FILEOUT01.
            WRITE FILEOUT01.
            GO TO P3.
 
-       P99. CLOSE FILEOUT GARFILE CHARCUR AGEDATE
+       P99. 
+           CLOSE FILEOUT GARFILE CHARCUR AGEDATE refphy
            STOP RUN.

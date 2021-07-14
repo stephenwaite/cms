@@ -183,8 +183,7 @@
            02 G-PR-MPLR PIC X(4).
            02 G-PRINS PIC XXX.
            02 G-PR-ASSIGN PIC X.
-           02 G-TRINSIND PIC X.
-           02 G-TRINS PIC XXX.
+           02 G-PR-OFFICE PIC X(4).
            02 G-PR-GROUP PIC X(10).
            02 G-PRIPOL0.
              03 G-PRIPOL PIC X(9).
@@ -195,7 +194,8 @@
            02 G-SE-MPLR PIC X(4).
            02 G-SEINS PIC XXX.
            02 G-SE-ASSIGN PIC X.
-           02 G-SE-OFFICE PIC X(4).
+           02 G-TRINSIND PIC X.
+           02 G-TRINS PIC XXX.
            02 G-SE-GROUP PIC X(10).
            02 G-SECPOL0. 
               03 G-SECPOL PIC X(9).
@@ -703,9 +703,9 @@
                MOVE "0" TO ADJ-FLAG
            END-IF
               
-           DISPLAY CLP-1 "CLM STAT " CLP-2CLMSTAT 
-           DISPLAY CLP-1 "REV FLAG " REV-FLAG
-           DISPLAY CLP-1 "ADJ FLAG " ADJ-FLAG
+      *     DISPLAY CLP-1 "CLM STAT " CLP-2CLMSTAT 
+      *     DISPLAY CLP-1 "REV FLAG " REV-FLAG
+      *     DISPLAY CLP-1 "ADJ FLAG " ADJ-FLAG
 
            MOVE CLP-2CLMSTAT TO EF8                          
            MOVE SPACE TO NM101 NM1COR01 CLMCAS01.
@@ -839,11 +839,19 @@
               GO TO P9-SVC-LOOP
            END-IF
 
-           MOVE CLP-1 TO G-GARNO
+           MOVE CLP-1 TO G-GARNO         
            
            READ GARFILE INVALID 
                GO TO P3-SVC-LOOP
            END-READ
+
+           IF G-TRINS = "003"
+             MOVE G-GARNO TO MPLR-KEY
+             READ MPLRFILE INVALID 
+               MOVE SPACE TO MPLR-TRIPOL0
+             END-READ
+           END-IF.
+
            
            IF NOT ((G-PRIPOL0 = NM1-CODE)  
                 OR (G-SECPOL0 = NM1-CODE)
@@ -884,15 +892,16 @@
                GO TO P9-SVC-LOOP
            END-IF.    
 
-           IF G-PRINS NOT = "003"
-               PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
-                    VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
-               GO TO P9-SVC-LOOP
-           END-IF    
+      *     IF G-PRINS NOT = "003"
+      *         PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
+      *              VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
+      *         GO TO P9-SVC-LOOP
+      *     END-IF    
 
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT 
                  VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
            GO TO P9-SVC-LOOP.
+
        P5-SVC-LOOP.
            MOVE 0 TO BALTOT
            MOVE SPACE TO FILEIN01
@@ -951,7 +960,7 @@
            IF PD-AMOUNT = 0 AND PD-DENIAL NOT = "DD"
            PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
 
-           IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS)
+           IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
            PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
@@ -1410,7 +1419,7 @@
             END-IF
            END-PERFORM.
                
-      *  NO MATCH ON GARNO FROM CLM-1 RETURNED BY PAYOR.
+      *  NO MATCH ON GARNO FROM CLP-1 RETURNED BY PAYOR.
       *  SEARCH THROUGH GARFILE MATCHING POLICY NUMBER.
       *  AND THEN FINDING MATCH ON ALL CHARGES.
       *  ALL MUST MATCH WITHIN AN ACCOUNT OR THE WHOLE
@@ -1418,24 +1427,37 @@
       *  I.E., PERFECTION MUST REIGN!
 
        FIND-GARNO.    
+           display "no match on garno from clp-1"
+             accept omitted
            MOVE SPACE TO G-GARNO
            MOVE NM1-NAMEL(1:3) TO ID1
            MOVE ID1 TO ALF-3
            START GARFILE KEY NOT < G-GARNO INVALID 
-           GO TO FIND-GARNO-EXIT.
-       P2.  READ GARFILE NEXT AT END GO TO FIND-GARNO-EXIT.
+             GO TO FIND-GARNO-EXIT.
+
+       P2.            
+           READ GARFILE NEXT AT END GO TO FIND-GARNO-EXIT.
            IF ID1 > ALF-3 GO TO FIND-GARNO-EXIT.
            MOVE 1 TO GARFLAG
-           IF G-PRINS NOT = "003" MOVE 2 TO GARFLAG.
+
+           IF G-PRINS NOT = "003" 
+             MOVE 2 TO GARFLAG
+             Display "not primary 003 " g-garno " " g-prins " " 
+               g-seins " " g-trins
+             accept omitted.
+
            IF NOT ((G-PRINS = "003")
                  OR  (G-SEINS = "003")
-                 OR  (G-TRINS = "003"))
+                 OR  (G-TRINS = "003"))                 
            GO TO P2.
+
            IF G-TRINS = "003"
             MOVE G-GARNO TO MPLR-KEY
-            READ MPLRFILE INVALID MOVE SPACE TO MPLR-TRIPOL0
+            READ MPLRFILE INVALID 
+              MOVE SPACE TO MPLR-TRIPOL0
             END-READ
            END-IF.
+
            IF NOT ((G-PRIPOL0 = NM1-CODE)  
                 OR (G-SECPOL0 = NM1-CODE)
                 OR (MPLR-TRIPOL0 = NM1-CODE))
@@ -1471,12 +1493,10 @@
            MOVE G-GARNO TO CC-KEY8
            MOVE "000" TO CC-KEY3
            
-           DISPLAY "CC-PROC1X " CC-PROC1X " CC-PROC2X " CC-PROC2X
-                   " CC-MOD2X " CC-MOD2X " CC-MOD3X " CC-MOD3X
-
            START CHARCUR KEY NOT < CHARCUR-KEY INVALID 
               GO TO LOOK-CHG-EXIT
            END-START.   
+
        LOOK-1. 
            READ CHARCUR NEXT AT END 
                GO TO LOOK-CHG-EXIT
@@ -1500,11 +1520,19 @@
            IF NOT ((CC-PROC2 = CC-PROC2X) OR ((CC-PROC2 = SPACE) 
               AND (CC-PROC2X = "EP" OR "QW")))
               GO TO LOOK-1
-           END-IF
+           END-IF               
 
            IF NOT ((CC-DATE-T = SVC-DATE(X)) OR (CC-DATE-T = DATE-CC)) 
                GO TO LOOK-1
            END-IF
+
+      *      IF G-GARNO = "MAY0321G"
+      *       DISPLAY "CC-PROC1X " CC-PROC1X " CC-PROC2X " CC-PROC2X
+      *           " CC-MOD2X " CC-MOD2X " CC-MOD3X " CC-MOD3X
+      *           " CC-DATE-T " CC-DATE-T " DATE-CC " DATE-CC " FLAGY"
+      *             FLAGY
+      *       ACCEPT omitted    
+      *     END-IF 
 
            MOVE 0 TO FLAGY 
       *  used to check payfile?     
@@ -1526,6 +1554,7 @@
 
            ADD 1 TO FIND-CNTR
            MOVE CHARCUR-KEY TO FOUND-KEY(X).
+           
        LOOK-CHG-EXIT.
            EXIT.
        A5. 
