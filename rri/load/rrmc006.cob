@@ -1652,7 +1652,8 @@
            MOVE "5" TO C-IOPAT
            
            IF R3-PLACE = "EMER" MOVE "E" TO C-IOPAT.
-           IF R3-OBSERV = "OBSER" MOVE "O" TO C-IOPAT.
+      *    maybe someday will need O for POS     
+      *     IF R3-OBSERV = "OBSER" MOVE "O" TO C-IOPAT.
            
            IF R3-PLACE = "INPT" 
              MOVE "3" TO C-IOPAT
