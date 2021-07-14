@@ -28,7 +28,7 @@
            02 CD-ACT PIC X.
            02 CD-SORCREF PIC X.
            02 CD-COLLT PIC X.
-           02 CD-AGE PIC X.
+           02 CD-AUTH PIC X.
       * 80     
            02 CD-PAPER PIC X.
            02 CD-PLACE PIC X.
@@ -52,7 +52,5 @@
            02 CD-QP2 PIC XX.
            02 CD-DX5-3 PIC X(3).
       * 166
-      *    taking 6 from unused DX6 for auth      
-           02 CD-AUTH PIC 9(6).
-           02 CD-DX6 PIC X.
+           02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).

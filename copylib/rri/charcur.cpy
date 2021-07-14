@@ -27,7 +27,7 @@
            02 CC-ACT PIC X.
            02 CC-SORCREF PIC X.           
            02 CC-COLLT PIC X.
-           02 CC-AGE PIC X.
+           02 CC-AUTH PIC X.
            02 CC-PAPER PIC X.
       * 81     
            02 CC-PLACE PIC X.

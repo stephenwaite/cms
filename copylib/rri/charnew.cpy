@@ -40,10 +40,10 @@
            02 CD-DX2 PIC X(7).
            02 CD-DX3 PIC X(7).
       * 144
-           02 CD-DATE-M PIC X(8).
+           02 CD-DATE-A PIC X(8).
            02 CD-ACC-TYPE PIC X.
       * 153     
-           02 CD-DATE-A PIC X(8).
+           02 CD-DATE-M PIC X(8).
            02 CD-ASSIGN PIC X.
            02 CD-NEIC-ASSIGN PIC X.
       * 163     
