@@ -54,7 +54,9 @@
            02 FI-DATE PIC X(8).
            02 FILLER PIC X VALUE SPACE.
            02 FI-PROC PIC X(5).
-           02 FILLER PIC X(7) VALUE SPACE.
+           02 fi-mod pic xx.
+           02 fi-mod2 pic xx.
+           02 FILLER PIC X(3) VALUE SPACE.
            02 FI-GARNO PIC X(8).
            02 FILLER PIC X(53).
            02 FI-DENIAL PIC XXX.
@@ -222,7 +224,10 @@
 
            IF NOT
               ((CC-DATE-T = TEST-DATE) AND (CC-PROC1 = FI-PROC))
-           GO TO P2.
+             GO TO P2.
+
+           IF CC-MOD2 NOT = FI-MOD2
+             GO TO P2.
 
            IF CC-PAYCODE = "001"
              DISPLAY G-GARNAME " " CC-PAYCODE

@@ -154,6 +154,8 @@
            02 FILLER PIC X VALUE SPACE.
            02 FO-4 PIC X(11).
            02 FILLER PIC X VALUE SPACE.
+           02 FO-MODS PIC X(8).
+           02 FILLER pic x value space.
            02 FO-5 PIC X(17).
            02 FILLER PIC X VALUE SPACE.
            02 FO-6 PIC X(10).
@@ -190,6 +192,9 @@
            MOVE G-GARNAME TO FO-3
            MOVE CD-PAYCODE TO FO-31
            MOVE CD-PROC TO FO-4
+           MOVE SPACE TO FO-MODS
+           STRING CD-MOD2 " " CD-MOD3 " " CD-MOD4 DELIMITED BY SIZE INTO
+             FO-MODS.
            MOVE CD-PROC TO PROC-KEY READ PROCFILE
            INVALID MOVE SPACE TO PROC-TITLE.
            MOVE PROC-TITLE TO FO-5

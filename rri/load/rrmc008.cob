@@ -363,6 +363,19 @@
                GO TO BAD-2
            END-IF
 
+           if R3-LOCO = "RVOC"
+             if R3-MOD1 = "26"
+               move space to R3-MOD1
+               if r3-mod2 not = space
+                 move r3-mod2 to R3-MOD1
+               end-if  
+             end-if
+
+             if R3-MOD1 = R3-MOD2
+               MOVE SPACE TO R3-MOD2
+             end-if    
+           end-if 
+
            IF ((R3-PROC = "1204" OR "1283" OR "1284" or "1285" 
                 or "3030" or "3085") 
              AND R3-MOD1 = "  "
@@ -384,20 +397,7 @@
              AND R3-MOD1 = "50"
              MOVE "1" TO BILAT-FLAG
              MOVE "RT" TO R3-MOD1
-           end-if                    
-
-           if R3-LOCO = "RVOC"
-             if R3-MOD1 = "26"
-               move space to R3-MOD1
-               if r3-mod2 not = space
-                 move r3-mod2 to R3-MOD1
-               end-if  
-             end-if
-
-             if R3-MOD1 = R3-MOD2
-               MOVE SPACE TO R3-MOD2
-             end-if    
-           end-if      
+           end-if                                    
 
            WRITE FILEOUT01 FROM REC301
            GO TO P1.

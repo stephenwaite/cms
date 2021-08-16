@@ -767,7 +767,7 @@
            CLOSE MPLRFILE
            CLOSE INSFILE
            CLOSE GAPFILE
-           CALL "/home/sidw/tri001.b" USING GARPAT1
+             CALL "/home/sidw/tri001.acu" USING GARPAT1
            MOVE 1 TO GARPAT1
            OPEN INPUT GARFILE PATFILE MPLRFILE INSFILE GAPFILE
            GO TO 1000-ACTION.
