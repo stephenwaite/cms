@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI146.
+       PROGRAM-ID. pet277.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -113,7 +113,7 @@
        01  TRN01.
            02 TRN-0 PIC XXX.
            02 TRN-1 PIC X.
-           02 TRN-2 PIC X(10).
+           02 TRN-2 PIC X(14).
        01  STC01.
            02 STC-0 PIC XXX.
            02 STC-1 PIC X(12).
@@ -144,19 +144,24 @@
        P00.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P99.
+
        XX.
-           IF FILEIN01(1:6) NOT = "NM1*85" GO TO P00.
-            MOVE SPACE TO NM101
-            UNSTRING FILEIN01 DELIMITED BY "*" INTO
-            NM1-0 NM1-1 NM1-SOLO NM1-NAMEL NM1-NAMEF NM1-NAMEM 
-            NM1-NAMES NM1-EINSS NM1-PREFIX NM1-CODE
+           IF FILEIN01(1:6) NOT = "NM1*85" GO TO P00.         
+
+           MOVE SPACE TO NM101
+           UNSTRING FILEIN01 DELIMITED BY "*" INTO
+             NM1-0 NM1-1 NM1-SOLO NM1-NAMEL NM1-NAMEF NM1-NAMEM 
+             NM1-NAMES NM1-EINSS NM1-PREFIX NM1-CODE
+           
            IF NOT (NM1-CODE(1:10) = PROV-1
                       OR NM1-CODE(1:10) = PROV-2) GO TO P00.
+
        P000.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P99.
+           READ FILEIN AT END GO TO P99.           
+           
            IF FILEIN01(1:3) = "GE" OR "GS" GO TO XX.
-           IF FILEIN01(1:6) NOT = "TRN*2*" GO TO P000.
+           IF FILEIN01(1:3) NOT = "TRN" GO TO P000.
            MOVE SPACE TO TRN01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO TRN-0 TRN-1 TRN-2
            MOVE SPACE TO FILEIN01
@@ -172,7 +177,8 @@
        xxx0.
            MOVE SPACE TO FILEIN01.
            READ FILEIN AT END GO TO P99.
-       XXX0 -1.
+
+       XXX0-1.
            if filein01(1:2) = "HL" OR "SE" OR "GS" OR "GE"
              GO TO XXX1
            END-IF.
@@ -244,7 +250,7 @@
            MOVE DTP-3 TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
            STRING
-           CSCC-KEY " " CSC-KEY " " NM1-NAMEL " " TRN-2(1:10)
+           CSCC-KEY " " CSC-KEY " " NM1-NAMEL " " TRN-2
            " " DISPLAY-DATE
             DELIMITED BY SIZE INTO FILEOUT301
            WRITE FILEOUT301

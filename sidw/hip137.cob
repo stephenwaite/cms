@@ -142,7 +142,8 @@
            END-IF  
            MOVE SPACE TO N101
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
-           N1-0 N1-1 N1-2 N1-3 N1-4
+             N1-0 N1-1 N1-2 N1-3 N1-4
+
            IF NOT (N1-4 = PROV-1 OR PROV-2) GO TO P1.
            MOVE X TO XYZ
            PERFORM WRITE-THE-TOP VARYING X FROM 1 BY 1 UNTIL X > XYZ
