@@ -101,7 +101,7 @@
            MOVE CD-DATE-T    TO DATE-TAB(X).
 
        P2.
-           READ CHARFILE NEXT
+           READ CHARFILE NEXT 
              AT END
                PERFORM CHARCUR-CHECK THRU CHARCUR-CHECK-EXIT
                GO TO P4
