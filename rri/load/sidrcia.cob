@@ -174,16 +174,21 @@
            02 X PIC 999999 VALUE 999999.
            02 Y PIC 999999 VALUE 0.
        01  HOLD8 PIC X(8) VALUE SPACE.
+
        PROCEDURE DIVISION.
+
        0005-START.
+
            OPEN INPUT PROCFILE CHARFILE GARFILE REFPHY.
            OPEN OUTPUT FILEOUT.
-       P1. READ CHARFILE AT END  GO TO P3.
+
+       P1. 
+           READ CHARFILE 
+             AT END
+               GO TO P3.
+
            GO TO P2.
-           IF CD-PROC1 > "4999" GO TO P2.
-           IF CD-PAYCODE = "091" GO TO P2.
-           IF CD-PAYCODE = "002" GO TO I02.
-           IF CD-ASSIGN = "U" GO TO P1.
+           
        P2.
            MOVE CD-KEY8 TO G-GARNO.
            READ GARFILE INVALID GO TO P1.
@@ -208,8 +213,7 @@
            ELSE MOVE SPACE TO SORTDIAG.
            WRITE FILEOUT01 FROM FILE-OUT01
            GO TO P1.
-       I02.
-           IF (CD-PROC2 < "7000000" OR CD-PROC1 > "4999")
-           OR (CD-DAT1 NOT = "000000")
-           GO TO P2 ELSE GO TO P1.
-       P3. CLOSE FILEOUT PROCFILE REFPHY GARFILE. STOP RUN.
+      
+       P3. 
+           CLOSE CHARFILE FILEOUT PROCFILE REFPHY GARFILE.
+           STOP RUN.

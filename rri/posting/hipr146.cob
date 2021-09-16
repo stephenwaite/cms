@@ -244,7 +244,7 @@
            02 FILLER PIC X VALUE SPACE.
            02 EF3 PIC X(8).
            02 FILLER PIC X VALUE SPACE.
-           02 EF-PROC PIC X(7).
+           02 EF-PROC PIC X(11).
            02 FILLER PIC X VALUE SPACE.
            02 EF4 PIC X(12).
            02 FILLER PIC X VALUE SPACE.
@@ -476,9 +476,9 @@
            IF F1 = "N1*" 
              MOVE SPACE TO N101
              UNSTRING FILEIN01 DELIMITED BY "*" INTO
-               N1-0 N1-1 N1-2 N1-3 N1-4
+               N1-0 N1-1 N1-2 N1-3 N1-ID
              IF N1-1 = "PE" AND N1-3 = "XX"
-               MOVE N1-4 TO ALF10
+               MOVE N1-ID TO ALF10
              END-IF
            END-IF
 
@@ -791,14 +791,16 @@
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
            SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
            SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
+
        P1-LOST-SVC.
            MOVE SPACE TO EF1
            STRING NM1-NAMEL ";" NM1-NAMEF 
-           DELIMITED BY "  " INTO EF1
+             DELIMITED BY "  " INTO EF1
            MOVE NM1-CODE(1:9) TO EF2
-            IF SVC-DATE(X) = SPACE
+           IF SVC-DATE(X) = SPACE
              MOVE DATE-CC TO SVC-DATE(X)
-            END-IF
+           END-IF
+           
            MOVE SVC-DATE(X) TO TEST-DATE 
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO EF3
@@ -811,80 +813,90 @@
            MOVE SVC-3PAYAMT TO ALF8
            PERFORM AMOUNT-1
            MOVE AMOUNT-X TO EF6
+           
            IF ALF8-1 NOT = "-"
-           COMPUTE TOT-PAY = TOT-PAY + AMOUNT-X
+             COMPUTE TOT-PAY = TOT-PAY + AMOUNT-X
            END-IF.
+           
            MOVE SPACE TO EFSIGN
+           
            IF ALF8-1 = "-"
-           MOVE "-" TO EFSIGN.
+             MOVE "-" TO EFSIGN.
+           
            MOVE CLP-7ICN TO EF7
            MOVE SPACE TO ALF-17 CC-PROC1X CC-PROC2X CC-MOD2X CC-MOD3X
+           
            MOVE SVC-1PROCMOD TO ALF-17
            UNSTRING ALF-14 DELIMITED BY ":" INTO 
-           CC-PROC1X CC-PROC2X CC-MOD2X CC-MOD3X
+             CC-PROC1X CC-PROC2X CC-MOD2X CC-MOD3X
            MOVE SPACE TO EF-PROC
-           STRING CC-PROC1X CC-PROC2X CC-MOD3X DELIMITED BY SIZE
-           INTO EF-PROC
+           
+           STRING CC-PROC1X CC-PROC2X CC-MOD2X CC-MOD3X 
+             DELIMITED BY SIZE INTO EF-PROC
+           display ef-proc
+           accept omitted
+             
            MOVE SPACE TO EF-TAB01
            MOVE 0 TO DENIAL-CNTR 
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > CAS-CNTR
-           IF CAS-SVC(Y) = X 
-             MOVE SPACE TO FILEIN01
-             MOVE CAS-TAB(Y) TO FILEIN01
-             MOVE SPACE TO CAS01
-             UNSTRING FILEIN01 DELIMITED BY "*" INTO
-             CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-             CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-             CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-             IF CAS-2 NOT = SPACE
-             ADD 1 TO DENIAL-CNTR
-             MOVE CAS-2 TO EF-TAB(DENIAL-CNTR)
-             MOVE CAS-2 TO ALF3
-             PERFORM NAR-1
-             END-IF
-             IF CAS-5 NOT = SPACE
-             ADD 1 TO DENIAL-CNTR
-             MOVE CAS-5 TO EF-TAB(DENIAL-CNTR)
-             MOVE CAS-5 TO ALF3
-             PERFORM NAR-1
-             END-IF
-             IF CAS-8 NOT = SPACE
-             ADD 1 TO DENIAL-CNTR
-             MOVE CAS-8 TO EF-TAB(DENIAL-CNTR)
-             MOVE CAS-8 TO ALF3
-             PERFORM NAR-1
-             END-IF
+             IF CAS-SVC(Y) = X 
+               MOVE SPACE TO FILEIN01
+               MOVE CAS-TAB(Y) TO FILEIN01
+               MOVE SPACE TO CAS01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+               IF CAS-2 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-2 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-2 TO ALF3
+                 PERFORM NAR-1
+               END-IF
+               IF CAS-5 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-5 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-5 TO ALF3
+                 PERFORM NAR-1
+               END-IF
+               IF CAS-8 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-8 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-8 TO ALF3
+                 PERFORM NAR-1
+               END-IF
 
-             IF CAS-11 NOT = SPACE
-             ADD 1 TO DENIAL-CNTR
-             MOVE CAS-11 TO EF-TAB(DENIAL-CNTR)
-             MOVE CAS-11 TO ALF3
-             PERFORM NAR-1
-             END-IF
+               IF CAS-11 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-11 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-11 TO ALF3
+                 PERFORM NAR-1
+               END-IF
 
-             IF CAS-14 NOT = SPACE
-             ADD 1 TO DENIAL-CNTR
-             MOVE CAS-14 TO EF-TAB(DENIAL-CNTR)
-             MOVE CAS-14 TO ALF3
-             PERFORM NAR-1
-             END-IF
+               IF CAS-14 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-14 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-14 TO ALF3
+                 PERFORM NAR-1
+               END-IF
 
-             IF CAS-17 NOT = SPACE
-             ADD 1 TO DENIAL-CNTR
-             MOVE CAS-17 TO EF-TAB(DENIAL-CNTR)
-             MOVE CAS-17 TO ALF3
-             PERFORM NAR-1
+               IF CAS-17 NOT = SPACE
+                 ADD 1 TO DENIAL-CNTR
+                 MOVE CAS-17 TO EF-TAB(DENIAL-CNTR)
+                 MOVE CAS-17 TO ALF3
+                 PERFORM NAR-1
+               END-IF
              END-IF
-            END-IF
            END-PERFORM.
 
-             MOVE EF-TAB(1) TO EF-DENIAL1
-             MOVE EF-TAB(2) TO EF-DENIAL2
-             MOVE EF-TAB(3) TO EF-DENIAL3
-             MOVE EF-TAB(4) TO EF-DENIAL4
-             MOVE EF-TAB(5) TO EF-DENIAL5
-             MOVE EF-TAB(6) TO EF-DENIAL6
-             MOVE SPACE TO ERROR-FILE01
+           MOVE EF-TAB(1) TO EF-DENIAL1
+           MOVE EF-TAB(2) TO EF-DENIAL2
+           MOVE EF-TAB(3) TO EF-DENIAL3
+           MOVE EF-TAB(4) TO EF-DENIAL4
+           MOVE EF-TAB(5) TO EF-DENIAL5
+           MOVE EF-TAB(6) TO EF-DENIAL6
+           MOVE SPACE TO ERROR-FILE01
+
            IF EF-DENIAL1 = "42 "
             MOVE EF-DENIAL2 TO EF-DENIAL1
             MOVE SPACE TO EF-DENIAL2
@@ -1158,6 +1170,9 @@
            IF CC-KEY8 NOT = G-GARNO GO TO LOOK-CHG-EXIT.
            IF CC-PAYCODE NOT = "004" AND NOT = "064" GO TO LOOK-1.
            IF CC-PROC1 NOT = CC-PROC1X GO TO LOOK-1.
+           IF CC-PROC2 NOT = CC-PROC2X GO TO LOOK-1.
+           IF CC-MOD2  NOT = CC-MOD2X  GO TO LOOK-1.
+           IF CC-MOD3  NOT = CC-MOD3X  GO TO LOOK-1.
       *     IF (CC-PROC2 = SPACE) AND (CC-MOD2 NOT = SPACE)
       *      MOVE CC-MOD2 TO CC-PROC2 
       *      MOVE SPACE TO CC-MOD2.

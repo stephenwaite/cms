@@ -37,13 +37,16 @@
            02 CC-DATE-A PIC X(8).
            02 CC-DATE-P PIC X(8).
            02 CC-REC-STAT PIC X.
+      * 108     
            02 CC-DX2 PIC X(7).
            02 CC-DX3 PIC X(7).
+      * 122     
            02 CC-ACC-TYPE PIC X.
            02 CC-DATE-M PIC X(8).
            02 CC-ASSIGN PIC X.
            02 CC-NEIC-ASSIGN PIC X.
            02 CC-DX4 PIC X(7).
+      * 140     
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
