@@ -435,7 +435,7 @@
            
            IF N1-1 NOT = "PE" GO TO XX2. 
            
-           IF N1-3 = "FI" MOVE     N1-ID(1:9) TO IN-FEDID GO TO P000.
+           IF N1-3 = "FI" MOVE N1-ID(1:9) TO IN-FEDID GO TO P000.
            
            IF N1-3 = "XX" MOVE N1-ID TO IN-NPI GO TO P000.
            
