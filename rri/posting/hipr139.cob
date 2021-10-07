@@ -431,13 +431,13 @@
            
            MOVE SPACE TO N101
            UNSTRING FILEIN01 DELIMITED BY "*"
-               INTO N1-0 N1-1 N1-2 N1-3 N1-4.
+               INTO N1-0 N1-1 N1-2 N1-3 N1-ID.
            
            IF N1-1 NOT = "PE" GO TO XX2. 
            
-           IF N1-3 = "FI" MOVE N1-4(1:9) TO IN-FEDID GO TO P000.
+           IF N1-3 = "FI" MOVE     N1-ID(1:9) TO IN-FEDID GO TO P000.
            
-           IF N1-3 = "XX" MOVE N1-4 TO IN-NPI GO TO P000.
+           IF N1-3 = "XX" MOVE N1-ID TO IN-NPI GO TO P000.
            
            GO TO XX2.
 
@@ -1353,14 +1353,20 @@
            IF CC-KEY8 NOT = G-GARNO GO TO LOOK-CHG-EXIT.
            IF CC-PAYCODE NOT = "003" GO TO LOOK-1.
            IF CC-PROC(5:5) NOT = CC-PROC1X GO TO LOOK-1.
+           
            IF (CC-PROC(10:2) = SPACE) AND (CC-MOD2 NOT = SPACE)
             MOVE CC-MOD2 TO CC-PROC(10:2) 
             MOVE SPACE TO CC-MOD2.
-           IF NOT ((CC-PROC(10:2) = CC-PROC2X) 
-            OR ((CC-PROC(10:2) = SPACE) AND (CC-PROC2X = "EP" OR "QW")))
+
+           IF NOT (CC-PROC(10:2) = CC-PROC2X)
               GO TO LOOK-1.
+
+           IF NOT (CC-MOD2 = CC-MOD2X)
+              GO TO LOOK-1.   
+           
            IF NOT ((CC-DATE-T = SVC-DATE(X)) OR (CC-DATE-T = DATE-CC)) 
-           GO TO LOOK-1.
+             GO TO LOOK-1.
+
            MOVE 0 TO FLAGY 
            PERFORM A5 THRU A5-EXIT
            IF FLAGY = 1 GO TO LOOK-1.
