@@ -67,7 +67,10 @@
            02 FI-DATE PIC X(8).
            02 FILLER PIC X VALUE SPACE.
            02 FI-PROC PIC X(5).
-           02 FILLER PIC XXX VALUE SPACE.
+           02 FI-MOD PIC XX
+           02 FI-MOD2 PIC XX
+           02 FI-MOD3 PIC XX.
+           02 FILLER PIC X VALUE SPACE.
            02 FI-GARNO PIC X(8).
            02 FILLER PIC X(5).
            02 FI-CHARGE PIC X(7).
@@ -247,8 +250,15 @@
            READ CHARCUR NEXT AT END GO TO E1.
            IF CC-KEY8 NOT = G-GARNO GO TO E1.
            IF CC-DATE-T NOT = TEST-DATE GO TO P2.
-           IF (CC-PROC1 = FI-PROC) GO TO P3.
-           IF (CC-AMOUNT = FI-CHG) GO TO P3.
+           
+           IF (CC-PROC1 = FI-PROC) AND
+              (CC-PROC2 = FI-MOD) AND
+              (CC-MOD2 = FI-MOD2) AND
+              (CC-MOD3 = FI-MOD3) GO TO P3.
+           
+           IF (CC-PROC1 = SPACE) AND (CC-AMOUNT = FI-CHG) 
+             GO TO P3.
+
            GO TO P2.
        P3.
            MOVE CC-AMOUNT TO CLAIM-TOT

@@ -828,6 +828,29 @@
              END-IF
            END-PERFORM
 
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
+             IF CAS-SVC(Z) = X
+               MOVE SPACE TO CAS01 ALF8
+               MOVE CAS-TAB(Z) TO FILEIN01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                 CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+                 CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+                 CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+               IF (CAS-2 = "B10") MOVE CAS-3 TO ALF8
+               END-IF              
+               
+               IF ALF8 NOT = SPACE
+                 MOVE "14" TO PD-DENIAL
+                 PERFORM AMOUNT-1
+                 IF AMOUNT-X > 0
+                   COMPUTE PD-AMOUNT = -1 * AMOUNT-X
+                 END-IF
+                 PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
+                 MOVE CAS-CNTR TO Z
+               END-IF
+             END-IF
+           END-PERFORM
+
            MOVE 0 TO INS-REDUCE  FLAG
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
              IF CAS-SVC(Z) = X
@@ -993,6 +1016,7 @@
                 OR (CAS-1 = "CO" AND CAS-2 = "97   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "197  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "251  ")
+                OR (CAS-1 = "PI" AND CAS-2 = "B10  ")
                 OR (CAS-1 = "PI" AND CAS-2 = "97   ")
                 OR (CAS-1 = "PI" AND CAS-2 = "204  ")
                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")

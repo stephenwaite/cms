@@ -833,8 +833,6 @@
            
            STRING CC-PROC1X CC-PROC2X CC-MOD2X CC-MOD3X 
              DELIMITED BY SIZE INTO EF-PROC
-           display ef-proc
-           accept omitted
              
            MOVE SPACE TO EF-TAB01
            MOVE 0 TO DENIAL-CNTR 

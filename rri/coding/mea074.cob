@@ -120,7 +120,9 @@
              WRITE FILEOUT01
              MOVE SPACE TO CD-MOD4
              REWRITE CHARFILE01
-           END-IF.
+           END-IF
+
+           GO TO P1.
                                  
        P2.
            CLOSE CHARFILE FILEOUT.

@@ -78,7 +78,7 @@
            PERFORM A-3 THRU A-EXIT
            GO TO P1.
 
-        A-3.
+       A-3.
            DISPLAY "ENTER ANY PART OF LAST NAME"
            ACCEPT PART-NAME
            IF PART-NAME = "X" OR SPACE
