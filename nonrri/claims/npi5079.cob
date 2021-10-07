@@ -2076,11 +2076,16 @@
            MOVE BHT-DATE TO CC-DATE-A
            REWRITE CHARCUR01
            END-READ.
-       2400SRV-EXIT.  EXIT.
+
+       2400SRV-EXIT.
+           EXIT.
+
        2410.
            MOVE FI-KEY8 TO AUTH-KEY8
-           MOVE FI-CLAIM TO AUTH-KEY6
-           READ AUTHFILE INVALID GO TO 2410-EXIT.
+           MOVE FI-CLAIM TO AUTH-KEY6                     
+           READ AUTHFILE 
+             INVALID 
+               GO TO 2410-EXIT.
            IF AUTH-NDC NOT NUMERIC GO TO 2410-EXIT.
            MOVE AUTH-NDC TO LIN-NDC
            MOVE SPACE TO SEGFILE01
@@ -2095,6 +2100,7 @@
            MOVE ALF5NUM TO CTP-4
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM CTP01.
+
        2410-EXIT.  EXIT.
        2420A.
            MOVE "82 " TO NM1-1

@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. npi5r337.
+       PROGRAM-ID. npi5r379.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -426,9 +426,9 @@
            02 GS-S0 PIC X VALUE "*".
            02 GS-1 PIC XX VALUE "HC".
            02 GS-S1 PIC X VALUE "*".
-           02 GS-2 PIC X(4) VALUE "7111".
+           02 GS-2 PIC X(9) VALUE "030353360".
            02 GS-S2 PIC X VALUE "*".
-           02 GS-3 PIC X(6) VALUE "BCBSVT".
+           02 GS-3 PIC X(9) VALUE "133052274".
            02 GS-S3 PIC X VALUE "*".
            02 GS-4 PIC X(8).
            02 GS-S4 PIC X VALUE "*".
@@ -521,7 +521,7 @@
            02 SUBM-S6 PIC X VALUE "*".
            02 SUBM-8 PIC XX VALUE "46".
            02 SUBM-S7 PIC X VALUE "*".
-           02 SUBM-NUM PIC X(9) VALUE "7111".
+           02 SUBM-NUM PIC X(9) VALUE "030353360".
            02 SUBM-END PIC X VALUE "~".
        01  SUBPER01.
            02 SUBPER-0 PIC XXX VALUE "PER".
@@ -647,7 +647,7 @@
            02 RECNM1-S1 PIC X VALUE "*".
            02 RECNM1-SOLO PIC X VALUE "2".
            02 RECNM1-S2 PIC X VALUE "*".
-           02 RECNM1-NAMEL PIC X(6) VALUE "BCBSVT".
+           02 RECNM1-NAMEL PIC X(6) VALUE "EMDEON".
            02 RECNM1-S3 PIC X VALUE "*".
            02 RECNM1-S4 PIC X VALUE "*".
            02 RECNM1-S5 PIC X VALUE "*".
@@ -655,7 +655,7 @@
            02 RECNM1-S6 PIC X VALUE "*".
            02 RECNM1-8 PIC XX VALUE "46".
            02 RECNM1-S7 PIC X VALUE "*".
-           02 RECNM1-CODE PIC X(6) VALUE "BCBSVT".
+           02 RECNM1-CODE PIC X(9) VALUE "133052274".
            02 RECNM1-END PIC X VALUE "~".
 
        01  N301.
@@ -1135,8 +1135,8 @@
        PROCEDURE DIVISION.
        P0. 
            OPEN INPUT FILEIN GARFILE PATFILE INSFILE REFPHY
-	    AUTHFILE MPLRFILE DIAGFILE PLACEFILE GAPFILE PARMFILE
-           PARMFILE2 PAYCUR PROCFILE.
+	           AUTHFILE MPLRFILE DIAGFILE PLACEFILE GAPFILE PARMFILE
+             PARMFILE2 PAYCUR PROCFILE.
            OPEN OUTPUT SEGFILE ERRFILE.
            OPEN I-O HIPCLAIMFILE
            MOVE "A" TO HIP-KEY
@@ -1237,30 +1237,30 @@
            ADD FI-AMOUNT TO TOT-AMOUNT
            GO TO P1.
        P2.  
-	    MOVE FILEIN01 TO SAVE01
-	    PERFORM 2300CLM
-           PERFORM HI-DIAG THRU HI-DIAG-EXIT
-	    PERFORM 2310D
-            PERFORM 2310E THRU 2310E-EXIT
-	    PERFORM 2320A THRU 2320A-EXIT
-	    MOVE 0 TO CAS-TOT-REDUCE 
-	    MOVE 0 TO CAS-TOT-CHARGE
-	    MOVE 0 TO CAS-TOT-ALLOWED
-	    MOVE 0 TO CAS-TOT-PAID
-           MOVE "0" TO DDFLAG
-	    PERFORM CAS-TOT THRU CAS-TOT-EXIT
-	       VARYING X FROM 1 BY 1 UNTIL X > CNTR
-	    PERFORM 2320S THRU 2320S-EXIT
-	    PERFORM 2400SRV THRU 2400SRV-EXIT
-		   VARYING X FROM 1 BY 1 UNTIL X > CNTR
-           IF END-FLAG = 1 GO TO P98.
-           MOVE SAVE01 TO FILEIN01
-           IF FI-DOCP NOT = HOLD-DOCP 
-           MOVE FILEIN01 TO HOLD-FILEIN01
-           PERFORM DOCP-1.
-           MOVE FILEIN01 TO HOLD-FILEIN01
-           PERFORM 2000B 
-           GO TO P0000.
+      	    MOVE FILEIN01 TO SAVE01
+      	    PERFORM 2300CLM
+                 PERFORM HI-DIAG THRU HI-DIAG-EXIT
+      	    PERFORM 2310D
+                  PERFORM 2310E THRU 2310E-EXIT
+      	    PERFORM 2320A THRU 2320A-EXIT
+      	    MOVE 0 TO CAS-TOT-REDUCE 
+      	    MOVE 0 TO CAS-TOT-CHARGE
+      	    MOVE 0 TO CAS-TOT-ALLOWED
+      	    MOVE 0 TO CAS-TOT-PAID
+                 MOVE "0" TO DDFLAG
+      	    PERFORM CAS-TOT THRU CAS-TOT-EXIT
+      	       VARYING X FROM 1 BY 1 UNTIL X > CNTR
+      	    PERFORM 2320S THRU 2320S-EXIT
+      	    PERFORM 2400SRV THRU 2400SRV-EXIT
+      		   VARYING X FROM 1 BY 1 UNTIL X > CNTR
+                 IF END-FLAG = 1 GO TO P98.
+                 MOVE SAVE01 TO FILEIN01
+                 IF FI-DOCP NOT = HOLD-DOCP 
+                 MOVE FILEIN01 TO HOLD-FILEIN01
+                 PERFORM DOCP-1.
+                 MOVE FILEIN01 TO HOLD-FILEIN01
+                 PERFORM 2000B 
+                 GO TO P0000.
 	   
        DIAG-1.
            IF FI-DIAG = "0000000"  GO TO DIAG-EXIT.
@@ -1437,11 +1437,11 @@
            IF NM1-NAMEM = SPACE
            MOVE SPACE TO NAME-1 NAME-2
            UNSTRING NM1-NAMEF DELIMITED BY " " INTO NAME-1 NAME-2
-	    IF NAME-2 NOT = SPACE
-	     MOVE SPACE TO NM1-NAMEF NM1-NAMEM
-	     MOVE NAME-1 TO NM1-NAMEF
-	     MOVE NAME-2 TO NM1-NAMEM
-	    END-IF
+      	    IF NAME-2 NOT = SPACE
+      	     MOVE SPACE TO NM1-NAMEF NM1-NAMEM
+      	     MOVE NAME-1 TO NM1-NAMEF
+      	     MOVE NAME-2 TO NM1-NAMEM
+      	    END-IF
            END-IF.
            MOVE SPACE TO NM1-CODE
            MOVE G-SECPOL TO NM1-CODE
@@ -1477,21 +1477,42 @@
            MOVE "PR " TO NM1-1
            MOVE "2" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
-           MOVE "NGS  MEDICARE" TO NM1-NAMEL
-           MOVE "PI" TO NM1-EINSS
-           MOVE "BCBSVT" TO NM1-CODE
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM NM101.
-           MOVE SPACE TO N3-STREET N3-BILLADD
-           MOVE "PO BOX 186" TO N3-STREET
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM N301.
-           MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
-           MOVE "MONTPELIER" TO N4-CITY
-           MOVE "VT" TO N4-STATE
-           MOVE "056029999" TO N4-ZIP
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM N401.
+           MOVE G-SEINS TO INS-KEY
+           READ INSFILE
+             INVALID
+               MOVE "BCBSVT" TO NM1-NAMEL
+               MOVE "PI" TO NM1-EINSS
+               MOVE "BCBSVT" TO NM1-CODE
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM NM101
+               MOVE SPACE TO N3-STREET N3-BILLADD
+               MOVE "PO BOX 186" TO N3-STREET
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM N301
+               MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
+               MOVE "MONTPELIER" TO N4-CITY
+               MOVE "VT" TO N4-STATE
+               MOVE "05602    " TO N4-ZIP
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM N401
+             NOT INVALID  
+               MOVE INS-NAME TO NM1-NAMEL
+               MOVE "PI" TO NM1-EINSS
+               MOVE INS-NEIC TO NM1-CODE
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM NM101
+               MOVE SPACE TO N3-STREET N3-BILLADD
+               MOVE INS-STREET TO N3-STREET
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM N301
+               MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
+               MOVE INS-CITY TO N4-CITY
+               MOVE INS-STATE TO N4-STATE
+               MOVE INS-ZIP TO N4-ZIP
+               IF N4-ZIP(6:4) = SPACE
+               MOVE "9999" TO N4-ZIP(6:4)
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM N401.
 
        2300CLM.
            MOVE HOLD-KEY8 TO SUBMIT-1
@@ -1668,13 +1689,13 @@
        2320S.
            MOVE "P" TO SBR-PST 
            MOVE "18" TO SBR-RELATE 
-           MOVE G-PR-GROUP TO SBR-GROUP 
+           MOVE "  " TO SBR-GROUP 
            MOVE G-PRINS TO INS-KEY
            MOVE "  " TO SBR-TYPE 
            MOVE "CI " TO SBR-INSCODE
            IF G-PRINS = "003"
-            MOVE "MB" TO SBR-INSCODE
-           END-IF
+            MOVE "MB" TO SBR-INSCODE.
+           
            READ INSFILE INVALID 
             MOVE "COMMERCIAL INS" TO INS-NAME
            END-READ.
@@ -1723,8 +1744,9 @@
       *  IF PRIMARY INS SUBSCRIBER NOT = 2ND SUBSCRIBER 
       *  MAKE UP DOB FOR DMG01 SEGMENT    
            IF (G-PR-RELATE NOT = G-SE-RELATE)
-           OR (G-GARNAME NOT = G-PRNAME)
-           PERFORM MAKE-IT-UP THRU MAKE-IT-UP-EXIT
+             OR (G-GARNAME NOT = G-PRNAME)
+               UNSTRING G-PRNAME DELIMITED BY ";" INTO
+               NM1-NAMEL NM1-NAMEF
            ELSE
            MOVE G-DOB TO DMG-DOB
            MOVE G-SEX TO DMG-GENDER.
@@ -1737,13 +1759,15 @@
            MOVE "IL " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
+           
            IF (G-PR-RELATE NOT = G-SE-RELATE)
-           OR (G-GARNAME NOT = G-PRNAME)
-           UNSTRING G-PRNAME DELIMITED BY ";" INTO
-		  NM1-NAMEL NM1-NAMEF
+             OR (G-GARNAME NOT = G-PRNAME)
+               UNSTRING G-PRNAME DELIMITED BY ";" INTO
+		           NM1-NAMEL NM1-NAMEF
            ELSE
-           UNSTRING G-GARNAME DELIMITED BY ";" INTO
-		  NM1-NAMEL NM1-NAMEF.
+             UNSTRING G-GARNAME DELIMITED BY ";" INTO
+		         NM1-NAMEL NM1-NAMEF.
+
            MOVE "MI" TO NM1-EINSS
            MOVE G-PRIPOL TO NM1-CODE
            MOVE SPACE TO SEGFILE01
@@ -1776,7 +1800,7 @@
            MOVE INS-NAME TO NM1-NAMEL
            MOVE "PI" TO NM1-EINSS
            MOVE SPACE TO NM1-CODE
-           MOVE "99999" TO NM1-CODE
+           MOVE ins-neic TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
 
@@ -2115,7 +2139,7 @@
       *     MOVE SPACE TO SEGFILE01
       *     WRITE SEGFILE01 FROM AMT01
 
-           MOVE "99999" TO SVD-1
+           MOVE INS-NEIC TO SVD-1
            COMPUTE NUM7 = CAS-PAID(X)
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO SVD-2
@@ -2258,26 +2282,31 @@
        SUBSCRIBER-2.
            MOVE SPACE TO SBR-GROUP
            MOVE "0    " TO HL-CHILD
-           MOVE "MB" TO SBR-INSCODE
+           MOVE "CI" TO SBR-INSCODE
            MOVE "12" TO SBR-TYPE
-            IF SBR-PST = "S"
-		 IF G-PRINS = "091"
-		   MOVE "15" TO SBR-TYPE
-		 END-IF
-		 IF G-PRINS = "006"
-		   MOVE "16" TO SBR-TYPE
-		 END-IF
-		 IF G-PRINS = "079"
-		   MOVE "42" TO SBR-TYPE
-		 END-IF
-		IF HOLD-ACC-TYPE = "2"
-		 MOVE "14" TO SBR-TYPE
-		END-IF
-		IF HOLD-ACC-TYPE = "1"
-		 MOVE "15" TO SBR-TYPE
-		END-IF
-	    END-IF.
-       SUBSCRIBER-EXIT. EXIT.
+           IF SBR-PST = "S"
+        		 IF G-PRINS = "091"
+        		   MOVE "15" TO SBR-TYPE
+        		 END-IF
+        		 IF G-PRINS = "006"
+        		   MOVE "16" TO SBR-TYPE
+        		 END-IF
+        		 IF G-PRINS = "079"
+        		   MOVE "42" TO SBR-TYPE
+        		 END-IF
+
+        		 IF HOLD-ACC-TYPE = "2"
+        		   MOVE "14" TO SBR-TYPE
+        		 END-IF
+      		 
+             IF HOLD-ACC-TYPE = "1"
+      		     MOVE "15" TO SBR-TYPE
+      		   END-IF
+      	   END-IF.
+
+       SUBSCRIBER-EXIT. 
+           EXIT.
+
        2000B-PAT.
 	   
 

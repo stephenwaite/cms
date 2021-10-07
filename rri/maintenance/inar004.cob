@@ -4306,7 +4306,13 @@
                PERFORM LOOK-AUTH THRU LOOK-AUTH-EXIT  
                if hold-auth = space
                  display "NO AUTH FOUND OR SELECTED"
-               else 
+               else
+                 display "accept this auth? Y?"
+                 display ea-name " " ea-date-e " " ea-auth
+                 accept ans 
+                 IF ANS NOT = "Y"
+                   GO TO AUTH-1-EXIT
+                 end-if  
                  MOVE "1" TO CC-AUTH
                  MOVE HOLD-AUTH TO AUTH-NUM
                  MOVE HOLD-AUTH-DATE TO AUTH-DATE-E

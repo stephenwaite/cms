@@ -518,7 +518,7 @@
            02 SUBM-S6 PIC X VALUE "*".
            02 SUBM-8 PIC XX VALUE "46".
            02 SUBM-S7 PIC X VALUE "*".
-           02 SUBM-NUM PIC X(4) VALUE "7111".
+           02 SUBM-NUM PIC X(9) VALUE "030353360".
            02 SUBM-END PIC X VALUE "~".
        01  SUBPER01.
            02 SUBPER-0 PIC XXX VALUE "PER".
@@ -1038,11 +1038,11 @@
        01  NAME-2 PIC X(24).
        01  HOLD-FILEIN01.
            02 HOLD-FILEIN-KEY.
-	     03 HOLD-KEY8 PIC X(8).
-	     03 HOLD-KEY3 PIC XXX.
+      	     03 HOLD-KEY8 PIC X(8).
+      	     03 HOLD-KEY3 PIC XXX.
            02 HOLD-PATID.
-	     03 HOLD-PATID7 PIC X(7).
-	     03 HOLD-PATID8 PIC X.
+	           03 HOLD-PATID7 PIC X(7).
+	           03 HOLD-PATID8 PIC X.
            02 HOLD-CLAIM PIC X(6).
            02 HOLD-SERVICE PIC X.
            02 HOLD-DIAG PIC X(7).
@@ -1128,6 +1128,7 @@
        01  INSGROUP-LEG PIC X(6).
        01  LASTREF PIC XXX.
        01  ZEF-7 PIC Z,ZZ9.99CR.
+       01  HOLD-NEIC PIC X(5).
        PROCEDURE DIVISION.
        P0. 
            OPEN INPUT FILEIN GARFILE PATFILE INSFILE REFPHY
@@ -1685,10 +1686,15 @@
        2320S.
            MOVE "P" TO SBR-PST 
            MOVE "18" TO SBR-RELATE 
-           MOVE G-PR-GROUP TO SBR-GROUP 
+           MOVE "  " TO SBR-GROUP 
            MOVE G-PRINS TO INS-KEY
            MOVE "  " TO SBR-TYPE 
-           MOVE "MB " TO SBR-INSCODE
+           
+           if g-prins = "003"
+             MOVE "MB " TO SBR-INSCODE
+           else
+             move "CI " TO SBR-INSCODE.
+
            READ INSFILE INVALID 
             MOVE "COMMERCIAL INS" TO INS-NAME
            END-READ.
@@ -1752,12 +1758,13 @@
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
            IF (G-PR-RELATE NOT = G-SE-RELATE)
-           OR (G-GARNAME NOT = G-PRNAME)
-           UNSTRING G-PRNAME DELIMITED BY ";" INTO
-		  NM1-NAMEL NM1-NAMEF
+             OR (G-GARNAME NOT = G-PRNAME)
+             UNSTRING G-PRNAME DELIMITED BY ";" INTO
+		         NM1-NAMEL NM1-NAMEF
            ELSE
-           UNSTRING G-GARNAME DELIMITED BY ";" INTO
-		  NM1-NAMEL NM1-NAMEF.
+             UNSTRING G-GARNAME DELIMITED BY ";" INTO
+		         NM1-NAMEL NM1-NAMEF.
+
            MOVE "MI" TO NM1-EINSS
            MOVE G-PRIPOL TO NM1-CODE
            MOVE SPACE TO SEGFILE01
@@ -1774,8 +1781,9 @@
            MOVE G-CITY TO N4-CITY
            MOVE G-STATE TO N4-STATE
            MOVE G-ZIP TO N4-ZIP
+
            IF N4-ZIP(6:4) = SPACE
-            MOVE "9999"TO N4-ZIP(6:4)
+             MOVE "9999"TO N4-ZIP(6:4)
            END-IF
 
            MOVE SPACE TO SEGFILE01
@@ -1790,7 +1798,7 @@
            MOVE INS-NAME TO NM1-NAMEL
            MOVE "PI" TO NM1-EINSS
            MOVE SPACE TO NM1-CODE
-           MOVE "14512" TO NM1-CODE
+           MOVE INS-NEIC TO NM1-CODE           
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
 
@@ -2126,7 +2134,11 @@
       *     MOVE SPACE TO SEGFILE01
       *     WRITE SEGFILE01 FROM AMT01
 
-           MOVE "14512" TO SVD-1
+           MOVE ins-neic TO SVD-1
+           DISPLAY INSFILE01 
+           display "ins-neic " ins-neic
+           accept  omitted
+           
            COMPUTE NUM7 = CAS-PAID(X)
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO SVD-2
@@ -2236,6 +2248,7 @@
            MOVE G-PRIPOL TO SUB-POLICY
            MOVE SPACE TO SUB-GROUP
            MOVE "P" TO SBR-PST
+
            IF HOLD-PAYCODE = G-SEINS 
           		MOVE "S" TO SBR-PST
           		MOVE G-SE-RELATE TO SUB-RELATE
@@ -2244,6 +2257,7 @@
           		MOVE ALF-9 TO SUB-POLICY
           		MOVE G-SE-GROUP TO SUB-GROUP
            END-IF.
+
            IF (HOLD-PAYCODE = G-TRINS) AND (MPLR-TR-RELATE NOT = "0")
               MOVE "S" TO SBR-PST
               MOVE MPLR-TR-RELATE TO SUB-RELATE
@@ -2252,26 +2266,34 @@
 		       MOVE MPLR-TR-GROUP TO SUB-GROUP
            END-IF.
            MOVE G-RELATE TO X-RELATE.
+           
            IF HOLD-PATID8 = "P" PERFORM PAT-READ.
+           
            IF X-RELATE = "0"  
-		    MOVE G-RELATE TO X-RELATE.
+		         MOVE G-RELATE TO X-RELATE.
+           
            IF X-RELATE = SUB-RELATE  
-	         MOVE "18" TO SBR-RELATE
-	         GO TO SUBSCRIBER-2.
+	           MOVE "18" TO SBR-RELATE
+	           GO TO SUBSCRIBER-2.
+           
            IF (X-RELATE = "2" OR "K") 
-	        AND (SUB-RELATE = "2" OR "K")
-            MOVE "18" TO SBR-RELATE
-            GO TO SUBSCRIBER-2.
+	           AND (SUB-RELATE = "2" OR "K")
+             MOVE "18" TO SBR-RELATE
+             GO TO SUBSCRIBER-2.
+           
            IF (X-RELATE = "8" OR "Q") MOVE "29" TO SBR-RELATE
-           GO TO SUBSCRIBER-2.
+             GO TO SUBSCRIBER-2.
+           
            IF (X-RELATE = "4" OR "M") MOVE "02" TO SBR-RELATE
-           GO TO SUBSCRIBER-2.
+             GO TO SUBSCRIBER-2.
+           
            IF (X-RELATE = "5" OR "N") MOVE "17" TO SBR-RELATE
-           GO TO SUBSCRIBER-2.
+             GO TO SUBSCRIBER-2.
+
        SUBSCRIBER-2.
            MOVE SPACE TO SBR-GROUP
            MOVE "0    " TO HL-CHILD
-           MOVE "BL" TO SBR-INSCODE
+           MOVE "CI" TO SBR-INSCODE
       *     MOVE "12" TO SBR-TYPE
             IF SBR-PST = "S"
 		      IF G-PRINS = "091"

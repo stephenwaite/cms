@@ -1670,7 +1670,8 @@
                     OR "D55" OR "B1T" OR "B51" OR "R2A" OR "L4Q"
                     OR "F34" OR "G36" OR "H1B" OR "M6A" OR "V1I"
                     OR "S7O" OR "S91" OR "S1O" OR "T0E" OR "T21"
-                    OR "T0G" OR "V12" OR "W2I" OR "Z0I")
+                    OR "T0G" OR "V12" OR "W2I" OR "Z0I" OR "SAH"
+                    OR "SAG")
                  MOVE "E" TO C-IOPAT
            END-IF
            

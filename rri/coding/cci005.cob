@@ -37,7 +37,7 @@
            COPY ccifile.CPY IN "C:\Users\sid\cms\copylib".                
 
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(80).
+       01  FILEOUT01 PIC X(120).
 
        FD  CHARFILE.
            COPY charfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
