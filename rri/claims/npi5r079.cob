@@ -400,7 +400,7 @@
 
        WORKING-STORAGE SECTION.
 
-       COPY hip5010_837.CPY IN "C:\Users\sid\cms\copylib".      
+       COPY "hip5010_837.cpy" IN "C:\Users\sid\cms\copylib".      
 
        01  TEST-DATE.
            05 T-CC  PIC XX.
@@ -652,12 +652,12 @@
            MOVE BHT-DATE TO WEB-KEY
            
            READ WEBFILE WITH LOCK
-             INVALID
+             INVALID                            
                MOVE 1 TO WEB-NUM
                WRITE WEBFILE01
                END-WRITE
              NOT INVALID
-               ADD 1 TO WEB-NUM
+               ADD 1 TO WEB-NUM             
                REWRITE WEBFILE01
            END-READ
            

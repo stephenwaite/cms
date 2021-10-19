@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. HIP036.
+       PROGRAM-ID. npi5r037.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -1078,6 +1078,9 @@
               03 DOC-FIRSTNAME PIC X(10).
               03 DOC-MI PIC X.
               03 DOC-NPI PIC X(10).
+
+       01  AUTH-FLAG PIC 9.
+       
        PROCEDURE DIVISION.
        P0. 
            OPEN INPUT FILEIN GARFILE PATFILE INSFILE REFPHY
@@ -1458,35 +1461,53 @@
            MOVE HOLD-DAT1 TO DTP-3
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM DTP01.
+
            IF (CLM-5 = "21")
-            MOVE "435" TO DTP-1
+             MOVE "435" TO DTP-1
              IF HOLD-DATE-M = "00000000"
-             MOVE "17760704" TO HOLD-DATE-M
+               MOVE "17760704" TO HOLD-DATE-M
              END-IF
-            MOVE HOLD-DATE-M TO DTP-3
-            MOVE SPACE TO SEGFILE01
-            WRITE SEGFILE01 FROM DTP01
-           END-IF.
+             MOVE HOLD-DATE-M TO DTP-3
+             MOVE SPACE TO SEGFILE01
+             WRITE SEGFILE01 FROM DTP01
+           END-IF
+
            IF CLIA-FLAG = 1
-           AND (CLIA-NUM NOT = SPACES)
-           MOVE "X4" TO REF-CODE
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM REF01.
+             AND (CLIA-NUM NOT = SPACES)
+             MOVE "X4" TO REF-CODE
+             MOVE SPACE TO SEGFILE01
+             WRITE SEGFILE01 FROM REF01.
 
            IF MAMMO-FLAG= 1
-           MOVE SPACE TO REF-CODE REF-ID SEGFILE01
-           MOVE "EW" TO REF-CODE
-           MOVE "134668    " TO REF-ID
-           WRITE SEGFILE01 FROM REF01.
+             MOVE SPACE TO REF-CODE REF-ID SEGFILE01
+             MOVE "EW" TO REF-CODE
+             MOVE "134668    " TO REF-ID
+             WRITE SEGFILE01 FROM REF01.
 
+      *    add auth to defeat pesky CO*197 denials
+           MOVE 0 TO AUTH-FLAG
+           MOVE HOLD-KEY8 TO AUTH-KEY8
+           MOVE HOLD-CLAIM TO AUTH-KEY6
+           READ AUTHFILE INVALID
+             MOVE 1 TO AUTH-FLAG
+           END-READ    
+  
+           MOVE SPACE TO REF-CODE
+           MOVE "G1" TO REF-CODE
+           MOVE SPACE TO REF-ID
+
+           IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
+             MOVE AUTH-NUM TO REF-ID
+             MOVE SPACE TO SEGFILE01
+             WRITE SEGFILE01 FROM REF01
+           END-IF.   
 
        ACCIDENT-1.
            MOVE "OA" TO CLM-11.
       *     MOVE ":" TO CLM-COLON-ACCIDENT.
+      
        ACCIDENT-EXIT.
            EXIT.
-
-
 
        2310D.
            IF HOLD-PLACE NOT = "2"

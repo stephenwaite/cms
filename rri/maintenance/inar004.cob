@@ -4286,7 +4286,7 @@
            end-if.  
 
        AUTH-2.
-           DISPLAY AUTHFILE01
+      *     DISPLAY AUTHFILE01
 
            IF IN-FIELD-2 = "3 "
              DISPLAY "BLANK OUT, Y?"
@@ -4300,19 +4300,18 @@
            end-if
 
            IF IN-FIELD-2 NOT = "3 "
-             DISPLAY "LOOK FOR AUTH IN RRMC'S AUTHFILE, Y?"
+             DISPLAY "LOOK FOR AUTH FROM RRMC, Y?"
              ACCEPT ANS
              IF ANS = "Y"
+               move space to hold-auth hold-auth-date
                PERFORM LOOK-AUTH THRU LOOK-AUTH-EXIT  
                if hold-auth = space
                  display "NO AUTH FOUND OR SELECTED"
+                 go to auth-1-exit
                else
-                 display "accept this auth? Y?"
-                 display ea-name " " ea-date-e " " ea-auth
-                 accept ans 
-                 IF ANS NOT = "Y"
-                   GO TO AUTH-1-EXIT
-                 end-if  
+                 display "accepting this auth"
+                 move "1" to flag
+                 display ea-name " " ea-date-e " " ea-auth                 
                  MOVE "1" TO CC-AUTH
                  MOVE HOLD-AUTH TO AUTH-NUM
                  MOVE HOLD-AUTH-DATE TO AUTH-DATE-E
@@ -4341,12 +4340,19 @@
              end-if  
            end-if    
            
-           IF FLAG = 1 OR 2
+           IF FLAG = 1
                DISPLAY AUTHFILE01
                MOVE AUTHFILE01 TO AUTHFILE-BACK
-               PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
+               PERFORM WRITE-AU THRU WRITE-AU-EXIT
                GO TO AUTH-1-EXIT
            END-IF
+
+           IF FLAG = 2
+              DISPLAY AUTHFILE01
+              MOVE AUTHFILE01 TO AUTHFILE-BACK
+              PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
+              GO TO AUTH-1-EXIT
+           end-if.           
            
            IF FLAG = 3
               MOVE SPACE TO CC-AUTH
@@ -4354,14 +4360,7 @@
               MOVE AUTHFILE01 TO AUTHFILE-BACK
               PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
               GO TO AUTH-1-EXIT
-           end-if   
-
-           IF FLAG = 0
-             MOVE "01" TO AUTH-QNTY
-             MOVE SPACE TO AUTH-FILLER
-             MOVE AUTHFILE01 TO AUTHFILE-BACK
-             PERFORM WRITE-AU THRU WRITE-AU-EXIT
-           end-IF.  
+           end-if.           
 
        AUTH-1-EXIT. 
            EXIT.
@@ -4853,8 +4852,10 @@
            CLOSE AUTHFILE
            OPEN INPUT AUTHFILE.
            MOVE 1 TO FLAG.
+
        WRITE-AU-EXIT.
            EXIT.
+
        RE-WRITE-AU.
            CLOSE AUTHFILE
            OPEN I-O AUTHFILE
@@ -4901,25 +4902,25 @@
            if ea-medrec not = g-acct
              go to emailauth-exit.
 
-      *     display EMAILAUTHFILE01
+      *    display EMAILAUTHFILE01
 
            if ea-auth = space
              go to emailauth-1.  
 
-           if ea-date-e = cc-date-t
-             move ea-auth TO HOLD-AUTH
-             go to emailauth-exit.
-
+           move ea-auth TO HOLD-AUTH
            display "ACCEPT " ea-auth " for AUTH DATE " ea-date-e
-           "? Y FOR YES"
+             "? Y FOR YES"
            accept ans 
            if ans = "Y" 
              move ea-auth to HOLD-AUTH
              move ea-date-e to HOLD-AUTH-DATE
-             go to emailauth-exit.
+             go to emailauth-exit
+           else
+             display "we can take another look then"
+             move space to hold-auth
+           end-if
 
-           go to emailauth-1.     
-
+           go to emailauth-1.
        emailauth-exit.
            exit.                 
 
