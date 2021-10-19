@@ -4286,7 +4286,7 @@
            end-if.  
 
        AUTH-2.
-           DISPLAY AUTHFILE01
+      *     DISPLAY AUTHFILE01
 
            IF IN-FIELD-2 = "3 "
              DISPLAY "BLANK OUT, Y?"
