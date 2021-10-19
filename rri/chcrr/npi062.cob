@@ -86,34 +86,40 @@
            END-IF
            MOVE PART-NAME TO REF-NAME
            START REFPHY KEY NOT < REF-NAME
-           INVALID
-            DISPLAY "PART NAME NOT FOUND IN THE FILE"
-            DISPLAY "MAYBE YOU WILL HAVE TO ADD THIS"
-            DISPLAY "PROVIDER TO THE REF. FILE USING RRI-62"
-            DISPLAY "SINCE THE PROVIDER HAS TO EXIST THERE FIRST!!"
-            GO TO A-3
-           END-START.
+             INVALID
+               DISPLAY "PART NAME NOT FOUND IN THE FILE"
+               DISPLAY "MAYBE YOU WILL HAVE TO ADD THIS"
+               DISPLAY "PROVIDER TO THE REF. FILE USING RRI-62"
+               DISPLAY "SINCE THE PROVIDER HAS TO EXIST THERE FIRST!!"
+               GO TO A-3
+               END-START.
         A-4.
-           READ REFPHY NEXT AT END
-            DISPLAY "PART NAME NOT FOUND IN THE FILE"
-            GO TO A-3
+           READ REFPHY NEXT 
+             AT END
+               DISPLAY "PART NAME NOT FOUND IN THE FILE"
+               GO TO A-3
            END-READ
+
            IF REF-NAME(1:1) > PART-NAME(1:1)
-            DISPLAY "PART NAME NOT FOUND IN THE FILE"
-            GO TO A-2
+             DISPLAY "PART NAME NOT FOUND IN THE FILE"
+             GO TO A-2
            END-IF.
+
         A-5.
            IF REF-NPI = NPI-KEY
-            DISPLAY REF-KEY " " REF-NAME " " REF-NPI
-           DISPLAY "A = ADD THIS: N = DONT ADD LOOK FURTHER"
-           ACCEPT ANS
-           IF NOT (ANS = "A" OR "N")
-             GO TO A-4
-           END-IF
-           IF ANS = "N"
-             GO TO A-4
-           END-IF.
+             DISPLAY REF-KEY " " REF-NAME " " REF-NPI
+             DISPLAY "A = ADD THIS: N = DON'T ADD, LOOK FURTHER"
+             ACCEPT ANS
+             IF NOT (ANS = "A" OR "N")
+               GO TO A-4
+             END-IF
+           
+             IF ANS = "N"
+               GO TO A-4
+             END-IF.
+
        A-6.
+           DISPLAY "ACCEPTED " REF-KEY
            DISPLAY "ENTER A VALID PLACE CODE TO THIS CHCRR PROVIDER"
            DISPLAY "OR X = BACK TO THE BEGINNING"
 
@@ -124,10 +130,11 @@
 
            IF NOT (NPI-PLACE = "A" OR "B" OR "C" OR "M" OR "P" OR 
                                "R" OR "S") 
-               GO TO A-6
+             GO TO A-6
            END-IF    
            
            MOVE REF-NAME TO NPI-NAME
+           MOVE REF-KEY TO NPI-REFKEY           
 
            WRITE NPIFILE01
              INVALID

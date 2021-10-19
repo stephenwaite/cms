@@ -3,7 +3,7 @@
       * @author  s waite <cmswest@sover.net>
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
-        IDENTIFICATION DIVISION.
+       IDENTIFICATION DIVISION.
        PROGRAM-ID. errrr146.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -67,8 +67,8 @@
            02 FI-DATE PIC X(8).
            02 FILLER PIC X VALUE SPACE.
            02 FI-PROC PIC X(5).
-           02 FI-MOD PIC XX
-           02 FI-MOD2 PIC XX
+           02 FI-MOD PIC XX.
+           02 FI-MOD2 PIC XX.
            02 FI-MOD3 PIC XX.
            02 FILLER PIC X VALUE SPACE.
            02 FI-GARNO PIC X(8).
@@ -230,9 +230,12 @@
        P1.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P9.
+           
            MOVE FI-GARNO TO G-GARNO
            READ GARFILE INVALID GO TO E1.
+
            IF FI-DATE = SPACE GO TO E1.
+           
            MOVE FI-DATE TO INPUT-DATE
            MOVE CORR INPUT-DATE TO TEST-DATE
            MOVE SPACE TO  FI-DOLLAR-PAID FI-CENT-PAID
