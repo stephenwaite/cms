@@ -765,6 +765,13 @@
                MOVE R1-PATZIP TO A-ZIP
            END-IF
 
+           IF A-CITY = SPACE OR A-STATE = space or a-zip = space
+             MOVE SPACE TO ERRFILE01
+             STRING A-GARNAME " HAS A BAD ADDRESS, MEDREC # " R2-MEDREC
+               DELIMITED BY SIZE INTO ERRFILE01
+             WRITE ERRFILE01.
+             
+
            INSPECT A-BILLADD REPLACING ALL "*" BY " "
            INSPECT A-STREET REPLACING ALL "*" BY " "
            MOVE "00000000" TO A-DOB
@@ -1645,6 +1652,8 @@
            MOVE "5" TO C-IOPAT
            
            IF R3-PLACE = "EMER" MOVE "E" TO C-IOPAT.
+      *    maybe someday will need O for POS     
+      *     IF R3-OBSERV = "OBSER" MOVE "O" TO C-IOPAT.
            
            IF R3-PLACE = "INPT" 
              MOVE "3" TO C-IOPAT
@@ -1661,7 +1670,8 @@
                     OR "D55" OR "B1T" OR "B51" OR "R2A" OR "L4Q"
                     OR "F34" OR "G36" OR "H1B" OR "M6A" OR "V1I"
                     OR "S7O" OR "S91" OR "S1O" OR "T0E" OR "T21"
-                    OR "T0G" OR "V12" OR "W2I" OR "Z0I")
+                    OR "T0G" OR "V12" OR "W2I" OR "Z0I" OR "SAH"
+                    OR "SAG")
                  MOVE "E" TO C-IOPAT
            END-IF
            

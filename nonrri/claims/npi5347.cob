@@ -1747,7 +1747,7 @@
            END-READ
 
            MOVE SPACE TO SBR-GRNAME
-           MOVE INS-NAME TO SBR-GRNAME                     
+      *     MOVE INS-NAME TO SBR-GRNAME                     
            
 
            MOVE "CI " TO SBR-INSCODE.

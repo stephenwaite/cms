@@ -95,12 +95,14 @@
       *    02 FILLER PIC X.
            02 FO-DATE PIC X(8).
            02 FILLER PIC X VALUE SPACE.
-           02 FO-NAME PIC X(20).
+           02 FO-NAME PIC X(19).
            02 FILLER PIC X VALUE SPACE.
-           02 FO-PAYCODE PIC X(2).
+           02 FO-PAYCODE PIC X(3).
            02 FILLER PIC X VALUE SPACE.
            02 FO-PROC PIC X(11).
            02 FILLER PIC X VALUE SPACE.
+           02 FO-MODS PIC X(8).
+           02 FILLER pic x value space.
            02 FO-TITLE PIC X(17).
            02 FILLER PIC X VALUE SPACE.
            02 FO-REFPHY PIC X(10).
@@ -180,6 +182,11 @@
            END-READ
 
            MOVE FO-KEY TO CHARNEW-KEY
+      *     DISPLAY FO-DATE " " FO-NAME " " FO-PAYCODE " " FO-PROC " "
+      *        FO-MODS " " FO-TITLE " " FO-REFPHY " " CHARNEW-KEY " "
+      *     ACCEPT  OMITTED
+
+           
            
            READ CHARNEW WITH LOCK INVALID
              DISPLAY "CHARGE RECORD NOT AVAILABLE FOR SOME UNKNOWN "
@@ -260,8 +267,8 @@
                display " "
                MOVE "R928   " TO CD-DIAG
       * medicare and adv plans don't follow vt call back policy         
-               IF (CD-PAYCODE = "003" OR "200" OR "245" OR "270" 
-                   or "697" OR "868" OR "912")
+               IF (CD-PAYCODE = "003" OR "074" OR "200" OR "245" 
+                     OR "270" or "697" OR "868" OR "912")
 
                    IF (CD-PROC1 = "1446")
                        MOVE "LT" TO CD-MOD2
@@ -389,7 +396,7 @@
            END-IF
 
       *    bilat studies
-           IF ((CD-PROC1 = "1204" or "1284" or "1285" or "3030") 
+           IF ((CD-PROC1 = "1204" or "1284" or "1285" or "3082") 
              AND CD-MOD2 = "50")
 
       *       COMPUTE CD-AMOUNT = 2 * CD-AMOUNT

@@ -806,7 +806,7 @@
            MOVE "DEDUCTIBLE NOT MET   "
            TO L5F23.
            IF PHR-DENIAL(X) = "14" 
-           MOVE "INSURANCE REDUCTION  "
+           MOVE "REDUCTION            "
            TO L5F23.
            IF PHR-DENIAL(X) = "NC" 
            MOVE "NONCOVERED SERVICE   "

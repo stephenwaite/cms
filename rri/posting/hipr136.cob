@@ -978,14 +978,16 @@
            MOVE PAYBACK TO PAYFILE01
            MOVE XYZ TO PD-KEY3
            WRITE PAYFILE01.
-            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
+           
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
              IF CAS-SVC(Z) = X
               MOVE SPACE TO CAS01 ALF8
               MOVE CAS-TAB(Z) TO FILEIN01
               UNSTRING FILEIN01 DELIMITED BY "*" INTO
               CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-              CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+              CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+
               IF (CAS-2 = "104") MOVE CAS-3 TO ALF8
               END-IF
               IF (CAS-5 = "104") MOVE CAS-6 TO ALF8
@@ -1154,11 +1156,13 @@
                 OR (CAS-1 = "CO" AND CAS-2 = "96   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "97   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "197  ")
+                OR (CAS-1 = "CO" AND CAS-2 = "236  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "251  ")
                 OR (CAS-1 = "PI" AND CAS-2 = "97   ")
                 OR (CAS-1 = "PI" AND CAS-2 = "204  ")
                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
+                OR (CAS-1 = "PR" AND CAS-2 = "95   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "96   ")
                 OR (CAS-1 = "CO" 
                   AND CAS-2 = "45   " AND CAS-5 = "B10   ")

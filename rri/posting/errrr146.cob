@@ -3,8 +3,8 @@
       * @author  s waite <cmswest@sover.net>
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
-        IDENTIFICATION DIVISION.
-       PROGRAM-ID. NEI146.
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. errrr146.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -25,13 +25,39 @@
            SELECT PAYFILE ASSIGN TO "S55"     ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC        RECORD KEY IS PAYFILE-KEY
            LOCK MODE MANUAL.
+           SELECT PAYCUR ASSIGN TO "S60" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS PAYCUR-KEY
+           LOCK MODE MANUAL.
+           SELECT FILEPRI ASSIGN TO "S65" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT FILESEC ASSIGN TO "S70" ORGANIZATION
+           LINE SEQUENTIAL.
 
        DATA DIVISION.
        FILE SECTION.
+       FD  PAYCUR
+      *    BLOCK CONTAINS 3 RECORDS
+           DATA RECORD IS PAYCUR01.
+       01  PAYCUR01.
+           02 PAYCUR-KEY.
+             03 PC-KEY8 PIC X(8).
+             03 PC-KEY3 PIC XXX.
+           02 PC-AMOUNT PIC S9(4)V99.
+           02 PC-PAYCODE PIC XXX.
+           02 PC-DENIAL PIC XX.
+           02 PC-CLAIM PIC X(6).
+           02 PC-DATE-T PIC X(8).
+           02 PC-DATE-E PIC X(8).
+           02 PC-BATCH PIC X(6).
        FD  ERROR-FILE.
        01  ERROR-FILE01 PIC X(132).
        FD  FILEOUT.
        01  FILEOUT01 PIC X(160).
+       FD  FILEPRI.
+       01  FILEPRI01 PIC X(133).
+       FD  FILESEC.
+       01  FILESEC01 PIC X(133).
+
        FD  FILEIN.
        01  FILEIN01.
            02 F1-NAME PIC X(10).
@@ -41,7 +67,10 @@
            02 FI-DATE PIC X(8).
            02 FILLER PIC X VALUE SPACE.
            02 FI-PROC PIC X(5).
-           02 FILLER PIC XXX VALUE SPACE.
+           02 FI-MOD PIC XX.
+           02 FI-MOD2 PIC XX.
+           02 FI-MOD3 PIC XX.
+           02 FILLER PIC X VALUE SPACE.
            02 FI-GARNO PIC X(8).
            02 FILLER PIC X(5).
            02 FI-CHARGE PIC X(7).
@@ -49,11 +78,9 @@
            02 FI-SIGN PIC X.
            02 FILLER PIC X.
            02 FI-PAID PIC X(7).
-           02 FILLER PIC X(17).
-           02 FI-STATUS PIC X(3).
-           02 FILLER PIC X(46).
+           02 FILLER PIC X(66).
        FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
+           BLOCK CONTAINS 5 RECORDS
            DATA RECORD IS CHARCUR01.
        01  CHARCUR01.
            02 CHARCUR-KEY.
@@ -63,7 +90,7 @@
            02 CC-CLAIM PIC X(6).
            02 CC-SERVICE PIC X.
            02 CC-DIAG PIC X(7).
-           02 CC-PROC.
+           02 CC-PROC. 
               03 CC-PROC0 PIC X(4).
               03 CC-PROC1 PIC X(5).
               03 CC-PROC2 PIC XX.
@@ -81,7 +108,7 @@
            02 CC-ACT PIC X.
            02 CC-SORCREF PIC X.
            02 CC-COLLT PIC X.
-           02 CC-AUTH PIC X.
+           02 CC-AGE PIC X.
            02 CC-PAPER PIC X.
            02 CC-PLACE PIC X.
            02 CC-EPSDT PIC X.
@@ -171,10 +198,10 @@
            02 PD-BATCH PIC X(6).
        WORKING-STORAGE SECTION.
        01  TEST-DATE.
-           05  T-CC            PIC XX.
-           05  T-YY            PIC XX.
-           05  T-MM            PIC XX.
-           05  T-DD            PIC XX.
+           05  T-CC            PIC 99.
+           05  T-YY            PIC 99.
+           05  T-MM            PIC 99.
+           05  T-DD            PIC 99.
        01  INPUT-DATE.
            02 T-MM PIC XX.
            02 T-DD PIC XX.
@@ -182,6 +209,7 @@
            02 T-YY PIC XX.
        01  FI-DOLLAR-PAID PIC X(4).
        01  FI-CENT-PAID PIC XX.
+       01  ALF1 PIC X.
        01  ALF6.
            02 ALF4 PIC X(4).
            02 ALF2 PIC XX.
@@ -190,10 +218,11 @@
        01  PAYBACK01 PIC X(80).
        01  PAYDATE PIC X(8).
        01  XYZ PIC 999.
+       01  CLAIM-TOT PIC S9(4)V99.
        PROCEDURE DIVISION.
        0005-START.
-           OPEN INPUT FILEIN CHARCUR GARFILE
-           OUTPUT ERROR-FILE FILEOUT
+           OPEN INPUT FILEIN CHARCUR GARFILE PAYCUR
+           OUTPUT ERROR-FILE FILEOUT FILEPRI FILESEC
            I-O PAYFILE.
            MOVE SPACE TO ERROR-FILE01
            READ FILEIN AT END CONTINUE.
@@ -201,11 +230,12 @@
        P1.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P9.
+           
            MOVE FI-GARNO TO G-GARNO
            READ GARFILE INVALID GO TO E1.
-           IF FI-PAID = "   0.00" GO TO E1.
+
            IF FI-DATE = SPACE GO TO E1.
-           IF FI-STATUS = "22 " GO TO E1.
+           
            MOVE FI-DATE TO INPUT-DATE
            MOVE CORR INPUT-DATE TO TEST-DATE
            MOVE SPACE TO  FI-DOLLAR-PAID FI-CENT-PAID
@@ -216,22 +246,6 @@
            MOVE FI-CENT-PAID TO ALF2
            MOVE ALF6 TO NUM6
            COMPUTE FI-CHG = (NUM6 / 100)
-      *     DISPLAY FI-CHG
-      *     ACCEPT ALF2
-           MOVE SPACE TO  FI-DOLLAR-PAID FI-CENT-PAID
-           UNSTRING FI-PAID DELIMITED BY "." INTO
-                        FI-DOLLAR-PAID FI-CENT-PAID
-           INSPECT FI-DOLLAR-PAID REPLACING ALL " " BY "0"
-           MOVE FI-DOLLAR-PAID TO ALF4
-           INSPECT FI-CENT-PAID REPLACING ALL " " BY "0"
-           MOVE FI-CENT-PAID TO ALF2
-           MOVE ALF6 TO NUM6
-           MOVE SPACE TO PD-DENIAL
-           COMPUTE PD-AMOUNT =  -1 * (NUM6 / 100)
-           IF FI-SIGN = "-"
-            MOVE "08" TO PD-DENIAL
-            COMPUTE PD-AMOUNT =  -1 * PD-AMOUNT
-           END-IF.
            MOVE G-GARNO TO CC-KEY8
            MOVE SPACE TO CC-KEY3
            START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO E1.
@@ -239,42 +253,54 @@
            READ CHARCUR NEXT AT END GO TO E1.
            IF CC-KEY8 NOT = G-GARNO GO TO E1.
            IF CC-DATE-T NOT = TEST-DATE GO TO P2.
-           IF (CC-PROC1 = FI-PROC) GO TO P3.
-      *      DISPLAY G-GARNAME
-      *      DISPLAY CC-AMOUNT
-      *      DISPLAY FI-CHG
-      *      DISPLAY FI-PROC
-      *      ACCEPT ALF2.
-           IF (FI-PROC = SPACE) AND (CC-AMOUNT = FI-CHG) GO TO P3.
+           
+           IF (CC-PROC1 = FI-PROC) AND
+              (CC-PROC2 = FI-MOD) AND
+              (CC-MOD2 = FI-MOD2) AND
+              (CC-MOD3 = FI-MOD3) GO TO P3.
+           
+           IF (CC-PROC1 = SPACE) AND (CC-AMOUNT = FI-CHG) 
+             GO TO P3.
+
            GO TO P2.
        P3.
-           MOVE PAYDATE TO PD-DATE-T
-           MOVE PAYDATE TO PD-DATE-E
-           ACCEPT PD-ORDER FROM TIME
-           MOVE SPACE TO PD-BATCH
-           MOVE CC-CLAIM TO PD-CLAIM
-           MOVE G-GARNO TO PD-KEY8
-           MOVE SPACE TO PD-KEY3
-           MOVE G-GARNAME TO PD-NAME
-           MOVE "004" TO PD-PAYCODE.
-           MOVE PAYFILE01 TO PAYBACK01
-           MOVE 0 TO XYZ.
-           PERFORM P4 THRU P5.
-           WRITE FILEOUT01 FROM CHARCUR01.
-           GO TO P1. 
-       P4.
-           ADD 1 TO XYZ
-           MOVE XYZ TO PD-KEY3
-           READ PAYFILE INVALID KEY GO TO P5.
-           GO TO P4.
-       P5.
-           MOVE PAYBACK01 TO PAYFILE01
-           MOVE XYZ TO PD-KEY3
-           WRITE PAYFILE01
-           DISPLAY PAYFILE-KEY " " PD-NAME.
-           DISPLAY "RECORD IS ADDED".
-       E1. WRITE ERROR-FILE01 FROM FILEIN01
+           MOVE CC-AMOUNT TO CLAIM-TOT
+           PERFORM S4 THRU S4-EXIT
+           IF CLAIM-TOT = 0
+           DISPLAY FILEIN01
+           DISPLAY "CLAIM = 0"
+           ACCEPT ALF1
+             GO TO P1.
+           
+           IF G-PRINS = "004" or "281" WRITE FILEPRI01 FROM FILEIN01
+           GO TO P1.
+           IF ((G-SEINS = "004" or "281")
+            OR (G-TRINS = "004" or "281")
+            OR (CC-PAYCODE = "004" OR "281"))
+           MOVE SPACE TO FILESEC01
+           STRING G-PRINS "  " G-SEINS " " FILEIN01 DELIMITED BY SIZE
+           INTO FILESEC01
+           WRITE FILESEC01
+           GO TO P1.
+           IF NOT (G-PRINS = "004" OR G-SEINS = "004")
+            WRITE FILEOUT01 FROM FILEIN01  GO TO P1.
+
+           WRITE FILEOUT01 FROM CHARCUR01
+           GO TO P1.
+       S4. MOVE G-GARNO TO PC-KEY8.
+           MOVE "000" TO PC-KEY3.
+           START PAYCUR KEY NOT < PAYCUR-KEY INVALID GO TO S4-EXIT.
+       S7. READ PAYCUR NEXT AT END GO TO S4-EXIT.
+           IF PC-KEY8 NOT = CC-KEY8 GO TO S4-EXIT.
+           IF PC-CLAIM NOT = CC-CLAIM GO TO S7.
+           ADD PC-AMOUNT TO CLAIM-TOT.
+           GO TO S7.
+       S4-EXIT.
+           EXIT.
+       E1.
+           WRITE error-file01 FROM FILEIN01
            GO TO P1.  
        P9.
-           CLOSE CHARCUR GARFILE FILEOUT ERROR-FILE PAYFILE
+           CLOSE CHARCUR GARFILE FILEOUT FILEPRI FILESEC
+                 ERROR-FILE PAYFILE
            STOP RUN.

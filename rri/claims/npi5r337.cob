@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. HIP036.
+       PROGRAM-ID. npi5r337.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -2166,7 +2166,7 @@
            IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
-      *     REWRITE CHARCUR01.
+           REWRITE CHARCUR01.
        2400SRV-EXIT.  EXIT.
        REF-1.
            IF HOLD-DOCR = "000" GO TO REF-2.
@@ -2568,6 +2568,6 @@
       *     WRITE SEGFILE01 FROM IEA01.
 
        P99. 
-      *     REWRITE HIPCLAIMFILE01.
+           REWRITE HIPCLAIMFILE01.
 	    CLOSE GARFILE HIPCLAIMFILE CHARCUR ERRFILE.
 	    STOP RUN.

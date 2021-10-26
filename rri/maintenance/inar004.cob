@@ -3195,8 +3195,10 @@
            END-READ
 
            DISPLAY G-GARNAME.
+
        2120-CHAR-KEY.
            MOVE 0 TO X.
+
        2130-CHARCUR-KEY.
            ADD 1 TO X.
            MOVE SPACE TO ALF-11.
@@ -3215,7 +3217,8 @@
                DISPLAY "IN THE FILE ALREADY. NO MORE ARE ALLOWED."
                GO TO CC-2000TI
                GO TO 2130-CHARCUR-KEY
-           END-IF.               
+           END-IF.            
+
        CC-2-PATID.
            MOVE IN-FIELD-8 TO P-PATNO EIGHTPARTID.
            IF EIGHT-1 = "G" GO TO CC-3-PATID.
@@ -3231,13 +3234,16 @@
            MOVE P-PATNO TO CC-PATID
            DISPLAY  P-PATNAME
            GO TO 4900CPC.
+
        CC-3-PATID. MOVE CHARCUR-KEY TO PART11.
            IF IN-FIELD-8 = PART8 MOVE PART8 TO CC-PATID
            DISPLAY "GUARANTOR IS PATIENT" GO TO 4900CPC.
            DISPLAY "INVALID" GO TO 1400CPC.
+
        CC-2100-CLAIM.
-            DISPLAY "CLAIM NUMBERS CANT""T BE CHANGED"
+           DISPLAY "CLAIM NUMBERS CANT""T BE CHANGED"
            GO TO 1400CPC.
+
        CC-2130-SERVICE.
            IF IN-FIELD = "?"
            DISPLAY "ENTER THE TYPE OF SERVICE. CODES ARE"
@@ -3247,6 +3253,7 @@
            IF IN-FIELD-1 > "0" AND < "8"
            MOVE IN-FIELD-1 TO CC-SERVICE GO TO 4900CPC
            ELSE MOVE "?" TO IN-FIELD GO TO CC-2130-SERVICE.
+
        CC-2150-DIAG.
            IF IN-FIELD = "?"
                DISPLAY "ENTER A DIAGNOSIS CODE."
@@ -3263,6 +3270,7 @@
            IF RETURN-FLAG = 1 GO TO CC-2000TI.
            MOVE IN-FIELD-7 TO CC-DIAG.
            GO TO 4900CPC.
+
        CC-2-DX2.
            IF IN-FIELD = "?"
              DISPLAY "ENTER A SECOND DX CODE."
@@ -3280,6 +3288,7 @@
            IF RETURN-FLAG = 1 GO TO CC-2000TI.
            MOVE IN-FIELD-7 TO CC-DX2.
            GO TO 4900CPC.
+           
        CC-2-DX3.
            IF IN-FIELD = "?"
                DISPLAY "ENTER A THIRD DX  CODE."
@@ -3296,6 +3305,7 @@
            IF RETURN-FLAG = 1 GO TO CC-2000TI.
            MOVE IN-FIELD-7 TO CC-DX3.
            GO TO 4900CPC.
+
        CC-2-DX4.
            IF IN-FIELD = "?"
                DISPLAY "ENTER A FOURTH DX  CODE."
@@ -3312,6 +3322,7 @@
            IF RETURN-FLAG = 1 GO TO CC-2000TI.
            MOVE IN-FIELD-7 TO CC-DX4.
            GO TO 4900CPC.
+
        CC-2-DX5.
            IF IN-FIELD = "?"
                DISPLAY "ENTER A FIFTH DX  CODE."
@@ -3328,6 +3339,7 @@
            IF RETURN-FLAG = 1 GO TO CC-2000TI.
            MOVE IN-FIELD-7 TO CC-DX5.
            GO TO 4900CPC.
+
        CC-2-DX6.
            IF IN-FIELD = "?"
                DISPLAY "ENTER A SIXTH DX  CODE."
@@ -3344,6 +3356,7 @@
            IF RETURN-FLAG = 1 GO TO CC-2000TI.
            MOVE IN-FIELD-7 TO CC-DX6.
            GO TO 4900CPC.
+
        CC-2140-PROC.
            IF IN-FIELD = "?"
                DISPLAY "ENTER A PROCEDURE CODE."
@@ -3356,6 +3369,7 @@
            GO TO CC-2000TI.
            MOVE PROC-KEY TO CC-PROC.
            GO TO 4900CPC.
+
        CC-2150-PROC. DISPLAY "SEARCH KEY".
            ACCEPT PROC-KEY.
            IF PROC-KEY = "?"
@@ -3367,6 +3381,7 @@
            START PROCFILE KEY NOT < PROC-KEY INVALID
            DISPLAY "END OF FILE" GO TO CC-2000TI.
            MOVE 0 TO X.
+
        CC-2160-PROC. READ PROCFILE NEXT AT END DISPLAY
            "END OF FILE" GO TO CC-2000TI.
            IF X > 5 DISPLAY "?"
@@ -3377,6 +3392,7 @@
            MOVE PROC-AMOUNT TO NEF-8.
            DISPLAY PROC-KEY " " NEF-8 " " PROC-TYPE " " PROC-TITLE
            ADD 1 TO X. GO TO CC-2160-PROC.
+
        CC-2200-AMOUNT.
            IF IN-FIELD = "?"
            DISPLAY "ENTER THE CC-AMOUNT OF CHARGE"
@@ -3394,12 +3410,15 @@
            MOVE SPACES TO RIGHT-4.
            UNSTRING SIGN-DOLLAR DELIMITED BY " " INTO RIGHT-4
            INSPECT RIGHT-4 REPLACING LEADING " " BY "0"
+
            IF RIGHT-4 NOT NUMERIC DISPLAY "NOT NUMERIC"
-           GO TO CC-2000TI.
+             GO TO CC-2000TI.
+
            STRING RIGHT-4 CENTS DELIMITED BY "Z" INTO ALF-6
            MOVE ALF-6 TO NUM-6
            DIVIDE NUM-6 BY 100 GIVING CC-AMOUNT
-            GO TO 4900CPC.
+           GO TO 4900CPC.
+
        CC-2160-DOCR.
            IF IN-FIELD = "?"
            DISPLAY "ENTER THE REFERRING PHYS. CODE"
@@ -3414,6 +3433,7 @@
            DISPLAY REF-NAME.
            MOVE IN-FIELD-3 TO CC-DOCR  .
            GO TO 4900CPC.
+
        CC-1REF-SEARCH.
            DISPLAY "SEARCH KEY ?".
            ACCEPT REF-NAME.
@@ -3425,7 +3445,9 @@
            START REFPHY KEY > REF-NAME INVALID
            DISPLAY "END OF FILE" GO TO CC-2000TI.
            MOVE 0 TO X.
-       CC-3REF. READ REFPHY NEXT AT END
+
+       CC-3REF. 
+           READ REFPHY NEXT AT END
            DISPLAY "END OF FILE" GO TO CC-2000TI.
            ADD 1 TO X.
            IF X > 5
@@ -3474,6 +3496,7 @@
            MOVE INS-NEIC-ASSIGN TO CC-NEIC-ASSIGN
            MOVE INS-CLAIMTYPE TO CC-PAPER
            MOVE INS-KEY TO CC-PAYCODE GO TO 4900CPC.
+
        CC-2750-WORK.
            IF IN-FIELD = "?"
            DISPLAY "TYPE # OF INITS REP. BY CHARGE"
@@ -3487,6 +3510,7 @@
            MOVE RIGHT-2 TO CC-WORK
            IF CC-WORK > "09" DISPLAY "CHECK THIS!".
            GO TO 4900CPC.
+
        CC-2-PAPER. IF IN-FIELD = "?"
            DISPLAY "P = CLAIM FORM SENT AUTOMATICALLY"
            DISPLAY "O = CLAIM FORM SENT TO YOUR OFFICE"
@@ -3498,6 +3522,7 @@
            MOVE "O" TO CC-PAPER GO TO 4900CPC.
            IF IN-FIELD-1 NOT = " " DISPLAY "INVALID" GO TO CC-2000TI.
            MOVE " " TO CC-PAPER GO TO 4900CPC.
+
        CC-2180-PLACE.
            IF IN-FIELD = "?"
            DISPLAY "ENTER CC-PLACE OF CC-SERVICE CODE."
@@ -3523,7 +3548,10 @@
            PL-NAME(X) GO TO CC-4500-PL1-EXIT.
            IF PL-TAB(X) = IN-FIELD-1 DISPLAY PL-NAME(X)
            MOVE 0 TO FLAG MOVE PLINDX TO X.
-       CC-4500-PL1-EXIT. EXIT.
+
+       CC-4500-PL1-EXIT. 
+           EXIT.
+
        CC-2190-DAT1.
            IF IN-FIELD = "?"
            DISPLAY "ENTER ACCIDENT/SYMPTOM DATE IN MMDDYY FORMAT"
@@ -3582,6 +3610,7 @@
            IF IN-FIELD-1 = "1" OR "2" OR "3" OR "4"
            MOVE IN-FIELD-1 TO CC-EPSDT GO TO 4900CPC.
            DISPLAY "INVALID" GO TO CC-2000TI.
+
        CC-2195-RESULT.
            IF IN-FIELD = "?"
            DISPLAY "ENTER MEDICAID CC-RESULT CODE"
@@ -3591,6 +3620,7 @@
            IF IN-FIELD-1 < "1" OR > "6" DISPLAY "INVALID"
            GO TO CC-2000TI ELSE MOVE IN-FIELD-1 TO CC-RESULT
            GO TO 4900CPC.
+
        CC-2196-ACTION.
            IF IN-FIELD = "?"
            DISPLAY "ENTER MEDICAID ACTION CODE"
@@ -3601,6 +3631,7 @@
            GO TO CC-2000TI.
            IF IN-FIELD-1 < "1" OR > "7" DISPLAY "INVALID"
            GO TO CC-2000TI ELSE MOVE IN-FIELD-1 TO CC-ACT GO TO 4900CPC.
+
        CC-4000-DATE-T.
            IF IN-FIELD = "?"
            DISPLAY " DATE DD OR MMDD OR  MMDDYY OR MMDDYYYY FORMAT"
@@ -3660,6 +3691,7 @@
            ELSE DISPLAY "INVALID" GO TO CC-2000TI.
            MOVE IN-FIELD-1 TO CC-REC-STAT GO TO 4900CPC.
            GO TO 4900CPC.
+
        CC-2-SORCREF.
            IF IN-FIELD = "?"
            DISPLAY "ENTER THE SOURCE OF REFERRAL CODE"
@@ -3773,7 +3805,6 @@
            GO TO 4900CPC.
 
        CC-2-AUTH.
-
            IF IN-FIELD = "?"
              DISPLAY "1 = ADD A NEW AUTH. NUMBER"
              DISPLAY "2 = REVISE A AUTH. NUMBER"
@@ -4255,7 +4286,7 @@
            end-if.  
 
        AUTH-2.
-           DISPLAY AUTHFILE01
+      *     DISPLAY AUTHFILE01
 
            IF IN-FIELD-2 = "3 "
              DISPLAY "BLANK OUT, Y?"
@@ -4269,13 +4300,18 @@
            end-if
 
            IF IN-FIELD-2 NOT = "3 "
-             DISPLAY "LOOK FOR AUTH IN RRMC'S AUTHFILE, Y?"
+             DISPLAY "LOOK FOR AUTH FROM RRMC, Y?"
              ACCEPT ANS
              IF ANS = "Y"
+               move space to hold-auth hold-auth-date
                PERFORM LOOK-AUTH THRU LOOK-AUTH-EXIT  
                if hold-auth = space
                  display "NO AUTH FOUND OR SELECTED"
-               else 
+                 go to auth-1-exit
+               else
+                 display "accepting this auth"
+                 move "1" to flag
+                 display ea-name " " ea-date-e " " ea-auth                 
                  MOVE "1" TO CC-AUTH
                  MOVE HOLD-AUTH TO AUTH-NUM
                  MOVE HOLD-AUTH-DATE TO AUTH-DATE-E
@@ -4304,12 +4340,19 @@
              end-if  
            end-if    
            
-           IF FLAG = 1 OR 2
+           IF FLAG = 1
                DISPLAY AUTHFILE01
                MOVE AUTHFILE01 TO AUTHFILE-BACK
-               PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
+               PERFORM WRITE-AU THRU WRITE-AU-EXIT
                GO TO AUTH-1-EXIT
            END-IF
+
+           IF FLAG = 2
+              DISPLAY AUTHFILE01
+              MOVE AUTHFILE01 TO AUTHFILE-BACK
+              PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
+              GO TO AUTH-1-EXIT
+           end-if.           
            
            IF FLAG = 3
               MOVE SPACE TO CC-AUTH
@@ -4317,14 +4360,7 @@
               MOVE AUTHFILE01 TO AUTHFILE-BACK
               PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
               GO TO AUTH-1-EXIT
-           end-if   
-
-           IF FLAG = 0
-             MOVE "01" TO AUTH-QNTY
-             MOVE SPACE TO AUTH-FILLER
-             MOVE AUTHFILE01 TO AUTHFILE-BACK
-             PERFORM WRITE-AU THRU WRITE-AU-EXIT
-           end-IF.  
+           end-if.           
 
        AUTH-1-EXIT. 
            EXIT.
@@ -4519,7 +4555,9 @@
               END-IF
            END-IF.
            GO TO LM-2.
+
        LM-1-EXIT.
+           EXIT.
 
        AM-1.
            MOVE SPACE TO RIGHT-8
@@ -4814,8 +4852,10 @@
            CLOSE AUTHFILE
            OPEN INPUT AUTHFILE.
            MOVE 1 TO FLAG.
+
        WRITE-AU-EXIT.
            EXIT.
+
        RE-WRITE-AU.
            CLOSE AUTHFILE
            OPEN I-O AUTHFILE
@@ -4862,25 +4902,25 @@
            if ea-medrec not = g-acct
              go to emailauth-exit.
 
-      *     display EMAILAUTHFILE01
+      *    display EMAILAUTHFILE01
 
            if ea-auth = space
              go to emailauth-1.  
 
-           if ea-date-e = cc-date-t
-             move ea-auth TO HOLD-AUTH
-             go to emailauth-exit.
-
+           move ea-auth TO HOLD-AUTH
            display "ACCEPT " ea-auth " for AUTH DATE " ea-date-e
-           "? Y FOR YES"
+             "? Y FOR YES"
            accept ans 
            if ans = "Y" 
              move ea-auth to HOLD-AUTH
              move ea-date-e to HOLD-AUTH-DATE
-             go to emailauth-exit.
+             go to emailauth-exit
+           else
+             display "we can take another look then"
+             move space to hold-auth
+           end-if
 
-           go to emailauth-1.     
-
+           go to emailauth-1.
        emailauth-exit.
            exit.                 
 

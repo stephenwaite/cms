@@ -322,7 +322,8 @@
                END-READ
            END-READ           
 
-           IF R3-PROC = "6250" and r3-cpt = "C8901"
+           IF R3-PROC = "6250" and 
+             (r3-cpt = "C8901" or r3-hcpcs = "C8901")
                move space to ERRFILE01
                string "RRMC SENT US " R3-CPT " " R3-HCPCS
                  " CHANGING THIS TO CPT 74185" 
@@ -331,7 +332,8 @@
                MOVE "74185   " TO R3-CPT    
            END-IF
 
-            IF R3-PROC = "6251" and r3-cpt = "C8900"
+            IF R3-PROC = "6251" and 
+              (r3-cpt = "C8900" or r3-hcpcs = "C8900")
                move space to ERRFILE01
                string "RRMC SENT US " R3-CPT " " R3-HCPCS
                  " CHANGING THIS TO CPT 74185" 
@@ -340,7 +342,8 @@
                MOVE "74185   " TO R3-CPT    
            END-IF
 
-           IF R3-PROC = "6252" and r3-cpt = "C8902"
+           IF R3-PROC = "6252" and 
+             (r3-cpt = "C8902" OR r3-hcpcs = "C8902")
                move space to ERRFILE01
                string "RRMC SENT US " R3-CPT " " R3-HCPCS
                  " CHANGING THIS TO CPT 74185" 
@@ -349,7 +352,8 @@
                MOVE "74185" TO R3-CPT    
            END-IF
 
-           IF R3-PROC = "6327" and r3-cpt = "C8908"
+           IF R3-PROC = "6327" and 
+              (r3-cpt = "C8908" OR r3-hcpcs = "C8908")
                move space to ERRFILE01
                string "RRMC SENT US " R3-CPT " " R3-HCPCS
                  " CHANGING THIS TO CPT 77049" 
@@ -363,29 +367,6 @@
                GO TO BAD-2
            END-IF
 
-           IF ((R3-PROC = "1204" OR "1283" OR "1284" or "1285" 
-                or "3030" or "3085") 
-             AND R3-MOD1 = "  "
-             AND BILAT-FLAG = "1")
-             MOVE SPACE TO ERRFILE01
-             STRING "CHANGING BILAT STUDY TO RT LT, THANKS DXC " 
-               MEDREC " " R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
-               DELIMITED BY SIZE INTO ERRFILE01
-             WRITE ERRFILE01
-      *    special handling for cdm 1285 cpt 73562 from rrmc
-      *    set flag back to 0
-             MOVE "0" TO BILAT-FLAG
-             MOVE "LT" TO R3-MOD1
-           end-if
-
-      *    VT Medicaid threw a wrench
-           IF (R3-PROC = "1204" OR "1283" or "1284" or "1285"
-               OR "3030" or "3085") 
-             AND R3-MOD1 = "50"
-             MOVE "1" TO BILAT-FLAG
-             MOVE "RT" TO R3-MOD1
-           end-if                    
-
            if R3-LOCO = "RVOC"
              if R3-MOD1 = "26"
                move space to R3-MOD1
@@ -397,7 +378,36 @@
              if R3-MOD1 = R3-MOD2
                MOVE SPACE TO R3-MOD2
              end-if    
-           end-if      
+           end-if 
+
+           IF ((R3-PROC = "0111" or "1204" OR "1283" OR "1284" or "1285" 
+                or "3030" or "3085") 
+             AND R3-MOD1 = "  "
+             AND BILAT-FLAG = "1")
+             MOVE SPACE TO ERRFILE01
+             STRING "CHANGING BILAT STUDY TO RT LT, " 
+               MEDREC " " R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
+               DELIMITED BY SIZE INTO ERRFILE01
+             WRITE ERRFILE01
+      *    special handling for cdm 1285 cpt 73562 from rrmc
+      *    set flag back to 0
+             MOVE "0" TO BILAT-FLAG
+             MOVE "LT" TO R3-MOD1
+           end-if
+
+      *    VT Medicaid threw a wrench
+           IF (R3-PROC = "0111" or "1204" OR "1283" or "1284" or "1285"
+               OR "3030" or "3085") 
+             AND R3-MOD1 = "50"
+      *    RVOC sends 50 mod twice sometimes :|         
+             IF BILAT-FLAG = "1"
+               MOVE "0" TO BILAT-FLAG
+               MOVE "LT" TO R3-MOD1
+             ELSE   
+               MOVE "1" TO BILAT-FLAG
+               MOVE "RT" TO R3-MOD1
+             END-IF  
+           end-if                                    
 
            WRITE FILEOUT01 FROM REC301
            GO TO P1.

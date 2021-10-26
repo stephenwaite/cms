@@ -154,6 +154,8 @@
            02 FILLER PIC X VALUE SPACE.
            02 FO-4 PIC X(11).
            02 FILLER PIC X VALUE SPACE.
+           02 FO-MODS PIC X(8).
+           02 FILLER pic x value space.
            02 FO-5 PIC X(17).
            02 FILLER PIC X VALUE SPACE.
            02 FO-6 PIC X(10).
@@ -172,16 +174,21 @@
            02 X PIC 999999 VALUE 999999.
            02 Y PIC 999999 VALUE 0.
        01  HOLD8 PIC X(8) VALUE SPACE.
+
        PROCEDURE DIVISION.
+
        0005-START.
+
            OPEN INPUT PROCFILE CHARFILE GARFILE REFPHY.
            OPEN OUTPUT FILEOUT.
-       P1. READ CHARFILE AT END  GO TO P3.
+
+       P1. 
+           READ CHARFILE 
+             AT END
+               GO TO P3.
+
            GO TO P2.
-           IF CD-PROC1 > "4999" GO TO P2.
-           IF CD-PAYCODE = "091" GO TO P2.
-           IF CD-PAYCODE = "002" GO TO I02.
-           IF CD-ASSIGN = "U" GO TO P1.
+           
        P2.
            MOVE CD-KEY8 TO G-GARNO.
            READ GARFILE INVALID GO TO P1.
@@ -190,6 +197,9 @@
            MOVE G-GARNAME TO FO-3
            MOVE CD-PAYCODE TO FO-31
            MOVE CD-PROC TO FO-4
+           MOVE SPACE TO FO-MODS
+           STRING CD-MOD2 " " CD-MOD3 " " CD-MOD4 DELIMITED BY SIZE INTO
+             FO-MODS.
            MOVE CD-PROC TO PROC-KEY READ PROCFILE
            INVALID MOVE SPACE TO PROC-TITLE.
            MOVE PROC-TITLE TO FO-5
@@ -203,8 +213,7 @@
            ELSE MOVE SPACE TO SORTDIAG.
            WRITE FILEOUT01 FROM FILE-OUT01
            GO TO P1.
-       I02.
-           IF (CD-PROC2 < "7000000" OR CD-PROC1 > "4999")
-           OR (CD-DAT1 NOT = "000000")
-           GO TO P2 ELSE GO TO P1.
-       P3. CLOSE FILEOUT PROCFILE REFPHY GARFILE. STOP RUN.
+      
+       P3. 
+           CLOSE CHARFILE FILEOUT PROCFILE REFPHY GARFILE.
+           STOP RUN.
