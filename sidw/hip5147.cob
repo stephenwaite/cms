@@ -65,7 +65,7 @@
            02 GS-3 PIC X(10).
            02 GS-4 PIC X(8).
            02 GS-5 PIC X(10).
-           02 GS-6 PIC X(6). 
+           02 GS-6 PIC X(9). 
        01  ISA01.
            02 ISA-0 PIC XX.
            02 ISA-1 PIC XX.

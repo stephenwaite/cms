@@ -230,6 +230,7 @@
        P1.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P9.
+      *     DISPLAY FILEIN01
            
            MOVE FI-GARNO TO G-GARNO
            READ GARFILE INVALID GO TO E1.
