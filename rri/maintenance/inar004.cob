@@ -4253,20 +4253,21 @@
        READ-AUTH.
            MOVE CC-KEY8 TO AUTH-KEY8
            MOVE CC-CLAIM TO AUTH-KEY6
-           READ AUTHFILE INVALID MOVE 1 TO FLAG
-           MOVE SPACE TO AUTH-NUM.
+           READ AUTHFILE 
+             INVALID 
+               MOVE 1 TO FLAG
+               MOVE SPACE TO AUTH-NUM.
 
        AUTH-1.
            MOVE CC-KEY8 TO AUTH-KEY8
-           MOVE CC-CLAIM TO AUTH-KEY6
+           MOVE CC-CLAIM TO AUTH-KEY6           
+           
            READ AUTHFILE 
              INVALID             
                MOVE 0 TO FLAG 
                GO TO AUTH-2
              NOT invalid
                MOVE 1 TO FLAG.
-
-           DISPLAY "CURRENT AUTH = " AUTH-NUM
 
            IF IN-FIELD-2 = "4 " OR "5 " OR "6 "
                MOVE "0" TO ALF-1
@@ -4275,6 +4276,12 @@
            END-IF
            
            IF IN-FIELD-2 = "2 "
+             IF FLAG = 0
+               DISPLAY "NOTHING TO REVISE, ADD A NEW AUTH"
+               GO TO AUTH-1-EXIT
+             END-IF
+
+             DISPLAY "CURRENT AUTH = " AUTH-NUM
              DISPLAY "CHANGE? Y "
              ACCEPT ANS
 
@@ -4309,12 +4316,11 @@
                  display "NO AUTH FOUND OR SELECTED"
                  go to auth-1-exit
                else
-                 display "accepting this auth"
-                 move "1" to flag
+                 display "ACCEPTING THE AUTH"
                  display ea-name " " ea-date-e " " ea-auth                 
                  MOVE "1" TO CC-AUTH
-                 MOVE HOLD-AUTH TO AUTH-NUM
-                 MOVE HOLD-AUTH-DATE TO AUTH-DATE-E
+                 MOVE EA-AUTH TO AUTH-NUM
+                 MOVE EA-DATE-E TO AUTH-DATE-E
                end-if
              else
                DISPLAY "ENTER AUTHORIZATION NUMBER"
@@ -4325,7 +4331,6 @@
                END-IF
 
                IF ALF-15 = SPACE OR "BK" OR "X"
-                 MOVE 0 TO FLAG
                  GO TO AUTH-1-EXIT
                END-IF
              
@@ -4343,14 +4348,14 @@
            IF FLAG = 1
                DISPLAY AUTHFILE01
                MOVE AUTHFILE01 TO AUTHFILE-BACK
-               PERFORM WRITE-AU THRU WRITE-AU-EXIT
+               PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
                GO TO AUTH-1-EXIT
            END-IF
 
            IF FLAG = 2
               DISPLAY AUTHFILE01
               MOVE AUTHFILE01 TO AUTHFILE-BACK
-              PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
+              PERFORM WRITE-AU THRU WRITE-AU-EXIT
               GO TO AUTH-1-EXIT
            end-if.           
            
@@ -4601,6 +4606,7 @@
            END-IF.
 
            MOVE IN-FIELD-7 TO DIAG-KEY.
+           MOVE SPACE TO DIAG-TITLE
            READ DIAGFILE INVALID DISPLAY "NOT ON FILE"
             MOVE 1 TO RETURN-FLAG
            END-READ
