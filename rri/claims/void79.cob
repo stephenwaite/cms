@@ -126,12 +126,7 @@
        01  ERRFILE01.
            02 EF-1 PIC X(11).
            02 FILLER PIC X VALUE SPACE.
-           02 EF-2 PIC X(9).
-           02 FILLER PIC X VALUE SPACE.
-           02 EF-3 PIC X(16).
-           02 EF-4 PIC X(20).
-           02 FILLER PIC X VALUE SPACE.
-           02 EF-5 PIC X(10).
+           02 EF-2 PIC X(58).           
 
        FD  FILEIN.
        01  FILEIN01.
@@ -717,6 +712,9 @@
                MOVE "000" TO DOC-INS
                READ DOCFILENEW
                  INVALID
+                   STRING "INVALID READ OF DOCFILE NEW, SKIPPED CHARGE" 
+                     DELIMITED BY SIZE INTO EF-2
+                   PERFORM P97  
                    GO TO START-BEGIN
                END-READ
            END-READ
@@ -758,8 +756,8 @@
            IF (FI-PLACE      = HOLD-PLACE
              AND FI-KEY8     = HOLD-KEY8
              AND FI-PATID    = HOLD-PATID
-      *       AND FI-DOCP = HOLD-DOCP
-      *       AND FI-DOCR = HOLD-DOCR
+             AND FI-DOCP = HOLD-DOCP
+             AND FI-DOCR = HOLD-DOCR
              AND FI-DATE-T   = HOLD-DATE-T
              AND FI-DAT1     = HOLD-DAT1
              AND FI-ACC-TYPE = HOLD-ACC-TYPE
@@ -771,12 +769,7 @@
                GO TO P2
              END-IF
 
-             ADD 1 TO CNTR 
-           
-      *       IF FI-PROC1 = "76090" OR "76091" OR "76092"
-      *         OR "77055" OR "77056" OR "77057"
-      *         MOVE 1 TO MAMMO-FLAG
-      *       END-IF
+             ADD 1 TO CNTR                
 
              MOVE FILEIN01 TO FILETAB(CNTR)
              ADD FI-AMOUNT TO TOT-AMOUNT
@@ -815,22 +808,25 @@
                GO TO START-HIGHER
            END-IF    
            
-      *     IF FI-DOCP NOT = HOLD-DOCP 
-      *         MOVE FILEIN01 TO HOLD-FILEIN01
-      *         MOVE HOLD-DOCP TO DOC-NUM
-      *         MOVE "000" to DOC-INS
+           IF FI-DOCP NOT = HOLD-DOCP 
+             MOVE FILEIN01 TO HOLD-FILEIN01
+             MOVE HOLD-DOCP TO DOC-NUM
+             MOVE "000" to DOC-INS
                
-      *         READ DOCFILENEW
-      *           INVALID
-      *             MOVE "000" TO DOC-INS                   
-      *             READ DOCFILENEW
-      *               INVALID
-      *                 GO TO START-BEGIN
-      *             END-READ
-      *         END-READ
+             READ DOCFILENEW
+               INVALID
+                 MOVE "000" TO DOC-INS                   
+                 READ DOCFILENEW
+                   INVALID
+                     STRING "INVALID READ OF DOCFILE NEW, SKIP CHARGE" 
+                       DELIMITED BY SIZE INTO EF-2
+                     PERFORM P97 
+                     GO TO START-BEGIN
+                 END-READ
+             END-READ
 
-      *         PERFORM DOCP-1
-      *     END-IF
+             PERFORM DOCP-1
+           END-IF
 
            MOVE FILEIN01 TO HOLD-FILEIN01
            PERFORM 2000B 
@@ -892,7 +888,7 @@
            MOVE GROUP-TAX TO PRV-TAX
            MOVE SPACE TO SEGFILE01.
       *     WRITE SEGFILE01 FROM PRV01
-      *     PERFORM DOCP-1.
+           PERFORM DOCP-1.
 
       *   PAY-TO PROVIDER/ADDRESS
 
@@ -1478,10 +1474,7 @@
        GAP-1-EXIT.
            EXIT.
        
-       2400SRV.
-           display "x is " x " and cntr is " cntr
-           accept omitted
-           
+       2400SRV.           
            MOVE FILETAB(X) TO FILEIN01
            MOVE FI-PROC1 TO SV1-PROC.
            PERFORM SV-MOD
@@ -1546,13 +1539,13 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-           IF HOLD-DOCR NOT = CLM-DOCR
-             PERFORM 2310A THRU 2310A-EXIT
-           end-if  
+      *     IF HOLD-DOCR NOT = CLM-DOCR
+      *       PERFORM 2310A THRU 2310A-EXIT
+      *     end-if  
 
-           if hold-docp not = clm-docp
-             perform 2420a through 2420a-exit
-           end-if
+      *     if hold-docp not = clm-docp             
+      *       perform 2420a through 2420a-exit
+      *     end-if
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
            
@@ -1655,9 +1648,9 @@
            EXIT.
 
        2310B.
-           IF CNTR = 1
+      *     IF CNTR = 1
              MOVE hold-docp to CLM-DOCP
-           end-if
+      *     end-if
 
            MOVE "82 " TO NM1-1
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
@@ -2017,6 +2010,12 @@
       *     DISPLAY X-DOB " " G-PR-RELATE " " G-PRNAME.
        MAKE-IT-UP-EXIT.
            EXIT.
+
+       P97.
+           MOVE FILEIN01(1:11) TO EF-1
+           WRITE ERRFILE01
+           MOVE SPACE TO ERRFILE01.
+
        P98.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SE01

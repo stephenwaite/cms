@@ -1543,13 +1543,13 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-           IF HOLD-DOCR NOT = CLM-DOCR
-             PERFORM 2310A THRU 2310A-EXIT
-           end-if  
+      *     IF HOLD-DOCR NOT = CLM-DOCR
+      *       PERFORM 2310A THRU 2310A-EXIT
+      *     end-if  
 
-           if hold-docp not = clm-docp
-             perform 2420a through 2420a-exit
-           end-if
+      *     if hold-docp not = clm-docp
+      *       perform 2420a through 2420a-exit
+      *     end-if
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
            
@@ -1652,9 +1652,9 @@
            EXIT.
 
        2310B.
-           IF CNTR = 1
+      *     IF CNTR = 1
              MOVE hold-docp to CLM-DOCP
-           end-if
+      *     end-if
 
            MOVE "82 " TO NM1-1
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
