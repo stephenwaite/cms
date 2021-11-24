@@ -2216,9 +2216,9 @@ X           02 DF1 PIC X.
            MOVE FI-MOD2 TO MOD-CODE(2)
            MOVE FI-MOD3 TO MOD-CODE(3)
            IF FI-DOCP = "07" 
-              MOVE "Q6" TO MOD-CODE(4)
+             MOVE "Q6" TO MOD-CODE(4)
             ELSE
-              MOVE SPACE TO MOD-CODE(4)
+             MOVE FI-MOD4 TO MOD-CODE(4)
            END-IF
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 3
              IF MOD-CODE(Z) = SPACE

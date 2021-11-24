@@ -217,7 +217,8 @@
                    GO TO P16-1   
                END-IF 
 
-               IF (CD-MOD2 NOT = "76")
+               IF (CD-MOD2 NOT = "76" AND
+                   CD-MOD3 = SPACE)
                    MOVE "76" TO CD-MOD3
                    
                    IF DOC-TAB(A) NOT = DOC-TAB(Z)
@@ -225,6 +226,12 @@
                    END-IF
                    
                    GO TO P16-1
+               ELSE
+                 STRING KEY-TAB(A) " " KEY-TAB(Z) " "
+                   "did NOT change mods for " CD-NAME " DOS " CD-DATE-T 
+                   " MOD2 " CD-MOD2 " MOD3 " CD-MOD3 " MOD4 " CD-MOD4
+                   DELIMITED BY SIZE INTO FILEOUT01
+                 WRITE FILEOUT01            
                END-IF                   
            END-IF
 
@@ -317,9 +324,16 @@
                MOVE "59" TO CD-MOD2
            END-IF
            
-           IF (CD-MOD2 NOT = SPACE)
-               AND (CD-MOD2 NOT = "59")
-               MOVE "59" TO CD-MOD3
+           IF CD-MOD2 NOT = SPACE AND 
+             CD-MOD2 NOT = "59" AND
+             CD-MOD3 = SPACE
+             MOVE "59" TO CD-MOD3
+           ELSE
+             STRING KEY-TAB(A) " " KEY-TAB(Z) " "
+               "did NOT add mod 59 for " CD-NAME " DOS " CD-DATE-T 
+               " MOD2 " CD-MOD2 " MOD3 " CD-MOD3 " MOD4 " CD-MOD4
+               DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01   
            END-IF
 
            REWRITE CHARFILE01.

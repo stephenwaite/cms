@@ -598,6 +598,7 @@
 
        01  HOLD-AUTH PIC X(20). 
        01  HOLD-AUTH-DATE PIC X(8).
+       01  AUTH-FLAG PIC 9.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -4076,8 +4077,11 @@
                MOVE 0 TO FLAG
                MOVE CHARCUR01 TO CHARCUR-BACK           
                PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+      *    trick here is that closing and reopening charcur prevents
+      *    next read of charcur, so move back after rewrite     
+               MOVE CHARCUR-BACK TO CHARCUR01
                IF FLAG = 1
-                   DISPLAY "COLLECTION"
+                   DISPLAY "COLLECTION"                     
                    GO TO CC-2
                ELSE
                    DISPLAY "CAN NOT MODIFY THIS RECORD"
@@ -4146,6 +4150,7 @@
                MOVE CHARCUR01 TO CHARCUR-BACK         
                PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
                DISPLAY "RE-AGED"
+               MOVE CHARCUR-BACK TO CHARCUR01
                GO TO RA-2
            END-IF.
 
@@ -4264,19 +4269,19 @@
            
            READ AUTHFILE 
              INVALID             
-               MOVE 0 TO FLAG 
+               MOVE 0 TO AUTH-FLAG 
                GO TO AUTH-2
              NOT invalid
-               MOVE 1 TO FLAG.
+               MOVE 1 TO AUTH-FLAG.
 
            IF IN-FIELD-2 = "4 " OR "5 " OR "6 "
                MOVE "0" TO ALF-1
                DISPLAY "NOT HANDLING NDC FOR RRI YET."
                GO TO AUTH-1-EXIT
-           END-IF
+           END-IF           
            
            IF IN-FIELD-2 = "2 "
-             IF FLAG = 0
+             IF AUTH-FLAG = 0
                DISPLAY "NOTHING TO REVISE, ADD A NEW AUTH"
                GO TO AUTH-1-EXIT
              END-IF
@@ -4289,12 +4294,10 @@
                GO TO AUTH-1-EXIT
              END-IF
 
-             MOVE 2 TO FLAG
+             MOVE 2 TO AUTH-FLAG
            end-if.  
 
        AUTH-2.
-      *     DISPLAY AUTHFILE01
-
            IF IN-FIELD-2 = "3 "
              DISPLAY "BLANK OUT, Y?"
              ACCEPT ANS
@@ -4303,7 +4306,7 @@
                GO TO AUTH-1-EXIT
              END-IF
 
-             MOVE 3 TO FLAG
+             MOVE 3 TO AUTH-FLAG
            end-if
 
            IF IN-FIELD-2 NOT = "3 "
@@ -4339,27 +4342,31 @@
                  GO TO AUTH-2
                END-IF
              
+               IF AUTH-FLAG = 0
+                 MOVE 2 TO AUTH-FLAG
+               END-IF
+
                MOVE "1" TO CC-AUTH
                MOVE ALF-15 TO AUTH-NUM
                MOVE CC-DATE-T TO AUTH-DATE-E
              end-if  
            end-if    
            
-           IF FLAG = 1
+           IF AUTH-FLAG = 1
                DISPLAY AUTHFILE01
                MOVE AUTHFILE01 TO AUTHFILE-BACK
                PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
                GO TO AUTH-1-EXIT
            END-IF
 
-           IF FLAG = 2
+           IF AUTH-FLAG = 0 or 2
               DISPLAY AUTHFILE01
               MOVE AUTHFILE01 TO AUTHFILE-BACK
               PERFORM WRITE-AU THRU WRITE-AU-EXIT
               GO TO AUTH-1-EXIT
            end-if.           
            
-           IF FLAG = 3
+           IF AUTH-FLAG = 3
               MOVE SPACE TO CC-AUTH
               MOVE SPACE TO AUTH-NUM AUTH-QNTY AUTH-DATE-E AUTH-FILLER
               MOVE AUTHFILE01 TO AUTHFILE-BACK

@@ -769,8 +769,10 @@
              MOVE SPACE TO ERRFILE01
              STRING A-GARNAME " HAS A BAD ADDRESS, MEDREC # " R2-MEDREC
                DELIMITED BY SIZE INTO ERRFILE01
-             WRITE ERRFILE01.
-             
+             WRITE ERRFILE01
+             display "bad address, will be listed, any key to proceed"
+             display a-garname " " r2-medrec  
+             accept omitted.             
 
            INSPECT A-BILLADD REPLACING ALL "*" BY " "
            INSPECT A-STREET REPLACING ALL "*" BY " "
