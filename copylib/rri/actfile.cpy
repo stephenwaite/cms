@@ -1,4 +1,4 @@
-       01 ACTFILE01.
+       01  ACTFILE01.
            02 A-ACTNO PIC X(8).
            02 A-GARNAME.
              03 A-GN1 PIC XXX.

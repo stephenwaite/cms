@@ -1805,17 +1805,12 @@
              R2-GUARSSN = SPACE 
              MOVE 0 TO AUTH-FLAG             
              GO TO EA-1-EXIT.
-
+           
+      *    START BUILDING NEW RECORD
            MOVE SPACE TO EMAILAUTHFILE01
-           
-      *    position key at end     
-           MOVE 999999 TO EA-KEY
-           START EMAILAUTHFILE KEY < EA-KEY 
-             INVALID
-               MOVE 999999 TO EA-KEY
-               WRITE EMAILAUTHFILE01
-           END-START
-           
+
+           MOVE A-ACTNO TO EA-MEDREC
+
       *    get last record in emailauthssnfile
            MOVE 999999 TO EA-KEY
            READ EMAILAUTHFILE PREVIOUS 
@@ -1824,7 +1819,6 @@
            END-READ
 
            ADD 1 TO EA-KEY
-           MOVE A-ACTNO TO EA-MEDREC
            MOVE A-GARNAME TO EA-NAME
            MOVE R2-GUARSSN TO EA-SSN
            MOVE R1-EMAIL TO EA-EMAIL
@@ -1833,6 +1827,8 @@
 
        EA-1-EXIT.
            EXIT.
+
+       EMAIL-CHECK.    
 
        P62.     
            INSPECT R2-REFDOC REPLACING ALL "," BY ";"
