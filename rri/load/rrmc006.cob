@@ -696,6 +696,7 @@
            
            IF R2-MEDREC = "00000000"
                DISPLAY "MRN IS ZEROES FOR " R1-PATNAME
+               ACCEPT OMITTED
            END-IF
 
            MOVE R1-GARZIP TO ZIPCODE
@@ -814,7 +815,6 @@
              GO TO P2
            END-IF
 
-      * if FLAG = 0 but we have npi and name can't we add for Cady/M? 
            IF (R2-REFDOC NOT = SPACE) AND (R2-NPI(10:1) NOT = SPACE)
              DISPLAY "WOULD YOU LIKE TO ADD " R2-REFDOC  " NPI " R2-NPI
                " AUTOMATICALLY? Type Y for YES."
@@ -1642,9 +1642,7 @@
            MOVE CORR INPUT-DATE TO TEST-DATE
            MOVE CORR INPUT-DATE TO TEST-DATE
            MOVE TEST-DATE TO C-DATE-T 
-
-           IF AUTH-FLAG = 1
-             MOVE TEST-DATE TO EA-DATE-E.
+           MOVE TEST-DATE TO EA-DATE-E
 
            MOVE DATE-X TO C-DATE-E
            MOVE SPACE TO C-DATE-ADMIT
@@ -1668,19 +1666,17 @@
            end-if
 
            
-           IF (REF = "G0A" OR "H27" OR "J06" OR "R1D" OR "G4U"
-                    OR "D55" OR "B1T" OR "B51" OR "R2A" OR "L4Q"
-                    OR "F34" OR "G36" OR "H1B" OR "M6A" OR "V1I"
-                    OR "S7O" OR "S91" OR "S1O" OR "T0E" OR "T21"
-                    OR "T0G" OR "V12" OR "W2I" OR "Z0I" OR "SAH"
-                    OR "SAG")
-                 MOVE "E" TO C-IOPAT
-           END-IF
-           
-           IF (R3-PLACE = "INPT") AND (C-IOPAT = "E")
-               MOVE SPACE TO ERRFILE01
-               STRING A-GARNAME " WAS SENT AS INPT BUT REF " REF
-               " IS ED" DELIMITED BY SIZE INTO ERRFILE01
+           IF ((REF = "B1T" OR "B51" OR "B7C" OR "D55" OR "D3Z"
+             OR "F4J" OR "F34" OR "G0T" OR "G0A" OR "G36" OR "G4U"
+             OR "H1B" OR "H27" OR "J06" OR "L4Q" OR "M8S" OR "R1D"
+             OR "R2A" OR "SAH" OR "S7O" OR "S91" OR "SAG" OR "S1O"
+             OR "V12" OR "W2I" OR "Z0I") AND
+             C-IOPAT NOT = "E")
+             MOVE "E" TO C-IOPAT
+             MOVE SPACE TO ERRFILE01
+             STRING A-GARNAME " WAS REFFERED FROM ED BY " REF
+               " CHANGING POS TO E"
+               DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
            END-IF
 
@@ -1804,43 +1800,35 @@
            END-IF.
 
        EA-1.
-           MOVE 0 TO AUTH-FLAG
-
-           IF R1-EMAIL = SPACE AND R1-AUTH = SPACE 
-             AND R2-GUARSSN = SPACE GO TO EA-1-EXIT.
-
+           IF R1-EMAIL = SPACE AND 
+             R1-AUTH = SPACE AND 
+             R2-GUARSSN = SPACE 
+             MOVE 0 TO AUTH-FLAG             
+             GO TO EA-1-EXIT.
+           
+      *    START BUILDING NEW RECORD
            MOVE SPACE TO EMAILAUTHFILE01
-           
-      *    position key at end     
-           MOVE 999999 TO EA-KEY
-           START EMAILAUTHFILE KEY < EA-KEY 
-             INVALID
-               MOVE 999999 TO EA-KEY
-               WRITE EMAILAUTHFILE01
-           END-START
-           
+
+           MOVE A-ACTNO TO EA-MEDREC
+
       *    get last record in emailauthssnfile
            MOVE 999999 TO EA-KEY
-           READ EMAILAUTHFILE PREVIOUS AT END
+           READ EMAILAUTHFILE PREVIOUS 
+             AT END
                MOVE 0 TO EA-KEY
            END-READ
 
            ADD 1 TO EA-KEY
-           MOVE R2-GUARSSN TO EA-SSN
-           MOVE A-ACTNO TO EA-MEDREC
            MOVE A-GARNAME TO EA-NAME
-      *     ACCEPT EA-DATE-E FROM CENTURY-DATE
-           
+           MOVE R2-GUARSSN TO EA-SSN
            MOVE R1-EMAIL TO EA-EMAIL
-           
-           IF R1-AUTH NOT = space
-             MOVE R1-AUTH TO EA-AUTH
-             MOVE 1 TO AUTH-FLAG.
-      *    used to WRITE EMAILAUTHFILE01 here but now
-      *    wait till all charges are read and write once in B1.
+           MOVE R1-AUTH TO EA-AUTH
+           MOVE 1 TO AUTH-FLAG.
 
        EA-1-EXIT.
            EXIT.
+
+       EMAIL-CHECK.    
 
        P62.     
            INSPECT R2-REFDOC REPLACING ALL "," BY ";"
