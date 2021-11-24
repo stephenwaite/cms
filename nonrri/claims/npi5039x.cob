@@ -1190,9 +1190,9 @@
            IF END-FLAG = 1 GO TO P98.
            MOVE SAVE01 TO FILEIN01
            IF FI-DOCP NOT = HOLD-DOCP 
-           MOVE FILEIN01 TO HOLD-FILEIN01
-
-           PERFORM DOCP-1.
+             MOVE FILEIN01 TO HOLD-FILEIN01
+             PERFORM DOCP-1.
+             
            MOVE FILEIN01 TO HOLD-FILEIN01
            PERFORM 2000B 
            GO TO P0000.

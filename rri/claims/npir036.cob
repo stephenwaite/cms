@@ -258,21 +258,21 @@
                                   
            MOVE CC-DOCR TO REF-KEY.
            READ REFPHY 
-             INVALID 
-               MOVE "INVALID" TO REF-CDNUM
-               MOVE SPACE TO REF-NAME.
+             INVALID
+               MOVE SPACE TO REF-NAME.                     
 
-           IF (REF-NPI = SPACE)
+           IF REF-NPI = SPACE
              MOVE SPACE TO EF2
-             STRING CC-DOCR " " REF-NAME " NO NPI"
-               DELIMITED BY "**" INTO EF2
+             STRING CC-DOCR " " REF-NAME(1:8) " NO NPI"
+               DELIMITED BY SIZE INTO EF2
              PERFORM S1 
              GO TO P1.
 
            MOVE SPACE TO NAMELAST NAMEFIRST
            UNSTRING REF-NAME DELIMITED BY 
              "; " OR ";" OR " ; " OR " ," OR ", " OR " , " OR ","   
-             INTO NAMELAST NAMEFIRST
+             INTO NAMELAST NAMEFIRST           
+             
            IF NAMEFIRST = SPACE
              STRING CC-DOCR  " " REF-NAME " NAME FORMAT ERROR" 
                DELIMITED BY "!!" INTO EF2 

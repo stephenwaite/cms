@@ -299,11 +299,18 @@
            END-IF    
 
            MOVE 0 TO DIAGFLAG
+           IF CC-DIAG = "0000000"
+             STRING "NOT CODED "  
+             DELIMITED BY SIZE INTO EF2
+             PERFORM S1
+             GO TO P1
+           END-IF  
+
            MOVE CC-DIAG TO DIAG-KEY
            READ DIAGFILE 
              INVALID
                STRING "OLD DIAG CODE " CC-DIAG 
-                 DELIMITED BY SIZE INTO EF2 
+                 DELIMITED BY SIZE INTO EF2                
                PERFORM S1
                GO TO P1.
 

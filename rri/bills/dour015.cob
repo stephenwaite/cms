@@ -228,9 +228,13 @@
        P0.
            OPEN OUTPUT OUT-FILE.
            OPEN INPUT CHARCUR PAYCUR TB-BILL BILLDATE GARFILE.
-           READ BILLDATE AT END DISPLAY "NO BILLDATE" GO TO R20.
+           READ BILLDATE 
+             AT END 
+               DISPLAY "NO BILLDATE" 
+               GO TO R20.
            MOVE BILL-DATE TO BILLDATE6.
-           MOVE BILL-DATE TO DAY-TEST-1 MOVE 0 TO DD1
+           MOVE BILL-DATE TO DAY-TEST-1 
+           MOVE 0 TO DD1
            MOVE DAY-TEST-1 TO SUM-DATE.
 
        R1.  
@@ -246,17 +250,21 @@
              G-BALCUR G-BAL30 G-BAL60 G-BALCOL
            MOVE TB-1 TO CC-KEY8
            MOVE SPACE TO CC-KEY3
-           START CHARCUR KEY > CHARCUR-KEY INVALID GO TO R7.
+           START CHARCUR KEY > CHARCUR-KEY 
+             INVALID 
+               GO TO R7.
 
        R6. 
-           READ CHARCUR NEXT AT END GO TO R7.
+           READ CHARCUR NEXT 
+             AT END 
+               GO TO R7.
            
            IF TB-1 NOT = CC-KEY8 GO TO R7.
            
            ADD 1 TO CHR-IND.
            
            IF CHR-IND > 500 
-             DISPLAY TB-1  " CHRS"
+             DISPLAY TB-1 " CHRS"
              GO TO R1.
 
            IF CC-DATE-A = "00000000" 

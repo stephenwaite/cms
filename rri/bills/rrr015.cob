@@ -73,7 +73,7 @@
 
        FD  BILLPARM.
        01  BILLPARM01.
-            02 PF1 PIC S999.
+           02 PF1 PIC S999.
            02 PF2 PIC S999.
            02 PF3 PIC S999.
            02 PF4 PIC X(40).
@@ -428,9 +428,12 @@
            ADD 1 TO CHR-IND.
            IF CHR-IND > 400 DISPLAY G-GARNO " " G-GARNAME
            GO TO R1.
-           IF CC-DATE-A = "00000000" MOVE BILL-DATE TO
-           CHR-DATE-A(CHR-IND)
-           ELSE MOVE CC-DATE-A TO CHR-DATE-A(CHR-IND).
+           
+           IF CC-DATE-A = "00000000" 
+             MOVE BILL-DATE TO CHR-DATE-A(CHR-IND)
+           ELSE 
+             MOVE CC-DATE-A TO CHR-DATE-A(CHR-IND).
+
            MOVE CC-DATE-T TO CHR-DATE-T(CHR-IND)
            MOVE CC-CLAIM TO CHR-CLAIM(CHR-IND)
            MOVE CC-AMOUNT TO CHR-AMOUNT(CHR-IND)
