@@ -1540,7 +1540,9 @@
            MOVE "IL " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
-           UNSTRING G-GARNAME DELIMITED BY "; " OR ";" INTO
+      *  when dxc has a diff name than 03 it's a name change game
+      *  let's try using SE-NAME     
+           UNSTRING G-SENAME DELIMITED BY "; " OR ";" INTO
            NM1-NAMEL NM1-NAMEF NM1-NAMEM
            MOVE SPACE TO NAME-1 NAME-2
            UNSTRING NM1-NAMEL DELIMITED BY " " INTO NAME-1 NAME-2
@@ -1790,7 +1792,7 @@
            MOVE SPACE TO SBR-GRNAME
       *     MOVE INS-NAME TO SBR-GRNAME 
 
-           IF G-PRINS = "003" OR "028" OR "200" OR "245"
+           IF G-PRINS = "003" OR "028" OR "200" OR "245" OR "074"
              MOVE "MB " TO SBR-INSCODE SBR-TYPE.
 
            IF G-PRINS = "006"
@@ -1860,13 +1862,15 @@
            MOVE "IL " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
-           IF (G-PR-RELATE NOT = G-SE-RELATE)
-             OR (G-GARNAME NOT = G-PRNAME)
-             UNSTRING G-PRNAME DELIMITED BY ";" INTO
+      * use SE-NAME because that's all dxc knows
+           
+      *     IF (G-PR-RELATE NOT = G-SE-RELATE)
+      *       OR (G-GARNAME NOT = G-PRNAME)
+             UNSTRING G-SENAME DELIMITED BY ";" INTO
              NM1-NAMEL NM1-NAMEF
-           ELSE
-             UNSTRING G-GARNAME DELIMITED BY ";" INTO
-               NM1-NAMEL NM1-NAMEF.
+      *     ELSE
+      *       UNSTRING G-GARNAME DELIMITED BY ";" INTO
+      *         NM1-NAMEL NM1-NAMEF.
            
            MOVE "MI" TO NM1-EINSS
            MOVE G-PRIPOL TO NM1-CODE
@@ -2386,7 +2390,8 @@
            END-IF
 
            MOVE G-RELATE TO SUB-RELATE
-           MOVE G-GARNAME TO SUB-NAME
+      *  use SE NAME for dxc     
+           MOVE G-SENAME TO SUB-NAME
            MOVE G-PRIPOL TO SUB-POLICY
            MOVE SPACE TO SUB-GROUP
            MOVE "P" TO SBR-PST

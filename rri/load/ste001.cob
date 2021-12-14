@@ -218,6 +218,9 @@
            
            IF CC-DATE-T NOT = FI-DATEX GO TO P1.
            
+           IF FI-PROC = "C8908" 
+             MOVE "77049" TO FI-PROC.
+
            IF CC-PROC1 NOT = FI-PROC GO TO P1.
            
            IF CC-DOCP = "00" 

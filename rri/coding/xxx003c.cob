@@ -16,8 +16,8 @@
                LOCK MODE MANUAL.
 
            SELECT CHARNEW ASSIGN TO  "S30" ORGANIZATION IS INDEXED
-               ACCESS MODE IS DYNAMIC RECORD KEY IS CHARNEW-KEY
-               LOCK MODE MANUAL.
+               ACCESS MODE IS DYNAMIC RECORD KEY IS CHARNEW-KEY               
+               LOCK MODE MANUAL STATUS IS CHARNEW-STAT.
            
            SELECT FILE-OUT ASSIGN TO  "S35" ORGANIZATION
                LINE SEQUENTIAL.
@@ -164,6 +164,10 @@
        01  NUM-2 PIC 99.
        01  HOLD-DIAG PIC X(7).
        01  HOLD-DOCP PIC X(2).
+       01  CHARNEW-BACK PIC X(253).
+       01  CHARNEW-STAT.
+           02 CHARNEW-STAT1 PIC X.
+           02 CHARNEW-STAT2 PIC X.
 
        PROCEDURE DIVISION.
 
@@ -172,7 +176,7 @@
            OPEN INPUT DIAGFILE FILE-OUT PROCFILE ALLOWFILE GARFILE
                       TAGDIAG DIAG9FILE.
            OPEN EXTEND OUTFILE.
-           OPEN I-O CHARNEW.
+           OPEN INPUT CHARNEW.
            DISPLAY "0 = start new, 1 = skip ahead to undone"
            ACCEPT ALF1.
 
@@ -188,7 +192,7 @@
 
            
            
-           READ CHARNEW WITH LOCK INVALID
+           READ CHARNEW INVALID
              DISPLAY "CHARGE RECORD NOT AVAILABLE FOR SOME UNKNOWN "
                "REASON " FO-KEY 
              GO TO P1
@@ -224,7 +228,7 @@
              end-if
              DISPLAY "Autocoded G1004 with " CD-DIAG
              DISPLAY " "
-             REWRITE CHARNEW01
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
              GO TO P1
            END-IF
 
@@ -293,7 +297,7 @@
 
                END-IF
                
-               REWRITE CHARNEW01 
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT 
                GO TO P1
 
            END-IF
@@ -303,7 +307,7 @@
                MOVE "Z1231  " TO CD-DIAG   
                DISPLAY "Autocoded tomosynthesis"
                display " "
-               REWRITE CHARNEW01
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                GO TO P1               
            END-IF
       
@@ -313,7 +317,7 @@
                display " "
                MOVE "Z1231  " TO CD-DIAG
                MOVE "52" TO CD-MOD2
-               REWRITE CHARNEW01
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                GO TO P1
            END-IF.
 
@@ -322,7 +326,7 @@
                DISPLAY "autocoded high risk screen w Z1231"
                display " "
                MOVE "Z1231  " TO CD-DIAG
-               REWRITE CHARNEW01 
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT 
                GO TO P1
            END-IF
 
@@ -346,7 +350,7 @@
                DISPLAY "LD lung screen -> auto coded"
                display " "
                MOVE "Z87891 " TO CD-DIAG
-               REWRITE CHARNEW01
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                GO TO P1
            END-IF.
 
@@ -363,7 +367,7 @@
 
                IF ANS1 = "Y"
                    MOVE "R928   " TO CD-DIAG
-                   REWRITE CHARNEW01
+                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1
                END-IF    
            END-IF
@@ -372,7 +376,7 @@
              MOVE "R928   " TO CD-DIAG
              DISPLAY "Autocoded diag tomosynthesis"
              display " "  
-             REWRITE CHARNEW01
+             PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
              GO TO P1
            END-IF
 
@@ -412,7 +416,7 @@
 
              IF ANS1 = "Y"
                  MOVE "M170   " TO CD-DIAG
-                 REWRITE CHARNEW01
+                 PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                  GO TO P1
              END-IF
 
@@ -424,7 +428,7 @@
              IF ANS1 = "Y"
                MOVE "M25561 " TO CD-DIAG
                MOVE "M25562 " TO CD-DX2
-               REWRITE CHARNEW01
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                GO TO P1
              END-IF               
            END-IF
@@ -442,7 +446,7 @@
 
                IF ANS1 = "Y"
                    MOVE "Z780   " TO CD-DIAG
-                   REWRITE CHARNEW01
+                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1
                END-IF    
            END-IF
@@ -463,7 +467,7 @@
 
                IF ANS1 = "Y"
                    MOVE "Z87821 " TO CD-DIAG
-                   REWRITE CHARNEW01
+                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1
                END-IF    
            END-IF.     
@@ -492,7 +496,7 @@
            display " "        
 
       *    this is the rewrite for any autocodes like above and in p1-0                          
-           REWRITE CHARNEW01
+           PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
            GO TO P1.
 
        P2.
@@ -535,7 +539,7 @@
                           CD-PAYCODE " DOS " FO-DATE " PROC " FO-PROC
                           DELIMITED BY SIZE INTO OUTFILE01
                    WRITE OUTFILE01
-                   REWRITE CHARNEW01
+                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1        
                END-IF    
            END-IF
@@ -563,14 +567,14 @@
                
                IF CD-QP1(1:1) = "B"
                    DISPLAY FO-KEY " has been skipped"
-                   REWRITE CHARNEW01    
+                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT    
                    GO TO P1
                END-IF
 
                DISPLAY "medicare screening mammo -> auto coded "
                display " "  
                MOVE "Z1231  " TO CD-DIAG
-               REWRITE CHARNEW01
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                GO TO P1
            END-IF
 
@@ -688,7 +692,7 @@
        P2-000.
            IF CD-DOCP = "02"
                DISPLAY "Skipping since not read"
-               REWRITE CHARNEW01    
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT    
                GO TO P1        
            END-IF    
 
@@ -778,10 +782,8 @@
                MOVE "0000000" TO CD-DX2
            END-IF
 
-           REWRITE CHARNEW01 INVALID 
-               DISPLAY FILE-OUT01
-           END-REWRITE
-
+           PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT 
+           
            MOVE CD-DIAG TO HOLD7
 
            IF DIAG2 NOT = SPACE
@@ -1237,6 +1239,29 @@
            GO TO F1.
        F1-EXIT.
            EXIT.
+
+       RE-WRITE-CHARNEW.
+           MOVE CHARNEW01 TO CHARNEW-BACK
+           CLOSE   CHARNEW
+
+           OPEN I-O CHARNEW
+           MOVE CHARNEW-BACK TO CHARNEW01
+           REWRITE CHARNEW01 INVALID
+                DISPLAY FILE-OUT01
+                DISPLAY "THAT'S ODD. RECORD NOT MODIFIED AT THIS TIME."
+                ACCEPT OMITTED
+                DISPLAY CHARNEW-STAT
+                CLOSE CHARNEW
+                OPEN INPUT CHARNEW
+                GO TO RE-WRITE-CHARNEW-EXIT
+           END-REWRITE
+
+           CLOSE CHARNEW
+           OPEN INPUT CHARNEW.
+           
+       RE-WRITE-CHARNEW-EXIT.
+           EXIT.
+
        P99.
            CLOSE CHARNEW PROCFILE GARFILE DIAGFILE DIAG9FILE
                  ALLOWFILE FILE-OUT OUTFILE TAGDIAG.

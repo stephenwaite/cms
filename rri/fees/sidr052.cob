@@ -490,30 +490,24 @@
            CLOSE PROCFILE
            OPEN INPUT PROCFILE
            GO TO S1.
+           
        ST1.
            MOVE SPACE TO PROC-KEY
            DISPLAY "ENTER 5 DIGIT CPT CODE"
-           ACCEPT ALF5
-
-           IF ALF5(5:1) NOT NUMERIC
-               DISPLAY "NOT A VALID CPT, TRY AGAIN"
-               GO TO ST1
-           END-IF
-
+           ACCEPT ALF5           
+           
            START PROCFILE KEY NOT < PROC-KEY INVALID
                DISPLAY "END OF FILE"
                GO TO S1
            END-START
+
            MOVE 0 TO X.
+
        ST2.
            READ PROCFILE NEXT AT END 
                DISPLAY "END OF FILE" 
                GO TO S1
            END-READ               
-              
-           IF PROC-AMOUNT = 0
-               GO TO ST2
-           END-IF
 
            IF ALF5 NOT = PROC-KEY(5:5)
                GO TO ST2

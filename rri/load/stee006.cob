@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. rrmc006.
+       PROGRAM-ID. stee006.
        AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -1466,17 +1466,6 @@
                WRITE ERRFILE01
            END-IF
 
-      *    BCBS Empire
-           IF (A-PRINS = "268") AND
-             (
-               (ALF-16-11 = "Y") AND 
-               (ALF-16-12 = "L") AND
-               (ALF-16-13 = "S")
-             )           
-             MOVE "149" TO A-PRINS
-             MOVE ALF-16-2 TO A-PRIPOL
-           END-IF           
-
       *    if not bcbsvt policy move to out of state ins code
            IF ((A-PRINS = "002")
                AND  NOT ((ALF-16-1 = "FAC") OR (ALF-16-1 = "EVT")
@@ -1618,13 +1607,13 @@
            READ ACTFILE
              INVALID
                MOVE SAVEMASTER TO ACTFILE01
-               WRITE ACTFILE01
+      *         WRITE ACTFILE01
                GO TO B1
            END-READ
 
            MOVE A-GARNO TO S-GARNO  
            MOVE SAVEMASTER TO ACTFILE01
-           REWRITE ACTFILE01.
+      *     REWRITE ACTFILE01.
            GO TO B1.
            
        B1. 
@@ -1758,7 +1747,7 @@
        B3. 
            MOVE SAVEORD TO ORDFILE01
            MOVE XYZ TO ORD3
-           WRITE ORDFILE01
+      *     WRITE ORDFILE01
            
            IF (R1-IP1 = "00931" OR "00932")
              OR (A-PRINS = "075" OR "076" OR "095")
@@ -1773,9 +1762,9 @@
            MOVE SPACE TO COMPFILE01
            STRING A-ACTNO C-DATE-T C-PROC INSURANCE-1
            DELIMITED BY SIZE INTO COMPFILE01
-           WRITE COMPFILE01
-             INVALID
-               CONTINUE.
+      *     WRITE COMPFILE01
+      *       INVALID
+      *         CONTINUE.
            
            IF R1-INSNAME1 = SPACE
               MOVE SPACE TO ERRFILE01
@@ -1789,19 +1778,19 @@
            MOVE SPACE TO COMPFILE01
            STRING A-ACTNO C-DATE-T C-PROC INSURANCE-2
            DELIMITED BY SIZE INTO COMPFILE01
-           WRITE COMPFILE01
-             INVALID
-               CONTINUE
-           END-WRITE
+      *     WRITE COMPFILE01
+      *       INVALID
+      *         CONTINUE
+      *     END-WRITE
 
            IF R1-INSNAME2 = SPACE
              MOVE SPACE TO COMPFILE01
              STRING A-ACTNO C-DATE-T C-PROC INSURANCE-3
              DELIMITED BY SIZE INTO COMPFILE01           
-             WRITE COMPFILE01
-               INVALID 
-                 CONTINUE
-             END-WRITE
+      *       WRITE COMPFILE01
+      *         INVALID 
+      *           CONTINUE
+      *       END-WRITE
            END-IF.        
 
        PACK-1.            
@@ -1813,12 +1802,13 @@
        EA-1.
            IF R1-EMAIL = SPACE AND 
              R1-AUTH = SPACE AND 
-             R2-GUARSSN = "00000000"
+             R2-GUARSSN = "00000000"                
              MOVE 0 TO AUTH-FLAG             
-             GO TO EA-1-EXIT.          
-
+             GO TO EA-1-EXIT.                          
+           
       *    get last record in emailauthssnfile
            MOVE 999999 TO EA-KEY
+
            START EMAILAUTHFILE KEY < EA-KEY 
              INVALID
                DISPLAY "BAD START ON EMAILAUTHSSNFILE " EA-KEY
@@ -1880,10 +1870,10 @@
              MOVE SPACE TO REF-CDNUM
              MOVE R2-REFDOC TO REF-NAME
              MOVE R2-NPI TO REF-NPI
-             WRITE REFPHY01
-               INVALID
-                 DISPLAY "BAD WRITE ON REFPHY"  
-             END-WRITE
+      *       WRITE REFPHY01
+      *         INVALID
+      *           DISPLAY "BAD WRITE ON REFPHY"  
+      *       END-WRITE
              CLOSE REFPHY
              OPEN INPUT REFPHY
            END-IF.          
