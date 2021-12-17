@@ -14,18 +14,15 @@ foreach ($records as $offset => $record) {
     //var_dump($record);
     //if (in_array($record['Date'], $record)) {
     //echo $record['Date'] . "\n";
-    //echo implode('', array_reverse(explode('/', $record['Date']))) . "\n";
+    //echo implode('', array_reverse(explode('/', $record['Date']))) . "\n";    
+    $cdm = $record['CDM'];
+    $cpt = $record['CPT'] ?: $record['HCPCS'];
+    $dos = $record['DOS'];
+    $mrn = $record['MRN'];
     if ($record['HCPCS'] == "G1004") {
       $cpt = "G1004";
     }
-        $cdm = $record['CDM'];
-        $cpt = $record['CPT'];
-        $dos = $record['DOS'];
-        $mrn = $record['MRN'];
-        if ($record['HCPCS'] == "G1004") {
-          $cpt = "G1004";
-        }
-        echo $cdm . "," . $cpt . "," . $dos . "," . $mrn . "\n";
+    echo $cdm . "," . $cpt . "," . $dos . "," . $mrn . "\n";
 }
 
 
