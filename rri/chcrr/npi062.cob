@@ -47,6 +47,11 @@
        01  ANS PIC XXX.
        01  CNTR PIC 99.
        01  ALF10 PIC X(10).
+       01  ALF-8.
+             02 ALF-84 PIC X(4).
+             02 ALF-8E PIC X(4).
+       01  NUM1 PIC 9.
+
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT REFPHY I-O NPIFILE.
@@ -146,7 +151,6 @@
            EXIT.
 
        C-1.
-           DISPLAY "CAN ONLY CHANGE THE PROVIDER PLACE OF SERVICE"
            DISPLAY "ENTER THE NPI"
            DISPLAY " X = BACK TO OPTIONS"
            ACCEPT NPI-KEY
@@ -164,6 +168,59 @@
                GO TO C-1
            END-READ
 
+           DISPLAY  NPI-KEY " " NPI-NAME " " NPI-REFKEY " " NPI-PLACE.
+
+       C-2.
+           DISPLAY "CHANGE OPTIONS: 1=REF-KEY 2=PLACE".
+           ACCEPT ALF-8
+
+           IF ALF-8 = "0" OR ALF-8 > "0" AND < "3"
+             MOVE ALF-8 TO NUM1
+             GO TO C-3 C-4 DEPENDING ON NUM1.
+
+           IF ALF-8 = "X" DISPLAY "NO CHANGE" GO TO C-1.
+
+           IF ALF-8 = "?"
+             DISPLAY "ENTER 1, 2 OR X".
+
+           GO TO C-2.
+
+       C-3.
+           DISPLAY "CURRENT REF-KEY ON " NPI-KEY           
+           MOVE NPI-REFKEY TO REF-KEY
+           READ REFPHY WITH LOCK 
+             INVALID 
+             DISPLAY "NOT A VALID REF ATTACHED"
+             NOT INVALID
+               DISPLAY  REF-KEY " " REF-BSNUM " " REF-CRNUM " " 
+                 REF-UPIN " " REF-CDNUM " " REF-NPI " " REF-NAME
+           END-READ
+
+           DISPLAY "ENTER THE NEW REF-KEY, X TO GO BACK"
+           DISPLAY "USE RRI-62 TO FIND A REF-KEY"
+           ACCEPT ANS
+
+           IF ANS = "X" GO TO C-1.
+
+           MOVE ANS TO REF-KEY
+           READ REFPHY WITH LOCK 
+             INVALID 
+             DISPLAY "NOT VALID, TRY AGAIN"
+             GO TO C-3             
+           END-READ
+
+           DISPLAY  REF-KEY " " REF-BSNUM " " REF-CRNUM " " 
+             REF-UPIN " " REF-CDNUM " " REF-NPI " " REF-NAME
+
+           DISPLAY "ACCEPT THIS REF? Y"
+           ACCEPT ANS
+
+           IF ANS NOT = "Y" GO TO C-3.
+
+           MOVE REF-KEY TO NPI-REFKEY
+           GO TO RE-WRITE-NPI.
+
+       C-4.
            DISPLAY "PLACE OF SERVICE"
            DISPLAY " X = BACK TO OPTIONS"
 
@@ -174,16 +231,20 @@
            IF NOT (NPI-PLACE = "A" OR "B" OR "C" OR "M" OR "P" OR 
                                "R" OR "S")
                GO TO C-1
-           END-IF    
-           
+           END-IF           
+
+           GO TO RE-WRITE-NPI.
+       
+       RE-WRITE-NPI.           
            REWRITE NPIFILE01
              INVALID
                CONTINUE
            END-REWRITE
 
-           DISPLAY NPI-KEY " " NPI-NAME " " NPI-PLACE
+           DISPLAY  NPI-KEY " " NPI-NAME " " NPI-REFKEY " " NPI-PLACE.
            
            GO TO P1.
+           
        F-1.
            MOVE 0 TO CNTR.
            DISPLAY "ENTER ANY PART OF THE NPI OR NAME"
