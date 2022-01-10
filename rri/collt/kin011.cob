@@ -180,6 +180,7 @@
            MOVE "DATE" TO FO-DATE
            MOVE "PAID" TO FO-AMOUNT
            MOVE "WRITE-OFF" TO FO-REDUCT
+           MOVE "BAL" TO FO-PIF
            WRITE FILEOUT01.
 
            MOVE "0" TO KIN-STAT
