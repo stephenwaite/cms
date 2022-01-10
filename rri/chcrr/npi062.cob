@@ -174,8 +174,9 @@
            DISPLAY "CHANGE OPTIONS: 1=REF-KEY 2=PLACE".
            ACCEPT ALF-8
 
-           MOVE ALF-8 TO NUM1
-           GO TO C-3 C-4 DEPENDING ON NUM1
+           IF ALF-8 = "0" OR ALF-8 > "0" AND < "7"
+             MOVE ALF-8 TO NUM1
+             GO TO C-3 C-4 DEPENDING ON NUM1.
 
            IF ALF-8 = "X" DISPLAY "NO CHANGE" GO TO C-1.
 
