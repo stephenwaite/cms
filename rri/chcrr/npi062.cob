@@ -270,7 +270,7 @@
        F-2.
            READ NPIFILE NEXT AT END GO TO F-1.
            ADD 1 TO CNTR
-           DISPLAY NPI-KEY " " NPI-NAME " " NPI-PLACE
+           DISPLAY  NPI-KEY " " NPI-NAME " " NPI-REFKEY " " NPI-PLACE.
            IF CNTR <  15
              GO TO F-2
            END-IF
