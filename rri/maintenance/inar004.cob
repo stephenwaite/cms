@@ -673,7 +673,7 @@
            IF DATAIN = "GP"
                CLOSE GARFILE PATFILE MPLRFILE INSFILE GAPFILE
                      ADDRFILE COMPFILE
-               CALL "/home/sidw/rrr091.b" USING GARPAT1
+               CALL "/home/sidw/rrr091.acu" USING GARPAT1
                MOVE 1 TO GARPAT1
                OPEN INPUT GARFILE PATFILE MPLRFILE INSFILE GAPFILE
                           ADDRFILE COMPFILE
@@ -862,7 +862,7 @@
                
            IF ACTION = "COM"
                MOVE PAYFILE-KEY TO IN-FIELD
-               IF IN-FIELD-8(8:1) = "G"
+               IF IN-FIELD-8(2:1) NOT = SPACE
                  MOVE IN-FIELD TO G-GARNO              
                else  
                  MOVE IN-FIELD-1 TO FLAG
@@ -2455,6 +2455,7 @@
             AND (INS-KEY NOT = G-PRINS) 
             AND (INS-KEY NOT = G-SEINS) 
             AND (INS-KEY NOT = G-TRINS)
+            AND (INS-KEY NOT = "077")
             DISPLAY "PAYCODE DOES NOT MATCH INSURANCE COVERAGE"
             DISPLAY "USE THIS CODE ? Y"
             ACCEPT ANS
@@ -4123,7 +4124,9 @@
        RA-1-1.   
            MOVE SPACE TO CC-KEY3
            MOVE G-GARNO TO CC-KEY8
-           START CHARCUR KEY > CHARCUR-KEY INVALID DISPLAY "NO RECORDS"
+           START CHARCUR KEY > CHARCUR-KEY 
+             INVALID 
+               DISPLAY "NO RECORDS"
            GO TO 1000-ACTION.
        RA-2. 
            READ CHARCUR NEXT AT END GO TO 1000-ACTION.
@@ -4151,6 +4154,11 @@
                PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
                DISPLAY "RE-AGED"
                MOVE CHARCUR-BACK TO CHARCUR01
+               START CHARCUR KEY NOT < CHARCUR-KEY
+                 INVALID
+                   GO TO 1000-ACTION
+               END-START    
+
                GO TO RA-2
            END-IF.
 

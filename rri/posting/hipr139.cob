@@ -922,7 +922,7 @@
            STRING NM1-NAMEL ";" NM1-NAMEF 
            DELIMITED BY "  " INTO EF1
            
-           MOVE NM1-CODE TO EF2
+           MOVE NM1-CODE0 TO EF2
            MOVE DATE-CC TO TEST-DATE 
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO EF3

@@ -670,6 +670,9 @@
 
        MPLR-LOOK.
            MOVE GARNO TO MPLR-KEY
+           DISPLAY "GARNO " GARNO
+           ACCEPT OMITTED
+           
            READ MPLRFILE INVALID 
                DISPLAY "INVALID"
                GO TO 1000-ACTION

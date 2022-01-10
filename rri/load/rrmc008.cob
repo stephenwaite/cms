@@ -28,7 +28,7 @@
        FILE SECTION.
 
        FD  ERRFILE.
-       01  ERRFILE01 PIC X(90).
+       01  ERRFILE01 PIC X(132).
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(1070).
@@ -385,8 +385,9 @@
              AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1")
              MOVE SPACE TO ERRFILE01
-             STRING "CHANGING BILAT STUDY TO RT LT, " 
-               MEDREC " " R3-PROC " " R3-CPT " " R3-MOD1 " DOS " R3-DATE
+             STRING "CHANGING BILAT STUDY TO RT LT, MEDREC " 
+               MEDREC " CDM " R3-PROC " CPT " R3-CPT " MOD1 " R3-MOD1 
+               " DOS " R3-DATE
                DELIMITED BY SIZE INTO ERRFILE01
              WRITE ERRFILE01
       *    special handling for cdm 1285 cpt 73562 from rrmc
@@ -445,9 +446,9 @@
        BAD-2.
            MOVE SPACE TO ERRFILE01.
 
-           STRING "ZERO DOLLAR PROCEDURE FOR MRN " MEDREC
-             "CDM " PROC-KEY1 " CPT " R3-CPT " HCPCS " R3-HCPCS
-             " DOS " R3-DATE " safe to ignore?"
+           STRING "zero dollar procedure for mrn " MEDREC
+             " CDM " PROC-KEY1 " CPT " R3-CPT " HCPCS " R3-HCPCS
+             " DOS " R3-DATE " safe to ignore, usually is but DBL CK!"
              DELIMITED BY SIZE INTO ERRFILE01
 
            WRITE ERRFILE01.
