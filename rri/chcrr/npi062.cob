@@ -190,14 +190,14 @@
            MOVE NPI-REFKEY TO REF-KEY
            READ REFPHY WITH LOCK 
              INVALID 
-             DISPLAY "NO REF PHY ATTACHED"
+             DISPLAY "NOT A VALID REF ATTACHED"
              NOT INVALID
                DISPLAY  REF-KEY " " REF-BSNUM " " REF-CRNUM " " 
                  REF-UPIN " " REF-CDNUM " " REF-NPI " " REF-NAME
            END-READ
 
-           DISPLAY "ENTER THE REF-KEY, X TO GO BACK"
-           DISPLAY "USE RRI-62 TO FIND THE REF-KEY"
+           DISPLAY "ENTER THE NEW REF-KEY, X TO GO BACK"
+           DISPLAY "USE RRI-62 TO FIND A REF-KEY"
            ACCEPT ANS
 
            IF ANS = "X" GO TO C-1.
