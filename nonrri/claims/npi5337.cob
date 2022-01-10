@@ -2146,7 +2146,6 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM CAS01.
 
-
            MOVE "573" TO DTP-1
            MOVE CAS-PAYDATE(X) TO DTP-3
            MOVE SPACE TO SEGFILE01
@@ -2156,8 +2155,12 @@
            IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
+           MOVE "E" TO CC-PAPER. 
            REWRITE CHARCUR01.
-       2400SRV-EXIT.  EXIT.
+
+       2400SRV-EXIT.  
+           EXIT.
+
        REF-1.
            IF HOLD-DOCR = "000" GO TO REF-2.
            MOVE HOLD-DOCR TO REF-KEY

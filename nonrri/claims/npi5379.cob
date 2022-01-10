@@ -1942,9 +1942,12 @@
            READ GAPFILE INVALID MOVE 1 TO GAP-FLAG GO TO GAP-1-EXIT.
            MOVE "S" TO SBR-PST
            MOVE G-SE-GROUP TO SBR-GROUP
-           IF G-RELATE = G-SE-RELATE
-           MOVE "18" TO SBR-RELATE
-           ELSE MOVE "18" TO SBR-RELATE.
+           
+      *     IF G-RELATE = G-SE-RELATE
+      *       MOVE "18" TO SBR-RELATE
+      *     ELSE 
+             MOVE "18" TO SBR-RELATE.
+           
            IF GAP-TYPE = "X"
            MOVE "MI" TO SBR-TYPE
            ELSE MOVE "  " TO SBR-TYPE.
@@ -2295,23 +2298,23 @@
            MOVE "0    " TO HL-CHILD
            MOVE "CI" TO SBR-INSCODE
       *     MOVE "12" TO SBR-TYPE
-            IF SBR-PST = "S"
-		      IF G-PRINS = "091"
-		        MOVE "15" TO SBR-TYPE
-		      END-IF
-		    IF G-PRINS = "006"
-		       MOVE "16" TO SBR-TYPE
-		    END-IF
-		    IF G-PRINS = "079"
-		       MOVE "42" TO SBR-TYPE
-		    END-IF
-	     	IF HOLD-ACC-TYPE = "2"
-		       MOVE "14" TO SBR-TYPE
-         	END-IF
-		    IF HOLD-ACC-TYPE = "1"
-		       MOVE "15" TO SBR-TYPE
-		    END-IF
-	    END-IF.
+           IF SBR-PST = "S"
+		         IF G-PRINS = "091"
+		           MOVE "15" TO SBR-TYPE
+		         END-IF
+		         IF G-PRINS = "006"
+		           MOVE "16" TO SBR-TYPE
+		         END-IF
+		         IF G-PRINS = "079"
+		           MOVE "42" TO SBR-TYPE
+		         END-IF
+	     	     IF HOLD-ACC-TYPE = "2"
+		           MOVE "14" TO SBR-TYPE
+         	   END-IF
+		         IF HOLD-ACC-TYPE = "1"
+		           MOVE "15" TO SBR-TYPE
+		         END-IF
+	         END-IF.
        SUBSCRIBER-EXIT. EXIT.
        2000B-PAT.
 	   

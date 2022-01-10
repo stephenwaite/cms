@@ -2258,8 +2258,8 @@
        SUBSCRIBER-2.
            MOVE SPACE TO SBR-GROUP
            MOVE "0    " TO HL-CHILD
-           MOVE "MB" TO SBR-INSCODE
-           MOVE "12" TO SBR-TYPE
+           MOVE "BL" TO SBR-INSCODE
+      *     MOVE "12" TO SBR-TYPE
             IF SBR-PST = "S"
 		 IF G-PRINS = "091"
 		   MOVE "15" TO SBR-TYPE

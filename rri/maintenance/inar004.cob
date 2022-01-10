@@ -4319,7 +4319,7 @@
                  display "NO AUTH FOUND OR SELECTED"
                  go to auth-1-exit
                else
-                 display "ACCEPTING THE AUTH"
+                 display "SAVING THE AUTH"
                  display ea-name " " ea-date-e " " ea-auth                 
                  MOVE "1" TO CC-AUTH
                  MOVE EA-AUTH TO AUTH-NUM
@@ -4353,7 +4353,7 @@
            end-if    
            
            IF AUTH-FLAG = 1
-               DISPLAY AUTHFILE01
+      *         DISPLAY AUTHFILE01
                MOVE AUTHFILE01 TO AUTHFILE-BACK
                PERFORM RE-WRITE-AU THRU RE-WRITE-AU-EXIT
                GO TO AUTH-1-EXIT
@@ -4921,14 +4921,20 @@
              go to emailauth-1.  
 
            move ea-auth TO HOLD-AUTH
-           display "ACCEPT " ea-auth " for AUTH DATE " ea-date-e
+           display "DOS " CC-DATE-T " ACCEPT " ea-auth " for AUTH DATE "
+             EA-DATE-E(5:2) "/" EA-DATE-E (7:2) "/" EA-DATE-E(1:4)
              "? Y FOR YES"
            accept ans 
            if ans = "Y" 
              move ea-auth to HOLD-AUTH
              move ea-date-e to HOLD-AUTH-DATE
              go to emailauth-exit
-           else
+           end-if  
+           
+           if ans = "X"
+             move space to hold-auth
+             go to emailauth-exit
+           else  
              display "we can take another look then"
              move space to hold-auth
            end-if
