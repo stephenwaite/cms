@@ -187,7 +187,7 @@
 
        C-3.
            DISPLAY "CURRENT REF-KEY ON " NPI-KEY           
-           MOVE NPI-KEY TO REF-KEY
+           MOVE NPI-REFKEY TO REF-KEY
            READ REFPHY WITH LOCK 
              INVALID 
              DISPLAY "NO REF PHY ATTACHED"
@@ -206,11 +206,11 @@
            READ REFPHY WITH LOCK 
              INVALID 
              DISPLAY "NOT VALID, TRY AGAIN"
-             GO TO C-3
-             NOT INVALID
-               DISPLAY  REF-KEY " " REF-BSNUM " " REF-CRNUM " " 
-                 REF-UPIN " " REF-CDNUM " " REF-NPI " " REF-NAME
+             GO TO C-3             
            END-READ
+
+           DISPLAY  REF-KEY " " REF-BSNUM " " REF-CRNUM " " 
+             REF-UPIN " " REF-CDNUM " " REF-NPI " " REF-NAME
 
            DISPLAY "ACCEPT THIS REF? Y"
            ACCEPT ANS
@@ -241,7 +241,7 @@
                CONTINUE
            END-REWRITE
 
-           DISPLAY NPI-KEY " " NPI-NAME " " NPI-PLACE
+           DISPLAY  NPI-KEY " " NPI-NAME " " NPI-REFKEY " " NPI-PLACE.
            
            GO TO P1.
            
