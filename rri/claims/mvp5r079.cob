@@ -2016,6 +2016,11 @@
            MOVE "PE" TO PRV-1
            MOVE "PXC" TO PRV-2
            MOVE DOC-TAXONOMY TO PRV-TAX
+           
+           IF DOC-NUM = "08"
+             MOVE "2085R0204X" TO PRV-TAX
+           END-IF
+
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM PRV01.
 
