@@ -1809,6 +1809,9 @@
            MOVE INS-CITY TO N4-CITY
            MOVE INS-STATE TO N4-STATE
            MOVE INS-ZIP TO N4-ZIP
+           IF N4-ZIP(6:4) = SPACE
+            MOVE "9999"TO N4-ZIP(6:4)
+           END-IF
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N401.
 
