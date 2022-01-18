@@ -167,7 +167,7 @@
            END-READ          
 
            IF NOT (CD-PAYCODE = "008" OR "009" OR "010" OR "011" 
-               OR "012" OR "013" OR "014" OR "015")
+               OR "012" OR "013" OR "014" OR "015" OR "016")
                GO TO P1
            END-IF
 
@@ -285,12 +285,32 @@
                GO TO P0
            END-IF
 
+           IF CD-PAYCODE = "016"
+               MOVE SPACE TO FILEOUT01
+               STRING "076 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
+               MOVE 076 TO FLAG
+               MOVE "003" TO CD-PAYCODE
+               REWRITE CHARFILE01
+               UNLOCK CHARFILE RECORD
+               PERFORM A1 THRU A1-EXIT
+               GO TO P0
+           END-IF
+
            GO TO P1.
 
       *  create quality code charges     
        A1. 
       *  set key counter to 0, increment in B1 
            MOVE 0 TO XYZ
+
+           IF FLAG = 076
+               MOVE "00006030F  " TO  X-PROC
+               PERFORM B1 THRU B2
+               STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
+               GO TO A1-EXIT
+           END-IF
 
            IF FLAG = 145
                MOVE "0000G9500  " TO  X-PROC
@@ -477,14 +497,15 @@
                GO TO A1-EXIT
            END-IF
 
+      *    measure 195 retired in 2022
       *    flag 999 is cpt 70498 and meas 195, 406 and 436
       *    so need to add just copy it from above
            IF FLAG = 999
       *    cut and paste in meas 195 logic from above     
-               MOVE "00003100F  " TO  X-PROC
-               MOVE CD-QP1 TO X-PROC(10:2)
-               PERFORM B1 THRU B2
-               STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
+      *         MOVE "00003100F  " TO  X-PROC
+      *         MOVE CD-QP1 TO X-PROC(10:2)
+      *         PERFORM B1 THRU B2
+      *         STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
       *    cut and paste meas 406 logic using CD-QP2 field
                IF CD-QP2 = "1 "
                    MOVE "0000G9554  " TO  X-PROC
