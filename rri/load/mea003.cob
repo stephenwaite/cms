@@ -88,10 +88,10 @@
            IF (CD-PROC1 = "70498")
                MOVE "015" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
-               STRING "195 " CD-PAYCODE " "
-                      CD-PROC1 " " CD-DATE-T " " CD-NAME
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01
+      *         STRING "195 " CD-PAYCODE " "
+      *                CD-PROC1 " " CD-DATE-T " " CD-NAME
+      *         DELIMITED BY SIZE INTO FILEOUT01
+      *         WRITE FILEOUT01
                STRING "406 " CD-PAYCODE " "
                       CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
@@ -106,19 +106,19 @@
 
       *    do measure 195 first so paycode will carry over to coding
       *    paycode 011 is measure 195
-           IF (CD-PROC1 = "36222" OR "70498" OR "70547"
-               OR "70548" OR "70549" OR "93880" OR "93882"
-               OR "36261" OR "36223" OR "36224"
-               OR "37215" OR "37216" OR "37217" OR "37218")
-               MOVE "011" TO CD-PAYCODE
-               MOVE SPACE TO FILEOUT01
-               STRING "195 " CD-PAYCODE " "
-                      CD-PROC1 " " CD-DATE-T " " CD-NAME
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01 
-               REWRITE CHARFILE01
-               GO TO P1
-           END-IF
+      *     IF (CD-PROC1 = "36222" OR "70498" OR "70547"
+      *         OR "70548" OR "70549" OR "93880" OR "93882"
+      *         OR "36261" OR "36223" OR "36224"
+      *         OR "37215" OR "37216" OR "37217" OR "37218")
+      *         MOVE "011" TO CD-PAYCODE
+      *         MOVE SPACE TO FILEOUT01
+      *         STRING "195 " CD-PAYCODE " "
+      *                CD-PROC1 " " CD-DATE-T " " CD-NAME
+      *         DELIMITED BY SIZE INTO FILEOUT01
+      *         WRITE FILEOUT01 
+      *         REWRITE CHARFILE01
+      *         GO TO P1
+      *     END-IF
 
       *    008 paycode is measure 145
            IF (CD-PROC1 = "0075T" OR "0202T" OR "0234T" OR "0235T" 
@@ -196,17 +196,17 @@
            END-IF
       
       *    paycode 009 is measure 146    
-           IF ((CD-PROC1 = "77067")
-               AND NOT (CD-PROC0 = "1446" OR "1447" OR "1448"))
-               MOVE "009" TO CD-PAYCODE
-               MOVE SPACE TO FILEOUT01
-               STRING "146 " CD-PAYCODE " "
-                      CD-PROC1 " " CD-DATE-T " " CD-NAME
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01 
-               REWRITE CHARFILE01
-               GO TO P1
-           END-IF
+      *     IF ((CD-PROC1 = "77067")
+      *         AND NOT (CD-PROC0 = "1446" OR "1447" OR "1448"))
+      *         MOVE "009" TO CD-PAYCODE
+      *         MOVE SPACE TO FILEOUT01
+      *         STRING "146 " CD-PAYCODE " "
+      *                CD-PROC1 " " CD-DATE-T " " CD-NAME
+      *         DELIMITED BY SIZE INTO FILEOUT01
+      *         WRITE FILEOUT01 
+      *         REWRITE CHARFILE01
+      *         GO TO P1
+      *     END-IF
 
       *    paycode 010 is measure 147
            IF (CD-PROC1 = "78300" OR "78305" OR "78306"
@@ -272,6 +272,23 @@
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARFILE01 
+               GO TO P1
+           END-IF
+
+      *    paycode 016 is measure 076
+	         IF (CD-PROC1 = "36555" OR "36556" OR "36557" OR "36558"
+               OR "36560" OR "36561" OR "36563" OR "36565" OR "36566"
+               OR "36568" OR "36569" OR "36570" OR "36571" OR "36573"
+               OR "36578" OR "36580" OR "36581" OR "36582" OR "36583"
+               OR "36584" OR "36585" OR "93503")
+               MOVE "016" TO CD-PAYCODE
+               MOVE SPACE TO FILEOUT01
+               STRING "076 " CD-PAYCODE " "
+                       CD-PROC1 " " CD-DATE-T " " CD-NAME
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
+               REWRITE CHARFILE01
+               GO TO P1
            END-IF
 
            GO TO P1.
