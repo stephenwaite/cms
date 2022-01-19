@@ -1150,6 +1150,7 @@
                 OR (CAS-1 = "CO" AND CAS-2 = "4    ")
                 OR (CAS-1 = "CO" AND CAS-2 = "16   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "18   ")
+                OR (CAS-1 = "CO" AND CAS-2 = "22   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "29   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "55   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "58   ")
