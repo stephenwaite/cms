@@ -397,7 +397,7 @@
 
            IF CLAIM-TOT = 0
              GO TO P1
-      *       REWRITE CHARCUR01
+             REWRITE CHARCUR01
            END-IF     
 
            ADD CLAIM-TOT TO TOT-PLACED
