@@ -277,42 +277,53 @@
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P9.
            IF FI-DATE = SPACE  OR FI-PROC = SPACE GO TO E1.
+           
            MOVE FI-GARNO TO G-GARNO
            READ GARFILE INVALID GO TO E1.
+
            MOVE FI-PAYDATE TO PAYDATE
            MOVE FI-DATE TO INPUT-DATE
            MOVE CORR INPUT-DATE TO TEST-DATE
            MOVE G-GARNO TO CC-KEY8
            MOVE SPACE TO CC-KEY3
            START CHARCUR KEY NOT < CHARCUR-KEY INVALID GO TO E1.
+           
        P2. 
            READ CHARCUR NEXT AT END GO TO E1.
+           
            IF CC-KEY8 NOT = G-GARNO GO TO E1.
+           
            IF NOT (CC-DATE-T = TEST-DATE AND  CC-PROC1 = FI-PROC1)
             GO TO P2.
+           
            WRITE FILEOUT01 FROM CHARCUR01
+           
            INSPECT FI-DOLLAR-PAID REPLACING ALL " " BY "0"
            MOVE FI-DOLLAR-PAID TO ALF4
            MOVE FI-CENT-PAID TO ALF2
            MOVE ALF6 TO NUM6
            COMPUTE PD-AMOUNT =  -1 * (NUM6 / 100)
            MOVE 0 TO PAYX
-            INSPECT FI-DOLLAR-REDUCE REPLACING ALL " " BY "0"
-            MOVE FI-DOLLAR-REDUCE TO ALF4
-            MOVE FI-CENT-REDUCE TO ALF2
-             MOVE ALF6 TO NUM6
-            COMPUTE Payx =  -1 * (NUM6 / 100)
+           INSPECT FI-DOLLAR-REDUCE REPLACING ALL " " BY "0"
+           MOVE FI-DOLLAR-REDUCE TO ALF4
+           MOVE FI-CENT-REDUCE TO ALF2
+           MOVE ALF6 TO NUM6
+           COMPUTE Payx =  -1 * (NUM6 / 100)
             
-             if (payx = 0) and (pd-amount = 0)
+           if (payx = 0) and (pd-amount = 0)
              AND (FILEIN01(119:1) = "4" AND FILEIN01(123:1) = "1")
              GO TO P2-2
-             END-IF
-             if (payx = 0) and (pd-amount = 0)
-                GO TO E1
-             end-if.
+           END-IF
+           
+           if (payx = 0) and (pd-amount = 0)
+              GO TO E1
+           end-if.
+
        P2-2.      
            MOVE SPACE TO PD-DENIAL
+           
            IF FI-ADJ = "-" GO TO E1.           
+           
            MOVE PAYDATE TO PD-DATE-T
            MOVE PAYDATE TO PD-DATE-E
            ACCEPT PD-ORDER FROM TIME
@@ -332,6 +343,7 @@
              MOVE CC-PAYCODE TO PD-PAYCODE
              GO TO P7-NEXT
            END-IF  
+
            IF CC-PAYCODE = G-SEINS 
             AND (CC-PAYCODE NOT = "001")
              MOVE CC-PAYCODE TO PD-PAYCODE
@@ -343,6 +355,7 @@
            MOVE FI-PAYORID TO INS-NEIC
            START INSFILE KEY NOT < INS-NEIC INVALID 
            GO TO P4-NEXT.
+
        P3-NEXT.
            READ INSFILE NEXT AT END
              GO TO P4-NEXT
@@ -364,6 +377,7 @@
            IF INS-NEIC  = FI-PAYORID 
            MOVE G-SEINS TO PD-PAYCODE
            GO TO P7-NEXT.
+       
        P6-NEXT.
            MOVE G-TRINS TO INS-KEY
            READ INSFILE INVALID GO TO P7-NEXT.
@@ -373,10 +387,12 @@
        P7-NEXT.  
            IF PD-PAYCODE = "001"
               MOVE "076" TO PD-PAYCODE
-           END-IF              
+           END-IF  
+
            MOVE PAYFILE01 TO PAYBACK01
            MOVE 0 TO FLAG
            PERFORM A1 THRU A4
+           
            IF FLAG = 1 GO TO E1.
            MOVE PAYBACK01 TO PAYFILE01
            MOVE 0 TO XYZ.
@@ -421,9 +437,14 @@
        A1.
            MOVE CC-KEY8 TO PD-KEY8
            MOVE "000" TO PD-KEY3.
-           START PAYFILE KEY NOT <  PAYFILE-KEY INVALID GO TO A4.
+           START PAYFILE KEY NOT <  PAYFILE-KEY
+             INVALID 
+             MOVE 1 TO FLAG
+             GO TO A4.
        A2.
            READ PAYFILE NEXT AT END GO TO A4.
+           ACCEPT OMITTED
+           
            IF PD-KEY8 NOT = CC-KEY8 GO TO A4.
            IF PD-CLAIM NOT = CC-CLAIM GO TO A2.
            MOVE 1 TO FLAG.

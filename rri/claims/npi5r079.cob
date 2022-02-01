@@ -931,6 +931,15 @@
            MOVE SITE-ID TO REF-ID
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM REF01                      
+
+           MOVE "RUTLAND RADIOLOGISTS" TO PER-CONTACT
+           MOVE "8003718685" TO PER-PHONE
+           MOVE "FX" TO PER-S4
+           MOVE "8027705175" TO PER-S6
+           MOVE "EM" TO PER-S8
+           MOVE "RRIBILLING@GMAIL.COM" TO PER-S10
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM PER01
            
            IF EINSS-TYPE = "E"
                MOVE "2" TO NM1-SOLO
@@ -963,10 +972,10 @@
            MOVE ORG-ZIP TO N4-ZIP
            
            IF N4-ZIP(6:4) = SPACE
-           MOVE "9999" TO N4-ZIP(6:4).
+             MOVE "9999" TO N4-ZIP(6:4).
            MOVE SPACE TO SEGFILE01
            MOVE "057020440" TO N4-ZIP
-           WRITE SEGFILE01 FROM N401.
+           WRITE SEGFILE01 FROM N401.           
      
        2000B.
            ADD 1 TO HL-NUM
