@@ -657,19 +657,19 @@
       *    since is hard wired in report, ie rrmc does it for us     
 
            IF CD-PAYCODE = "015"
-               DISPLAY " CPT 70498 needs 2 assessments"
-               DISPLAY " measure 195: 8P or <Enter>"
-               DISPLAY " <Enter> = Referenced Dist Int. Car. diameter"
-               DISPLAY " 8P = not referenced"    
-               ACCEPT CD-QP1
-               IF NOT (CD-QP1 = "8P" OR SPACE)
-                   GO TO P2-0
-               END-IF
+      *         DISPLAY " CPT 70498 needs 2 assessments"
+      *         DISPLAY " measure 195: 8P or <Enter>"
+      *         DISPLAY " <Enter> = Referenced Dist Int. Car. diameter"
+      *         DISPLAY " 8P = not referenced"    
+      *         ACCEPT CD-QP1
+      *         IF NOT (CD-QP1 = "8P" OR SPACE)
+      *             GO TO P2-0
+      *         END-IF
                
                DISPLAY " Measure 406: Thyroid nodules"
                DISPLAY " < 1cm lesion use 1 or 2 or 3"
                DISPLAY " <Enter> for no lesion"
-               DISPLAY " ? for help, CPT 70498 re-do 195 just completed"
+               DISPLAY " ? for help"
                ACCEPT CD-QP2
                IF CD-QP2 = "?"
                    DISPLAY "CT, CTA, or MR studies of chest or neck"
@@ -683,8 +683,7 @@
                    GO TO P2-0
                END-IF
                IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
-                   DISPLAY " ? for help but since this is CPT 70498"
-                           " will have to re-do 195 first, sorry"
+                   DISPLAY " ? for help"
                    GO TO P2-0
                END-IF
            END-IF.

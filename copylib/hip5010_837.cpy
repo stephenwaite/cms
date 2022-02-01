@@ -161,7 +161,7 @@
            02 SUBPER-S0 PIC X VALUE "*".
            02 SUBPER-1 PIC XX VALUE "IC". 
            02 SUBPER-S1 PIC X VALUE "*".
-           02 SUBPER-2 PIC X(9) VALUE "S WAITE".
+           02 SUBPER-2 PIC X(20) VALUE "S WAITE".
            02 SUBPER-S2 PIC X VALUE "*".
            02 SUBPER-3 PIC XX VALUE "TE".
            02 SUBPER-S3 PIC X VALUE "*".
@@ -173,7 +173,7 @@
            02 SUBPER-S6 PIC X VALUE "*".
            02 SUBPER-7 PIC XX VALUE "EM".
            02 SUBPER-S7 PIC X VALUE "*".
-           02 SUBPER-8  PIC X(17) VALUE "cmswest@sover.net".
+           02 SUBPER-8  PIC X(20) VALUE "cmswest@sover.net".
            02 SUBPER-S9 PIC X VALUE "*".
            02 SUBPER-END PIC X VALUE "~".
 
@@ -229,12 +229,13 @@
            02 PER-STE PIC X VALUE "*".
            02 PER-PHONE PIC X(10).
            02 PER-S3 PIC X VALUE "*".
-           02 PER-S4 PIC X VALUE "*".
+           02 PER-S4 PIC XX VALUE "*".
            02 PER-S5 PIC X VALUE "*".
-           02 PER-S6 PIC X VALUE "*".
+           02 PER-S6 PIC X(10) VALUE "*".
            02 PER-S7 PIC X VALUE "*".
-           02 PER-S8 PIC X VALUE "*".
+           02 PER-S8 PIC XX VALUE "*".
            02 PER-S9 PIC X VALUE "*".
+           02 PER-S10 PIC X(20).
            02 PER-END PIC X VALUE "~".
 
        01  NM101.
