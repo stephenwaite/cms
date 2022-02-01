@@ -164,7 +164,7 @@
            02 FI-DX6 PIC X(7).
            02 FI-FUTURE PIC X(6).
        FD  FILEOUT1.
-       01  FILEOUT101 PIC X(480).
+       01  FILEOUT101 PIC X(500).
 
        FD  PAYCUR
            BLOCK CONTAINS 6 RECORDS
@@ -306,11 +306,11 @@
            02 TAB-Y39 PIC X VALUE ",".
            02 FO-MEDREC PIC X(8).
            02 TAB-Y40 PIC X VALUE ",".
-           02 FO-CHG PIC X.
+           02 FO-CHG PIC ZZZZ.99.
            02 TAB-Y41 PIC X VALUE ",".
-           02 FO-PAY PIC X.
+           02 FO-PAY PIC ZZZZ.99.
            02 TAB-Y42 PIC X VALUE ",".
-           02 FO-ADJ PIC X.
+           02 FO-ADJ PIC ZZZZ.99.
            02 TAB-Y43 PIC X VALUE ",".
            02 FO-INT PIC X.
            02 TAB-Y44 PIC X VALUE ",".
@@ -353,7 +353,8 @@
            OPEN INPUT PAYCUR FILEIN GARFILE INSFILE.
            OPEN OUTPUT FILEOUT1.
            OPEN I-O CHARCUR.
-           MOVE 0 TO TOT-PLACED TOT-CHARGES TOT-PAY TOT-ADJ.
+           MOVE 0 TO TOT-PLACED TOT-CHARGES TOT-PAY TOT-ADJ CLAIM-ADJ
+             CLAIM-PAY.
            ACCEPT DATE-X FROM CENTURY-DATE.
            READ FILEIN AT END
              GO TO P99
@@ -378,23 +379,34 @@
            END-IF
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
-           READ CHARCUR WITH LOCK INVALID 
-             GO TO P1
+           READ CHARCUR WITH LOCK
+             INVALID 
+               GO TO P1
            END-READ    
+
       *     IF CC-COLLT = "1" GO TO P1.
+
            MOVE "018" TO CC-PAYCODE
            MOVE DATE-X TO CC-DATE-A
            MOVE "2" TO CC-REC-STAT
            MOVE "A" TO CC-ASSIGN CC-NEIC-ASSIGN
            MOVE "1" TO CC-COLLT
-           PERFORM P3 THRU P4.
-           IF CLAIM-TOT = 0 GO TO P1.
-      *     REWRITE CHARCUR01.
+       
+           MOVE 0 TO CLAIM-ADJ CLAIM-PAY
+           PERFORM P3 THRU P4.       
+
+           IF CLAIM-TOT = 0
+             GO TO P1
+           END-IF  
+
+           REWRITE CHARCUR01.
+
            ADD CLAIM-TOT TO TOT-PLACED
            ADD CLAIM-CHARGE TO TOT-CHARGES
            ADD CLAIM-ADJ TO TOT-ADJ
            ADD CLAIM-PAY TO TOT-PAY
            GO TO P1.
+
        P3.
            COMPUTE CLAIM-TOT = CC-AMOUNT
            COMPUTE CLAIM-CHARGE = CLAIM-TOT
@@ -414,20 +426,23 @@
            IF PC-CLAIM = CC-CLAIM 
              COMPUTE CLAIM-TOT = CLAIM-TOT + PC-AMOUNT
              IF PC-DENIAL = "14"
-               COMPUTE CLAIM-ADJ = CLAIM-ADJ + PC-AMOUNT
+               COMPUTE CLAIM-ADJ = CLAIM-ADJ - PC-AMOUNT
              ELSE 
-               COMPUTE CLAIM-PAY = CLAIM-PAY + PC-AMOUNT  
+               COMPUTE CLAIM-PAY = CLAIM-PAY - PC-AMOUNT  
              END-IF  
            END-IF
+           
            GO TO P3-1.
+
        P4.
            EXIT.
-       P5.
+
+       P5.           
            IF TOT-PLACED = 0 AND ENDFLAG = 0
-           MOVE 0 TO TOT-PLACED
-           MOVE "00000000" TO LASTDATE
-           MOVE FI-KEY8 TO HOLD8
-           GO TO P1-1.
+             MOVE 0 TO TOT-PLACED TOT-CHARGES TOT-PAY TOT-ADJ
+             MOVE "00000000" TO LASTDATE
+             MOVE FI-KEY8 TO HOLD8
+             GO TO P1-1.
 
            IF TOT-PLACED = 0 AND ENDFLAG = 1 GO TO P99.
 
@@ -504,7 +519,7 @@
            MOVE TOT-CHARGES TO FO-CHG 
            MOVE TOT-PAY TO FO-PAY 
            MOVE TOT-ADJ TO FO-ADJ
-           MOVE "*" FO-INT.
+           MOVE "*" TO FO-INT.
            MOVE TOT-PLACED TO FO-BAL.
            MOVE LASTDATE TO TEST-DATE
            STRING T-MM "/" T-DD "/" T-YY DELIMITED BY SIZE
