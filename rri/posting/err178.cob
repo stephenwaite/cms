@@ -247,7 +247,7 @@
        01  Y PIC 99.
        01  Z PIC 99.
        01  A PIC 99.
-       01 HOLDKEY PIC X(11).
+       01  HOLDKEY PIC X(11).
        01  TEST-DATE.
            05  T-CC            PIC 99.
            05  T-YY            PIC 99.
@@ -279,7 +279,9 @@
            IF FI-DATE = SPACE  OR FI-PROC = SPACE GO TO E1.
            
            MOVE FI-GARNO TO G-GARNO
-           READ GARFILE INVALID GO TO E1.
+           READ GARFILE 
+             INVALID 
+               GO TO E1.
 
            MOVE FI-PAYDATE TO PAYDATE
            MOVE FI-DATE TO INPUT-DATE
@@ -293,7 +295,7 @@
            
            IF CC-KEY8 NOT = G-GARNO GO TO E1.
            
-           IF NOT (CC-DATE-T = TEST-DATE AND  CC-PROC1 = FI-PROC1)
+           IF NOT (CC-DATE-T = TEST-DATE AND CC-PROC1 = FI-PROC1)
             GO TO P2.
            
            WRITE FILEOUT01 FROM CHARCUR01
@@ -316,6 +318,8 @@
            END-IF
            
            if (payx = 0) and (pd-amount = 0)
+              AND NOT (FILEIN01(119:1) = "2" AND 
+              (FILEIN01(123:1) = "1" OR FILEIN01(127:1) = "1"))
               GO TO E1
            end-if.
 
@@ -439,7 +443,6 @@
            MOVE "000" TO PD-KEY3.
            START PAYFILE KEY NOT <  PAYFILE-KEY
              INVALID 
-             MOVE 1 TO FLAG
              GO TO A4.
        A2.
            READ PAYFILE NEXT AT END GO TO A4.
@@ -451,6 +454,8 @@
        A4.
            EXIT.
        E1.
+           accept omitted
+           
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM FILEIN01
            GO TO P1.

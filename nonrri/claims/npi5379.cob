@@ -2205,6 +2205,7 @@
            IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
+           MOVE "E" TO CC-PAPER. 
            REWRITE CHARCUR01.
        2400SRV-EXIT.  EXIT.
        REF-1.
