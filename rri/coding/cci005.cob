@@ -69,6 +69,9 @@
        01  ALF5 PIC X(5).
        01  ALF8 PIC X(8).
        01  ALF11 PIC X(11).
+       01  R PIC 99.
+       01  S PIC 99.
+       01  CHARCUR-FLAG PIC 9.
       *
        PROCEDURE DIVISION.
        P0.
@@ -129,6 +132,8 @@
        CHARCUR-CHECK.
            MOVE HOLD-IT TO CC-KEY8
            MOVE SPACE   TO CC-KEY3
+           MOVE X TO S
+           MOVE 0 TO CHARCUR-FLAG
            START CHARCUR KEY NOT < CHARCUR-KEY INVALID
                GO TO CHARCUR-CHECK-EXIT
            END-START.
@@ -143,18 +148,19 @@
                GO TO CHARCUR-CHECK-EXIT
            END-IF
 
-           IF CC-DATE-T NOT = DATE-TAB(1)
-               GO TO CHARCUR-CHECK-1
+           PERFORM P26 THRU P26-EXIT VARYING R FROM 1 BY 1 UNTIL R > S
+
+           IF CHARCUR-FLAG = 1
+             ADD 1 TO X
+             MOVE SPACE TO KEY-TAB(X)
+             MOVE CC-PROC1  TO PROC-TAB(X)
+             MOVE CC-DOCP   TO DOC-TAB(X)
+             MOVE CC-MOD2   TO MOD2-TAB(X)
+             MOVE CC-MOD3   TO MOD3-TAB(X)  
+             MOVE CC-MOD4   TO MOD4-TAB(X)
+             MOVE CC-DATE-T TO DATE-TAB(X)
            END-IF
 
-           ADD 1 TO X
-           MOVE SPACE TO KEY-TAB(X)
-           MOVE CC-PROC1  TO PROC-TAB(X)
-           MOVE CC-DOCP   TO DOC-TAB(X)
-           MOVE CC-MOD2   TO MOD2-TAB(X)
-           MOVE CC-MOD3   TO MOD3-TAB(X)  
-           MOVE CC-MOD4   TO MOD4-TAB(X)
-           MOVE CC-DATE-T TO DATE-TAB(X)
            GO TO CHARCUR-CHECK-1.
 
        CHARCUR-CHECK-EXIT.
@@ -191,6 +197,7 @@
                AND (MOD2-TAB(A) = MOD2-TAB(Z))                  
 
                IF KEY-TAB(A) = SPACE
+                   MOVE SPACE TO FILEOUT01
                    STRING "MOD 76/77 NEEDED DUE TO POSTED CHARGE, DOS " 
                    DATE-TAB(A) ", CPT " PROC-TAB(A) 
                    ", MOD2 " MOD2-TAB(A) " FOR " KEY-TAB(Z)(1:8)
@@ -227,6 +234,7 @@
                    
                    GO TO P16-1
                ELSE
+                 MOVE SPACE TO FILEOUT01
                  STRING KEY-TAB(A) " " KEY-TAB(Z) " "
                    "did NOT change mods for " CD-NAME " DOS " CD-DATE-T 
                    " MOD2 " CD-MOD2 " MOD3 " CD-MOD3 " MOD4 " CD-MOD4
@@ -238,11 +246,12 @@
            GO TO P16-EXIT.        
 
        P16-1.
+           MOVE SPACE TO FILEOUT01
            STRING KEY-TAB(A) " " KEY-TAB(Z) " "
                "ADDING MODS FOR " CD-NAME " DOS " CD-DATE-T " MOD2 "
                CD-MOD2 " MOD3 " CD-MOD3 " " CD-MOD4
                DELIMITED BY SIZE INTO FILEOUT01
-           WRITE FILEOUT01               
+           WRITE FILEOUT01.
            REWRITE CHARFILE01.
 
        P16-EXIT.
@@ -297,6 +306,7 @@
                MOVE KEY-TAB(Z) TO CHARFILE-KEY
            ELSE
                IF KEY-TAB(A) = SPACE
+                   MOVE SPACE TO FILEOUT01
                    STRING "MOD 59 MISSED, DOS " DATE-TAB(A)
                    ", CPT " PROC-TAB(A) ", MOD2 " MOD2-TAB(A)
                    " FOR " KEY-TAB(Z)(1:8)
@@ -328,13 +338,7 @@
              CD-MOD2 NOT = "59" AND
              CD-MOD3 = SPACE
              MOVE "59" TO CD-MOD3
-           ELSE
-             STRING KEY-TAB(A) " " KEY-TAB(Z) " "
-               "did NOT add mod 59 for " CD-NAME " DOS " CD-DATE-T 
-               " MOD2 " CD-MOD2 " MOD3 " CD-MOD3 " MOD4 " CD-MOD4
-               DELIMITED BY SIZE INTO FILEOUT01
-             WRITE FILEOUT01   
-           END-IF
+           END-IF.
 
            REWRITE CHARFILE01.
 
@@ -367,6 +371,15 @@
            MOVE 2 TO FLAG.
 
        CCI-3.
+           EXIT.
+
+       P26.
+           IF CC-DATE-T = DATE-TAB(R)
+               MOVE 1 TO CHARCUR-FLAG
+               MOVE S TO R
+           END-IF.
+
+       P26-EXIT.
            EXIT.
 
        P4.

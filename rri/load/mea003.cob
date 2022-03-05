@@ -179,7 +179,7 @@
            END-IF
             
       *    paycode 010 is measure 147
-           IF (CD-PROC1 = "78300" OR "78305" OR "78306" OR  "78315")
+           IF (CD-PROC1 = "78300" OR "78305" OR "78306" OR "78315")
              MOVE "010" TO CD-PAYCODE
              MOVE SPACE TO FILEOUT01
              STRING "147 " CD-PAYCODE " " CD-PROC1 " " CD-DATE-T " "
@@ -191,11 +191,10 @@
 	
       *    paycode 012 is measure 405  
            IF (CD-PROC1 =  "71250" OR "71260" OR "71270" OR "71271"
-             OR "71275" 
-             OR "71555" OR "72131" OR "72191" OR "72192" OR "72193"
-             OR "72194" OR "72195" OR "72196" OR "72197" OR "72198"
-             OR "74150" OR "74160" OR "74170" OR "74176" OR "74177"
-             OR "74178" OR "74181" OR "74182" OR "74183")
+             OR "71275" OR "71555" OR "72131" OR "72191" OR "72192" 
+             OR "72193" OR "72194" OR "72195" OR "72196" OR "72197"
+             OR "72198" OR "74150" OR "74160" OR "74170" OR "74176"
+             OR "74177" OR "74178" OR "74181" OR "74182" OR "74183")
              MOVE "012" TO CD-PAYCODE
              MOVE SPACE TO FILEOUT01
              STRING "405 " CD-PAYCODE " " CD-PROC1 " " CD-DATE-T " "
@@ -249,9 +248,10 @@
       *    paycode 016 is measure 076
 	         IF (CD-PROC1 = "36555" OR "36556" OR "36557" OR "36558"
                OR "36560" OR "36561" OR "36563" OR "36565" OR "36566"
-               OR "36568" OR "36569" OR "36570" OR "36571" OR "36573"
-               OR "36578" OR "36580" OR "36581" OR "36582" OR "36583"
-               OR "36584" OR "36585" OR "93503")
+               OR "36568" OR "36569" OR "36570" OR "36571" OR "36572"
+               OR "36573" OR "36578" OR "36580" OR "36581" OR "36582"
+               OR "36583" OR "36584" OR "36585" OR "93503" OR "93593"
+               OR "93594" OR "93595" OR "93596" OR "93597")
                MOVE "016" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
                STRING "076 " CD-PAYCODE " "

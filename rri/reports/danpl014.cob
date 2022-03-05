@@ -73,10 +73,13 @@
            02 FO-SERVICE PIC X.
            02 FO-PROC PIC X(11).
            02 FO-AMOUNT PIC S9(7)V99.
+           02 FILLER PIC X VALUE " ".
            02 FO-IO PIC X.
            02 FO-NAME PIC X(24).
            02 FO-DATE PIC X(8).
            02 FO-CKEY PIC X(12).
+           02 FILLER PIC X VALUE " ".
+           02 FO-INS PIC X(3).
 
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.
@@ -119,9 +122,11 @@
        P00. 
            READ DOCFILE AT END GO TO P1.
            ADD 1 TO PLINDX.
-           MOVE DF1 TO PL-TAB(PLINDX)
-           MOVE DF2 TO PL-NUM(PLINDX)
-           MOVE DF3 TO PL-NAME(PLINDX).
+      *    not interested in docfile at this time
+      *    would have to be configured to support docfile isam file     
+      *     MOVE DF1 TO PL-TAB(PLINDX)
+      *     MOVE DF2 TO PL-NUM(PLINDX)
+      *     MOVE DF3 TO PL-NAME(PLINDX).
            GO TO P00.               
 
        P1. 
@@ -195,7 +200,8 @@
        WRITE-FO. 
            MOVE CC-PATID TO G-GARNO
            READ GARFILE INVALID MOVE SPACE TO G-GARNAME
-           MOVE G-GARNAME TO FO-NAME.           
+           MOVE G-GARNAME TO FO-NAME.
+           MOVE G-PRINS TO FO-INS.           
 
            MOVE "1" TO FO-SERVICE.
            MOVE "1" TO FO-DUM.
