@@ -1205,23 +1205,27 @@
            MOVE FILEIN01 TO FILETAB(CNTR)
            ADD FI-AMOUNT TO TOT-AMOUNT
            GO TO P1.
+
        P2.  
-            MOVE FILEIN01 TO SAVE01
-            PERFORM 2300CLM THRU 2300CLM-EXIT
-            PERFORM HI-DIAG THRU HI-DIAG-EXIT
-            PERFORM 2310A THRU 2310A-EXIT
-            IF EINSS-TYPE = "E" PERFORM 2310B.
+           MOVE FILEIN01 TO SAVE01
+           PERFORM 2300CLM THRU 2300CLM-EXIT
+           PERFORM HI-DIAG THRU HI-DIAG-EXIT
+           PERFORM 2310A THRU 2310A-EXIT
+           IF EINSS-TYPE = "E" PERFORM 2310B.
 
-            IF NOT ( CLM-5 = "11" AND HOLD-NEIC = "SX065")
+           IF NOT ( CLM-5 = "11" AND HOLD-NEIC = "SX065")
              PERFORM 2310D THRU 2310D-EXIT
-            END-IF
+           END-IF
 
-            PERFORM 2310E THRU 2310E-EXIT
+           PERFORM 2310E THRU 2310E-EXIT
       *      PERFORM 2320A THRU 2320A-EXIT
-            PERFORM 2400SRV THRU 2400SRV-EXIT
+           PERFORM 2400SRV THRU 2400SRV-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
+
            IF END-FLAG = 1 GO TO P98.
+
            MOVE SAVE01 TO FILEIN01
+
            IF FI-NEIC NOT = HOLD-NEIC
             MOVE SPACE TO SEGFILE01
             WRITE SEGFILE01 FROM SE01
@@ -1229,6 +1233,7 @@
             MOVE 0 TO HL-NUM
             PERFORM START-ST
             GO TO START-HIGHER.
+
            IF FI-DOCP NOT = HOLD-DOCP 
            MOVE FILEIN01 TO HOLD-FILEIN01
            MOVE hold-DOCP TO DOC-NUM
@@ -1366,7 +1371,7 @@
            MOVE SPACE TO SEGFILE01
       *     if hold-neic = "14165"
             move space to n3-street
-            move "PO BOX 129" to n3-street
+            move "PO BOX 440" to n3-street
       *     end-if
            WRITE SEGFILE01 FROM N301
            MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
@@ -1378,7 +1383,7 @@
            MOVE "9999" TO N4-ZIP(6:4).
            MOVE SPACE TO SEGFILE01
       *     if hold-neic = "14165"
-            move "057020129" to n4-zip
+            move "057020440" to n4-zip
       *    end-if
            WRITE SEGFILE01 FROM N401.
       *     IF HOLD-NEIC NOT = "14165"
@@ -1973,12 +1978,12 @@
              WRITE SEGFILE01 FROM DTP01
            END-IF.
 
-           IF NOT ( HOLD-NEIC = " SX065")
+      *     IF NOT ( HOLD-NEIC = " SX065")
 
-             IF EINSS-TYPE = "E"
-              PERFORM 2420A THRU 2420A-EXIT
-             END-IF
-           end-if.
+      *       IF EINSS-TYPE = "E"
+      *        PERFORM 2420A THRU 2420A-EXIT
+      *       END-IF
+      *     end-if.
            MOVE FILEIN-KEY TO CHARCUR-KEY
            READ CHARCUR WITH LOCK INVALID CONTINUE
            NOT INVALID 
@@ -2021,8 +2026,8 @@
              MOVE "2085R0204X" TO PRV-TAX
            END-IF
 
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM PRV01.
+           MOVE SPACE TO SEGFILE01.
+      *     WRITE SEGFILE01 FROM PRV01.
 
        2420A-EXIT.
            EXIT.
@@ -2071,6 +2076,13 @@
            MOVE "PXC" TO PRV-2
            MOVE DOC-TAXONOMY TO PRV-TAX
            MOVE SPACE TO SEGFILE01.
+
+           IF FI-DOCP = "08"
+             MOVE "2085R0204X" TO PRV-TAX
+             MOVE SPACE TO SEGFILE01
+             WRITE SEGFILE01 FROM PRV01
+           END-IF.
+
       *     WRITE SEGFILE01 FROM PRV01.
 
        DOCP-1.
@@ -2337,9 +2349,6 @@
            WRITE SEGFILE01 FROM REF01.
 
        SV-MOD.
-
-
-
            MOVE SPACE TO SV1-MOD-FILLER MOD-ARRAY01
            MOVE FI-PROC2 TO MOD-CODE(1)
            MOVE FI-MOD2 TO MOD-CODE(2)

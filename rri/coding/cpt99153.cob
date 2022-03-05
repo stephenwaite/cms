@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. psi253.
+       PROGRAM-ID. cpt99153.
        AUTHOR. S WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -16,6 +16,11 @@
 
            SELECT FILEOUT ASSIGN TO  "S35" ORGANIZATION
                LINE SEQUENTIAL.
+
+           SELECT GARFILE ASSIGN TO  "S40" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+               ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+               LOCK MODE MANUAL.               
 
        DATA DIVISION.
        FILE SECTION.
@@ -71,13 +76,16 @@
        FD  FILEOUT.
        01  FILEOUT01 PIC X(189). 
 
+       FD  GARFILE.
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".  
+
        WORKING-STORAGE SECTION.
        01  HOLDIT PIC X(8).
        01  ANS PIC X.
       *
        PROCEDURE DIVISION.
        P0.
-           OPEN I-O CHARFILE
+           OPEN INPUT CHARFILE GARFILE
            OPEN OUTPUT FILEOUT.
            MOVE SPACE TO CHARFILE-KEY.
 
@@ -87,59 +95,34 @@
                GO TO P99
            END-READ
 
-           IF (CD-PROC0 = "4081" OR "4082" OR "4086" OR "4087"
-               OR "4090" OR "1030")
-               
-               IF CD-MOD2 NOT = SPACE
-                   MOVE "PI" TO CD-MOD2
-                   GO TO P2               
-               END-IF
+      *    03 and uhc don't like 99153 inpt
+      *    however once in a blue moon a 2ndary will pay
+           
+           IF CD-PROC1 NOT = "99153"
+             GO TO P1.
 
-               IF CD-MOD3 NOT = SPACE
-                   MOVE "PI" TO CD-MOD3
-                   GO TO P2               
-               END-IF
+           IF CD-PLACE NOT = "3" GO TO P1.
 
-               IF CD-MOD4 NOT = SPACE
-                   MOVE "PI" TO CD-MOD4
-                   GO TO P2               
-               END-IF
-               
-               DISPLAY "NO MODS LEFT FOR PI MODIFIER FOR " 
-                        CHARFILE-KEY " " CD-PROC
-               ACCEPT ANS
-              
-           END-IF.
+      *     display cd-paycode " " cd-key8          
+      *     accept omitted
 
-           IF (CD-PROC0 = "4079" OR "4080" OR "4088" OR "4089"
-               OR "4091" OR "4092" OR "4093")
+           IF (CD-PAYCODE = "003" OR "200" OR "245")             
+             MOVE CD-KEY8 TO G-GARNO
+             READ GARFILE 
+               INVALID               
+                 GO TO P1
+             END-READ
+             GO TO P2.
 
-               IF CD-MOD2 NOT = SPACE 
-                   MOVE "PS" TO CD-MOD2
-                   GO TO P2
-               END-IF
-
-               IF CD-MOD3 NOT = SPACE
-                   MOVE "PS" TO CD-MOD3
-                   GO TO P2               
-               END-IF
-
-               IF CD-MOD4 NOT = SPACE
-                   MOVE "PS" TO CD-MOD4
-                   GO TO P2               
-               END-IF
-               
-               DISPLAY "NO MODS LEFT FOR PS MODIFIER FOR " 
-                        CHARFILE-KEY " " CD-PROC
-               ACCEPT ANS               
-
-           END-IF
 
            GO TO P1.
 
-       P2.
-           REWRITE CHARFILE01
-           WRITE FILEOUT01 FROM CHARFILE01
+       P2. 
+           MOVE SPACE TO FILEOUT01
+           STRING "CPT 99153 POS " CD-PLACE " " 
+             CD-DATE-T " " CD-KEY8 " should we send to " G-PRINS "?" 
+             DELIMITED BY SIZE INTO FILEOUT01
+           WRITE FILEOUT01 
            GO TO P1.
 
        P99.

@@ -1214,7 +1214,7 @@
            GO TO P1-1.
        P1. READ FILEIN AT END MOVE 1 TO END-FLAG GO TO P2.
        P1-1. 
-           IF CNTR > 0 GO TO P2.
+      *     IF CNTR > 0 GO TO P2.
            IF DIAG-CNTR > 11 GO TO P2.
            IF  FI-PLACE = HOLD-PLACE
            AND FI-KEY8 = HOLD-KEY8

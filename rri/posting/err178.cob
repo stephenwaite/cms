@@ -312,14 +312,14 @@
            MOVE ALF6 TO NUM6
            COMPUTE Payx =  -1 * (NUM6 / 100)
             
-           if (payx = 0) and (pd-amount = 0)
-             AND (FILEIN01(119:1) = "4" AND FILEIN01(123:1) = "1")
+           if (payx = 0) and (pd-amount = 0) AND
+             ((FILEIN01(119:1) = "2" OR FILEIN01(119:1) = "4") AND
+             ((FILEIN01(123:1) = "1") OR FILEIN01(127:1) = "1") OR 
+              FILEIN01(123:2) = "23") 
              GO TO P2-2
            END-IF
            
            if (payx = 0) and (pd-amount = 0)
-              AND NOT (FILEIN01(119:1) = "2" AND 
-              (FILEIN01(123:1) = "1" OR FILEIN01(127:1) = "1"))
               GO TO E1
            end-if.
 
@@ -446,16 +446,13 @@
              GO TO A4.
        A2.
            READ PAYFILE NEXT AT END GO TO A4.
-           ACCEPT OMITTED
            
            IF PD-KEY8 NOT = CC-KEY8 GO TO A4.
            IF PD-CLAIM NOT = CC-CLAIM GO TO A2.
            MOVE 1 TO FLAG.
        A4.
            EXIT.
-       E1.
-           accept omitted
-           
+       E1.           
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM FILEIN01
            GO TO P1.

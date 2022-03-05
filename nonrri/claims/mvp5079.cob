@@ -1425,15 +1425,16 @@
            
            MOVE G-DOB TO DMG-DOB
            MOVE G-SEX TO DMG-GENDER
-           
+             
            IF SAVE-RELATE NOT = "18"     
              MOVE "M" TO DMG-GENDER
              IF G-PR-RELATE NOT NUMERIC
                MOVE "F" TO DMG-GENDER
              END-IF
-             MOVE SPACE TO SEGFILE01
-             WRITE SEGFILE01 FROM DMG01       
-           END-IF.
+           END-IF
+
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM DMG01.
 
        2010BB.
            MOVE "PR " TO NM1-1
@@ -2234,6 +2235,8 @@
            IF CC-PL = "D" MOVE "33" TO CLM-5.
            IF CC-PL = "Q" MOVE "13" TO CLM-5.
            IF CC-PL = "S" MOVE "03" TO CLM-5.
+           IF CC-PL = "T" MOVE "99" TO CLM-5.
+           IF CC-PL = "Z" MOVE "02" TO CLM-5.
            
            IF HOLD-PROC1 > "99320" AND < "99329" MOVE "33" TO CLM-5.
            IF HOLD-PROC1 > "99330" AND < "99338" MOVE "33" TO CLM-5.
@@ -2354,11 +2357,12 @@
            GO TO MAKE-IT-1
            END-IF
            IF X-MM = 0 MOVE 1 TO X-MM.
-            COMPUTE X-DD = X-DD + 32 + (X-YYYY - 1900).
+             COMPUTE X-DD = X-DD + 32 + (X-YYYY - 1900).
+
        MAKE-IT-2.
            IF X-DD > DAYS-IN-MONTH(X-MM)
-            COMPUTE X-DD = X-DD - DAYS-IN-MONTH(X-MM)  
-	    GO TO MAKE-IT-2
+             COMPUTE X-DD = X-DD - DAYS-IN-MONTH(X-MM)  
+	           GO TO MAKE-IT-2
            END-IF
            IF X-DD < 1 MOVE 1 TO X-DD.
            IF X-DD = 29 AND X-MM = 2
@@ -2371,6 +2375,7 @@
            MOVE "F" TO DMG-GENDER.
       *     DISPLAY G-DOB " " G-SE-RELATE " " G-GARNAME
       *     DISPLAY X-DOB " " G-PR-RELATE " " G-PRNAME.
+
        MAKE-IT-UP-EXIT.
            EXIT.
        P98.
