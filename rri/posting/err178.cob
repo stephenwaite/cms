@@ -330,8 +330,8 @@
              GO TO P2-2
            END-IF
 
-           display "chgx " chgx " payx " payx " pd-amount " pd-amount
-           ACCEPT OMITTED
+      *     display "chgx " chgx " payx " payx " pd-amount " pd-amount
+      *     ACCEPT OMITTED
            
            if (payx = 0) and (pd-amount = 0)
               GO TO E1
