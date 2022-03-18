@@ -297,7 +297,12 @@
            
            IF NOT (CC-DATE-T = TEST-DATE AND CC-PROC1 = FI-PROC1)
             GO TO P2.
-           
+                      
+           DISPLAY "INCOMING TEST-DATE " TEST-DATE " PROC1 " FI-PROC1
+           DISPLAY "INCOMING CC DATE " CC-DATE-T " CC-PROC1 " CC-PROC1
+
+           ACCEPT OMITTED
+
            WRITE FILEOUT01 FROM CHARCUR01
            
            INSPECT FI-DOLLAR-PAID REPLACING ALL " " BY "0"
