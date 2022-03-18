@@ -297,11 +297,6 @@
            
            IF NOT (CC-DATE-T = TEST-DATE AND CC-PROC1 = FI-PROC1)
             GO TO P2.
-                      
-           DISPLAY "INCOMING TEST-DATE " TEST-DATE " PROC1 " FI-PROC1
-           DISPLAY "INCOMING CC DATE " CC-DATE-T " CC-PROC1 " CC-PROC1
-
-           ACCEPT OMITTED
 
            WRITE FILEOUT01 FROM CHARCUR01
            
@@ -327,6 +322,11 @@
            if (payx = 0) and (pd-amount = 0)
               GO TO E1
            end-if.
+
+      *     DISPLAY "INCOMING TEST-DATE " TEST-DATE " PROC1 " FI-PROC1
+      *     DISPLAY "INCOMING CC DATE " CC-DATE-T " CC-PROC1 " CC-PROC1
+           display "payx " payx " pd-amount " pd-amount
+           ACCEPT OMITTED
 
        P2-2.      
            MOVE SPACE TO PD-DENIAL
