@@ -116,7 +116,11 @@
              03 FI-PROC2 PIC XX.
            02 FILLER PIC XXX VALUE SPACE.
            02 FI-GARNO PIC X(8).
-           02 FILLER PIC X(14).
+           02 FILLER PIC X(6).
+           02 FI-DOLLAR-CHARGE PIC XXXX.
+           02 FILLER PIC X.
+           02 FI-CENT-CHARGE PIC XX.
+           02 FILLER PIC X.
            02 FI-ADJ PIC X.
            02 FILLER PIC X.
            02 FI-DOLLAR-PAID PIC XXXX.
@@ -267,6 +271,7 @@
        01  PAYBACK01 PIC X(80).
        01  ALF1 PIC X.
        01  payx PIC S9(4)V99.
+       01  chgx PIC S9(4)V99.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -311,6 +316,12 @@
            MOVE FI-CENT-REDUCE TO ALF2
            MOVE ALF6 TO NUM6
            COMPUTE Payx =  -1 * (NUM6 / 100)
+
+           INSPECT FI-DOLLAR-CHARGE REPLACING ALL " " BY "0"
+           MOVE FI-DOLLAR-CHARGE TO ALF4
+           MOVE FI-CENT-CHARGE TO ALF2
+           MOVE ALF6 TO NUM6
+           COMPUTE chgx =  -1 * (NUM6 / 100)
             
            if (payx = 0) and (pd-amount = 0) AND
              ((FILEIN01(119:1) = "2" OR FILEIN01(119:1) = "4") AND
@@ -318,15 +329,19 @@
               FILEIN01(123:2) = "23") 
              GO TO P2-2
            END-IF
+
+           display "chgx " chgx " payx " payx " pd-amount " pd-amount
+           ACCEPT OMITTED
            
            if (payx = 0) and (pd-amount = 0)
               GO TO E1
            end-if.
 
+           if chgx = payx go to e1.
+
       *     DISPLAY "INCOMING TEST-DATE " TEST-DATE " PROC1 " FI-PROC1
       *     DISPLAY "INCOMING CC DATE " CC-DATE-T " CC-PROC1 " CC-PROC1
-           display "payx " payx " pd-amount " pd-amount
-           ACCEPT OMITTED
+          
 
        P2-2.      
            MOVE SPACE TO PD-DENIAL
