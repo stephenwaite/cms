@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. find-cdm.
+       PROGRAM-ID. find-cdm-no-pays.
        AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -102,6 +102,7 @@
        01  CC-PL PIC X.
        01  FLAG PIC 9.
        01  TOT-AMOUNT PIC S9(7)V99.
+       01  PC-CLAIM-HOLD PIC X(6).
 
       *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
        
@@ -117,7 +118,7 @@
       *     READ DOCFILE AT END GO TO P1.
    
        P1. 
-           READ CHARCUR
+           READ CHARCUR NEXT
              AT END
                GO TO P99.
 
@@ -132,6 +133,26 @@
       *     DISPLAY "hit THORACENTESIS "
       *       CC-PROC(1:4)
       *     accept OMITTED                            
+        
+           MOVE CC-CLAIM TO PC-CLAIM-HOLD
+           MOVE CC-PATID TO PC-KEY8
+           MOVE SPACE TO PC-KEY3
+           START PAYCUR KEY NOT < PAYCUR-KEY
+             INVALID
+               GO TO WRITE-FO.
+
+       P2.  
+           READ PAYCUR NEXT
+             AT END
+               GO TO P1.
+
+           IF PC-CLAIM = PC-CLAIM-HOLD
+             GO TO P1.
+
+           IF CC-PATID NOT = PC-KEY8
+             GO TO WRITE-FO.    
+
+           GO TO P2.
 
        WRITE-FO. 
            MOVE CC-PATID TO G-GARNO
