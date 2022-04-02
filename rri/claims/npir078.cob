@@ -85,7 +85,7 @@
        FD  FILEIN.
        01  FILEIN01 PIC 999.
 
-       FD GARFILE.
+       FD  GARFILE.
            COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".        
 
        FD  DOCFILE.
@@ -357,7 +357,7 @@
                MOVE CC-CLAIM TO AUTH-KEY6
                READ AUTHFILE                  
                  INVALID 
-                   STRING "NO AUTH " CC-PROC " " CC-AMOUNT
+                   STRING "NO AUTH FOR VACCN"
                      DELIMITED BY SIZE INTO EF2
                    PERFORM E1
                    GO TO A2
