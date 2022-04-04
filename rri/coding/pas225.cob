@@ -60,6 +60,7 @@
        01  AUTHFILE-STAT PIC XX.
        01  AUTHFILE-BACK PIC X(91).
        01  HOLD-AUTH PIC X(20).
+       01  VALIDATE-FLAG PIC 9.
       *
        PROCEDURE DIVISION.
        P0.
@@ -83,6 +84,7 @@
            END-READ
 
            MOVE SPACE TO HOLD-AUTH
+           MOVE 0 TO VALIDATE-FLAG
            move g-acct to ea-medrec
            start emailauthfile key not > ea-medrec
              invalid
@@ -108,14 +110,12 @@
 
            IF EA-DATE-E = CD-DATE-T
                PERFORM VALIDATE-AUTH-NUM
-               move HOLD-AUTH TO AUTH-NUM
-               MOVE EA-DATE-E TO AUTH-DATE-E
-               MOVE AUTHFILE01 TO AUTHFILE-BACK
-      *         PERFORM WRITE-AU THRU WRITE-AU-EXIT 
-               MOVE 1 TO CD-AUTH
-      *         REWRITE CHARFILE01
-               PERFORM P2             
-               go to emailauth-exit
+               
+               IF VALIDATE-FLAG = 1
+                 PERFORM ADD-AUTH
+                 go to emailauth-exit
+               END-IF
+
            END-IF    
 
            go to emailauth-1.
@@ -124,19 +124,29 @@
            exit.
 
        VALIDATE-AUTH-NUM.
-           if ea-auth(1:2) NOT = "VA"
+           MOVE EA-AUTH TO HOLD-AUTH
+           if HOLD-auth(1:2) NOT = "VA"
                PERFORM P4
-               go to emailauth-1
            END-IF
            
-           if ea-auth(1:3) = SPACE
-               STRING EA-AUTH(1:2) EA-AUTH(4:13) INTO HOLD-AUTH
+           if HOLD-auth(1:3) = SPACE
+               STRING EA-AUTH(1:2) EA-AUTH(4:13) 
+               delimited by size INTO HOLD-AUTH
            END-IF    
            
            IF HOLD-AUTH(3:10) NOT NUMERIC
                PERFORM P4
-               go to emailauth-1
-           END-IF.
+           END-IF
+
+           MOVE 1 TO VALIDATE-FLAG.
+
+       ADD-AUTH.
+           move HOLD-AUTH TO AUTH-NUM
+           MOVE EA-DATE-E TO AUTH-DATE-E
+           MOVE AUTHFILE01 TO AUTHFILE-BACK
+      *     PERFORM WRITE-AU THRU WRITE-AU-EXIT 
+           MOVE 1 TO CD-AUTH.
+      *     REWRITE CHARFILE01
 
        WRITE-AU.
            CLOSE AUTHFILE
