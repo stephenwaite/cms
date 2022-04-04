@@ -61,7 +61,7 @@
        01  AUTHFILE-BACK PIC X(91).
        01  HOLD-AUTH PIC X(20).
        01  VALIDATE-FLAG PIC 9.
-       01  HOLD-AUTHPIC9 PIC 9(10).
+       01  HOLD-AUTH-PIC9 PIC 9(10).
       *
        PROCEDURE DIVISION.
        P0.
@@ -133,7 +133,7 @@
                GO TO VALIDATE-AUTH-NUM-EXIT
            END-IF
            
-           if HOLD-auth(1:3) = SPACE
+           if HOLD-auth(3:1) = SPACE
                STRING EA-AUTH(1:2) EA-AUTH(4:13) 
                delimited by size INTO HOLD-AUTH
            END-IF    
@@ -141,7 +141,6 @@
            MOVE HOLD-AUTH(3:10) TO HOLD-AUTH-PIC9
 
            IF HOLD-AUTH-PIC9 NOT NUMERIC
-               DISPLAY HOLD-AUTH-PIC9 " NOT NUMERIC"
                GO TO VALIDATE-AUTH-NUM-EXIT               
            END-IF
 
@@ -154,9 +153,9 @@
            move HOLD-AUTH TO AUTH-NUM
            MOVE EA-DATE-E TO AUTH-DATE-E
            MOVE AUTHFILE01 TO AUTHFILE-BACK
-      *     PERFORM WRITE-AU THRU WRITE-AU-EXIT 
-           MOVE 1 TO CD-AUTH.
-      *     REWRITE CHARFILE01
+           PERFORM WRITE-AU THRU WRITE-AU-EXIT 
+           MOVE 1 TO CD-AUTH
+           REWRITE CHARFILE01
 
        WRITE-AU.
            CLOSE AUTHFILE
@@ -193,7 +192,7 @@
 
        P4. 
            MOVE SPACE TO FILEOUT01
-           STRING "DATE MATCHES BUT NOT A GOOD AUTH, " AUTH-NUM 
+           STRING "DATE MATCHES BUT NOT A GOOD AUTH, " HOLD-AUTH
              ", FOR " CD-KEY8 " ON " CD-DATE-T " FOR THE " CD-PROC1
              DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01.    
