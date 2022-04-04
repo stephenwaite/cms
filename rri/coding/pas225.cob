@@ -57,6 +57,7 @@
            copy authfile.cpy in "c:\users\sid\cms\copylib\rri".      
 
        WORKING-STORAGE SECTION.
+       01  AUTHFILE-STAT PIC XX.
        01  AUTHFILE-BACK PIC X(91).
       *
        PROCEDURE DIVISION.
@@ -91,7 +92,7 @@
 
            GO TO P1.
 
-      emailauth-1.           
+       emailauth-1.           
            read emailauthfile previous
              at end
                PERFORM P3
@@ -106,9 +107,10 @@
            IF EA-DATE-E = CD-DATE-T
                if ea-auth(1:2) NOT = "VA"
                   PERFORM P4
-                  go to emailauth-1.  
+                  go to emailauth-1
+               END-IF    
                move ea-auth TO AUTH-NUM
-               MOVE EA-DATE-E TO AUTH-DATE
+               MOVE EA-DATE-E TO AUTH-DATE-E
                MOVE AUTHFILE01 TO AUTHFILE-BACK
       *         PERFORM WRITE-AU THRU WRITE-AU-EXIT 
                MOVE 1 TO CD-AUTH
@@ -139,7 +141,6 @@
            DISPLAY "RECORD ADDED".
            CLOSE AUTHFILE
            OPEN INPUT AUTHFILE.
-           MOVE 1 TO FLAG.
 
        WRITE-AU-EXIT.
            EXIT.             
