@@ -61,6 +61,7 @@
        01  AUTHFILE-BACK PIC X(91).
        01  HOLD-AUTH PIC X(20).
        01  VALIDATE-FLAG PIC 9.
+       01  HOLD-AUTHPIC9 PIC 9(10).
       *
        PROCEDURE DIVISION.
        P0.
@@ -137,7 +138,10 @@
                delimited by size INTO HOLD-AUTH
            END-IF    
            
-           IF HOLD-AUTH(3:10) NOT NUMERIC
+           MOVE HOLD-AUTH(3:10) TO HOLD-AUTH-PIC9
+
+           IF HOLD-AUTH-PIC9 NOT NUMERIC
+               DISPLAY HOLD-AUTH-PIC9 " NOT NUMERIC"
                GO TO VALIDATE-AUTH-NUM-EXIT               
            END-IF
 
