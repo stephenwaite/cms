@@ -102,7 +102,7 @@
              PERFORM P3
              go to emailauth-exit.
 
-           display EMAILAUTHFILE01
+      *     display EMAILAUTHFILE01
 
            IF EA-DATE-E = CD-DATE-T
                if ea-auth(1:2) NOT = "VA"
@@ -117,8 +117,6 @@
       *         REWRITE CHARFILE01
                PERFORM P2             
                go to emailauth-exit
-           else
-               PERFORM P3
            END-IF    
 
            go to emailauth-1.
@@ -161,8 +159,8 @@
 
        P4. 
            MOVE SPACE TO FILEOUT01
-           STRING "NOT A GOOD AUTH, " AUTH-NUM ", FOR " CD-KEY8 " ON " 
-             CD-DATE-T " FOR THE " CD-PROC1
+           STRING "DATE MATCHES BUT NOT A GOOD AUTH, " AUTH-NUM 
+             ", FOR " CD-KEY8 " ON " CD-DATE-T " FOR THE " CD-PROC1
              DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01.    
 
