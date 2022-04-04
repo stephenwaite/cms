@@ -75,7 +75,8 @@
            IF CD-PAYCODE NOT = "225" GO TO P1.
 
            MOVE CD-KEY8 TO G-GARNO
-           READ GARFILE INVALID               
+           READ GARFILE INVALID
+             PERFORM P3         
              GO TO P1
            END-READ
 
@@ -83,7 +84,7 @@
            start emailauthfile key not > ea-medrec
              invalid
                PERFORM P3
-               GO TO P1.
+               GO TO P1
              not invalid
                perform emailauth-1 thru emailauth-exit
            end-start
@@ -102,10 +103,10 @@
 
            display EMAILAUTHFILE01
 
-           IF EA-DATE = CD-DATE-T
+           IF EA-DATE-E = CD-DATE-T
                if ea-auth(1:2) NOT = "VA"
                   PERFORM P4
-               go to emailauth-1.  
+                  go to emailauth-1.  
                move ea-auth TO AUTH-NUM
                MOVE EA-DATE-E TO AUTH-DATE
                MOVE AUTHFILE01 TO AUTHFILE-BACK
