@@ -76,9 +76,6 @@
                GO TO P99
            END-READ
 
-           IF CD-KEY8 = G-GARNO
-             GO TO P1.
-
            IF CD-PAYCODE NOT = "225" GO TO P1.
 
            MOVE CD-KEY8 TO G-GARNO
@@ -191,15 +188,15 @@
 
        P3. 
            MOVE SPACE TO FILEOUT01
-           STRING "NO VACCN AUTH FOR " CD-KEY8 " ON " 
+           STRING CHARFILE-KEY " NO VACCN AUTH ON " 
              CD-DATE-T " FOR THE " CD-PROC1
              DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01.
 
        P4. 
            MOVE SPACE TO FILEOUT01
-           STRING "DATE MATCHES BUT NOT A GOOD AUTH, " HOLD-AUTH
-             ", FOR " CD-KEY8 " ON " CD-DATE-T " FOR THE " CD-PROC1
+           STRING CHARFILE-KEY " DATE MATCHES BUT NOT A GOOD AUTH, " 
+               HOLD-AUTH ", ON " CD-DATE-T " FOR THE " CD-PROC1
              DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01.    
 
