@@ -76,6 +76,9 @@
                GO TO P99
            END-READ
 
+           IF CD-KEY8 = G-GARNO
+             GO TO P1.
+
            IF CD-PAYCODE NOT = "225" GO TO P1.
 
            MOVE CD-KEY8 TO G-GARNO
