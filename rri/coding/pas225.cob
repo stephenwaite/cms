@@ -109,11 +109,14 @@
       *     display EMAILAUTHFILE01
 
            IF EA-DATE-E = CD-DATE-T
-               PERFORM VALIDATE-AUTH-NUM
+               PERFORM VALIDATE-AUTH-NUM THRU VALIDATE-AUTH-NUM-EXIT
                
                IF VALIDATE-FLAG = 1
                  PERFORM ADD-AUTH
+                 PERFORM P2
                  go to emailauth-exit
+               ELSE 
+                 PERFORM P4
                END-IF
 
            END-IF    
@@ -126,7 +129,7 @@
        VALIDATE-AUTH-NUM.
            MOVE EA-AUTH TO HOLD-AUTH
            if HOLD-auth(1:2) NOT = "VA"
-               PERFORM P4
+               GO TO VALIDATE-AUTH-NUM-EXIT
            END-IF
            
            if HOLD-auth(1:3) = SPACE
@@ -135,10 +138,13 @@
            END-IF    
            
            IF HOLD-AUTH(3:10) NOT NUMERIC
-               PERFORM P4
+               GO TO VALIDATE-AUTH-NUM-EXIT               
            END-IF
 
            MOVE 1 TO VALIDATE-FLAG.
+
+       VALIDATE-AUTH-NUM-EXIT.
+           EXIT.   
 
        ADD-AUTH.
            move HOLD-AUTH TO AUTH-NUM
