@@ -117,7 +117,9 @@
                  PERFORM P2
                  go to emailauth-exit
                ELSE 
-                 PERFORM P4
+                 IF HOLD-AUTH NOT = SPACE
+                     PERFORM P4
+                 END-IF    
                END-IF
 
            END-IF    
@@ -129,6 +131,7 @@
 
        VALIDATE-AUTH-NUM.
            MOVE EA-AUTH TO HOLD-AUTH
+
            if HOLD-auth(1:2) NOT = "VA"
                GO TO VALIDATE-AUTH-NUM-EXIT
            END-IF
