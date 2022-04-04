@@ -116,10 +116,6 @@
                  PERFORM ADD-AUTH
                  PERFORM P2
                  go to emailauth-exit
-               ELSE 
-                 IF HOLD-AUTH NOT = SPACE
-                     PERFORM P4
-                 END-IF    
                END-IF
 
            END-IF    
