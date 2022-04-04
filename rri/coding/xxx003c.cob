@@ -346,7 +346,7 @@
            END-IF    
 
       * auto code LD lung screen
-           IF (CD-PROC1 = "5232")
+           IF (CD-PROC1 = "5232" OR "5233")
                DISPLAY "LD lung screen -> auto coded"
                display " "
                MOVE "Z87891 " TO CD-DIAG
