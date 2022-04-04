@@ -59,6 +59,7 @@
        WORKING-STORAGE SECTION.
        01  AUTHFILE-STAT PIC XX.
        01  AUTHFILE-BACK PIC X(91).
+       01  HOLD-AUTH PIC X(20).
       *
        PROCEDURE DIVISION.
        P0.
@@ -81,6 +82,7 @@
              GO TO P1
            END-READ
 
+           MOVE SPACE TO HOLD-AUTH
            move g-acct to ea-medrec
            start emailauthfile key not > ea-medrec
              invalid
@@ -105,11 +107,8 @@
       *     display EMAILAUTHFILE01
 
            IF EA-DATE-E = CD-DATE-T
-               if ea-auth(1:2) NOT = "VA"
-                  PERFORM P4
-                  go to emailauth-1
-               END-IF    
-               move ea-auth TO AUTH-NUM
+               PERFORM VALIDATE-AUTH-NUM
+               move HOLD-AUTH TO AUTH-NUM
                MOVE EA-DATE-E TO AUTH-DATE-E
                MOVE AUTHFILE01 TO AUTHFILE-BACK
       *         PERFORM WRITE-AU THRU WRITE-AU-EXIT 
@@ -123,6 +122,21 @@
 
        emailauth-exit.
            exit.
+
+       VALIDATE-AUTH-NUM.
+           if ea-auth(1:2) NOT = "VA"
+               PERFORM P4
+               go to emailauth-1
+           END-IF
+           
+           if ea-auth(1:3) = SPACE
+               STRING EA-AUTH(1:2) EA-AUTH(4:13) INTO HOLD-AUTH
+           END-IF    
+           
+           IF HOLD-AUTH(3:10) NOT NUMERIC
+               PERFORM P4
+               go to emailauth-1
+           END-IF.
 
        WRITE-AU.
            CLOSE AUTHFILE
