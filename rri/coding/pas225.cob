@@ -65,8 +65,8 @@
       *
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT GARFILE EMAILAUTHFILE AUTHFILE.
-           OPEN I-O CHARFILE.
+           OPEN INPUT EMAILAUTHFILE AUTHFILE.
+           OPEN I-O CHARFILE GARFILE.
            OPEN OUTPUT FILEOUT.
            MOVE SPACE TO CHARFILE-KEY.
 
@@ -173,8 +173,14 @@
            OPEN INPUT AUTHFILE.
 
        WRITE-AU-EXIT.
-           EXIT.             
+           EXIT.   
 
+       CHANGE-TO-79.
+           MOVE "079" TO G-PRINS
+           REWRITE GARFILE01.
+           MOVE "079" TO CD-PAYCODE
+           REWRITE CHARFILE01.
+                     
        P2. 
            MOVE SPACE TO FILEOUT01
            STRING "VACCN AUTH " AUTH-NUM " ADDED FOR " CD-KEY8 " ON " 
@@ -183,6 +189,7 @@
            WRITE FILEOUT01.
 
        P3. 
+           PERFORM CHANGE-TO-79
            MOVE SPACE TO FILEOUT01
            STRING CHARFILE-KEY " NO VACCN AUTH ON " 
              CD-DATE-T " FOR THE " CD-PROC1
@@ -190,6 +197,7 @@
            WRITE FILEOUT01.
 
        P4. 
+           PERFORM CHANGE-TO-79
            MOVE SPACE TO FILEOUT01
            STRING CHARFILE-KEY " DATE MATCHES BUT NOT A GOOD AUTH, " 
                HOLD-AUTH ", ON " CD-DATE-T " FOR THE " CD-PROC1
