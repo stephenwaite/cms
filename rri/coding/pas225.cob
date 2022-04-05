@@ -161,14 +161,16 @@
            OPEN I-O AUTHFILE
            MOVE AUTHFILE-BACK TO AUTHFILE01
            WRITE AUTHFILE01 INVALID
-                DISPLAY "RECORD NOT ADDED AT THIS TIME"
-                DISPLAY AUTHFILE-STAT
+                MOVE SPACE TO FILEOUT01
+                STRING AUTHFILE01 " RECORD NOT ADDED AT THIS TIME " 
+                    AUTHFILE-STAT " STAT"
+                    INTO FILEOUT01 DELIMITED BY SIZE
+                WRITE FILEOUT01    
                 CLOSE AUTHFILE
                 OPEN INPUT AUTHFILE
                 GO TO WRITE-AU-EXIT
            END-WRITE
            
-           DISPLAY "RECORD ADDED".
            CLOSE AUTHFILE
            OPEN INPUT AUTHFILE.
 
@@ -177,7 +179,10 @@
 
        CHANGE-TO-79.
            MOVE "079" TO G-PRINS
+           DISPLAY GARFILE01
+           ACCEPT OMITTED
            REWRITE GARFILE01.
+           
            MOVE "079" TO CD-PAYCODE
            REWRITE CHARFILE01.
                      
