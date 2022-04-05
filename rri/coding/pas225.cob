@@ -81,6 +81,9 @@
            MOVE CD-KEY8 TO G-GARNO
            READ GARFILE WITH LOCK
              INVALID
+               DISPLAY "COULDN'T READ GARFILE WITH LOCK"
+                   ACCEPT OMITTED
+                   
                GO TO P1
            END-READ
 
