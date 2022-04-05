@@ -79,9 +79,9 @@
            IF CD-PAYCODE NOT = "225" GO TO P1.
 
            MOVE CD-KEY8 TO G-GARNO
-           READ GARFILE INVALID
-             PERFORM P3         
-             GO TO P1
+           READ GARFILE WITH LOCK
+             INVALID
+               GO TO P1
            END-READ
 
            MOVE SPACE TO HOLD-AUTH
