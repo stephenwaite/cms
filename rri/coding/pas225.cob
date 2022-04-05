@@ -163,8 +163,8 @@
            WRITE AUTHFILE01 INVALID
                 MOVE SPACE TO FILEOUT01
                 STRING AUTHFILE01 " RECORD NOT ADDED AT THIS TIME " 
-                    AUTHFILE-STAT " STAT"
-                    INTO FILEOUT01 DELIMITED BY SIZE
+                    AUTHFILE-STAT " STAT" DELIMITED BY SIZE
+                    INTO FILEOUT01 
                 WRITE FILEOUT01    
                 CLOSE AUTHFILE
                 OPEN INPUT AUTHFILE
