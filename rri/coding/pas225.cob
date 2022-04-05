@@ -81,9 +81,10 @@
            MOVE CD-KEY8 TO G-GARNO
            READ GARFILE WITH LOCK
              INVALID
-               DISPLAY "COULDN'T READ GARFILE WITH LOCK"
-                   ACCEPT OMITTED
-                   
+               move space to fileout01
+               string "COULDN'T READ GARFILE WITH LOCK " cd-key8
+               delimited by size into FILEOUT01
+               write fileout01
                GO TO P1
            END-READ
 
@@ -109,8 +110,6 @@
            if ea-medrec not = g-acct
              PERFORM P3
              go to emailauth-exit.
-
-      *     display EMAILAUTHFILE01
 
            IF EA-DATE-E = CD-DATE-T
                PERFORM VALIDATE-AUTH-NUM THRU VALIDATE-AUTH-NUM-EXIT
@@ -181,9 +180,7 @@
            EXIT.   
 
        CHANGE-TO-79.
-           MOVE "079" TO G-PRINS
-           DISPLAY GARFILE01
-           ACCEPT OMITTED
+           MOVE "079" TO G-PRINS           
            REWRITE GARFILE01.
            
            MOVE "079" TO CD-PAYCODE
