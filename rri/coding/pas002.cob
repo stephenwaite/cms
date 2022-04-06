@@ -41,7 +41,7 @@
        DATA DIVISION.
        FILE SECTION.
 
-       FD  CHARFILE
+       FD  CHARFILE.
            copy charfile.cpy in "c:\users\sid\cms\copylib\rri".
        
        FD  FILEOUT.
