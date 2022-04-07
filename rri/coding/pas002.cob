@@ -85,6 +85,10 @@
       *    doesn't require prior approval
            IF G-PRIPOL(1:3) = "FVT" GO TO P1.
 
+           DISPLAY CHARFILE01
+           ACCEPT OMITTED
+           
+
       *    02 pa guide attachment III
       *    ct colonography
            IF CD-PROC1 = "74261" OR "74262" OR "74263"
