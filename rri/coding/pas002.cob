@@ -148,6 +148,9 @@
            GO TO P1.
 
        find-auth.
+           display cd-key8 " " cd-proc1 " " cd-paycode
+           accept omitted
+           
            MOVE CD-KEY8 TO G-GARNO
            READ GARFILE WITH LOCK
              INVALID
@@ -216,9 +219,9 @@
            move HOLD-AUTH(1:9) TO AUTH-NUM
            MOVE EA-DATE-E TO AUTH-DATE-E
            MOVE AUTHFILE01 TO AUTHFILE-BACK
-           PERFORM WRITE-AU THRU WRITE-AU-EXIT 
-           MOVE 1 TO CD-AUTH
-           REWRITE CHARFILE01.
+      *     PERFORM WRITE-AU THRU WRITE-AU-EXIT 
+           MOVE 1 TO CD-AUTH.
+      *     REWRITE CHARFILE01.
 
        WRITE-AU.
            CLOSE AUTHFILE
