@@ -62,6 +62,7 @@
        01  HOLD-AUTH PIC X(20).
        01  VALIDATE-FLAG PIC 9.
        01  HOLD-AUTH-PIC9 PIC 9(10).    
+       01  HOLD-PROC PIC X(5).
 
        
        PROCEDURE DIVISION.
@@ -85,17 +86,17 @@
       *    doesn't require prior approval
            IF G-PRIPOL(1:3) = "FVT" GO TO P1.
 
-           DISPLAY CHARFILE01
-           ACCEPT OMITTED
-           
 
       *    02 pa guide attachment III
       *    ct colonography
-           IF CD-PROC1 = "74261" OR "74262" OR "74263"
+
+           MOVE CD-PROC1(1:5) TO HOLD-PROC
+
+           IF HOLD-PROC = "74261" OR "74262" OR "74263"
              GO TO find-auth.
 
       *    02 CT Scans       
-           IF CD-PROC1 = "70450" OR "70460" OR "70470" OR "70480" OR
+           IF HOLD-PROC = "70450" OR "70460" OR "70470" OR "70480" OR
              "70481" OR "70482" OR "70486" OR "70487" OR "70488" OR 
              "70490" OR "70491" OR "70492" OR "71250" OR "71260" OR 
              "71270" OR "71271" OR "72125" OR "72126" OR "72127" OR 
@@ -107,7 +108,7 @@
              GO TO find-auth.  
 
       *    Magnetic Resonance Imaging (MRI)     
-           IF CD-PROC1 = "70336" OR "70540" OR "70542" OR "70543" OR
+           IF HOLD-PROC = "70336" OR "70540" OR "70542" OR "70543" OR
              "70551" OR "70552" OR "70553" OR "70554" OR "70555" OR
              "71550" OR "71551" OR "71552" OR "72141" OR "72142" OR 
              "72146" OR "72147" OR "72148" OR "72149" OR "72156" OR
@@ -121,30 +122,30 @@
              GO TO find-auth.
              
       *    Positron Emission Tomography (PET) Scans
-           IF CD-PROC1 = "78459" OR "78491" OR "78429" OR "78430" OR
+           IF HOLD-PROC = "78459" OR "78491" OR "78429" OR "78430" OR
              "78431" OR "78432" OR "78433" OR "78434" OR "78492" OR 
              "78608" OR "78609" OR "78811" OR "78812" OR "78813" OR 
              "78814" OR "78815" OR "78816" 
              GO TO find-auth.  
                
       *    Single-Photon Emission Computed Tomography
-           IF CD-PROC1 = "78803" OR "78830" OR "78831" OR "78832"
+           IF HOLD-PROC = "78803" OR "78830" OR "78831" OR "78832"
              GO TO find-auth.
 
       *    Attachment V, BCBSVT members
       *    Cardiac blood pool imaging
-           IF CD-PROC1 = "78472" OR "78473" OR "78481" OR "78483" OR
+           IF HOLD-PROC = "78472" OR "78473" OR "78481" OR "78483" OR
              "78494"
              GO TO find-auth.
 
       *    CTA Scans not in attachment III
-           IF CD-PROC1 = "70496" OR "70498" OR "71275" OR "72191" OR
+           IF HOLD-PROC = "70496" OR "70498" OR "71275" OR "72191" OR
              "73206" OR "73706" OR "74174" OR "74175" OR "75574" OR
              "75635"
              GO TO find-auth.  
 
       *    MRA Scans not in attachment III
-           IF CD-PROC1 = "70544" OR "70545" OR "70546" OR "70547" OR
+           IF HOLD-PROC = "70544" OR "70545" OR "70546" OR "70547" OR
              "70548" OR "70549" OR "71555" OR "72159" OR "72198" OR
              "73225" OR "73725" OR "74185"
              GO TO find-auth.
@@ -152,9 +153,6 @@
            GO TO P1.
 
        find-auth.
-           display cd-key8 " " cd-proc1 " " cd-paycode
-           accept omitted
-           
            MOVE CD-KEY8 TO G-GARNO
            READ GARFILE WITH LOCK
              INVALID
