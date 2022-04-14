@@ -787,6 +787,7 @@
            IF (PERM-ID NOT = ID-NPI1)
                AND (PERM-ID NOT = ID-NPI)
                AND (REF-2 NOT =  PF-1)
+               AND (PERM-ID NOT = PF-1)
                GO TO P00
            END-IF
 
