@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. pas002.
+       PROGRAM-ID. pas225.
        AUTHOR. S WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -20,7 +20,7 @@
            SELECT GARFILE ASSIGN TO  "S40" ORGANIZATION IS INDEXED
                ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
                ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
-               LOCK MODE MANUAL.               
+               LOCK MODE MANUAL.
 
            SELECT EMAILAUTHFILE ASSIGN TO "S45"
                ORGANIZATION IS INDEXED
@@ -36,14 +36,14 @@
            SELECT AUTHFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
                ACCESS IS DYNAMIC RECORD KEY IS AUTH-KEY
                LOCK MODE MANUAL
-               STATUS IS AUTHFILE-STAT.
+               STATUS IS AUTHFILE-STAT.               
 
        DATA DIVISION.
        FILE SECTION.
 
        FD  CHARFILE.
            copy charfile.cpy in "c:\users\sid\cms\copylib\rri".
-       
+
        FD  FILEOUT.
        01  FILEOUT01 PIC X(189). 
 
@@ -61,10 +61,8 @@
        01  AUTHFILE-BACK PIC X(91).
        01  HOLD-AUTH PIC X(20).
        01  VALIDATE-FLAG PIC 9.
-       01  HOLD-AUTH-PIC9 PIC 9(10).    
-       01  HOLD-PROC PIC X(5).
-
-       
+       01  HOLD-AUTH-PIC9 PIC 9(10).
+      *
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT EMAILAUTHFILE AUTHFILE.
@@ -78,81 +76,8 @@
                GO TO P99
            END-READ
 
-           IF CD-PAYCODE NOT = "002" GO TO P1.
+           IF CD-PAYCODE NOT = "225" GO TO P1.
 
-           IF CD-PLACE NOT = "5" GO TO P1.
-
-      *    The State of Vermont Total Choice Plan (prefix FVT)
-      *    doesn't require prior approval
-           IF G-PRIPOL(1:3) = "FVT" GO TO P1.
-
-
-      *    02 pa guide attachment III
-      *    ct colonography
-
-           MOVE CD-PROC1(1:5) TO HOLD-PROC
-
-           IF HOLD-PROC = "74261" OR "74262" OR "74263"
-             GO TO find-auth.
-
-      *    02 CT Scans       
-           IF HOLD-PROC = "70450" OR "70460" OR "70470" OR "70480" OR
-             "70481" OR "70482" OR "70486" OR "70487" OR "70488" OR 
-             "70490" OR "70491" OR "70492" OR "71250" OR "71260" OR 
-             "71270" OR "71271" OR "72125" OR "72126" OR "72127" OR 
-             "72128" OR "72129" OR "72130" OR "72131" OR "72132" OR 
-             "72133" OR "72192" OR "72193" OR "72194" OR "73200" OR
-             "73201" OR "73202" OR "73700" OR "73701" OR "73702" OR 
-             "74150" OR "74160" OR "74170" OR "74176" OR "74177" OR
-             "74178" OR "75571" OR "75572" OR "75573" OR "77078"
-             GO TO find-auth.  
-
-      *    Magnetic Resonance Imaging (MRI)     
-           IF HOLD-PROC = "70336" OR "70540" OR "70542" OR "70543" OR
-             "70551" OR "70552" OR "70553" OR "70554" OR "70555" OR
-             "71550" OR "71551" OR "71552" OR "72141" OR "72142" OR 
-             "72146" OR "72147" OR "72148" OR "72149" OR "72156" OR
-             "72157" OR "72158" OR "72195" OR "72196" OR "72197" OR
-             "73218" OR "73219" OR "73220" OR "73221" OR "73222" OR
-             "73223" OR "73718" OR "73719" OR "73720" OR "73721" OR
-             "73722" OR "73723" OR "74181" OR "74182" OR "74183" OR
-             "74712" OR "74713" OR "75557" OR "75559" OR "75561" OR
-             "75563" OR "75565" OR "76390" OR "76391" OR "77046" OR
-             "77047" OR "77048" OR "77049" OR "77084" 
-             GO TO find-auth.
-             
-      *    Positron Emission Tomography (PET) Scans
-           IF HOLD-PROC = "78459" OR "78491" OR "78429" OR "78430" OR
-             "78431" OR "78432" OR "78433" OR "78434" OR "78492" OR 
-             "78608" OR "78609" OR "78811" OR "78812" OR "78813" OR 
-             "78814" OR "78815" OR "78816" 
-             GO TO find-auth.  
-               
-      *    Single-Photon Emission Computed Tomography
-           IF HOLD-PROC = "78803" OR "78830" OR "78831" OR "78832"
-             GO TO find-auth.
-
-      *    Attachment V, BCBSVT members
-      *    Cardiac blood pool imaging
-           IF HOLD-PROC = "78472" OR "78473" OR "78481" OR "78483" OR
-             "78494"
-             GO TO find-auth.
-
-      *    CTA Scans not in attachment III
-           IF HOLD-PROC = "70496" OR "70498" OR "71275" OR "72191" OR
-             "73206" OR "73706" OR "74174" OR "74175" OR "75574" OR
-             "75635"
-             GO TO find-auth.  
-
-      *    MRA Scans not in attachment III
-           IF HOLD-PROC = "70544" OR "70545" OR "70546" OR "70547" OR
-             "70548" OR "70549" OR "71555" OR "72159" OR "72198" OR
-             "73225" OR "73725" OR "74185"
-             GO TO find-auth.
-
-           GO TO P1.
-
-       find-auth.
            MOVE CD-KEY8 TO G-GARNO
            READ GARFILE WITH LOCK
              INVALID
@@ -204,8 +129,17 @@
 
        VALIDATE-AUTH-NUM.
            MOVE EA-AUTH TO HOLD-AUTH
+
+           if HOLD-auth(1:2) NOT = "VA"
+               GO TO VALIDATE-AUTH-NUM-EXIT
+           END-IF
            
-           MOVE HOLD-AUTH(1:9) TO HOLD-AUTH-PIC9
+           if HOLD-auth(3:1) = SPACE
+               STRING EA-AUTH(1:2) EA-AUTH(4:13) 
+               delimited by size INTO HOLD-AUTH
+           END-IF    
+           
+           MOVE HOLD-AUTH(3:10) TO HOLD-AUTH-PIC9
 
            IF HOLD-AUTH-PIC9 NOT NUMERIC
                GO TO VALIDATE-AUTH-NUM-EXIT               
@@ -218,7 +152,7 @@
 
        ADD-AUTH.
            STRING CD-KEY8 CD-CLAIM DELIMITED BY SIZE INTO AUTH-KEY
-           move HOLD-AUTH(1:9) TO AUTH-NUM
+           move HOLD-AUTH TO AUTH-NUM
            MOVE EA-DATE-E TO AUTH-DATE-E
            MOVE AUTHFILE01 TO AUTHFILE-BACK
            PERFORM WRITE-AU THRU WRITE-AU-EXIT 
@@ -246,21 +180,36 @@
        WRITE-AU-EXIT.
            EXIT.   
 
+       CHANGE-TO-79.
+           MOVE "079" TO G-PRINS           
+           REWRITE GARFILE01.
+           
+           MOVE "079" TO CD-PAYCODE
+           REWRITE CHARFILE01.
+                     
        P2. 
            MOVE SPACE TO FILEOUT01
-           STRING "BCBSVT AUTH " AUTH-NUM " ADDED FOR " CD-KEY8 " ON " 
+           STRING "VACCN AUTH " AUTH-NUM " ADDED FOR " CD-KEY8 " ON " 
              CD-DATE-T " FOR THE " CD-PROC1
              DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01.
 
        P3. 
+           PERFORM CHANGE-TO-79
            MOVE SPACE TO FILEOUT01
-           STRING CHARFILE-KEY " NO BCBSVT AUTH ON " 
+           STRING CHARFILE-KEY " NO VACCN AUTH ON " 
              CD-DATE-T " FOR THE " CD-PROC1
              DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01.
 
+       P4. 
+           PERFORM CHANGE-TO-79
+           MOVE SPACE TO FILEOUT01
+           STRING CHARFILE-KEY " DATE MATCHES BUT NOT A GOOD AUTH, " 
+               HOLD-AUTH ", ON " CD-DATE-T " FOR THE " CD-PROC1
+             DELIMITED BY SIZE INTO FILEOUT01
+           WRITE FILEOUT01.    
+
        P99.
            CLOSE CHARFILE GARFILE EMAILAUTHFILE AUTHFILE FILEOUT. 
            STOP RUN.
-

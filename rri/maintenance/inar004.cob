@@ -4104,10 +4104,13 @@
            CLOSE GARFILE
            OPEN I-O GARFILE
            MOVE ALF-8 TO G-GARNO
-           READ GARFILE WITH LOCK INVALID DISPLAY "INVALID" 
-           CLOSE GARFILE
-           OPEN INPUT GARFILE
-           GO TO  1000-ACTION.
+           READ GARFILE WITH LOCK 
+             INVALID 
+             DISPLAY "INVALID" 
+             CLOSE GARFILE
+             OPEN INPUT GARFILE
+             GO TO  1000-ACTION.
+           
            IF GARFILE-STAT NOT = "00"
              DISPLAY "RECORD LOCKED. TRY AGAIN LATER"
              CLOSE GARFILE
