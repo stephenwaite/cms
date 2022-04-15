@@ -3000,7 +3000,7 @@
            ADD 1 TO Y
            IF Y > 13 ACCEPT ANS
            MOVE 0 TO Y.
-           DISPLAY CMNT GO TO CM-3.
+           DISPLAY CMNT CMNT2 GO TO CM-3.
        CM-4.
            EXIT.
        FA-1.
