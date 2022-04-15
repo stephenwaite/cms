@@ -4567,7 +4567,8 @@
            DISPLAY EA-NAME  " " EA-DATE-E(5:2) "/" EA-DATE-E (7:2)
                             "/" EA-DATE-E(1:4)
            DISPLAY EA-MEDREC
-           DISPLAY EA-SSN(1:3) "-" EA-SSN(4:2) "-" EA-SSN(6:4)
+      *     DISPLAY EA-SSN(1:3) "-" EA-SSN(4:2) "-" EA-SSN(6:4)
+           DISPLAY EA-SSN
            DISPLAY EA-EMAIL
            ADD 1 TO X
            IF X > 5
