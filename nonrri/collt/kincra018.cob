@@ -363,7 +363,7 @@
            MOVE "A" TO CC-ASSIGN CC-NEIC-ASSIGN
            MOVE "1" TO CC-COLLT
            PERFORM P3 THRU P4.
-           IF CLAIM-TOT = 0 GO TO P1.
+           IF CLAIM-TOT <= 0 GO TO P1.
       *     REWRITE CHARCUR01.
            ADD CLAIM-TOT TO TOT-PLACED.
            ADD CLAIM-CHARGE TO TOT-CHARGES
