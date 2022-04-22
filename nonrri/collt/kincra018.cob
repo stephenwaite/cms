@@ -362,6 +362,7 @@
            MOVE "2" TO CC-REC-STAT
            MOVE "A" TO CC-ASSIGN CC-NEIC-ASSIGN
            MOVE "1" TO CC-COLLT
+           MOVE 0 TO CLAIM-ADJ CLAIM-PAY
            PERFORM P3 THRU P4.
            IF CLAIM-TOT <= 0 GO TO P1.
       *     REWRITE CHARCUR01.
