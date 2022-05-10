@@ -1164,11 +1164,11 @@
                 OR (CAS-1 = "PI" AND CAS-2 = "97   ")
                 OR (CAS-1 = "PI" AND CAS-2 = "204  ")
                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
-                OR (CAS-1 = "PR" AND CAS-2 = "31   ")
+                OR (CAS-1 = "PR" AND CAS-2 = "32   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "95   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "96   ")
                 OR (CAS-1 = "CO" 
-                  AND CAS-2 = "45   " AND CAS-5 = "B10   ")
+                  AND CAS-2 = "45   " AND CAS-5 = "B10  ")
                 MOVE 1 TO FLAG
                 MOVE CAS-CNTR TO Z
                 GO TO DUMP50-EXIT

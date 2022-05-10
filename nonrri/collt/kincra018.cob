@@ -1,10 +1,5 @@
-      * @package cms
-      * @link    http://www.cmsvt.com
-      * @author  s waite <cmswest@sover.net>
-      * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
-      * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. kin018.
+       PROGRAM-ID. kincra018.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -12,7 +7,6 @@
            
            SELECT GARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC  RECORD KEY IS G-GARNO
-           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
            LOCK MODE MANUAL.
 
            SELECT CHARCUR ASSIGN TO "S35" ORGANIZATION IS INDEXED
@@ -117,9 +111,6 @@
            02 G-BILLCYCLE PIC X.
            02 G-DELETE PIC X.
            02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
        
        FD  FILEIN.
        01  FILEIN01.
@@ -130,7 +121,7 @@
            02 FI-CLAIM PIC X(6).
            02 FI-SERVICE PIC X.
            02 FI-DIAG PIC X(7).
-           02 FI-PROC PIC X(11).
+           02 FI-PROC PIC X(7).
            02 FI-MOD2 PIC XX.
            02 FI-MOD3 PIC XX.
            02 FI-MOD4 PIC XX.
@@ -191,14 +182,14 @@
            02 CC-CLAIM PIC X(6).
            02 CC-SERVICE PIC X.
            02 CC-DIAG PIC X(7).
-           02 CC-PROC PIC X(11).
+           02 CC-PROC PIC X(7).
            02 CC-MOD2 PIC XX.
            02 CC-MOD3 PIC XX.
            02 CC-MOD4 PIC XX.
            02 CC-AMOUNT PIC S9(4)V99.
            02 CC-DOCR PIC X(3).
            02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC 999.
+           02 CC-PAYCODE PIC XXX.
            02 CC-STUD PIC X.
            02 CC-WORK PIC XX.
            02 CC-DAT1 PIC X(8).
@@ -206,7 +197,7 @@
            02 CC-ACT PIC X.
            02 CC-SORCREF PIC X.
            02 CC-COLLT PIC X.
-           02 CC-AGE PIC X.
+           02 CC-AUTH PIC X.
            02 CC-PAPER PIC X.
            02 CC-PLACE PIC X.
            02 CC-EPSDT PIC X.
@@ -302,7 +293,7 @@
            02 TAB-Y37 PIC X VALUE ",".
            02 FO-GARDOB PIC X(10).
            02 TAB-Y38 PIC X VALUE ",".
-           02 FO-SERVICE PIC X(9) VALUE "RADIOLOGY".
+           02 FO-SERVICE PIC X(9) VALUE "DR CRANE ".
            02 TAB-Y39 PIC X VALUE ",".
            02 FO-MEDREC PIC X(8).
            02 TAB-Y40 PIC X VALUE ",".
@@ -332,7 +323,7 @@
        01  FLAG PIC 9.
        01  LOW-DATE PIC X(8).
        01  HIGH-DATE PIC X(8).
-       01  TOT-PLACED  PIC 9(4)V99.
+       01  TOT-PLACED PIC 9(4)V99.
        01  TOT-CHARGES PIC 9(4)V99.
        01  TOT-PAY    PIC 9(4)V99.
        01  TOT-ADJ     PIC 9(4)V99.
@@ -348,102 +339,64 @@
        01  NUM3 PIC 999.
 
        PROCEDURE DIVISION.
-
        P0.
-           OPEN INPUT PAYCUR FILEIN GARFILE INSFILE.
+           OPEN INPUT  PAYCUR FILEIN GARFILE INSFILE.
            OPEN OUTPUT FILEOUT1.
            OPEN I-O CHARCUR.
            MOVE 0 TO TOT-PLACED TOT-CHARGES TOT-PAY TOT-ADJ CLAIM-ADJ
              CLAIM-PAY.
            ACCEPT DATE-X FROM CENTURY-DATE.
-           READ FILEIN AT END
-             GO TO P99
-           END-READ    
+           READ FILEIN AT END GO TO P99.
            MOVE FI-DATE-T TO LASTDATE
-           MOVE FI-KEY8 TO HOLD8
-           GO TO P1-1.
-
+           MOVE FI-KEY8 TO HOLD8 GO TO P1-1.
        P1.
-           READ FILEIN AT END
-             MOVE 1 TO ENDFLAG
-             GO TO P5
-           END-READ
-
-           IF FI-KEY8 NOT = HOLD8
-             GO TO P5
-           END-IF.
-
+           READ FILEIN AT END MOVE 1 TO ENDFLAG GO TO P5.
+           IF FI-KEY8 NOT = HOLD8 GO TO P5.
        P1-1.
-           IF FI-DATE-T > LASTDATE
-             MOVE FI-DATE-T TO LASTDATE
-           END-IF
-
+           IF FI-DATE-T > LASTDATE MOVE FI-DATE-T TO LASTDATE.
            MOVE FILEIN-KEY TO CHARCUR-KEY
-           READ CHARCUR WITH LOCK
-             INVALID 
-               GO TO P1
-           END-READ    
-
+           READ CHARCUR WITH LOCK INVALID GO TO P1.
       *     IF CC-COLLT = "1" GO TO P1.
-
            MOVE "018" TO CC-PAYCODE
            MOVE DATE-X TO CC-DATE-A
            MOVE "2" TO CC-REC-STAT
            MOVE "A" TO CC-ASSIGN CC-NEIC-ASSIGN
            MOVE "1" TO CC-COLLT
-       
            MOVE 0 TO CLAIM-ADJ CLAIM-PAY
-           PERFORM P3 THRU P4.       
-
-           IF CLAIM-TOT <= 0
-             GO TO P1
-           END-IF  
-
+           PERFORM P3 THRU P4.
+           IF CLAIM-TOT <= 0 GO TO P1.
            REWRITE CHARCUR01.
-
-           ADD CLAIM-TOT TO TOT-PLACED
+           ADD CLAIM-TOT TO TOT-PLACED.
            ADD CLAIM-CHARGE TO TOT-CHARGES
            ADD CLAIM-ADJ TO TOT-ADJ
            ADD CLAIM-PAY TO TOT-PAY
            GO TO P1.
-
        P3.
            COMPUTE CLAIM-TOT = CC-AMOUNT
            COMPUTE CLAIM-CHARGE = CLAIM-TOT
            MOVE SPACE TO PC-KEY3
            MOVE CC-KEY8 TO PC-KEY8
-           START PAYCUR KEY NOT < PAYCUR-KEY 
-             INVALID 
-               GO TO P4.
-
+           START PAYCUR KEY NOT < PAYCUR-KEY INVALID GO TO P4.
        P3-1.
-           READ PAYCUR NEXT
-             AT END 
-               GO TO P4.
-
+           READ PAYCUR NEXT AT END GO TO P4.
            IF PC-KEY8 NOT = CC-KEY8 GO TO P4.
-
            IF PC-CLAIM = CC-CLAIM 
-             COMPUTE CLAIM-TOT = CLAIM-TOT + PC-AMOUNT
-             IF PC-DENIAL = "14"
-               COMPUTE CLAIM-ADJ = CLAIM-ADJ - PC-AMOUNT
-             ELSE 
-               COMPUTE CLAIM-PAY = CLAIM-PAY - PC-AMOUNT  
-             END-IF  
+            COMPUTE CLAIM-TOT = CLAIM-TOT + PC-AMOUNT
+            IF PC-DENIAL = "14"
+              COMPUTE CLAIM-ADJ = CLAIM-ADJ - PC-AMOUNT
+            ELSE 
+              COMPUTE CLAIM-PAY = CLAIM-PAY - PC-AMOUNT  
+            END-IF
            END-IF
-           
            GO TO P3-1.
-
        P4.
            EXIT.
-
-       P5.           
+       P5.
            IF TOT-PLACED = 0 AND ENDFLAG = 0
-             MOVE 0 TO TOT-PLACED TOT-CHARGES TOT-PAY TOT-ADJ
-             MOVE "00000000" TO LASTDATE
-             MOVE FI-KEY8 TO HOLD8
-             GO TO P1-1.
-
+           MOVE 0 TO TOT-PLACED TOT-CHARGES TOT-PAY TOT-ADJ
+           MOVE "00000000" TO LASTDATE
+           MOVE FI-KEY8 TO HOLD8
+           GO TO P1-1.
            IF TOT-PLACED = 0 AND ENDFLAG = 1 GO TO P99.
 
            MOVE HOLD8 TO G-GARNO
@@ -474,7 +427,6 @@
            MOVE "*" TO FO-PATSTAT.
            MOVE G-PRINS TO INS-KEY
            READ INSFILE INVALID CONTINUE.
-
            IF G-PRINS = "001"
              MOVE "NO INSURANCE" TO FO-INSNAME
              MOVE "*" TO FO-POLICY
@@ -482,21 +434,17 @@
              MOVE INS-NAME TO FO-INSNAME
              MOVE G-PRIPOL TO FO-POLICY
            END-IF.
-           
            MOVE G-PRNAME TO FO-GARNAME
            IF FO-GARNAME = SPACE MOVE G-GARNAME TO FO-GARNAME.
-           
            MOVE DATE-X(1:4) TO NUM4-1
            MOVE G-DOB(1:4) TO NUM4-2
            COMPUTE NUM3 = NUM4-1 - NUM4-2
            IF NUM3 > 18 MOVE G-GARNAME TO FO-GARNAME.
-           
            MOVE SPACE TO FO-GARLAST FO-GARFIRST
            UNSTRING G-PRNAME DELIMITED BY ";" INTO
-             FO-GARLAST FO-GARFIRST.
+            FO-GARLAST FO-GARFIRST.
            IF FO-GARLAST = SPACE MOVE FO-NAMEL TO FO-GARLAST.
            IF FO-GARFIRST = SPACE MOVE FO-NAMEF TO FO-GARFIRST.
-           
            MOVE FO-STREET1 TO FO-GARSTREET1
            MOVE FO-STREET2 TO FO-GARSTREET2
            MOVE FO-CITY TO FO-GARCITY
@@ -504,36 +452,34 @@
            MOVE FO-ZIP TO FO-GARZIP
            IF G-PRINS = "001"
            MOVE "*" TO FO-INSNAME FO-INSSTREET FO-INSCITY FO-INSSTATE
-             FO-INSZIP
+                           FO-INSZIP
            ELSE
-             MOVE INS-STREET TO FO-INSSTREET
-             MOVE INS-CITY TO FO-INSCITY
-             MOVE INS-STATE TO FO-INSSTATE
-             MOVE INS-ZIP TO FO-INSZIP
+           MOVE INS-STREET TO FO-INSSTREET
+           MOVE INS-CITY TO FO-INSCITY
+           MOVE INS-STATE TO FO-INSSTATE
+           MOVE INS-ZIP TO FO-INSZIP
            END-IF.
            MOVE "*" TO FO-FINCLASS FO-GARSS.
            
            MOVE FO-PHONE TO FO-GARPHONE.
-           MOVE "RADIOLOGY" TO FO-SERVICE.
-           MOVE G-ACCT TO FO-MEDREC.
+           MOVE "DR CRANE " TO FO-SERVICE.
+           MOVE G-GARNO TO FO-MEDREC.
            MOVE TOT-CHARGES TO FO-CHG 
            MOVE TOT-PAY TO FO-PAY 
            MOVE TOT-ADJ TO FO-ADJ
            MOVE "*" TO FO-INT.
+
            MOVE TOT-PLACED TO FO-BAL.
            MOVE LASTDATE TO TEST-DATE
            STRING T-MM "/" T-DD "/" T-YY DELIMITED BY SIZE
              INTO FO-DISCHR
            WRITE FILEOUT101 FROM FILEOUT01
-           
            MOVE 0 TO TOT-PLACED TOT-CHARGES TOT-PAY TOT-ADJ CLAIM-ADJ
-             CLAIM-PAY
-             
+<              CLAIM-PAY
            MOVE "00000000" TO LASTDATE
            MOVE FI-KEY8 TO HOLD8
-
            IF ENDFLAG = 0 GO TO P1-1.
 
-       P99.
+       P99. 
            CLOSE CHARCUR PAYCUR FILEOUT1. 
            STOP RUN.

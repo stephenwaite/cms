@@ -91,7 +91,8 @@
                GO TO P99
            END-READ
             
-           IF NOT (CD-PROC0 = "1235" OR "1316" or "7356")
+      *    also adding problematic cxrs that come over with laterality
+           IF NOT (CD-PROC0 = "1235" OR "1316" or "7356" or "0151")
                GO TO P1
            END-IF
                    
