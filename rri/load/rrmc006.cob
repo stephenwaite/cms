@@ -403,7 +403,9 @@
       * col 141     
            02 R3-OBSERV PIC X(5).
            02 FILLER PIC X(35).
+      * col 181     
            02 R3-LOCO PIC X(4).
+      * col 185     
 
        01  NAME-TEST PIC X(25).
        01  NAME-LAST PIC X(24).
