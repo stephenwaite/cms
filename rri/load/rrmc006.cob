@@ -1763,6 +1763,7 @@
            
            MOVE R3-CLINICAL TO C-CLINICAL
            MOVE R2-DIAG TO C-ADMIT-DIAG
+           MOVE R3-ACCESSION TO C-ACCESSION
            MOVE R3-CPT TO C-CPT
            MOVE R3-MOD1 TO C-MOD2
            MOVE R3-MOD2 TO C-MOD3
