@@ -31,7 +31,7 @@
        FD  ORDFILE.
            copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
 
-       FD ORDFILEBK
+       FD ORDFILEBK.
            copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
 
        WORKING-STORAGE SECTION.
