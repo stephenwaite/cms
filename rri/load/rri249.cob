@@ -28,24 +28,8 @@
        FD  FILEOUT.
        01 FILEOUT01 PIC X(8).
 
-       FD ORDFILE
-           DATA RECORD IS ORDFILE01.
-       01 ORDFILE01.
-           02 ORDNO.
-             03 ORD8 PIC X(8).
-             03 ORD3 PIC XXX.
-           02 C-PROC1 PIC X(4).
-           02 C-PROC2 PIC X.
-           02 C-REF PIC XXX.
-           02 C-IOPAT PIC X.
-           02 C-DATE-A PIC X(8).
-           02 C-DATE-T PIC X(8).
-           02 C-DATE-ADMIT PIC X(8).
-           02 C-ORDER PIC XXXX.
-           02 C-CLINICAL PIC X(40).
-           02 C-ADMIT-DIAG PIC X(30).
-           02 C-DATE-E PIC X(8).
-           02 C-CPT PIC X(5).
+       FD  ORDFILE.
+           copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
 
        FD ORDFILEBK
            DATA RECORD IS ORDFILEBK01.
