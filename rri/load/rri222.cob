@@ -166,9 +166,9 @@
        P2-1.
            ADD 1 TO X 
            MOVE C-ORDER TO ORD(X)
-           MOVE C-CHARGE(1:4) TO CHARGE1(X) 
+           MOVE C-PROC TO CHARGE1(X) 
            MOVE C-DATE-T TO DATE-T(X)
-           MOVE C-CHARGE(5:1) TO CHARGE2(X)
+           MOVE C-IND TO CHARGE2(X)
            MOVE ORD3 TO ORD-KEY(X)
            GO TO P2.
            
