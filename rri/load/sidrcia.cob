@@ -158,11 +158,15 @@
            MOVE CD-DOCR TO REF-KEY
            READ REFPHY INVALID MOVE SPACE TO REF-NAME.
            MOVE REF-NAME TO FO-6.
-           IF CD-CLIN1 = "XXXX" MOVE "\/\/" TO CD-CLIN1.
-           MOVE C-CLINICAL TO CLIN
+           IF  CD-CLINICAL(1:4) = "XXXX" 
+             MOVE "\/\/" TO CD-CLINICAL(1:4).
+           MOVE CD-CLINICAL TO CLIN
            MOVE CD-ADMIT-DIAG TO ADMIT-DIAG
-           IF CD-CLIN1 = "\/\/" MOVE G-GARNAME TO SORTDIAG
-           ELSE MOVE SPACE TO SORTDIAG.
+           IF CD-CLINICAL(1:4) = "\/\/" 
+             MOVE G-GARNAME TO SORTDIAG
+           ELSE 
+             MOVE SPACE TO SORTDIAG.
+             
            WRITE FILEOUT01 FROM FILE-OUT01
            GO TO P1.
       
