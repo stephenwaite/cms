@@ -55,4 +55,5 @@
            02 CD-DX6 PIC X(7).
       * 184                
            02 CD-CLINICAL PIC X(40).
-           02 CD-ADMIT-DIAG PIC X(30).
+           02 CD-ADMIT-DIAG PIC X(23).
+           02 CD-ACCESSION PIC X(7).
