@@ -1676,11 +1676,19 @@
            end-if
 
            
-           IF ((REF = "B1T" OR "B51" OR "B7C" OR "D55" OR "D3Z"
-             OR "F4J" OR "F34" OR "G0T" OR "G0A" OR "G36" OR "G4U"
-             OR "H1B" OR "H27" OR "J06" OR "L4Q" OR "M8S" OR "R1D"
-             OR "R2A" OR "SAH" OR "S7O" OR "S91" OR "SAG" OR "S1O"
-             OR "V12" OR "W2I" OR "Z0I") AND
+           IF ((REF = "B1T" OR "B51" OR "B7C" 
+               OR "D55" OR "D3Z"
+               OR "F4J" OR "F34" OR "F2S"
+               OR "G0T" OR "G0A" OR "G36" OR "G4U"
+               OR "H1B" OR "H27" 
+               OR "J06" 
+               OR "L4Q" 
+               OR "M8S" 
+               OR "R1D" OR "R2A" 
+               OR "SAH" OR "S7O" OR "S91" OR "SAG" OR "S1O"
+               OR "V12" 
+               OR "W2I" 
+               OR "Z0I") AND
              C-IOPAT NOT = "E")
              MOVE "E" TO C-IOPAT
              MOVE SPACE TO ERRFILE01
