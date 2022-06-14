@@ -448,6 +448,13 @@
            02 FILLER PIC X VALUE "/".
            02 DD-CC PIC XX.
            02 DD-YY PIC XX.
+       01  DISPLAY-DATE-S.
+           02 T-MM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-DD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
        01  MONTH-TABLE-CONS.
            05  FILLER PIC X(24) VALUE "312931303130313130313031".
        01  MONTH-TABLE REDEFINES MONTH-TABLE-CONS.
@@ -2972,8 +2979,9 @@
       
            IF COMP-MEDREC = G-ACCT
              MOVE COMP-DATE TO TEST-DATE
-             DISPLAY DISPLAY-DATE " " COMP-NAME " " COMP-ADDR1 " " 
-               COMP-ADDR2
+             MOVE CORR TEST-DATE TO DISPLAY-DATE-S
+             DISPLAY DISPLAY-DATE-S " " COMP-NAME " " 
+                COMP-ADDR1 " " COMP-ADDR2
              DISPLAY COMP-CITY " " COMP-STATE " " COMP-ZIP
              GO TO LG-1-1.     
 
