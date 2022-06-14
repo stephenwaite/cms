@@ -68,8 +68,15 @@
            LOCK MODE IS MANUAL
            STATUS IS ADDRFILE-STAT.
 
+           SELECT COMPFILE ASSIGN TO "S235" ORGANIZATION IS INDEXED
+           ACCESS MODE DYNAMIC RECORD KEY IS COMP-KEY
+           LOCK MODE MANUAL.
+
        DATA DIVISION.
        FILE SECTION.
+       FD  COMPFILE.
+           copy compfile.cpy in "c:\users\sid\cms\copylib\rri".
+
        FD  CARRIERFILE.
        01  CARRIERFILE01.
            02 CAR-NAME PIC X(45).

@@ -1088,48 +1088,57 @@
            DISPLAY G-CITY " " G-STATE " " G-ZIP
            DISPLAY G-PHONE
            DISPLAY G-PRINS " " G-PR-ASSIGN " " G-PRIPOL " " 
-           G-PR-GROUP " " G-PR-RELATE " " G-PRNAME
+             G-PR-GROUP " " G-PR-RELATE " " G-PRNAME
            DISPLAY G-SEINS " " G-SE-ASSIGN " " G-SECPOL " " 
-           G-SE-GROUP " "  G-SE-RELATE " " G-SENAME
+             G-SE-GROUP " "  G-SE-RELATE " " G-SENAME
            IF (G-TRINSIND = "1") AND (G-TRINS NOT = "001")
-           DISPLAY G-TRINS " " MPLR-TR-ASSIGN " " MPLR-TRIPOL " " 
-           MPLR-TR-GROUP " " MPLR-TR-RELATE " " MPLR-TR-NAME.
+             DISPLAY G-TRINS " " MPLR-TR-ASSIGN " " MPLR-TRIPOL " " 
+               MPLR-TR-GROUP " " MPLR-TR-RELATE " " MPLR-TR-NAME.
            MOVE G-PR-GROUP TO GAPKEY
-           READ GAPFILE INVALID
-           MOVE SPACE TO GAP-NAME GAP-ADDR GAP-CITY GAP-STATE GAP-ZIP
-           GAP-TYPE.
+           READ GAPFILE 
+             INVALID
+              MOVE SPACE TO GAP-NAME GAP-ADDR GAP-CITY GAP-STATE GAP-ZIP
+              GAP-TYPE.
            MOVE SPACE TO ALF-4
            IF GAP-TYPE = "X" MOVE "CRSS" TO ALF-4.
            IF G-SEINS = "062"
-           DISPLAY ALF-4 " " GAP-NAME " " GAP-ADDR " " GAP-CITY " "
-           GAP-STATE " " GAP-ZIP.
+             DISPLAY ALF-4 " " GAP-NAME " " GAP-ADDR " " GAP-CITY " "
+               GAP-STATE " " GAP-ZIP.
            IF G-TRINSIND = "1" AND MPLR-NAME NOT = SPACE
-           DISPLAY "WORK COMP ADDRESS"
-           DISPLAY MPLR-NAME " " MPLR-STREET " " MPLR-CITY " "
-           MPLR-STATE " " MPLR-ZIP 
-           DISPLAY "CLAIM # = " MPLR-CLAIMNO.
+             DISPLAY "WORK COMP ADDRESS"
+             DISPLAY MPLR-NAME " " MPLR-STREET " " MPLR-CITY " "
+               MPLR-STATE " " MPLR-ZIP 
+             DISPLAY "CLAIM # = " MPLR-CLAIMNO.
            IF G-ADDRCODE NOT = SPACE
-           MOVE G-ADDRCODE TO ADDR-KEY
-           READ ADDRFILE INVALID 
-           DISPLAY G-ADDRCODE
-           NOT INVALID
-           DISPLAY ADDR-KEY " " ADDR-NAME " " ADDR-STREET " " 
-           ADDR-CITY " " ADDR-STATE " " ADDR-ZIP 
-           END-READ
+             MOVE G-ADDRCODE TO ADDR-KEY
+             READ ADDRFILE 
+               INVALID 
+                 DISPLAY G-ADDRCODE
+               NOT INVALID
+                 DISPLAY ADDR-KEY " " ADDR-NAME " " ADDR-STREET " " 
+                   ADDR-CITY " " ADDR-STATE " " ADDR-ZIP 
+             END-READ
            END-IF.
-           GO TO LG-1-2.
-      *     MOVE SPACE TO COMP-KEY
-      *     MOVE G-ACCT TO COMP-MEDREC
-      *     START COMPFILE KEY NOT < COMP-KEY INVALID GO TO LG-1-2.
-      * LG-1-1.
-      *     READ COMPFILE NEXT AT END GO TO LG-1-2.
-      *     IF COMP-MEDREC = G-ACCT
-      *     MOVE COMP-DATE TO TEST-DATE
-      *     MOVE CORR TEST-DATE TO DISPLAY-DATE
-      *     DISPLAY DISPLAY-DATE " " COMP-NAME " " COMP-ADDR1 " " 
-      *     COMP-ADDR2
-      *     DISPLAY COMP-CITY " " COMP-STATE " " COMP-ZIP
-      *     GO TO LG-1-1.
+      *     GO TO LG-1-2.
+           MOVE SPACE TO COMP-KEY
+           MOVE G-ACCT TO COMP-MEDREC
+           START COMPFILE KEY NOT < COMP-KEY 
+             INVALID 
+               GO TO LG-1-2.
+       LG-1-1.
+           READ COMPFILE 
+             NEXT 
+               AT END 
+                 GO TO LG-1-2.
+      
+           IF COMP-MEDREC = G-ACCT
+             MOVE COMP-DATE TO TEST-DATE
+             MOVE CORR TEST-DATE TO DISPLAY-DATE
+             DISPLAY DISPLAY-DATE " " COMP-NAME " " COMP-ADDR1 " " 
+               COMP-ADDR2
+             DISPLAY COMP-CITY " " COMP-STATE " " COMP-ZIP
+             GO TO LG-1-1.
+
        LG-1-2.
            MOVE G-LASTBILL TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
@@ -1143,7 +1152,10 @@
            IF G-INSPEND NOT = 0 MOVE G-INSPEND TO NEF-D
            DISPLAY " CO-PAY =" NEF-D.
            DISPLAY G-PRGRPNAME " /// " G-SEGRPNAME.
-       LG-1-EXIT. EXIT.
+
+       LG-1-EXIT. 
+           EXIT.
+           
        DCOMP.
            MOVE SPACE TO COMP-KEY
            MOVE G-ACCT TO COMP-MEDREC
