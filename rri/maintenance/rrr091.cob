@@ -2977,7 +2977,7 @@
              DISPLAY COMP-CITY " " COMP-STATE " " COMP-ZIP
              GO TO LG-1-1.     
 
-      LG-1-2.     
+       LG-1-2.     
            MOVE LASTBILL TO TEST-DATE-S
            MOVE T-MM OF TEST-DATE-S TO DD-MM
            MOVE T-DD OF TEST-DATE-S TO DD-DD
