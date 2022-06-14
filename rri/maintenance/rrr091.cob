@@ -427,6 +427,7 @@
            05  T-YY          PIC 99.
        01  TEST-DATE.
            05  T-CC            PIC 99.
+           
            05  T-YY            PIC 99.
            05  T-MM            PIC 99.
            05  T-DD            PIC 99.
@@ -548,13 +549,6 @@
        01  ALF20A PIC X(20).
        01  BELL0 USAGE INDEX.
        01  NUM-2 PIC 99.
-       01  DISPLAY-DATE.
-           02 T-MM PIC XX.
-           02 FILLER PIC X VALUE "/".
-           02 T-DD PIC XX.
-           02 FILLER PIC X VALUE "/".
-           02 T-CC PIC XX.
-           02 T-YY PIC XX.
       *
        LINKAGE SECTION.
        01 GARPAT1 PIC 9.
@@ -2978,7 +2972,6 @@
       
            IF COMP-MEDREC = G-ACCT
              MOVE COMP-DATE TO TEST-DATE
-             MOVE CORR TEST-DATE TO DISPLAY-DATE
              DISPLAY DISPLAY-DATE " " COMP-NAME " " COMP-ADDR1 " " 
                COMP-ADDR2
              DISPLAY COMP-CITY " " COMP-STATE " " COMP-ZIP
