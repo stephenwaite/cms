@@ -548,6 +548,13 @@
        01  ALF20A PIC X(20).
        01  BELL0 USAGE INDEX.
        01  NUM-2 PIC 99.
+       01  DISPLAY-DATE.
+           02 T-MM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-DD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 T-CC PIC XX.
+           02 T-YY PIC XX.
       *
        LINKAGE SECTION.
        01 GARPAT1 PIC 9.
