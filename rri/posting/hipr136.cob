@@ -747,7 +747,7 @@
                MOVE CLP-7ICN(1:12) TO ADJ-ICN-12
            ELSE
                MOVE "0" TO ADJ-FLAG
-           END-IF
+           END-IF.
            
        P1-NM1.
            MOVE SPACE TO FILEIN01
