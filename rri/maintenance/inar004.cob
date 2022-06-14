@@ -1130,8 +1130,6 @@
              NEXT 
                AT END 
                  GO TO LG-1-2.
-
-                 DISPLAY COMPFILE01.
       
            IF COMP-MEDREC = G-ACCT
              MOVE COMP-DATE TO TEST-DATE
