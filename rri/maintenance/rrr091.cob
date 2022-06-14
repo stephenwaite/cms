@@ -558,7 +558,7 @@
            OPEN INPUT PATFILE.
            OPEN INPUT INSFILE.
            OPEN INPUT MPLRFILE.
-           OPEN INPUT ADDRFILE.
+           OPEN INPUT ADDRFILE COMPFILE.
            OPEN INPUT TOWNADDR.
            IF GARPAT1 = 1 GO TO 1000-ACTION.
            MOVE 1 TO GARPAT1.
@@ -2958,6 +2958,26 @@
            ADDR-CITY " " ADDR-STATE " " ADDR-ZIP 
            END-READ
            END-IF.
+           MOVE SPACE TO COMP-KEY
+           MOVE G-ACCT TO COMP-MEDREC
+           START COMPFILE KEY NOT < COMP-KEY 
+             INVALID 
+               GO TO LG-1-2.
+       LG-1-1.
+           READ COMPFILE 
+             NEXT 
+               AT END 
+                 GO TO LG-1-2.
+      
+           IF COMP-MEDREC = G-ACCT
+             MOVE COMP-DATE TO TEST-DATE
+             MOVE CORR TEST-DATE TO DISPLAY-DATE
+             DISPLAY DISPLAY-DATE " " COMP-NAME " " COMP-ADDR1 " " 
+               COMP-ADDR2
+             DISPLAY COMP-CITY " " COMP-STATE " " COMP-ZIP
+             GO TO LG-1-1.     
+
+      LG-1-2.     
            MOVE LASTBILL TO TEST-DATE-S
            MOVE T-MM OF TEST-DATE-S TO DD-MM
            MOVE T-DD OF TEST-DATE-S TO DD-DD
@@ -2973,7 +2993,10 @@
            IF G-COPAY NOT = 0 MOVE G-COPAY TO NEF-D
            DISPLAY " CO-PAY =" NEF-D.
            DISPLAY G-PRGRPNAME " /// " G-SEGRPNAME.
-       LG-1-EXIT. EXIT.
+
+       LG-1-EXIT.
+           EXIT.
+
        ZZ-1.
            IF ZERO-FLAG = 1
            MOVE 0 TO ZERO-FLAG
@@ -3324,6 +3347,6 @@
        CAR-1-EXIT. EXIT.
        9100-CLOSE-MASTER-FILE.
            CLOSE GARFILE PATFILE GAPFILE INSFILE MPLRFILE
-           TOWNADDR ADDRFILE CARRIERFILE.
+           TOWNADDR ADDRFILE CARRIERFILE COMPFILE.
            DISPLAY "GAR-PAT-INS-MPLR ROUTINE HAS ENDED".
            EXIT PROGRAM.
