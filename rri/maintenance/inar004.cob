@@ -1131,7 +1131,10 @@
                AT END 
                  GO TO LG-1-2.
       
-           IF COMP-MEDREC = G-ACCT
+           IF COMP-MEDREC = G-ACCT AND COMP-DATE = TEST-DATE
+             GO TO LG-1-1.
+
+           IF COMP-MEDREC = G-ACCT  
              MOVE COMP-DATE TO TEST-DATE
              MOVE CORR TEST-DATE TO DISPLAY-DATE
              DISPLAY DISPLAY-DATE " " COMP-NAME " " COMP-ADDR1 " " 
