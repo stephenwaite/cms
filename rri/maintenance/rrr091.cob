@@ -944,7 +944,7 @@
                DISPLAY "NO CHANGE"  GO TO 1000-ACTION.
            IF DATAIN = "UP"  GO TO RE-WRITE-GARFILE.
            IF DATAIN = "LG" MOVE GARFILE01 TO GARBACK
-              PERFORM LG-1-0 
+              PERFORM LG-1-0 THRU LG-1-EXIT
               MOVE GARBACK TO GARFILE01 
               GO TO 1400-CP
            END-IF
@@ -2994,14 +2994,14 @@
            MOVE T-DD OF TEST-DATE-S TO DD-DD
            MOVE T-CC OF TEST-DATE-S TO DD-CC
            MOVE T-YY OF TEST-DATE-S TO DD-YY
-      *     IF LASTBILL NOT = "00000000"
+           IF LASTBILL NOT = "00000000"
            INSPECT DD-MM REPLACING LEADING "0" BY " "
            INSPECT DD-DD REPLACING LEADING "0" BY " ".
            DISPLAY "COLLT GENDER RELATE DUNNING ACCSTAT LASTBILL CYCLE"
            DISPLAY "  " COLLT "     " SEX "       " RELATE
            "      " DUNNING "        " ACCTSTAT
            "   " DISPLAY-DATE "  " BILLCYCLE.
-      *     IF G-COPAY NOT = 0 MOVE G-COPAY TO NEF-D
+           IF G-COPAY NOT = 0 MOVE G-COPAY TO NEF-D
            DISPLAY " CO-PAY =" NEF-D.
            DISPLAY G-PRGRPNAME " /// " G-SEGRPNAME.
 
