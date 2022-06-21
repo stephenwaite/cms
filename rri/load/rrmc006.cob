@@ -1004,7 +1004,20 @@
                PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
            
            IF R1-IP1 = "00433" OR "00698" OR "00699" OR "00830"
-               PERFORM REPLACE-2 THRU REPLACE-2-EXIT
+             DISPLAY "USE INS FROM RECENT GARNO? " S-PRINS " Y FOR YES"
+             ACCEPT ANS
+             IF ANS = "Y"
+               MOVE S-PRINS TO A-PRINS
+               MOVE A-PRINS TO INS-KEY
+               READ INSFILE
+                 INVALID
+                   DISPLAY "NO INS ON FILE" 
+                   PERFORM REPLACE-2 THRU REPLACE-2-EXIT
+               END-READ
+               DISPLAY INS-NAME      
+             ELSE
+               PERFORM REPLACE-2 THRU REPLACE-2-EXIT  
+             END-IF
            END-IF
 
       *     IF R1-IP1 = "00931" OR "00932" GO TO P2-3.
@@ -1329,7 +1342,9 @@
              INVALID
                DISPLAY "BAD"
                GO TO REPLACE-2
-           END-READ.
+           END-READ
+           
+           DISPLAY INS-NAME.
 
        REPLACE-2-EXIT.
            EXIT.
