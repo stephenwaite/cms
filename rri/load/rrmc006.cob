@@ -622,6 +622,8 @@
 
        01  AUTH-FLAG PIC X.     
 
+       01  PRIOR-INS PIC X(3).
+
        PROCEDURE DIVISION.
        0005-START.
            OPEN I-O ACTFILE EMAILAUTHFILE ORDFILE COMPFILE.
@@ -698,6 +700,16 @@
                DISPLAY "MRN IS ZEROES FOR " R1-PATNAME
                ACCEPT OMITTED
            END-IF
+
+      *    WILL SEE IF PRIOR INS IS BETTER THAN MISC INS 
+      *    LATER IN REPLACE-2
+           MOVE R2-MEDREC TO A-ACTNO
+           READ ACTFILE
+             INVALID
+               MOVE "001" TO PRIOR-INS
+             NOT INVALID
+               MOVE A-PRINS TO PRIOR-INS
+           END-READ
 
            MOVE R1-GARZIP TO ZIPCODE
            
@@ -1004,11 +1016,12 @@
                PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
            
            IF R1-IP1 = "00433" OR "00698" OR "00699" OR "00830"
-             DISPLAY "USE INS FROM RECENT GARNO? " S-PRINS " Y FOR YES"
+             DISPLAY "USE INS FROM RECENT GARNO? " PRIOR-INS 
+               " Y FOR YES"
              ACCEPT ANS
              IF ANS = "Y"
-               MOVE S-PRINS TO A-PRINS
-               MOVE A-PRINS TO INS-KEY
+               MOVE PRIOR-INS TO A-PRINS
+               MOVE PRIOR-INS TO INS-KEY
                READ INSFILE
                  INVALID
                    DISPLAY "NO INS ON FILE" 
@@ -1620,15 +1633,15 @@
                MOVE "19" TO A-DOB(1:2)
            END-IF
 
-		       IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
-		         MOVE "A" TO A-PR-ASSIGN
-		       END-IF
+	       IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
+	         MOVE "A" TO A-PR-ASSIGN
+	       END-IF
 
            IF A-SEINS = "268" AND A-SE-ASSIGN = "U"
-		         MOVE "A" TO A-SE-ASSIGN
-		       END-IF 
+	         MOVE "A" TO A-SE-ASSIGN
+	       END-IF 
 
-		       MOVE ACTFILE01 TO SAVEMASTER.
+	       MOVE ACTFILE01 TO SAVEMASTER.
            READ ACTFILE
              INVALID
                MOVE SAVEMASTER TO ACTFILE01
