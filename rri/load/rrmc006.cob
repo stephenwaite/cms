@@ -706,7 +706,7 @@
            MOVE R2-MEDREC TO A-ACTNO
            READ ACTFILE
              INVALID
-               MOVE "001" TO PRIOR-INS
+               MOVE "095" TO PRIOR-INS
              NOT INVALID
                MOVE A-PRINS TO PRIOR-INS
            END-READ
@@ -1012,10 +1012,8 @@
            MOVE 1 TO PLANNUM
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
            
-           IF R1-IP1 = "00930"
-               PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
-           
            IF R1-IP1 = "00433" OR "00698" OR "00699" OR "00830"
+               OR "00930"
              DISPLAY "USE INS FROM RECENT GARNO? " PRIOR-INS 
                " Y FOR YES"
              ACCEPT ANS
@@ -1296,6 +1294,12 @@
            IF A-SEINS = "091"
              MOVE R1-EMPLOYNAME22 TO A-SEGRPNAME.
 
+           IF R1-IP1 = "00951"  
+              STRING "HAVE TO REVINS IN GP FOR " R2-MEDREC " "
+                 A-GARNAME " AND CHANGE INS IN AC" DELIMITED BY ".."
+                 INTO FILEOUT01 
+              WRITE FILEOUT01.
+
        SEL-SEINS-EXIT. 
            EXIT.
 
@@ -1323,27 +1327,6 @@
              GO TO RELATE-1-EXIT.
 
        RELATE-1-EXIT.
-           EXIT.
-
-       REPLACE-1.
-           IF R1-INSCITY1 = "SALT LAKE CITY"
-             AND R1-INSADDR11 = "PO BOX 31353"
-             MOVE "665" TO INS-KEY
-             GO TO REPLACE-1-EXIT
-           END-IF
-
-           DISPLAY R1-PATNAME INSURANCE-1
-           DISPLAY "ENTER INS CODE"
-      *     DISPLAY "432 = UNICARE"
-      *     DISPLAY "523 = ADVANTRA"
-           ACCEPT A-PRINS
-           MOVE A-PRINS TO INS-KEY
-           READ INSFILE
-             INVALID 
-               DISPLAY "BAD"
-               GO TO REPLACE-1.
-
-       REPLACE-1-EXIT.
            EXIT.
 
        REPLACE-2.
