@@ -1028,7 +1028,7 @@
            IF R1-IP1 = "00433" OR "00698" OR "00699" OR "00830"
                OR "00930"
              DISPLAY "MRN " R2-MEDREC ", USE INS " PRIOR-INS 
-               " FROM RECENT GARNO? " G-GARNO "Y FOR YES"
+               " FROM RECENT GARNO " G-GARNO "? Y FOR YES."
              ACCEPT ANS
              IF ANS = "Y"
                MOVE PRIOR-INS TO A-PRINS
