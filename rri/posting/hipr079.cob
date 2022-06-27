@@ -64,9 +64,7 @@
 
            SELECT AUTHFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
                ACCESS IS DYNAMIC RECORD KEY IS AUTH-KEY
-               LOCK MODE MANUAL
-               STATUS IS AUTHFILE-STAT.  
-
+               LOCK MODE MANUAL.
        DATA DIVISION.
        FILE SECTION.
 
@@ -818,7 +816,7 @@
            MOVE CHARCUR-KEY(1:8) TO G-GARNO
            READ GARFILE WITH LOCK
              INVALID
-               move space to fileout01
+               move space to error-file01
                string "COULDN'T READ GARFILE WITH LOCK " CC-KEY8
                  delimited by size into ERROR-FILE01
                write ERROR-FILE01
@@ -852,7 +850,7 @@
       *     CLOSE AUTHFILE
       *     OPEN I-O AUTHFILE
       *     MOVE AUTHFILE-BACK TO AUTHFILE01
-           DISPLAY AUTHFILE-BACK
+           DISPLAY AUTHFILE-BACK.
       *     WRITE AUTHFILE01 INVALID
       *          MOVE SPACE TO FILEOUT01
       *          STRING AUTHFILE01 " RECORD NOT ADDED AT THIS TIME " 
