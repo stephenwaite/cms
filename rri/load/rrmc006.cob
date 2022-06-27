@@ -706,8 +706,10 @@
            MOVE R2-MEDREC TO A-ACTNO
            READ ACTFILE
              INVALID
+               display "invalid read of actfile"
                MOVE "095" TO PRIOR-INS
              NOT INVALID
+               display "valid read of actfile " A-PRINS
                MOVE A-PRINS TO PRIOR-INS
            END-READ
 
