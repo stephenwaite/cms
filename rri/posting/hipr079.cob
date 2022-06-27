@@ -582,6 +582,11 @@
                GO TO P2-SVC-LOOP
            END-IF    
 
+           IF (F1 = "REF" AND F21 = "*G1")
+             MOVE F3(1:10) TO HOLD-AUTH
+             GO TO P1-NM1
+           END-IF  
+
            IF F1 = "SVC"
                GO TO P1-SVC-LOOP-0
            END-IF    
@@ -731,7 +736,7 @@
       *         PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
       *             VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
       *         GO TO P9-SVC-LOOP
-              DISPLAY "WE'VE GOT A REJECT"
+      *        DISPLAY "WE'VE GOT A REJECT"
            END-IF.
 
        P4-UNITED-START.
@@ -791,7 +796,8 @@
                GO TO P5-SVC-LOOP-EXIT
            END-READ
 
-           DISPLAY CC-CLAIM " " DATE-X " " G-GARNAME
+           DISPLAY CC-CLAIM " " DATE-X " " G-GARNAME " " CLP-1
+             " " HOLD-AUTH
            ACCEPT OMITTED
            GO TO P5-SVC-LOOP-EXIT
 
