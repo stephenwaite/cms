@@ -628,6 +628,10 @@
        01  PROV-2 PIC X(10).
        01  PRFLAG PIC 9.
        01  DELIM PIC X.
+       01  ADJ-FLAG PIC X VALUE "0".
+       01  RE-PROC-FLAG PIC X VALUE "0".
+       01  ADJ-ICN-12 PIC X(12).
+
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT FILEIN CHARCUR GARFILE CAIDFILE
@@ -731,6 +735,19 @@
            MOVE CLP-4TOTCLMPAY TO ALF8
            PERFORM AMOUNT-1
            MOVE AMOUNT-X TO CLAIM-PAID.
+
+           IF ADJ-FLAG = "1" AND CLP-7ICN(1:12) = ADJ-ICN-12
+              MOVE "1" TO RE-PROC-FLAG
+           ELSE
+              MOVE "0" TO RE-PROC-FLAG   
+           END-IF   
+
+           IF CLP-2CLMSTAT = "22"
+               MOVE "1" TO ADJ-FLAG
+               MOVE CLP-7ICN(1:12) TO ADJ-ICN-12
+           ELSE
+               MOVE "0" TO ADJ-FLAG
+           END-IF.
            
        P1-NM1.
            MOVE SPACE TO FILEIN01
@@ -868,6 +885,9 @@
            
            IF ALF8-1 = "-" 
              PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
+
+           IF RE-PROC-FLAG = "1"
+             PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
            
            PERFORM AMOUNT-1
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
@@ -940,7 +960,8 @@
               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
               IF (CAS-1 = "PR")
-                IF (CAS-2 = "96" OR CAS-2 = "27" OR CAS-2 = "29")
+                IF (CAS-2 = "96" OR CAS-2 = "27"
+                     OR CAS-2 = "29" OR CAS-2 = "22")
                  PERFORM P1-LOST-SVC
                  GO TO P5-SVC-LOOP-EXIT
                 END-IF

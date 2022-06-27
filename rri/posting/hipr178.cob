@@ -754,7 +754,12 @@
            END-IF    
                       
            MOVE SPACE TO ALF8
-           MOVE SVC-3PAYAMT to ALF8
+      *    health equity pay amount is in CLP 
+           IF PAYORID = "43700"
+             MOVE CLP-4TOTCLMPAY TO ALF8
+           ELSE 
+             MOVE SVC-3PAYAMT to ALF8
+           END-IF  
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
@@ -813,6 +818,11 @@
                GO TO P5-SVC-LOOP-EXIT
            end-read
 
+           IF PAYORID = "43700"
+             MOVE "075" TO PD-PAYCODE
+             GO TO P7-NEXT
+           END-IF
+             
            IF INS-NEIC NOT = PAYORID
              GO TO P3-NEXT.
 
@@ -856,7 +866,8 @@
                END-IF
            END-PERFORM
 
-           IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
+           IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS
+                    OR "075")
                PERFORM P1-LOST-SVC 
                GO TO P5-SVC-LOOP-EXIT
            END-IF
@@ -1084,6 +1095,7 @@
                    OR (CAS-1 = "CO" AND CAS-2 = "242  ")
                    OR (CAS-1 = "CO" AND CAS-2 = "288  ")
                    OR (CAS-1 = "PI" AND CAS-2 = "5    ")
+                   OR (CAS-1 = "PI" AND CAS-2 = "11   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "96   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "97   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "27   ")
