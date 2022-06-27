@@ -361,6 +361,7 @@
        01  PROV-FLAG PIC X.
        01  EQUITY-ID PIC X(9).
        01  INS-NAME-HOLD PIC X(5).
+       01  HOLD-AUTH PIC X(10).
        
        PROCEDURE DIVISION.
        0005-START.
@@ -736,7 +737,7 @@
       *         PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
       *             VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
       *         GO TO P9-SVC-LOOP
-      *        DISPLAY "WE'VE GOT A REJECT"
+              DISPLAY "WE'VE GOT A REJECT"
            END-IF.
 
        P4-UNITED-START.
