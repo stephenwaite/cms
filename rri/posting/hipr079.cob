@@ -778,11 +778,11 @@
       *         DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
       *         ACCEPT OMITTED                   
       *         PERFORM DUMP50 
-               IF FLAG = 1
-                   PERFORM P1-LOST-SVC
-                   GO TO P5-SVC-LOOP-EXIT
-               END-IF
-           END-IF
+      *         IF FLAG = 1
+      *             PERFORM P1-LOST-SVC
+      *             GO TO P5-SVC-LOOP-EXIT
+      *         END-IF
+      *     END-IF
            
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR
