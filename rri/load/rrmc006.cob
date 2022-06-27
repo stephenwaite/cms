@@ -711,7 +711,14 @@
              NOT INVALID
                display "valid read of actfile " A-PRINS 
                  " garno " A-GARNO
-               MOVE A-PRINS TO PRIOR-INS
+               MOVE A-PRINS TO G-GARNO
+               READ GARFILE
+                 INVALID
+                   MOVE "095" TO PRIOR-INS
+                 NOT INVALID 
+                   DISPLAY "G-PRINS IS " G-PRINS
+                   MOVE G-PRINS TO PRIOR-INS
+               END-READ   
            END-READ
 
            MOVE R1-GARZIP TO ZIPCODE
