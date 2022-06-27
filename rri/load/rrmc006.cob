@@ -716,9 +716,8 @@
                display "invalid read of actfile"
                MOVE "095" TO PRIOR-INS
              NOT INVALID
-               display "valid read of actfile " A-PRINS 
-                 " garno " A-GARNO
-               MOVE A-PRINS TO G-GARNO
+               display "valid read of actfile garno " A-GARNO
+               MOVE A-GARNO TO G-GARNO
                READ GARFILE
                  INVALID
                    MOVE "095" TO PRIOR-INS
