@@ -808,7 +808,6 @@
 
            DISPLAY CC-CLAIM " " CC-DATE-T " " G-GARNAME " " CLP-1
              " " HOLD-AUTH
-           ACCEPT OMITTED
 
            display "ok to add auth and resub to 225? y or Y for YES"
            ACCEPT  ANS
@@ -859,7 +858,6 @@
            DISPLAY AUTHFILE-BACK.
            WRITE AUTHFILE01 INVALID
              DISPLAY "WILL REWRITE AUTHFILE " AUTH-KEY
-             ACCEPT OMITTED
              REWRITE AUTHFILE01
              GO TO WRITE-AU-CLOSE
            END-WRITE.
@@ -878,7 +876,6 @@
            READ GARFILE WITH LOCK
              INVALID
                DISPLAY "COULD NOT READ GARFILE WITH LOCK " G-GARNO
-               ACCEPT OMITTED
                GO TO RE-WRITE-GAR-CLOSE
            END-READ
            MOVE GARBACK TO GARFILE01
