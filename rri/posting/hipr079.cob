@@ -838,11 +838,10 @@
            MOVE CC-DATE-T TO AUTH-DATE-E
            MOVE AUTHFILE01 TO AUTHFILE-BACK
            PERFORM WRITE-AU THRU WRITE-AU-EXIT.
-      *     MOVE 1 TO CD-AUTH
-      *     REWRITE CHARFILE01.
 
        CHANGE-TO-225.
            MOVE "225" TO G-PRINS 
+           MOVE GARFILE01 TO GARBACK
            PERFORM RE-WRITE-GAR THRU RE-WRITE-GAR-EXIT.          
            
            MOVE "225" TO CC-PAYCODE
@@ -854,7 +853,7 @@
        WRITE-AU.
       *     CLOSE AUTHFILE
       *     OPEN I-O AUTHFILE
-      *     MOVE AUTHFILE-BACK TO AUTHFILE01
+           MOVE AUTHFILE-BACK TO AUTHFILE01
            DISPLAY AUTHFILE-BACK.
       *     WRITE AUTHFILE01 INVALID
       *          MOVE SPACE TO ERROR-FILE01
@@ -874,7 +873,6 @@
            EXIT. 
 
        RE-WRITE-GAR.
-           MOVE GARFILE01 TO GARBACK
       *     CLOSE GARFILE           
       *     OPEN I-O GARFILE
       *     MOVE GARBACK(1:8) TO G-GARNO
