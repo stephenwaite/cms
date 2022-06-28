@@ -726,9 +726,6 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.                      
-           DISPLAY "RECORD IS GOOD"
-           ACCEPT OMITTED.
-           
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
                                OR "20" OR "21" OR "22")
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
@@ -794,6 +791,8 @@
            MOVE DATE-X TO PD-DATE-T
            MOVE G-GARNAME TO PD-NAME.
                      
+           GO TO P7-NEXT.
+
            IF CC-PAYCODE = "062" AND (CLP-2CLMSTAT NOT = "1")
                MOVE CC-PAYCODE TO PD-PAYCODE
                GO TO P7-NEXT
