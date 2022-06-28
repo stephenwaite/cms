@@ -769,16 +769,16 @@
            
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
 
-           IF PD-AMOUNT = 0
-               MOVE 0 TO FLAG
+      *     IF PD-AMOUNT = 0
+      *         MOVE 0 TO FLAG
       *         DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
       *         ACCEPT OMITTED                   
-               PERFORM DUMP50 
-               IF FLAG = 1
-                   PERFORM P1-LOST-SVC
-                   GO TO P5-SVC-LOOP-EXIT
-               END-IF
-           END-IF
+      *         PERFORM DUMP50 
+      *         IF FLAG = 1
+      *             PERFORM P1-LOST-SVC
+      *             GO TO P5-SVC-LOOP-EXIT
+      *         END-IF
+      *     END-IF
            
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR
