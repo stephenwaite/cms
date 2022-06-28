@@ -727,7 +727,7 @@
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.                      
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
-                               OR "20" OR "21")
+                               OR "20" OR "21" OR "22")
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
                    VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP
@@ -865,12 +865,6 @@
                    END-IF
                END-IF
            END-PERFORM
-
-           IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS
-                    OR "075")
-               PERFORM P1-LOST-SVC 
-               GO TO P5-SVC-LOOP-EXIT
-           END-IF
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
            
