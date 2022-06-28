@@ -847,6 +847,10 @@
        P7-NEXT.
            MOVE "  " TO PD-DENIAL.
 
+           DISPLAY "CC-AMOUNT " CC-AMOUNT
+           DISPLAY "PD-AMOUNT " PD-AMOUNT
+           ACCEPT OMITTED
+
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
                IF CAS-SVC(Z) = X
                    MOVE SPACE TO CAS01 
