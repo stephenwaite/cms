@@ -906,135 +906,20 @@
            MOVE TRN-2 TO TRN-CHKNO
            WRITE TRNPAYFILE01
            
-           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR           
-               IF CAS-SVC(Z) = X
-                   MOVE SPACE TO CAS01 ALF8
-                   MOVE CAS-TAB(Z) TO FILEIN01
-                   UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                     CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-              
-                   IF (CAS-2 = "104") MOVE CAS-3 TO ALF8
-                   END-IF
-              
-                   IF (CAS-5 = "104") MOVE CAS-6 TO ALF8
-                   END-IF
-              
-                   IF (CAS-8 = "104") MOVE CAS-9 TO ALF8
-                   END-IF
-              
-                   IF (CAS-11 = "104") MOVE CAS-12 TO ALF8
-                   END-IF
-              
-                   IF (CAS-14 = "104") MOVE CAS-15 TO ALF8
-                   END-IF
-              
-                   IF (CAS-17 = "104") MOVE CAS-18 TO ALF8
-                   END-IF
-              
-                   IF ALF8 NOT = SPACE
-                       MOVE "DI" TO PD-DENIAL
-                       PERFORM AMOUNT-1
-                       MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
-                       PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
-                       MOVE CAS-CNTR TO Z
-                   END-IF
-               END-IF
-           END-PERFORM
-           
-           MOVE 0 TO INS-REDUCE
-           
-           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
-           
-               IF CAS-SVC(Z) = X
-                   MOVE SPACE TO CAS01 
-                   MOVE CAS-TAB(Z) TO FILEIN01
-                   UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                     CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-                   
-                   IF (CAS-1 = "CO" OR "PI" OR "OA")
-                               AND
-                      ((CAS-2 = "A2" OR "B6" OR "B10" OR
-                                "18" OR "42" OR "45" OR 
-                                "59" OR "253" OR "131")
-                               OR
-                      (CAS-5 = "A2" OR "B6" OR "B10" OR 
-                               "18" OR "42" OR "45" OR
-                               "59" OR "253" OR "131"))
-                               AND NOT (CLP-2CLMSTAT = "2 " OR "3 ")
-                       
-                       IF CAS-3 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-3 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-               
-                       IF CAS-6 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-6 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-               
-                       IF CAS-9 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-9 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-               
-                       IF CAS-12 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-12 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-               
-                       IF CAS-15 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-15 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-               
-                       IF CAS-18 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-18 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-                   END-IF
-               END-IF
-           END-PERFORM.
-           
-           COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
-           DISPLAY "CLAIM-TOT " CLAIM-TOT
-           ACCEPT OMITTED
-           
-           IF CLAIM-TOT = 0
-               PERFORM P1-LOST-SVC
-               GO TO P5-SVC-LOOP-EXIT
-           END-IF
-           
-           IF INS-REDUCE NOT = 0
-               COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT - INS-REDUCE
-               PERFORM S4 THRU S5
-               
-              
+          
+           DISPLAY "CC-AMOUNT " CC-AMOUNT
+           DISPLAY "PD-AMOUNT " PD-AMOUNT
+           ACCEPT OMITTED 
 
-               MOVE "15" TO PD-DENIAL
-               DISPLAY "CC-AMOUNT " CC-AMOUNT
-               DISPLAY "PD-AMOUNT " PD-AMOUNT
-               ACCEPT OMITTED
-
-               MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
-               PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
-               MOVE CAS-CNTR TO Z
-           END-IF
+           COMPUTE INS-REDUCE = CC-AMOUNT - PD-AMOUNT
+      *     COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT - INS-REDUCE
+           PERFORM S4 THRU S5
+           
+           MOVE "15" TO PD-DENIAL
+          
+           MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
+           PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
+           MOVE CAS-CNTR TO Z
            
            GO TO P5-SVC-LOOP-EXIT.
 
