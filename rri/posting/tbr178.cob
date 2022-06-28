@@ -878,17 +878,7 @@
            
            MOVE "08" TO PD-DENIAL
 
-           MOVE CC-AMOUNT TO TOT-CLAIM
-           
-           PERFORM DMP4 THRU DMP5
-           
-           IF TOT-CLAIM = 0
-             DISPLAY "CC-AMOUNT " CC-AMOUNT
-             DISPLAY "PD-AMOUNT " PD-AMOUNT
-             DISPLAY "CLAIM-TOT " CLAIM-TOT
-             ACCEPT OMITTED
-             GO TO P5-SVC-LOOP-EXIT
-           END-IF    
+          
            
            ACCEPT ORDER-8 FROM TIME
            MOVE ORDER-6 TO PD-ORDER
