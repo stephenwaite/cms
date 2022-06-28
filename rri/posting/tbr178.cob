@@ -873,7 +873,7 @@
            
            PERFORM S4 THRU S5
 
-           MOVE "079" TO PC-PAYCODE           
+           MOVE "079" TO PD-PAYCODE           
            MOVE "08" TO PD-DENIAL
 
           
