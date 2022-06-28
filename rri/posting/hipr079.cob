@@ -850,65 +850,62 @@
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT.
 
        WRITE-AU.
-      *     CLOSE AUTHFILE
-      *     OPEN I-O AUTHFILE
+           CLOSE AUTHFILE
+           OPEN I-O AUTHFILE
            MOVE AUTHFILE-BACK TO AUTHFILE01
-           DISPLAY AUTHFILE-BACK.
-      *     WRITE AUTHFILE01 INVALID
-      *          MOVE SPACE TO ERROR-FILE01
-      *          STRING AUTHFILE01 " RECORD NOT ADDED AT THIS TIME " 
-      *              AUTHFILE-STAT " STAT" DELIMITED BY SIZE
-      *              INTO ERROR-FILE01 
-      *          WRITE ERROR-FILE01    
-      *          CLOSE AUTHFILE
-      *          OPEN INPUT AUTHFILE
-      *          GO TO WRITE-AU-EXIT
-      *     END-WRITE
-           
-      *     CLOSE AUTHFILE
-      *     OPEN INPUT AUTHFILE.
+      *     DISPLAY AUTHFILE-BACK.
+           WRITE AUTHFILE01 INVALID
+             MOVE SPACE TO ERROR-FILE01
+      *       STRING AUTHFILE01 " RECORD NOT ADDED AT THIS TIME " 
+      *         AUTHFILE-STAT " STAT" DELIMITED BY SIZE INTO ERROR-FILE01 
+      *       WRITE ERROR-FILE01    
+             DISPLAY "UH OH AUTHFILE " AUTH-KEY
+             ACCEPT OMITTED
+             GO TO WRITE-AU-EXIT
+           END-WRITE.
 
        WRITE-AU-EXIT.
+           CLOSE AUTHFILE
+           OPEN INPUT AUTHFILE
            EXIT. 
 
        RE-WRITE-GAR.
-      *     CLOSE GARFILE           
-      *     OPEN I-O GARFILE
-      *     MOVE GARBACK(1:8) TO G-GARNO
-      *     READ GARFILE WITH LOCK
-      *       INVALID
-      *         DISPLAY "COULD NOT READ GARFILE WITH LOCK"
-
-      *     END-READ
-      *     MOVE GARBACK TO GARFILE01
-           DISPLAY G-PRINS.
+           CLOSE GARFILE           
+           OPEN I-O GARFILE
+           MOVE GARBACK(1:8) TO G-GARNO
+           READ GARFILE WITH LOCK
+             INVALID
+               DISPLAY "COULD NOT READ GARFILE WITH LOCK " G-GARNO
+               ACCEPT OMITTED
+               GO TO RE-WRITE-GAR-EXIT
+           END-READ
+           MOVE GARBACK TO GARFILE01
+      *     DISPLAY G-PRINS.
       *     DISPLAY " "
            
-      *     REWRITE GARFILE01.
-      *     CLOSE GARFILE
-      *     OPEN INPUT GARFILE.
-
+           REWRITE GARFILE01.
+      
        RE-WRITE-GAR-EXIT.
+           CLOSE GARFILE
+           OPEN INPUT GARFILE.
            EXIT.     
 
        RE-WRITE-CC.
-      *     CLOSE CHARCUR
-      *     OPEN I-O CHARCUR
+           CLOSE CHARCUR
+           OPEN I-O CHARCUR
            MOVE CHARCUR-BACK TO CHARCUR01
-      *     REWRITE CHARCUR01 INVALID
-      *          DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
-      *          DISPLAY CHARCUR-STAT
-      *          CLOSE CHARCUR
-      *          OPEN INPUT CHARCUR
-      *          GO TO RE-WRITE-CC-EXIT
-      *     END-REWRITE
-           DISPLAY CHARCUR01.
-      *     CLOSE CHARCUR
-      *     OPEN INPUT CHARCUR
+           REWRITE CHARCUR01
+             INVALID
+               DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
+               DISPLAY CHARCUR-STAT
+               GO TO RE-WRITE-CC-EXIT
+           END-REWRITE.
+      *     DISPLAY CHARCUR01.
       *     DISPLAY "RECORD CHANGED".
-      *     MOVE 1 TO FLAG.
            
        RE-WRITE-CC-EXIT.
+           CLOSE CHARCUR
+           OPEN INPUT CHARCUR
            EXIT.
 
        DUMP50.
