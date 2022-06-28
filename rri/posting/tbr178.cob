@@ -847,10 +847,7 @@
        P7-NEXT.
            MOVE "  " TO PD-DENIAL.
 
-           DISPLAY "CC-AMOUNT " CC-AMOUNT
-           DISPLAY "PD-AMOUNT " PD-AMOUNT
-           ACCEPT OMITTED
-
+           
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
                IF CAS-SVC(Z) = X
                    MOVE SPACE TO CAS01 
@@ -875,6 +872,9 @@
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
            
            PERFORM S4 THRU S5
+
+          
+
            
            MOVE "08" TO PD-DENIAL
 
@@ -883,7 +883,11 @@
            PERFORM DMP4 THRU DMP5
            
            IF TOT-CLAIM = 0
-               GO TO P5-SVC-LOOP-EXIT
+             DISPLAY "CC-AMOUNT " CC-AMOUNT
+             DISPLAY "PD-AMOUNT " PD-AMOUNT
+             DISPLAY "CLAIM-TOT " CLAIM-TOT
+             ACCEPT OMITTED
+             GO TO P5-SVC-LOOP-EXIT
            END-IF    
            
            ACCEPT ORDER-8 FROM TIME
