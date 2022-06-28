@@ -369,6 +369,9 @@
        01  INS-NAME-HOLD PIC X(5).
        01  HOLD-AUTH PIC X(12).
        01  AUTHFILE-BACK PIC X(91).
+       01  CHARCUR-BACK PIC X(160).
+       01  GARBACK PIC X(315).
+
        
        PROCEDURE DIVISION.
        0005-START.
@@ -808,34 +811,26 @@
              " " HOLD-AUTH
            ACCEPT OMITTED
 
-           display "ok to add auth and switch to 225? y or Y for YES"
+           display "ok to add auth and resub to 225? y or Y for YES"
            ACCEPT  ANS
            IF NOT (ANS = "Y" OR "y")
              GO TO P5-SVC-LOOP-EXIT.
 
            MOVE CHARCUR-KEY(1:8) TO G-GARNO
-           READ GARFILE WITH LOCK
+           READ GARFILE
              INVALID
                move space to error-file01
-               string "COULDN'T READ GARFILE WITH LOCK " CC-KEY8
+               string "COULDN'T READ GARFILE " CC-KEY8
                  delimited by size into ERROR-FILE01
                write ERROR-FILE01
                GO TO P5-SVC-LOOP-EXIT
            END-READ
 
-           PERFORM ADD-AUTH.
-      *         PERFORM CHANGE-TO-225
+           PERFORM ADD-AUTH
+           PERFORM CHANGE-TO-225.
            
        P5-SVC-LOOP-EXIT.
            EXIT.
-
-       CHANGE-TO-225.
-           MOVE "225" TO G-PRINS           
-           REWRITE GARFILE01.
-           
-           MOVE "225" TO CC-PAYCODE
-
-           REWRITE CHARCUR01.
 
        ADD-AUTH.
            STRING CC-KEY8 CC-CLAIM DELIMITED BY SIZE INTO AUTH-KEY
@@ -846,17 +841,27 @@
       *     MOVE 1 TO CD-AUTH
       *     REWRITE CHARFILE01.
 
+       CHANGE-TO-225.
+           MOVE "225" TO G-PRINS 
+           PERFORM RE-WRITE-GAR THRU RE-WRITE-GAR-EXIT.          
+           
+           MOVE "225" TO CC-PAYCODE
+           MOVE "0" TO CC-REC-STAT
+           MOVE "1" TO CC-AUTH
+           MOVE CHARCUR01 TO CHARCUR-BACK           
+           PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT.
+
        WRITE-AU.
       *     CLOSE AUTHFILE
       *     OPEN I-O AUTHFILE
       *     MOVE AUTHFILE-BACK TO AUTHFILE01
            DISPLAY AUTHFILE-BACK.
       *     WRITE AUTHFILE01 INVALID
-      *          MOVE SPACE TO FILEOUT01
+      *          MOVE SPACE TO ERROR-FILE01
       *          STRING AUTHFILE01 " RECORD NOT ADDED AT THIS TIME " 
       *              AUTHFILE-STAT " STAT" DELIMITED BY SIZE
-      *              INTO FILEOUT01 
-      *          WRITE FILEOUT01    
+      *              INTO ERROR-FILE01 
+      *          WRITE ERROR-FILE01    
       *          CLOSE AUTHFILE
       *          OPEN INPUT AUTHFILE
       *          GO TO WRITE-AU-EXIT
@@ -867,6 +872,47 @@
 
        WRITE-AU-EXIT.
            EXIT. 
+
+       RE-WRITE-GAR.
+           MOVE GARFILE01 TO GARBACK
+      *     CLOSE GARFILE           
+      *     OPEN I-O GARFILE
+      *     MOVE GARBACK(1:8) TO G-GARNO
+      *     READ GARFILE WITH LOCK
+      *       INVALID
+      *         DISPLAY "COULD NOT READ GARFILE WITH LOCK"
+
+      *     END-READ
+      *     MOVE GARBACK TO GARFILE01
+           DISPLAY G-PRINS.
+      *     DISPLAY " "
+           
+      *     REWRITE GARFILE01.
+      *     CLOSE GARFILE
+      *     OPEN INPUT GARFILE.
+
+       RE-WRITE-GAR-EXIT.
+           EXIT.     
+
+       RE-WRITE-CC.
+      *     CLOSE CHARCUR
+      *     OPEN I-O CHARCUR
+           MOVE CHARCUR-BACK TO CHARCUR01
+      *     REWRITE CHARCUR01 INVALID
+      *          DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
+      *          DISPLAY CHARCUR-STAT
+      *          CLOSE CHARCUR
+      *          OPEN INPUT CHARCUR
+      *          GO TO RE-WRITE-CC-EXIT
+      *     END-REWRITE
+           DISPLAY CHARCUR01.
+      *     CLOSE CHARCUR
+      *     OPEN INPUT CHARCUR
+      *     DISPLAY "RECORD CHANGED".
+      *     MOVE 1 TO FLAG.
+           
+       RE-WRITE-CC-EXIT.
+           EXIT.
 
        DUMP50.
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
