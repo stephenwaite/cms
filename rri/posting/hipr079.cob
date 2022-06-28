@@ -806,7 +806,7 @@
                GO TO P5-SVC-LOOP-EXIT
            END-READ
 
-           DISPLAY CC-CLAIM " " DATE-X " " G-GARNAME " " CLP-1
+           DISPLAY CC-CLAIM " " CC-DATE-T " " G-GARNAME " " CLP-1
              " " HOLD-AUTH
            ACCEPT OMITTED
 
@@ -856,7 +856,7 @@
            CLOSE AUTHFILE
            OPEN I-O AUTHFILE
            MOVE AUTHFILE-BACK TO AUTHFILE01
-      *     DISPLAY AUTHFILE-BACK.
+           DISPLAY AUTHFILE-BACK.
            WRITE AUTHFILE01 INVALID
              DISPLAY "UH OH AUTHFILE " AUTH-KEY
              ACCEPT OMITTED
