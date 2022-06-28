@@ -1033,7 +1033,6 @@
                MOVE "15" TO PD-DENIAL
                DISPLAY "CC-AMOUNT " CC-AMOUNT
                DISPLAY "PD-AMOUNT " PD-AMOUNT
-               DISPLAY "PAT-RESP " PAT-RESP
                ACCEPT OMITTED
 
                MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
