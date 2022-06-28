@@ -855,18 +855,16 @@
            MOVE AUTHFILE-BACK TO AUTHFILE01
       *     DISPLAY AUTHFILE-BACK.
            WRITE AUTHFILE01 INVALID
-             MOVE SPACE TO ERROR-FILE01
-      *       STRING AUTHFILE01 " RECORD NOT ADDED AT THIS TIME " 
-      *         AUTHFILE-STAT " STAT" DELIMITED BY SIZE INTO ERROR-FILE01 
-      *       WRITE ERROR-FILE01    
              DISPLAY "UH OH AUTHFILE " AUTH-KEY
              ACCEPT OMITTED
-             GO TO WRITE-AU-EXIT
+             GO TO WRITE-AU-CLOSE
            END-WRITE.
 
-       WRITE-AU-EXIT.
+       WRITE-AU-CLOSE.
            CLOSE AUTHFILE
-           OPEN INPUT AUTHFILE
+           OPEN INPUT AUTHFILE.    
+
+       WRITE-AU-EXIT.           
            EXIT. 
 
        RE-WRITE-GAR.
@@ -877,17 +875,19 @@
              INVALID
                DISPLAY "COULD NOT READ GARFILE WITH LOCK " G-GARNO
                ACCEPT OMITTED
-               GO TO RE-WRITE-GAR-EXIT
+               GO TO RE-WRITE-GAR-CLOSE
            END-READ
            MOVE GARBACK TO GARFILE01
       *     DISPLAY G-PRINS.
       *     DISPLAY " "
            
            REWRITE GARFILE01.
-      
-       RE-WRITE-GAR-EXIT.
+       
+       RE-WRITE-GAR-CLOSE.    
            CLOSE GARFILE
            OPEN INPUT GARFILE.
+      
+       RE-WRITE-GAR-EXIT.           
            EXIT.     
 
        RE-WRITE-CC.
@@ -896,16 +896,17 @@
            MOVE CHARCUR-BACK TO CHARCUR01
            REWRITE CHARCUR01
              INVALID
-               DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
-               DISPLAY CHARCUR-STAT
-               GO TO RE-WRITE-CC-EXIT
+               DISPLAY "RECORD NOT MODIFIED AT THIS TIME " CHARCUR-KEY
+               GO TO RE-WRITE-CC-CLOSE
            END-REWRITE.
       *     DISPLAY CHARCUR01.
       *     DISPLAY "RECORD CHANGED".
-           
-       RE-WRITE-CC-EXIT.
+       
+       RE-WRITE-CC-CLOSE.
            CLOSE CHARCUR
-           OPEN INPUT CHARCUR
+           OPEN INPUT CHARCUR.
+           
+       RE-WRITE-CC-EXIT.           
            EXIT.
 
        DUMP50.
