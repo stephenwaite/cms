@@ -846,6 +846,8 @@
            MOVE "225" TO CC-PAYCODE
            MOVE "0" TO CC-REC-STAT
            MOVE "1" TO CC-AUTH
+           MOVE "A" TO CC-ASSIGN
+           MOVE "A" TO CC-NEIC-ASSIGN
            MOVE CHARCUR01 TO CHARCUR-BACK           
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT.
 
