@@ -848,6 +848,7 @@
            MOVE "1" TO CC-AUTH
            MOVE "A" TO CC-ASSIGN
            MOVE "A" TO CC-NEIC-ASSIGN
+           MOVE "E" TO CC-PAPER
            MOVE CHARCUR01 TO CHARCUR-BACK           
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT.
 
