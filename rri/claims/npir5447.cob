@@ -1637,9 +1637,10 @@
              MOVE "0" TO MPLR-TR-RELATE
              MOVE G-GARNO TO MPLR-KEY
              READ MPLRFILE
-               INVALID CONTINUE
+               INVALID 
+                 display "couldn't find 04 in tertiary" 
+                 CONTINUE
              END-READ
-             display mplrfile01
            END-IF
 
            MOVE G-RELATE TO SUB-RELATE
@@ -1698,6 +1699,7 @@
            MOVE "0    " TO HL-CHILD
            MOVE "MC" TO SBR-INSCODE
 
+           display "SBR-PST " SBR-PST
            IF SBR-PST = "S"
              MOVE HOLD-PAYCODE TO INS-KEY
              READ INSFILE
