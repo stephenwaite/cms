@@ -1076,6 +1076,7 @@
            DISPLAY CAR-TOT-PAID "  CAR-TOT-PAID"
            DISPLAY CAR-TOT-REDUCE "  CAR-TOT-REDUCE"
            DISPLAY CAR-TOT-ALLOWED "  CAR-TOT-ALLOWED".
+           DISPLAY CLM-BAL-CAR(X) " CLM-BAL-CAR(X)"
            ACCEPT omitted.
            GO TO CAS-TOT-EXIT.
 
