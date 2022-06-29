@@ -649,7 +649,7 @@
            MOVE 0 TO CAS-TOT-PAID-SEC
            MOVE 0 TO TOT-BAL
            MOVE "003" TO CAS-INS
-           display "about to perform cas-tot, CNTR is " CNTR
+           display "about to perform cas-tot, CNTR is " CNTR " X IS " X
            accept omitted
            
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
@@ -658,7 +658,7 @@
            MOVE G-SEINS TO CAS-INS
       *     PERFORM CAS-TOT THRU CAS-TOT-EXIT
       *       VARYING X FROM 1 BY 1 UNTIL X > CNTR.
-           PERFORM 2320S-SEC THRU 2320S-SEC-EXIT.
+      *     PERFORM 2320S-SEC THRU 2320S-SEC-EXIT.
            PERFORM 2400SRV THRU 2400SRV-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR.
            
