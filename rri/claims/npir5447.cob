@@ -116,7 +116,7 @@
            02 PROV-STATE PIC XX.
            02 PROV-ZIP PIC X(5).
 
-       FD  CARFILE.
+       FD  CAREFILE.
            COPY CAREFILE.CPY IN "C:\Users\sid\cms\copylib".
        
        FD  HIPCLAIMFILE.
@@ -1035,7 +1035,7 @@
        PROCEDURE DIVISION.
 
        P0. 
-           OPEN INPUT FILEIN GARFILE PATFILE INSFILE REFPHY
+           OPEN INPUT FILEIN GARFILE INSFILE REFPHY
              AUTHFILE MPLRFILE DIAGFILE PLACEFILE GAPFILE PARMFILE
              PARMFILE2 CAREFILE PAYCUR PROVCAID
            OPEN OUTPUT SEGFILE ERRFILE.
@@ -2227,9 +2227,7 @@
            END-IF.
 
            MOVE G-RELATE TO X-RELATE.
-           
-           IF HOLD-PATID8 = "P" PERFORM PAT-READ.
-           
+                      
            IF X-RELATE = "0"  
              MOVE G-RELATE TO X-RELATE.
            
@@ -2279,11 +2277,6 @@
            EXIT.
 
        2000B-PAT.
-       
-       PAT-READ. 
-           MOVE HOLD-PATID TO P-PATNO
-           READ PATFILE INVALID MOVE "0" TO P-RELATE.
-           MOVE P-RELATE TO X-RELATE.
 
        NUM-LEFT.
            MOVE NUM5 TO ALF5Z ALFS
