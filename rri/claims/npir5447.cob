@@ -574,6 +574,8 @@
                GO TO P98.
 
            MOVE FILEIN01 TO HOLD-FILEIN01
+           DISPLAY FILEIN01
+           DISPLAY HOLD-FILEIN01
            PERFORM DF-SEARCH
            PERFORM 2000A THRU 2000B
            GO TO P0000-1.
@@ -606,13 +608,18 @@
              AND FI-DAT1 = HOLD-DAT1
              AND FI-ACC-TYPE = HOLD-ACC-TYPE
              AND CNTR < 50
+             
              PERFORM DIAG-1 THRU DIAG-EXIT 
+             
              IF DIAG-CNTR > 12
+               DISPLAY "DIAG-CNTR IS > 12 " DIAG-CNTR
                GO TO P2
              END-IF
+             
              ADD 1 TO CNTR 
              MOVE FILEIN01 TO FILETAB(CNTR)
              ADD FI-AMOUNT TO TOT-AMOUNT
+             
              display "in P1-1, going back to P1, CNTR IS " CNTR
              GO TO P1.
 
