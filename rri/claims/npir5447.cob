@@ -1620,7 +1620,10 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM DTP01
            MOVE FILEIN-KEY TO CHARCUR-KEY
-           READ CHARCUR WITH LOCK INVALID GO TO 2400SRV-EXIT.
+           READ CHARCUR WITH LOCK 
+             INVALID 
+               DISPLAY "exiting 2400srv".
+               GO TO 2400SRV-EXIT.
            IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
@@ -2037,7 +2040,7 @@
 
        SV-MOD.
            MOVE SPACE TO SV1-MOD-FILLER MOD-ARRAY01
-            MOVE FI-PROC2 TO X-MOD1
+           MOVE FI-PROC2 TO X-MOD1
            MOVE FI-MOD2 TO X-MOD2
            MOVE FI-MOD3 TO X-MOD3.
            IF X-MOD1 = SPACE AND X-MOD2 = SPACE
@@ -2055,15 +2058,15 @@
               MOVE X-MOD3 TO X-MOD2
               MOVE SPACE TO X-MOD3.
            IF X-MOD1 NOT = SPACE
-           MOVE ":" TO MOD-C(1)
-           MOVE X-MOD1 TO MOD-CODE(1).
+             MOVE ":" TO MOD-C(1)
+             MOVE X-MOD1 TO MOD-CODE(1).
            IF X-MOD2 NOT = SPACE
-           MOVE ":" TO MOD-C(2)
-           MOVE X-MOD2 TO MOD-CODE(2).
+             MOVE ":" TO MOD-C(2)
+             MOVE X-MOD2 TO MOD-CODE(2).
            IF X-MOD3 NOT = SPACE
-           MOVE ":" TO MOD-C(3)
-           MOVE X-MOD3 TO MOD-CODE(3).
-           MOVE MOD-ARRAY01 TO SV1-MOD-FILLER.
+             MOVE ":" TO MOD-C(3)
+             MOVE X-MOD3 TO MOD-CODE(3).
+             MOVE MOD-ARRAY01 TO SV1-MOD-FILLER.
 
        MAKE-IT-UP. 
            MOVE G-DOB TO X-DOB.
