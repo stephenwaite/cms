@@ -1639,6 +1639,7 @@
              READ MPLRFILE
                INVALID CONTINUE
              END-READ
+             display mplrfile01
            END-IF
 
            MOVE G-RELATE TO SUB-RELATE
