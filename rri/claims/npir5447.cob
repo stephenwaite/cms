@@ -1611,7 +1611,7 @@
            MOVE "573" TO DTP-1
            MOVE CAR-PAYDATE(X) TO DTP-3
            MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM DTP01    
+           WRITE SEGFILE01 FROM DTP01.
 
        2420A.
            MOVE "82 " TO NM1-1
