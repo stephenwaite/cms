@@ -594,7 +594,9 @@
                GO TO P2.
 
        P1-1. 
-           IF DIAG-CNTR > 11 GO TO P2.
+           IF DIAG-CNTR > 11 
+             DISPLAY "DIAG-CNTR IS > 11 " DIAG-CNTR
+             GO TO P2.
 
            IF  FI-PLACE = HOLD-PLACE
              AND FI-KEY8 = HOLD-KEY8
