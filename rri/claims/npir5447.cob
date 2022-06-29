@@ -1657,6 +1657,8 @@
              MOVE G-SE-GROUP TO SUB-GROUP
            END-IF.
 
+           display "hold-paycode " HOLD-PAYCODE 
+           DISPLAY "MPLR-TR-RELATE " MPLR-TR-RELATE
            IF (HOLD-PAYCODE = G-TRINS) AND (MPLR-TR-RELATE NOT = "0")
              MOVE "T" TO SBR-PST
              MOVE MPLR-TR-RELATE TO SUB-RELATE
