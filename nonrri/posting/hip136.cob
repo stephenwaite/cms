@@ -675,14 +675,14 @@
            
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.                      
            
-           IF PD-AMOUNT = 0
+      *     IF PD-AMOUNT = 0
              MOVE 0 TO FLAG
              PERFORM DUMP50 
              IF FLAG = 1
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
              END-IF
-           END-IF
+      *     END-IF
 
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR
