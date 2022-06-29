@@ -1539,6 +1539,7 @@
            MOVE 12 TO A.
 
        SV1-0.
+           display "entering SV1-0"
            MOVE " " TO SV1-EMER
            IF CLM-5 = "23" MOVE "Y" TO SV1-EMER.
            COMPUTE NUM5 = X
