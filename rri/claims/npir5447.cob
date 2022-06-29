@@ -649,11 +649,24 @@
            MOVE "003" TO CAS-INS
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR           
+
+           MOVE "P" TO SBR-PST 
+           MOVE G-PRINS TO INS-KEY
+           MOVE G-PRIPOL TO NM1-CODE  
            PERFORM 2320S THRU 2320S-EXIT
+
+           MOVE 0 TO CAS-TOT-REDUCE 
+           MOVE 0 TO CAS-TOT-CHARGE
+           MOVE 0 TO CAS-TOT-ALLOWED
+           MOVE 0 TO CAS-TOT-PAID
+           MOVE 0 TO TOT-BAL
 
            MOVE G-SEINS TO CAS-INS
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
+           MOVE "S" TO SBR-PST 
+           MOVE G-SEINS TO INS-KEY  
+           MOVE G-SECPOL TO NM1-CODE
            PERFORM 2320S THRU 2320S-EXIT  
            
            PERFORM 2400SRV THRU 2400SRV-EXIT
@@ -1097,9 +1110,7 @@
            EXIT.
 
        2320S.
-           MOVE "P" TO SBR-PST 
            MOVE "18" TO SBR-RELATE 
-           MOVE G-PRINS TO INS-KEY
            MOVE "CI " TO SBR-INSCODE
            READ INSFILE
              INVALID 
@@ -1141,7 +1152,6 @@
              NM1-NAMEL NM1-NAMEF
            
            MOVE "MI" TO NM1-EINSS
-           MOVE G-PRIPOL TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
            MOVE SPACE TO N3-STREET N3-BILLADD
