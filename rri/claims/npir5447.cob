@@ -1060,7 +1060,7 @@
       *     accept omitted
            
            COMPUTE CAR-PAID(X) = CR-PAID
-           COMPUTE CLM-BAL-CAR(X) = FI-AMOUNT + CAR-REDUCE(X) 
+           COMPUTE CLM-BAL-CAR(X) = CAR-REDUCE(X) 
              + CAR-PAID(X)
            ADD CR-BILLED TO CAR-TOT-CHARGE
            ADD CR-ALLOWED TO CAR-TOT-ALLOWED
@@ -1612,7 +1612,7 @@
            IF CAR-TOT-PAID = 0
              MOVE "1 " TO CAS-2
            END-IF
-           COMPUTE NUM7 = CLM-BAL(X)
+           COMPUTE NUM7 = CLM-BAL-CAR(X)
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO CAS-3
            MOVE SPACE TO SEGFILE01
