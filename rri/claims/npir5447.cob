@@ -483,6 +483,9 @@
 
        01  CLM-BAL01.
            02 CLM-BAL PIC S9(4)V99 OCCURS 50 TIMES.
+       01  CLM-BAL-CAR01.
+           02 CLM-BAL-CAR PIC S9(4)V99 OCCURS 50 TIMES.
+
 
        01  CAS-PAYDATE01.
            02 CAS-PAYDATE PIC X(8) OCCURS 50 TIMES.
@@ -1034,8 +1037,9 @@
            
            IF CAS-INS NOT = "003" 
              GO TO CAS-TOT-1.
-           MOVE 0 TO CAR-REDUCE(X) CAR-PAID(X) CLM-BAL(X) DDTAB-CAR(X)
-           MOVE FI-AMOUNT TO CAS-ALLOWED(X)
+           MOVE 0 TO CAR-REDUCE(X) CAR-PAID(X) CLM-BAL-CAR(X) 
+             DDTAB-CAR(X)
+           MOVE FI-AMOUNT TO CAR-ALLOWED(X)
            MOVE FI-KEY8 TO CR-KEY8
            MOVE FI-DATE-T TO CR-DATE
            MOVE FI-PROC1 TO CR-PROC
@@ -1052,14 +1056,17 @@
            MOVE CR-PAYDATE TO CAR-PAYDATE(X)
            COMPUTE CAR-ALLOWED(X) = CR-ALLOWED
            COMPUTE CAR-REDUCE(X)  = CR-BILLED - CR-ALLOWED 
-           display "car-reduce x " car-reduce(x) " " x
-           accept omitted
+      *     display "car-reduce x " car-reduce(x) " " x
+      *     accept omitted
            
            COMPUTE CAR-PAID(X) = CR-PAID
+           COMPUTE CLM-BAL-CAR(X) = FI-AMOUNT + CAR-REDUCE(X) 
+             + CAR-PAID(X)
            ADD CR-BILLED TO CAR-TOT-CHARGE
            ADD CR-ALLOWED TO CAR-TOT-ALLOWED
            ADD CAS-REDUCE(X) TO CAR-TOT-REDUCE
            ADD CR-PAID TO CAR-TOT-PAID
+           
            DISPLAY FI-AMOUNT " FI-AMOUNT"
            DISPLAY CAR-TOT-CHARGE " CAR-TOT-CHARGE"
            DISPLAY CAR-REDUCE(X) " CAR-REDUCE(X)"
