@@ -77,13 +77,13 @@
            02 SE-S0 PIC X VALUE "*".
            02 SE-CNTR PIC X(9).
            02 SE-S1 PIC X VALUE "*".
-           02 SE-NUM PIC 9(4).
+           02 SE-NUM PIC X(9).
            02 SE-END PIC X VALUE "~".
 
        01  GE01.
            02 GE-0 PIC XX VALUE "GE".
            02 GE-S0 PIC X VALUE "*".
-           02 GE-CNTRX PIC X(4).
+           02 GE-CNTR PIC 9 VALUE 1.
            02 GE-S1 PIC X VALUE "*".
            02 GE-NUM PIC X(9).
            02 GE-END PIC X VALUE "~".
