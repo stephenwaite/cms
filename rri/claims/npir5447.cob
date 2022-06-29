@@ -630,6 +630,7 @@
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
            PERFORM 2320S THRU 2320S-EXIT
+           PERFORM 2320S-SEC THRU 2320S-SEC-EXIT
            PERFORM 2400SRV THRU 2400SRV-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
            
@@ -1054,9 +1055,7 @@
        2320S.
            MOVE "P" TO SBR-PST 
            MOVE "18" TO SBR-RELATE 
-           MOVE G-PRIPOL TO SBR-GROUP 
            MOVE G-PRINS TO INS-KEY
-           MOVE "SP" TO SBR-TYPE 
            MOVE "CI " TO SBR-INSCODE
            READ INSFILE
              INVALID 
@@ -1188,6 +1187,95 @@
            WRITE SEGFILE01 FROM NM101.
 
        2320S-EXIT.  EXIT.
+
+       2320S-SEC.
+           MOVE "S" TO SBR-PST 
+           MOVE "18" TO SBR-RELATE 
+           MOVE "CI " TO SBR-INSCODE
+           READ INSFILE
+             INVALID 
+               MOVE "COMMERCIAL INS" TO INS-NAME
+           END-READ
+
+           MOVE SPACE TO SBR-GRNAME
+      *     MOVE INS-NAME TO SBR-GRNAME 
+
+           IF G-PRINS = "003" OR "028" OR "200" OR "245" OR "074"
+             MOVE "MB " TO SBR-INSCODE SBR-TYPE.
+
+           IF G-PRINS = "006"
+             MOVE "OF " TO SBR-INSCODE.
+           
+           IF G-PRINS = "141"
+             MOVE "CH " TO SBR-INSCODE.
+           
+           IF (G-PRINS = "002" OR "268") OR (INS-CAID = "EE ")
+             MOVE "BL " TO SBR-INSCODE.
+             MOVE SPACE TO SBR-6 SBR-7 SBR-8 SBR-TYPE
+             MOVE SPACE TO SEGFILE01
+             WRITE SEGFILE01 FROM SBR01.
+       
+           MOVE SPACE TO AMT-1 AMT-2
+           MOVE "D  " TO AMT-1
+           COMPUTE NUM7 = CAS-TOT-PAID
+           PERFORM AMT-LEFT
+           MOVE ALF8NUM TO AMT-2
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM AMT01
+       
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM OI01.
+       
+           MOVE "IL " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
+           
+           UNSTRING G-SENAME DELIMITED BY ";" INTO
+             NM1-NAMEL NM1-NAMEF
+           
+           MOVE "MI" TO NM1-EINSS
+           MOVE G-SECPOL TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+           MOVE SPACE TO N3-STREET N3-BILLADD
+           MOVE G-BILLADD TO N3-STREET
+           MOVE G-STREET TO N3-BILLADD
+           
+           IF G-BILLADD = SPACE
+             MOVE G-STREET TO N3-STREET
+             MOVE SPACE TO N3-BILLADD.
+           
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM N301.
+           MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
+           MOVE G-CITY TO N4-CITY
+           MOVE G-STATE TO N4-STATE
+           MOVE G-ZIP TO N4-ZIP
+           
+           IF N4-ZIP(6:4) = SPACE
+             MOVE "9999" TO N4-ZIP(6:4)
+           END-IF
+
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM N401.
+      *     MOVE SPACE TO REF-CODE REF-ID
+      *     MOVE "IG" TO REF-CODE
+      *     MOVE G-PRIPOL TO REF-ID
+      *     WRITE SEGFILE01 FROM REF01.
+           MOVE "PR " TO NM1-1
+           MOVE "2" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
+           MOVE INS-NAME TO NM1-NAMEL
+           MOVE "PI" TO NM1-EINSS
+           MOVE INS-CAID TO NM1-CODE
+           IF G-PRINS = "900"
+             MOVE "BV" TO NM1-CODE 
+           END-IF
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2320S-SEC-EXIT.
+           EXIT.
 
        CMP-1.
            MOVE "S" TO SBR-PST
