@@ -600,13 +600,14 @@
              DISPLAY "DIAG-CNTR IS > 11 " DIAG-CNTR
              GO TO P2.
            
-           DISPLAY FI-PLACE  HOLD-PLACE
-               " " FI-KEY8 HOLD-KEY8
-             " " FI-PATID HOLD-PATID
-             " " FI-DOCP HOLD-DOCP
-             " " FI-DOCR HOLD-DOCR
-             " " FI-DAT1 HOLD-DAT1
-             " " FI-ACC-TYPE HOLD-ACC-TYPE " CNTR " CNTR
+           DISPLAY FI-PLACE " PLACE " HOLD-PLACE
+           DISPLAY FI-KEY8 " KEY8 " HOLD-KEY8
+           DISPLAY FI-PATID " PATID " HOLD-PATID
+           DISPLAY FI-DOCP " DOCP " HOLD-DOCP
+           DISPLAY FI-DOCR " DOCR " HOLD-DOCR
+           DISPLAY FI-DAT1 " DAT1 " HOLD-DAT1
+           DISPLAY FI-ACC-TYPE " ACC TYPE " HOLD-ACC-TYPE 
+           DISPLAY "CNTR " CNTR
            
            IF  FI-PLACE = HOLD-PLACE
              AND FI-KEY8 = HOLD-KEY8
