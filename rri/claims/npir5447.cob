@@ -489,7 +489,7 @@
            02 X-YYYY PIC 9999.
            02 X-MM PIC 99.
            02 X-DD PIC 99.
-
+       01  CAS-INS PIC X(3).
        PROCEDURE DIVISION.
 
        P0. 
@@ -626,6 +626,7 @@
            MOVE 0 TO CAS-TOT-ALLOWED
            MOVE 0 TO CAS-TOT-PAID
            MOVE 0 TO TOT-BAL
+           MOVE "003" TO CAS-INS
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
            PERFORM 2320S THRU 2320S-EXIT
@@ -800,7 +801,7 @@
            PERFORM SUBSCRIBER-1 THRU SUBSCRIBER-EXIT.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM HL01
-           MOVE SPACE TO SEGFILE01
+      *     MOVE SPACE TO SEGFILE01
       *     MOVE "PE" TO PRV-1
       *     MOVE DOC-TAX(HOLD-DOCP) TO PRV-TAX
       *     WRITE SEGFILE01 FROM PRV01
@@ -815,7 +816,7 @@
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
       *  when dxc has a diff name than 03 it's a name change game
       *  let's try using SE-NAME     
-           UNSTRING G-SENAME DELIMITED BY "; " OR ";" INTO
+           UNSTRING MPLR-TR-NAME DELIMITED BY "; " OR ";" INTO
            NM1-NAMEL NM1-NAMEF NM1-NAMEM
            MOVE SPACE TO NAME-1 NAME-2
            UNSTRING NM1-NAMEL DELIMITED BY " " INTO NAME-1 NAME-2
@@ -833,7 +834,7 @@
             END-IF
            END-IF.
            MOVE SPACE TO NM1-CODE
-           MOVE G-SECPOL TO NM1-CODE
+           MOVE MPLR-TRIPOL0 TO NM1-CODE
            MOVE "MI" TO NM1-EINSS
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
@@ -961,9 +962,9 @@
            EXIT.
 
        CAS-TOT.
-           MOVE FILETAB(X) TO FILEIN01
-      *     IF G-PRINS NOT = "003" 
-           GO TO CAS-TOT-1.
+           MOVE FILETAB(X) TO FILEIN01.
+           IF CAS-INS NOT = "003" 
+             GO TO CAS-TOT-1.
            MOVE 0 TO CAS-REDUCE(X) CAS-PAID(X) CLM-BAL(X) DDTAB(X)
            MOVE FI-AMOUNT TO CAS-ALLOWED(X)
            MOVE FI-KEY8 TO CR-KEY8
@@ -1697,12 +1698,15 @@
 
            IF (X-RELATE = "2" OR "K") 
              AND (SUB-RELATE = "2" OR "K")
-             MOVE "01" TO SBR-RELATEHOLD GO TO SUBSCRIBER-2.
-           
-           IF (X-RELATE = "8" OR "Q") MOVE "29" TO SBR-RELATEHOLD
+             MOVE "01" TO SBR-RELATEHOLD 
              GO TO SUBSCRIBER-2.
            
-           IF (X-RELATE = "4" OR "M") MOVE "02" TO SBR-RELATEHOLD
+           IF (X-RELATE = "8" OR "Q") 
+             MOVE "29" TO SBR-RELATEHOLD
+             GO TO SUBSCRIBER-2.
+           
+           IF (X-RELATE = "4" OR "M") 
+             MOVE "02" TO SBR-RELATEHOLD
              GO TO SUBSCRIBER-2.
 
            IF (X-RELATE = "5" OR "N") MOVE "17" TO SBR-RELATEHOLD
