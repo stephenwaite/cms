@@ -1079,24 +1079,6 @@
              MOVE SPACE TO SBR-6 SBR-7 SBR-8 SBR-TYPE
              MOVE SPACE TO SEGFILE01
              WRITE SEGFILE01 FROM SBR01.
-      *     MOVE SPACE TO CAS-1 CAS-2 CAS-3
-      *     MOVE "OA" TO CAS-1
-      *     MOVE "22 " TO CAS-2
-      *     COMPUTE NUM7 = CAS-TOT-REDUCE
-      *     PERFORM AMT-LEFT
-      *     MOVE ALF8NUM TO CAS-3
-      *     MOVE SPACE TO SEGFILE01
-      *     WRITE SEGFILE01 FROM CAS01
-       
-      *     MOVE SPACE TO CAS-1 CAS-2 CAS-3
-      *     MOVE "OA" TO CAS-1
-      *     MOVE "2  " TO CAS-2
-      *     COMPUTE NUM7 = TOT-BAL
-      *     PERFORM AMT-LEFT
-      *     MOVE ALF8NUM TO CAS-3
-      *    MOVE SPACE TO SEGFILE01
-      *    WRITE SEGFILE01 FROM CAS01
-
        
            MOVE SPACE TO AMT-1 AMT-2
            MOVE "D  " TO AMT-1
@@ -1104,46 +1086,15 @@
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO AMT-2
            MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM AMT01
-       
-      *     MOVE SPACE TO AMT-1 AMT-2
-      *     MOVE "AAE" TO AMT-1
-      *     COMPUTE NUM7 = CAS-TOT-ALLOWED
-      *     PERFORM AMT-LEFT
-      *     MOVE ALF8NUM TO AMT-2
-      *     MOVE SPACE TO SEGFILE01
-      *     WRITE SEGFILE01 FROM AMT01
-       
-      *     MOVE "B6 " TO AMT-1
-      *     MOVE SPACE TO SEGFILE01
-      *     WRITE SEGFILE01 FROM AMT01
-
-      *  IF PRIMARY INS SUBSCRIBER NOT = 2ND SUBSCRIBER 
-      *  MAKE UP DOB FOR DMG01 SEGMENT    
-      *     IF (G-PR-RELATE NOT = G-SE-RELATE)
-      *     OR (G-GARNAME NOT = G-PRNAME)
-      *     PERFORM MAKE-IT-UP THRU MAKE-IT-UP-EXIT
-      *     ELSE
-      *     MOVE G-DOB TO DMG-DOB
-      *     MOVE G-SEX TO DMG-GENDER.
-      *     MOVE SPACE TO SEGFILE01
-      *     WRITE SEGFILE01 FROM DMG01.
-       
+           WRITE SEGFILE01 FROM AMT01       
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM OI01.
        
            MOVE "IL " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
-      * use SE-NAME because that's all dxc knows
-           
-      *     IF (G-PR-RELATE NOT = G-SE-RELATE)
-      *       OR (G-GARNAME NOT = G-PRNAME)
-             UNSTRING G-SENAME DELIMITED BY ";" INTO
+           UNSTRING G-SENAME DELIMITED BY ";" INTO
              NM1-NAMEL NM1-NAMEF
-      *     ELSE
-      *       UNSTRING G-GARNAME DELIMITED BY ";" INTO
-      *         NM1-NAMEL NM1-NAMEF.
            
            MOVE "MI" TO NM1-EINSS
            MOVE G-PRIPOL TO NM1-CODE
@@ -1170,10 +1121,6 @@
 
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N401.
-      *     MOVE SPACE TO REF-CODE REF-ID
-      *     MOVE "IG" TO REF-CODE
-      *     MOVE G-PRIPOL TO REF-ID
-      *     WRITE SEGFILE01 FROM REF01.
            MOVE "PR " TO NM1-1
            MOVE "2" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
@@ -1192,6 +1139,7 @@
            MOVE "S" TO SBR-PST 
            MOVE "18" TO SBR-RELATE 
            MOVE "CI " TO SBR-INSCODE
+           MOVE G-SEINS TO INS-KEY
            READ INSFILE
              INVALID 
                MOVE "COMMERCIAL INS" TO INS-NAME
@@ -1200,16 +1148,16 @@
            MOVE SPACE TO SBR-GRNAME
       *     MOVE INS-NAME TO SBR-GRNAME 
 
-           IF G-PRINS = "003" OR "028" OR "200" OR "245" OR "074"
+           IF G-SEINS = "003" OR "028" OR "200" OR "245" OR "074"
              MOVE "MB " TO SBR-INSCODE SBR-TYPE.
 
-           IF G-PRINS = "006"
+           IF G-SEINS = "006"
              MOVE "OF " TO SBR-INSCODE.
            
-           IF G-PRINS = "141"
+           IF G-SEINS = "141"
              MOVE "CH " TO SBR-INSCODE.
            
-           IF (G-PRINS = "002" OR "268") OR (INS-CAID = "EE ")
+           IF (G-SEINS = "002" OR "268") OR (INS-CAID = "EE ")
              MOVE "BL " TO SBR-INSCODE.
              MOVE SPACE TO SBR-6 SBR-7 SBR-8 SBR-TYPE
              MOVE SPACE TO SEGFILE01
