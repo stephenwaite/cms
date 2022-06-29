@@ -650,10 +650,12 @@
            MOVE SAVE01 TO FILEIN01
            
            IF FI-DOCP NOT = HOLD-DOCP 
+             
              MOVE FILEIN01 TO HOLD-FILEIN01
              PERFORM DOCP-1.
            
            MOVE FILEIN01 TO HOLD-FILEIN01
+           DISPLAY HOLD-FILEIN01
            PERFORM 2000B 
            GO TO P0000.
        
@@ -959,6 +961,7 @@
 
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N401.
+
        2320A.
            GO TO 2320A-EXIT.
            IF G-SEINS = "001" OR "012" OR "075" OR "076"
