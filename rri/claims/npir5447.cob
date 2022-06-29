@@ -671,7 +671,7 @@
            display "about to perform 2400SRV THRU 2400SRV-EXIT"
            accept omitted
            PERFORM 2400SRV THRU 2400SRV-EXIT
-             VARYING X FROM 1 BY 1 UNTIL X > CNTR.
+             VARYING X FROM 1 BY 1 UNTIL X > CNTR
            
            IF END-FLAG = 1 GO TO P98.
            
