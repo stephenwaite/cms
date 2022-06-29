@@ -992,6 +992,7 @@
 
        CAS-TOT.
            MOVE FILETAB(X) TO FILEIN01.
+           DISPLAY "CAS-INS IS " CAS-INS
            IF CAS-INS NOT = "003" 
              GO TO CAS-TOT-1.
            DISPLAY "WERE GOING TO READ FROM CAREFILE"
@@ -1007,10 +1008,8 @@
              INVALID 
                DISPLAY "INVALID CAREFILE READ " FILEIN01
                accept omitted
-               GO TO CAS-TOT-1
+               GO TO CAS-TOT-EXIT
            END-READ
-
-      *     IF CR-PAID = 0 GO TO CAS-TOT-1.
            
            MOVE CR-PAYDATE TO CAS-PAYDATE(X)
            COMPUTE CAS-ALLOWED(X) = CR-ALLOWED
