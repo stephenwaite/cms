@@ -161,6 +161,7 @@
              03 FI-PROC0 PIC X(4).
              03 FI-PROC1 PIC X(5).
              03 FI-PROC2 PIC XX.
+             03 FI-PROC3 PIC XX.
            02 FI-MOD2 PIC XX.
            02 FI-MOD3 PIC XX.
            02 FI-MOD4 PIC XX.
@@ -995,9 +996,9 @@
            MOVE FI-AMOUNT TO CAS-ALLOWED(X)
            MOVE FI-KEY8 TO CR-KEY8
            MOVE FI-DATE-T TO CR-DATE
-           MOVE FI-PROC1 TO CR-PROC(1:1)
+           MOVE FI-PROC1 TO CR-PROC
            MOVE FI-PROC2 TO CR-MOD1
-           MOVE SPACE TO CR-MOD2
+           MOVE FI-PROC3 TO CR-MOD2
            READ CAREFILE
              INVALID 
                DISPLAY "INVALID CAREFILE READ " FILEIN01
