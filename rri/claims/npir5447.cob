@@ -649,7 +649,7 @@
            MOVE 0 TO CAS-TOT-PAID-SEC
            MOVE 0 TO TOT-BAL
            MOVE "003" TO CAS-INS
-           display "about to perform cas-tot"
+           display "about to perform cas-tot, CNTR is " CNTR
            accept omitted
            
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
