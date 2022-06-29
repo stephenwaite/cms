@@ -478,26 +478,6 @@
        01  CAS-TOT-CHARGE PIC 9(4)V99.
        01  CAS-TOT-ALLOWED PIC 9(4)V99.
        01  CAS-TOT-PAID PIC 9(4)V99.
-       
-       01  CAS-REDUCEX-SEC PIC S9(4)V99.
-       01  CAS-REDUCE01-SEC.
-           02 CAS-REDUCE-SEC PIC S9(4)V99 OCCURS 50 TIMES.
-       01  DDTAB01-SEC.
-            02 DDTAB-SEC PIC 9 occurs 50 times.
-       01  CAS-ALLOWED01-SEC.
-           02 CAS-ALLOWED-SEC PIC S9(4)V99 OCCURS 50 TIMES.
-       01  CAS-PAID01-SEC.
-           02 CAS-PAID-SEC PIC S9(4)V99 OCCURS 50 TIMES.
-       01  CLM-BAL01-SEC.
-           02 CLM-BAL-SEC PIC S9(4)V99 OCCURS 50 TIMES.
-       01  CAS-PAYDATE01-SEC.
-           02 CAS-PAYDATE-SEC PIC X(8) OCCURS 50 TIMES.
-       01  TOT-BAL-SEC PIC S9(4)V99.
-       01  CAS-TOT-REDUCE-SEC PIC 9(4)V99.
-       01  CAS-TOT-CHARGE-SEC PIC 9(4)V99.
-       01  CAS-TOT-ALLOWED-SEC PIC 9(4)V99.
-       01  CAS-TOT-PAID-SEC PIC 9(4)V99.
-
        01  PRIME-FLAG PIC 9.
        01  REDUCE-FLAG PIC 9.
        01  AMOUNT-X PIC S9(4)V99.
@@ -650,7 +630,6 @@
            MOVE 0 TO CAS-TOT-CHARGE
            MOVE 0 TO CAS-TOT-ALLOWED
            MOVE 0 TO CAS-TOT-PAID
-           MOVE 0 TO CAS-TOT-PAID-SEC
            MOVE 0 TO TOT-BAL
            MOVE "003" TO CAS-INS
            
@@ -667,7 +646,6 @@
            MOVE G-SEINS TO CAS-INS
       *     PERFORM CAS-TOT THRU CAS-TOT-EXIT
       *       VARYING X FROM 1 BY 1 UNTIL X > CNTR
-      *     PERFORM 2320S-SEC THRU 2320S-SEC-EXIT
            
            display "about to perform 2400SRV THRU 2400SRV-EXIT"
            accept omitted
@@ -1052,10 +1030,10 @@
            MOVE FI-KEY8 TO PC-KEY8
            MOVE SPACE TO PC-KEY3
            MOVE 0 TO REDUCE-FLAG PRIME-FLAG 
-           MOVE 0 TO CAS-REDUCEX-SEC CAS-REDUCE-SEC(X) 
-             CAS-PAID-SEC(X) DDTAB-SEC(X)
-             CLM-BAL-SEC(X)
-           MOVE FI-DATE-T TO CAS-PAYDATE-SEC(X).
+           MOVE 0 TO CAS-REDUCEX CAS-REDUCE(X) 
+             CAS-PAID(X) DDTAB(X)
+             CLM-BAL(X)
+           MOVE FI-DATE-T TO CAS-PAYDATE(X).
            START PAYCUR KEY NOT < PAYCUR-KEY 
              INVALID
                GO TO CAS-TOT-EXIT.
@@ -1067,14 +1045,14 @@
            IF (PC-PAYCODE = G-SEINS AND PC-DENIAL = "14")
             OR (PC-PAYCODE = "014" OR "015")
       *     DISPLAY PC-AMOUNT
-            COMPUTE CAS-REDUCE-SEC(X) = CAS-REDUCE-SEC(X) + PC-AMOUNT
+            COMPUTE CAS-REDUCE(X) = CAS-REDUCE(X) + PC-AMOUNT
            GO TO CAS-TOT-2.
            IF (PC-PAYCODE = G-SEINS)  
              AND (PC-DENIAL = "  " OR "DD" OR "07" OR "08")
-             COMPUTE CAS-PAID-SEC(X) = CAS-PAID-SEC(X) + PC-AMOUNT
-             MOVE PC-DATE-T TO CAS-PAYDATE-SEC(X)
+             COMPUTE CAS-PAID(X) = CAS-PAID(X) + PC-AMOUNT
+             MOVE PC-DATE-T TO CAS-PAYDATE(X)
              IF PC-DENIAL = "DD"
-               MOVE 1 TO DDTAB-SEC(X)
+               MOVE 1 TO DDTAB(X)
              END-IF
            END-IF
            GO TO CAS-TOT-2.
@@ -1089,18 +1067,18 @@
       *     DISPLAY CAS-TOT-ALLOWED "  CAS-TOT-ALLOWED"
       *     DISPLAY " "
        
-           ADD FI-AMOUNT TO CAS-TOT-CHARGE-SEC
-           IF CAS-REDUCE-SEC(X) NOT < 0 MOVE 0 TO CAS-REDUCE-SEC(X).
-           COMPUTE CLM-BAL(X) = FI-AMOUNT + CAS-REDUCE-SEC(X) 
-             + CAS-PAID-SEC(X)
-           COMPUTE CAS-ALLOWED-SEC(X) = FI-AMOUNT + CAS-REDUCE-SEC(X)
+           ADD FI-AMOUNT TO CAS-TOT-CHARGE
+           IF CAS-REDUCE(X) NOT < 0 MOVE 0 TO CAS-REDUCE(X).
+           COMPUTE CLM-BAL(X) = FI-AMOUNT + CAS-REDUCE(X) 
+             + CAS-PAID(X)
+           COMPUTE CAS-ALLOWED(X) = FI-AMOUNT + CAS-REDUCE(X)
            COMPUTE CAS-TOT-PAID = CAS-TOT-PAID 
-             + ( -1 * CAS-PAID-SEC(X)).
-           COMPUTE CAS-TOT-REDUCE-SEC = CAS-TOT-REDUCE-SEC 
-                     + (-1 *  CAS-REDUCE-SEC(X)) 
-           COMPUTE CAS-TOT-ALLOWED-SEC = CAS-TOT-ALLOWED-SEC 
-             + CAS-ALLOWED-SEC(X).
-           COMPUTE TOT-BAL-SEC = TOT-BAL-SEC + CLM-BAL-SEC(X).
+             + ( -1 * CAS-PAID(X)).
+           COMPUTE CAS-TOT-REDUCE = CAS-TOT-REDUCE 
+                     + (-1 *  CAS-REDUCE(X)) 
+           COMPUTE CAS-TOT-ALLOWED = CAS-TOT-ALLOWED 
+             + CAS-ALLOWED(X).
+           COMPUTE TOT-BAL = TOT-BAL + CLM-BAL(X).
       *     DISPLAY FI-AMOUNT " FI-AMOUNT"
       *     DISPLAY CAS-TOT-CHARGE " CAS-TOT-CHARGE"
       *     DISPLAY CAS-REDUCE(X) " CAS-REDUCE(X)"
@@ -1196,96 +1174,6 @@
            DISPLAY "EXITING 2320S".
 
        2320S-EXIT.  
-           EXIT.
-
-       2320S-SEC.
-           MOVE "S" TO SBR-PST 
-           MOVE "18" TO SBR-RELATE 
-           MOVE "CI " TO SBR-INSCODE
-           MOVE G-SEINS TO INS-KEY
-           READ INSFILE
-             INVALID 
-               MOVE "COMMERCIAL INS" TO INS-NAME
-           END-READ
-
-           MOVE SPACE TO SBR-GRNAME
-      *     MOVE INS-NAME TO SBR-GRNAME 
-
-           IF G-SEINS = "003" OR "028" OR "200" OR "245" OR "074"
-             MOVE "MB " TO SBR-INSCODE SBR-TYPE.
-
-           IF G-SEINS = "006"
-             MOVE "OF " TO SBR-INSCODE.
-           
-           IF G-SEINS = "141"
-             MOVE "CH " TO SBR-INSCODE.
-           
-           IF (G-SEINS = "002" OR "268") OR (INS-CAID = "EE ")
-             MOVE "BL " TO SBR-INSCODE.
-             MOVE SPACE TO SBR-6 SBR-7 SBR-8 SBR-TYPE
-             MOVE SPACE TO SEGFILE01
-             WRITE SEGFILE01 FROM SBR01.
-       
-           MOVE SPACE TO AMT-1 AMT-2
-           MOVE "D  " TO AMT-1
-           COMPUTE NUM7 = CAS-TOT-PAID-SEC
-           PERFORM AMT-LEFT
-           MOVE ALF8NUM TO AMT-2
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM AMT01
-       
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM OI01.
-       
-           MOVE "IL " TO NM1-1
-           MOVE "1" TO NM1-SOLO
-           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
-           
-           UNSTRING G-SENAME DELIMITED BY ";" INTO
-             NM1-NAMEL NM1-NAMEF
-           
-           MOVE "MI" TO NM1-EINSS
-           MOVE G-SECPOL TO NM1-CODE
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM NM101.
-           MOVE SPACE TO N3-STREET N3-BILLADD
-           MOVE G-BILLADD TO N3-STREET
-           MOVE G-STREET TO N3-BILLADD
-           
-           IF G-BILLADD = SPACE
-             MOVE G-STREET TO N3-STREET
-             MOVE SPACE TO N3-BILLADD.
-           
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM N301.
-           MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
-           MOVE G-CITY TO N4-CITY
-           MOVE G-STATE TO N4-STATE
-           MOVE G-ZIP TO N4-ZIP
-           
-           IF N4-ZIP(6:4) = SPACE
-             MOVE "9999" TO N4-ZIP(6:4)
-           END-IF
-
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM N401.
-      *     MOVE SPACE TO REF-CODE REF-ID
-      *     MOVE "IG" TO REF-CODE
-      *     MOVE G-PRIPOL TO REF-ID
-      *     WRITE SEGFILE01 FROM REF01.
-           MOVE "PR " TO NM1-1
-           MOVE "2" TO NM1-SOLO
-           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
-           MOVE INS-NAME TO NM1-NAMEL
-           MOVE "PI" TO NM1-EINSS
-           MOVE INS-CAID TO NM1-CODE
-           IF G-PRINS = "900"
-             MOVE "BV" TO NM1-CODE 
-           END-IF
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM NM101.
-
-       2320S-SEC-EXIT.
            EXIT.
 
        CMP-1.
