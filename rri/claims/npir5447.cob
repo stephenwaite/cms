@@ -662,10 +662,12 @@
            display "about to perform 2320S THRU 2320S-EXIT "
              accept omitted
            PERFORM 2320S THRU 2320S-EXIT
+
            MOVE G-SEINS TO CAS-INS
       *     PERFORM CAS-TOT THRU CAS-TOT-EXIT
       *       VARYING X FROM 1 BY 1 UNTIL X > CNTR
       *     PERFORM 2320S-SEC THRU 2320S-SEC-EXIT
+           
            display "about to perform 2400SRV THRU 2400SRV-EXIT"
            accept omitted
            PERFORM 2400SRV THRU 2400SRV-EXIT
@@ -1503,32 +1505,7 @@
        2400SRV.
            MOVE FILETAB(X) TO FILEIN01
            MOVE FI-PROC1 TO SV1-PROC.
-           MOVE SPACE TO SV1-EPSDT
-           IF ((FI-PROC1 = "W9020")
-           OR (FI-PROC1 > "99380" AND < "99387")
-           OR (FI-PROC1 > "99390" AND < "99397"))
-           MOVE G-DOB TO AGEX  
-           MOVE FI-DATE-T TO AGEY
-           COMPUTE AGEZ = AGEYYY - AGEXYY
-            IF AGEZ = 21 AND AGEXMMDD > AGEYMMDD
-             COMPUTE AGEZ = 20
-            END-IF
-            IF AGEZ < 21
-           MOVE "Y" TO SV1-EPSDT
-           MOVE "EP" TO FI-PROC2
-            END-IF
-           END-IF.
-           MOVE SPACE TO SV1-FAMILY
-
-           IF ((HOLD-DATE-T < "20151001")
-           AND  (CC-DIAG > "V25  " AND < "V2700"))
-           OR ((CC-DATE-T > "20150930")
-           AND (CC-DIAG > "Z2999  " AND < "Z3200  "))
-
-           OR (CC-PROC > "58599ZZ" AND < "58620  ")
-           OR (CC-PROC = "90699ZM" OR "99070ZM" OR "90040ZM")
-           OR (CC-PROC = "58982  " OR "58983  " OR "58984  ")
-           MOVE "Y" TO SV1-FAMILY.
+           
            PERFORM SV-MOD
            COMPUTE NUM7 = FI-AMOUNT
            PERFORM AMT-LEFT
@@ -1560,7 +1537,7 @@
            MOVE ":" TO DIAG-C(DX-CNTR-PT)
            MOVE 12 TO A.
 
-       SV1-0..
+       SV1-0.
            MOVE " " TO SV1-EMER
            IF CLM-5 = "23" MOVE "Y" TO SV1-EMER.
            COMPUTE NUM5 = X
@@ -1649,6 +1626,7 @@
            MOVE BHT-DATE TO CC-DATE-A.
            MOVE "E" TO CC-PAPER
            REWRITE CHARCUR01.
+           DISPLAY "exiting 2400srv".
 
        2400SRV-EXIT.
            EXIT.
