@@ -519,30 +519,22 @@
            02 OI-END PIC X VALUE "~".
       
        01  AMT01.
-           02 AMT-0 PIC XXX.
-           02 AMT-1 PIC XX.
-           02 AMT-2 PIC X(9).
-           02 AMT-3 PIC X.
+           02 AMT-0 PIC XXX VALUE "AMT".
+           02 AMT-S0 PIC X VALUE "*".
+           02 AMT-1 PIC XXX.
+           02 AMT-S1 PIC X VALUE "*".
+           02 AMT-2 PIC X(8).
+           02 AMT-END PIC X VALUE "~".
 
        01  CAS01.
-           02 CAS-0 PIC XXX.
+           02 CAS-0 PIC XXX VALUE "CAS".
+           02 CAS-S0 PIC X VALUE "*".
            02 CAS-1 PIC XX.
-           02 CAS-2 PIC X(5).
+           02 CAS-S1 PIC X VALUE "*".
+           02 CAS-2 PIC XXX.
+           02 CAS-S2 PIC X VALUE "*".
            02 CAS-3 PIC X(8).
-           02 CAS-4 PIC XX.
-           02 CAS-5 PIC X(5).
-           02 CAS-6 PIC X(8).
-           02 CAS-7 PIC XX.
-           02 CAS-8 PIC X(5).
-           02 CAS-9 PIC X(8).
-           02 CAS-10 PIC XX.
-           02 CAS-11 PIC X(5).
-           02 CAS-12 PIC X(8).
-           02 CAS-13 PIC XX.
-           02 CAS-14 PIC X(5).
-           02 CAS-15 PIC X(8).
-           02 CAS-16 PIC XX.
-           02 CAS-17 PIC X(5).
-           02 CAS-18 PIC X(8).
-           02 CAS-19 PIC XX.
+           02 CAS-S3 PIC X VALUE "*".
+           02 CAS-4 PIC X.
+           02 CAS-END PIC X VALUE "~".
                
