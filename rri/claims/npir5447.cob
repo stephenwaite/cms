@@ -644,6 +644,7 @@
            display "about to perform 2320A THRU 2320A-EXIT"
            accept omitted
            PERFORM 2320A THRU 2320A-EXIT
+
            MOVE 0 TO CAS-TOT-REDUCE 
            MOVE 0 TO CAS-TOT-CHARGE
            MOVE 0 TO CAS-TOT-ALLOWED
@@ -651,11 +652,13 @@
            MOVE 0 TO CAS-TOT-PAID-SEC
            MOVE 0 TO TOT-BAL
            MOVE "003" TO CAS-INS
+           
            display "about to perform cas-tot, CNTR IS " CNTR
            accept omitted
            
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
+           
            display "about to perform 2320S THRU 2320S-EXIT "
              accept omitted
            PERFORM 2320S THRU 2320S-EXIT
@@ -1187,8 +1190,10 @@
            END-IF
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
+           DISPLAY "EXITING 2320S".
 
-       2320S-EXIT.  EXIT.
+       2320S-EXIT.  
+           EXIT.
 
        2320S-SEC.
            MOVE "S" TO SBR-PST 
