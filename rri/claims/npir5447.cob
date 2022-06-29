@@ -599,7 +599,15 @@
            IF DIAG-CNTR > 11 
              DISPLAY "DIAG-CNTR IS > 11 " DIAG-CNTR
              GO TO P2.
-
+           
+           DISPLAY FI-PLACE  HOLD-PLACE
+               " " FI-KEY8 HOLD-KEY8
+             " " FI-PATID HOLD-PATID
+             " " FI-DOCP HOLD-DOCP
+             " " FI-DOCR HOLD-DOCR
+             " " FI-DAT1 HOLD-DAT1
+             " " FI-ACC-TYPE HOLD-ACC-TYPE " CNTR " CNTR
+           
            IF  FI-PLACE = HOLD-PLACE
              AND FI-KEY8 = HOLD-KEY8
              AND FI-PATID = HOLD-PATID
@@ -660,7 +668,6 @@
            MOVE SAVE01 TO FILEIN01
            
            IF FI-DOCP NOT = HOLD-DOCP 
-             
              MOVE FILEIN01 TO HOLD-FILEIN01
              PERFORM DOCP-1.
            
