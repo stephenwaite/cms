@@ -987,6 +987,8 @@
            EXIT.
 
        CAS-TOT.
+           GO TO CAS-TOT-EXIT.
+
            MOVE FILETAB(X) TO FILEIN01.
            IF CAS-INS NOT = "003" 
              GO TO CAS-TOT-1.
