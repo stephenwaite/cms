@@ -652,8 +652,8 @@
              VARYING X FROM 1 BY 1 UNTIL X > CNTR.
            PERFORM 2320S THRU 2320S-EXIT.
            MOVE G-SEINS TO CAS-INS
-           PERFORM CAS-TOT THRU CAS-TOT-EXIT
-             VARYING X FROM 1 BY 1 UNTIL X > CNTR.
+      *     PERFORM CAS-TOT THRU CAS-TOT-EXIT
+      *       VARYING X FROM 1 BY 1 UNTIL X > CNTR.
            PERFORM 2320S-SEC THRU 2320S-SEC-EXIT.
            PERFORM 2400SRV THRU 2400SRV-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR.
@@ -987,8 +987,6 @@
            EXIT.
 
        CAS-TOT.
-           GO TO CAS-TOT-EXIT.
-
            MOVE FILETAB(X) TO FILEIN01.
            IF CAS-INS NOT = "003" 
              GO TO CAS-TOT-1.
