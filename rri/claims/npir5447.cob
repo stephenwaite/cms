@@ -614,14 +614,15 @@
 
        P1-1. 
            IF DIAG-CNTR > 11 GO TO P2.
+
            IF  FI-PLACE = HOLD-PLACE
-           AND FI-KEY8 = HOLD-KEY8
-           AND FI-PATID = HOLD-PATID
-           AND FI-DOCP = HOLD-DOCP
-           AND FI-DOCR = HOLD-DOCR
-           AND FI-DAT1 = HOLD-DAT1
-           AND FI-ACC-TYPE = HOLD-ACC-TYPE
-           AND CNTR < 50
+             AND FI-KEY8 = HOLD-KEY8
+             AND FI-PATID = HOLD-PATID
+             AND FI-DOCP = HOLD-DOCP
+             AND FI-DOCR = HOLD-DOCR
+             AND FI-DAT1 = HOLD-DAT1
+             AND FI-ACC-TYPE = HOLD-ACC-TYPE
+             AND CNTR < 50
              PERFORM DIAG-1 THRU DIAG-EXIT 
              IF DIAG-CNTR > 12
                GO TO P2
@@ -1026,7 +1027,7 @@
            DISPLAY CAS-TOT-PAID "  CAS-TOT-PAID"
            DISPLAY CAS-TOT-REDUCE "  CAS-TOT-REDUCE"
            DISPLAY CAS-TOT-ALLOWED "  CAS-TOT-ALLOWED".
-           ACCEPT ALF1.
+           ACCEPT omitted.
            GO TO CAS-TOT-EXIT.
       *    LET'S USE CAS-TOT-1 FOR 2NDARY PAYS, ABOVE IS 03 PRI PAYS
        CAS-TOT-1.
