@@ -642,7 +642,7 @@
             
            PERFORM 2310D
            display "about to perform 2320A THRU 2320A-EXIT"
-             accept omitted
+           accept omitted
            PERFORM 2320A THRU 2320A-EXIT
            MOVE 0 TO CAS-TOT-REDUCE 
            MOVE 0 TO CAS-TOT-CHARGE
