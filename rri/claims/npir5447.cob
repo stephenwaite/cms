@@ -468,6 +468,8 @@
 
        01  DDTAB01.
             02 DDTAB PIC 9 occurs 50 times.
+       01  DDTAB-CAR01.
+            02 DDTAB-CAR PIC 9 occurs 50 times.
 
        01  CAS-ALLOWED01.
            02 CAS-ALLOWED PIC S9(4)V99 OCCURS 50 TIMES.
@@ -687,7 +689,7 @@
            MOVE G-SEINS TO CAS-INS
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
-             
+
            MOVE "S" TO SBR-PST 
            MOVE G-SEINS TO INS-KEY  
            MOVE G-SECPOL TO NM1-CODE
@@ -1033,7 +1035,7 @@
            
            IF CAS-INS NOT = "003" 
              GO TO CAS-TOT-1.
-           MOVE 0 TO CAS-REDUCE(X) CAS-PAID(X) CLM-BAL(X) DDTAB(X)
+           MOVE 0 TO CAR-REDUCE(X) CAR-PAID(X) CLM-BAL(X) DDTAB-CAR(X)
            MOVE FI-AMOUNT TO CAS-ALLOWED(X)
            MOVE FI-KEY8 TO CR-KEY8
            MOVE FI-DATE-T TO CR-DATE
@@ -1501,6 +1503,22 @@
            MOVE FILEIN-KEY TO REF-ID
       *     MOVE SPACE TO SEGFILE01
       *     WRITE SEGFILE01 FROM REF01.
+           PERFORM SVD-CAR
+           PERFORM SVD-CAS
+           MOVE FILEIN-KEY TO CHARCUR-KEY
+           READ CHARCUR WITH LOCK 
+             INVALID 
+               GO TO 2400SRV-EXIT.
+           IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
+           IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
+           MOVE BHT-DATE TO CC-DATE-A.
+           MOVE "E" TO CC-PAPER
+           REWRITE CHARCUR01.
+
+       2400SRV-EXIT.
+           EXIT.
+
+       SVD-CAS.
            MOVE INS-CAID TO SVD-1
            IF (G-PRINS = "900") 
             MOVE "BV " TO SVD-1
@@ -1547,19 +1565,53 @@
            MOVE "573" TO DTP-1
            MOVE CAS-PAYDATE(X) TO DTP-3
            MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM DTP01
-           MOVE FILEIN-KEY TO CHARCUR-KEY
-           READ CHARCUR WITH LOCK 
-             INVALID 
-               GO TO 2400SRV-EXIT.
-           IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
-           IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
-           MOVE BHT-DATE TO CC-DATE-A.
-           MOVE "E" TO CC-PAPER
-           REWRITE CHARCUR01.
+           WRITE SEGFILE01 FROM DTP01.
 
-       2400SRV-EXIT.
-           EXIT.
+       SVD-CAR.
+           MOVE "MDB" TO SVD-1
+          
+           COMPUTE NUM7 = CAR-PAID(X)
+           PERFORM AMT-LEFT
+           MOVE ALF8NUM TO SVD-2
+           MOVE SPACE TO SVD-3
+           STRING "HC:" SV1-PROC SV1-MOD-FILLER DELIMITED BY SIZE
+           INTO SVD-3
+           MOVE SV1-WORK TO SVD-4
+           MOVE SPACE TO tab11601
+           MOVE 0 TO D
+           PERFORM VARYING C FROM 1 BY 1 UNTIL C > 116
+            IF  SVD01(C:1) NOT = " "
+              ADD 1 TO D
+              MOVE SVD01(C:1) TO TAB116(D)
+            END-IF
+           END-PERFORM
+           MOVE tab11601 TO ALF116
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM ALF116.
+           MOVE SPACE TO CAS-1 CAS-2 CAS-3
+           MOVE "CO" TO CAS-1
+           MOVE "45" TO CAS-2
+           COMPUTE NUM7 = CAR-REDUCE(X)
+           PERFORM AMT-LEFT
+           MOVE ALF8NUM TO CAS-3
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM CAS01
+           MOVE SPACE TO CAS-1 CAS-2 CAS-3
+           MOVE "PR" TO CAS-1
+           MOVE "2 " TO CAS-2
+           IF (DDTAB-CAR(X) = 1)
+             OR (CAR-TOT-PAID = 0)
+             MOVE "1 " TO CAS-2
+           END-IF
+           COMPUTE NUM7 = CLM-BAL(X)
+           PERFORM AMT-LEFT
+           MOVE ALF8NUM TO CAS-3
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM CAS01
+           MOVE "573" TO DTP-1
+           MOVE CAR-PAYDATE(X) TO DTP-3
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM DTP01    
 
        2420A.
            MOVE "82 " TO NM1-1
