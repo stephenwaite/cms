@@ -538,3 +538,14 @@
            02 CAS-4 PIC X.
            02 CAS-END PIC X VALUE "~".
                
+       01  SVD01.
+           02 SVD-0 PIC XXX VALUE "SVD".
+           02 SVD-S1 PIC X VALUE "*".
+           02 SVD-1 PIC XXX.
+           02 SVD-S3 PIC X VALUE "*".
+           02 SVD-2 PIC X(8).
+           02 SVD-S2 PIC X VALUE "*".
+           02 SVD-3 PIC X(20).
+           02 SVD-S34 PIC XX VALUE "**".
+           02 SVD-4 PIC XX.
+           02 SVD-END PIC X VALUE "~".

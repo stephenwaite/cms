@@ -229,18 +229,6 @@
             
            COPY HIP5010-837.CPY IN "C:\Users\sid\cms\copylib".
 
-       01  SVD01.
-           02 SVD-0 PIC XXX VALUE "SVD".
-           02 SVD-S1 PIC X VALUE "*".
-           02 SVD-1 PIC XXX.
-           02 SVD-S3 PIC X VALUE "*".
-           02 SVD-2 PIC X(8).
-           02 SVD-S2 PIC X VALUE "*".
-           02 SVD-3 PIC X(20).
-           02 SVD-S34 PIC XX VALUE "**".
-           02 SVD-4 PIC XX.
-           02 SVD-END PIC X VALUE "~".
-
        01  TEST-DATE.
            05 T-CC  PIC XX.
            05 T-YY  PIC XX.
@@ -309,7 +297,7 @@
        01  TAB11601.
            02 TAB116 PIC X OCCURS 116 TIMES.
 
-       01 GROUP-3 PIC XXX.
+       01  GROUP-3 PIC XXX.
 
        01  ALF1 PIC X.
        01  ALF-4.
@@ -560,6 +548,8 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SUBPER01.
            MOVE SPACE TO SEGFILE01
+           MOVE "VT MEDICAID" TO INSNM-NAME
+           MOVE "822287119" TO INSNM-NUM.
            WRITE SEGFILE01 FROM RECNM101.
 
 
@@ -2038,6 +2028,6 @@
       *     WRITE SEGFILE01 FROM IEA01.
 
        P99. 
-           REWRITE HIPCLAIMFILE01.
+      *     REWRITE HIPCLAIMFILE01.
            CLOSE GARFILE HIPCLAIMFILE CHARCUR ERRFILE.
            STOP RUN.
