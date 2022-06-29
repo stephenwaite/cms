@@ -610,6 +610,7 @@
            READ FILEIN
              AT END
                MOVE 1 TO END-FLAG 
+               display "set end-flag"
                GO TO P2.
 
        P1-1. 
