@@ -1060,8 +1060,8 @@
       *     accept omitted
            
            COMPUTE CAR-PAID(X) = CR-PAID
-           COMPUTE CLM-BAL-CAR(X) = CAR-REDUCE(X) 
-             + CAR-PAID(X)
+           COMPUTE CLM-BAL-CAR(X) = CAR-ALLOWED(X) - CAR-REDUCE(X) 
+             - CAR-PAID(X)
            ADD CR-BILLED TO CAR-TOT-CHARGE
            ADD CR-ALLOWED TO CAR-TOT-ALLOWED
            ADD CAS-REDUCE(X) TO CAR-TOT-REDUCE
