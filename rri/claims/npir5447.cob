@@ -648,6 +648,9 @@
            MOVE 0 TO CAS-TOT-PAID-SEC
            MOVE 0 TO TOT-BAL
            MOVE "003" TO CAS-INS
+           display "about to perform cas-tot"
+           accept omitted
+           
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR.
            PERFORM 2320S THRU 2320S-EXIT.
