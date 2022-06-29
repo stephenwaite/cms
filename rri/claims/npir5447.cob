@@ -960,7 +960,6 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N401.
        2320A.
-           DISPLAY "EXITING 2320A"
            GO TO 2320A-EXIT.
            IF G-SEINS = "001" OR "012" OR "075" OR "076"
            GO TO 2320A-EXIT.
@@ -991,7 +990,8 @@
            MOVE FI-DATE-T TO CR-DATE
            MOVE FI-PROC1 TO CR-PROC
            MOVE FI-PROC2 TO CR-MOD1
-           MOVE FI-PROC3 TO CR-MOD2
+           MOVE SPACE TO CR-MOD2
+      *     MOVE FI-PROC3 TO CR-MOD2
            READ CAREFILE
              INVALID 
                DISPLAY "INVALID CAREFILE READ " FILEIN01
@@ -1016,7 +1016,7 @@
            DISPLAY CAS-TOT-ALLOWED "  CAS-TOT-ALLOWED".
            ACCEPT omitted.
            GO TO CAS-TOT-EXIT.
-      *    LET'S USE CAS-TOT-1 FOR 2NDARY PAYS, ABOVE IS 03 PRI PAYS
+
        CAS-TOT-1.
            DISPLAY "WERE GOING TO READ FROM paycur"
            ACCEPT OMITTED
@@ -1503,14 +1503,12 @@
            MOVE FILEIN-KEY TO CHARCUR-KEY
            READ CHARCUR WITH LOCK 
              INVALID 
-               DISPLAY "exiting 2400srv"
                GO TO 2400SRV-EXIT.
            IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
            MOVE "E" TO CC-PAPER
            REWRITE CHARCUR01.
-           DISPLAY "exiting 2400srv".
 
        2400SRV-EXIT.
            EXIT.
