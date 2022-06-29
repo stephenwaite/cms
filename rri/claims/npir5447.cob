@@ -611,6 +611,7 @@
              ADD 1 TO CNTR 
              MOVE FILEIN01 TO FILETAB(CNTR)
              ADD FI-AMOUNT TO TOT-AMOUNT
+             display "in P1-1, going back to P1, CNTR IS " CNTR
              GO TO P1.
 
        P2.  
