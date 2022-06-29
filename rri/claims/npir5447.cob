@@ -1000,11 +1000,12 @@
            MOVE SPACE TO CR-MOD2
            READ CAREFILE
              INVALID 
-               DISPLAY "INVALID " FILEIN01
+               DISPLAY "INVALID CAREFILE READ " FILEIN01
+               accept ommitted
                GO TO CAS-TOT-1
            END-READ
 
-           IF CR-PAID = 0 GO TO CAS-TOT-1.
+      *     IF CR-PAID = 0 GO TO CAS-TOT-1.
            
            MOVE CR-PAYDATE TO CAS-PAYDATE(X)
            COMPUTE CAS-ALLOWED(X) = CR-ALLOWED
@@ -1014,9 +1015,19 @@
            ADD CR-ALLOWED TO CAS-TOT-ALLOWED
            ADD CAS-REDUCE(X) TO CAS-TOT-REDUCE
            ADD CR-PAID TO CAS-TOT-PAID
+           DISPLAY FI-AMOUNT " FI-AMOUNT"
+           DISPLAY CAS-TOT-CHARGE " CAS-TOT-CHARGE"
+           DISPLAY CAS-REDUCE(X) " CAS-REDUCE(X)"
+           DISPLAY CAS-ALLOWED(X) " CAS-ALLOWED(X)"
+           DISPLAY CAS-TOT-PAID "  CAS-TOT-PAID"
+           DISPLAY CAS-TOT-REDUCE "  CAS-TOT-REDUCE"
+           DISPLAY CAS-TOT-ALLOWED "  CAS-TOT-ALLOWED".
+           ACCEPT ALF1.
            GO TO CAS-TOT-EXIT.
       *    LET'S USE CAS-TOT-1 FOR 2NDARY PAYS, ABOVE IS 03 PRI PAYS
        CAS-TOT-1.
+           DISPLAY "WERE GOING TO READ FROM paycur"
+           ACCEPT OMITTED
            MOVE FI-KEY8 TO PC-KEY8
            MOVE SPACE TO PC-KEY3
            MOVE 0 TO REDUCE-FLAG PRIME-FLAG 
