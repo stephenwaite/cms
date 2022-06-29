@@ -1504,6 +1504,7 @@
            EXIT.
 
        2400SRV.
+           DISPLAY "ENTERING 2400SRV"
            MOVE FILETAB(X) TO FILEIN01
            MOVE FI-PROC1 TO SV1-PROC.
            
