@@ -573,8 +573,6 @@
                GO TO P98.
 
            MOVE FILEIN01 TO HOLD-FILEIN01
-           DISPLAY FILEIN01
-           DISPLAY HOLD-FILEIN01
            PERFORM DF-SEARCH
            PERFORM 2000A THRU 2000B
            GO TO P0000-1.
@@ -599,14 +597,14 @@
              DISPLAY "DIAG-CNTR IS > 11 " DIAG-CNTR
              GO TO P2.
            
-           DISPLAY FI-PLACE " PLACE " HOLD-PLACE
-           DISPLAY FI-KEY8 " KEY8 " HOLD-KEY8
-           DISPLAY FI-PATID " PATID " HOLD-PATID
-           DISPLAY FI-DOCP " DOCP " HOLD-DOCP
-           DISPLAY FI-DOCR " DOCR " HOLD-DOCR
-           DISPLAY FI-DAT1 " DAT1 " HOLD-DAT1
-           DISPLAY FI-ACC-TYPE " ACC TYPE " HOLD-ACC-TYPE 
-           DISPLAY "CNTR " CNTR
+      *     DISPLAY FI-PLACE " PLACE " HOLD-PLACE
+      *     DISPLAY FI-KEY8 " KEY8 " HOLD-KEY8
+      *     DISPLAY FI-PATID " PATID " HOLD-PATID
+      *     DISPLAY FI-DOCP " DOCP " HOLD-DOCP
+      *     DISPLAY FI-DOCR " DOCR " HOLD-DOCR
+      *     DISPLAY FI-DAT1 " DAT1 " HOLD-DAT1
+      *     DISPLAY FI-ACC-TYPE " ACC TYPE " HOLD-ACC-TYPE 
+      *     DISPLAY "CNTR " CNTR
            
            IF  FI-PLACE = HOLD-PLACE
              AND FI-KEY8 = HOLD-KEY8
@@ -648,17 +646,15 @@
            MOVE 0 TO CAS-TOT-PAID
            MOVE 0 TO TOT-BAL
            MOVE "003" TO CAS-INS
-           display "about to perform cas-tot, CNTR IS " CNTR
-           accept omitted
            
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
            
            PERFORM 2320S THRU 2320S-EXIT
 
-      *     MOVE G-SEINS TO CAS-INS
-      *     PERFORM CAS-TOT THRU CAS-TOT-EXIT
-      *       VARYING X FROM 1 BY 1 UNTIL X > CNTR
+           MOVE G-SEINS TO CAS-INS
+           PERFORM CAS-TOT THRU CAS-TOT-EXIT
+             VARYING X FROM 1 BY 1 UNTIL X > CNTR
            
            PERFORM 2400SRV THRU 2400SRV-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
