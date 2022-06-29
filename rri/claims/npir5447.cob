@@ -622,8 +622,6 @@
            IF EINSS-TYPE = "E" PERFORM 2310B. 
             
            PERFORM 2310D
-           display "about to perform 2320A THRU 2320A-EXIT"
-           accept omitted
            PERFORM 2320A THRU 2320A-EXIT
 
            MOVE 0 TO CAS-TOT-REDUCE 
@@ -632,23 +630,18 @@
            MOVE 0 TO CAS-TOT-PAID
            MOVE 0 TO TOT-BAL
            MOVE "003" TO CAS-INS
-           
            display "about to perform cas-tot, CNTR IS " CNTR
            accept omitted
            
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
            
-           display "about to perform 2320S THRU 2320S-EXIT "
-             accept omitted
            PERFORM 2320S THRU 2320S-EXIT
 
-           MOVE G-SEINS TO CAS-INS
+      *     MOVE G-SEINS TO CAS-INS
       *     PERFORM CAS-TOT THRU CAS-TOT-EXIT
       *       VARYING X FROM 1 BY 1 UNTIL X > CNTR
            
-           display "about to perform 2400SRV THRU 2400SRV-EXIT"
-           accept omitted
            PERFORM 2400SRV THRU 2400SRV-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
            
@@ -1171,7 +1164,6 @@
            END-IF
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
-           DISPLAY "EXITING 2320S".
 
        2320S-EXIT.  
            EXIT.
@@ -1392,7 +1384,6 @@
            EXIT.
 
        2400SRV.
-           DISPLAY "ENTERING 2400SRV"
            MOVE FILETAB(X) TO FILEIN01
            MOVE FI-PROC1 TO SV1-PROC.
            
@@ -1428,7 +1419,6 @@
            MOVE 12 TO A.
 
        SV1-0.
-           display "entering SV1-0"
            MOVE " " TO SV1-EMER
            IF CLM-5 = "23" MOVE "Y" TO SV1-EMER.
            COMPUTE NUM5 = X
@@ -1513,7 +1503,7 @@
            MOVE FILEIN-KEY TO CHARCUR-KEY
            READ CHARCUR WITH LOCK 
              INVALID 
-               DISPLAY "exiting 2400srv".
+               DISPLAY "exiting 2400srv"
                GO TO 2400SRV-EXIT.
            IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
