@@ -481,6 +481,10 @@
            02 SV1-S16 PIC X VALUE "*".
            02 SV1-EMER PIC X.
            02 SV1-S115 PIC X VALUE "*".
+           02 SV1-EPSDT PIC XX.
+           02 SV1-S116 PIC X VALUE "*".
+           02 SV1-FAMILY PIC X.
+           02 SV1-S117 PIC XXX VALUE "***".
            02 SV1-COPAY PIC X.
            02 SV1-END PIC X VALUE "~".
 
@@ -513,3 +517,32 @@
            02 OI-S56 PIC XX VALUE "**".
            02 OI-6 PIC X VALUE "Y".
            02 OI-END PIC X VALUE "~".
+      
+       01  AMT01.
+           02 AMT-0 PIC XXX.
+           02 AMT-1 PIC XX.
+           02 AMT-2 PIC X(9).
+           02 AMT-3 PIC X.
+
+       01  CAS01.
+           02 CAS-0 PIC XXX.
+           02 CAS-1 PIC XX.
+           02 CAS-2 PIC X(5).
+           02 CAS-3 PIC X(8).
+           02 CAS-4 PIC XX.
+           02 CAS-5 PIC X(5).
+           02 CAS-6 PIC X(8).
+           02 CAS-7 PIC XX.
+           02 CAS-8 PIC X(5).
+           02 CAS-9 PIC X(8).
+           02 CAS-10 PIC XX.
+           02 CAS-11 PIC X(5).
+           02 CAS-12 PIC X(8).
+           02 CAS-13 PIC XX.
+           02 CAS-14 PIC X(5).
+           02 CAS-15 PIC X(8).
+           02 CAS-16 PIC XX.
+           02 CAS-17 PIC X(5).
+           02 CAS-18 PIC X(8).
+           02 CAS-19 PIC XX.
+               
