@@ -645,16 +645,16 @@
            MOVE 0 TO CAS-TOT-ALLOWED
            MOVE 0 TO CAS-TOT-PAID
            MOVE 0 TO TOT-BAL
+
            MOVE "003" TO CAS-INS
-           
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
-             VARYING X FROM 1 BY 1 UNTIL X > CNTR
-           
+             VARYING X FROM 1 BY 1 UNTIL X > CNTR           
            PERFORM 2320S THRU 2320S-EXIT
 
            MOVE G-SEINS TO CAS-INS
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
+           PERFORM 2320S THRU 2320S-EXIT  
            
            PERFORM 2400SRV THRU 2400SRV-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
@@ -998,8 +998,6 @@
            
            IF CAS-INS NOT = "003" 
              GO TO CAS-TOT-1.
-           DISPLAY "WERE GOING TO READ FROM CAREFILE"
-           ACCEPT OMITTED
            MOVE 0 TO CAS-REDUCE(X) CAS-PAID(X) CLM-BAL(X) DDTAB(X)
            MOVE FI-AMOUNT TO CAS-ALLOWED(X)
            MOVE FI-KEY8 TO CR-KEY8
@@ -1034,8 +1032,6 @@
            GO TO CAS-TOT-EXIT.
 
        CAS-TOT-1.
-           DISPLAY "WERE GOING TO READ FROM paycur"
-           ACCEPT OMITTED
            MOVE FI-KEY8 TO PC-KEY8
            MOVE SPACE TO PC-KEY3
            MOVE 0 TO REDUCE-FLAG PRIME-FLAG 
