@@ -983,6 +983,7 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N401.
        2320A.
+           DISPLAY "EXITING 2320A"
            GO TO 2320A-EXIT.
            IF G-SEINS = "001" OR "012" OR "075" OR "076"
            GO TO 2320A-EXIT.
