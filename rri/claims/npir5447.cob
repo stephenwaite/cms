@@ -1001,7 +1001,7 @@
            READ CAREFILE
              INVALID 
                DISPLAY "INVALID CAREFILE READ " FILEIN01
-               accept ommitted
+               accept omitted
                GO TO CAS-TOT-1
            END-READ
 
