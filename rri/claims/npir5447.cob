@@ -1599,8 +1599,7 @@
            MOVE SPACE TO CAS-1 CAS-2 CAS-3
            MOVE "PR" TO CAS-1
            MOVE "2 " TO CAS-2
-           IF (DDTAB-CAR(X) = 1)
-             OR (CAR-TOT-PAID = 0)
+           IF CAR-TOT-PAID = 0
              MOVE "1 " TO CAS-2
            END-IF
            COMPUTE NUM7 = CLM-BAL(X)
