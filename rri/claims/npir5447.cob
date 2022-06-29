@@ -227,9 +227,9 @@
 
        WORKING-STORAGE SECTION.
             
-           COPY HIP5010_837.CPY IN "C:\Users\sid\cms\copylib".
+           COPY HIP5010-837.CPY IN "C:\Users\sid\cms\copylib".
 
-           COPY HIP5010_835.CPY IN "C:\Users\sid\cms\copylib".
+           COPY HIP5010-835.CPY IN "C:\Users\sid\cms\copylib".
 
        01  SVD01.
            02 SVD-0 PIC XXX VALUE "SVD".
