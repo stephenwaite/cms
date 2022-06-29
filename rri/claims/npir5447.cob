@@ -660,9 +660,11 @@
              accept omitted
            PERFORM 2320S THRU 2320S-EXIT.
            MOVE G-SEINS TO CAS-INS
-           PERFORM CAS-TOT THRU CAS-TOT-EXIT
-             VARYING X FROM 1 BY 1 UNTIL X > CNTR.
-           PERFORM 2320S-SEC THRU 2320S-SEC-EXIT.
+      *     PERFORM CAS-TOT THRU CAS-TOT-EXIT
+      *       VARYING X FROM 1 BY 1 UNTIL X > CNTR.
+      *     PERFORM 2320S-SEC THRU 2320S-SEC-EXIT.
+           display "about to perform 2400SRV THRU 2400SRV-EXIT"
+           accept omitted
            PERFORM 2400SRV THRU 2400SRV-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR.
            
