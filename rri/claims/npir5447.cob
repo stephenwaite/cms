@@ -161,7 +161,6 @@
              03 FI-PROC0 PIC X(4).
              03 FI-PROC1 PIC X(5).
              03 FI-PROC2 PIC XX.
-             03 FI-PROC3 PIC XX.
            02 FI-MOD2 PIC XX.
            02 FI-MOD3 PIC XX.
            02 FI-MOD4 PIC XX.
@@ -576,11 +575,13 @@
            MOVE FILEIN01 TO HOLD-FILEIN01
            DISPLAY FILEIN01
            DISPLAY HOLD-FILEIN01
+           PERFORM DF-SEARCH
            PERFORM 2000A THRU 2000B
            GO TO P0000-1.
        
        P0000.
            MOVE SAVE01 TO HOLD-FILEIN01.
+           PERFORM DF-SEARCH.
 
        P0000-1.
            MOVE 0 TO CNTR DIAG-CNTR TOT-AMOUNT MAMMO-FLAG
