@@ -651,18 +651,18 @@
            MOVE 0 TO CAS-TOT-PAID-SEC
            MOVE 0 TO TOT-BAL
            MOVE "003" TO CAS-INS
-           display "about to perform cas-tot, CNTR is " CNTR " X IS " X
+           display "about to perform cas-tot, CNTR IS " CNTR
            accept omitted
            
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
-             VARYING X FROM 1 BY 1 UNTIL X > CNTR.
+             VARYING X FROM 1 BY 1 UNTIL X > CNTR
            display "about to perform 2320S THRU 2320S-EXIT "
              accept omitted
-           PERFORM 2320S THRU 2320S-EXIT.
+           PERFORM 2320S THRU 2320S-EXIT
            MOVE G-SEINS TO CAS-INS
       *     PERFORM CAS-TOT THRU CAS-TOT-EXIT
-      *       VARYING X FROM 1 BY 1 UNTIL X > CNTR.
-      *     PERFORM 2320S-SEC THRU 2320S-SEC-EXIT.
+      *       VARYING X FROM 1 BY 1 UNTIL X > CNTR
+      *     PERFORM 2320S-SEC THRU 2320S-SEC-EXIT
            display "about to perform 2400SRV THRU 2400SRV-EXIT"
            accept omitted
            PERFORM 2400SRV THRU 2400SRV-EXIT
@@ -997,8 +997,12 @@
            EXIT.
 
        CAS-TOT.
+           DISPLAY "HERE WE ARE IN CAS-TOT"
+           ACCEPT OMITTED
            MOVE FILETAB(X) TO FILEIN01.
            DISPLAY "CAS-INS IS " CAS-INS
+           ACCEPT OMITTED
+           
            IF CAS-INS NOT = "003" 
              GO TO CAS-TOT-1.
            DISPLAY "WERE GOING TO READ FROM CAREFILE"
