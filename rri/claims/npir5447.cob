@@ -664,10 +664,10 @@
            PERFORM 2310D
            PERFORM 2320A THRU 2320A-EXIT
 
-           MOVE 0 TO CAS-TOT-REDUCE 
-           MOVE 0 TO CAS-TOT-CHARGE
-           MOVE 0 TO CAS-TOT-ALLOWED
-           MOVE 0 TO CAS-TOT-PAID
+           MOVE 0 TO CAR-TOT-REDUCE 
+           MOVE 0 TO CAR-TOT-CHARGE
+           MOVE 0 TO CAR-TOT-ALLOWED
+           MOVE 0 TO CAR-TOT-PAID
            MOVE 0 TO TOT-BAL
 
            MOVE "003" TO CAS-INS
@@ -683,11 +683,11 @@
            MOVE 0 TO CAS-TOT-CHARGE
            MOVE 0 TO CAS-TOT-ALLOWED
            MOVE 0 TO CAS-TOT-PAID
-           MOVE 0 TO TOT-BAL
 
            MOVE G-SEINS TO CAS-INS
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
+             
            MOVE "S" TO SBR-PST 
            MOVE G-SEINS TO INS-KEY  
            MOVE G-SECPOL TO NM1-CODE
@@ -1159,7 +1159,11 @@
        
            MOVE SPACE TO AMT-1 AMT-2
            MOVE "D  " TO AMT-1
-           COMPUTE NUM7 = CAS-TOT-PAID
+           IF INS-KEY = "003"
+             COMPUTE NUM7 = CAR-TOT-PAID
+           ELSE
+             COMPUTE NUM7 = CAS-TOT-PAID
+           END-IF  
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO AMT-2
            MOVE SPACE TO SEGFILE01
