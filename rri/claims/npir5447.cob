@@ -656,6 +656,8 @@
            
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR.
+           display "about to perform 2320S THRU 2320S-EXIT "
+             accept omitted
            PERFORM 2320S THRU 2320S-EXIT.
            MOVE G-SEINS TO CAS-INS
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
