@@ -652,7 +652,6 @@
              MOVE FILEIN01 TO FILETAB(CNTR)
              ADD FI-AMOUNT TO TOT-AMOUNT
              
-             display "in P1-1, going back to P1, CNTR IS " CNTR
              GO TO P1.
 
        P2.  
@@ -707,7 +706,7 @@
              PERFORM DOCP-1.
            
            MOVE FILEIN01 TO HOLD-FILEIN01
-           DISPLAY HOLD-FILEIN01
+      *     DISPLAY HOLD-FILEIN01
            PERFORM 2000B 
            GO TO P0000.
        
@@ -1030,7 +1029,7 @@
 
        CAS-TOT.
            MOVE FILETAB(X) TO FILEIN01.
-           DISPLAY "CAS-INS IS " CAS-INS
+      *     DISPLAY "CAS-INS IS " CAS-INS
            ACCEPT OMITTED
            
            IF CAS-INS NOT = "003" 
@@ -1053,18 +1052,21 @@
            MOVE CR-PAYDATE TO CAR-PAYDATE(X)
            COMPUTE CAR-ALLOWED(X) = CR-ALLOWED
            COMPUTE CAR-REDUCE(X)  = CR-BILLED - CR-ALLOWED 
+           display "car-reduce x " car-reduce(x) " " x
+           accept omitted
+           
            COMPUTE CAR-PAID(X) = CR-PAID
            ADD CR-BILLED TO CAR-TOT-CHARGE
            ADD CR-ALLOWED TO CAR-TOT-ALLOWED
            ADD CAS-REDUCE(X) TO CAR-TOT-REDUCE
            ADD CR-PAID TO CAR-TOT-PAID
            DISPLAY FI-AMOUNT " FI-AMOUNT"
-           DISPLAY CAR-TOT-CHARGE " CAS-TOT-CHARGE"
-           DISPLAY CAR-REDUCE(X) " CAS-REDUCE(X)"
-           DISPLAY CAR-ALLOWED(X) " CAS-ALLOWED(X)"
-           DISPLAY CAR-TOT-PAID "  CAS-TOT-PAID"
-           DISPLAY CAR-TOT-REDUCE "  CAS-TOT-REDUCE"
-           DISPLAY CAR-TOT-ALLOWED "  CAS-TOT-ALLOWED".
+           DISPLAY CAR-TOT-CHARGE " CAR-TOT-CHARGE"
+           DISPLAY CAR-REDUCE(X) " CAR-REDUCE(X)"
+           DISPLAY CAR-ALLOWED(X) " CAR-ALLOWED(X)"
+           DISPLAY CAR-TOT-PAID "  CAR-TOT-PAID"
+           DISPLAY CAR-TOT-REDUCE "  CAR-TOT-REDUCE"
+           DISPLAY CAR-TOT-ALLOWED "  CAR-TOT-ALLOWED".
            ACCEPT omitted.
            GO TO CAS-TOT-EXIT.
 
@@ -1100,14 +1102,15 @@
            GO TO CAS-TOT-2.
 
        CAS-TOT-3.
-      *     DISPLAY FI-AMOUNT " FI-AMOUNT"
-      *     DISPLAY CAS-TOT-CHARGE " CAS-TOT-CHARGE"
-      *     DISPLAY CAS-REDUCE(X) " CAS-REDUCE(X)"
-      *     DISPLAY CAS-ALLOWED(X) " CAS-ALLOWED(X)"
-      *     DISPLAY CAS-TOT-PAID "  CAS-TOT-PAID"
-      *     DISPLAY CAS-TOT-REDUCE "  CAS-TOT-REDUCE"
-      *     DISPLAY CAS-TOT-ALLOWED "  CAS-TOT-ALLOWED"
-      *     DISPLAY " "
+           DISPLAY FI-AMOUNT " FI-AMOUNT"
+           DISPLAY CAS-TOT-CHARGE " CAS-TOT-CHARGE"
+           DISPLAY CAS-REDUCE(X) " CAS-REDUCE(X)"
+           DISPLAY CAS-ALLOWED(X) " CAS-ALLOWED(X)"
+           DISPLAY CAS-TOT-PAID "  CAS-TOT-PAID"
+           DISPLAY CAS-TOT-REDUCE "  CAS-TOT-REDUCE"
+           DISPLAY CAS-TOT-ALLOWED "  CAS-TOT-ALLOWED"
+           DISPLAY " "
+           accept omitted
        
            ADD FI-AMOUNT TO CAS-TOT-CHARGE
            IF CAS-REDUCE(X) NOT < 0 MOVE 0 TO CAS-REDUCE(X).
@@ -1736,8 +1739,8 @@
              MOVE G-SE-GROUP TO SUB-GROUP
            END-IF.
 
-           display "hold-paycode " HOLD-PAYCODE 
-           DISPLAY "MPLR-TR-RELATE " MPLR-TR-RELATE
+      *     display "hold-paycode " HOLD-PAYCODE 
+      *     DISPLAY "MPLR-TR-RELATE " MPLR-TR-RELATE
            IF (HOLD-PAYCODE = G-TRINS) AND (MPLR-TR-RELATE NOT = "0")
              MOVE "T" TO SBR-PST
              MOVE MPLR-TR-RELATE TO SUB-RELATE
@@ -1776,7 +1779,7 @@
            MOVE "0    " TO HL-CHILD
            MOVE "MC" TO SBR-INSCODE
 
-           display "SBR-PST " SBR-PST
+      *     display "SBR-PST " SBR-PST
            IF SBR-PST = "S"
              MOVE HOLD-PAYCODE TO INS-KEY
              READ INSFILE
