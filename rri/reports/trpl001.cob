@@ -53,6 +53,11 @@
        P0.
            OPEN INPUT GARFILE CHARCUR MPLRFILE.
            open output fileout.
+           MOVE SPACE TO G-GARNO.
+           START GARFILE KEY NOT < G-GARNO
+             INVALID
+               DISPLAY "INVALID START OF GARFILE"
+               GO TO R99.
 
        R1.
            READ GARFILE NEXT
