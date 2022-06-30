@@ -97,14 +97,12 @@
            IF CC-KEY8 NOT = G-GARNO
              GO TO R1.
 
-           IF CC-DATE-T < "20200101"
-             GO TO R2.
-
-           move space to fileout01
-           DISPLAY CHARCUR-KEY " CHARCUR-KEY " g-garno 
-           string CHARCUR-KEY " CHARCUR-KEY " g-garno 
-             delimited by size into fileout01
-           write fileout01  
+           IF CC-DATE-T > "20220101"
+             move space to fileout01
+             DISPLAY CHARCUR-KEY " CHARCUR-KEY " g-garno 
+             string CHARCUR-KEY " CHARCUR-KEY " g-garno 
+               delimited by size into fileout01
+             write fileout01.
            
            GO TO R2.    
 
