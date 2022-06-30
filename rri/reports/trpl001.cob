@@ -44,7 +44,7 @@
            COPY MPLRFILE.CPY IN "C:\Users\sid\cms\copylib\rri".    
 
        fd  fileout.
-       01  fileout01 pic x(11).
+       01  fileout01 pic x(132).
        
        WORKING-STORAGE SECTION.    
 
@@ -64,10 +64,11 @@
              READ MPLRFILE
                INVALID 
                  move space to fileout01
+                 DISPLAY "no 04 in tertiary in mplrfile " g-garno 
                  string "no 04 in tertiary in mplrfile " g-garno 
                    delimited by size into fileout01
                  write fileout01  
-                 CONTINUE
+                 GO TO R1
              END-READ
            ELSE
              GO TO R1  
@@ -88,8 +89,8 @@
            IF CC-DATE-T < "20210101"
              GO TO R1.
 
-
            move space to fileout01
+           DISPLAY CHARCUR-KEY " CHARCUR-KEY " g-garno 
            string CHARCUR-KEY " CHARCUR-KEY " g-garno 
              delimited by size into fileout01
            write fileout01  
