@@ -1169,20 +1169,8 @@
            MOVE SPACE TO SBR-GRNAME
       *     MOVE INS-NAME TO SBR-GRNAME 
 
-           IF G-PRINS = "003" OR "028" OR "200" OR "245" OR "074"
-             MOVE "MB " TO SBR-INSCODE SBR-TYPE.
-
-           IF G-PRINS = "006"
-             MOVE "OF " TO SBR-INSCODE.
-           
-           IF G-PRINS = "141"
-             MOVE "CH " TO SBR-INSCODE.
-           
-           IF (G-PRINS = "002" OR "268") OR (INS-CAID = "EE ")
-             MOVE "BL " TO SBR-INSCODE.
-             MOVE SPACE TO SBR-6 SBR-7 SBR-8 SBR-TYPE
-             MOVE SPACE TO SEGFILE01
-             WRITE SEGFILE01 FROM SBR01.
+           IF INS-KEY = "003"
+             MOVE "MB " TO SBR-INSCODE.
        
            MOVE SPACE TO AMT-1 AMT-2
            MOVE "D  " TO AMT-1
