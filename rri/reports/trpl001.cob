@@ -83,7 +83,7 @@
        R1-1.
            MOVE G-GARNO TO CC-KEY8
            move space to CC-KEY3
-           START CHARCUR key not > CHARCUR-KEY.
+           START CHARCUR key not < CHARCUR-KEY.
 
        R2.
            READ CHARCUR NEXT
