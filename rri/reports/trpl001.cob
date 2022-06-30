@@ -73,13 +73,14 @@
                  string "no 04 in tertiary in mplrfile " g-garno 
                    delimited by size into fileout01
                  write fileout01  
-                 GO TO R1
+                 GO TO R1-1
              END-READ
              GO TO R2
            ELSE
              GO TO R1  
            END-IF
-
+       
+       R1-1.
            MOVE G-GARNO TO CC-KEY8
            move space to CC-KEY3
            START CHARCUR key not > CHARCUR-KEY.
