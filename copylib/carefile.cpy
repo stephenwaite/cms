@@ -11,7 +11,7 @@
            02 CR-BILLED PIC 9(4)V99.
            02 CR-ALLOWED PIC 9(4)V99.
            02 CR-DEDUCT  PIC 9(4)V99.
-           02 CR-PAYED   PIC 9(4)V99.
+           02 CR-PAID   PIC 9(4)V99.
            02 CR-DENIAL1 PIC X(4).
            02 CR-DENIAL2 PIC X(4).
            02 CR-DENIAL3 PIC X(4).
