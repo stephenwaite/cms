@@ -78,7 +78,7 @@
              GO TO R2
            ELSE
              GO TO R1  
-           END-IF
+           END-IF.
        
        R1-1.
            MOVE G-GARNO TO CC-KEY8
