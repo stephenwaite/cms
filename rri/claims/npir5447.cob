@@ -1572,11 +1572,10 @@
            MOVE SPACE TO CAS-1 CAS-2 CAS-3
            MOVE "PR" TO CAS-1
            MOVE "2 " TO CAS-2
-           IF (DDTAB(X) = 1)
-             OR (CAS-TOT-PAID = 0)
+           IF CAR-TOT-PAID = 0
              MOVE "1 " TO CAS-2
            END-IF
-           COMPUTE NUM7 = CLM-BAL(X)
+           COMPUTE NUM7 = CLM-BAL-CAR(X) - CAS-PAID(X)
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO CAS-3
            MOVE SPACE TO SEGFILE01
