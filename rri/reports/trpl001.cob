@@ -75,6 +75,7 @@
                  write fileout01  
                  GO TO R1
              END-READ
+             GO TO R2
            ELSE
              GO TO R1  
            END-IF
