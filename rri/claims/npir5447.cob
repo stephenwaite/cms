@@ -622,7 +622,6 @@
            READ FILEIN
              AT END
                MOVE 1 TO END-FLAG 
-               display "set end-flag"
                GO TO P2.
 
        P1-1. 
@@ -1080,13 +1079,13 @@
            COMPUTE CAR-TOT-ALLOWED = CAR-TOT-ALLOWED 
              + CAR-ALLOWED(X).
            COMPUTE TOT-BAL = TOT-BAL + CLM-BAL-CAR(X).
-           DISPLAY FI-AMOUNT " FI-AMOUNT"
-           DISPLAY CAR-TOT-CHARGE " CAR-TOT-CHARGE"
-           DISPLAY CAR-REDUCE(X) " CAR-REDUCE(X)"
-           DISPLAY CAR-ALLOWED(X) " CAR-ALLOWED(X)"
-           DISPLAY CAR-TOT-PAID "  CAR-TOT-PAID"
-           DISPLAY CAR-TOT-REDUCE "  CAR-TOT-REDUCE"
-           DISPLAY CAR-TOT-ALLOWED "  CAR-TOT-ALLOWED".
+      *     DISPLAY FI-AMOUNT " FI-AMOUNT"
+      *     DISPLAY CAR-TOT-CHARGE " CAR-TOT-CHARGE"
+      *     DISPLAY CAR-REDUCE(X) " CAR-REDUCE(X)"
+      *     DISPLAY CAR-ALLOWED(X) " CAR-ALLOWED(X)"
+      *     DISPLAY CAR-TOT-PAID "  CAR-TOT-PAID"
+      *     DISPLAY CAR-TOT-REDUCE "  CAR-TOT-REDUCE"
+      *     DISPLAY CAR-TOT-ALLOWED "  CAR-TOT-ALLOWED".
       *     ACCEPT ALF1.
 
        CAR-TOT-EXIT.
@@ -1125,15 +1124,15 @@
            GO TO CAS-TOT-2.
 
        CAS-TOT-3.
-           DISPLAY FI-AMOUNT " FI-AMOUNT"
-           DISPLAY CAS-TOT-CHARGE " CAS-TOT-CHARGE"
-           DISPLAY CAS-REDUCE(X) " CAS-REDUCE(X)"
-           DISPLAY CAS-ALLOWED(X) " CAS-ALLOWED(X)"
-           DISPLAY CAS-TOT-PAID "  CAS-TOT-PAID"
-           DISPLAY CAS-TOT-REDUCE "  CAS-TOT-REDUCE"
-           DISPLAY CAS-TOT-ALLOWED "  CAS-TOT-ALLOWED"
-           DISPLAY " "
-           accept omitted
+      *     DISPLAY FI-AMOUNT " FI-AMOUNT"
+      *     DISPLAY CAS-TOT-CHARGE " CAS-TOT-CHARGE"
+      *     DISPLAY CAS-REDUCE(X) " CAS-REDUCE(X)"
+      *     DISPLAY CAS-ALLOWED(X) " CAS-ALLOWED(X)"
+      *     DISPLAY CAS-TOT-PAID "  CAS-TOT-PAID"
+      *     DISPLAY CAS-TOT-REDUCE "  CAS-TOT-REDUCE"
+      *     DISPLAY CAS-TOT-ALLOWED "  CAS-TOT-ALLOWED"
+      *     DISPLAY " "
+      *     accept omitted
        
            ADD FI-AMOUNT TO CAS-TOT-CHARGE
            IF CAS-REDUCE(X) NOT < 0 MOVE 0 TO CAS-REDUCE(X).
@@ -1579,7 +1578,7 @@
            IF CAR-TOT-PAID = 0
              MOVE "1 " TO CAS-2
            END-IF
-           COMPUTE NUM7 = CLM-BAL-CAR(X) - CAS-PAID(X)
+           COMPUTE NUM7 = CLM-BAL-CAR(X) + CAS-PAID(X)
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO CAS-3
            MOVE SPACE TO SEGFILE01
