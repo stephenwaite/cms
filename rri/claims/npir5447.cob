@@ -1171,6 +1171,10 @@
 
            IF INS-KEY = "003"
              MOVE "MB " TO SBR-INSCODE.
+
+           MOVE SPACE TO SBR-6 SBR-7 SBR-8 SBR-TYPE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM SBR01.  
        
            MOVE SPACE TO AMT-1 AMT-2
            MOVE "D  " TO AMT-1
