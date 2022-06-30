@@ -98,7 +98,7 @@
              GO TO R1.
 
            IF CC-DATE-T < "20200101"
-             GO TO R1.
+             GO TO R2.
 
            move space to fileout01
            DISPLAY CHARCUR-KEY " CHARCUR-KEY " g-garno 
