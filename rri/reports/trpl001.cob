@@ -91,7 +91,8 @@
                GO TO R99.
 
            display cc-key8 " cc-key8"
-           display g-garno " g-garno"    
+           display g-garno " g-garno" 
+           display cc-date-t " cc-date-t"   
 
            IF CC-KEY8 NOT = G-GARNO
              GO TO R1.
