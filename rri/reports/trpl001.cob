@@ -92,7 +92,7 @@
            IF CC-KEY8 NOT = G-GARNO
              GO TO R1.
 
-           IF CC-DATE-T < "20210101"
+           IF CC-DATE-T < "20200101"
              GO TO R1.
 
            move space to fileout01
