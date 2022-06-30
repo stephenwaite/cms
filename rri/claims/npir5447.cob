@@ -674,8 +674,7 @@
            MOVE 0 TO CAR-TOT-PAID
            MOVE 0 TO TOT-BAL
 
-           MOVE "003" TO CAS-INS
-           PERFORM CAS-TOT THRU CAS-TOT-EXIT
+           PERFORM CAR-TOT THRU CAR-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR           
 
            MOVE "P" TO SBR-PST 
@@ -688,7 +687,6 @@
            MOVE 0 TO CAS-TOT-ALLOWED
            MOVE 0 TO CAS-TOT-PAID
 
-           MOVE G-SEINS TO CAS-INS
            PERFORM CAS-TOT THRU CAS-TOT-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
 
@@ -1030,57 +1028,78 @@
        2320A-EXIT. 
            EXIT.
 
-       CAS-TOT.
+       CAR-TOT.
            MOVE FILETAB(X) TO FILEIN01.
       *     DISPLAY "CAS-INS IS " CAS-INS
-           ACCEPT OMITTED
-           
-           IF CAS-INS NOT = "003" 
-             GO TO CAS-TOT-1.
-           MOVE 0 TO CAR-REDUCE(X) CAR-PAID(X) CLM-BAL-CAR(X) 
-             DDTAB-CAR(X)
-           MOVE FI-AMOUNT TO CAR-ALLOWED(X)
-           MOVE FI-KEY8 TO CR-KEY8
-           MOVE FI-DATE-T TO CR-DATE
-           MOVE FI-PROC1 TO CR-PROC
-           MOVE FI-PROC2 TO CR-MOD1
-           MOVE SPACE TO CR-MOD2
-      *     MOVE FI-PROC3 TO CR-MOD2
-           READ CAREFILE
-             INVALID 
-               DISPLAY "INVALID CAREFILE READ " FILEIN01
-               accept omitted
-               GO TO CAS-TOT-EXIT
-           END-READ
-           
-           MOVE CR-PAYDATE TO CAR-PAYDATE(X)
-           COMPUTE CAR-ALLOWED(X) = CR-ALLOWED
-           COMPUTE CAR-REDUCE(X)  = CR-BILLED - CR-ALLOWED 
-      *     display "car-reduce x " car-reduce(x) " " x
-      *     accept omitted
-           
-           COMPUTE CAR-PAID(X) = CR-PAID
-           
-           ADD CR-BILLED TO CAR-TOT-CHARGE
-           ADD CR-ALLOWED TO CAR-TOT-ALLOWED
-           ADD CAS-REDUCE(X) TO CAR-TOT-REDUCE
-           ADD CR-PAID TO CAR-TOT-PAID
+      *     ACCEPT OMITTED
 
-           COMPUTE CLM-BAL-CAR(X) = CR-BILLED - CAR-REDUCE(X) 
-             - CAR-PAID(X)
-           
+           MOVE FI-KEY8 TO PC-KEY8
+           MOVE SPACE TO PC-KEY3
+           MOVE 0 TO REDUCE-FLAG PRIME-FLAG 
+           MOVE 0 TO CAR-REDUCE(X) 
+             CAR-PAID(X) DDTAB-CAR(X)
+             CLM-BAL-CAR(X)
+           MOVE FI-DATE-T TO CAR-PAYDATE(X).
+           START PAYCUR KEY NOT < PAYCUR-KEY 
+             INVALID
+               GO TO CAR-TOT-EXIT.
+
+       CAR-TOT-2. 
+           READ PAYCUR NEXT AT END GO TO CAR-TOT-3.
+           IF PC-KEY8 NOT = FI-KEY8 GO TO CAR-TOT-3.
+           IF PC-CLAIM NOT = FI-CLAIM GO TO CAR-TOT-2.
+           IF (PC-PAYCODE = G-PRINS AND PC-DENIAL = "14")
+            OR (PC-PAYCODE = "014" OR "015")
+      *     DISPLAY PC-AMOUNT
+            COMPUTE CAR-REDUCE(X) = CAR-REDUCE(X) + PC-AMOUNT
+           GO TO CAR-TOT-2.
+           IF (PC-PAYCODE = G-PRINS)  
+             AND (PC-DENIAL = "  " OR "DD" OR "07" OR "08")
+             COMPUTE CAR-PAID(X) = CAR-PAID(X) + PC-AMOUNT
+             MOVE PC-DATE-T TO CAR-PAYDATE(X)
+             IF PC-DENIAL = "DD"
+               MOVE 1 TO DDTAB-CAR(X)
+             END-IF
+           END-IF
+           GO TO CAR-TOT-2.       
+       
+           CAR-TOT-3.
            DISPLAY FI-AMOUNT " FI-AMOUNT"
            DISPLAY CAR-TOT-CHARGE " CAR-TOT-CHARGE"
            DISPLAY CAR-REDUCE(X) " CAR-REDUCE(X)"
            DISPLAY CAR-ALLOWED(X) " CAR-ALLOWED(X)"
            DISPLAY CAR-TOT-PAID "  CAR-TOT-PAID"
            DISPLAY CAR-TOT-REDUCE "  CAR-TOT-REDUCE"
-           DISPLAY CAR-TOT-ALLOWED "  CAR-TOT-ALLOWED".
-           DISPLAY CLM-BAL-CAR(X) " CLM-BAL-CAR(X)"
-           ACCEPT omitted.
-           GO TO CAS-TOT-EXIT.
+           DISPLAY CAR-TOT-ALLOWED "  CAR-TOT-ALLOWED"
+           DISPLAY " "
+           accept omitted
+       
+           ADD FI-AMOUNT TO CAR-TOT-CHARGE
+           IF CAR-REDUCE(X) NOT < 0 MOVE 0 TO CAR-REDUCE(X).
+           COMPUTE CLM-BAL-CAR(X) = FI-AMOUNT + CAR-REDUCE(X) 
+             + CAR-PAID(X)
+           COMPUTE CAR-ALLOWED(X) = FI-AMOUNT + CAR-REDUCE(X)
+           COMPUTE CAR-TOT-PAID = CAR-TOT-PAID 
+             + ( -1 * CAR-PAID(X)).
+           COMPUTE CAR-TOT-REDUCE = CAR-TOT-REDUCE 
+                     + (-1 *  CAR-REDUCE(X)) 
+           COMPUTE CAR-TOT-ALLOWED = CAR-TOT-ALLOWED 
+             + CAR-ALLOWED(X).
+           COMPUTE TOT-BAL = TOT-BAL + CLM-BAL-CAR(X).
+      *     DISPLAY FI-AMOUNT " FI-AMOUNT"
+      *     DISPLAY CAR-TOT-CHARGE " CAR-TOT-CHARGE"
+      *     DISPLAY CAR-REDUCE(X) " CAR-REDUCE(X)"
+      *     DISPLAY CAR-ALLOWED(X) " CAR-ALLOWED(X)"
+      *     DISPLAY CAR-TOT-PAID "  CAR-TOT-PAID"
+      *     DISPLAY CAR-TOT-REDUCE "  CAR-TOT-REDUCE"
+      *     DISPLAY CAR-TOT-ALLOWED "  CAR-TOT-ALLOWED".
+      *     ACCEPT ALF1.
 
-       CAS-TOT-1.
+       CAR-TOT-EXIT.
+           EXIT.    
+
+       CAS-TOT.
+           MOVE FILETAB(X) TO FILEIN01.
            MOVE FI-KEY8 TO PC-KEY8
            MOVE SPACE TO PC-KEY3
            MOVE 0 TO REDUCE-FLAG PRIME-FLAG 
