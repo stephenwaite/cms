@@ -1064,16 +1064,6 @@
            GO TO CAR-TOT-2.       
        
        CAR-TOT-3.
-           DISPLAY FI-AMOUNT " FI-AMOUNT"
-           DISPLAY CAR-TOT-CHARGE " CAR-TOT-CHARGE"
-           DISPLAY CAR-REDUCE(X) " CAR-REDUCE(X)"
-           DISPLAY CAR-ALLOWED(X) " CAR-ALLOWED(X)"
-           DISPLAY CAR-TOT-PAID "  CAR-TOT-PAID"
-           DISPLAY CAR-TOT-REDUCE "  CAR-TOT-REDUCE"
-           DISPLAY CAR-TOT-ALLOWED "  CAR-TOT-ALLOWED"
-           DISPLAY " "
-           accept omitted
-       
            ADD FI-AMOUNT TO CAR-TOT-CHARGE
            IF CAR-REDUCE(X) NOT < 0 MOVE 0 TO CAR-REDUCE(X).
            COMPUTE CLM-BAL-CAR(X) = FI-AMOUNT + CAR-REDUCE(X) 
@@ -1086,13 +1076,13 @@
            COMPUTE CAR-TOT-ALLOWED = CAR-TOT-ALLOWED 
              + CAR-ALLOWED(X).
            COMPUTE TOT-BAL = TOT-BAL + CLM-BAL-CAR(X).
-      *     DISPLAY FI-AMOUNT " FI-AMOUNT"
-      *     DISPLAY CAR-TOT-CHARGE " CAR-TOT-CHARGE"
-      *     DISPLAY CAR-REDUCE(X) " CAR-REDUCE(X)"
-      *     DISPLAY CAR-ALLOWED(X) " CAR-ALLOWED(X)"
-      *     DISPLAY CAR-TOT-PAID "  CAR-TOT-PAID"
-      *     DISPLAY CAR-TOT-REDUCE "  CAR-TOT-REDUCE"
-      *     DISPLAY CAR-TOT-ALLOWED "  CAR-TOT-ALLOWED".
+           DISPLAY FI-AMOUNT " FI-AMOUNT"
+           DISPLAY CAR-TOT-CHARGE " CAR-TOT-CHARGE"
+           DISPLAY CAR-REDUCE(X) " CAR-REDUCE(X)"
+           DISPLAY CAR-ALLOWED(X) " CAR-ALLOWED(X)"
+           DISPLAY CAR-TOT-PAID "  CAR-TOT-PAID"
+           DISPLAY CAR-TOT-REDUCE "  CAR-TOT-REDUCE"
+           DISPLAY CAR-TOT-ALLOWED "  CAR-TOT-ALLOWED".
       *     ACCEPT ALF1.
 
        CAR-TOT-EXIT.
@@ -1552,9 +1542,6 @@
 
        SVD-CAS.
            MOVE INS-CAID TO SVD-1
-           IF (G-PRINS = "900") 
-            MOVE "BV " TO SVD-1
-           END-IF
 
            COMPUTE NUM7 = CAS-PAID(X)
            PERFORM AMT-LEFT
@@ -1575,9 +1562,9 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM ALF116.
            MOVE SPACE TO CAS-1 CAS-2 CAS-3
-           MOVE "CO" TO CAS-1
-           MOVE "45" TO CAS-2
-           COMPUTE NUM7 = CAS-REDUCE(X)
+           MOVE "OA" TO CAS-1
+           MOVE "23" TO CAS-2
+           COMPUTE NUM7 = CAR-REDUCE(X) 
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO CAS-3
            MOVE SPACE TO SEGFILE01
