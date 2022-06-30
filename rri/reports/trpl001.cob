@@ -90,6 +90,9 @@
              AT END
                GO TO R99.
 
+           display cc-key8 " cc-key8"
+           display g-garno " g-garno"    
+
            IF CC-KEY8 NOT = G-GARNO
              GO TO R1.
 
