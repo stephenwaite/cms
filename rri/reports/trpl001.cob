@@ -73,9 +73,9 @@
                  string "no 04 in tertiary in mplrfile " g-garno 
                    delimited by size into fileout01
                  write fileout01  
-                 GO TO R1-1
+                 GO TO R1
              END-READ
-             GO TO R2
+             GO TO R1-1
            ELSE
              GO TO R1  
            END-IF.
