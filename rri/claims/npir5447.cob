@@ -1063,7 +1063,7 @@
            END-IF
            GO TO CAR-TOT-2.       
        
-           CAR-TOT-3.
+       CAR-TOT-3.
            DISPLAY FI-AMOUNT " FI-AMOUNT"
            DISPLAY CAR-TOT-CHARGE " CAR-TOT-CHARGE"
            DISPLAY CAR-REDUCE(X) " CAR-REDUCE(X)"
