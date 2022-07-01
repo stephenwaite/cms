@@ -755,7 +755,7 @@
                       
            MOVE SPACE TO ALF8
       *    health equity pay amount is in CLP 
-           IF PAYORID = "43700"
+           IF PAYORID = "43700" or "92916"
              MOVE CLP-4TOTCLMPAY TO ALF8
            ELSE 
              MOVE SVC-3PAYAMT to ALF8
