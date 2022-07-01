@@ -1587,7 +1587,7 @@
            WRITE SEGFILE01 FROM DTP01.
 
        SVD-CAR.
-           MOVE INS-NEIC TO SVD-1
+           MOVE "SMVT0" TO SVD-1
           
            COMPUTE NUM7 = CAR-PAID(X)
            PERFORM AMT-LEFT
