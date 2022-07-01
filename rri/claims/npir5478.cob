@@ -1792,7 +1792,7 @@
        SUBSCRIBER-2.
            MOVE SPACE TO SBR-GROUP
            MOVE "0    " TO HL-CHILD
-           MOVE "MC" TO SBR-INSCODE
+           MOVE "CI" TO SBR-INSCODE
 
       *     display "SBR-PST " SBR-PST
            IF SBR-PST = "S"
@@ -2110,6 +2110,6 @@
       *     WRITE SEGFILE01 FROM IEA01.
 
        P99. 
-      *     REWRITE HIPCLAIMFILE01.
+           REWRITE HIPCLAIMFILE01.
            CLOSE GARFILE HIPCLAIMFILE CHARCUR ERRFILE.
            STOP RUN.
