@@ -320,7 +320,7 @@
        01  ALF8Z PIC ZZZZ9.99.
        01  ALF8NUM PIC X(8).
        01  NUM5 PIC 9(5). 
-       01  NUM9 PIC 9(9).
+       01  NUM4 PIC 9(4).
        01  NUM2 PIC 99. 
        01  HL-NUMPARENT PIC 9(5).
        01  HL-NUM PIC 9(5) VALUE 0.
@@ -531,7 +531,7 @@
                DISPLAY "BAD webFILE"
                GO TO P99.
 
-           COMPUTE NUM9 =  web-NUM
+           COMPUTE NUM4 =  web-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO GS-NUM
            MOVE ALF9NUM TO GE-NUM
@@ -552,7 +552,7 @@
 
            MOVE SPACE TO SEGFILE01
        
-           COMPUTE NUM9 = web-NUM
+           COMPUTE     NUM4 = web-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO ST-NUM
            MOVE ALF9NUM TO SE-NUM
@@ -561,7 +561,7 @@
            ADD 1 TO web-NUM
            WRITE SEGFILE01 FROM ST01.
        
-           COMPUTE NUM9 = web-NUM
+           COMPUTE NUM4 = web-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO BHT-NUM
        
@@ -1824,7 +1824,7 @@
            UNSTRING ALF5 DELIMITED ALL " " INTO ALFS ALF5NUM.
 
        NUM-LEFT9.
-           MOVE NUM9 TO ALF9Z
+           MOVE NUM4 TO ALF9Z
            MOVE SPACE TO ALF9NUM
            MOVE ALF9Z TO ALF9 ALFS9
            UNSTRING ALF9 DELIMITED ALL " " INTO ALFS9 ALF9NUM.
