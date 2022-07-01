@@ -541,7 +541,7 @@
        01  SVD01.
            02 SVD-0 PIC XXX VALUE "SVD".
            02 SVD-S1 PIC X VALUE "*".
-           02 SVD-1 PIC XXX.
+           02 SVD-1 PIC XXXXX.
            02 SVD-S3 PIC X VALUE "*".
            02 SVD-2 PIC X(8).
            02 SVD-S2 PIC X VALUE "*".
