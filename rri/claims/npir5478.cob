@@ -1231,7 +1231,7 @@
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
            MOVE INS-NAME TO NM1-NAMEL
            MOVE "PI" TO NM1-EINSS
-           MOVE INS-CAID TO NM1-CODE
+           MOVE INS-NEIC TO NM1-CODE
            IF G-PRINS = "900"
              MOVE "BV" TO NM1-CODE 
            END-IF
@@ -1542,7 +1542,7 @@
            EXIT.
 
        SVD-CAS.
-           MOVE INS-CAID TO SVD-1
+           MOVE INS-NEIC TO SVD-1
 
            COMPUTE NUM7 = CAS-PAID(X)
            PERFORM AMT-LEFT
@@ -1587,7 +1587,7 @@
            WRITE SEGFILE01 FROM DTP01.
 
        SVD-CAR.
-           MOVE "MDB" TO SVD-1
+           MOVE INS-NEIC TO SVD-1
           
            COMPUTE NUM7 = CAR-PAID(X)
            PERFORM AMT-LEFT
