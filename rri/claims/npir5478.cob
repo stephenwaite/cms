@@ -525,11 +525,15 @@
            OPEN I-O webFILE
            OPEN I-O CHARCUR
 
-           MOVE "A" TO     web-KEY
-           READ    webFILE WITH LOCK
-             INVALID 
-               DISPLAY "BAD webFILE"
-               GO TO P99.
+           READ WEBFILE WITH LOCK
+             INVALID                            
+               MOVE 1 TO WEB-NUM
+               WRITE WEBFILE01
+               END-WRITE
+             NOT INVALID
+               ADD 1 TO WEB-NUM             
+               REWRITE WEBFILE01
+           END-READ
 
            COMPUTE NUM4 =  web-NUM
            PERFORM NUM-LEFT9
