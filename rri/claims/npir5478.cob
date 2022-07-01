@@ -525,17 +525,17 @@
            OPEN I-O webFILE
            OPEN I-O CHARCUR
 
-           MOVE "A" TO HIP-KEY
+           MOVE "A" TO     web-KEY
            READ    webFILE WITH LOCK
              INVALID 
                DISPLAY "BAD webFILE"
                GO TO P99.
 
-           COMPUTE NUM9 = HIP-NUM
+           COMPUTE NUM9 =  web-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO GS-NUM
            MOVE ALF9NUM TO GE-NUM
-           ADD 1 TO HIP-NUM           
+           ADD 1 TO web-NUM           
            PERFORM ISA-1 THRU ISA-EXIT
            PERFORM A0 THRU A0-EXIT.
       *     MOVE SPACE TO SEGFILE01
@@ -552,16 +552,16 @@
 
            MOVE SPACE TO SEGFILE01
        
-           COMPUTE NUM9 = HIP-NUM
+           COMPUTE NUM9 = web-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO ST-NUM
            MOVE ALF9NUM TO SE-NUM
        
 
-           ADD 1 TO HIP-NUM
+           ADD 1 TO web-NUM
            WRITE SEGFILE01 FROM ST01.
        
-           COMPUTE NUM9 = HIP-NUM
+           COMPUTE NUM9 = web-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO BHT-NUM
        
