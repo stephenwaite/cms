@@ -2275,7 +2275,7 @@
            DISPLAY G-SE-GROUP " G-SE-GROUP"
            IF G-SE-GROUP = "43        "
              DISPLAY "EQUAL TO 2 CHAR 43"
-             ACCEPT OMITTED.
+             ACCEPT OMITTED
              MOVE "43" TO SBR-TYPE
            END-IF.
 
