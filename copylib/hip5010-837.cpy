@@ -67,7 +67,7 @@
            02 ST-S0 PIC X VALUE "*".
            02 ST-1 PIC XXX VALUE "837".
            02 ST-S1 PIC X VALUE "*".
-           02 ST-NUM PIC X(9).
+           02 ST-NUM PIC 9(4).
            02 ST-S2 PIC X VALUE "*".
            02 ST-CONVENT-REF PIC X(12) VALUE "005010X222A1".
            02 ST-END PIC X VALUE "~".
@@ -541,7 +541,7 @@
        01  SVD01.
            02 SVD-0 PIC XXX VALUE "SVD".
            02 SVD-S1 PIC X VALUE "*".
-           02 SVD-1 PIC XXX.
+           02 SVD-1 PIC XXXXX.
            02 SVD-S3 PIC X VALUE "*".
            02 SVD-2 PIC X(8).
            02 SVD-S2 PIC X VALUE "*".
