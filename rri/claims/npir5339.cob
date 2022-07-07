@@ -2273,6 +2273,8 @@
 	       END-IF.
 
            DISPLAY G-SE-GROUP " G-SE-GROUP"
+           ACCEPT OMITTED
+           
            IF G-SE-GROUP = "43        "
              DISPLAY "EQUAL TO 2 CHAR 43"
              ACCEPT OMITTED
