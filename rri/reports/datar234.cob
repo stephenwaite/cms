@@ -43,7 +43,7 @@
            DATA RECORD IS FILEOUT01.
        01  FILEOUT01.
            02 FO-PAYCODE PIC XXX.
-           02 FO-DATE-T PIC X(8).
+           02 CC-DATE-T PIC X(8).
            02 FO-GARNAME PIC X(18).
            02 FILLER PIC X VALUE SPACE.
            02 FO-PRINS  PIC XXX.
@@ -51,13 +51,13 @@
            02 FO-SEINS PIC XXX.
            02 FILLER PIC X VALUE "/".
            02 FO-TRINS PIC XXX.
-           02 FO-PATID PIC X(8).
-           02 FO-CLAIM PIC X(6).
-           02 FO-DIAG PIC X(7).
-           02 FO-PROC PIC X(7).
-           02 FO-MOD2 PIC XX.
+           02 CC-PATID PIC X(8).
+           02 CC-CLAIM PIC X(6).
+           02 CC-DIAG PIC X(7).
+           02 CC-PROC PIC X(7).
+           02 CC-MOD2 PIC XX.
            02 FO-AMOUNT PIC S9(4)V99.
-           02 FO-DOCP PIC X(2).
+           02 CC-DOCP PIC X(2).
            02 FO-PG PIC X(10).
            02 FO-PP PIC X(16).
            02 FO-SP PIC X(16).
