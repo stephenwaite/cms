@@ -2271,13 +2271,8 @@
     		   MOVE "15" TO SBR-TYPE
     		 END-IF
 	       END-IF.
-
-           DISPLAY G-SE-GROUP " G-SE-GROUP"
-           ACCEPT OMITTED
            
            IF G-SE-GROUP = "43        "
-             DISPLAY G-GARNO " IS EQUAL TO 2 CHAR 43, SO DISAB"
-             ACCEPT OMITTED
              MOVE "43" TO SBR-TYPE
            END-IF.
 
