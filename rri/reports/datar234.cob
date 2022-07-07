@@ -37,9 +37,7 @@
 
        FD  AGEDATE.
        01  AGEDATE01.
-           02 AD1 PIC 99.
-           02 AD2 PIC 99.
-           02 AD3 PIC 99.
+           02 LOW-DATE PIC X(8).
 
        FD  FILEOUT
            DATA RECORD IS FILEOUT01.
@@ -115,6 +113,8 @@
                GO TO P6.
 
            IF CC-ASSIGN NOT = "A" GO TO P1.
+           IF CC-DATE-T < LOW-DATE GO TO P1.
+
       *     IF (CC-DATE-A NOT = "00000000")
       *     AND (CC-DATE-A > DATE-Y) GO TO P1.
            
