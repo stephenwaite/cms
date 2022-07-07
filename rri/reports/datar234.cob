@@ -30,7 +30,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD  GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib".
+           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
 
        FD  PARMFILE.
        01  PARMFILE01 PIC 9.
