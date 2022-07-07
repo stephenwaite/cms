@@ -82,9 +82,8 @@
            SELECT PARMFILE2 ASSIGN TO "S105" ORGANIZATION
            LINE SEQUENTIAL.
            
-           SELECT HIPCLAIMFILE ASSIGN TO "S110" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS HIP-KEY
-           LOCK MODE MANUAL.
+           SELECT WEBFILE  ASSIGN TO "S110" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS WEB-KEY.
            
            SELECT CAREFILE ASSIGN TO "S115" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS CARE-KEY
@@ -114,11 +113,9 @@
        FD  CAREFILE.
            COPY CAREFILE.CPY IN "C:\Users\sid\cms\copylib".
        
-       FD  HIPCLAIMFILE.
-       01  HIPCLAIMFILE01.
-           02 HIP-KEY PIC X.
-           02 HIP-NUM PIC 9(9).
-
+       FD  WEBFILE.
+           COPY WEBFILE.CPY IN "C:\Users\sid\cms\copylib".
+       
        FD  PLACEFILE.
        01  PLACEFILE01.
            02 DF1 PIC X.
@@ -227,7 +224,7 @@
 
        WORKING-STORAGE SECTION.
             
-           COPY HIP5010-837.CPY IN "C:\Users\sid\cms\copylib".
+           COPY HIP5010_837.CPY IN "C:\Users\sid\cms\copylib".
 
        01  TEST-DATE.
            05 T-CC  PIC XX.
@@ -525,20 +522,24 @@
              AUTHFILE MPLRFILE DIAGFILE PLACEFILE GAPFILE PARMFILE
              PARMFILE2 CAREFILE PAYCUR PROVCAID
            OPEN OUTPUT SEGFILE ERRFILE.
-           OPEN I-O HIPCLAIMFILE
+           OPEN I-O webFILE
            OPEN I-O CHARCUR
 
-           MOVE "A" TO HIP-KEY
-           READ HIPCLAIMFILE WITH LOCK
-             INVALID 
-               DISPLAY "BAD HIPCLAIMFILE"
-               GO TO P99.
+           READ WEBFILE WITH LOCK
+             INVALID                            
+               MOVE 1 TO WEB-NUM
+               WRITE WEBFILE01
+               END-WRITE
+             NOT INVALID
+               ADD 1 TO WEB-NUM             
+               REWRITE WEBFILE01
+           END-READ
 
-           COMPUTE NUM9 = HIP-NUM
+           COMPUTE NUM9 =  web-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO GS-NUM
            MOVE ALF9NUM TO GE-NUM
-           ADD 1 TO HIP-NUM           
+           ADD 1 TO web-NUM           
            PERFORM ISA-1 THRU ISA-EXIT
            PERFORM A0 THRU A0-EXIT.
       *     MOVE SPACE TO SEGFILE01
@@ -548,23 +549,23 @@
            MOVE TIME-HHMM TO BHT-TIME GS-5.
            ACCEPT BHT-DATE FROM CENTURY-DATE.
            MOVE BHT-DATE TO GS-4.
-           MOVE "701100357" TO GS-2
-           MOVE "822287119"  TO GS-3
+           MOVE "030353360" TO GS-2
+           MOVE "133052274"  TO GS-3
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM GS01
 
            MOVE SPACE TO SEGFILE01
        
-           COMPUTE NUM9 = HIP-NUM
+           COMPUTE     num9 = web-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO ST-NUM
            MOVE ALF9NUM TO SE-NUM
        
 
-           ADD 1 TO HIP-NUM
+           ADD 1 TO web-NUM
            WRITE SEGFILE01 FROM ST01.
        
-           COMPUTE NUM9 = HIP-NUM
+           COMPUTE num9 = web-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO BHT-NUM
        
@@ -576,13 +577,13 @@
       *     WRITE SEGFILE01 FROM REF01.
            MOVE SPACE TO SEGFILE01
       *     NOT SURE WHY CMS TAX ID FAILED HERE SO USING LEGACY D57     
-           MOVE "D57" TO SUBM-NUM
+           MOVE "030353360" TO SUBM-NUM
            WRITE SEGFILE01 FROM SUBM01.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SUBPER01.
            MOVE SPACE TO SEGFILE01
-           MOVE "VT MEDICAID" TO INSNM-NAME
-           MOVE "822287119" TO INSNM-NUM.           
+           MOVE "CHANGE HEALTHCARE" TO INSNM-NAME
+           MOVE "133052274" TO INSNM-NUM.           
            WRITE SEGFILE01 FROM INSNM01.
 
        P00.
@@ -930,22 +931,27 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM DMG01.
        2010BB.
+           MOVE G-TRINS TO INS-KEY  
+           READ INSFILE
+             INVALID 
+               MOVE "COMMERCIAL INS" TO INS-NAME
+           END-READ
            MOVE "PR " TO NM1-1
            MOVE "2" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
-           MOVE "VT MEDICAID" TO NM1-NAMEL
+           MOVE INS-NAME TO NM1-NAMEL
            MOVE "PI" TO NM1-EINSS
-           MOVE "822287119" TO NM1-CODE
+           MOVE INS-NEIC TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
            MOVE SPACE TO N3-STREET N3-BILLADD
-           MOVE "PO BOX 888" TO N3-STREET
+           MOVE INS-STREET TO N3-STREET
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N301.
            MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
-           MOVE "WILLISTON" TO N4-CITY
-           MOVE "VT" TO N4-STATE
-           MOVE "05495" TO N4-ZIP
+           MOVE INS-CITY TO N4-CITY
+           MOVE INS-STATE TO N4-STATE
+           MOVE INS-ZIP TO N4-ZIP
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N401.
 
@@ -1225,7 +1231,7 @@
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
            MOVE INS-NAME TO NM1-NAMEL
            MOVE "PI" TO NM1-EINSS
-           MOVE INS-CAID TO NM1-CODE
+           MOVE INS-NEIC TO NM1-CODE
            IF G-PRINS = "900"
              MOVE "BV" TO NM1-CODE 
            END-IF
@@ -1536,7 +1542,7 @@
            EXIT.
 
        SVD-CAS.
-           MOVE INS-CAID TO SVD-1
+           MOVE INS-NEIC TO SVD-1
 
            COMPUTE NUM7 = CAS-PAID(X)
            PERFORM AMT-LEFT
@@ -1581,7 +1587,7 @@
            WRITE SEGFILE01 FROM DTP01.
 
        SVD-CAR.
-           MOVE "MDB" TO SVD-1
+           MOVE "SMVT0" TO SVD-1
           
            COMPUTE NUM7 = CAR-PAID(X)
            PERFORM AMT-LEFT
@@ -1787,7 +1793,7 @@
        SUBSCRIBER-2.
            MOVE SPACE TO SBR-GROUP
            MOVE "0    " TO HL-CHILD
-           MOVE "MC" TO SBR-INSCODE
+           MOVE "CI" TO SBR-INSCODE
 
       *     display "SBR-PST " SBR-PST
            IF SBR-PST = "S"
@@ -1822,7 +1828,7 @@
            UNSTRING ALF5 DELIMITED ALL " " INTO ALFS ALF5NUM.
 
        NUM-LEFT9.
-           MOVE NUM9 TO ALF9Z
+           MOVE num9 TO ALF9Z
            MOVE SPACE TO ALF9NUM
            MOVE ALF9Z TO ALF9 ALFS9
            UNSTRING ALF9 DELIMITED ALL " " INTO ALFS9 ALF9NUM.
@@ -2105,6 +2111,6 @@
       *     WRITE SEGFILE01 FROM IEA01.
 
        P99. 
-           REWRITE HIPCLAIMFILE01.
-           CLOSE GARFILE HIPCLAIMFILE CHARCUR ERRFILE.
+           REWRITE webFILE01.
+           CLOSE GARFILE webFILE CHARCUR ERRFILE.
            STOP RUN.
