@@ -54,7 +54,8 @@
            02 CC-PATID PIC X(8).
            02 CC-CLAIM PIC X(6).
            02 CC-DIAG PIC X(7).
-           02 CC-PROC PIC X(7).
+           02 CC-PROC1 PIC X(5).
+           02 CC-PROC2 PIC X(2).
            02 CC-MOD2 PIC XX.
            02 FO-AMOUNT PIC S9(4)V99.
            02 CC-DOCP PIC X(2).
