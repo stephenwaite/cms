@@ -116,7 +116,11 @@
            IF CC-ASSIGN NOT = "A" GO TO P1.
            IF CC-PAYCODE = 018 GO TO P1.
            IF CC-DATE-T of CHARCUR01 < LOW-DATE GO TO P1.
+      *    IGNORE CLAIM AGE DATE     
            IF CC-DATE-A of CHARCUR01 > HIGH-DATE GO TO P1.
+      *    IGNORE RECENT CLAIMS     
+           IF CC-DATE-T of CHARCUR01 > HIGH-DATE GO TO P1.
+
 
       *     IF (CC-DATE-A NOT = "00000000")
       *     AND (CC-DATE-A > DATE-Y) GO TO P1.
