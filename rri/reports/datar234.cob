@@ -113,7 +113,7 @@
                GO TO P6.
 
            IF CC-ASSIGN NOT = "A" GO TO P1.
-           IF CC-DATE-T < LOW-DATE GO TO P1.
+           IF CC-DATE-T of CHARCUR01 < LOW-DATE GO TO P1.
 
       *     IF (CC-DATE-A NOT = "00000000")
       *     AND (CC-DATE-A > DATE-Y) GO TO P1.
