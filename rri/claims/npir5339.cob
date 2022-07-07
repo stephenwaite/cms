@@ -2273,12 +2273,12 @@
 	       END-IF.
 
            DISPLAY G-SE-GROUP " G-SE-GROUP"
-           IF G-SE-GROUP = "43"
+           IF G-SE-GROUP = "43        "
              DISPLAY "EQUAL TO 2 CHAR 43"
              ACCEPT OMITTED.
              MOVE "43" TO SBR-TYPE
            END-IF.
-                
+
        SUBSCRIBER-EXIT. EXIT.
        2000B-PAT.
 	   
