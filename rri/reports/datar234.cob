@@ -113,6 +113,7 @@
                GO TO P6.
 
            IF CC-ASSIGN NOT = "A" GO TO P1.
+           IF CC-PAYCODE = 018 GO TO P1.
            IF CC-DATE-T of CHARCUR01 < LOW-DATE GO TO P1.
 
       *     IF (CC-DATE-A NOT = "00000000")
