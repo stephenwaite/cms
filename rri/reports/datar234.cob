@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. data234.
+       PROGRAM-ID. datar234.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -12,9 +12,7 @@
            SELECT PARMFILE ASSIGN TO "S30"
            ORGANIZATION LINE SEQUENTIAL.
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
-             ACCESS MODE IS dynamic RECORD KEY IS G-GARNO
-             alternate key is g-acct.
-
+           ACCESS MODE IS RANDOM RECORD KEY IS G-GARNO.
            SELECT AGEDATE ASSIGN TO "S40"
            ORGANIZATION LINE SEQUENTIAL.
            SELECT FILEOUT ASSIGN TO "S45"
@@ -31,7 +29,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD  GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy garfile.cpy in "c:\users\sid\cms\copylib".
 
        FD  PARMFILE.
        01  PARMFILE01 PIC 9.
@@ -72,7 +70,7 @@
        FD  INSIN.
        01  INSIN01 PIC 999.
 
-       FD  FILE-OUT.
+       FD FILE-OUT.
        01  FILE-OUT01 PIC X(156).
 
        FD  CHARCUR.
@@ -120,8 +118,6 @@
       *     AND (CC-DATE-A > DATE-Y) GO TO P1.
            
            IF INSTAB(CC-PAYCODE) = 1 GO TO P1.
-
-           IF CC-PAYCODE = "018" GO TO P1.
 
            MOVE CC-AMOUNT TO CLAIM-TOT
            PERFORM S4 THRU S4-EXIT.
