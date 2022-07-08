@@ -205,7 +205,7 @@
            
            IF CC-KEY8 NOT = G-GARNO GO TO E1.
            
-           IF NOT (CC-DATE-T = TEST-DATE AND CC-PROC1 = FI-PROC1)
+           IF NOT (CC-DATE-T = TEST-DATE AND CC-PROC(1:5) = FI-PROC1)
             GO TO P2.
 
            WRITE FILEOUT01 FROM CHARCUR01
