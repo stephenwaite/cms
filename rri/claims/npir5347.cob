@@ -1803,9 +1803,13 @@
            
            IF (G-PRINS = "002" OR "268") OR (INS-CAID = "EE ")
              MOVE "BL " TO SBR-INSCODE.
-             MOVE SPACE TO SBR-6 SBR-7 SBR-8 SBR-TYPE
-             MOVE SPACE TO SEGFILE01
-             WRITE SEGFILE01 FROM SBR01.
+           
+           IF G-SE-GROUP = "MDB       "
+             MOVE "MB " TO SBR-INSCODE.
+
+           MOVE SPACE TO SBR-6 SBR-7 SBR-8 SBR-TYPE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM SBR01.
       *     MOVE SPACE TO CAS-1 CAS-2 CAS-3
       *     MOVE "OA" TO CAS-1
       *     MOVE "22 " TO CAS-2
@@ -1910,6 +1914,8 @@
            IF G-PRINS = "900"
              MOVE "BV" TO NM1-CODE 
            END-IF
+           IF G-SE-GROUP NOT = SPACE
+             MOVE G-SE-GROUP TO NM1-CODE.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
 
@@ -1917,7 +1923,7 @@
 
        CMP-1.
            MOVE "S" TO SBR-PST
-           MOVE G-SE-GROUP TO SBR-GROUP
+      *     MOVE G-SE-GROUP TO SBR-GROUP
            MOVE "18" TO SBR-RELATE
            MOVE "SP" TO SBR-TYPE.
            MOVE SPACE TO SBR-6 SBR-7 SBR-8
@@ -1985,7 +1991,7 @@
     
        CAID-1.
            MOVE "S" TO SBR-PST
-           MOVE G-SE-GROUP TO SBR-GROUP
+      *     MOVE G-SE-GROUP TO SBR-GROUP
            MOVE "18" TO SBR-RELATE
            MOVE "MC" TO SBR-TYPE.
            MOVE SPACE TO SBR-6 SBR-7 SBR-8
@@ -2056,7 +2062,7 @@
            READ GAPFILE
              INVALID MOVE 1 TO GAP-FLAG GO TO GAP-1-EXIT.
            MOVE "S" TO SBR-PST
-           MOVE G-SE-GROUP TO SBR-GROUP
+      *     MOVE G-SE-GROUP TO SBR-GROUP
            IF G-RELATE = G-SE-RELATE
            MOVE "18" TO SBR-RELATE
            ELSE MOVE "01" TO SBR-RELATE.
@@ -2402,7 +2408,7 @@
              MOVE G-SENAME TO SUB-NAME
              MOVE G-SECPOL TO ALF-9
              MOVE ALF-9 TO SUB-POLICY
-             MOVE G-SE-GROUP TO SUB-GROUP
+      *       MOVE G-SE-GROUP TO SUB-GROUP
            END-IF.
 
            IF (HOLD-PAYCODE = G-TRINS) AND (MPLR-TR-RELATE NOT = "0")
