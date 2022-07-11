@@ -1914,6 +1914,9 @@
            IF G-PRINS = "900"
              MOVE "BV" TO NM1-CODE 
            END-IF
+           DISPLAY G-SE-GROUP " G-SE-GROUP"
+           ACCEPT OMITTED
+           
            IF G-SE-GROUP NOT = SPACE
              MOVE G-SE-GROUP TO NM1-CODE.
            MOVE SPACE TO SEGFILE01
