@@ -1919,6 +1919,7 @@
 
            IF G-SE-GROUP NOT = SPACE
              MOVE G-SE-GROUP TO NM1-CODE.
+
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
 
@@ -2240,7 +2241,7 @@
            END-IF
 
            IF G-SE-GROUP NOT = SPACE
-             MOVE G-SE-GROUP TO NM1-CODE.
+             MOVE G-SE-GROUP TO SVD-1.
 
            COMPUTE NUM7 = CAS-PAID(X)
            PERFORM AMT-LEFT
