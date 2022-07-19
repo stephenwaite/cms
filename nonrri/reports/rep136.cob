@@ -337,8 +337,6 @@
            IF F1 NOT = "CLP" GO TO P1-CLP.
 
        P1-CLP-1.
-           display filein01
-           accept omitted
            MOVE SPACE TO CLP01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
              CLP-0 CLP-1 CLP-2CLMSTAT CLP-3TOTCLMCHG CLP-4TOTCLMPAY 
@@ -382,10 +380,6 @@
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P2-SVC-LOOP.
            
-           display filein01
-           accept omitted   
-
-           
            IF F1 = "CLP" OR "SE*" 
              MOVE FILEIN01 TO SAVEFILE01
              GO TO P2-SVC-LOOP.
@@ -397,8 +391,6 @@
              GO TO P1-SVC-LOOP.
            
            IF F1 = "CAS" 
-             display "we have a cas record"
-             display filein01
              MOVE SPACE TO CAS01
              UNSTRING FILEIN01 DELIMITED BY "*" INTO
                CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
