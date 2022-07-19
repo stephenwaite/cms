@@ -282,13 +282,7 @@
            READ PARMFILE AT END GO TO P9.
            MOVE SPACE TO PROV-1 PROV-2
            UNSTRING PARMFILE01 DELIMITED BY " " INTO PROV-1 PROV-2
-           
-
-           READ FILEIN AT END DISPLAY "NO RECORDS" GO TO P9.
-      *      MOVE FILEIN01 TO PD-DATE-E
-      *     MOVE PD-DATE-E TO TEST-DATE 
-           MOVE CORR TEST-DATE TO INPUT-DATE
-           MOVE INPUT-DATE TO HL-3.
+          
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM HL01 AFTER PAGE.
            READ FILEIN AT END GO TO P9.
@@ -335,9 +329,6 @@
        P1-CLP. 
            MOVE SPACE TO FILEIN01
            READ FILEIN
-             display filein01
-             accept omitted
-             
              AT END
                GO TO P9.
 
