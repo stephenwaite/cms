@@ -861,7 +861,8 @@
                  CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
                  CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
 
-               IF ((CAS-1 = "CO") OR (CAS-1 = "OA")) AND (CLP-2CLMSTAT = "1")
+               IF ((CAS-1 = "CO") OR (CAS-1 = "OA")) 
+                 AND (CLP-2CLMSTAT = "1")
                  IF (CAS-2 = "42 " OR "45 " OR "24 " OR "131" OR "253")
                    AND (CAS-3 NOT = SPACE)
                    MOVE SPACE TO ALF8
