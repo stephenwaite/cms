@@ -919,7 +919,7 @@
                     MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
                     PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
                     MOVE 1 TO FLAG
-                    MOVE CAS-CNTR TO Z
+      *              MOVE CAS-CNTR TO Z
                   END-IF
                END-IF
              END-IF
