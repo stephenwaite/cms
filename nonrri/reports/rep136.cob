@@ -300,6 +300,8 @@
        P000.
            MOVE SPACE TO FILEIN01
            READ FILEIN 
+            display filein01
+             accept omitted
              AT END
                GO TO P9.
 
