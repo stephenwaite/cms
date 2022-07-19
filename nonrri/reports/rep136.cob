@@ -286,6 +286,8 @@
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM HL01 AFTER PAGE.
            READ FILEIN AT END GO TO P9.
+            display filein01
+             accept omitted
            MOVE FILEIN01(105:1) TO DELIM.
        P00.
            MOVE SPACE TO FILEIN01
