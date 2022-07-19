@@ -285,8 +285,8 @@
            
 
            READ FILEIN AT END DISPLAY "NO RECORDS" GO TO P9.
-           MOVE FILEIN01 TO PD-DATE-E
-           MOVE PD-DATE-E TO TEST-DATE 
+      *      MOVE FILEIN01 TO PD-DATE-E
+      *     MOVE PD-DATE-E TO TEST-DATE 
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO HL-3.
            MOVE SPACE TO ERROR-FILE01
@@ -428,12 +428,12 @@
 
            GO TO P1-SVC-LOOP.  
 
-      P2-SVC-LOOP.
+       P2-SVC-LOOP.
            IF F1 = "CLP" GO TO P1-CLP-1.
 
            GO TO XX.     
 
-      P9.
+       P9.
            CLOSE filein charcur garfile mplrfile parmfile paycur
              caidfile rarcfile payfile error-file.
            STOP RUN.
