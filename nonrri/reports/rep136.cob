@@ -368,12 +368,15 @@
              GO TO P2-SVC-LOOP.
 
            IF F1 = "CAS" 
+             display "we have a cas record"
+             display filein01
              MOVE SPACE TO CAS01
              UNSTRING FILEIN01 DELIMITED BY "*" INTO
                CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
                CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
                CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
              IF CAS-1 = "OA" AND CAS-2 = "253"
+                move space to error-file01
                 STRING CLP-1 " " DTM-2 " " SVC-1PROCMOD " " CAS-3 
                   DELIMITED BY SIZE INTO ERROR-FILE01
                 WRITE ERROR-FILE01
