@@ -270,7 +270,7 @@
            OPEN OUTPUT ERROR-FILE.
            MOVE SPACE TO NAR-KEY01 
            MOVE ALL ZEROES TO NAR-CNTR01
-           PERFORM STATUS-0
+      *     PERFORM STATUS-0
            MOVE SPACE TO ERROR-FILE01
 
            READ PARMFILE AT END GO TO P9.
@@ -434,8 +434,8 @@
            GO TO XX.     
 
        P9.
-           CLOSE filein charcur garfile mplrfile parmfile paycur
-             caidfile rarcfile payfile error-file.
+           CLOSE filein    parmfile 
+                error-file.
            STOP RUN.
 
       
