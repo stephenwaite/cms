@@ -266,6 +266,9 @@
        01  DELIM PIC X.
        PROCEDURE DIVISION.
        0005-START.
+           display "we're starting"
+            accept omitted
+            
            OPEN INPUT FILEIN PARMFILE.
            OPEN OUTPUT ERROR-FILE.
            MOVE SPACE TO NAR-KEY01 
