@@ -913,17 +913,18 @@
                     MOVE CAS-18 TO ALF8
                     PERFORM AMOUNT-1
                     COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                  END-IF
-                  IF INS-REDUCE NOT = 0
+                  END-IF                  
+               END-IF
+             END-IF
+           END-PERFORM
+
+           IF INS-REDUCE NOT = 0
                     MOVE "14" TO PD-DENIAL
                     MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
                     PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
                     MOVE 1 TO FLAG
       *              MOVE CAS-CNTR TO Z
-                  END-IF
-               END-IF
-             END-IF
-           END-PERFORM
+           END-IF
            
            IF FLAG = 1 
              GO TO P5-SVC-LOOP-EXIT.
