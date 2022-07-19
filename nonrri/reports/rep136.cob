@@ -286,6 +286,8 @@
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM HL01 AFTER PAGE.
            READ FILEIN AT END GO TO P9.
+            display filein01
+             accept omitted
            MOVE FILEIN01(105:1) TO DELIM.
        P00.
            MOVE SPACE TO FILEIN01
@@ -300,6 +302,8 @@
        P000.
            MOVE SPACE TO FILEIN01
            READ FILEIN 
+            display filein01
+             accept omitted
              AT END
                GO TO P9.
 
@@ -362,6 +366,7 @@
              GO TO P2-SVC-LOOP.
 
            IF F1 = "CAS" 
+             display "we have a cas record"
              display filein01
              MOVE SPACE TO CAS01
              UNSTRING FILEIN01 DELIMITED BY "*" INTO
