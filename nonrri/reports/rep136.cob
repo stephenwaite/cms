@@ -337,8 +337,8 @@
            IF F1 NOT = "CLP" GO TO P1-CLP.
 
        P1-CLP-1.
-      *     display filein01
-      *     accept omitted
+           display filein01
+           accept omitted
            MOVE SPACE TO CLP01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
              CLP-0 CLP-1 CLP-2CLMSTAT CLP-3TOTCLMCHG CLP-4TOTCLMPAY 
