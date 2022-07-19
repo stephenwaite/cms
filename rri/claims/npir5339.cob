@@ -2254,23 +2254,28 @@
            MOVE "0    " TO HL-CHILD
            MOVE "MB" TO SBR-INSCODE
            MOVE "12" TO SBR-TYPE
-            IF SBR-PST = "S"
-		 IF G-PRINS = "091"
-		   MOVE "15" TO SBR-TYPE
-		 END-IF
-		 IF G-PRINS = "006"
-		   MOVE "16" TO SBR-TYPE
-		 END-IF
-		 IF G-PRINS = "079"
-		   MOVE "42" TO SBR-TYPE
-		 END-IF
-		IF HOLD-ACC-TYPE = "2"
-		 MOVE "14" TO SBR-TYPE
-		END-IF
-		IF HOLD-ACC-TYPE = "1"
-		 MOVE "15" TO SBR-TYPE
-		END-IF
-	    END-IF.
+           IF SBR-PST = "S"
+		     IF G-PRINS = "091"
+		       MOVE "15" TO SBR-TYPE
+    		 END-IF
+    		 IF G-PRINS = "006"
+    		   MOVE "16" TO SBR-TYPE
+    		 END-IF
+    		 IF G-PRINS = "079"
+    		   MOVE "42" TO SBR-TYPE
+    		 END-IF
+    		 IF HOLD-ACC-TYPE = "2"
+    		   MOVE "14" TO SBR-TYPE
+    		 END-IF
+    		 IF HOLD-ACC-TYPE = "1"
+    		   MOVE "15" TO SBR-TYPE
+    		 END-IF
+	       END-IF.
+           
+           IF G-SE-GROUP = "43        "
+             MOVE "43" TO SBR-TYPE
+           END-IF.
+
        SUBSCRIBER-EXIT. EXIT.
        2000B-PAT.
 	   
