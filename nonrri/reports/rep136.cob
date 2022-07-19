@@ -440,6 +440,10 @@
            GO TO XX.     
 
        P9.
+           display "we're ending"
+           accept omitted
+           
+
            CLOSE filein    parmfile 
                 error-file.
            STOP RUN.
