@@ -853,6 +853,10 @@
 
            MOVE 0 TO INS-REDUCE  FLAG
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
+             DISPLAY CAS-SVC(Z) " CAS-SVC(" Z ")"
+             DISPLAY X " X"
+             accept omitted
+             
              IF CAS-SVC(Z) = X
                MOVE SPACE TO CAS01 
                MOVE CAS-TAB(Z) TO FILEIN01
