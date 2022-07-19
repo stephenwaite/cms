@@ -355,10 +355,7 @@
            MOVE SPACE TO FILEIN01
            READ FILEIN
              AT END
-               GO TO P9.
-
-           display filein01
-           accept omitted    
+               GO TO P9. 
 
            IF F1 = "SVC" GO TO P1-SVC-LOOP-0.
 
@@ -403,6 +400,10 @@
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P2-SVC-LOOP.
            
+           display filein01
+           accept omitted   
+
+           
            IF F1 = "CLP" OR "SE*" 
              MOVE FILEIN01 TO SAVEFILE01
              GO TO P2-SVC-LOOP.
@@ -417,6 +418,7 @@
              ADD 1 TO CAS-CNTR
              MOVE FILEIN01 TO CAS-TAB(CAS-CNTR)
              MOVE SVC-CNTR TO CAS-SVC(CAS-CNTR)
+             
              GO TO P1-SVC-LOOP.
            
            IF F1 = "DTM" AND (F2 = "*150" OR F2 = "*472")
