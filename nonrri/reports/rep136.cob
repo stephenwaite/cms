@@ -362,6 +362,7 @@
              GO TO P2-SVC-LOOP.
 
            IF F1 = "CAS" 
+             display filein01
              MOVE SPACE TO CAS01
              UNSTRING FILEIN01 DELIMITED BY "*" INTO
                CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
