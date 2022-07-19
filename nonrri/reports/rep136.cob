@@ -357,6 +357,9 @@
              AT END
                GO TO P9.
 
+           display filein01
+           accept omitted    
+
            IF F1 = "SVC" GO TO P1-SVC-LOOP-0.
 
            IF F1 = "CLP" OR "SE*" 
