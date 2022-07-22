@@ -1031,10 +1031,10 @@
                MOVE CAS-CNTR TO Z
               END-IF
              END-IF
-            END-PERFORM
+           END-PERFORM
 
-            MOVE 0 TO INS-REDUCE
-            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
+           MOVE 0 TO INS-REDUCE
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
              IF CAS-SVC(Z) = X
               MOVE SPACE TO CAS01 
               MOVE CAS-TAB(Z) TO FILEIN01
@@ -1043,8 +1043,9 @@
               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
 
-              IF (CAS-1 = "CO") AND (CLP-2CLMSTAT = "1")
-                IF (CAS-2 = "42 " OR "45 " OR "96 " OR "131")
+              IF ((CAS-1 = "CO") OR (CAS-1 = "OA"))
+                AND (CLP-2CLMSTAT = "1")
+                IF (CAS-2 = "42 " OR "45 " OR "96 " OR "131" OR "253")
                     AND (CAS-3 NOT = SPACE)
                   MOVE SPACE TO ALF8
                   MOVE CAS-3 TO ALF8
@@ -1085,16 +1086,18 @@
                   MOVE CAS-18 TO ALF8
                   PERFORM AMOUNT-1
                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                END-IF
-                IF INS-REDUCE > 0
+                END-IF                
+              END-IF
+             END-IF
+           END-PERFORM.
+            
+           IF INS-REDUCE > 0
                  MOVE "14" TO PD-DENIAL
                  MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
                  PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
-                 MOVE CAS-CNTR TO Z
-                END-IF
-              END-IF
-             END-IF
-            END-PERFORM.
+      *           MOVE CAS-CNTR TO Z
+           END-IF
+
            IF (INS-REDUCE = 0) AND ( G-PRINS = "006")
              MOVE 0 TO AMOUNT-Y
              PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
