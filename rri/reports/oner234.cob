@@ -217,6 +217,7 @@
        01  NUM3 PIC 999.
        01  ALF2 PIC X.
        01  ALF3 PIC X.
+       01  ALF4 PIC X.
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT AGEDATE PARMFILE.
@@ -236,6 +237,9 @@
            IF NOT (ALF1 = "P" OR "S") MOVE " " TO ALF1.
            DISPLAY "SHOW ZERO AMOUNT CHARGES? Y/N".
            ACCEPT ALF3.
+           display "SHOW PAID UP CHARGES? Y/N"
+           accept alf4.
+           
            
            MOVE NUM3 TO CC-PAYCODE
            START CHARCUR KEY NOT < CC-PAYCODE INVALID GO TO P6.
@@ -252,7 +256,11 @@
            END-IF.
            COMPUTE CLAIM-TOT = CC-AMOUNT
            PERFORM S4 THRU S4-EXIT.
-           IF CLAIM-TOT NOT > 0 GO TO P1.
+           
+           IF CLAIM-TOT NOT > 0 
+             AND ALF4 NOT = "Y" 
+             GO TO P1.
+             
            MOVE CORR CHARCUR01 TO FILEOUT01
            MOVE CC-PAYCODE TO FO-PAYCODE
            MOVE CHARCUR-KEY TO FO-KEY

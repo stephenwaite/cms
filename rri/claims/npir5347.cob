@@ -2409,7 +2409,7 @@
            MOVE SPACE TO SUB-GROUP
            MOVE "P" TO SBR-PST
 
-           IF HOLD-PAYCODE = G-SEINS 
+           IF HOLD-PAYCODE = G-SEINS
              MOVE "S" TO SBR-PST
              MOVE G-SE-RELATE TO SUB-RELATE
              MOVE G-SENAME TO SUB-NAME
@@ -2418,8 +2418,9 @@
       *       MOVE G-SE-GROUP TO SUB-GROUP
            END-IF.
 
+      *    grab dxc id and hard code to 2ndary even if tertiary
            IF (HOLD-PAYCODE = G-TRINS) AND (MPLR-TR-RELATE NOT = "0")
-             MOVE "T" TO SBR-PST
+             MOVE "S" TO SBR-PST
              MOVE MPLR-TR-RELATE TO SUB-RELATE
              MOVE MPLR-TR-NAME TO SUB-NAME
              MOVE MPLR-TRIPOL TO SUB-POLICY
