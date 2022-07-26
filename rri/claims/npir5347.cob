@@ -1560,7 +1560,11 @@
             END-IF
            END-IF.
            MOVE SPACE TO NM1-CODE
-           MOVE G-SECPOL TO NM1-CODE
+           IF (HOLD-PAYCODE = G-TRINS)
+             MOVE MPLR-TRIPOL TO NM1-CODE
+           ELSE 
+             MOVE G-SECPOL TO NM1-CODE
+           END-IF
            MOVE "MI" TO NM1-EINSS
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
