@@ -56,7 +56,7 @@
            02 GS-S6 PIC X VALUE "*".
            02 GS-7 PIC X VALUE "X".
            02 GS-S7 PIC X VALUE "*".
-           02 GS-8 PIC X(12) VALUE "005010X222A1".
+           02 GS-8 PIC X(12) VALUE "005010X279A1".
            02 GS-S8 PIC X VALUE "*".
            02 GS-END PIC X VALUE "~".
        01  ST01.
