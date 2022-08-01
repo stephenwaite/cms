@@ -423,8 +423,7 @@
              READ RPGINSFILE INVALID
               MOVE SPACE TO FILEOUT01
               STRING "BAD 3RD INS, ADD " FI-3RD-ALFA " " FI-3RD-NAME
-                " " FI-3RD-STR1 " " FI-3RD-CITY " " FI-3RD-STATE " "
-                FI-3RD-ZIP " with chchosp-1"
+                " " FI-3RD-CITY " with chchosp-1"
                 DELIMITED BY SIZE INTO FILEOUT01
               WRITE FILEOUT01
             MOVE SPACE TO FILEOUT01
