@@ -66,7 +66,7 @@
            02 ST-S1 PIC X VALUE "*".
            02 ST-NUM PIC X(9).
            02 ST-S2 PIC X VALUE "*".
-           02 ST-3  PIC X(12) VALUE "005010X222A1".
+           02 ST-3  PIC X(12) VALUE "005010X279A1".
            02 ST-END PIC X VALUE "~".
        01  SE01.
            02 SE-0 PIC XX VALUE "SE".
