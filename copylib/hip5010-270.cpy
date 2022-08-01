@@ -292,7 +292,7 @@
            02 RECNM1-S6 PIC X VALUE "*".
            02 RECNM1-8 PIC XX VALUE "PI".
            02 RECNM1-S7 PIC X VALUE "*".
-           02 RECNM1-CODE PIC X(9) VALUE "752548221".
+           02 RECNM1-CODE PIC X(9) VALUE "822287119".
            02 RECNM1-END PIC X VALUE "~".
 
        01 N301.
