@@ -549,3 +549,22 @@
            02 SVD-S34 PIC XX VALUE "**".
            02 SVD-4 PIC XX.
            02 SVD-END PIC X VALUE "~".
+
+       01  TRN01.
+           02 TRN-0 PIC XXX VALUE "TRN".
+           02 TRN-S0 PIC X VALUE "*".
+           02 TRN-1 PIC X VALUE "1".
+           02 TRN-S1 PIC X VALUE "*".
+           02 TRN-2 PIC X(8).
+           02 TRN-S2 PIC X VALUE "*".
+           02 TRN-3 PIC X(10) VALUE "701100357".
+           02 TRN-END PIC X VALUE "~".    
+
+       01  EQ01.
+           02 EQ-0 PIC XX VALUE "EQ".
+           02 EQ-S0 PIC X VALUE "*".
+           02 EQ-1 PIC XX.
+           02 EQ-S1 PIC X VALUE "*".
+           02 EQ-PROC  PIC X(5).
+           02 EQ-MOD-FILLER PIC X(12).
+           02 EQ-END PIC X VALUE "~".    
