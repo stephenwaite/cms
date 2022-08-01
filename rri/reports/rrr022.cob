@@ -110,7 +110,7 @@
            02 FILLER PIC X VALUE SPACE.
            02 FILLER PIC XX VALUE "PL".
            02 FILLER PIC X VALUE SPACE.
-           02 L2F10 PIC X(9) VALUE "CARE DATE".
+           02 FILLER PIC X(9) VALUE "CARE DATE".
 
        01  LINE-3.
            02 L3F1 PIC X(11).
