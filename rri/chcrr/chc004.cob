@@ -392,7 +392,9 @@
              MOVE FI-PRIM-ALFA TO RPGINS-KEY
              READ RPGINSFILE INVALID
               MOVE SPACE TO FILEOUT01
-              STRING FI-PRIM-ALFA "  " RPGINS-TITLE " BAD INS. CODE"
+              STRING "BAD PRI INS, ADD " FI-PRIM-ALFA " " FI-PRIM-NAME
+                " " FI-PRIM-STR1 " " FI-PRIM-CITY " " FI-PRIM-STATE " "
+                FI-PRIM-ZIP " with chchosp-1"
               DELIMITED BY SIZE INTO FILEOUT01
               WRITE FILEOUT01
             MOVE SPACE TO FILEOUT01
@@ -405,8 +407,10 @@
              MOVE FI-SEC-ALFA TO RPGINS-KEY
              READ RPGINSFILE INVALID
               MOVE SPACE TO FILEOUT01
-              STRING FI-SEC-ALFA "  " RPGINS-TITLE DELIMITED BY SIZE
-              INTO FILEOUT01
+              STRING "BAD SEC INS, ADD " FI-SEC-ALFA " " FI-SEC-NAME
+                " " FI-SEC-STR1 " " FI-SEC-CITY " " FI-SEC-STATE " "
+                FI-SEC-ZIP " with chchosp-1"
+                DELIMITED BY SIZE INTO FILEOUT01
               WRITE FILEOUT01
             MOVE SPACE TO FILEOUT01
             WRITE FILEOUT01
@@ -418,8 +422,10 @@
              MOVE FI-3RD-ALFA TO RPGINS-KEY
              READ RPGINSFILE INVALID
               MOVE SPACE TO FILEOUT01
-              STRING FI-3RD-ALFA "  " RPGINS-TITLE DELIMITED BY SIZE
-              INTO FILEOUT01
+              STRING "BAD 3RD INS, ADD " FI-3RD-ALFA " " FI-3RD-NAME
+                " " FI-3RD-STR1 " " FI-3RD-CITY " " FI-3RD-STATE " "
+                FI-3RD-ZIP " with chchosp-1"
+                DELIMITED BY SIZE INTO FILEOUT01
               WRITE FILEOUT01
             MOVE SPACE TO FILEOUT01
             WRITE FILEOUT01
