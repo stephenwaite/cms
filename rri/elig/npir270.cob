@@ -37,7 +37,7 @@
              03 FI-PATID8 PIC X.
            02 FI-CLAIM PIC X(6).
            02 FI-SERVICE PIC X.
-           02 FI-DIAG PIC X(5).
+           02 FI-DIAG PIC X(7).
            02 FI-PROC.
              03 FI-PROC0 PIC X(4).
              03 FI-PROC1 PIC X(5).
