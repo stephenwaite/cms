@@ -1,0 +1,586 @@
+       PROGRAM-ID. npir270.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT FILEIN ASSIGN TO "S25" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT CHARCUR ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+           ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+           LOCK MODE MANUAL.
+           SELECT SEGFILE ASSIGN TO "S40" ORGANIZATION 
+           LINE SEQUENTIAL.
+           SELECT PARMFILE ASSIGN TO "S45" ORGANIZATION
+           LINE SEQUENTIAL.
+           SELECT AUTHFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS AUTH-KEY
+           LOCK MODE MANUAL.
+           SELECT HIPCLAIMFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS HIP-KEY
+           LOCK MODE MANUAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  FILEIN.
+       01  FILEIN01.
+           02 FI-FILEIN-KEY.
+             03 FI-KEY8 PIC X(8).
+             03 FI-KEY3 PIC XXX.
+           02 FI-PATID.
+             03 FI-PATID7 PIC X(7).
+             03 FI-PATID8 PIC X.
+           02 FI-CLAIM PIC X(6).
+           02 FI-SERVICE PIC X.
+           02 FI-DIAG PIC X(5).
+           02 FI-PROC.
+             03 FI-PROC0 PIC X(4).
+             03 FI-PROC1 PIC X(5).
+             03 FI-PROC2 PIC XX.
+           02 FI-MOD2 PIC XX.
+           02 FI-MOD3 PIC XX.
+           02 FI-MOD4 PIC XX.
+           02 FI-AMOUNT PIC S9(4)V99.
+           02 FI-DOCR PIC X(3).
+           02 FI-DOCP PIC 99.
+           02 FI-PAYCODE PIC XXX.
+           02 FI-STUD PIC X.
+           02 FI-WORK PIC 99.
+           02 FI-DAT1 PIC X(8).
+           02 FI-RESULT PIC X.
+           02 FI-ACTION PIC X.
+           02 FI-SORCREF PIC X.
+           02 FI-COLLT PIC X.
+           02 FI-AGE PIC X.
+           02 FI-PAPER PIC X.
+           02 FI-PLACE PIC X.
+           02 FI-IOPAT PIC X.
+           02 FI-DATE-T PIC X(8).
+           02 FI-DATE-A PIC X(8).
+           02 FI-DATE-P PIC X(8).
+           02 FI-REC-STAT PIC X.
+           02 FI-DX2 PIC X(5).
+           02 FI-DX3 PIC X(5).
+           02 FI-ACC-TYPE PIC X.
+           02 FI-DATE-M PIC X(8).
+           02 FI-ASSIGN PIC X.
+           02 FI-NEIC-ASSIGN PIC X.
+           02 FI-FREQ PIC X.
+           02 FI-FUTURE PIC X(5).
+
+       FD  HIPCLAIMFILE.
+       01  HIPCLAIMFILE01.
+           02 HIP-KEY PIC X.
+           02 HIP-NUM PIC 9(9).
+
+       FD PARMFILE.
+       01  PARMFILE01 PIC X(75).
+
+       FD  SEGFILE.
+       01  SEGFILE01 PIC X(120).
+
+       FD  CHARCUR.
+           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".    
+
+
+       FD GARFILE.
+           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".    
+       
+       FD  AUTHFILE.
+       01  AUTHFILE01.
+           02 AUTH-KEY.
+              03 AUTH-KEY8 PIC X(8).
+              03 AUTH-KEY6 PIC X(6).
+           02 AUTH-NUM PIC X(15).
+           02 AUTH-QNTY PIC XX.
+           02 AUTH-DATE-E PIC X(8).
+           02 AUTH-FILLER PIC XXX.
+
+       WORKING-STORAGE SECTION.
+           COPY HIP5010-837.CPY IN "C:\Users\sid\cms\copylib".    
+
+       01  TEST-DATE.
+           05 T-CC  PIC XX.
+           05 T-YY  PIC XX.
+           05 T-MM  PIC XX.
+           05 T-DD  PIC XX.
+       01  DISPLAY-DATE.
+           05 T-MM PIC XX.
+           05 FILLER PIC X VALUE "/".
+           05 T-DD PIC XX.
+           05 FILLER PIC X VALUE "/".
+           05 T-CC PIC XX.
+           05 T-YY PIC XX.
+       01  DATE-X PIC X(8).
+       01  TIME-X. 
+           02 TIME-HHMM PIC X(4).
+           02 FILLER PIC X(4).
+       01  FLAG PIC 9.
+       01  END-FLAG PIC 9 VALUE 0.
+       01  GAP-FLAG PIC 9.
+       01  CNTR PIC 99.
+       01  DIAG-CNTR PIC 99.
+       01  DX-CNTR-PT PIC 9.
+       01  X PIC 99.
+       01  DIAG-X PIC X(5).
+       01  Y PIC 99.
+       01  A PIC 9.
+       01  FILETAB01.
+           02 FILETAB PIC X(133) OCCURS 50 TIMES.
+       01 GROUP-3 PIC XXX.
+       01 ALF1 PIC X.
+       01  ALF-4.
+           02 ALF-4-1 PIC XX.
+           02 ALF-4-2 PIC XX.
+       01 ALF10 PIC X(10).
+       01 ALF20 PIC X(20).
+       01 ALF5 PIC X(5).
+       01 ALF7.
+          02 ALF71 PIC XX.
+          02 ALF72 PIC X(5).
+       01 ALF9 PIC X(9).
+       01 ALFS PIC X(5).
+       01 ALFS8 PIC X(8).
+       01 ALFS9 PIC X(9).
+       01 ALF5Z PIC ZZZZZ.
+       01 ALF9Z PIC ZZZZZZZZZ.
+       01 ALF5NUM PIC X(5).
+       01 ALF9NUM PIC X(9).
+       01 NUM7 PIC 9(5)V99. 
+       01 ALF8 PIC X(8).
+       01 ALF8Z PIC ZZZZ9.99.
+       01 ALF8NUM PIC X(8).
+       01 NUM5 PIC 9(5). 
+       01 NUM9 PIC 9(9).
+       01 NUM2 PIC 99. 
+       01 HL-NUMPARENT PIC 9(5).
+       01 HL-NUM PIC 9(5) VALUE 0.
+       01  DOC-TAB01.
+           02 DOC-TAB02 OCCURS 90 TIMES.
+              03 DOC-TAX PIC X(10).
+              03 DOC-SS PIC X(9).
+              03 DOC-NUM PIC X(8).
+              03 DOC-LASTNAME PIC X(20).
+              03 DOC-FIRSTNAME PIC X(10).
+              03 DOC-MI PIC X.
+              03 DOC-NPI PIC X(10).
+       01 PARM01.
+           02 PM-1 PIC XX.
+           02 FILLER PIC X.
+           02 PM-2 PIC X(10).
+           02 FILLER PIC X.
+           02 PM-3 PIC X(9).
+           02 FILLER PIC X.
+           02 PM-4 PIC X(8).
+           02 FILLER PIC X.
+           02 PM-5 PIC X(31).
+           02 FILLER PIC X.
+           02 PM-6 PIC X(10).
+       01 EINSS PIC X(9).
+       01 EINSS-TYPE PIC X.
+       01 PARMLAST PIC X(15).
+       01 PARMFIRST PIC X(15).
+       01 PARMMIDDLE PIC X.
+       01 ORG-NAME PIC X(40).
+       01 ORG-CITY PIC X(30).
+       01 ORG-STATE PIC XX.
+       01 ORG-ZIP PIC X(5).
+       01 INSTYPE-CODE PIC XXX.
+       01 INSGROUP-CODE PIC X(12).
+       01 INSGROUP-LEG PIC X(7).
+       01  SUBMIT01.
+           02 SUBMIT-1 PIC X(8).
+           02 SUBMIT-2 PIC XX.
+       01 TELE-PHONE PIC X(10).
+       01 ORG-STREET PIC X(24).
+       01 EIN-CODE PIC X(12).
+       01 CONTACT-NAME PIC X(30).
+       01  PLINDX PIC 99 VALUE 0.
+       01  CC-PL PIC X.
+       01 HL-NUMPRV-SAVE PIC X(5).
+       01 HL-SBR-SAVE PIC X(5).
+       01 X-RELATE PIC X.
+       01 SBR-RELATEHOLD PIC X.
+       01 SUB-RELATE PIC X.
+       01 SUB-NAME PIC X(24).
+       01 SUB-GROUP PIC X(10).
+       01 SUB-POLICY PIC X(16).
+       01 TOT-AMOUNT PIC 9(4)V99.
+       01 PLACE-POINTER PIC 99.
+       01 SAVE01 PIC X(133).
+       01 X-MOD.
+          02 X-MOD1 PIC XX.
+          02 X-MOD2 PIC XX.
+          02 X-MOD3 PIC XX.
+       01  MOD-ARRAY01.
+           02 MOD-ARRAY OCCURS 4 TIMES.
+              03 MOD-C PIC X.
+              03 MOD-CODE PIC XX.
+       01 NAME-1 PIC X(24).
+       01 NAME-2 PIC X(24).
+       01  HOLD-FILEIN01.
+           02 HOLD-FILEIN-KEY.
+             03 HOLD-KEY8 PIC X(8).
+             03 HOLD-KEY3 PIC XXX.
+           02 HOLD-PATID.
+             03 HOLD-PATID7 PIC X(7).
+             03 HOLD-PATID8 PIC X.
+           02 HOLD-CLAIM PIC X(6).
+           02 HOLD-SERVICE PIC X.
+           02 HOLD-DIAG PIC X(5).
+           02 HOLD-PROC.
+             03 HOLD-PROC0 PIC X(4).
+             03 HOLD-PROC1 PIC X(5).
+             03 HOLD-PROC2 PIC XX.
+           02 HOLD-MOD2 PIC XX.
+           02 HOLD-MOD3 PIC XX.
+           02 HOLD-MOD4 PIC XX.
+           02 HOLD-AMOUNT PIC S9(4)V99.
+           02 HOLD-DOCR PIC X(3).
+           02 HOLD-DOCP PIC 99.
+           02 HOLD-PAYCODE PIC XXX.
+           02 HOLD-STUD PIC X.
+           02 HOLD-WORK PIC 99.
+           02 HOLD-DAT1 PIC X(8).
+           02 HOLD-RESULT PIC X.
+           02 HOLD-ACTION PIC X.
+           02 HOLD-SORCREF PIC X.
+           02 HOLD-COLLT PIC X.
+           02 HOLD-AGE PIC X.
+           02 HOLD-PAPER PIC X.
+           02 HOLD-PLACE PIC X.
+           02 HOLD-IOPAT PIC X.
+           02 HOLD-DATE-T PIC X(8).
+           02 HOLD-DATE-A PIC X(8).
+           02 HOLD-DATE-P PIC X(8).
+           02 HOLD-REC-STAT PIC X.
+           02 HOLD-DX2 PIC X(5).
+           02 HOLD-DX3 PIC X(5).
+           02 HOLD-ACC-TYPE PIC X.
+           02 HOLD-DATE-M PIC X(8).
+           02 HOLD-ASSIGN PIC X.
+           02 HOLD-NEIC-ASSIGN PIC X.
+           02 HOLD-FREQ PIC X.
+           02 HOLD-FUTURE PIC X(5).
+       01  MAMMO-FLAG PIC 9.
+       01  CLIA-NUM PIC X(12).
+       01  GROUP-TAX PIC X(10).
+       PROCEDURE DIVISION.
+       P0. 
+           OPEN INPUT FILEIN GARFILE CHARCUR AUTHFILE PARMFILE
+           OPEN OUTPUT SEGFILE
+           OPEN I-O HIPCLAIMFILE
+           MOVE "A" TO HIP-KEY
+           READ HIPCLAIMFILE WITH LOCK INVALID 
+           DISPLAY "BAD HIPCLAIMFILE"
+           GO TO P99.
+           COMPUTE NUM9 = HIP-NUM
+           PERFORM NUM-LEFT9
+           MOVE ALF9NUM TO GS-NUM
+           MOVE ALF9NUM TO GE-NUM
+           ADD 1 TO HIP-NUM
+           PERFORM A0 THRU A0-EXIT.
+
+           MOVE SPACE TO SEGFILE01
+           ACCEPT TIME-X FROM TIME
+           MOVE TIME-HHMM TO BHT-TIME GS-5.
+           ACCEPT BHT-DATE FROM CENTURY-DATE.
+           MOVE BHT-DATE TO GS-4.
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM GS01
+
+           MOVE SPACE TO SEGFILE01
+           COMPUTE NUM9 = HIP-NUM
+           PERFORM NUM-LEFT9
+           MOVE ALF9NUM TO ST-NUM
+           MOVE ALF9NUM TO SE-NUM
+           ADD 1 TO HIP-NUM
+           WRITE SEGFILE01 FROM ST01.
+           
+           COMPUTE NUM9 = HIP-NUM
+           PERFORM NUM-LEFT9
+           MOVE ALF9NUM TO BHT-NUM
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM BHT01.
+
+
+           ADD 1 TO HL-NUM
+           COMPUTE NUM5 = HL-NUM
+           PERFORM NUM-LEFT
+           MOVE ALF5NUM TO HL-NUMX
+           MOVE HL-NUMPRV-SAVE TO NUM5
+           PERFORM NUM-LEFT
+           MOVE SPACE TO HL-PARENT
+           MOVE "20  " TO HL-CODE
+           MOVE "1" TO HL-CHILD
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM HL01
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM RECNM101
+
+           ADD 1 TO HL-NUM
+           COMPUTE NUM5 = HL-NUM
+           PERFORM NUM-LEFT
+           MOVE ALF5NUM TO HL-NUMX
+           MOVE HL-NUMPRV-SAVE TO NUM5
+           MOVE "1" TO HL-PARENT
+           MOVE "21  " TO HL-CODE
+           MOVE "1" TO HL-CHILD
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM HL01
+
+            MOVE "XX" TO NM1-EINSS
+           IF EINSS-TYPE = "E"
+            MOVE "2" TO NM1-SOLO
+            MOVE ORG-NAME TO NM1-NAMEL
+            MOVE SPACE TO NM1-NAMEF NM1-NAMEM NM1-NAMES
+           ELSE 
+            MOVE "1" TO NM1-SOLO
+            MOVE PARMLAST TO NM1-NAMEL
+            MOVE PARMFIRST TO NM1-NAMEF
+            MOVE PARMMIDDLE TO NM1-NAMEM
+           END-IF.
+           MOVE "1P" TO NM1-1
+           MOVE SPACE TO NM1-CODE
+           MOVE INSGROUP-CODE TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01  FROM NM101.
+
+           MOVE SPACE TO REF-CODE REF-ID
+           MOVE "EO" TO REF-CODE
+           MOVE "701100357" TO REF-ID
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM REF01.
+
+           MOVE SPACE TO N3-STREET N3-BILLADD
+           MOVE ORG-STREET TO N3-STREET
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM N301
+           MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
+           MOVE ORG-CITY TO N4-CITY
+           MOVE ORG-STATE TO N4-STATE
+           MOVE ORG-ZIP TO N4-ZIP
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM N401
+      * PER
+           MOVE SPACE TO SEGFILE01
+      *     WRITE SEGFILE01 FROM SUBPER01.
+      * PRV
+           MOVE "RF" TO PRV-1
+           MOVE "PXC" TO PRV-2
+           MOVE GROUP-TAX TO PRV-TAX
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM PRV01.
+      * 2000C
+       P1.
+           READ FILEIN AT END GO TO P99.
+           MOVE FILEIN01 TO CHARCUR-KEY
+           MOVE CC-KEY8 TO G-GARNO
+           READ GARFILE INVALID CONTINUE.
+      *     READ CHARCUR INVALID
+      *     DISPLAY "BAD " FILEIN01 GO TO P1
+      *     END-READ.
+           MOVE 1 TO FLAG.
+
+      * CREATE THE RECORD FOR ELIGIBILITY
+       P2.  
+           ADD 1 TO HL-NUM
+           MOVE HL-NUM TO HL-NUMPRV-SAVE
+           COMPUTE NUM5 = HL-NUM
+           PERFORM NUM-LEFT
+           MOVE ALF5NUM TO HL-NUMX
+           MOVE "2    " TO HL-PARENT
+           MOVE "22  " TO HL-CODE
+           MOVE "0" TO HL-CHILD
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM HL01.
+           MOVE G-GARNO TO TRN-2
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM TRN01.
+       2100C.
+           MOVE "IL " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
+           UNSTRING G-SENAME DELIMITED BY ";" INTO
+           NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           MOVE SPACE TO NAME-1 NAME-2
+           UNSTRING NM1-NAMEL DELIMITED BY " " INTO NAME-1 NAME-2
+           IF NAME-2 = "JR" OR "SR" OR "II" OR "III"
+           MOVE SPACE TO NM1-NAMEL NM1-NAMES
+           MOVE NAME-1 TO NM1-NAMEL
+           MOVE NAME-2 TO NM1-NAMES.
+           IF NM1-NAMEM = SPACE
+           MOVE SPACE TO NAME-1 NAME-2
+           UNSTRING NM1-NAMEF DELIMITED BY " " INTO NAME-1 NAME-2
+            IF NAME-2 NOT = SPACE
+             MOVE SPACE TO NM1-NAMEF NM1-NAMEM
+             MOVE NAME-1 TO NM1-NAMEF
+             MOVE NAME-2 TO NM1-NAMEM
+            END-IF
+           END-IF.
+           MOVE SPACE TO NM1-CODE
+           MOVE G-SECPOL TO NM1-CODE
+      *     IF G-PRINS = "064"
+      *     MOVE G-PRIPOL TO NM1-CODE
+      *     END-IF
+           MOVE "MI" TO NM1-EINSS
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+           MOVE SPACE TO REF-CODE REf-ID
+           MOVE "EJ" TO REF-CODE
+           MOVE CHARCUR-KEY TO REF-ID
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM REF01.
+           MOVE SPACE TO N3-STREET N3-BILLADD
+           MOVE G-BILLADD TO N3-STREET
+           MOVE G-STREET TO N3-BILLADD
+           IF G-BILLADD = SPACE
+           MOVE G-STREET TO N3-STREET
+           MOVE SPACE TO N3-BILLADD.
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM N301.
+           MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
+           MOVE G-CITY TO N4-CITY
+           MOVE G-STATE TO N4-STATE
+           MOVE G-ZIP TO N4-ZIP
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM N401.
+           MOVE G-DOB TO DMG-DOB
+           MOVE G-SEX TO DMG-GENDER
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM DMG01.
+           MOVE "291" TO DTP-1
+           MOVE FI-DATE-T TO DTP-3
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM DTP01.
+           MOVE "30" TO EQ-1
+      *     PERFORM SV-MOD
+      *     MOVE CC-PROC1 TO EQ-PROC
+           MOVE SPACE TO EQ-PROC EQ-MOD-FILLER
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM EQ01.
+           GO TO P1.
+       NUM-LEFT.
+           MOVE NUM5 TO ALF5Z ALFS
+           MOVE SPACE TO ALF5NUM
+           MOVE ALF5Z TO ALF5
+           UNSTRING ALF5 DELIMITED ALL " " INTO ALFS ALF5NUM.
+       NUM-LEFT9.
+           MOVE NUM9 TO ALF9Z
+           MOVE SPACE TO ALF9NUM
+           MOVE ALF9Z TO ALF9 ALFS9
+           UNSTRING ALF9 DELIMITED ALL " " INTO ALFS9 ALF9NUM.
+       AMT-LEFT.
+           MOVE  NUM7 TO ALF8Z
+           MOVE SPACE TO ALF8NUM ALFS8
+           MOVE ALF8Z TO ALF8
+           UNSTRING ALF8 DELIMITED ALL " " INTO ALFS8 ALF8NUM.
+       SV-MOD.
+           MOVE SPACE TO EQ-MOD-FILLER MOD-ARRAY01
+           MOVE CC-PROC2 TO X-MOD1
+           MOVE CC-MOD2 TO X-MOD2
+           MOVE CC-MOD3 TO X-MOD3
+           IF X-MOD1 = SPACE AND X-MOD2 = SPACE
+              MOVE X-MOD3 TO X-MOD1
+              MOVE SPACE TO X-MOD3.
+           IF X-MOD1 = SPACE 
+              MOVE X-MOD2 TO X-MOD1
+              MOVE X-MOD3 TO X-MOD2
+              MOVE SPACE TO X-MOD3.
+           IF X-MOD2 = SPACE
+              MOVE X-MOD3 TO X-MOD2
+              MOVE SPACE TO X-MOD3.
+           IF X-MOD1 NOT = SPACE
+           MOVE ":" TO MOD-C(1)
+           MOVE X-MOD1 TO MOD-CODE(1).
+           IF X-MOD2 NOT = SPACE
+           MOVE ":" TO MOD-C(2)
+           MOVE X-MOD2 TO MOD-CODE(2).
+           IF X-MOD3 NOT = SPACE
+           MOVE ":" TO MOD-C(3)
+           MOVE X-MOD3 TO MOD-CODE(3).
+           MOVE MOD-ARRAY01 TO EQ-MOD-FILLER.
+
+       2000C.
+      * TAX ID NUMBER 
+       A0.    READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO EIN-CODE.
+      * TAX ID TYPE
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO EINSS-TYPE.
+      * CONTACT NAME #
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO CONTACT-NAME.
+      * TELEPHONE #
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO TELE-PHONE.
+      * INSURANCE-CODE #
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO INSTYPE-CODE.
+      * INSURANCE-GROUP #
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE SPACE TO INSGROUP-CODE INSGROUP-LEG
+           UNSTRING PARMFILE01 DELIMITED BY " " INTO
+           INSGROUP-CODE INSGROUP-LEG.
+      * SUBMITER ID INDICATORS (2)
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO SUBMIT-2.
+      * ORGANIZATION NAME
+           READ PARMFILE AT END GO TO A0-EXIT.
+           IF EINSS-TYPE = "S"
+           MOVE SPACE TO PARMLAST PARMFIRST PARMMIDDLE
+           UNSTRING PARMFILE01 DELIMITED BY ";"
+           INTO PARMLAST PARMFIRST PARMMIDDLE
+           ELSE MOVE PARMFILE01 TO ORG-NAME.
+      * GROUP'S STREET
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO ORG-STREET
+      * GROUP'S CITY
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO ORG-CITY
+      * GROUP'S STATE
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO ORG-STATE
+      * GROUP'S ZIP CODE
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO ORG-ZIP
+      * GROUP 3-CHARACTER MNEMONIC CODE
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO GROUP-3.
+      *   CLIA-NUMBER
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO CLIA-NUM. 
+
+      * ACCT-TAXONOMY.
+           READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO GROUP-TAX.
+
+      * INDIVIDUAL PROVIDER DATA
+       A1. READ PARMFILE AT END GO TO A0-EXIT.
+           MOVE PARMFILE01 TO PARM01
+           MOVE PM-1 TO NUM2
+           MOVE PM-2 TO DOC-TAX(NUM2)
+           MOVE PM-3 TO DOC-SS(NUM2)
+           MOVE PM-4 TO DOC-NUM(NUM2)
+           MOVE SPACE TO ALF20 ALF10 ALF1
+           UNSTRING PM-5 DELIMITED BY ";" INTO ALF20 ALF10 ALF1
+           MOVE ALF20 TO DOC-LASTNAME(NUM2)
+           MOVE ALF10 TO DOC-FIRSTNAME(NUM2)
+           MOVE ALF1 TO DOC-MI(NUM2)
+           MOVE PM-6 TO DOC-NPI(NUM2)
+           GO TO A1.
+       A0-EXIT.  EXIT.
+       P99.
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM SE01
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM GE01
+           MOVE SPACE TO SEGFILE01.
+      *      REWRITE HIPCLAIMFILE01.
+            CLOSE GARFILE HIPCLAIMFILE CHARCUR.
+            STOP RUN.
