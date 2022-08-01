@@ -104,7 +104,7 @@
            02 TRN-S1 PIC X VALUE "*".
            02 TRN-2 PIC X(8).
            02 TRN-S2 PIC X VALUE "*".
-           02 TRN-3 PIC X(10) VALUE "701100357".
+           02 TRN-3 PIC X(10) VALUE "9701100357".
 
            02 TRN-END PIC X VALUE "~".
 
