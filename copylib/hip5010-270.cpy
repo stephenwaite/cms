@@ -1,4 +1,4 @@
-01 ISA01.
+       01 ISA01.
            02 ISA-0 PIC XXX VALUE "ISA".
            02 ISA-S0 PIC X VALUE "*".
            02 ISA-1 PIC XX.
