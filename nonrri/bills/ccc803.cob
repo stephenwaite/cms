@@ -89,22 +89,22 @@
                GO TO P1
            END-IF
 
-           IF CC-DATEYYYYMM-A < "202110"
+           IF CC-DATEYYYYMM-A < "202201"
                GO TO P1
            END-IF
 
-           IF CC-DATEYYYYMM-A = "202110"
-               MOVE "20211130" TO CC-DATE-A
+           IF CC-DATEYYYYMM-A = "202201"
+               MOVE "20220228" TO CC-DATE-A
                GO TO A2
            END-IF
 
-           IF CC-DATEYYYYMM-A = "202111"
-               MOVE "20211231" TO CC-DATE-A
+           IF CC-DATEYYYYMM-A = "202202"
+               MOVE "20220331" TO CC-DATE-A
                GO TO A2
            END-IF
 
-           IF CC-DATEYYYYMM-A = "202112"
-               MOVE "20220131" TO CC-DATE-A
+           IF CC-DATEYYYYMM-A = "202203"
+               MOVE "20220430" TO CC-DATE-A
                GO TO A2
            END-IF
 

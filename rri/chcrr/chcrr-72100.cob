@@ -92,7 +92,13 @@
            END-READ
             
       *    also adding problematic cxrs that come over with laterality
-           IF NOT (CD-PROC0 = "1235" OR "1316" or "7356" or "0151")
+           IF NOT (
+             CD-PROC0 = "1235"
+             OR "1316"
+             OR "7356"
+             OR "0151"
+             OR "0103"
+           )
                GO TO P1
            END-IF
                    

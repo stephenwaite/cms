@@ -71,60 +71,64 @@
        01  TAB-X PIC X VALUE H"09".
        01  ALF9 PIC X(9).
        01  FO-PRIM-DAT1 PIC X(10).
+
        PROCEDURE DIVISION.
        0005-S0TART.
            OPEN INPUT FILEIN OUTPUT FILEOUT.
-           READ FILEIN AT END CONTINUE.
-       P1. MOVE SPACE TO FILEIN01
+           READ FILEIN 
+             AT END
+              CONTINUE.
+
+       P1. 
+           MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P2.
            MOVE SPACE TO FILEOUT01
            UNSTRING FILEIN01 DELIMITED BY TAB-X INTO
-
-           FO-PATNAMEL
-           FO-PATNAMEF 
-           FO-PAT-STR1 
-           FO-PAT-STR2 
-           FO-PAT-CITY 
-           FO-PAT-STATE 
-           FO-PAT-ZIP 
-           FO-PAT-DOB 
-           FO-PAT-SEX 
-           FO-PRIM-ALFA 
-           FO-PRIM-NAME 
-           FO-PRIM-STR1 
-           FO-PRIM-CITY 
-           FO-PRIM-STATE 
-           FO-PRIM-ZIP 
-           FO-PRIM-POL 
-           FO-PRIM-DAT1 
-           FO-PRIM-NAMEL 
-           FO-PRIM-NAMEF 
-           FO-PRIM-SUBSEX 
-           FO-PRIM-SUBRELATE 
-           FO-SEC-ALFA   
-           FO-SEC-NAME   
-           FO-SEC-STR1   
-           FO-SEC-CITY   
-           FO-SEC-STATE   
-           FO-SEC-ZIP    
-           FO-DAT1     
-           FO-SEC-POL     
-           FO-SEC-NAMEL   
-           FO-SEC-NAMEF  
-           FO-SEC-SUBSEX 
-           FO-SEC-SUBRELATE
-           FO-PROC     
-           FO-DX1    
-           FO-DX2    
-           FO-DX3     
-           FO-DX4    
-           FO-DATE-T     
-           FO-PROVNPI     
-           FO-DAT1     
-           FO-3RD-ALFA 
-           FO-3RD-POL  
-           FO-3RD-NAME
-           FO-3RD-CITY
+             FO-PATNAMEL
+             FO-PATNAMEF 
+             FO-PAT-STR1 
+             FO-PAT-STR2 
+             FO-PAT-CITY 
+             FO-PAT-STATE 
+             FO-PAT-ZIP 
+             FO-PAT-DOB 
+             FO-PAT-SEX 
+             FO-PRIM-ALFA 
+             FO-PRIM-NAME 
+             FO-PRIM-STR1 
+             FO-PRIM-CITY 
+             FO-PRIM-STATE 
+             FO-PRIM-ZIP 
+             FO-PRIM-POL 
+             FO-PRIM-DAT1 
+             FO-PRIM-NAMEL 
+             FO-PRIM-NAMEF 
+             FO-PRIM-SUBSEX 
+             FO-PRIM-SUBRELATE 
+             FO-SEC-ALFA   
+             FO-SEC-NAME   
+             FO-SEC-STR1   
+             FO-SEC-CITY   
+             FO-SEC-STATE   
+             FO-SEC-ZIP    
+             FO-DAT1     
+             FO-SEC-POL     
+             FO-SEC-NAMEL   
+             FO-SEC-NAMEF  
+             FO-SEC-SUBSEX 
+             FO-SEC-SUBRELATE
+             FO-PROC     
+             FO-DX1    
+             FO-DX2    
+             FO-DX3     
+             FO-DX4    
+             FO-DATE-T     
+             FO-PROVNPI     
+             FO-DAT1     
+             FO-3RD-ALFA 
+             FO-3RD-POL  
+             FO-3RD-NAME
+             FO-3RD-CITY
            MOVE SPACE TO ALF9
            STRING FO-PRIM-ZIP(1:5) FO-PRIM-ZIP(7:4) INTO ALF9
            MOVE SPACE TO FO-PRIM-ZIP

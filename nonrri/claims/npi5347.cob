@@ -1754,7 +1754,7 @@
            IF G-PRINS = "003" OR "074" OR "116" OR "200"
              MOVE "MB " TO SBR-INSCODE.
 
-           IF INS-NEIC = "87726"
+           IF INS-NEIC = "87726" OR "14163"
              MOVE "MB " TO SBR-INSCODE.
 
              

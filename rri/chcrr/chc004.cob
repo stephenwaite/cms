@@ -161,6 +161,7 @@
            READ FILEIN AT END GO TO P99.
            IF FI-PROC1 = "73620" MOVE "73630" TO FI-PROC1.
            IF FI-PROC1 = "73070" MOVE "73060" TO FI-PROC1.
+           IF FI-PROC1 = "72072" MOVE "72070" TO FI-PROC1.
            MOVE SPACE TO ALF1 ALF1X
            UNSTRING FI-PRIM-POL DELIMITED BY "+" INTO ALF1 ALF1X
            IF ALF1X NOT = SPACE
@@ -244,24 +245,29 @@
            MOVE FI-SEC-SUBRELATE TO T-SUBRELATE(2)
 
            MOVE SPACE TO ALF10X
-           MOVE FI-3RD-ALFA TO ALF10X
-           PERFORM INS-CODE-CHK
-           MOVE ALF10X TO FI-3RD-ALFA
-           MOVE FI-3RD-ALFA TO T-CODE(3)
-           MOVE FI-3RD-NAME TO T-NAME(3)
-           MOVE SPACE TO T-STR1(3)
-           MOVE FI-3RD-CITY TO T-CITY(3)
-           MOVE SPACE TO T-STATE(3)
-           MOVE SPACE TO T-ZIP(3)
-           MOVE SPACE TO T-GRP(3)
-           MOVE FI-3RD-POL TO T-POL(3)
-           MOVE SPACE TO T-NAMEL(3)
-           MOVE SPACE TO T-NAMEF(3)
-           MOVE SPACE TO T-SUBSEX(3)
-           MOVE SPACE TO T-SUBRELATE(3)
+
+           MOVE SPACE TO T-CODE(3) T-NAME(3) T-CITY(3) T-STATE(3)
+             T-ZIP(3) T-GRP(3) T-POL(3) T-NAMEL(3) T-NAMEF(3)
+             T-SUBSEX(3) T-SUBRELATE(3)
+           IF FI-3RD-ALFA NOT = 0
+             MOVE FI-3RD-ALFA TO ALF10X
+             PERFORM INS-CODE-CHK
+             MOVE ALF10X TO FI-3RD-ALFA
+             MOVE FI-3RD-ALFA TO T-CODE(3)
+             MOVE FI-3RD-NAME TO T-NAME(3)
+             MOVE SPACE TO T-STR1(3)
+             MOVE FI-3RD-CITY TO T-CITY(3)
+             MOVE SPACE TO T-STATE(3)
+             MOVE SPACE TO T-ZIP(3)
+             MOVE SPACE TO T-GRP(3)
+             MOVE FI-3RD-POL TO T-POL(3)
+             MOVE SPACE TO T-NAMEL(3)
+             MOVE SPACE TO T-NAMEF(3)
+             MOVE SPACE TO T-SUBSEX(3)
+             MOVE SPACE TO T-SUBRELATE(3)
+           END-IF  
+
            MOVE SPACE TO TABX(4)
-
-
 
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 3
             IF T-CODE(X) = "30        " OR "85        "
@@ -295,7 +301,7 @@
            END-IF
 
            IF (T-CODE(1) = "82")
-              AND (T-CODE(2) NOT = SPACE)
+              AND (T-CODE(2) NOT = 0)
              MOVE TABX(2) TO TABX(4)
              MOVE TABX(1) TO TABX(2)
              MOVE TABX(4) TO TABX(1)
