@@ -381,7 +381,7 @@
            end-if 
 
            IF ((R3-PROC = "0111" or "1204" OR "1283" OR "1284" or "1285" 
-                or "3030" or "3085") 
+                or "3030" or "3085" or "5024" or "5282") 
              AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1")
              MOVE SPACE TO ERRFILE01
@@ -398,7 +398,7 @@
 
       *    VT Medicaid threw a wrench
            IF (R3-PROC = "0111" or "1204" OR "1283" or "1284" or "1285"
-               OR "3030" or "3085") 
+               OR "3030" or "3085" or "5024" or "5282") 
              AND R3-MOD1 = "50"
       *    RVOC sends 50 mod twice sometimes :|         
              IF BILAT-FLAG = "1"
