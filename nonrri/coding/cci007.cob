@@ -335,7 +335,9 @@
                MOVE "59" TO CD-MOD2
            END-IF
            
-           IF (CD-MOD2 NOT = SPACE AND CD-PROC(6:2) NOT = "59")
+           IF (CD-MOD2 NOT = SPACE 
+               AND CD-MOD2 NOT = "59" 
+               AND CD-PROC(6:2) NOT = "59")
                MOVE "59" TO CD-MOD3
            END-IF.
 
