@@ -54,7 +54,7 @@
                 DISPLAY CCI-KEY1 " " CCI-KEY2 " " CCI-IND
       *      CLOSE CCIFILE
       *     OPEN I-O CCIFILE
-      *     DELETE CCIFILE RECORD
+           DELETE CCIFILE RECORD
       *     CLOSE CCIFILE           
       *     DISPLAY " RECORD DELETED"
       *     OPEN INPUT CCIFILE
