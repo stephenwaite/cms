@@ -52,12 +52,12 @@
            IF CCI-KEY1(1:3) = "992"
               OR CCI-KEY2(1:3) = "992"
                 DISPLAY CCI-KEY1 " " CCI-KEY2 " " CCI-IND
-      *      CLOSE CCIFILE
-      *     OPEN I-O CCIFILE
+            CLOSE CCIFILE
+           OPEN I-O CCIFILE
            DELETE CCIFILE RECORD
-      *     CLOSE CCIFILE           
-      *     DISPLAY " RECORD DELETED"
-      *     OPEN INPUT CCIFILE
+           CLOSE CCIFILE           
+           DISPLAY " RECORD DELETED"
+           OPEN INPUT CCIFILE
            END-IF
 
            GO TO P1.     
