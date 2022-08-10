@@ -111,10 +111,13 @@
            OPEN INPUT DOCFILE GARFILE CHARDATE PAYDATE CHARCUR PAYCUR
              CCPROCIN.
            OPEN OUTPUT FILEOUT.
-           READ CCPROCIN.
            READ CHARDATE.
       *     READ PAYDATE.
       *     READ DOCFILE AT END GO TO P1.
+           MOVE SPACE TO CHARCUR-KEY
+           START CHARCUR KEY NOT < CHARCUR-KEY
+             INVALID
+               GO TO P99.
    
        P1. 
            READ CHARCUR
