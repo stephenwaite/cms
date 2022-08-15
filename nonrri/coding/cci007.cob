@@ -326,8 +326,8 @@
 
            MOVE SPACE TO FILEOUT01
            STRING KEY-TAB(A) " " KEY-TAB(Z) " "
-               "ADDING MOD 59 TO " CCI-KEY2 " DUE TO CPT " CCI-KEY1 
-               " COMBO, DOS " CD-DATE-T
+               "ADDING MOD 59 TO " CCI-KEY2 " CPT " CCI-KEY1 
+               ", DOS " CD-DATE-T
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01  
 
