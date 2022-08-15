@@ -1031,11 +1031,13 @@
            IF R1-IP1 = "00433" OR "00698" OR "00699" OR "00830"
                OR "00930"
              IF G-GARNO = SPACE
-               DISPLAY "MISC INS, USE 095 SINCE NO RECENT GARNO FOR "
-               R2-MEDREC
+               DISPLAY R1-PATNAME INSURANCE-1
+               DISPLAY " IS A MISC INS FROM RRMC FOR " R2-MEDREC
+               " USE 095 SINCE NO RECENT GARNO"
              ELSE
-               DISPLAY "MISC INS, MRN " R2-MEDREC ", USE INS " PRIOR-INS 
-               " FROM RECENT GARNO " G-GARNO
+               DISPLAY R1-PATNAME INSURANCE-1
+               DISPLAY " IS A MISC INS FROM RRMC FOR " R2-MEDREC 
+               ", USE INS " PRIOR-INS " FROM RECENT GARNO " G-GARNO
              END-IF 
              DISPLAY "? Y FOR YES, ANYTHING ELSE TO LOOK FOR INS."
              ACCEPT ANS
