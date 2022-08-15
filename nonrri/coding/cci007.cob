@@ -41,7 +41,7 @@
            02 CCI-IND PIC X.
 
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(80).
+       01  FILEOUT01 PIC X(120).
 
        FD  CHARFILE.
            COPY charfile.CPY IN "C:\Users\sid\cms\copylib".
@@ -326,7 +326,7 @@
 
            MOVE SPACE TO FILEOUT01
            STRING KEY-TAB(A) " " KEY-TAB(Z) " "
-               "ADDING MOD 59 TO " CCI-KEY2 " CPT " CCI-KEY1 
+               "ADDING MOD 59 TO " CCI-KEY2 " Col 1 code " CCI-KEY1 
                ", DOS " CD-DATE-T
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01  
