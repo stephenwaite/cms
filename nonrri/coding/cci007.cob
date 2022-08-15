@@ -278,7 +278,7 @@
 
            IF IND-X = "0"
                MOVE SPACE TO FILEOUT01
-               STRING KEY-TAB(A) " " KEY-TAB(Z) " "
+               STRING CCI-KEY1 " " CCI-KEY2 " "
                    "CAN NOT BILL THESE 2 TOGETHER PER NCCI (0)."
                    DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01        
@@ -287,7 +287,7 @@
 
            IF IND-X = "9"
                MOVE SPACE TO FILEOUT01
-               STRING KEY-TAB(A) " " KEY-TAB(Z) " "
+               STRING CCI-KEY1 " " CCI-KEY2 " "
                  "CCI DOES NOT APPLY PER NCCI (9), WAS PREV DELETED."
                    DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01        
@@ -326,7 +326,7 @@
 
            MOVE SPACE TO FILEOUT01
            STRING KEY-TAB(A) " " KEY-TAB(Z) " "
-               "ADDING MOD 59 FOR " proc-TAB(A) " " proc-TAB(Z) 
+               "ADDING MOD 59 TO " CCI-KEY2 " DUE TO CPT " CCI-KEY1 
                " COMBO, DOS " CD-DATE-T
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01  
@@ -339,7 +339,7 @@
              END-IF   
            END-IF
 
-           REWRITE CHARFILE01.
+      *     REWRITE CHARFILE01.
 
        P19-EXIT.
            EXIT.
