@@ -337,7 +337,7 @@
              IF CD-MOD2 NOT = "59" 
                 MOVE "59" TO CD-MOD3
              END-IF   
-           END-IF
+           END-IF.
 
       *     REWRITE CHARFILE01.
 
