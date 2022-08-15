@@ -715,6 +715,7 @@
            MOVE R2-MEDREC TO A-ACTNO
            READ ACTFILE
              INVALID
+               MOVE SPACE TO G-GARNO
                MOVE "095" TO PRIOR-INS
              NOT INVALID
                MOVE A-GARNO TO G-GARNO
