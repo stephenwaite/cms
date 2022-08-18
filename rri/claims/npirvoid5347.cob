@@ -1219,6 +1219,8 @@
            02 X-MM PIC 99.
            02 X-DD PIC 99.
 
+       01  ANS PIC X.
+
        PROCEDURE DIVISION.
 
        P0. 
@@ -1618,7 +1620,7 @@
            if ans not = space
              move 8 to clm-freq
            end-if
-            
+
            MOVE HOLD-KEY8 TO SUBMIT-1
            MOVE SUBMIT01 TO CLM-1
            COMPUTE NUM7 = TOT-AMOUNT
