@@ -1175,24 +1175,20 @@
            
       *    add auth for VA/VACCN outpatient claims
            MOVE 0 TO AUTH-FLAG
-      *     IF (HOLD-PAYCODE = "079" OR "225" OR "926")
-              MOVE HOLD-KEY8 TO AUTH-KEY8
-              MOVE HOLD-CLAIM TO AUTH-KEY6
-              READ AUTHFILE INVALID
-                  MOVE 1 TO AUTH-FLAG
-                  GO TO 2300CLM-EXIT
-              END-READ    
-              MOVE SPACE TO REF-CODE
-              MOVE "G1" TO REF-CODE
-              MOVE SPACE TO REF-ID
-              IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
-                MOVE AUTH-NUM TO REF-ID
-      *        ELSE
-      *          MOVE "VA9999999999" TO REF-ID
-              END-IF  
-              MOVE SPACE TO SEGFILE01
-              WRITE SEGFILE01 FROM REF01.
-      *     END-IF.   
+           MOVE HOLD-KEY8 TO AUTH-KEY8
+           MOVE HOLD-CLAIM TO AUTH-KEY6
+           READ AUTHFILE INVALID
+             MOVE 1 TO AUTH-FLAG
+             GO TO 2300CLM-EXIT
+           END-READ    
+           MOVE SPACE TO REF-CODE
+           MOVE "G1" TO REF-CODE
+           MOVE SPACE TO REF-ID
+           IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
+             MOVE AUTH-NUM TO REF-ID
+           END-IF  
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM REF01
 
       *    claim number
            MOVE SPACE TO REF-CODE
