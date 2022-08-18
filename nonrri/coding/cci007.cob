@@ -322,6 +322,11 @@
              OR CD-MOD2 = "59"
              OR CD-MOD3 = "59"
              OR CD-MOD4 = "59"
+                STRING KEY-TAB(A) " " KEY-TAB(Z) " "
+                  "MOD 59 WAS ON " CCI-KEY2 " Col 1 code " CCI-KEY1 
+                  ", DOS " CD-DATE-T
+                  DELIMITED BY SIZE INTO FILEOUT01
+                  WRITE FILEOUT01
              GO TO P19-EXIT.    
 
            MOVE SPACE TO FILEOUT01
