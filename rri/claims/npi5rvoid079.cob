@@ -1179,16 +1179,15 @@
            MOVE HOLD-CLAIM TO AUTH-KEY6
            READ AUTHFILE INVALID
              MOVE 1 TO AUTH-FLAG
-             GO TO 2300CLM-EXIT
            END-READ    
            MOVE SPACE TO REF-CODE
            MOVE "G1" TO REF-CODE
            MOVE SPACE TO REF-ID
            IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
              MOVE AUTH-NUM TO REF-ID
+             MOVE SPACE TO SEGFILE01
+             WRITE SEGFILE01 FROM REF01
            END-IF  
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM REF01
 
       *    claim number
            MOVE SPACE TO REF-CODE
