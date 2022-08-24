@@ -344,7 +344,7 @@
              END-IF   
            END-IF.
 
-      *     REWRITE CHARFILE01.
+           REWRITE CHARFILE01.
 
        P19-EXIT.
            EXIT.
