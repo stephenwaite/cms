@@ -715,6 +715,7 @@
            MOVE R2-MEDREC TO A-ACTNO
            READ ACTFILE
              INVALID
+               MOVE SPACE TO G-GARNO
                MOVE "095" TO PRIOR-INS
              NOT INVALID
                MOVE A-GARNO TO G-GARNO
@@ -1029,8 +1030,16 @@
            
            IF R1-IP1 = "00433" OR "00698" OR "00699" OR "00830"
                OR "00930"
-             DISPLAY "MRN " R2-MEDREC ", USE INS " PRIOR-INS 
-               " FROM RECENT GARNO " G-GARNO "? Y FOR YES."
+             IF G-GARNO = SPACE
+               DISPLAY R1-PATNAME INSURANCE-1
+               DISPLAY " IS A MISC INS FROM RRMC FOR " R2-MEDREC
+               " USE 095 SINCE NO RECENT GARNO"
+             ELSE
+               DISPLAY R1-PATNAME INSURANCE-1
+               DISPLAY " IS A MISC INS FROM RRMC FOR " R2-MEDREC 
+               ", USE INS " PRIOR-INS " FROM RECENT GARNO " G-GARNO
+             END-IF 
+             DISPLAY "? Y FOR YES, ANYTHING ELSE TO LOOK FOR INS."
              ACCEPT ANS
              IF ANS = "Y"
                MOVE PRIOR-INS TO A-PRINS

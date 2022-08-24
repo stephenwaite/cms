@@ -41,7 +41,7 @@
            02 CCI-IND PIC X.
 
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(80).
+       01  FILEOUT01 PIC X(120).
 
        FD  CHARFILE.
            COPY charfile.CPY IN "C:\Users\sid\cms\copylib".
@@ -278,7 +278,7 @@
 
            IF IND-X = "0"
                MOVE SPACE TO FILEOUT01
-               STRING KEY-TAB(A) " " KEY-TAB(Z) " "
+               STRING CCI-KEY1 " " CCI-KEY2 " "
                    "CAN NOT BILL THESE 2 TOGETHER PER NCCI (0)."
                    DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01        
@@ -287,7 +287,7 @@
 
            IF IND-X = "9"
                MOVE SPACE TO FILEOUT01
-               STRING KEY-TAB(A) " " KEY-TAB(Z) " "
+               STRING CCI-KEY1 " " CCI-KEY2 " "
                  "CCI DOES NOT APPLY PER NCCI (9), WAS PREV DELETED."
                    DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01        
@@ -322,24 +322,29 @@
              OR CD-MOD2 = "59"
              OR CD-MOD3 = "59"
              OR CD-MOD4 = "59"
+                STRING KEY-TAB(A) " " KEY-TAB(Z) " "
+                  "MOD 59 WAS ON " CCI-KEY2 " Col 1 code " CCI-KEY1 
+                  ", DOS " CD-DATE-T
+                  DELIMITED BY SIZE INTO FILEOUT01
+                  WRITE FILEOUT01
              GO TO P19-EXIT.    
 
            MOVE SPACE TO FILEOUT01
            STRING KEY-TAB(A) " " KEY-TAB(Z) " "
-               "ADDING MOD 59 FOR " proc-TAB(A) " " proc-TAB(Z) 
-               " COMBO, DOS " CD-DATE-T
+               "ADDING MOD 59 TO " CCI-KEY2 " Col 1 code " CCI-KEY1 
+               ", DOS " CD-DATE-T
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01  
 
            IF CD-MOD2 = SPACE
                MOVE "59" TO CD-MOD2
-           END-IF
-           
-           IF (CD-MOD2 NOT = SPACE AND CD-PROC(6:2) NOT = "59")
-               MOVE "59" TO CD-MOD3
+           ELSE
+             IF CD-MOD2 NOT = "59" 
+                MOVE "59" TO CD-MOD3
+             END-IF   
            END-IF.
 
-      *     REWRITE CHARFILE01.
+           REWRITE CHARFILE01.
 
        P19-EXIT.
            EXIT.
