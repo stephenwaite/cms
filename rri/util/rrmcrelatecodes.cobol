@@ -56,7 +56,7 @@
            END-IF
 
            MOVE FILEIN01 TO REC101.
-           if not (r1-relate1 = "  " or "01" or "18" or "19")
+           if not (r1-relate1 = "  " or "01" or "18" or "19" or "23")
              move space to fileout01
              write fileout01 from r1-relate1
              display R1-RELATE1 " R1-RELATE1"
