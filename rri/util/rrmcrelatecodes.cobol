@@ -30,6 +30,8 @@
            02 FI-1 PIC XX.
            02 FI-2 PIC X(1068).
 
+       01  ans pic x.    
+
        
        WORKING-STORAGE SECTION.
 
@@ -54,7 +56,10 @@
            END-IF
 
            MOVE FILEIN01 TO REC101.
-           display R1-RELATE1 " R1-RELATE1"
+           if not (r1-relate1 = "  " or "01" or "18")
+             display R1-RELATE1 " R1-RELATE1"
+             accept ans.
+
            go to p1. 
 
        9100CMF.
