@@ -1108,6 +1108,9 @@
               03 DOC-FIRSTNAME PIC X(10).
               03 DOC-MI PIC X.
               03 DOC-NPI PIC X(10).
+
+       01  ANS PIC X.
+       
        PROCEDURE DIVISION.
        P0. 
            OPEN INPUT FILEIN GARFILE PATFILE INSFILE REFPHY
