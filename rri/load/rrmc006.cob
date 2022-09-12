@@ -1049,7 +1049,8 @@
                    DISPLAY "NO INS ON FILE" 
                    PERFORM REPLACE-2 THRU REPLACE-2-EXIT
                END-READ
-               DISPLAY INS-NAME      
+               DISPLAY INS-NAME     
+               MOVE INS-ASSIGN TO A-PR-ASSIGN
              ELSE
                PERFORM REPLACE-2 THRU REPLACE-2-EXIT  
              END-IF
