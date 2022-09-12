@@ -824,6 +824,7 @@
            END-IF
              
            IF INS-NEIC NOT = PAYORID
+             AND PAYORID NOT = "52192"
              GO TO P3-NEXT.
 
            IF CLP-2CLMSTAT = "1"
