@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. BILL001.
+       PROGRAM-ID. bill001.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -50,6 +50,6 @@
            GO TO P1.
        P3. MOVE PF5 TO FO-3
            MOVE CNTR TO FO-1
-           COMPUTE FO-2 = CNTR * .50
+           COMPUTE FO-2 = CNTR * .75
            WRITE FILEOUT01.
            CLOSE FILEOUT. STOP RUN.
