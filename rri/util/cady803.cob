@@ -55,11 +55,12 @@
        01  garno pic x(8).
        01  dos   pic x(8).
        01  ans   pic x.    
+       01  CHARCUR-BACK PIC X(160).
 
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT INSFILE garfile
-           OPEN I-O CHARCUR
+           OPEN INPUT CHARCUR
            OPEN OUTPUT FILEOUT.
 
        P00.
@@ -148,9 +149,11 @@
            MOVE INS-NEIC-ASSIGN TO CC-NEIC-ASSIGN
            MOVE INS-CLAIMTYPE TO CC-PAPER
            MOVE INS-KEY TO CC-PAYCODE 
+           MOVE CHARCUR01 TO CHARCUR-BACK
+           CLOSE CHARCUR
+           OPEN I-O CHARCUR
+           MOVE CHARCUR-BACK TO CHARCUR01
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
-           display charcur-key " charcur-key"
-           display charcur01(1:11) " charcur01(1:11)"
            ACCEPT OMITTED
            
            MOVE CHARCUR01(1:11) TO CHARCUR-KEY
