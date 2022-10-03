@@ -111,7 +111,7 @@
            DISPLAY CC-PROC(5:5) " " CC-MOD2 " " CC-MOD3 " " CC-PAYCODE
              " " CC-AMOUNT " " CC-DATE-T.
 
-           DISPLAY "Y FOR YES OR ANY KEY FOR NO.".
+           DISPLAY "Y FOR YES OR ANY KEY FOR NO."
            ACCEPT ANS
            
            IF ANS NOT = "Y" 
@@ -121,11 +121,13 @@
        P2.
            IF NOT (CC-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
              DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO"
-               " CHANGE TO WHICH INS " G-PRINS " " G-SEINS " " G-TRINS
+             DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " " 
+                G-TRINS
+             DISPLAY "ENTER 3 DIGIT INS CODE TO USE"          
+             ACCEPT INS-KEY
            END-IF.     
+           
        P3. 
-           DISPLAY "ENTER 3 DIGIT INS CODE TO USE"          
-           ACCEPT INS-KEY
            IF NOT (INS-KEY = G-PRINS OR G-SEINS OR G-TRINS)
              GO TO P2
            END-IF
