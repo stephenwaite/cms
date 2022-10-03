@@ -56,6 +56,7 @@
        01  dos   pic x(8).
        01  ans   pic x.    
        01  CHARCUR-BACK PIC X(160).
+       01  hold-paycode pic XXX VALUE SPACE.
 
        PROCEDURE DIVISION.
        P0.
@@ -124,17 +125,21 @@
 
        P2. 
            DISPLAY CC-PAYCODE " CC-PAYCODE"
+           
+           IF HOLD-PAYCODE = SPACE 
+             IF NOT (CC-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
+               DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO"
+               DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
+                 G-TRINS
+               DISPLAY "ENTER 3 DIGIT INS CODE TO USE"   
+               ACCEPT CC-PAYCODE
+               GO TO P2
+             END-IF
+             MOVE CC-PAYCODE TO INS-KEY HOLD-PAYCODE
+           ELSE
+             MOVE HOLD-PAYCODE TO INS-KEY
+           END-IF  
 
-           IF NOT (CC-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
-             DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO"
-             DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
-               G-TRINS
-             DISPLAY "ENTER 3 DIGIT INS CODE TO USE"   
-             ACCEPT CC-PAYCODE
-             GO TO P2
-           END-IF
-
-           MOVE CC-PAYCODE TO INS-KEY  
 
            READ INSFILE 
              INVALID 
