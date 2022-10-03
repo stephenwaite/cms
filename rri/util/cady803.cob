@@ -92,6 +92,7 @@
            MOVE SPACE TO CC-KEY3
            MOVE DOS TO CC-DATE-T           
 
+       P01.    
            START CHARCUR KEY NOT < CHARCUR-KEY
              invalid
                DISPLAY "BAD CHARCUR START"
@@ -159,7 +160,7 @@
 
            WRITE FILEOUT01
 
-           GO TO P1.
+           GO TO P01.
 
        RE-WRITE-CC.
            REWRITE CHARCUR01 INVALID
