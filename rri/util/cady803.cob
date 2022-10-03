@@ -126,8 +126,9 @@
            END-IF.     
        P3.           
            ACCEPT INS-KEY
-             IF NOT (INS-KEY = G-PRINS OR G-SEINS OR G-TRINS)
-               GO TO P2.
+           IF NOT (INS-KEY = G-PRINS OR G-SEINS OR G-TRINS)
+             GO TO P2
+           END-IF
            
            READ INSFILE 
              INVALID 
