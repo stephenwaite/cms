@@ -115,7 +115,8 @@
            ACCEPT ANS
            
            IF ANS NOT = "Y" 
-             GO TO P1.    
+             GO TO P1
+           END-IF.  
 
        P2.
            IF CC-PAYCODE NOT (G-PRINS OR G-SEINS OR G-TRINS)
