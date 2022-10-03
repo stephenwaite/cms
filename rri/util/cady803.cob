@@ -114,6 +114,8 @@
            DISPLAY CC-PROC(5:5) " " CC-MOD2 " " CC-MOD3 " " CC-PAYCODE
              " " CC-AMOUNT " " CC-DATE-T.
 
+           accept OMITTED  
+  
            DISPLAY "Y OR y FOR YES OR ANY KEY FOR NO."
 
            IF NOT (ANS = "Y" OR "y")
