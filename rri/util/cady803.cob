@@ -126,6 +126,8 @@
              DISPLAY "ENTER 3 DIGIT INS CODE TO USE"   
              ACCEPT INS-KEY
              GO TO P2
+           ELSE 
+             MOVE CC-PAYCODE TO INS-KEY  
            END-IF
 
            READ INSFILE 
