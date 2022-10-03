@@ -154,7 +154,6 @@
            OPEN I-O CHARCUR
            MOVE CHARCUR-BACK TO CHARCUR01
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
-           ACCEPT OMITTED
            
            MOVE CHARCUR-BACK(1:11) TO CHARCUR-KEY
            
