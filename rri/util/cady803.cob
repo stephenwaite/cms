@@ -124,7 +124,7 @@
              DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
                 G-TRINS
            END-IF.     
-      P3.           
+       P3.           
            ACCEPT INS-KEY
              IF INS-KEY NOT (G-PRINS OR G-SEINS OR G-TRINS)
                GO TO P2.
@@ -163,7 +163,7 @@
            OPEN INPUT CHARCUR.
            DISPLAY "RECORD CHANGED".
 
-      RE-WRITE-CC-EXIT.
+       RE-WRITE-CC-EXIT.
            EXIT.     
 
        P99.
