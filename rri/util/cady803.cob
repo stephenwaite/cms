@@ -88,7 +88,7 @@
            DISPLAY G-GARNO " " G-GARNAME " " G-PRINS "/" G-SEINS
              " " G-DOB.           
               
-           MOVE G-GARNO TO CC-KEY8 HOLD8
+           MOVE G-GARNO TO CC-KEY8
            MOVE SPACE TO CC-KEY3
            MOVE DOS TO CC-DATE-T           
 
@@ -116,9 +116,7 @@
 
            IF NOT (ANS = "Y" OR "y")
              GO TO P1
-           END-IF
-
-           MOVE CHARCUR-KEY TO HOLD-C-KEY.
+           END-IF.
 
        P2. 
            DISPLAY CC-PAYCODE " CC-PAYCODE"
