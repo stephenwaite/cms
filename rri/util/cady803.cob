@@ -87,8 +87,6 @@
 
            DISPLAY G-GARNO " " G-GARNAME " " G-PRINS "/" G-SEINS
              " " G-DOB.           
-
-           accept OMITTED  
               
            MOVE G-GARNO TO CC-KEY8
            MOVE SPACE TO CC-KEY3
@@ -152,7 +150,6 @@
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
            display charcur-key " charcur-key"
            display charcur01(1:11) " charcur01(1:11"
-           accept omitted
            
            MOVE CHARCUR01(1:11) TO CHARCUR-KEY
            
