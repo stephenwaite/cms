@@ -58,7 +58,8 @@
 
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT CHARCUR INSFILE garfile
+           OPEN INPUT INSFILE garfile
+           OPEN I-O CHARCUR
            OPEN OUTPUT FILEOUT.
 
        P00.
@@ -66,7 +67,7 @@
            ACCEPT GARNO.
 
            IF GARNO = SPACE OR "END" OR "X" 
-             GO TO P2.
+             GO TO P99.
 
            DISPLAY GARNO.    
 
@@ -102,7 +103,7 @@
            END-READ           
 
            IF CC-KEY8 NOT = G-GARNO
-             GO TO P2.
+             GO TO P99.
 
            IF CC-DATE-T NOT = DOS
              GO TO P1.                      
@@ -116,18 +117,30 @@
            IF ANS NOT = "Y" 
              GO TO P1.    
 
-           IF CC-PAYCODE NOT = G-PRINS
-             DISPLAY "WARNING, CHARGE NOT CODED WITH PRI-INS".
-                 
-           MOVE SPACE TO INS-NEIC
-           MOVE CC-PAYCODE TO INS-KEY
-
-           READ INSFILE
-             INVALID
-               DISPLAY "WARNING, INS NOT VALID"
-               accept omitted  
-           END-READ
-
+      P2.
+           IF CC-PAYCODE NOT (G-PRINS OR G-SEINS OR G-TRINS)
+             DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO".
+             DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
+                G-TRINS.
+      P3.           
+           ACCEPT INS-KEY
+             IF INS-KEY NOT (G-PRINS OR G-SEINS OR G-TRINS)
+               GO TO P2.
+           
+           READ INSFILE 
+             INVALID 
+               DISPLAY INS-KEY " NOT A DEFINED INSURANCE"
+               GO TO P2.
+               
+           DISPLAY "ACCT " INS-ASSIGN "  CLM " INS-NEIC-ASSIGN
+             " CLAIM-TYPE  " INS-CLAIMTYPE  "    " INS-NAME
+           DISPLAY "ASSIGNMENT ATTRIBUTES ARE NOW CHANGED AS ABOVE"
+           MOVE INS-ASSIGN TO CC-ASSIGN
+           MOVE INS-NEIC-ASSIGN TO CC-NEIC-ASSIGN
+           MOVE INS-CLAIMTYPE TO CC-PAPER
+           MOVE INS-KEY TO CC-PAYCODE 
+           PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+           
            MOVE CHARCUR01 TO FO-1
            MOVE INS-NEIC TO FO-2.
 
@@ -135,7 +148,23 @@
 
            GO TO P1.
 
-       P2.
+       RE-WRITE-CC.
+           REWRITE CHARCUR01 INVALID
+                DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
+                DISPLAY CHARCUR-STAT
+                CLOSE CHARCUR
+                OPEN INPUT CHARCUR
+                GO TO RE-WRITE-CC-EXIT
+           END-REWRITE
+
+           CLOSE CHARCUR
+           OPEN INPUT CHARCUR.
+           DISPLAY "RECORD CHANGED".
+
+      RE-WRITE-CC-EXIT.
+           EXIT.     
+
+       P99.
            CLOSE CHARCUR garfile FILEOUT INSFILE.
            
            STOP RUN.
