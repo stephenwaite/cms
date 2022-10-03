@@ -48,7 +48,7 @@
            02 FO-2 PIC X(5).
 
        FD  INSFILE.
-           COPY insfile.cpy IN "C:\Users\sid\cms\copylib\rri".
+           COPY insfile.cpy IN "C:\Users\sid\cms\copylib".
 
        working-storage section.
 
