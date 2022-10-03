@@ -119,14 +119,14 @@
            END-IF.  
 
        P2.
-           IF CC-PAYCODE NOT = (G-PRINS OR G-SEINS OR G-TRINS)
+           IF NOT (CC-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
              DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO".
              DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
                 G-TRINS
            END-IF.     
        P3.           
            ACCEPT INS-KEY
-             IF INS-KEY NOT = (G-PRINS OR G-SEINS OR G-TRINS)
+             IF NOT (INS-KEY = G-PRINS OR G-SEINS OR G-TRINS)
                GO TO P2.
            
            READ INSFILE 
