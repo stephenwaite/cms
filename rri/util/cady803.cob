@@ -119,7 +119,7 @@
            END-IF.  
 
        P2.
-           IF CC-PAYCODE NOT (G-PRINS OR G-SEINS OR G-TRINS)
+           IF CC-PAYCODE NOT = (G-PRINS OR G-SEINS OR G-TRINS)
              DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO".
              DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
                 G-TRINS
