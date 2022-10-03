@@ -126,7 +126,7 @@
            END-IF.     
        P3.           
            ACCEPT INS-KEY
-             IF INS-KEY NOT (G-PRINS OR G-SEINS OR G-TRINS)
+             IF INS-KEY NOT = (G-PRINS OR G-SEINS OR G-TRINS)
                GO TO P2.
            
            READ INSFILE 
