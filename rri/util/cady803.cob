@@ -146,6 +146,10 @@
            MOVE INS-CLAIMTYPE TO CC-PAPER
            MOVE INS-KEY TO CC-PAYCODE 
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+           display charcur-key " charcur-key"
+           display charcur01(1:11) " charcur01(1:11"
+           accept ans
+           
            MOVE CHARCUR01(1:11) TO CHARCUR-KEY
            
            MOVE CHARCUR01 TO FO-1
