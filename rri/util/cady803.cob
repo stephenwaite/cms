@@ -120,7 +120,7 @@
 
        P2.
            IF NOT (CC-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
-             DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO".
+             DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO"
              DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
                 G-TRINS
            END-IF.     
@@ -129,7 +129,7 @@
            IF NOT (INS-KEY = G-PRINS OR G-SEINS OR G-TRINS)
              GO TO P2
            END-IF
-           
+
            READ INSFILE 
              INVALID 
                DISPLAY INS-KEY " NOT A DEFINED INSURANCE"
