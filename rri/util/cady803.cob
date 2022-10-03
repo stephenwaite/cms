@@ -156,9 +156,9 @@
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
            ACCEPT OMITTED
            
-           MOVE CHARCUR01(1:11) TO CHARCUR-KEY
+           MOVE CHARCUR-BACK(1:11) TO CHARCUR-KEY
            
-           MOVE CHARCUR01 TO FO-1
+           MOVE CHARCUR-BACK TO FO-1
            MOVE INS-NEIC TO FO-2
 
            WRITE FILEOUT01
