@@ -88,7 +88,7 @@
            DISPLAY G-GARNO " " G-GARNAME " " G-PRINS "/" G-SEINS
              " " G-DOB.           
               
-           MOVE G-GARNO TO CC-KEY8
+           MOVE G-GARNO TO CC-KEY8 HOLD8
            MOVE SPACE TO CC-KEY3
            MOVE DOS TO CC-DATE-T           
 
@@ -113,11 +113,12 @@
              " " CC-AMOUNT " " CC-DATE-T.
 
            DISPLAY "Y OR y FOR YES OR ANY KEY FOR NO."
-           ACCEPT ANS
-           
+
            IF NOT (ANS = "Y" OR "y")
              GO TO P1
-           END-IF.    
+           END-IF
+
+           MOVE CHARCUR-KEY TO HOLD-C-KEY.
 
        P2. 
            DISPLAY CC-PAYCODE " CC-PAYCODE"
@@ -141,13 +142,13 @@
            DISPLAY "ACCT " INS-ASSIGN "  CLM " INS-NEIC-ASSIGN
              " CLAIM-TYPE  " INS-CLAIMTYPE  "    " INS-NAME
            DISPLAY "ASSIGNMENT ATTRIBUTES ARE NOW CHANGED AS ABOVE"
-           ACCEPT ANS
            
            MOVE INS-ASSIGN TO CC-ASSIGN
            MOVE INS-NEIC-ASSIGN TO CC-NEIC-ASSIGN
            MOVE INS-CLAIMTYPE TO CC-PAPER
            MOVE INS-KEY TO CC-PAYCODE 
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+           MOVE CHARCUR01(1:11) TO CHARCUR-KEY
            
            MOVE CHARCUR01 TO FO-1
            MOVE INS-NEIC TO FO-2
