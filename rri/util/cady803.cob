@@ -117,7 +117,7 @@
            IF ANS NOT = "Y" 
              GO TO P1.    
 
-      P2.
+       P2.
            IF CC-PAYCODE NOT (G-PRINS OR G-SEINS OR G-TRINS)
              DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO".
              DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
