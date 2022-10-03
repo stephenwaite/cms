@@ -154,7 +154,6 @@
        RE-WRITE-CC.
            REWRITE CHARCUR01 INVALID
                 DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
-                DISPLAY CHARCUR-STAT
                 CLOSE CHARCUR
                 OPEN INPUT CHARCUR
                 GO TO RE-WRITE-CC-EXIT
