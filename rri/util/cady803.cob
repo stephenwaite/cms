@@ -134,7 +134,7 @@
 
            READ INSFILE 
              INVALID 
-               DISPLAY INS-KEY " NOT A DEFINED INSURANCE"
+               DISPLAY INS-KEY " NOT A DEFINED INSURANCE, try again" 
                GO TO P2.
                
            DISPLAY "ACCT " INS-ASSIGN "  CLM " INS-NEIC-ASSIGN
@@ -147,7 +147,7 @@
            PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
            
            MOVE CHARCUR01 TO FO-1
-           MOVE INS-NEIC TO FO-2.
+           MOVE INS-NEIC TO FO-2
 
            WRITE FILEOUT01
 
