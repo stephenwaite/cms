@@ -124,7 +124,8 @@
              DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
                 G-TRINS
            END-IF.     
-       P3.           
+       P3. 
+           DISPLAY "ENTER 3 DIGIT INS CODE TO USE"          
            ACCEPT INS-KEY
            IF NOT (INS-KEY = G-PRINS OR G-SEINS OR G-TRINS)
              GO TO P2
