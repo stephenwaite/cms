@@ -94,7 +94,8 @@
            MOVE DOS TO CC-DATE-T.           
 
        P01.    
-           START CHARCUR KEY IS NOT < = CHARCUR-KEY
+           START CHARCUR KEY IS NOT LESS THAN OR EQUAL TO
+             CHARCUR-KEY
              invalid
                DISPLAY "BAD CHARCUR START"
                GO TO P00.
