@@ -54,7 +54,7 @@
 
        01  garno pic x(8).
        01  STARTdos   pic x(8).
-       02  ENDDOS PIC X(8).
+       01  ENDDOS PIC X(8).
        01  ans   pic x.    
        01  CHARCUR-BACK PIC X(160).
        01  hold-paycode pic XXX VALUE SPACE.
@@ -79,14 +79,14 @@
              "OR BK FOR DIFF GARNO"
            ACCEPT STARTDOS.
 
-           IF DOS = "BK" 
+           IF startDOS = "BK" 
              GO TO P00.
 
            DISPLAY "ENTER END DATE OF CHARGE, YYYYMMDD, "
              "OR BK FOR DIFF GARNO"
            ACCEPT ENDDOS.
 
-           IF DOS = "BK" 
+           IF endDOS = "BK" 
              GO TO P00.  
 
            MOVE GARNO TO G-GARNO
