@@ -99,8 +99,7 @@
              " " G-DOB.           
               
            MOVE G-GARNO TO CC-KEY8
-           MOVE SPACE TO CC-KEY3
-           MOVE DOS TO CC-DATE-T.           
+           MOVE SPACE TO CC-KEY3.
 
        P01.    
            START CHARCUR KEY > CHARCUR-KEY
