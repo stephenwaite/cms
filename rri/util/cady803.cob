@@ -53,7 +53,8 @@
        working-storage section.
 
        01  garno pic x(8).
-       01  dos   pic x(8).
+       01  STARTdos   pic x(8).
+       02  ENDDOS PIC X(8).
        01  ans   pic x.    
        01  CHARCUR-BACK PIC X(160).
        01  hold-paycode pic XXX VALUE SPACE.
@@ -74,12 +75,19 @@
            DISPLAY GARNO.    
 
        P000.
-           DISPLAY "ENTER DATE OF CHARGE, YYYYMMDD, "
+           DISPLAY "ENTER START DATE OF CHARGE, YYYYMMDD, "
              "OR BK FOR DIFF GARNO"
-           ACCEPT DOS.
+           ACCEPT STARTDOS.
 
            IF DOS = "BK" 
              GO TO P00.
+
+           DISPLAY "ENTER END DATE OF CHARGE, YYYYMMDD, "
+             "OR BK FOR DIFF GARNO"
+           ACCEPT ENDDOS.
+
+           IF DOS = "BK" 
+             GO TO P00.  
 
            MOVE GARNO TO G-GARNO
            READ GARFILE 
@@ -109,8 +117,11 @@
            IF CC-KEY8 NOT = G-GARNO
              GO TO P99.
 
-           IF CC-DATE-T NOT = DOS
-             GO TO P1.                      
+           IF CC-DATE-T < STARTDOS
+             GO TO P1.         
+
+           IF CC-DATE-T > ENDDOS               
+              GO TO P1. 
 
            DISPLAY CC-PROC(5:5) " " CC-MOD2 " " CC-MOD3 " " CC-PAYCODE
              " " CC-AMOUNT " " CC-DATE-T.
