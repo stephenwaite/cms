@@ -120,7 +120,7 @@
              GO TO P1.         
 
            IF ENDDOS = SPACE
-             MOVE ENDDOS TO STARTDOS.
+             MOVE STARTDOS TO ENDDOS.
 
            IF CC-DATE-T > ENDDOS               
               GO TO P1. 
@@ -138,13 +138,11 @@
 
        P2. 
            DISPLAY CC-PAYCODE " CURRENT PAYCODE"            
-            
-           
+                       
            IF HOLD-PAYCODE = SPACE 
              
              IF NOT (CC-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
                OR CC-PAYCODE = "001"
-               DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO"
                DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
                  G-TRINS
                DISPLAY "ENTER 3 DIGIT INS CODE TO USE"   
