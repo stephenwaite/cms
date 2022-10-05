@@ -856,6 +856,17 @@
                  CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
                  CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
 
+               IF (CAS-1 = "PI") 
+                 AND (CLP-2CLMSTAT = "1")
+                 IF (CAS-2 = "B10")
+                   AND (CAS-3 NOT = SPACE)
+                   MOVE SPACE TO ALF8
+                   MOVE CAS-3 TO ALF8
+                   PERFORM AMOUNT-1
+                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                 END-IF
+               END-IF  
+
                IF ((CAS-1 = "CO") OR (CAS-1 = "OA")) 
                  AND (CLP-2CLMSTAT = "1")
                  IF (CAS-2 = "42 " OR "45 " OR "24 " OR "131" OR "253"
