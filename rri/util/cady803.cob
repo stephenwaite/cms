@@ -120,7 +120,7 @@
              GO TO P1.         
 
            IF ENDDOS = SPACE
-             ENDOS = STARTDOS.
+             MOVE ENDDOS TO STARTDOS.
 
            IF CC-DATE-T > ENDDOS               
               GO TO P1. 
