@@ -82,8 +82,8 @@
            IF startDOS = "BK" 
              GO TO P00.
 
-           DISPLAY "ENTER END DATE OF CHARGE, YYYYMMDD, "
-             "OR BK FOR DIFF GARNO"
+           DISPLAY "ENTER FOR SAME OR ENTER END DATE OF CHARGE, "
+             "YYYYMMDD, OR BK FOR DIFF GARNO"
            ACCEPT ENDDOS.
 
            IF endDOS = "BK" 
@@ -119,6 +119,9 @@
            IF CC-DATE-T < STARTDOS
              GO TO P1.         
 
+           IF ENDDOS = SPACE
+             ENDOS = STARTDOS.
+
            IF CC-DATE-T > ENDDOS               
               GO TO P1. 
 
@@ -134,10 +137,13 @@
            END-IF.
 
        P2. 
-           DISPLAY CC-PAYCODE " CC-PAYCODE"
+           DISPLAY CC-PAYCODE " CURRENT PAYCODE"            
+            
            
            IF HOLD-PAYCODE = SPACE 
+             
              IF NOT (CC-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
+               OR CC-PAYCODE = "001"
                DISPLAY "WARNING, CHARGE NOT CODED WITH AN INS ON GARNO"
                DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
                  G-TRINS
