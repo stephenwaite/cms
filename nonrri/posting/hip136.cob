@@ -1032,7 +1032,6 @@
                 OR (CAS-1 = "CO" AND CAS-2 = "97   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "197  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "251  ")
-                OR (CAS-1 = "PI" AND CAS-2 = "B10  ")
                 OR (CAS-1 = "PI" AND CAS-2 = "97   ")
                 OR (CAS-1 = "PI" AND CAS-2 = "204  ")
                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
