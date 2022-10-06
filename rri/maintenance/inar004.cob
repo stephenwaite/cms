@@ -2249,8 +2249,11 @@
            GO TO 1000-ACTION.
        2400-SEARCH.
            IF X = 9 GO TO 2400-SEARCH-EXIT.
-           READ GARFILE NEXT AT END MOVE 1 TO FLAG
-           GO TO 2400-SEARCH-EXIT.
+           READ GARFILE NEXT 
+             AT END 
+               MOVE 1 TO FLAG
+               GO TO 2400-SEARCH-EXIT.
+
            ADD 1 TO YYY.
            IF YYY < 2000 GO TO P456.
            MOVE 1 TO SGFLAG
@@ -2283,7 +2286,7 @@
            INSPECT T-MM OF DISPLAY-DATE REPLACING LEADING "0" BY " "
            INSPECT T-DD OF DISPLAY-DATE REPLACING LEADING "0" BY " "
            DISPLAY X " " G-GARNO " " DISPLAY-DATE " " G-GARNAME 
-           " " G-PRINS " " G-PRIPOL " " G-SEINS " " G-TRINS
+           " " G-PRINS " " G-PRIPOL " " G-SEINS " " G-TRINS " " G-ACCT
            MOVE G-GARNO TO LAST-TAB(X)
            GO TO 2400-SEARCH.
        2400-SEARCH-EXIT.
