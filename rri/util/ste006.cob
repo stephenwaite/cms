@@ -56,6 +56,7 @@
       *        GO TO 10-ACTION.
 
            DISPLAY A-GARNAME
+           DISPLAY A-GARNO
            DISPLAY LNAME " LNAME " FNAME " FNAME " A-ACTNO " A-ACTNO"
       *     ACCEPT OMITTED
 
