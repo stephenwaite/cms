@@ -47,36 +47,38 @@
        0005-START.
            OPEN INPUT ACTFILE GARFILE.
            OPEN OUTPUT FILEOUT.
-           MOVE LOW-VALUES TO A-ACTNO.
+      *     MOVE LOW-VALUES TO A-ACTNO.
+           MOVE LOW-VALUES TO G-GARNO.
 
 
        10-ACTION.
-           READ ACTFILE NEXT AT END GO TO P99.
+      *     READ ACTFILE NEXT AT END GO TO P99.
+           READ GARFILE NEXT AT END GO TO P99.
 
            move space to lname fname
 
-           UNSTRING A-GARNAME DELIMITED BY "," INTO LNAME FNAME.
+           UNSTRING G-GARNAME DELIMITED BY "," INTO LNAME FNAME.
 
 
            IF FNAME = SPACE GO TO 10-ACTION.
       *     IF NOT (A-ACTNO = "00061290" OR "00061292" OR "00061293")
       *        GO TO 10-ACTION.
 
-           DISPLAY A-GARNAME
-           DISPLAY A-GARNO
-           DISPLAY LNAME " LNAME " FNAME " FNAME " A-ACTNO " A-ACTNO"
+           DISPLAY G-GARNAME
+           DISPLAY G-GARNO
+           DISPLAY LNAME " LNAME " FNAME " FNAME " G-ACCT " G-ACCT"
       *     ACCEPT OMITTED
 
       *     IF LNAME not = FNAME display lname " NOT equals " fname
       *       accept omitted.
 
-           MOVE A-GARNO TO G-GARNO 
+      *     MOVE A-GARNO TO G-GARNO 
 
-           READ GARFILE
-             INVALID
-               DISPLAY "INVALID READ OF GARNO " G-GARNO
-             NOT INVALID
-               DISPLAY GARFILE01.
+      *     READ GARFILE
+      *       INVALID
+      *         DISPLAY "INVALID READ OF GARNO " G-GARNO
+      *       NOT INVALID
+      *         DISPLAY GARFILE01.
 
 
            GO TO 10-ACTION.
