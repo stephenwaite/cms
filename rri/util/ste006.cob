@@ -53,6 +53,14 @@
            IF A-ACTNO NOT = "00061292" GO TO 10-ACTION.
 
            DISPLAY LNAME " LNAME " FNAME " FNAME".
+           ACCEPT OMITTED
+
+           IF LNAME = FNAME
+             DISPLAY "ARE THESE EQUAL?"
+             ACCEPT OMITTED.
+             
+
+
 
            GO TO 10-ACTION.
 
