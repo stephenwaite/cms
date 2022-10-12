@@ -46,9 +46,11 @@
 
            move space to lname fname
 
-           UNSTRING A-GARNAME DELIMITED BY "," INTO LNAME FNAME
+           UNSTRING A-GARNAME DELIMITED BY "," INTO LNAME FNAME.
 
-           IF LNAME = FNAME GO TO 10-ACTION.
+
+      *     IF LNAME = FNAME GO TO 10-ACTION.
+           IF A-ACTNO NOT = "00061292" GO TO 10-ACTION.
 
            DISPLAY LNAME " LNAME " FNAME " FNAME".
 
