@@ -56,7 +56,7 @@
       *        GO TO 10-ACTION.
 
            DISPLAY A-GARNAME
-           DISPLAY LNAME " LNAME " FNAME " FNAME"
+           DISPLAY LNAME " LNAME " FNAME " FNAME" A-ACTNO " A-ACTNO"
            ACCEPT OMITTED
 
       *     IF LNAME not = FNAME display lname " NOT equals " fname
