@@ -42,14 +42,15 @@
 
 
        10-ACTION.
-
            READ ACTFILE NEXT AT END GO TO P99.
+
+           move space to lname fname
 
            UNSTRING A-GARNAME DELIMITED BY "," INTO LNAME FNAME
 
            IF LNAME = SPACE GO TO 10-ACTION.
 
-           DISPLAY LNAME " " FNAME.
+           DISPLAY LNAME " LNAME " FNAME " FNAME".
 
            GO TO 10-ACTION.
 
