@@ -19,6 +19,11 @@
            SELECT FILEOUT ASSIGN TO       "S35" ORGANIZATION 
                LINE SEQUENTIAL.
 
+           SELECT GARFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+             ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.    
+
+
             
        DATA DIVISION.
        FILE SECTION.
@@ -29,6 +34,8 @@
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).
 
+       FD  GARFILE.
+           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".  
        WORKING-STORAGE SECTION.
 
        01  LNAME PIC X(20).
@@ -38,7 +45,7 @@
      
        PROCEDURE DIVISION.
        0005-START.
-           OPEN INPUT ACTFILE.
+           OPEN INPUT ACTFILE GARFILE.
            OPEN OUTPUT FILEOUT.
            MOVE LOW-VALUES TO A-ACTNO.
 
@@ -62,6 +69,14 @@
 
       *     IF LNAME not = FNAME display lname " NOT equals " fname
       *       accept omitted.
+
+           MOVE A-GARNO TO G-GARNO 
+
+           READ GARFILE
+             INVALID
+               DISPLAY "INVALID READ OF GARNO " G-GARNO
+             NOT INVALID
+               DISPLAY GARFILE01.
 
 
            GO TO 10-ACTION.
