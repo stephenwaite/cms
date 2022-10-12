@@ -31,6 +31,7 @@
 
        01  LNAME PIC X(20).
        01  FNAME PIC X(20).
+       01  OTHER PIC X(20).
 
             
      
@@ -46,14 +47,14 @@
 
            move space to lname fname
 
-           UNSTRING A-GARNAME DELIMITED BY "," INTO LNAME FNAME.
+           UNSTRING A-GARNAME DELIMITED BY "," INTO LNAME FNAME OTHER.
 
 
       *     IF LNAME = FNAME GO TO 10-ACTION.
            IF A-ACTNO NOT = "00061292" GO TO 10-ACTION.
 
            DISPLAY A-GARNAME
-           DISPLAY LNAME " LNAME " FNAME " FNAME".
+           DISPLAY LNAME " LNAME " FNAME " FNAME" OTHER " OTHER"
            ACCEPT OMITTED
 
            IF LNAME = FNAME
