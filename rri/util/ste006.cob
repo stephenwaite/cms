@@ -57,7 +57,7 @@
 
            DISPLAY A-GARNAME
            DISPLAY LNAME " LNAME " FNAME " FNAME"
-      *     ACCEPT OMITTED
+           ACCEPT OMITTED
 
       *     IF LNAME not = FNAME display lname " NOT equals " fname
       *       accept omitted.
