@@ -52,13 +52,14 @@
 
 
       *     IF LNAME = FNAME GO TO 10-ACTION.
-           IF A-ACTNO NOT = "00061292" GO TO 10-ACTION.
+           IF NOT (A-ACTNO = "00061292" OR "00061292" OR "00061293")
+              GO TO 10-ACTION.
 
            DISPLAY A-GARNAME
            DISPLAY LNAME " LNAME " FNAME " FNAME"
            ACCEPT OMITTED
 
-           IF LNAME = FNAME display lname " equals " fname
+           IF LNAME not = FNAME display lname " equals " fname
              accept omitted.
 
 
