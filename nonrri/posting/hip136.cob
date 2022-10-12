@@ -803,18 +803,6 @@
                  CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
                  CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
                  CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-               IF (CAS-2 = "104") MOVE CAS-3 TO ALF8
-               END-IF
-               IF (CAS-5 = "104") MOVE CAS-6 TO ALF8
-               END-IF
-               IF (CAS-8 = "104") MOVE CAS-9 TO ALF8
-               END-IF
-               IF (CAS-11 = "104") MOVE CAS-12 TO ALF8
-               END-IF
-               IF (CAS-14 = "104") MOVE CAS-15 TO ALF8
-               END-IF
-               IF (CAS-17 = "104") MOVE CAS-18 TO ALF8
-               END-IF
                
                IF ALF8 NOT = SPACE
                  MOVE "DI" TO PD-DENIAL
@@ -835,9 +823,7 @@
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                  CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
                  CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                 CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-               IF (CAS-2 = "B10") MOVE CAS-3 TO ALF8
-               END-IF              
+                 CAS-15 CAS-16 CAS-17 CAS-18 CAS-19            
                
                IF ALF8 NOT = SPACE
                  MOVE "14" TO PD-DENIAL
@@ -868,9 +854,21 @@
                  CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
                  CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
 
+               IF (CAS-1 = "PI") 
+                 AND (CLP-2CLMSTAT = "1")
+                 IF (CAS-2 = "B10")
+                   AND (CAS-3 NOT = SPACE)
+                   MOVE SPACE TO ALF8
+                   MOVE CAS-3 TO ALF8
+                   PERFORM AMOUNT-1
+                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                 END-IF
+               END-IF  
+
                IF ((CAS-1 = "CO") OR (CAS-1 = "OA")) 
                  AND (CLP-2CLMSTAT = "1")
-                 IF (CAS-2 = "42 " OR "45 " OR "24 " OR "131" OR "253")
+                 IF (CAS-2 = "42 " OR "45 " OR "24 " OR "131" OR "253"
+                    OR "70 ")
                    AND (CAS-3 NOT = SPACE)
                    MOVE SPACE TO ALF8
                    MOVE CAS-3 TO ALF8
@@ -883,6 +881,13 @@
                    MOVE CAS-6 TO ALF8
                    PERFORM AMOUNT-1
                    COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                 END-IF
+                 IF (CAS-5 = "B10")
+                    AND (CAS-6 NOT = SPACE)
+                  MOVE SPACE TO ALF8
+                  MOVE CAS-6 TO ALF8
+                  PERFORM AMOUNT-1
+                  COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
                  END-IF
                  IF (CAS-8 = "42 " OR "45 " OR "24 " OR "131")
                    AND (CAS-9 NOT = SPACE)
@@ -1025,14 +1030,11 @@
                 OR (CAS-1 = "CO" AND CAS-2 = "97   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "197  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "251  ")
-                OR (CAS-1 = "PI" AND CAS-2 = "B10  ")
                 OR (CAS-1 = "PI" AND CAS-2 = "97   ")
                 OR (CAS-1 = "PI" AND CAS-2 = "204  ")
                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "96   ")
-                OR (CAS-1 = "CO" 
-                  AND CAS-2 = "45   " AND CAS-5 = "B10   ")
                  MOVE 1 TO FLAG
                  MOVE Z TO CAS-CNTR
                END-IF

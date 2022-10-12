@@ -1137,13 +1137,7 @@
 
        2300CLM.
 
-           move 7 to clm-freq
-           display "enter for corrected, anything else for void"
-           accept ans
-           
-           if ans not = space
-             move 8 to clm-freq
-           end-if 
+           perform void-claim
 
            MOVE HOLD-KEY8 TO SUBMIT-1
            MOVE SUBMIT01 TO CLM-1
@@ -2038,6 +2032,16 @@
       *     DISPLAY X-DOB " " G-PR-RELATE " " G-PRNAME.
        MAKE-IT-UP-EXIT.
            EXIT.
+
+       VOID-CLAIM.
+           move 7 to clm-freq
+           display "defaults to 7 correct, 8 for void, or 1 for new clm"
+           accept clm-freq
+           
+           if not( clm-freq = "1" or "7" or "8")
+             go to void-claim
+           end-if.
+
        P98.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SE01

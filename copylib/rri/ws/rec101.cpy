@@ -63,7 +63,7 @@
            02 R1-DOB22 PIC X(10).
            02 R1-SSN22 PIC X(9).
            02 R1-RELATE2 PIC XX.
-      * 365
+      * 801
            02 INSURANCE-2.
             03 R1-INSNAME2 PIC X(25).
             03 R1-INSCONTACT2 PIC X(25).

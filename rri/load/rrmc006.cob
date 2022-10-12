@@ -1049,7 +1049,8 @@
                    DISPLAY "NO INS ON FILE" 
                    PERFORM REPLACE-2 THRU REPLACE-2-EXIT
                END-READ
-               DISPLAY INS-NAME      
+               DISPLAY INS-NAME     
+               MOVE INS-ASSIGN TO A-PR-ASSIGN
              ELSE
                PERFORM REPLACE-2 THRU REPLACE-2-EXIT  
              END-IF
@@ -1711,7 +1712,8 @@
            end-if
 
            
-           IF ((REF = "B1T" OR "B51" OR "B7C" 
+           IF ((REF = "A3Z"
+               OR "B1T" OR "B51" OR "B7C" 
                OR "D55" OR "D3Z"
                OR "F4J" OR "F34" OR "F2S"
                OR "G0T" OR "G0A" OR "G36" OR "G4U"
