@@ -51,16 +51,16 @@
            UNSTRING A-GARNAME DELIMITED BY "," INTO LNAME FNAME.
 
 
-      *     IF FNAME = SPACE GO TO 10-ACTION.
-           IF NOT (A-ACTNO = "00061290" OR "00061292" OR "00061293")
-              GO TO 10-ACTION.
+           IF FNAME = SPACE GO TO 10-ACTION.
+      *     IF NOT (A-ACTNO = "00061290" OR "00061292" OR "00061293")
+      *        GO TO 10-ACTION.
 
            DISPLAY A-GARNAME
            DISPLAY LNAME " LNAME " FNAME " FNAME"
-           ACCEPT OMITTED
+      *     ACCEPT OMITTED
 
-           IF LNAME not = FNAME display lname " NOT equals " fname
-             accept omitted.
+      *     IF LNAME not = FNAME display lname " NOT equals " fname
+      *       accept omitted.
 
 
            GO TO 10-ACTION.
