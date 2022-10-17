@@ -275,6 +275,7 @@
               MOVE SPACE TO TABX(X)
             END-IF
            END-PERFORM
+           
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 2
              COMPUTE Y = X + 1
              PERFORM VARYING Z FROM Y BY 1 UNTIL Z > 3
@@ -283,31 +284,18 @@
              END-IF
              END-PERFORM
            END-PERFORM
+
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 2
-           COMPUTE Y = X + 1
-           PERFORM VARYING Z FROM Y BY 1 UNTIL Z > 3
-           IF (TABX(X) = SPACE) AND (TABX(Z) NOT = SPACE)
-              MOVE TABX(Z) TO TABX(X)
-              MOVE SPACE TO TABX(Z)
-              MOVE 4 TO Z
-           END-IF
+               COMPUTE Y = X + 1
+               PERFORM VARYING Z FROM Y BY 1 UNTIL Z > 3
+                   IF (TABX(X) = SPACE) AND (TABX(Z) NOT = SPACE)
+                      MOVE TABX(Z) TO TABX(X)
+                      MOVE SPACE TO TABX(Z)
+                      MOVE 4 TO Z
+                   END-IF
+               END-PERFORM
            END-PERFORM
-           END-PERFORM
-           IF T-CODE(2) = "26" OR "34" OR "84"
-             MOVE TABX(2) TO TABX(4)
-             MOVE TABX(1) TO TABX(2)
-             MOVE TABX(4) TO TABX(1)
-             MOVE SPACE TO TABX(4)
-           END-IF
-
-           IF (T-CODE(1) = "82")
-              AND (T-CODE(2) NOT = 0)
-             MOVE TABX(2) TO TABX(4)
-             MOVE TABX(1) TO TABX(2)
-             MOVE TABX(4) TO TABX(1)
-             MOVE SPACE TO TABX(4)
-
-           END-IF
+           
            MOVE FI-PROVNPI TO NPI-KEY
            READ NPIFILE
 
