@@ -275,13 +275,19 @@
               MOVE SPACE TO TABX(X)
             END-IF
            END-PERFORM
-           
+
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 2
              COMPUTE Y = X + 1
              PERFORM VARYING Z FROM Y BY 1 UNTIL Z > 3
              IF T-CODE(X) = T-CODE(Z)
                MOVE SPACE TO TABX(Z)
              END-IF
+
+             IF T-CODE(X) = "102       "
+                AND T-CODE(Z) = "82        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
              END-PERFORM
            END-PERFORM
 
