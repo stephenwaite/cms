@@ -65,7 +65,7 @@
            IF ANS = "?"
                DISPLAY "A = ADD A PHYSICIAN CODE"
                DISPLAY "C = CHANGE B/S, CARE/CAID, OR UPIN #"
-          *    DISPLAY "D = DELETE A PHYSICIAN CODE(BEWARE)"
+               DISPLAY "D = DELETE A PHYSICIAN CODE(BEWARE)"
                DISPLAY "F = LIST 5 PHYSICIAN CODES AT A TIME"
                DISPLAY "END = END THE PROGRAM"
                GO TO P1.
