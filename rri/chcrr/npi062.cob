@@ -70,7 +70,8 @@
                DISPLAY "END = END THE PROGRAM"
                GO TO P1.
 
-           IF NOT (ANS = "A" OR "C" OR "F" OR "FR") GO TO P1.
+           IF NOT (ANS = "A" OR "C" OR "F" OR "D" OR "FR") 
+             GO TO P1.
 
            IF ANS = "A" GO TO A-1.
            IF ANS = "C" GO TO C-1.
