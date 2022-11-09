@@ -321,7 +321,7 @@
            DISPLAY "ENTER THE NPI NUMBER"
            ACCEPT NPI-KEY
            IF NPI-KEY = SPACE GO TO P1.
-           READ REFPHY WITH LOCK 
+           READ NPIFILE WITH LOCK 
              INVALID 
                DISPLAY "NOT ON FILE"
                GO TO P1.
@@ -333,11 +333,11 @@
            ACCEPT ANS.
            
            IF ANS = "Y"
-             DELETE REFPHY RECORD
+             DELETE NPIFILE RECORD
              DISPLAY "RECORD DELETED"
              GO TO P1. 
 
-           DISPLAY "NO DELETE" UNLOCK REFPHY RECORD
+           DISPLAY "NO DELETE" UNLOCK NPIFILE RECORD
            GO TO P1.
 
        P99.
