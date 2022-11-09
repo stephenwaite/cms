@@ -56,13 +56,25 @@
        P0.
            OPEN INPUT REFPHY I-O NPIFILE.
        P1.
-           DISPLAY "A,C,F, OR END"
+           DISPLAY "A, C, F, D OR END"
            DISPLAY "ALSO FR TO SEARCH REFPHY BY NAME"
            ACCEPT ANS
+
            IF ANS = "END" GO TO P99.
+           
+           IF ANS = "?"
+               DISPLAY "A = ADD A PHYSICIAN CODE"
+               DISPLAY "C = CHANGE B/S, CARE/CAID, OR UPIN #"
+          *    DISPLAY "D = DELETE A PHYSICIAN CODE(BEWARE)"
+               DISPLAY "F = LIST 5 PHYSICIAN CODES AT A TIME"
+               DISPLAY "END = END THE PROGRAM"
+               GO TO P1.
+
            IF NOT (ANS = "A" OR "C" OR "F" OR "FR") GO TO P1.
+
            IF ANS = "A" GO TO A-1.
            IF ANS = "C" GO TO C-1.
+           IF ANS = "D" GO TO D-1.
            IF ANS = "F" GO TO F-1.
            IF ANS = "FR" GO TO REF-1.
            GO TO P1.
@@ -302,6 +314,29 @@
              MOVE 0 TO CNTR
              GO TO REF-2
            END-IF
+           GO TO P1.
+
+       D-1. 
+           DISPLAY "ENTER THE NPI NUMBER"
+           ACCEPT NPI-KEY
+           IF NPI-KEY = SPACE GO TO P1.
+           READ REFPHY WITH LOCK 
+             INVALID 
+               DISPLAY "NOT ON FILE"
+               GO TO P1.
+
+           DISPLAY NPI-KEY " " NPI-NAME " " NPI-REFKEY " " NPI-PLACE.
+
+       D-2. 
+           DISPLAY "DELETE Y/N ?".
+           ACCEPT ANS.
+           
+           IF ANS = "Y"
+             DELETE REFPHY RECORD
+             DISPLAY "RECORD DELETED"
+             GO TO P1. 
+
+           DISPLAY "NO DELETE" UNLOCK REFPHY RECORD
            GO TO P1.
 
        P99.
