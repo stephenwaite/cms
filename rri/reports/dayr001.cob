@@ -88,27 +88,47 @@
        01  DAYTOT PIC 9(4) VALUE 0.
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT FILEIN CHARCUR OUTPUT FILEOUT FILEOUT2
-           READ FILEIN AT END GO TO P99.
+           OPEN INPUT FILEIN CHARCUR 
+             OUTPUT FILEOUT FILEOUT2
+
+           READ FILEIN 
+             AT END 
+               GO TO P99.
+
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 31
-           MOVE 0 TO DAYTAB(X)
+             MOVE 0 TO DAYTAB(X)
            END-PERFORM.
-       P1. READ CHARCUR AT END GO TO P99.
-           IF CC-DATE-T < FI-LOW OR > FI-HIGH GO TO P1.
-           IF NOT (CC-PLACE = "3" or "5" or "E") GO TO P1.
-           IF CC-PROC(9:1) = "F" GO TO P1.
+
+       P1. 
+           READ CHARCUR 
+             AT END 
+               GO TO P99.
+
+           IF CC-DATE-T < FI-LOW 
+             OR > FI-HIGH 
+             GO TO P1.
+
+           IF NOT (CC-PLACE = "3" or "5" or "E") 
+             GO TO P1.
+
+           IF CC-PROC(9:1) = "F"
+            OR CC-PROC1(1:5) = "G1004" 
+                GO TO P1.
+
            MOVE CC-DATE-T TO DATE-X
            ADD 1 TO DAYTAB(DD)
            WRITE FILEOUT201 FROM CHARCUR01
            GO TO P1.
+
        P99.  
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 31
-           MOVE SPACE TO FILEOUT01
-           MOVE DAYTAB(X) TO NEF-4
-           ADD DAYTAB(X) TO DAYTOT
-           STRING X "  " NEF-4 DELIMITED BY "!!" INTO FILEOUT01
-           WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE DAYTAB(X) TO NEF-4
+             ADD DAYTAB(X) TO DAYTOT
+             STRING X "  " NEF-4 DELIMITED BY "!!" INTO FILEOUT01
+             WRITE FILEOUT01
            END-PERFORM.
+           
            MOVE DAYTOT TO NEF-4
            STRING  "TOTAL  " NEF-4 DELIMITED BY "!!" INTO FILEOUT01
            WRITE FILEOUT01
