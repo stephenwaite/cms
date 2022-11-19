@@ -112,7 +112,8 @@
              GO TO P1.
 
            IF CC-PROC(9:1) = "F"
-            OR CC-PROC1(1:5) = "G1004" 
+            OR (CC-PROC1(1:1) = "G"
+                AND NOT (CC-PROC = "G0279" OR "G0297"))
                 GO TO P1.
 
            MOVE CC-DATE-T TO DATE-X
@@ -128,7 +129,7 @@
              STRING X "  " NEF-4 DELIMITED BY "!!" INTO FILEOUT01
              WRITE FILEOUT01
            END-PERFORM.
-           
+
            MOVE DAYTOT TO NEF-4
            STRING  "TOTAL  " NEF-4 DELIMITED BY "!!" INTO FILEOUT01
            WRITE FILEOUT01
