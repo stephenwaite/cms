@@ -1189,7 +1189,7 @@
 
        ACCIDENT-1.
            MOVE "OA" TO CLM-11.
-           DIPSLAY INS-NEIC " INS-NEIC"
+           DISPLAY INS-NEIC " INS-NEIC"
            ACCEPT OMITTED.
            IF INS-NEIC = "WX867" OR "J1868"
              MOVE "EM" TO CLM-11
