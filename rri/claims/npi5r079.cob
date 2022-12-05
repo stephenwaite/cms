@@ -1190,7 +1190,7 @@
 
        ACCIDENT-1.
            MOVE "OA" TO CLM-11.
-           IF INS-NEIC = "WX867"
+           IF INS-NEIC = "WX867" OR "J1868"
              MOVE "EM" TO CLM-11.
              
       
@@ -1702,7 +1702,7 @@
            MOVE "P" TO SBR-PST.
            MOVE G-PR-GROUP TO SBR-GROUP
            MOVE "CI" TO SBR-INSCODE
-           IF INS-NEIC = "WX867"
+           IF INS-NEIC = "WX867" OR "J1868"
              MOVE "WC" TO SBR-INSCODE.
            MOVE SPACE TO SBR-TYPE.
            IF
