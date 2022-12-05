@@ -800,7 +800,7 @@
              MOVE "14156" TO PAYORID
            end-if
 
-           IF PAYORID = space
+           IF PAYORID = space OR "11329"
              PERFORM P1-LOST-SVC 
              GO TO P5-SVC-LOOP-EXIT.
 

@@ -1190,7 +1190,9 @@
 
        ACCIDENT-1.
            MOVE "OA" TO CLM-11.
-      *     MOVE ":" TO CLM-COLON-ACCIDENT.
+           IF INS-NEIC = "WX867"
+             MOVE "EM" TO CLM-11.
+             
       
        ACCIDENT-EXIT.
            EXIT.
@@ -1700,8 +1702,9 @@
            MOVE "P" TO SBR-PST.
            MOVE G-PR-GROUP TO SBR-GROUP
            MOVE "CI" TO SBR-INSCODE
+           IF INS-NEIC = "WX867"
+             MOVE "WC" TO SBR-INSCODE.
            MOVE SPACE TO SBR-TYPE.
-
            IF
       *     (G-GARNAME NOT = G-PRNAME) AND
            (G-RELATE NOT = G-PR-RELATE)
