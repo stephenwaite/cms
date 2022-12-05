@@ -1703,6 +1703,7 @@
            MOVE "P" TO SBR-PST.
            MOVE G-PR-GROUP TO SBR-GROUP
            MOVE "CI" TO SBR-INSCODE
+           display ins-neic " ins-neic"
            display sbr-inscode " sbr-inscode"
            IF INS-NEIC = "WX867" OR "J1868"
              MOVE "WC" TO SBR-INSCODE.
