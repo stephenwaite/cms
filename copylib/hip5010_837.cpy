@@ -416,10 +416,10 @@
            02 CLM-10 PIC X VALUE "P".             
            02 CLM-S10 PIC X VALUE "*".
            02 CLM-11 PIC XX.             
-           02 CLM-11-1-COLON PIC X VALUE SPACE.
+      *     02 CLM-11-1-COLON PIC X VALUE SPACE.
       *    RELATED CAUSES CODE 2 CURRENTLY UNUSED
       *     02 CLM-11-2 PIC XX VALUE SPACE.
-           02 CLM-11-2-COLON PIC X VALUE SPACE.
+      *     02 CLM-11-2-COLON PIC X VALUE SPACE.
       *    CLM-11-3 CURRENTLY UNUSED     
       *     02 CLM-11-3 PIC XX VALUE SPACE.
       *     02 CLM-11-3-COLON PIC X VALUE SPACE.
