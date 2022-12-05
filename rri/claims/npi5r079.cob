@@ -1190,9 +1190,7 @@
            EXIT.
 
        ACCIDENT-1.
-           MOVE "OA" TO CLM-11.
-           DISPLAY INS-NEIC " INS-NEIC"
-           ACCEPT OMITTED.
+           MOVE "OA" TO CLM-11.           
            IF INS-NEIC = "WX867" OR "J1868"
              MOVE "EM" TO CLM-11
              MOVE ":::VT" TO CLM-11-4.
