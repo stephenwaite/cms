@@ -1702,6 +1702,12 @@
            READ GARFILE INVALID DISPLAY "BAD BAD BAD" GO TO P99.
            MOVE "P" TO SBR-PST.
            MOVE G-PR-GROUP TO SBR-GROUP
+
+           MOVE FI-PAYCODE TO INS-KEY
+           READ INSFILE 
+             INVALID
+               DISPLAY FI-PAYCODE.
+               
            MOVE "CI" TO SBR-INSCODE
            display ins-neic " ins-neic"
            display sbr-inscode " sbr-inscode"
