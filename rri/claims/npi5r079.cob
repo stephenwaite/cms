@@ -1707,14 +1707,10 @@
            READ INSFILE 
              INVALID
                DISPLAY FI-PAYCODE.
-               
+
            MOVE "CI" TO SBR-INSCODE
-           display ins-neic " ins-neic"
-           display sbr-inscode " sbr-inscode"
            IF INS-NEIC = "WX867" OR "J1868"
              MOVE "WC" TO SBR-INSCODE.
-           display sbr-inscode " sbr-inscode"
-           accept omitted
   
            MOVE SPACE TO SBR-TYPE.
            IF
