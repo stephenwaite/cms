@@ -1141,8 +1141,7 @@
            COMPUTE NUM7 = TOT-AMOUNT
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO CLM-2
-           MOVE SPACE TO CLM-11
-           MOVE SPACE TO CLM-11  CLM-COLON-ACCIDENT
+           MOVE SPACE TO CLM-11 CLM-11-2 CLM-11-3 CLM11-4 CLM-11-5
            
            IF HOLD-DAT1 NOT = ZEROES
                PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT.
@@ -1191,9 +1190,9 @@
        ACCIDENT-1.
            MOVE "OA" TO CLM-11.
            IF INS-NEIC = "WX867" OR "J1868"
-             MOVE "EM" TO CLM-11.
+             MOVE "EM" TO CLM-11
+             MOVE "VT" TO CLM-11-4.
              
-      
        ACCIDENT-EXIT.
            EXIT.
 
