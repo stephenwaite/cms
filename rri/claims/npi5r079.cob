@@ -1189,8 +1189,13 @@
 
        ACCIDENT-1.
            MOVE "OA" TO CLM-11.
+           DIPSLAY INS-NEIC " INS-NEIC"
+           ACCEPT OMITTED.
            IF INS-NEIC = "WX867" OR "J1868"
              MOVE "EM" TO CLM-11
+             MOVE ":" TO CLM-11-1-COLON.
+             MOVE ":" TO CLM-11-2-COLON.
+             MOVE ":" TO CLM-11-3-COLON.
              MOVE "VT" TO CLM-11-4.
              
        ACCIDENT-EXIT.
