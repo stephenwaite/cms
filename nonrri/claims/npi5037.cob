@@ -1762,7 +1762,7 @@
            MOVE ":" TO DIAG-C(DX-CNTR-PT)
            MOVE 12 TO A.
 
-       SV1-0..
+       SV1-0.
            MOVE " " TO SV1-EMER
            IF CLM-5 = "23" MOVE "Y" TO SV1-EMER.
            COMPUTE NUM5 = X
@@ -1795,7 +1795,9 @@
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
            REWRITE CHARCUR01.
-       2400SRV-EXIT.  EXIT.
+           
+       2400SRV-EXIT.  
+           EXIT.
 
        2410.
            MOVE FI-KEY8 TO AUTH-KEY8

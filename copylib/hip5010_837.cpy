@@ -416,7 +416,19 @@
            02 CLM-10 PIC X VALUE "P".             
            02 CLM-S10 PIC X VALUE "*".
            02 CLM-11 PIC XX.             
-           02 CLM-COLON-ACCIDENT PIC X VALUE SPACE. 
+      *     02 CLM-11-1-COLON PIC X VALUE SPACE.
+      *    RELATED CAUSES CODE 2 CURRENTLY UNUSED
+      *     02 CLM-11-2 PIC XX VALUE SPACE.
+      *     02 CLM-11-2-COLON PIC X VALUE SPACE.
+      *    CLM-11-3 CURRENTLY UNUSED     
+      *     02 CLM-11-3 PIC XX VALUE SPACE.
+      *     02 CLM-11-3-COLON PIC X VALUE SPACE.
+      *    CLM-11-4 STATE CODE have to cobmine colons here
+           02 CLM-11-4 PIC XXXXX VALUE SPACE.
+      *     02 CLM-11-4-COLON PIC X VALUE SPACE.
+      *    CLM-11-5 COUNTRY CODE UNUSED     
+      *     02 CLM-11-5 PIC XX VALUE SPACE.
+      *     02 CLM-11-5-COLON PIC X VALUE SPACE.
            02 CLM-S11 PIC X VALUE "*".
            02 CLM-12 PIC XXX.             
            02 CLM-S12 PIC X VALUE "*".

@@ -800,7 +800,7 @@
              MOVE "14156" TO PAYORID
            end-if
 
-           IF PAYORID = space
+           IF PAYORID = space OR "11329"
              PERFORM P1-LOST-SVC 
              GO TO P5-SVC-LOOP-EXIT.
 
@@ -1097,10 +1097,12 @@
                    OR (CAS-1 = "CO" AND CAS-2 = "234  ")
                    OR (CAS-1 = "CO" AND CAS-2 = "242  ")
                    OR (CAS-1 = "CO" AND CAS-2 = "288  ")
+                   OR (CAS-1 = "CO" AND CAS-2 = "B20  ")
                    OR (CAS-1 = "PI" AND CAS-2 = "5    ")
                    OR (CAS-1 = "PI" AND CAS-2 = "11   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "96   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "97   ")
+                   OR (CAS-1 = "PR" AND CAS-2 = "26   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "27   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "31   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "31   ")

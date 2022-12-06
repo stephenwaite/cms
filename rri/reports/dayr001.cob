@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. RRI803.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. dayr001.
+       AUTHOR. S WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -88,27 +88,48 @@
        01  DAYTOT PIC 9(4) VALUE 0.
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT FILEIN CHARCUR OUTPUT FILEOUT FILEOUT2
-           READ FILEIN AT END GO TO P99.
+           OPEN INPUT FILEIN CHARCUR 
+             OUTPUT FILEOUT FILEOUT2
+
+           READ FILEIN 
+             AT END 
+               GO TO P99.
+
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 31
-           MOVE 0 TO DAYTAB(X)
+             MOVE 0 TO DAYTAB(X)
            END-PERFORM.
-       P1. READ CHARCUR AT END GO TO P99.
-           IF CC-DATE-T < FI-LOW OR > FI-HIGH GO TO P1.
-           IF NOT (CC-PLACE = "3" or "5" or "E") GO TO P1.
-           IF CC-PROC(9:1) = "F" GO TO P1.
+
+       P1. 
+           READ CHARCUR 
+             AT END 
+               GO TO P99.
+
+           IF CC-DATE-T < FI-LOW 
+             OR > FI-HIGH 
+             GO TO P1.
+
+           IF NOT (CC-PLACE = "3" or "5" or "E") 
+             GO TO P1.
+
+           IF CC-PROC(9:1) = "F"
+            OR (CC-PROC1(1:1) = "G"
+                AND NOT (CC-PROC = "G0279" OR "G0297"))
+                GO TO P1.
+
            MOVE CC-DATE-T TO DATE-X
            ADD 1 TO DAYTAB(DD)
            WRITE FILEOUT201 FROM CHARCUR01
            GO TO P1.
+
        P99.  
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 31
-           MOVE SPACE TO FILEOUT01
-           MOVE DAYTAB(X) TO NEF-4
-           ADD DAYTAB(X) TO DAYTOT
-           STRING X "  " NEF-4 DELIMITED BY "!!" INTO FILEOUT01
-           WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             MOVE DAYTAB(X) TO NEF-4
+             ADD DAYTAB(X) TO DAYTOT
+             STRING X "  " NEF-4 DELIMITED BY "!!" INTO FILEOUT01
+             WRITE FILEOUT01
            END-PERFORM.
+
            MOVE DAYTOT TO NEF-4
            STRING  "TOTAL  " NEF-4 DELIMITED BY "!!" INTO FILEOUT01
            WRITE FILEOUT01

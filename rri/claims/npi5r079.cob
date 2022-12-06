@@ -1141,8 +1141,9 @@
            COMPUTE NUM7 = TOT-AMOUNT
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO CLM-2
-           MOVE SPACE TO CLM-11
-           MOVE SPACE TO CLM-11  CLM-COLON-ACCIDENT
+           MOVE SPACE TO CLM-11 CLM-11-4 
+      *    CURRENTLY UNUSED     
+      *     CLM-11-2 CLM-11-3 CLM-11-5
            
            IF HOLD-DAT1 NOT = ZEROES
                PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT.
@@ -1189,9 +1190,11 @@
            EXIT.
 
        ACCIDENT-1.
-           MOVE "OA" TO CLM-11.
-      *     MOVE ":" TO CLM-COLON-ACCIDENT.
-      
+           MOVE "OA" TO CLM-11.           
+           IF INS-NEIC = "WX867" OR "J1868"
+             MOVE "EM" TO CLM-11
+             MOVE ":::VT" TO CLM-11-4.
+             
        ACCIDENT-EXIT.
            EXIT.
 
@@ -1699,9 +1702,17 @@
            READ GARFILE INVALID DISPLAY "BAD BAD BAD" GO TO P99.
            MOVE "P" TO SBR-PST.
            MOVE G-PR-GROUP TO SBR-GROUP
-           MOVE "CI" TO SBR-INSCODE
-           MOVE SPACE TO SBR-TYPE.
 
+           MOVE FI-PAYCODE TO INS-KEY
+           READ INSFILE 
+             INVALID
+               DISPLAY FI-PAYCODE.
+
+           MOVE "CI" TO SBR-INSCODE
+           IF INS-NEIC = "WX867" OR "J1868"
+             MOVE "WC" TO SBR-INSCODE.
+  
+           MOVE SPACE TO SBR-TYPE.
            IF
       *     (G-GARNAME NOT = G-PRNAME) AND
            (G-RELATE NOT = G-PR-RELATE)
