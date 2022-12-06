@@ -199,7 +199,7 @@
            WRITE PARMOUT01. CLOSE PARMOUT.
        P1. READ CHARCUR AT END GO TO P3.
       *    IF NOT ( CC-PLACE = "C" OR "M" OR "R") GO TO P1.
-      *     IF CC-DATE-T < LOWDATE OR > HIGHDATE GO TO P1.
+           IF CC-DATE-T < LOWDATE OR > HIGHDATE GO TO P1.
       *     IF NOT ( CC-PROC2 = "77057" OR "G0202") GO TO P1.
       *     IF NOT ( CC-DIAG = "V7611" OR "V7612") GO TO P1.
 
