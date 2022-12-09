@@ -154,7 +154,7 @@
            STRING " " CHARCUR-KEY INTO FO-CKEY
            WRITE FILEOUT01.
 
-           
+           display charcur01
            write fileout201 from CHARCUR01.
 
            GO TO P1.
