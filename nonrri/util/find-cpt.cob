@@ -155,11 +155,11 @@
            WRITE FILEOUT01.
 
       *     display charcur01
-           write fileout2 from CHARCUR01.
+           write fileout201 from CHARCUR01.
 
            GO TO P1.
 
        P99. 
            CLOSE DOCFILE GARFILE CHARDATE PAYDATE CHARCUR
-             PAYCUR CCPROCIN FILEOUT.
+             PAYCUR CCPROCIN FILEOUT FILEOUT2.
            STOP RUN.
