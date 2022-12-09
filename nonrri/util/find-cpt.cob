@@ -36,6 +36,9 @@
            SELECT PAYCUR ASSIGN TO "S60" ORGANIZATION IS INDEXED
              ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY.
 
+           SELECT FILEOUT2 ASSIGN TO "S65"
+             ORGANIZATION LINE SEQUENTIAL.
+
        DATA DIVISION.
 
        FILE SECTION.
@@ -77,6 +80,9 @@
            02 FO-DATE PIC X(8).
            02 FO-CKEY PIC X(12).
 
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(156).    
+
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.
            02 PLACE-TAB OCCURS 26 TIMES.
@@ -107,7 +113,7 @@
        P0.
            OPEN INPUT DOCFILE GARFILE CHARDATE PAYDATE CHARCUR PAYCUR
              CCPROCIN.
-           OPEN OUTPUT FILEOUT.
+           OPEN OUTPUT FILEOUT FILEOUT2.
            READ CCPROCIN.
            READ CHARDATE.
       *     READ PAYDATE.
@@ -148,7 +154,7 @@
            STRING " " CHARCUR-KEY INTO FO-CKEY
            WRITE FILEOUT01.
 
-           display CHARCUR01.
+           write fileout201 from CHARCUR01.
 
            GO TO P1.
 
