@@ -51,7 +51,7 @@
            COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".      
       
        FD  DOCFILE.
-           COPY DOCFILE.CPY IN "C:\Users\sid\cms\copylib".  
+           COPY DOCFILE.CPY IN "C:\Users\sid\cms\copylib\rri".  
 
        FD  CHARDATE.
        01  CHARDATE01. 
