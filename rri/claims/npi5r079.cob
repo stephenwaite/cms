@@ -1163,7 +1163,12 @@
                MOVE HOLD-DATE-M TO DTP-3
                MOVE SPACE TO SEGFILE01
                WRITE SEGFILE01 FROM DTP01
-           END-IF                          
+           END-IF        
+
+           IF (INS-NEIC = "WX867" OR "J1868")
+               AND HOLD-DAT1 NOT = ZEROES
+                 MOVE SPACE TO SEGFILE01
+                 WRITE SEGFILE01 FROM PWK01.
            
       *    add auth for VA/VACCN outpatient claims
            MOVE 0 TO AUTH-FLAG
@@ -1190,10 +1195,12 @@
            EXIT.
 
        ACCIDENT-1.
-           MOVE "OA" TO CLM-11.           
+           MOVE "OA" TO CLM-11.          
            IF INS-NEIC = "WX867" OR "J1868"
              MOVE "EM" TO CLM-11
-             MOVE ":::VT" TO CLM-11-4.
+             MOVE ":::VT" TO CLM-11-4
+             STRING HOLD-KEY8 FI-DATE-T DOCP DOCR DELIMITED BY SIZE
+               INTO PWK-6.
              
        ACCIDENT-EXIT.
            EXIT.

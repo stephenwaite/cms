@@ -525,3 +525,15 @@
            02 OI-S56 PIC XX VALUE "**".
            02 OI-6 PIC X VALUE "Y".
            02 OI-END PIC X VALUE "~".
+
+       01  PWK01.
+           02 PWK-0 PIC XXX VALUE "PWK".
+           02 PWK-S0 PIC X VALUE "*".
+           02 PWK-1 PIC XX VALUE "PY".
+           02 PWK-S1 PIC X VALUE "*".
+           02 PWK-2 PIC XX VALUE "FX".
+           02 PWK-S2 PIC X VALUE "*".
+           02 PWK-34 PIC XX VALUE "**".
+           02 PWK-5 PIC XX VALUE "AC".
+           02 PWK-S5 PIC X VALUE "*".
+           02 PWK-6 PIC X(21) VALUE SPACE.
