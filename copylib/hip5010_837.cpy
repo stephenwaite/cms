@@ -537,3 +537,4 @@
            02 PWK-5 PIC XX VALUE "AC".
            02 PWK-S5 PIC X VALUE "*".
            02 PWK-6 PIC X(21) VALUE SPACE.
+           02 PWK-END PIC X VALUE "~".
