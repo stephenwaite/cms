@@ -1199,8 +1199,8 @@
            IF INS-NEIC = "WX867" OR "J1868"
              MOVE "EM" TO CLM-11
              MOVE ":::VT" TO CLM-11-4
-             STRING HOLD-KEY8 FI-DATE-T DOCP DOCR DELIMITED BY SIZE
-               INTO PWK-6.
+             STRING HOLD-KEY8 FI-DATE-T HOLD-DOCP HOLD-DOCR 
+               DELIMITED BY SIZE INTO PWK-6.
              
        ACCIDENT-EXIT.
            EXIT.
