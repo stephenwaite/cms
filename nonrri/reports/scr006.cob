@@ -71,7 +71,7 @@
            02 AGE-LOW PIC X(8).
            02 AGE-HIGH PIC X(8).
        FD FILEOUT.
-       01 FILEOUT01 PIC X(160).
+       01 FILEOUT01 PIC X(200).
        FD  CHARCUR
       *    BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS CHARCUR01.
