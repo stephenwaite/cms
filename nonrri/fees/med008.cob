@@ -23,15 +23,8 @@
        FILE SECTION.
 
        FD FILEIN.
-       01  FILEIN01.
-           02 FI-1 PIC X.
-           02 FILLER PIC X(7).
-           02 FI-2 PIC X(5).
-           02 FILLER PIC X(3).
-           02 FI-3 PIC XX.
-           02 FILLER PIC X(6).
-           02 FI-4 PIC X(7).
-
+       01  FILEIN01 PIC X(80).
+           
        FD  medfile.
        01  medfile01.
            02 MED-KEY.
@@ -41,6 +34,7 @@
            
        WORKING-STORAGE SECTION.
 
+       01  FI-1 PIC X.
        01  FI-CPT PIC X(5).
        01  FI-MOD PIC XX.
        01  FI-AMT PIC X(7).
@@ -66,9 +60,8 @@
              AT END 
                GO TO P99.
 
-           MOVE FI-4 TO FI-AMT
-           MOVE FI-3 TO FI-MOD
-           MOVE FI-2 TO FI-CPT
+           UNSTRING FILEIN01 DELIMITED BY "," INTO FI-1 FI-CPT FI-MOD 
+             FI-AMT.
 
            IF FI-1 = "C" GO TO P1.
 
