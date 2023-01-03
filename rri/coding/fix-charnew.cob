@@ -57,16 +57,19 @@
              INVALID
                DISPLAY "NO PROC ON FILE"
            END-READ
-               
+           
+           
            IF CD-DATE-T(1:4) NOT = 2022
+               AND CD-AMOUNT NOT = PROC-AMOUNT
                STRING "SINCE " CD-DATE-T(1:4) " FOR ACCT " CD-KEY8 
                       " CHANGING FEE TO " PROC-AMOUNT
                       " FOR PROCEDURE " CD-PROC
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
+               MOVE PROC-AMOUNT TO CD-AMOUNT
+               REWRITE CHARNEW01
            END-IF
 
-      *     REWRITE CHARNEW01
            GO TO P1.
        P2.
            CLOSE CHARNEW FILEOUT.
