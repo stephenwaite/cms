@@ -53,6 +53,8 @@
            END-READ
                
 
+           DISPLAY CD-DATE-T " CD-DATE-T".
+           
            IF CD-DATE-T(1:4) NOT = 2022
                STRING "SINCE " CD-DATE-T(1:4) " FOR ACCT " CD-KEY8 
                       " CHANGING FEE TO FOR PROCEDURE " CD-PROC1
