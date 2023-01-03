@@ -754,8 +754,10 @@
        1210-AP.
            ADD 1 TO XYZ.
            MOVE XYZ  TO ID3.
-           MOVE GARNO TO HOLD-GARNO.
-           READ GARFILE INVALID GO TO 1220-AP.
+           MOVE GARNO TO HOLD-GARNO G-GARNO.
+           READ GARFILE 
+             INVALID 
+             GO TO 1220-AP.
            IF XYZ = 9 ADD 1 TO NUM-3
            MOVE NUM-3 TO ID2 MOVE 0 TO XYZ. GO TO 1210-AP.
            GO TO 1210-AP.
