@@ -14,7 +14,6 @@
            SELECT CHARNEW ASSIGN TO   "S30" ORGANIZATION IS INDEXED
                ACCESS MODE IS SEQUENTIAL RECORD KEY IS CHARNEW-KEY.
          
-
            SELECT FILEOUT ASSIGN TO    "S35" ORGANIZATION IS 
                LINE SEQUENTIAL.
 
@@ -52,9 +51,9 @@
                GO TO P2
            END-READ
                
-
            DISPLAY CD-DATE-T " CD-DATE-T".
-           
+           ACCEPT OMITTED
+
            IF CD-DATE-T(1:4) NOT = 2022
                STRING "SINCE " CD-DATE-T(1:4) " FOR ACCT " CD-KEY8 
                       " CHANGING FEE TO FOR PROCEDURE " CD-PROC1
