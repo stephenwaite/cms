@@ -43,6 +43,7 @@
 
        0005-START.
            OPEN I-O CHARNEW
+           OPEN INPUT PROCFILE.
            OPEN OUTPUT FILEOUT.
 
        P1.
@@ -50,16 +51,19 @@
              AT END
                GO TO P2
            END-READ
-               
-           DISPLAY CD-DATE-T " CD-DATE-T".
-           ACCEPT OMITTED
 
+           MOVE CD-PROC TO PROC-KEY
+           READ PROCFILE
+             INVALID
+               DISPLAY "NO PROC ON FILE"
+           END-READ
+               
            IF CD-DATE-T(1:4) NOT = 2022
                STRING "SINCE " CD-DATE-T(1:4) " FOR ACCT " CD-KEY8 
-                      " CHANGING FEE TO FOR PROCEDURE " CD-PROC1
+                      " CHANGING FEE TO " PROC-AMOUNT
+                      " FOR PROCEDURE " CD-PROC
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
-
            END-IF
 
       *     REWRITE CHARNEW01
