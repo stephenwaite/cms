@@ -53,8 +53,8 @@
            END-READ
                
 
-           IF CD-DATE-T(4:1) NOT = 2022
-               STRING "SINCE " CD-DATE-T(4:1) " FOR ACCT " CD-KEY8 
+           IF CD-DATE-T(1:4) NOT = 2022
+               STRING "SINCE " CD-DATE-T(1:4) " FOR ACCT " CD-KEY8 
                       " CHANGING FEE TO FOR PROCEDURE " CD-PROC1
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
