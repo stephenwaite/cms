@@ -97,7 +97,9 @@
            02 CC-FUTURE PIC X(6).
 
        FD  FILEOUT1.
-       01  FILEOUT101 PIC X(65).
+       01  FILEOUT101.
+           02 FILEOUT102 PIC X(57).
+           02 FILEOUT-GARNO PIC X(8).
 
        FD  FILEOUT2.
        01  FILEOUT201 PIC X(160).
@@ -180,6 +182,7 @@
            END-READ
                
            MOVE SPACE TO ALF8
+           MOVE SPACE TO FILEOUT-GARNO
            MOVE FI-MEDREC TO ALF8
            MOVE SPACE TO RIGHT-8
            UNSTRING ALF8 DELIMITED BY " " INTO RIGHT-8
@@ -217,6 +220,8 @@
            IF CC-KEY8 NOT = G-GARNO GO TO P0.
            
            IF CC-DATE-T NOT = FI-DATEX GO TO P1.
+
+           MOVE G-GARNO TO FILEOUT-GARNO
            
            IF FI-PROC = "C8908" 
              MOVE "77049" TO FI-PROC.
