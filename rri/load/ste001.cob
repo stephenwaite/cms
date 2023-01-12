@@ -50,7 +50,7 @@
            02 FILLER PIC X.
 	       02 FI-MEDREC PIC X(6).
 	
-       FD  CHARCUR
+       FD  CHARCUR.
            COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
        
        FD  FILEOUT1.
@@ -65,7 +65,7 @@
        FD  FILEOUT4.
        01  FILEOUT401 PIC X(160).
 
-       FD  GARFILE
+       FD  GARFILE.
            COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
 
        WORKING-STORAGE SECTION.
@@ -93,7 +93,7 @@
            END-READ
                
            MOVE SPACE TO ALF8
-           MOVE SPACE TO FILEOUT-GARNO
+           MOVE SPACE TO SAVE-GARNO
            MOVE FI-MEDREC TO ALF8
            MOVE SPACE TO RIGHT-8
            UNSTRING ALF8 DELIMITED BY " " INTO RIGHT-8
@@ -154,7 +154,7 @@
        ERR-1.
            INSPECT FILEIN01 REPLACING ALL "," BY " "
            STRING FILEIN01 " " FILEOUT-GARNO DELIMITED BY SIZE
-             INTO FILEOUT01.
+             INTO FILEOUT101.
            WRITE FILEOUT101.
            GO TO P00.
 
