@@ -51,55 +51,10 @@
 	       02 FI-MEDREC PIC X(6).
 	
        FD  CHARCUR
-           DATA RECORD IS CHARCUR01.
-       01  CHARCUR01.
-           02 CHARCUR-KEY.
-             03 CC-KEY8 PIC X(8).
-             03 CC-KEY3 PIC XXX.
-           02 CC-PATID PIC X(8).
-           02 CC-CLAIM PIC X(6).
-           02 CC-SERVICE PIC X.
-           02 CC-DIAG PIC X(7).
-           02 CC-PROC0 PIC X(4).
-           02 CC-PROC1 PIC X(5).
-           02 CC-PROC2 PIC XX.
-           02 CC-MOD2 PIC XX.
-           02 CC-MOD3 PIC XX.
-           02 CC-MOD4 PIC XX.
-           02 CC-AMOUNT PIC S9(4)V99.
-           02 CC-DOCR PIC X(3).
-           02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC XXX.
-           02 CC-STUD PIC X.
-           02 CC-WORK PIC XX.
-           02 CC-DAT1 PIC X(8).
-           02 CC-RESULT PIC X.
-           02 CC-ACT PIC X.
-           02 CC-SORCREF PIC X.
-           02 CC-COLLT PIC X.
-           02 CC-AUTH PIC X.
-           02 CC-PAPER PIC X.
-           02 CC-PLACE PIC X.
-           02 CC-EPSDT PIC X.
-           02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A PIC X(8).
-           02 CC-DATE-P PIC X(8).
-           02 CC-REC-STAT PIC X.
-           02 CC-DX2 PIC X(7).
-           02 CC-DX3 PIC X(7).
-           02 CC-ACC-TYPE PIC X.
-           02 CC-DATE-M PIC X(8).
-           02 CC-ASSIGN PIC X.
-           02 CC-NEIC-ASSIGN PIC X.
-           02 CC-DX4 PIC X(7).
-           02 CC-DX5 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
-
+           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+       
        FD  FILEOUT1.
-       01  FILEOUT101.
-           02 FILEOUT102 PIC X(57).
-           02 FILEOUT-GARNO PIC X(8).
+       01  FILEOUT101 PIC X(65).
 
        FD  FILEOUT2.
        01  FILEOUT201 PIC X(160).
@@ -110,53 +65,8 @@
        FD  FILEOUT4.
        01  FILEOUT401 PIC X(160).
 
-       FD GARFILE
-           DATA RECORD IS GARFILE01.
-       01 GARFILE01.
-           02 G-GARNO PIC X(8).
-           02 G-GARNAME PIC X(24).
-           02 G-BILLADD PIC X(22).
-           02 G-STREET PIC X(22).
-           02 G-CITY PIC X(18).
-           02 G-STATE PIC X(2).
-           02 G-ZIP PIC X(9).
-           02 G-COLLT PIC X.
-           02 G-PHONE PIC X(10).
-           02 G-SEX PIC X.
-           02 G-RELATE PIC X.
-           02 G-MSTAT PIC X.
-           02 G-DOBCC PIC XX.
-           02 G-DOBYY PIC XX.
-           02 G-DOBMM PIC XX.
-           02 G-DOBDD PIC XX.
-           02 G-DUNNING PIC X.
-           02 G-ACCTSTAT PIC X.
-           02 G-PR-MPLR PIC X(4).
-           02 G-PRINS PIC XXX.
-           02 G-PR-ASSIGN PIC X.
-           02 G-PR-OFFICE PIC X(4).
-           02 G-PR-GROUP PIC X(12).
-           02 G-PRIPOL PIC X(14).
-           02 G-PRNAME PIC X(24).
-           02 G-PR-RELATE PIC X.
-           02 G-SE-MPLR PIC X(4).
-           02 G-SEINS PIC XXX.
-           02 G-SE-ASSIGN PIC X.
-           02 G-SE-OFFICE PIC X(4).
-           02 G-SE-GROUP PIC X(12).
-           02 G-SECPOL PIC X(14).
-           02 G-SENAME PIC X(24).
-           02 G-SE-RELATE PIC X.
-           02 G-INSPEND PIC S9(5)V99.
-           02 G-LASTBILL PIC X(8).
-           02 G-ASSIGNM PIC X.
-           02 G-PRIVATE PIC X.
-           02 G-BILLCYCLE PIC X.
-           02 G-DELETE PIC X.
-           02 G-FILLER PIC XXX.
-           02 G-ACCT PIC X(8).
-           02 G-PRGRPNAME PIC X(15).
-           02 G-SEGRPNAME PIC X(15).
+       FD  GARFILE
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
 
        WORKING-STORAGE SECTION.
        01  RIGHT-2 PIC XX JUST RIGHT.
@@ -167,6 +77,7 @@
        01  MEDREC8 PIC X(8).
        01  ALF8 PIC X(8).
        01  FI-MEDREC8 PIC X(8).
+       01  SAVE-GARNO PIC X(8).
        
        PROCEDURE DIVISION.
        
@@ -221,7 +132,7 @@
            
            IF CC-DATE-T NOT = FI-DATEX GO TO P1.
 
-           MOVE G-GARNO TO FILEOUT-GARNO
+           MOVE G-GARNO TO SAVE-GARNO
            
            IF FI-PROC = "C8908" 
              MOVE "77049" TO FI-PROC.
@@ -242,7 +153,9 @@
 
        ERR-1.
            INSPECT FILEIN01 REPLACING ALL "," BY " "
-           WRITE FILEOUT101 FROM FILEIN01.
+           STRING FILEIN01 " " FILEOUT-GARNO DELIMITED BY SIZE
+             INTO FILEOUT01.
+           WRITE FILEOUT101.
            GO TO P00.
 
        P2.
