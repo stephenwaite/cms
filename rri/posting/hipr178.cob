@@ -920,6 +920,8 @@
                IF CAS-SVC(Z) = X
                    MOVE SPACE TO CAS01 ALF8
                    MOVE CAS-TAB(Z) TO FILEIN01
+                   display filein01
+                   accept omitted
                    UNSTRING FILEIN01 DELIMITED BY "*" INTO
                      CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
                      CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
