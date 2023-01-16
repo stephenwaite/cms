@@ -982,6 +982,7 @@
                            MOVE CAS-3 TO ALF8
                            PERFORM AMOUNT-1
                            COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                           DISPLAY INS-REDUCE " INS-REDUCE"
                        END-IF
                
                        IF CAS-6 NOT = SPACE
