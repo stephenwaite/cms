@@ -968,7 +968,10 @@
                    display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
                      CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"  
                   
-                   IF CAS-2 = "45" DISPLAY CAS-2 " CAS-2 = 45"
+                   IF CAS-2 = "45"
+                     DISPLAY CAS-2 " CAS-2 = 45"
+                   end-if
+                         
                    accept omitted
                    IF (CAS-1 = "CO" OR "PI" OR "OA")
                                AND
