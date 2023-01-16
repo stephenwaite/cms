@@ -963,7 +963,10 @@
                    UNSTRING FILEIN01 DELIMITED BY "*" INTO
                      CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
                      CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+                   
+                   display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
+                     CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"  
                   
                    accept omitted
                    IF (CAS-1 = "CO" OR "PI" OR "OA")
