@@ -25,7 +25,7 @@
        FILE SECTION.
 
        FD  CHARFILE.
-           COPY chafile.CPY IN "C:\Users\sid\cms\copylib\rri". 
+           COPY charfile.CPY IN "C:\Users\sid\cms\copylib\rri". 
        
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).   
