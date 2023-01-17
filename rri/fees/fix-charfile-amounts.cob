@@ -67,7 +67,7 @@
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
                MOVE PROC-AMOUNT TO CD-AMOUNT
-      *         REWRITE CHARFILE01
+               REWRITE CHARFILE01
            END-IF
 
            GO TO P1.
