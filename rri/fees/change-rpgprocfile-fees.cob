@@ -18,7 +18,7 @@
                LINE SEQUENTIAL.
 
            SELECT RPGPROCFILE ASSIGN TO   "S40" ORGANIZATION IS INDEXED
-               ACCESS MODE IS DYNAMIC RECORD KEY IS PROC-KEY
+               ACCESS MODE IS DYNAMIC RECORD KEY IS rpgproc-key
                LOCK MODE MANUAL.
 
        DATA DIVISION.
@@ -52,7 +52,7 @@
                GO TO P2
            END-READ
 
-           MOVE CD-PROC TO PROC-KEY
+           MOVE CD-PROC TO rpgproc-key
            READ rpgprocfile
              INVALID
                DISPLAY "NO RPG PROC ON FILE"
