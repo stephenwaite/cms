@@ -58,15 +58,20 @@
                DISPLAY "INVALID, SHOULDN'T BE"
                GO TO P0-1.
            
+           MOVE SPACE TO FILEOUT01.
+
            IF (G-PRINS = "001" OR "003") GO TO P0-1.
            IF G-SEINS = "001" GO TO P0-1.
-           
-           MOVE SPACE TO FILEOUT01.
-           
-           STRING G-PRINS " pri " G-SEINS " sec " G-GARNO
-             DELIMITED BY SIZE INTO FILEOUT01.
 
-           WRITE FILEOUT01.
+           IF G-PRINS = G-SEINS
+             STRING "ins codes are equal for " G-GARNO
+               DELIMITED BY SIZE INTO FILEOUT01.
+               WRITE FILEOUT01
+           ELSE 
+             STRING G-PRINS " pri " G-SEINS " sec " G-GARNO
+               DELIMITED BY SIZE INTO FILEOUT01.
+               WRITE FILEOUT01
+           END-IF    
 
            GO TO P0-1.  
 
