@@ -65,11 +65,11 @@
 
            IF G-PRINS = G-SEINS
              STRING "ins codes are equal for " G-GARNO
-               DELIMITED BY SIZE INTO FILEOUT01.
+               DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            ELSE 
              STRING G-PRINS " pri " G-SEINS " sec " G-GARNO
-               DELIMITED BY SIZE INTO FILEOUT01.
+               DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF    
 
