@@ -6,12 +6,14 @@
 //getTokenWithPasswordGrant();
 //var_dump(get835FileList());
 //viewFiles();
-sendFile();
+//sendFile();
 
 // 835 download folder 793491394
 //var_dump(getFiles('793491394'));
 // list of files in upload folder
 //var_dump(getFiles('357858290'));
+
+viewFiles(getFiles('793491394'));
 
 function getAccessToken() {
     $old_timestamp = file_get_contents('moveit_access_timestamp');
@@ -218,7 +220,7 @@ function getFiles($folder)
 
     curl_close($curl);
 
-    return(json_decode($response));
+    return json_decode($response);
 }
 
 function download835($id, $name)
@@ -291,7 +293,7 @@ function viewFiles($files) {
                 foreach ($value as $val => $item) {
                     if ($item->isNew == true) {
                         echo "downloading New file: " . $item->name . " uploaded by moveit on " . $item->uploadStamp . " with size " . $item->size . "\n";
-                        //download835($item->id, $item->name);
+                        download835($item->id, $item->name);
                         //patchFile($item->id);
                     } else {
                         echo "old file: " . $item->name . " uploaded by moveit on " . $item->uploadStamp . " with size " . $item->size . "\n";

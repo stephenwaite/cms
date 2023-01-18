@@ -983,7 +983,8 @@
                       (CAS-5 = "A2" OR "B6" OR "B10" OR 
                                "18" OR "42" OR "45" OR
                                "59" OR "253" OR "131"))
-                               AND NOT (CLP-2CLMSTAT = "3 ")
+                               AND 
+                      NOT (CLP-2CLMSTAT = "3 ")
                        
                        display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
                          CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
