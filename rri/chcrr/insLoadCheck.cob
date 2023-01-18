@@ -58,8 +58,8 @@
                DISPLAY "INVALID, SHOULDN'T BE"
                GO TO P0-1.
            
-           IF G-PRINS = "001" GO TO PO-1.
-           IF G-SEINS = "001" GO TO PO-1.
+           IF G-PRINS = "001" GO TO P0-1.
+           IF G-SEINS = "001" GO TO P0-1.
            
            MOVE SPACE TO FILEOUT01.
            
@@ -68,7 +68,7 @@
 
            WRITE FILEOUT01.
 
-           GO TO PO-1.  
+           GO TO P0-1.  
 
        P99. 
            CLOSE GARFILE FILEIN FILEOUT.
