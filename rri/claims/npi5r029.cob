@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. HIP036.
+       PROGRAM-ID. npi5r029.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -1305,7 +1305,7 @@
            MOVE SPACE TO SEGFILE01
       *     if hold-neic = "14165"
             move space to n3-street
-            move "PO BOX 129" to n3-street
+            move "PO BOX 440" to n3-street
       *     end-if
            WRITE SEGFILE01 FROM N301
            MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
@@ -1317,7 +1317,7 @@
            MOVE "9999" TO N4-ZIP(6:4).
            MOVE SPACE TO SEGFILE01
       *     if hold-neic = "14165"
-            move "057020129" to n4-zip
+            move "057020440" to n4-zip
       *    end-if
            WRITE SEGFILE01 FROM N401.
       *     IF HOLD-NEIC NOT = "14165"
