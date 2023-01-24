@@ -435,6 +435,7 @@
                BPR-0 BPR-1 BPR-2 BPR-3 BPR-4 BPR-5 BPR-6 BPR-7 BPR-8 
                BPR-9 BPR-10 BPR-11 BPR-12 BPR-13 BPR-14 BPR-15 BPR-16.
            MOVE BPR-16 TO DATE-X.
+           
            MOVE SPACE TO FILEIN01
            READ FILEIN
              AT END
@@ -984,7 +985,7 @@
                                "18" OR "42" OR "45" OR
                                "59" OR "253" OR "131"))
                                AND 
-                      NOT (CLP-2CLMSTAT = "3 ")
+                      NOT (CLP-2CLMSTAT = "2 " OR "3 ")
                        
                        display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
                          CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
