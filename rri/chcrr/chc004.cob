@@ -284,9 +284,22 @@
             IF T-CODE(X) = "33        "
                 AND
                 T-POL(X)(4:1) NOT = "V"
-                DISPLAY "THIS IS AN OLD BCBSVT"
-                ACCEPT OMITTED
-            END-IF                
+                MOVE SPACE TO FILEOUT01
+                  STRING "OLD 02 POL FOR " FI-PATNAMEL ", " FI-PATNAMEF 
+                   " " T-POL(X)
+                  DELIMITED BY SIZE INTO FILEOUT01
+                WRITE FILEOUT01
+            END-IF    
+
+            IF T-CODE(X) = "46        "
+                AND
+                T-POL(X)(4:1) NOT = "V"
+                MOVE SPACE TO FILEOUT01
+                  STRING "OLD 02 POL FOR " FI-PATNAMEL ", " FI-PATNAMEF 
+                   " " T-POL(X)
+                  DELIMITED BY SIZE INTO FILEOUT01
+                WRITE FILEOUT01
+            END-IF            
 
             IF T-CODE(2) = "34        "
                 MOVE SPACE TO TABX(2)
