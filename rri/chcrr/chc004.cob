@@ -281,6 +281,13 @@
               MOVE SPACE TO TABX(X)
             END-IF
 
+            IF T-CODE(X) = "33        "
+                AND
+                T-POL(4:1) NOT = "V"
+                DISPLAY "THIS IS AN OLD BCBSVT"
+                ACCEPT OMITTED
+            END-IF                
+
             IF T-CODE(2) = "34        "
                 MOVE SPACE TO TABX(2)
             END-IF
