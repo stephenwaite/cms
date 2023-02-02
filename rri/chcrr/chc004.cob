@@ -353,6 +353,10 @@
              DISPLAY "2  " TABX(2)
              DISPLAY "3  " TABX(3)
              MOVE SPACE TO FILEOUT01
+             STRING FI-PATNAMEL ", " FI-PATNAMEF 
+               DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01  
              WRITE FILEOUT01 FROM TABX(1)
              WRITE FILEOUT01 FROM TABX(2)
              WRITE FILEOUT01 FROM TABX(3)
