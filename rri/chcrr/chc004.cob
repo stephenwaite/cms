@@ -281,6 +281,11 @@
             IF T-CODE(2) = "34        "
                 MOVE SPACE TO TABX(2)
             END-IF
+
+            IF T-CODE(1) = "0         "
+              AND T-CODE(2) NOT = SPACE
+              MOVE TABX(2) TO TABX(1)
+            END-IF  
            END-PERFORM
 
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 2
