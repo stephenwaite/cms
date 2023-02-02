@@ -34,8 +34,8 @@
            LOCK MODE MANUAL.
        DATA DIVISION.
        FILE SECTION.
-       FD RPGPROCFILE.
-       01 RPGPROCFILE01.
+       FD  RPGPROCFILE.
+       01  RPGPROCFILE01.
            02 RPGPROC-KEY PIC X(11).
            02 RPGPROC-TYPE PIC X.
            02 RPGPROC-TITLE PIC X(28).
@@ -167,7 +167,7 @@
            IF ALF1X NOT = SPACE
              MOVE SPACE TO FILEOUT01
              STRING FI-PATNAMEL " " FI-PATNAMEF " " FI-PRIM-POL
-                  " 1ST HAS SCIENCE"
+                  " + IN PRI POLICY NUMBER"
              INTO FILEOUT01
              WRITE FILEOUT01
            END-IF
@@ -176,7 +176,7 @@
            IF ALF1X NOT = SPACE
              MOVE SPACE TO FILEOUT01
              STRING FI-PATNAMEL " " FI-PATNAMEF " " FI-SEC-POL
-               " 2ND HAS SCIENCE"
+               " + IN SEC POLICY NUMBER"
              INTO FILEOUT01
              WRITE FILEOUT01
            END-IF
@@ -185,7 +185,7 @@
            IF ALF1X NOT = SPACE
              MOVE SPACE TO FILEOUT01
              STRING FI-PATNAMEL " " FI-PATNAMEF " " FI-3RD-POL
-               " 3RD HAS SCIENCE"
+               " + IN TRI POLICY NUMBER"
              INTO FILEOUT01
              WRITE FILEOUT01
            END-IF
@@ -272,6 +272,9 @@
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 3
             IF T-CODE(X) = "30        " OR "85        "
                OR "39        "
+               OR "93        " 
+               OR "135       "
+
               MOVE SPACE TO TABX(X)
             END-IF
            END-PERFORM
