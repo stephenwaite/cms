@@ -270,11 +270,13 @@
            MOVE SPACE TO TABX(4)
 
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 3
-            IF T-CODE(X) = "30        " OR "85        "
+            IF T-CODE(X) = "30        "
+               OR "85        "
                OR "39        "
+               OR "72        " 
                OR "93        " 
+               OR "129       "
                OR "135       "
-
               MOVE SPACE TO TABX(X)
             END-IF
 
