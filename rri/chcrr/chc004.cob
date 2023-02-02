@@ -291,6 +291,7 @@
                    " " T-POL(X)
                   DELIMITED BY SIZE INTO FILEOUT01
                 WRITE FILEOUT01
+                MOVE SPACE TO TABX(X)
             END-IF             
 
             IF T-CODE(2) = "34        "
