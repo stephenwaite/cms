@@ -283,7 +283,7 @@
 
             IF T-CODE(X) = "33        "
                 AND
-                T-POL(4:1) NOT = "V"
+                T-POL(X)(4:1) NOT = "V"
                 DISPLAY "THIS IS AN OLD BCBSVT"
                 ACCEPT OMITTED
             END-IF                
