@@ -281,11 +281,11 @@
               MOVE SPACE TO TABX(X)
             END-IF
 
-            IF  ((T-CODE(X) = "33        " OR "46        ")
+            IF  (T-CODE(X) = "33        " OR "46        ")
                 AND
                 (T-POL(X)(4:1) NOT = "V")
                 AND (T-POL(X)(1:3) = "EVT" OR "VEI" OR "ZIB"
-                  "ZIE" OR "ZIG" OR "ZII" OR "ZIK" OR "ZIL"))
+                  "ZIE" OR "ZIG" OR "ZII" OR "ZIK" OR "ZIL")
                 MOVE SPACE TO FILEOUT01
                   STRING "OLD 02 POL FOR " FI-PATNAMEL ", " FI-PATNAMEF 
                    " " T-POL(X)
