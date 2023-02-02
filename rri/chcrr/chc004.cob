@@ -277,6 +277,7 @@
                OR "93        " 
                OR "129       "
                OR "135       "
+               OR "139       "
               MOVE SPACE TO TABX(X)
             END-IF
 
@@ -299,6 +300,16 @@
 
              IF T-CODE(X) = "102       "
                 AND T-CODE(Z) = "82        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "33        "
+                AND T-CODE(Z) = "46        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "46        "
+                AND T-CODE(Z) = "33        "
                MOVE SPACE TO TABX(Z)
              END-IF
 
