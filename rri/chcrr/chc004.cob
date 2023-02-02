@@ -277,6 +277,10 @@
 
               MOVE SPACE TO TABX(X)
             END-IF
+
+            IF T-CODE(2) = "34        "
+                MOVE SPACE TO TABX(2)
+            END-IF
            END-PERFORM
 
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 2
