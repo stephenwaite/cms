@@ -302,15 +302,16 @@
             IF T-CODE(1) = "0         "
               AND T-CODE(2) NOT = SPACE
               MOVE TABX(2) TO TABX(1)
-            END-IF  
+            END-IF
 
-            IF NOT (FI-DAT1 = "00/00/00" OR SPACE)
-                DISPLAY "WE HAVE AN ACC DATE " FI-DAT1
-                ACCEPT OMITTED
-                IF T-CODE(1) NOT = T-CODE(3)
-                  MOVE SPACE TO TABX(3)
-                END-IF  
-            END-IF        
+            IF T-CODE(3) = "84        "
+              AND T-CODE(1) NOT = "84        "
+              MOVE SPACE TO TABX(3)
+            END-IF
+
+
+
+    
            END-PERFORM
 
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 2
@@ -393,7 +394,7 @@
             WRITE FILEOUT01 FROM FI-PROC1
            END-READ.
 
-           IF TABX(3) NOT = SPACE
+           IF TABX(3) NOT = SPACE 
              DISPLAY "1  " TABX(1)
              DISPLAY "2  " TABX(2)
              DISPLAY "3  " TABX(3)
