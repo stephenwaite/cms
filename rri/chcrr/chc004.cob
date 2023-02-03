@@ -271,6 +271,7 @@
 
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 3
             IF T-CODE(X) = "30        "
+               OR "84        "
                OR "85        "
                OR "39        "
                OR "76        " 
@@ -284,7 +285,7 @@
             IF  ((T-CODE(X) = "33        " OR "46        ")
                 AND
                 (T-POL(X)(4:1) NOT = "V")
-                AND (T-POL(X)(1:3) = "EVT" OR "VEI" OR "ZIB" OR
+                AND (T-POL(X)(1:3) = "EVT" OR "VEI" OR "ZIA" OR "ZIB" OR
                   "ZIE" OR "ZIG" OR "ZII" OR "ZIK" OR "ZIL"))
                 MOVE SPACE TO FILEOUT01
                   STRING "OLD 02 POL FOR " FI-PATNAMEL ", " FI-PATNAMEF 
@@ -302,6 +303,14 @@
               AND T-CODE(2) NOT = SPACE
               MOVE TABX(2) TO TABX(1)
             END-IF  
+
+            IF FI-DAT1 NOT = "00/00/00"
+                DISPLAY "WE HAVE AN ACC DATE " FI-DAT1
+                ACCEPT OMITTED
+                IF T-CODE(1) NOT = T-CODE(3)
+                  MOVE SPACE TO TABX(3)
+                END-IF  
+            END-IF        
            END-PERFORM
 
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 2
@@ -313,6 +322,11 @@
 
              IF T-CODE(X) = "102       "
                 AND T-CODE(Z) = "82        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             F T-CODE(X) = "82        "
+                AND T-CODE(Z) = "102       "
                MOVE SPACE TO TABX(Z)
              END-IF
 
