@@ -304,7 +304,7 @@
               MOVE TABX(2) TO TABX(1)
             END-IF  
 
-            IF FI-DAT1 NOT = "00/00/00" OR SPACE
+            IF NOT (FI-DAT1 = "00/00/00" OR SPACE)
                 DISPLAY "WE HAVE AN ACC DATE " FI-DAT1
                 ACCEPT OMITTED
                 IF T-CODE(1) NOT = T-CODE(3)
