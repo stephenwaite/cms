@@ -60,7 +60,6 @@
            
            MOVE SPACE TO FILEOUT01.
 
-           IF (G-PRINS = "001" OR "003") GO TO P0-1.
            IF G-SEINS = "001" GO TO P0-1.
 
            IF G-PRINS = G-SEINS
