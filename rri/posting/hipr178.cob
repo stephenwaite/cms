@@ -966,7 +966,6 @@
                      CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
                      CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-                   accept omitted
                    IF (CAS-1 = "CO" OR "PI" OR "OA")
                                AND
                       ((CAS-2 = "A2" OR "B6" OR "B10" OR
@@ -979,9 +978,9 @@
                                AND 
                       NOT (CLP-2CLMSTAT = "2 " OR "3 ")
                        
-                       display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
-                         CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
-                       accept omitted             
+      *                 display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
+      *                   CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
+      *                 accept omitted             
                        
                        IF CAS-3 NOT = SPACE
                            MOVE SPACE TO ALF8
@@ -1031,8 +1030,8 @@
            
            COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
 
-           display claim-tot " claim-tot " ins-reduce " ins-reduce"
-           accept omitted
+      *     display claim-tot " claim-tot " ins-reduce " ins-reduce"
+      *     accept omitted
            
            IF CLAIM-TOT = 0
                PERFORM P1-LOST-SVC

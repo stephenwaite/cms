@@ -271,9 +271,10 @@
 
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 3
             IF T-CODE(X) = "30        "
-               OR "85        "
                OR "39        "
-               OR "76        " 
+               OR "72        "
+               OR "76        "
+               OR "85        "
                OR "93        " 
                OR "129       "
                OR "135       "
@@ -317,11 +318,6 @@
                MOVE SPACE TO TABX(Z)
              END-IF
 
-             IF T-CODE(X) = "102       "
-                AND T-CODE(Z) = "82        "
-               MOVE SPACE TO TABX(Z)
-             END-IF
-
              IF T-CODE(X) = "82        "
                 AND T-CODE(Z) = "102       "
                MOVE SPACE TO TABX(Z)
@@ -357,6 +353,15 @@
                MOVE SPACE TO TABX(Z)
              END-IF
 
+             IF T-CODE(X) = "102       "
+                AND T-CODE(Z) = "82        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "103       "
+                AND T-CODE(Z) = "11        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
 
              END-PERFORM
            END-PERFORM
