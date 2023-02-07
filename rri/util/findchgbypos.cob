@@ -127,7 +127,9 @@
       *     IF CC-PROC NOT = CCPROCIN01 
       *       GO TO P1.   
 
-           IF CC-PLACE NOT = "B" GO TO P1.
+           IF NOT (CC-PLACE = "A" OR "B" OR "C" OR "M" OR "P"
+             OR "R" OR "S")
+             GO TO P1.
            
            IF CC-DATE-T < LOW-CHARDATE OR > HIGH-CHARDATE
              GO TO P1.           

@@ -4,34 +4,34 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. fix-charnew.
+       PROGRAM-ID. change-rpgprocfile-fees.
        AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
 
-           SELECT CHARNEW ASSIGN TO   "S30" ORGANIZATION IS INDEXED
-               ACCESS MODE IS SEQUENTIAL RECORD KEY IS CHARNEW-KEY.
+           SELECT CHARFILE ASSIGN TO   "S30" ORGANIZATION IS INDEXED
+               ACCESS MODE IS SEQUENTIAL RECORD KEY IS CHARFILE-KEY.
          
            SELECT FILEOUT ASSIGN TO    "S35" ORGANIZATION IS 
                LINE SEQUENTIAL.
 
-           SELECT PROCFILE ASSIGN TO   "S40" ORGANIZATION IS INDEXED
-               ACCESS MODE IS DYNAMIC RECORD KEY IS PROC-KEY
+           SELECT RPGPROCFILE ASSIGN TO   "S40" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS rpgproc-key
                LOCK MODE MANUAL.
 
        DATA DIVISION.
        FILE SECTION.
 
-       FD  CHARNEW.
-           COPY charnew.CPY IN "C:\Users\sid\cms\copylib\rri". 
+       FD  CHARFILE.
+           COPY charfile.CPY IN "C:\Users\sid\cms\copylib\rri". 
        
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).   
 
-       FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri". 
+       FD  RPGPROCFILE.
+           COPY rpgprocfile.CPY IN "C:\Users\sid\cms\copylib\rri". 
 
        WORKING-STORAGE SECTION.
 
@@ -42,35 +42,35 @@
        PROCEDURE DIVISION.
 
        0005-START.
-           OPEN I-O CHARNEW
-           OPEN INPUT PROCFILE.
+           OPEN I-O CHARFILE
+           OPEN INPUT  rpgprocfile.
            OPEN OUTPUT FILEOUT.
 
        P1.
-           READ CHARNEW
+           READ CHARFILE
              AT END
                GO TO P2
            END-READ
 
-           MOVE CD-PROC TO PROC-KEY
-           READ PROCFILE
+           MOVE CD-PROC TO rpgproc-key
+           READ rpgprocfile
              INVALID
-               DISPLAY "NO PROC ON FILE"
+               DISPLAY "NO RPG PROC ON FILE"
            END-READ
            
            
            IF CD-DATE-T(1:4) NOT = 2022
-               AND CD-AMOUNT NOT = PROC-AMOUNT
+               AND CD-AMOUNT NOT = RPGPROC-AMOUNT
                STRING "SINCE " CD-DATE-T(1:4) " FOR ACCT " CD-KEY8 
-                      " CHANGING FEE TO " PROC-AMOUNT
+                      " CHANGING FEE TO " RPGPROC-AMOUNT
                       " FOR PROCEDURE " CD-PROC
-               DELIMITED BY SIZE INTO FILEOUT01
+                 DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
-               MOVE PROC-AMOUNT TO CD-AMOUNT
-               REWRITE CHARNEW01
+               MOVE RPGPROC-AMOUNT TO CD-AMOUNT
+      *         REWRITE CHARFILE01
            END-IF
 
            GO TO P1.
        P2.
-           CLOSE CHARNEW FILEOUT.
+           CLOSE CHARFILE FILEOUT.
            STOP RUN.

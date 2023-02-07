@@ -435,6 +435,7 @@
                BPR-0 BPR-1 BPR-2 BPR-3 BPR-4 BPR-5 BPR-6 BPR-7 BPR-8 
                BPR-9 BPR-10 BPR-11 BPR-12 BPR-13 BPR-14 BPR-15 BPR-16.
            MOVE BPR-16 TO DATE-X.
+           
            MOVE SPACE TO FILEIN01
            READ FILEIN
              AT END
@@ -963,8 +964,8 @@
                    UNSTRING FILEIN01 DELIMITED BY "*" INTO
                      CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
                      CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-                   
+                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+
                    IF (CAS-1 = "CO" OR "PI" OR "OA")
                                AND
                       ((CAS-2 = "A2" OR "B6" OR "B10" OR
@@ -974,13 +975,19 @@
                       (CAS-5 = "A2" OR "B6" OR "B10" OR 
                                "18" OR "42" OR "45" OR
                                "59" OR "253" OR "131"))
-                               AND NOT (CLP-2CLMSTAT = "2 " OR "3 ")
+                               AND 
+                      NOT (CLP-2CLMSTAT = "2 " OR "3 ")
+                       
+      *                 display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
+      *                   CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
+      *                 accept omitted             
                        
                        IF CAS-3 NOT = SPACE
                            MOVE SPACE TO ALF8
                            MOVE CAS-3 TO ALF8
                            PERFORM AMOUNT-1
                            COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                           DISPLAY INS-REDUCE " INS-REDUCE"
                        END-IF
                
                        IF CAS-6 NOT = SPACE
@@ -1022,6 +1029,9 @@
            END-PERFORM.
            
            COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
+
+      *     display claim-tot " claim-tot " ins-reduce " ins-reduce"
+      *     accept omitted
            
            IF CLAIM-TOT = 0
                PERFORM P1-LOST-SVC
@@ -1092,6 +1102,7 @@
                    OR (CAS-1 = "CO" AND CAS-2 = "58   ")
                    OR (CAS-1 = "CO" AND CAS-2 = "96   ")
                    OR (CAS-1 = "CO" AND CAS-2 = "97   ")
+                   OR (CAS-1 = "CO" AND CAS-2 = "146  ")                   
                    OR (CAS-1 = "CO" AND CAS-2 = "151  ")
                    OR (CAS-1 = "CO" AND CAS-2 = "197  ")
                    OR (CAS-1 = "CO" AND CAS-2 = "234  ")
@@ -1106,7 +1117,8 @@
                    OR (CAS-1 = "PR" AND CAS-2 = "27   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "31   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "31   ")
-                   OR (CAS-1 = "PR" AND CAS-2 = "96   ")                  
+                   OR (CAS-1 = "PR" AND CAS-2 = "96   ")
+                   OR (CAS-1 = "PR" AND CAS-2 = "151  ")                  
                    MOVE 1 TO FLAG
                    MOVE CAS-CNTR TO Z
                  END-IF               

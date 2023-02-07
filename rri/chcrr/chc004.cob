@@ -34,8 +34,8 @@
            LOCK MODE MANUAL.
        DATA DIVISION.
        FILE SECTION.
-       FD RPGPROCFILE.
-       01 RPGPROCFILE01.
+       FD  RPGPROCFILE.
+       01  RPGPROCFILE01.
            02 RPGPROC-KEY PIC X(11).
            02 RPGPROC-TYPE PIC X.
            02 RPGPROC-TITLE PIC X(28).
@@ -167,7 +167,7 @@
            IF ALF1X NOT = SPACE
              MOVE SPACE TO FILEOUT01
              STRING FI-PATNAMEL " " FI-PATNAMEF " " FI-PRIM-POL
-                  " 1ST HAS SCIENCE"
+                  " + IN PRI POLICY NUMBER"
              INTO FILEOUT01
              WRITE FILEOUT01
            END-IF
@@ -176,7 +176,7 @@
            IF ALF1X NOT = SPACE
              MOVE SPACE TO FILEOUT01
              STRING FI-PATNAMEL " " FI-PATNAMEF " " FI-SEC-POL
-               " 2ND HAS SCIENCE"
+               " + IN SEC POLICY NUMBER"
              INTO FILEOUT01
              WRITE FILEOUT01
            END-IF
@@ -185,7 +185,7 @@
            IF ALF1X NOT = SPACE
              MOVE SPACE TO FILEOUT01
              STRING FI-PATNAMEL " " FI-PATNAMEF " " FI-3RD-POL
-               " 3RD HAS SCIENCE"
+               " + IN TRI POLICY NUMBER"
              INTO FILEOUT01
              WRITE FILEOUT01
            END-IF
@@ -270,10 +270,45 @@
            MOVE SPACE TO TABX(4)
 
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 3
-            IF T-CODE(X) = "30        " OR "85        "
+            IF T-CODE(X) = "30        "
                OR "39        "
+               OR "72        "
+               OR "76        "
+               OR "85        "
+               OR "93        " 
+               OR "129       "
+               OR "135       "
+               OR "139       "
               MOVE SPACE TO TABX(X)
             END-IF
+
+            IF  ((T-CODE(X) = "33        " OR "46        ")
+                AND
+                (T-POL(X)(4:1) NOT = "V")
+                AND (T-POL(X)(1:3) = "EVT" OR "VEI" OR "ZIA" OR "ZIB" OR
+                  "ZIE" OR "ZIG" OR "ZII" OR "ZIK" OR "ZIL"))
+                MOVE SPACE TO FILEOUT01
+                  STRING "OLD 02 POL FOR " FI-PATNAMEL ", " FI-PATNAMEF 
+                   " " T-POL(X)
+                  DELIMITED BY SIZE INTO FILEOUT01
+                WRITE FILEOUT01
+                MOVE SPACE TO TABX(X)
+            END-IF             
+
+            IF T-CODE(2) = "34        "
+                MOVE SPACE TO TABX(2)
+            END-IF
+
+            IF T-CODE(1) = "0         "
+              AND T-CODE(2) NOT = SPACE
+              MOVE TABX(2) TO TABX(1)
+            END-IF
+
+            IF T-CODE(3) = "84        "
+              AND T-CODE(1) NOT = "84        "
+              MOVE SPACE TO TABX(3)
+            END-IF
+    
            END-PERFORM
 
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 2
@@ -283,8 +318,48 @@
                MOVE SPACE TO TABX(Z)
              END-IF
 
+             IF T-CODE(X) = "82        "
+                AND T-CODE(Z) = "102       "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "33        "
+                AND T-CODE(Z) = "46        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "46        "
+                AND T-CODE(Z) = "33        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "80        "
+                AND T-CODE(Z) = "22        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "80        "
+                AND T-CODE(Z) = "81        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "83        "
+                AND T-CODE(Z) = "81        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "16        "
+                AND T-CODE(Z) = "47        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
              IF T-CODE(X) = "102       "
                 AND T-CODE(Z) = "82        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "103       "
+                AND T-CODE(Z) = "11        "
                MOVE SPACE TO TABX(Z)
              END-IF
 
@@ -341,11 +416,15 @@
             WRITE FILEOUT01 FROM FI-PROC1
            END-READ.
 
-           IF TABX(3) NOT = SPACE
+           IF TABX(3) NOT = SPACE 
              DISPLAY "1  " TABX(1)
              DISPLAY "2  " TABX(2)
              DISPLAY "3  " TABX(3)
              MOVE SPACE TO FILEOUT01
+             STRING FI-PATNAMEL ", " FI-PATNAMEF 
+               DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01  
              WRITE FILEOUT01 FROM TABX(1)
              WRITE FILEOUT01 FROM TABX(2)
              WRITE FILEOUT01 FROM TABX(3)

@@ -77,6 +77,7 @@
            02 FO-NAME PIC X(24).
            02 FO-DATE PIC X(8).
            02 FO-CKEY PIC X(12).
+           02 FO-MSG PIC X(20).
 
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.
@@ -134,8 +135,12 @@
       *     accept OMITTED                            
 
        WRITE-FO. 
+           MOVE SPACE TO FILEOUT01.
            MOVE CC-PATID TO G-GARNO
-           READ GARFILE INVALID MOVE SPACE TO G-GARNAME
+           READ GARFILE 
+             INVALID 
+               MOVE SPACE TO G-GARNAME.
+
            MOVE G-GARNAME TO FO-NAME.           
 
            MOVE "1" TO FO-SERVICE.
@@ -149,6 +154,10 @@
            
            MOVE G-GARNAME TO FO-NAME
            STRING " " CHARCUR-KEY INTO FO-CKEY
+
+           IF CC-AMOUNT = 0 
+             STRING " CHARGE ZEROED " INTO FO-MSG
+           END-IF
            WRITE FILEOUT01.
 
            GO TO P1.

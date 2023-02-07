@@ -4,15 +4,15 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. fix-charnew.
+       PROGRAM-ID. fix-charfile.
        AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
 
-           SELECT CHARNEW ASSIGN TO   "S30" ORGANIZATION IS INDEXED
-               ACCESS MODE IS SEQUENTIAL RECORD KEY IS CHARNEW-KEY.
+           SELECT CHARFILE ASSIGN TO   "S30" ORGANIZATION IS INDEXED
+               ACCESS MODE IS SEQUENTIAL RECORD KEY IS CHARFILE-KEY.
          
            SELECT FILEOUT ASSIGN TO    "S35" ORGANIZATION IS 
                LINE SEQUENTIAL.
@@ -24,14 +24,14 @@
        DATA DIVISION.
        FILE SECTION.
 
-       FD  CHARNEW.
-           COPY charnew.CPY IN "C:\Users\sid\cms\copylib\rri". 
+       FD  CHARFILE.
+           COPY charfile.CPY IN "C:\Users\sid\cms\copylib". 
        
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).   
 
        FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri". 
+           COPY procfile.CPY IN "C:\Users\sid\cms\copylib". 
 
        WORKING-STORAGE SECTION.
 
@@ -42,12 +42,12 @@
        PROCEDURE DIVISION.
 
        0005-START.
-           OPEN I-O CHARNEW
+           OPEN I-O CHARFILE
            OPEN INPUT PROCFILE.
            OPEN OUTPUT FILEOUT.
 
        P1.
-           READ CHARNEW
+           READ CHARFILE
              AT END
                GO TO P2
            END-READ
@@ -67,10 +67,10 @@
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
                MOVE PROC-AMOUNT TO CD-AMOUNT
-               REWRITE CHARNEW01
+               REWRITE CHARFILE01
            END-IF
 
            GO TO P1.
        P2.
-           CLOSE CHARNEW FILEOUT.
+           CLOSE CHARFILE FILEOUT PROCFILE.
            STOP RUN.
