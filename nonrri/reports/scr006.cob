@@ -71,7 +71,7 @@
            02 AGE-LOW PIC X(8).
            02 AGE-HIGH PIC X(8).
        FD FILEOUT.
-       01 FILEOUT01 PIC X(160).
+       01 FILEOUT01 PIC X(200).
        FD  CHARCUR
       *    BLOCK CONTAINS 3 RECORDS
            DATA RECORD IS CHARCUR01.
@@ -230,7 +230,7 @@
                TB NAMEL(1:14)
                TB CC-DATE-T(5:2) "-" CC-DATE-T(7:2) "-" CC-DATE-T(1:4)
                TB G-DOB TB G-SEX
-               TB G-BILLADD TB G-STREET TB G-CITY TB GZIP5 
+               TB G-BILLADD TB G-STREET TB G-CITY TB G-STATE TB GZIP5 
                TB G-PH1 "-" G-PH2 "-" G-PH3 " TB MEDICARE "
                G-PRIPOL(1:11)
                DELIMITED BY SIZE INTO FILEOUT01
@@ -240,7 +240,7 @@
                TB NAMEL(1:14)
                TB CC-DATE-T(5:2) "-" CC-DATE-T(7:2) "-" CC-DATE-T(1:4)
                TB G-DOB TB G-SEX
-               TB G-BILLADD TB G-STREET TB G-CITY TB GZIP5  TB
+               TB G-BILLADD TB G-STREET TB G-CITY TB G-STATE TB GZIP5 TB
                G-PH1 "-" G-PH2 "-" G-PH3 TB INS-NAME
                DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01.
