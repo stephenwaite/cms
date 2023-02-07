@@ -4,7 +4,7 @@
       * @COPYRIGHT COPYRIGHT (C) 2020 CMS <CMSWEST@SOVER.NET>
       * @LICENSE HTTPS://GITHUB.COM/OPENEMR/OPENEMR/BLOB/MASTER/LICENSE GNU GENERAL PUBLIC LICENSE 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. STE001.
+       PROGRAM-ID. ste001.
        AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -54,7 +54,7 @@
            COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
        
        FD  FILEOUT1.
-       01  FILEOUT101 PIC X(65).
+       01  FILEOUT101 PIC X(80).
 
        FD  FILEOUT2.
        01  FILEOUT201 PIC X(160).
@@ -139,7 +139,11 @@
 
            IF CC-PROC1 NOT = FI-PROC GO TO P1.
            
-           IF CC-DOCP = "00" 
+           IF CC-AMOUNT = 0
+                 MOVE "ZEROED" INTO CC-FUTURE
+           END-IF  
+           
+           IF CC-DOCP = "00"                
                WRITE FILEOUT301 FROM CHARCUR01
            END-IF
 
@@ -147,7 +151,8 @@
                WRITE FILEOUT401 FROM CHARCUR01
            END-IF
 
-           WRITE FILEOUT201 FROM CHARCUR01.
+           IF CC-AMOUNT = 0
+             WRITE FILEOUT201 FROM CHARCUR01.
            
            GO TO P00.
 
