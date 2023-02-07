@@ -139,7 +139,7 @@
            READ GARFILE 
              INVALID 
                MOVE SPACE TO G-GARNAME.
-               
+
            MOVE G-GARNAME TO FO-NAME.           
 
            MOVE "1" TO FO-SERVICE.
@@ -155,7 +155,8 @@
            STRING " " CHARCUR-KEY INTO FO-CKEY
 
            IF CC-AMOUNT = 0 
-             MOVE " CHARGE ZEROED " INTO FO-MSG
+             STRING " CHARGE ZEROED " INTO FO-MSG
+           END-IF
            WRITE FILEOUT01.
 
            GO TO P1.
