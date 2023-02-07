@@ -135,6 +135,7 @@
       *     accept OMITTED                            
 
        WRITE-FO. 
+           MOVE SPACE TO FILEOUT01.
            MOVE CC-PATID TO G-GARNO
            READ GARFILE 
              INVALID 
