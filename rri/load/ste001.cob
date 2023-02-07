@@ -140,7 +140,7 @@
            IF CC-PROC1 NOT = FI-PROC GO TO P1.
            
            IF CC-AMOUNT = 0
-                 MOVE "ZEROED" INTO CC-FUTURE
+                 MOVE "ZEROED" TO CC-FUTURE
            END-IF  
            
            IF CC-DOCP = "00"                
