@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. JUD024.
+       PROGRAM-ID. rrix024.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -162,7 +162,7 @@
            READ AGEDATE AT END GO TO P2.
            
        P1. READ PAYCUR AT END GO TO P2.
-           IF PC-DATE-T < "20170101" GO TO P1.
+           IF PC-DATE-T < AGD1LOW GO TO P1.
            IF PC-DENIAL = "14" OR "15"
              GO TO P1
            END-IF
@@ -177,7 +177,7 @@
            MOVE "000" TO CC-KEY3
            START CHARCUR KEY > CHARCUR-KEY INVALID GO TO Z1-EXIT.
        Z2. READ CHARCUR NEXT AT END GO TO Z1-EXIT.
-           IF CC-DATE-T > "20170331" OR < "20170101" GO TO Z2.
+           IF CC-DATE-T > AGD2HIGH OR < AGD1LOW GO TO Z2.
            IF CC-AMOUNT = 0 GO TO Z2.
            IF CC-KEY8 NOT = PC-KEY8 GO TO Z1-EXIT.
            IF CC-CLAIM NOT = PC-CLAIM GO TO Z2.
