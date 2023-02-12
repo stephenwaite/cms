@@ -46,7 +46,7 @@
 
        FD  FILEOUT
            DATA RECORD FILEOUT01.
-       01  FILEOUT01 PIC X(140).
+       01  FILEOUT01 PIC X(148).
 
        FD  FILEIN.
        01  FILEIN01.
@@ -72,6 +72,8 @@
            02 FO-AGE PIC X(8).
            02 FO-PLACE PIC X.
            02 FO-KEY PIC X(11).
+           02 CR-DATE PIC X(8).
+
        WORKING-STORAGE SECTION.
        01  LINE-1.
            02 F11 PIC X(29) VALUE "INSURANCE CLAIMS PENDING     ".
@@ -107,6 +109,8 @@
            02 FILLER PIC XX VALUE "DR".
            02 FILLER PIC X VALUE SPACE.
            02 FILLER PIC XX VALUE "PL".
+           02 FILLER PIC X VALUE SPACE.
+           02 FILLER PIC X(9) VALUE "CARE DATE".
 
        01  LINE-3.
            02 L3F1 PIC X(11).
@@ -137,6 +141,8 @@
            02 L3F15 PIC XX.
            02 F314 PIC X VALUE SPACE.
            02 L3F16 PIC XX.
+           02 F315 PIC X VALUE SPACE.
+           02 L3F17 PIC X(8).
 
        01  LINE-4.
            02 F41 PIC X(11) VALUE "TOTALS FOR ".
@@ -232,6 +238,7 @@
            MOVE FO-MOD2 TO L3F9
            MOVE FO-CLAIM TO L3F10.
            MOVE FO-AMOUNT TO L3F11.
+           MOVE CR-DATE TO L3F17.
            IF LINE-X > 55 ADD 1 TO PAGE-X
            MOVE 0 TO LINE-X
            MOVE PAGE-X TO L1F4

@@ -48,17 +48,21 @@
            02 FO-2 PIC X(5).
 
        FD  INSFILE.
-           COPY insfile.cpy IN "C:\Users\sid\cms\copylib\rri".
+           COPY insfile.cpy IN "C:\Users\sid\cms\copylib".
 
        working-storage section.
 
        01  garno pic x(8).
-       01  dos   pic x(8).
+       01  STARTdos   pic x(8).
+       01  ENDDOS PIC X(8).
        01  ans   pic x.    
+       01  CHARCUR-BACK PIC X(160).
+       01  hold-paycode pic XXX VALUE SPACE.
 
        PROCEDURE DIVISION.
        P0.
-           OPEN INPUT CHARCUR INSFILE garfile
+           OPEN INPUT INSFILE garfile
+           OPEN INPUT CHARCUR
            OPEN OUTPUT FILEOUT.
 
        P00.
@@ -66,16 +70,24 @@
            ACCEPT GARNO.
 
            IF GARNO = SPACE OR "END" OR "X" 
-             GO TO P2.
+             GO TO P99.
 
            DISPLAY GARNO.    
 
        P000.
-           DISPLAY "ENTER DATE OF CHARGE, YYYYMMDD"
-           ACCEPT DOS.
+           DISPLAY "ENTER START DATE OF CHARGE, YYYYMMDD, "
+             "OR BK FOR DIFF GARNO"
+           ACCEPT STARTDOS.
 
-           IF DOS = "BK" 
+           IF startDOS = "BK" 
              GO TO P00.
+
+           DISPLAY "ENTER FOR SAME OR ENTER END DATE OF CHARGE, "
+             "YYYYMMDD, OR BK FOR DIFF GARNO"
+           ACCEPT ENDDOS.
+
+           IF endDOS = "BK" 
+             GO TO P00.  
 
            MOVE GARNO TO G-GARNO
            READ GARFILE 
@@ -87,10 +99,10 @@
              " " G-DOB.           
               
            MOVE G-GARNO TO CC-KEY8
-           MOVE SPACE TO CC-KEY3
-           MOVE DOS TO CC-DATE-T           
+           MOVE SPACE TO CC-KEY3.
 
-           START CHARCUR KEY NOT < CHARCUR-KEY
+       P01.    
+           START CHARCUR KEY > CHARCUR-KEY
              invalid
                DISPLAY "BAD CHARCUR START"
                GO TO P00.
@@ -102,40 +114,92 @@
            END-READ           
 
            IF CC-KEY8 NOT = G-GARNO
-             GO TO P2.
+             GO TO P99.
 
-           IF CC-DATE-T NOT = DOS
-             GO TO P1.                      
+           IF CC-DATE-T < STARTDOS
+             GO TO P1.         
+
+           IF ENDDOS = SPACE
+             MOVE STARTDOS TO ENDDOS.
+
+           IF CC-DATE-T > ENDDOS               
+              GO TO P1. 
 
            DISPLAY CC-PROC(5:5) " " CC-MOD2 " " CC-MOD3 " " CC-PAYCODE
              " " CC-AMOUNT " " CC-DATE-T.
+  
+           DISPLAY "Y OR y FOR YES OR ANY KEY FOR NO."
 
-           DISPLAY "Y FOR YES OR ANY KEY FOR NO.".
-           ACCEPT ANS
+           accept ANS
+
+           IF NOT (ANS = "Y" OR "y")
+             GO TO P1
+           END-IF.
+
+       P2. 
+           DISPLAY CC-PAYCODE " CURRENT PAYCODE"            
+                       
+           IF HOLD-PAYCODE = SPACE 
+             
+             IF NOT (CC-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
+               OR CC-PAYCODE = "001"
+               DISPLAY "CHANGE TO WHICH INS " G-PRINS " " G-SEINS " "
+                 G-TRINS
+               DISPLAY "ENTER 3 DIGIT INS CODE TO USE"   
+               ACCEPT CC-PAYCODE
+               GO TO P2
+             END-IF
+             MOVE CC-PAYCODE TO INS-KEY HOLD-PAYCODE
+           ELSE
+             MOVE HOLD-PAYCODE TO INS-KEY
+           END-IF  
+
+
+           READ INSFILE 
+             INVALID 
+               DISPLAY INS-KEY " NOT A DEFINED INSURANCE, try again" 
+               GO TO P2.
+               
+           DISPLAY "ACCT " INS-ASSIGN "  CLM " INS-NEIC-ASSIGN
+             " CLAIM-TYPE  " INS-CLAIMTYPE  "    " INS-NAME
+           DISPLAY "ASSIGNMENT ATTRIBUTES ARE NOW CHANGED AS ABOVE"
            
-           IF ANS NOT = "Y" 
-             GO TO P1.    
-
-           IF CC-PAYCODE NOT = G-PRINS
-             DISPLAY "WARNING, CHARGE NOT CODED WITH PRI-INS".
-                 
-           MOVE SPACE TO INS-NEIC
-           MOVE CC-PAYCODE TO INS-KEY
-
-           READ INSFILE
-             INVALID
-               DISPLAY "WARNING, INS NOT VALID"
-               accept omitted  
-           END-READ
-
-           MOVE CHARCUR01 TO FO-1
-           MOVE INS-NEIC TO FO-2.
+           MOVE INS-ASSIGN TO CC-ASSIGN
+           MOVE INS-NEIC-ASSIGN TO CC-NEIC-ASSIGN
+           MOVE INS-CLAIMTYPE TO CC-PAPER
+           MOVE INS-KEY TO CC-PAYCODE 
+           MOVE "1" TO CC-REC-STAT
+           MOVE CHARCUR01 TO CHARCUR-BACK
+           CLOSE CHARCUR
+           OPEN I-O CHARCUR
+           MOVE CHARCUR-BACK TO CHARCUR01
+           PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+           
+           MOVE CHARCUR-BACK(1:11) TO CHARCUR-KEY
+           
+           MOVE CHARCUR-BACK TO FO-1
+           MOVE INS-NEIC TO FO-2
 
            WRITE FILEOUT01
 
-           GO TO P1.
+           GO TO P01.
 
-       P2.
+       RE-WRITE-CC.
+           REWRITE CHARCUR01 INVALID
+                DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
+                CLOSE CHARCUR
+                OPEN INPUT CHARCUR
+                GO TO RE-WRITE-CC-EXIT
+           END-REWRITE
+
+           CLOSE CHARCUR
+           OPEN INPUT CHARCUR.
+           DISPLAY "RECORD CHANGED".
+
+       RE-WRITE-CC-EXIT.
+           EXIT.     
+
+       P99.
            CLOSE CHARCUR garfile FILEOUT INSFILE.
            
            STOP RUN.

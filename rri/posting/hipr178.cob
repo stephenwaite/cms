@@ -132,7 +132,7 @@
 
        WORKING-STORAGE SECTION.
 
-       COPY "HIP5010_835.CPY" IN "C:\Users\sid\cms\copylib".
+       COPY "HIP5010-835.CPY" IN "C:\Users\sid\cms\copylib".
       
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.
@@ -435,6 +435,7 @@
                BPR-0 BPR-1 BPR-2 BPR-3 BPR-4 BPR-5 BPR-6 BPR-7 BPR-8 
                BPR-9 BPR-10 BPR-11 BPR-12 BPR-13 BPR-14 BPR-15 BPR-16.
            MOVE BPR-16 TO DATE-X.
+           
            MOVE SPACE TO FILEIN01
            READ FILEIN
              AT END
@@ -754,7 +755,12 @@
            END-IF    
                       
            MOVE SPACE TO ALF8
-           MOVE SVC-3PAYAMT to ALF8
+      *    health equity pay amount is in CLP 
+           IF PAYORID = "43700" or "92916"
+             MOVE CLP-4TOTCLMPAY TO ALF8
+           ELSE 
+             MOVE SVC-3PAYAMT to ALF8
+           END-IF  
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
@@ -795,7 +801,7 @@
              MOVE "14156" TO PAYORID
            end-if
 
-           IF PAYORID = space
+           IF PAYORID = space OR "11329"
              PERFORM P1-LOST-SVC 
              GO TO P5-SVC-LOOP-EXIT.
 
@@ -813,7 +819,13 @@
                GO TO P5-SVC-LOOP-EXIT
            end-read
 
+           IF PAYORID = "43700"
+             MOVE "075" TO PD-PAYCODE
+             GO TO P7-NEXT
+           END-IF
+             
            IF INS-NEIC NOT = PAYORID
+             AND PAYORID NOT = "52192"
              GO TO P3-NEXT.
 
            IF CLP-2CLMSTAT = "1"
@@ -856,7 +868,8 @@
                END-IF
            END-PERFORM
 
-           IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS)
+           IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS
+                    OR "075")
                PERFORM P1-LOST-SVC 
                GO TO P5-SVC-LOOP-EXIT
            END-IF
@@ -951,8 +964,8 @@
                    UNSTRING FILEIN01 DELIMITED BY "*" INTO
                      CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
                      CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-                   
+                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+
                    IF (CAS-1 = "CO" OR "PI" OR "OA")
                                AND
                       ((CAS-2 = "A2" OR "B6" OR "B10" OR
@@ -962,13 +975,19 @@
                       (CAS-5 = "A2" OR "B6" OR "B10" OR 
                                "18" OR "42" OR "45" OR
                                "59" OR "253" OR "131"))
-                               AND NOT (CLP-2CLMSTAT = "2 " OR "3 ")
+                               AND 
+                      NOT (CLP-2CLMSTAT = "2 " OR "3 ")
+                       
+      *                 display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
+      *                   CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
+      *                 accept omitted             
                        
                        IF CAS-3 NOT = SPACE
                            MOVE SPACE TO ALF8
                            MOVE CAS-3 TO ALF8
                            PERFORM AMOUNT-1
                            COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                           DISPLAY INS-REDUCE " INS-REDUCE"
                        END-IF
                
                        IF CAS-6 NOT = SPACE
@@ -1010,6 +1029,9 @@
            END-PERFORM.
            
            COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
+
+      *     display claim-tot " claim-tot " ins-reduce " ins-reduce"
+      *     accept omitted
            
            IF CLAIM-TOT = 0
                PERFORM P1-LOST-SVC
@@ -1080,16 +1102,23 @@
                    OR (CAS-1 = "CO" AND CAS-2 = "58   ")
                    OR (CAS-1 = "CO" AND CAS-2 = "96   ")
                    OR (CAS-1 = "CO" AND CAS-2 = "97   ")
+                   OR (CAS-1 = "CO" AND CAS-2 = "146  ")                   
+                   OR (CAS-1 = "CO" AND CAS-2 = "151  ")
                    OR (CAS-1 = "CO" AND CAS-2 = "197  ")
+                   OR (CAS-1 = "CO" AND CAS-2 = "234  ")
                    OR (CAS-1 = "CO" AND CAS-2 = "242  ")
                    OR (CAS-1 = "CO" AND CAS-2 = "288  ")
+                   OR (CAS-1 = "CO" AND CAS-2 = "B20  ")
                    OR (CAS-1 = "PI" AND CAS-2 = "5    ")
+                   OR (CAS-1 = "PI" AND CAS-2 = "11   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "96   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "97   ")
+                   OR (CAS-1 = "PR" AND CAS-2 = "26   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "27   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "31   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "31   ")
-                   OR (CAS-1 = "PR" AND CAS-2 = "96   ")                  
+                   OR (CAS-1 = "PR" AND CAS-2 = "96   ")
+                   OR (CAS-1 = "PR" AND CAS-2 = "151  ")                  
                    MOVE 1 TO FLAG
                    MOVE CAS-CNTR TO Z
                  END-IF               

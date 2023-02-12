@@ -34,8 +34,8 @@
            LOCK MODE MANUAL.
        DATA DIVISION.
        FILE SECTION.
-       FD RPGPROCFILE.
-       01 RPGPROCFILE01.
+       FD  RPGPROCFILE.
+       01  RPGPROCFILE01.
            02 RPGPROC-KEY PIC X(11).
            02 RPGPROC-TYPE PIC X.
            02 RPGPROC-TITLE PIC X(28).
@@ -161,12 +161,13 @@
            READ FILEIN AT END GO TO P99.
            IF FI-PROC1 = "73620" MOVE "73630" TO FI-PROC1.
            IF FI-PROC1 = "73070" MOVE "73060" TO FI-PROC1.
+           IF FI-PROC1 = "72072" MOVE "72070" TO FI-PROC1.
            MOVE SPACE TO ALF1 ALF1X
            UNSTRING FI-PRIM-POL DELIMITED BY "+" INTO ALF1 ALF1X
            IF ALF1X NOT = SPACE
              MOVE SPACE TO FILEOUT01
              STRING FI-PATNAMEL " " FI-PATNAMEF " " FI-PRIM-POL
-                  " 1ST HAS SCIENCE"
+                  " + IN PRI POLICY NUMBER"
              INTO FILEOUT01
              WRITE FILEOUT01
            END-IF
@@ -175,7 +176,7 @@
            IF ALF1X NOT = SPACE
              MOVE SPACE TO FILEOUT01
              STRING FI-PATNAMEL " " FI-PATNAMEF " " FI-SEC-POL
-               " 2ND HAS SCIENCE"
+               " + IN SEC POLICY NUMBER"
              INTO FILEOUT01
              WRITE FILEOUT01
            END-IF
@@ -184,7 +185,7 @@
            IF ALF1X NOT = SPACE
              MOVE SPACE TO FILEOUT01
              STRING FI-PATNAMEL " " FI-PATNAMEF " " FI-3RD-POL
-               " 3RD HAS SCIENCE"
+               " + IN TRI POLICY NUMBER"
              INTO FILEOUT01
              WRITE FILEOUT01
            END-IF
@@ -244,64 +245,138 @@
            MOVE FI-SEC-SUBRELATE TO T-SUBRELATE(2)
 
            MOVE SPACE TO ALF10X
-           MOVE FI-3RD-ALFA TO ALF10X
-           PERFORM INS-CODE-CHK
-           MOVE ALF10X TO FI-3RD-ALFA
-           MOVE FI-3RD-ALFA TO T-CODE(3)
-           MOVE FI-3RD-NAME TO T-NAME(3)
-           MOVE SPACE TO T-STR1(3)
-           MOVE FI-3RD-CITY TO T-CITY(3)
-           MOVE SPACE TO T-STATE(3)
-           MOVE SPACE TO T-ZIP(3)
-           MOVE SPACE TO T-GRP(3)
-           MOVE FI-3RD-POL TO T-POL(3)
-           MOVE SPACE TO T-NAMEL(3)
-           MOVE SPACE TO T-NAMEF(3)
-           MOVE SPACE TO T-SUBSEX(3)
-           MOVE SPACE TO T-SUBRELATE(3)
+
+           MOVE SPACE TO T-CODE(3) T-NAME(3) T-CITY(3) T-STATE(3)
+             T-ZIP(3) T-GRP(3) T-POL(3) T-NAMEL(3) T-NAMEF(3)
+             T-SUBSEX(3) T-SUBRELATE(3)
+           IF FI-3RD-ALFA NOT = 0
+             MOVE FI-3RD-ALFA TO ALF10X
+             PERFORM INS-CODE-CHK
+             MOVE ALF10X TO FI-3RD-ALFA
+             MOVE FI-3RD-ALFA TO T-CODE(3)
+             MOVE FI-3RD-NAME TO T-NAME(3)
+             MOVE SPACE TO T-STR1(3)
+             MOVE FI-3RD-CITY TO T-CITY(3)
+             MOVE SPACE TO T-STATE(3)
+             MOVE SPACE TO T-ZIP(3)
+             MOVE SPACE TO T-GRP(3)
+             MOVE FI-3RD-POL TO T-POL(3)
+             MOVE SPACE TO T-NAMEL(3)
+             MOVE SPACE TO T-NAMEF(3)
+             MOVE SPACE TO T-SUBSEX(3)
+             MOVE SPACE TO T-SUBRELATE(3)
+           END-IF  
+
            MOVE SPACE TO TABX(4)
 
-
-
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 3
-            IF T-CODE(X) = "30        " OR "85        "
+            IF T-CODE(X) = "30        "
                OR "39        "
+               OR "72        "
+               OR "76        "
+               OR "85        "
+               OR "93        " 
+               OR "129       "
+               OR "135       "
+               OR "139       "
               MOVE SPACE TO TABX(X)
             END-IF
+
+            IF  ((T-CODE(X) = "33        " OR "46        ")
+                AND
+                (T-POL(X)(4:1) NOT = "V")
+                AND (T-POL(X)(1:3) = "EVT" OR "VEI" OR "ZIA" OR "ZIB" OR
+                  "ZIE" OR "ZIG" OR "ZII" OR "ZIK" OR "ZIL"))
+                MOVE SPACE TO FILEOUT01
+                  STRING "OLD 02 POL FOR " FI-PATNAMEL ", " FI-PATNAMEF 
+                   " " T-POL(X)
+                  DELIMITED BY SIZE INTO FILEOUT01
+                WRITE FILEOUT01
+                MOVE SPACE TO TABX(X)
+            END-IF             
+
+            IF T-CODE(2) = "34        "
+                MOVE SPACE TO TABX(2)
+            END-IF
+
+            IF T-CODE(1) = "0         "
+              AND T-CODE(2) NOT = SPACE
+              MOVE TABX(2) TO TABX(1)
+            END-IF
+
+            IF T-CODE(3) = "84        "
+              AND T-CODE(1) NOT = "84        "
+              MOVE SPACE TO TABX(3)
+            END-IF
+    
            END-PERFORM
+
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 2
              COMPUTE Y = X + 1
              PERFORM VARYING Z FROM Y BY 1 UNTIL Z > 3
              IF T-CODE(X) = T-CODE(Z)
                MOVE SPACE TO TABX(Z)
              END-IF
+
+             IF T-CODE(X) = "82        "
+                AND T-CODE(Z) = "102       "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "33        "
+                AND T-CODE(Z) = "46        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "46        "
+                AND T-CODE(Z) = "33        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "80        "
+                AND T-CODE(Z) = "22        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "80        "
+                AND T-CODE(Z) = "81        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "83        "
+                AND T-CODE(Z) = "81        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "16        "
+                AND T-CODE(Z) = "47        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "102       "
+                AND T-CODE(Z) = "82        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
+             IF T-CODE(X) = "103       "
+                AND T-CODE(Z) = "11        "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
              END-PERFORM
            END-PERFORM
+
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 2
-           COMPUTE Y = X + 1
-           PERFORM VARYING Z FROM Y BY 1 UNTIL Z > 3
-           IF (TABX(X) = SPACE) AND (TABX(Z) NOT = SPACE)
-              MOVE TABX(Z) TO TABX(X)
-              MOVE SPACE TO TABX(Z)
-              MOVE 4 TO Z
-           END-IF
+               COMPUTE Y = X + 1
+               PERFORM VARYING Z FROM Y BY 1 UNTIL Z > 3
+                   IF (TABX(X) = SPACE) AND (TABX(Z) NOT = SPACE)
+                      MOVE TABX(Z) TO TABX(X)
+                      MOVE SPACE TO TABX(Z)
+                      MOVE 4 TO Z
+                   END-IF
+               END-PERFORM
            END-PERFORM
-           END-PERFORM
-           IF T-CODE(2) = "26" OR "34" OR "84"
-             MOVE TABX(2) TO TABX(4)
-             MOVE TABX(1) TO TABX(2)
-             MOVE TABX(4) TO TABX(1)
-             MOVE SPACE TO TABX(4)
-           END-IF
-
-           IF (T-CODE(1) = "82")
-              AND (T-CODE(2) NOT = SPACE)
-             MOVE TABX(2) TO TABX(4)
-             MOVE TABX(1) TO TABX(2)
-             MOVE TABX(4) TO TABX(1)
-             MOVE SPACE TO TABX(4)
-
-           END-IF
+           
            MOVE FI-PROVNPI TO NPI-KEY
            READ NPIFILE
 
@@ -341,11 +416,15 @@
             WRITE FILEOUT01 FROM FI-PROC1
            END-READ.
 
-           IF TABX(3) NOT = SPACE
+           IF TABX(3) NOT = SPACE 
              DISPLAY "1  " TABX(1)
              DISPLAY "2  " TABX(2)
              DISPLAY "3  " TABX(3)
              MOVE SPACE TO FILEOUT01
+             STRING FI-PATNAMEL ", " FI-PATNAMEF 
+               DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01  
              WRITE FILEOUT01 FROM TABX(1)
              WRITE FILEOUT01 FROM TABX(2)
              WRITE FILEOUT01 FROM TABX(3)
@@ -392,7 +471,9 @@
              MOVE FI-PRIM-ALFA TO RPGINS-KEY
              READ RPGINSFILE INVALID
               MOVE SPACE TO FILEOUT01
-              STRING FI-PRIM-ALFA "  " RPGINS-TITLE " BAD INS. CODE"
+              STRING "BAD PRI INS, ADD " FI-PRIM-ALFA " " FI-PRIM-NAME
+                " " FI-PRIM-STR1 " " FI-PRIM-CITY " " FI-PRIM-STATE " "
+                FI-PRIM-ZIP " with chchosp-1"
               DELIMITED BY SIZE INTO FILEOUT01
               WRITE FILEOUT01
             MOVE SPACE TO FILEOUT01
@@ -405,8 +486,10 @@
              MOVE FI-SEC-ALFA TO RPGINS-KEY
              READ RPGINSFILE INVALID
               MOVE SPACE TO FILEOUT01
-              STRING FI-SEC-ALFA "  " RPGINS-TITLE DELIMITED BY SIZE
-              INTO FILEOUT01
+              STRING "BAD SEC INS, ADD " FI-SEC-ALFA " " FI-SEC-NAME
+                " " FI-SEC-STR1 " " FI-SEC-CITY " " FI-SEC-STATE " "
+                FI-SEC-ZIP " with chchosp-1"
+                DELIMITED BY SIZE INTO FILEOUT01
               WRITE FILEOUT01
             MOVE SPACE TO FILEOUT01
             WRITE FILEOUT01
@@ -418,8 +501,9 @@
              MOVE FI-3RD-ALFA TO RPGINS-KEY
              READ RPGINSFILE INVALID
               MOVE SPACE TO FILEOUT01
-              STRING FI-3RD-ALFA "  " RPGINS-TITLE DELIMITED BY SIZE
-              INTO FILEOUT01
+              STRING "BAD 3RD INS, ADD " FI-3RD-ALFA " " FI-3RD-NAME
+                " " FI-3RD-CITY " with chchosp-1"
+                DELIMITED BY SIZE INTO FILEOUT01
               WRITE FILEOUT01
             MOVE SPACE TO FILEOUT01
             WRITE FILEOUT01

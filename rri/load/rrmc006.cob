@@ -67,6 +67,10 @@
 
            SELECT ERRFILE ASSIGN TO       "S95" ORGANIZATION
                LINE SEQUENTIAL.
+
+           SELECT GARFILE ASSIGN TO "S100" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+             ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
             
        DATA DIVISION.
        FILE SECTION.
@@ -191,6 +195,9 @@
            02 A-PRGRPNAME PIC X(15).
            02 A-SEGRPNAME PIC X(15).
            02 NAME-KEY PIC XXX.
+
+       FD  GARFILE.
+           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".    
 
        WORKING-STORAGE SECTION.
 
@@ -403,9 +410,13 @@
       * col 141     
            02 R3-OBSERV PIC X(5).
            02 FILLER PIC X(35).
+      * col 181     
            02 R3-LOCO PIC X(4).
+      * col 185     
            02 FILLER PIC X(36).
+      * col 221     
            02 R3-ACCESSION PIC X(7).
+      * col 228
 
        01  NAME-TEST PIC X(25).
        01  NAME-LAST PIC X(24).
@@ -624,10 +635,12 @@
 
        01  AUTH-FLAG PIC X.     
 
+       01  PRIOR-INS PIC X(3).
+
        PROCEDURE DIVISION.
        0005-START.
            OPEN I-O ACTFILE EMAILAUTHFILE ORDFILE COMPFILE.
-           OPEN INPUT HOSPFILE REFPHY INSFILE FILEIN MOBLFILE.
+           OPEN INPUT HOSPFILE REFPHY INSFILE FILEIN MOBLFILE GARFILE.
            OPEN OUTPUT FILEOUT ERRFILE.
 
        10-ACTION.
@@ -691,15 +704,32 @@
            MOVE R2-MEDREC2 TO X-MEDREC2
            MOVE R2-MEDREC3 TO X-MEDREC3
            MOVE X-MEDREC TO R2-MEDREC
-
-           MOVE SPACE TO A-GARNAME LNAME FNAME
-           UNSTRING R1-PATNAME DELIMITED BY ", " INTO LNAME FNAME
-           STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-GARNAME
            
            IF R2-MEDREC = "00000000"
                DISPLAY "MRN IS ZEROES FOR " R1-PATNAME
                ACCEPT OMITTED
            END-IF
+
+      *    WILL SEE IF PRIOR INS IS BETTER THAN MISC INS 
+      *    LATER IN REPLACE-2
+           MOVE R2-MEDREC TO A-ACTNO
+           READ ACTFILE
+             INVALID
+               MOVE SPACE TO G-GARNO
+               MOVE "095" TO PRIOR-INS
+             NOT INVALID
+               MOVE A-GARNO TO G-GARNO
+               READ GARFILE
+                 INVALID
+                   MOVE "095" TO PRIOR-INS
+                 NOT INVALID 
+                   MOVE G-PRINS TO PRIOR-INS
+               END-READ   
+           END-READ
+
+           MOVE SPACE TO A-GARNAME LNAME FNAME
+           UNSTRING R1-PATNAME DELIMITED BY ", " INTO LNAME FNAME
+           STRING LNAME ";" FNAME DELIMITED BY "  " INTO A-GARNAME
 
            MOVE R1-GARZIP TO ZIPCODE
            
@@ -1002,11 +1032,32 @@
            MOVE 1 TO PLANNUM
            PERFORM SEL-PRINS THRU SEL-PRINS-EXIT
            
-           IF R1-IP1 = "00930"
-               PERFORM REPLACE-1 THRU REPLACE-1-EXIT.
-           
            IF R1-IP1 = "00433" OR "00698" OR "00699" OR "00830"
-               PERFORM REPLACE-2 THRU REPLACE-2-EXIT
+               OR "00930"
+             IF G-GARNO = SPACE
+               DISPLAY R1-PATNAME INSURANCE-1
+               DISPLAY " IS A MISC INS FROM RRMC FOR " R2-MEDREC
+               " USE 095 SINCE NO RECENT GARNO"
+             ELSE
+               DISPLAY R1-PATNAME INSURANCE-1
+               DISPLAY " IS A MISC INS FROM RRMC FOR " R2-MEDREC 
+               ", USE INS " PRIOR-INS " FROM RECENT GARNO " G-GARNO
+             END-IF 
+             DISPLAY "? Y FOR YES, ANYTHING ELSE TO LOOK FOR INS."
+             ACCEPT ANS
+             IF ANS = "Y"
+               MOVE PRIOR-INS TO A-PRINS
+               MOVE PRIOR-INS TO INS-KEY
+               READ INSFILE
+                 INVALID
+                   DISPLAY "NO INS ON FILE" 
+                   PERFORM REPLACE-2 THRU REPLACE-2-EXIT
+               END-READ
+               DISPLAY INS-NAME     
+               MOVE INS-ASSIGN TO A-PR-ASSIGN
+             ELSE
+               PERFORM REPLACE-2 THRU REPLACE-2-EXIT  
+             END-IF
            END-IF
 
       *     IF R1-IP1 = "00931" OR "00932" GO TO P2-3.
@@ -1272,6 +1323,12 @@
            IF A-SEINS = "091"
              MOVE R1-EMPLOYNAME22 TO A-SEGRPNAME.
 
+           IF R1-IP1 = "00951"  
+              STRING "HAVE TO REVINS IN GP FOR " R2-MEDREC " "
+                 A-GARNAME " AND CHANGE INS IN AC" DELIMITED BY ".."
+                 INTO FILEOUT01 
+              WRITE FILEOUT01.
+
        SEL-SEINS-EXIT. 
            EXIT.
 
@@ -1301,27 +1358,6 @@
        RELATE-1-EXIT.
            EXIT.
 
-       REPLACE-1.
-           IF R1-INSCITY1 = "SALT LAKE CITY"
-             AND R1-INSADDR11 = "PO BOX 31353"
-             MOVE "665" TO INS-KEY
-             GO TO REPLACE-1-EXIT
-           END-IF
-
-           DISPLAY R1-PATNAME INSURANCE-1
-           DISPLAY "ENTER INS CODE"
-      *     DISPLAY "432 = UNICARE"
-      *     DISPLAY "523 = ADVANTRA"
-           ACCEPT A-PRINS
-           MOVE A-PRINS TO INS-KEY
-           READ INSFILE
-             INVALID 
-               DISPLAY "BAD"
-               GO TO REPLACE-1.
-
-       REPLACE-1-EXIT.
-           EXIT.
-
        REPLACE-2.
            DISPLAY R1-PATNAME INSURANCE-1
            DISPLAY "ENTER A PRIMARY INS CODE MAYBE ELECTRONIC?"
@@ -1331,7 +1367,9 @@
              INVALID
                DISPLAY "BAD"
                GO TO REPLACE-2
-           END-READ.
+           END-READ
+           
+           DISPLAY INS-NAME.
 
        REPLACE-2-EXIT.
            EXIT.
@@ -1607,15 +1645,15 @@
                MOVE "19" TO A-DOB(1:2)
            END-IF
 
-		       IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
-		         MOVE "A" TO A-PR-ASSIGN
-		       END-IF
+	       IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
+	         MOVE "A" TO A-PR-ASSIGN
+	       END-IF
 
            IF A-SEINS = "268" AND A-SE-ASSIGN = "U"
-		         MOVE "A" TO A-SE-ASSIGN
-		       END-IF 
+	         MOVE "A" TO A-SE-ASSIGN
+	       END-IF 
 
-		       MOVE ACTFILE01 TO SAVEMASTER.
+	       MOVE ACTFILE01 TO SAVEMASTER.
            READ ACTFILE
              INVALID
                MOVE SAVEMASTER TO ACTFILE01
@@ -1678,11 +1716,20 @@
            end-if
 
            
-           IF ((REF = "B1T" OR "B51" OR "B7C" OR "D55" OR "D3Z"
-             OR "F4J" OR "F34" OR "G0T" OR "G0A" OR "G36" OR "G4U"
-             OR "H1B" OR "H27" OR "J06" OR "L4Q" OR "M8S" OR "R1D"
-             OR "R2A" OR "SAH" OR "S7O" OR "S91" OR "SAG" OR "S1O"
-             OR "V12" OR "W2I" OR "Z0I") AND
+           IF ((REF = "A3Z"
+               OR "B1T" OR "B51" OR "B7C" 
+               OR "D55" OR "D3Z"
+               OR "F4J" OR "F34" OR "F2S"
+               OR "G0T" OR "G0A" OR "G36" OR "G4U"
+               OR "H1B" OR "H27" 
+               OR "J06" 
+               OR "L4Q" 
+               OR "M8S" 
+               OR "R1D" OR "R2A" 
+               OR "SAH" OR "S7O" OR "S91" OR "SAG" OR "S1O"
+               OR "V12" 
+               OR "W2I" 
+               OR "Z0I") AND
              C-IOPAT NOT = "E")
              MOVE "E" TO C-IOPAT
              MOVE SPACE TO ERRFILE01
@@ -1886,6 +1933,6 @@
        9100CMF.
            CLOSE ACTFILE EMAILAUTHFILE ORDFILE COMPFILE
                  REFPHY HOSPFILE INSFILE FILEOUT ERRFILE
-                 FILEIN MOBLFILE.
+                 FILEIN MOBLFILE GARFILE.
            DISPLAY "RRMC DATA FILE LOAD HAS ENDED".
            STOP RUN.

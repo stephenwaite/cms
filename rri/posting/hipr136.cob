@@ -628,6 +628,10 @@
        01  PROV-2 PIC X(10).
        01  PRFLAG PIC 9.
        01  DELIM PIC X.
+       01  ADJ-FLAG PIC X VALUE "0".
+       01  RE-PROC-FLAG PIC X VALUE "0".
+       01  ADJ-ICN-12 PIC X(12).
+
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT FILEIN CHARCUR GARFILE CAIDFILE
@@ -731,6 +735,19 @@
            MOVE CLP-4TOTCLMPAY TO ALF8
            PERFORM AMOUNT-1
            MOVE AMOUNT-X TO CLAIM-PAID.
+
+           IF ADJ-FLAG = "1" AND CLP-7ICN(1:12) = ADJ-ICN-12
+              MOVE "1" TO RE-PROC-FLAG
+           ELSE
+              MOVE "0" TO RE-PROC-FLAG   
+           END-IF   
+
+           IF CLP-2CLMSTAT = "22"
+               MOVE "1" TO ADJ-FLAG
+               MOVE CLP-7ICN(1:12) TO ADJ-ICN-12
+           ELSE
+               MOVE "0" TO ADJ-FLAG
+           END-IF.
            
        P1-NM1.
            MOVE SPACE TO FILEIN01
@@ -868,11 +885,14 @@
            
            IF ALF8-1 = "-" 
              PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
+
+           IF RE-PROC-FLAG = "1"
+             PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
            
            PERFORM AMOUNT-1
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
            
-           IF PD-AMOUNT = 0
+      *     IF PD-AMOUNT = 0
              MOVE 0 TO FLAG
              PERFORM DUMP50 THRU DUMP50-EXIT VARYING Z FROM 1 BY 1
                        UNTIL Z > CAS-CNTR
@@ -880,7 +900,7 @@
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
              END-IF
-           END-IF
+      *     END-IF
            
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR
@@ -940,7 +960,13 @@
               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
               IF (CAS-1 = "PR")
-                IF (CAS-2 = "96" OR CAS-2 = "27" OR CAS-2 = "29")
+                IF (
+                    CAS-2 = "16"
+                    OR CAS-2 = "22"
+                    OR CAS-2 = "27"
+                    OR CAS-2 = "29"
+                    OR CAS-2 = "96"
+                   )
                  PERFORM P1-LOST-SVC
                  GO TO P5-SVC-LOOP-EXIT
                 END-IF
@@ -987,33 +1013,11 @@
               CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
-
-              IF (CAS-2 = "104") MOVE CAS-3 TO ALF8
-              END-IF
-              IF (CAS-5 = "104") MOVE CAS-6 TO ALF8
-              END-IF
-              IF (CAS-8 = "104") MOVE CAS-9 TO ALF8
-              END-IF
-              IF (CAS-11 = "104") MOVE CAS-12 TO ALF8
-              END-IF
-              IF (CAS-14 = "104") MOVE CAS-15 TO ALF8
-              END-IF
-              IF (CAS-17 = "104") MOVE CAS-18 TO ALF8
-              END-IF
-              IF ALF8 NOT = SPACE
-               MOVE "DI" TO PD-DENIAL
-               PERFORM AMOUNT-1
-               IF AMOUNT-X > 0
-                COMPUTE PD-AMOUNT = -1 * AMOUNT-X
-               END-IF
-               PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
-               MOVE CAS-CNTR TO Z
-              END-IF
              END-IF
-            END-PERFORM
+           END-PERFORM
 
-            MOVE 0 TO INS-REDUCE
-            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
+           MOVE 0 TO INS-REDUCE
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
              IF CAS-SVC(Z) = X
               MOVE SPACE TO CAS01 
               MOVE CAS-TAB(Z) TO FILEIN01
@@ -1022,8 +1026,11 @@
               CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
               CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
 
-              IF (CAS-1 = "CO") AND (CLP-2CLMSTAT = "1")
-                IF (CAS-2 = "42 " OR "45 " OR "96 " OR "131")
+              IF ((CAS-1 = "CO") OR (CAS-1 = "OA"))
+                AND (CLP-2CLMSTAT = "1")
+                IF (CAS-2 = "42 " OR "45 " OR "96 " OR "131" OR "253"
+      *    FOR BCBSVT B10              
+                    OR "70 ")
                     AND (CAS-3 NOT = SPACE)
                   MOVE SPACE TO ALF8
                   MOVE CAS-3 TO ALF8
@@ -1037,6 +1044,15 @@
                   PERFORM AMOUNT-1
                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
                 END-IF
+      * FOR BCBSVT CO*B10
+                IF (CAS-5 = "B10")
+                    AND (CAS-6 NOT = SPACE)
+                  MOVE SPACE TO ALF8
+                  MOVE CAS-6 TO ALF8
+                  PERFORM AMOUNT-1
+                  COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                END-IF
+
                 IF (CAS-8 = "42 " OR "45 " OR "96 " OR "131")
                     AND (CAS-9 NOT = SPACE)
                   MOVE SPACE TO ALF8
@@ -1064,16 +1080,18 @@
                   MOVE CAS-18 TO ALF8
                   PERFORM AMOUNT-1
                   COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                END-IF
-                IF INS-REDUCE > 0
+                END-IF                
+              END-IF
+             END-IF
+           END-PERFORM.
+            
+           IF INS-REDUCE > 0
                  MOVE "14" TO PD-DENIAL
                  MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
                  PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
-                 MOVE CAS-CNTR TO Z
-                END-IF
-              END-IF
-             END-IF
-            END-PERFORM.
+      *           MOVE CAS-CNTR TO Z
+           END-IF
+
            IF (INS-REDUCE = 0) AND ( G-PRINS = "006")
              MOVE 0 TO AMOUNT-Y
              PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
@@ -1158,8 +1176,10 @@
                 OR (CAS-1 = "CO" AND CAS-2 = "97   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "197  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "236  ")
+                OR (CAS-1 = "CO" AND CAS-2 = "236  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "251  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "252  ")
+                OR (CAS-1 = "CO" AND CAS-2 = "B9   ")
                 OR (CAS-1 = "OA" AND CAS-2 = "18   ")                
                 OR (CAS-1 = "PI" AND CAS-2 = "97   ")
                 OR (CAS-1 = "PI" AND CAS-2 = "204  ")
@@ -1167,8 +1187,7 @@
                 OR (CAS-1 = "PR" AND CAS-2 = "32   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "95   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "96   ")
-                OR (CAS-1 = "CO" 
-                  AND CAS-2 = "45   " AND CAS-5 = "B10  ")
+                OR (CAS-1 = "CO" AND CAS-2 = "95   ")  
                 MOVE 1 TO FLAG
                 MOVE CAS-CNTR TO Z
                 GO TO DUMP50-EXIT

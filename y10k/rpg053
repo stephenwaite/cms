@@ -50,16 +50,21 @@
            02 NT-1 PIC X(4).
            02 NT-2 PIC X(24).
        PROCEDURE DIVISION.
+
        0005-START.
            OPEN INPUT PROCFILE I-O PROCFILEX.
            OPEN OUTPUT FILEOUT.
-       P1. READ PROCFILE NEXT AT END GO TO P4.
+       
+       P1. 
+           READ PROCFILE NEXT AT END GO TO P4.
            IF PROC-AMOUNT = 0 OR PROC-TYPE NOT = "5" GO TO P1.
            MOVE PROC-KEY2 TO PROC-KEY2X
            MOVE SPACE TO PROC-KEY1X
            START PROCFILEX KEY NOT < PROC-KEYX
            INVALID GO TO P3.
-       P2. READ PROCFILEX NEXT WITH LOCK AT END GO TO P3.
+
+       P2. 
+           READ PROCFILEX NEXT WITH LOCK AT END GO TO P3.
            IF PROC-KEY2X = PROC-KEY2 
              IF PROC-AMOUNT > PROC-AMOUNTX 
               MOVE PROC-AMOUNT TO NEF-8
@@ -72,19 +77,21 @@
               REWRITE PROCFILE01X
              END-IF
            END-IF
-            GO TO P2.
-             MOVE PROC-AMOUNT TO NEF-8
-             MOVE PROC-AMOUNTX TO NEF-8X
-             MOVE SPACE TO FILEOUT01
-             STRING PROC-KEY " " NEF-8 " " PROC-TITLE 
+           GO TO P2.
+
+           MOVE PROC-AMOUNT TO NEF-8
+           MOVE PROC-AMOUNTX TO NEF-8X
+           MOVE SPACE TO FILEOUT01
+           STRING PROC-KEY " " NEF-8 " " PROC-TITLE 
              DELIMITED BY "!!" INTO FILEOUT01
              WRITE FILEOUT01
-             STRING PROC-KEYX " " NEF-8X " " PROC-TITLEX
+           STRING PROC-KEYX " " NEF-8X " " PROC-TITLEX
              DELIMITED BY "!!" INTO FILEOUT01
              WRITE FILEOUT01
              ACCEPT ANS
-             GO TO P1
+           GO TO P1
            GO TO P1.
+           
        P3. 
            MOVE PROCFILE01 TO PROCFILE01X
            MOVE PROC-TITLE TO NT-2
@@ -95,5 +102,7 @@
       *     WRITE  PROCFILE01X INVALID CONTINUE.
            WRITE FILEOUT01 FROM PROCFILE01X.
            GO TO P1.
-       P4. CLOSE PROCFILE PROCFILEX FILEOUT. 
+
+       P4. 
+           CLOSE PROCFILE PROCFILEX FILEOUT. 
            STOP RUN.

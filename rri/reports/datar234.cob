@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. data234.
+       PROGRAM-ID. datar234.
        AUTHOR. SID WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -12,9 +12,8 @@
            SELECT PARMFILE ASSIGN TO "S30"
            ORGANIZATION LINE SEQUENTIAL.
            SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
-             ACCESS MODE IS dynamic RECORD KEY IS G-GARNO
-             alternate key is g-acct.
-
+           ACCESS MODE IS RANDOM RECORD KEY IS G-GARNO
+           ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
            SELECT AGEDATE ASSIGN TO "S40"
            ORGANIZATION LINE SEQUENTIAL.
            SELECT FILEOUT ASSIGN TO "S45"
@@ -38,9 +37,8 @@
 
        FD  AGEDATE.
        01  AGEDATE01.
-           02 AD1 PIC 99.
-           02 AD2 PIC 99.
-           02 AD3 PIC 99.
+           02 LOW-DATE PIC X(8).
+           02 HIGH-DATE PIC X(8).
 
        FD  FILEOUT
            DATA RECORD IS FILEOUT01.
@@ -57,7 +55,7 @@
            02 CC-PATID PIC X(8).
            02 CC-CLAIM PIC X(6).
            02 CC-DIAG PIC X(7).
-           02 CC-PROC PIC X(7).
+           02 FO-PROC PIC X(7).
            02 CC-MOD2 PIC XX.
            02 FO-AMOUNT PIC S9(4)V99.
            02 CC-DOCP PIC X(2).
@@ -72,7 +70,7 @@
        FD  INSIN.
        01  INSIN01 PIC 999.
 
-       FD  FILE-OUT.
+       FD FILE-OUT.
        01  FILE-OUT01 PIC X(156).
 
        FD  CHARCUR.
@@ -116,12 +114,18 @@
                GO TO P6.
 
            IF CC-ASSIGN NOT = "A" GO TO P1.
+           IF CC-PAYCODE = 018 GO TO P1.
+           IF CC-DATE-T of CHARCUR01 < LOW-DATE GO TO P1.
+      *    IGNORE CLAIM AGE DATE     
+           IF CC-DATE-A of CHARCUR01 > HIGH-DATE GO TO P1.
+      *    IGNORE RECENT CLAIMS     
+           IF CC-DATE-T of CHARCUR01 > HIGH-DATE GO TO P1.
+
+
       *     IF (CC-DATE-A NOT = "00000000")
       *     AND (CC-DATE-A > DATE-Y) GO TO P1.
            
            IF INSTAB(CC-PAYCODE) = 1 GO TO P1.
-
-           IF CC-PAYCODE = "018" GO TO P1.
 
            MOVE CC-AMOUNT TO CLAIM-TOT
            PERFORM S4 THRU S4-EXIT.
@@ -130,6 +134,8 @@
            MOVE CC-PAYCODE TO FO-PAYCODE
            MOVE CHARCUR-KEY TO FO-KEY
            MOVE CLAIM-TOT TO FO-AMOUNT
+           STRING CC-PROC1 CC-PROC2 DELIMITED BY SIZE
+             INTO FO-PROC
            MOVE CC-KEY8 OF CHARCUR01 TO G-GARNO
            READ GARFILE INVALID GO TO P1.
            MOVE G-GARNAME TO FO-GARNAME

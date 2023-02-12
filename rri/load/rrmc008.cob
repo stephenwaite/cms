@@ -365,6 +365,16 @@
                MOVE "77049" TO R3-CPT    
            END-IF
 
+           IF R3-PROC = "6254" and 
+              (r3-cpt = "C8909" OR r3-hcpcs = "C8909")
+               move space to ERRFILE01
+               string "RRMC SENT US " R3-CPT " " R3-HCPCS
+                 " CHANGING THIS TO CPT 71555" 
+                   delimited by size INTO ERRFILE01    
+               write errfile01               
+               MOVE "71555" TO R3-CPT    
+           END-IF
+
            IF PROC-AMOUNT = 0
                AND R3-GLC NOT = 0
                GO TO BAD-2
@@ -384,7 +394,7 @@
            end-if 
 
            IF ((R3-PROC = "0111" or "1204" OR "1283" OR "1284" or "1285" 
-                or "3030" or "3085") 
+                or "3030" or "3085" or "5024" or "5282") 
              AND R3-MOD1 = "  "
              AND BILAT-FLAG = "1")
              MOVE SPACE TO ERRFILE01
@@ -401,7 +411,7 @@
 
       *    VT Medicaid threw a wrench
            IF (R3-PROC = "0111" or "1204" OR "1283" or "1284" or "1285"
-               OR "3030" or "3085") 
+               OR "3030" or "3085" or "5024" or "5282") 
              AND R3-MOD1 = "50"
       *    RVOC sends 50 mod twice sometimes :|         
              IF BILAT-FLAG = "1"

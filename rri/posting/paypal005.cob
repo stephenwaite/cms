@@ -133,7 +133,10 @@
                GO TO E1.
 
            IF CC-KEY8 NOT = G-GARNO 
-             GO TO E1.           
+             GO TO E1.
+
+           IF CC-ASSIGN = "A"
+             GO TO P2.            
 
            MOVE FI-PAID TO NEF-6
            DISPLAY NEF-6 " PAID"

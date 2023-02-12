@@ -256,7 +256,7 @@
        P3. 
            MOVE SPACE TO FILEOUT01
            STRING CHARFILE-KEY " NO BCBSVT AUTH ON " 
-             CD-DATE-T " FOR THE " CD-PROC1
+             CD-DATE-T " FOR THE " CD-PROC1 " " G-PRIPOL
              DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01.
 
