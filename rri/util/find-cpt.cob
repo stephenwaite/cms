@@ -123,7 +123,7 @@
              AT END
                GO TO P99.
 
-           IF CC-PROC1 NOT = CCPROCIN01(4:5) 
+           IF CC-PROC1 NOT = CCPROCIN01(5:5) 
              GO TO P1.                      
            
            IF CC-DATE-T < LOW-CHARDATE OR > HIGH-CHARDATE
