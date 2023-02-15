@@ -978,9 +978,9 @@
                                AND 
                       NOT (CLP-2CLMSTAT = "2 " OR "3 ")
                        
-      *                 display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
-      *                   CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
-      *                 accept omitted             
+                       display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
+                         CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
+                       accept omitted             
                        
                        IF CAS-3 NOT = SPACE
                            MOVE SPACE TO ALF8
