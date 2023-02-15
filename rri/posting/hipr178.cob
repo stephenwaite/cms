@@ -772,8 +772,8 @@
 
            IF PD-AMOUNT = 0
                MOVE 0 TO FLAG
-               DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
-               ACCEPT OMITTED                   
+      *         DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
+      *         ACCEPT OMITTED                   
                PERFORM DUMP50 
                IF FLAG = 1
                    PERFORM P1-LOST-SVC
@@ -801,8 +801,8 @@
              MOVE "14156" TO PAYORID
            end-if
 
-           DISPLAY PAYORID " PAYORID"
-           ACCEPT OMITTED
+      *     DISPLAY PAYORID " PAYORID"
+      *     ACCEPT OMITTED
            
            IF PAYORID = space OR "11329"
              PERFORM P1-LOST-SVC 
@@ -879,9 +879,9 @@
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
            
-           DISPLAY CLAIM-TOT " CLAIM-TOT " CC-AMOUNT " CC-AMOUNT "
-             PD-AMOUNT " PD-AMOUNT"
-           ACCEPT OMITTED
+      *     DISPLAY CLAIM-TOT " CLAIM-TOT " CC-AMOUNT " CC-AMOUNT "
+      *       PD-AMOUNT " PD-AMOUNT"
+      *     ACCEPT OMITTED
            
            PERFORM S4 THRU S5
            
