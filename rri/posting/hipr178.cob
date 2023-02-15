@@ -1042,6 +1042,9 @@
                COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT - INS-REDUCE
                PERFORM S4 THRU S5
                
+               DISPLAY CLAIM-TOT " CLAIM-TOT"
+               ACCEPT OMITTED
+               
                IF CLAIM-TOT < 0
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT

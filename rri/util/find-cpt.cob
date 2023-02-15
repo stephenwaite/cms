@@ -76,7 +76,7 @@
            02 FO-IO PIC X.
            02 FO-NAME PIC X(24).
            02 FO-DATE PIC X(8).
-           02 FO-MODS PIC X(9).
+           02 FO-MODS PIC X(10).
            02 FO-CKEY PIC X(12).
            02 FO-MSG PIC X(20).
 
@@ -150,7 +150,7 @@
            MOVE CC-DOCP TO FO-DOCP
            MOVE CC-PROC TO FO-PROC
            MOVE CC-DATE-T TO FO-DATE
-           STRING CC-MOD2 " " CC-MOD3 " " CC-MOD4 " " 
+           STRING " " CC-MOD2 " " CC-MOD3 " " CC-MOD4 " " 
              DELIMITED BY SIZE INTO FO-MODS.
 
       *     MOVE TOT-AMOUNT TO FO-AMOUNT
