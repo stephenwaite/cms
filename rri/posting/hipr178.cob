@@ -803,6 +803,9 @@
              MOVE "14156" TO PAYORID
            end-if
 
+           DISPLAY PAYORID " PAYORID"
+           ACCEPT OMITTED
+           
            IF PAYORID = space OR "11329"
              PERFORM P1-LOST-SVC 
              GO TO P5-SVC-LOOP-EXIT.
