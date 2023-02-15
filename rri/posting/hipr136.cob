@@ -966,6 +966,7 @@
                     OR CAS-2 = "27"
                     OR CAS-2 = "29"
                     OR CAS-2 = "96"
+                    OR CAS-2 = "242"
                    )
                  PERFORM P1-LOST-SVC
                  GO TO P5-SVC-LOOP-EXIT
