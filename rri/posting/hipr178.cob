@@ -833,7 +833,7 @@
              AND PAYORID NOT = "52192"
              GO TO P3-NEXT.
 
-           IF CLP-2CLMSTAT = "1"
+           IF CLP-2CLMSTAT = "1" OR "19"
              IF G-PRINS NOT = INS-KEY
                GO TO P3-NEXT
              ELSE
