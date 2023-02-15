@@ -1030,8 +1030,8 @@
            
            COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
 
-      *     display claim-tot " claim-tot " ins-reduce " ins-reduce"
-      *     accept omitted
+           display claim-tot " claim-tot " ins-reduce " ins-reduce"
+           accept omitted
            
            IF CLAIM-TOT = 0
                PERFORM P1-LOST-SVC
