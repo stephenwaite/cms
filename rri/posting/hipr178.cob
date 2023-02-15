@@ -1557,8 +1557,8 @@
        LOOK-CHG.       
            MOVE SPACE TO SVC01 FILEIN01
            MOVE SVC-TAB(X) TO FILEIN01  
-      *     display filein01
-      *     accept omitted                    
+           display filein01
+           accept omitted                    
            
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
