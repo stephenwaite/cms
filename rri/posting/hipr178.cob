@@ -879,6 +879,10 @@
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
            
+           DISPLAY CLAIM-TOT " CLAIM-TOT " CC-AMOUNT " CC-AMOUNT "
+             PD-AMOUNT " PD-AMOUNT"
+           ACCEPT OMITTED
+           
            PERFORM S4 THRU S5
            
            IF CLAIM-TOT < 0
