@@ -985,9 +985,9 @@
                                AND 
                       NOT (CLP-2CLMSTAT = "2 " OR "3 ")
                        
-                       display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
-                         CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
-                       accept omitted             
+      *                 display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
+      *                   CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
+      *                 accept omitted             
                        
                        IF CAS-3 NOT = SPACE
                            MOVE SPACE TO ALF8
@@ -1037,8 +1037,8 @@
            
            COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
 
-           display claim-tot " claim-tot " ins-reduce " ins-reduce"
-           accept omitted
+      *     display claim-tot " claim-tot " ins-reduce " ins-reduce"
+      *     accept omitted
            
            IF CLAIM-TOT = 0
                PERFORM P1-LOST-SVC
@@ -1049,8 +1049,8 @@
                COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT - INS-REDUCE
                PERFORM S4 THRU S5
                
-               DISPLAY CLAIM-TOT " CLAIM-TOT"
-               ACCEPT OMITTED
+      *         DISPLAY CLAIM-TOT " CLAIM-TOT"
+      *         ACCEPT OMITTED
                
                IF CLAIM-TOT < 0
                    PERFORM P1-LOST-SVC
@@ -1557,8 +1557,8 @@
        LOOK-CHG.       
            MOVE SPACE TO SVC01 FILEIN01
            MOVE SVC-TAB(X) TO FILEIN01  
-           display filein01
-           accept omitted                    
+      *     display filein01
+      *     accept omitted                    
            
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
