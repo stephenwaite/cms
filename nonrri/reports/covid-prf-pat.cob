@@ -58,16 +58,12 @@
            IF CC-DATE-T < LOW-CHARDATE OR > HIGH-CHARDATE
              GO TO P1.         
 
-           if cc-place = "3"
+           if cc-place = "C"
              add 1 to tot-inpt
-             go to p1.
-
-           if cc-place = "E"
-             add 1 to tot-emer
-             go to p1.
-
-           add 1 to tot-outp
-           go to p1.  
+             go to p1
+           else 
+             add 1 to tot-outp
+             go to p1.  
       
            
        P99.
