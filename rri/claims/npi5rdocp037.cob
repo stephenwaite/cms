@@ -1153,17 +1153,19 @@
            MOVE DF6 TO PL-STATE(PLINDX)
            MOVE DF7 TO PL-ZIP(PLINDX)
            GO TO P00.
-
+       
        P000.    
            READ FILEIN AT END GO TO P98.
            MOVE FILEIN01 TO HOLD-FILEIN01
            MOVE 0 TO CNTR DIAG-CNTR TOT-AMOUNT MAMMO-FLAG CLIA-FLAG
+           MOVE FI-PAYCODE TO DOC-INS OF DOCFILE01
+           MOVE FI-DOCP TO DOC-NUM OF DOCFILE01
            READ DOCFILENEW
              INVALID
-               MOVE "000" TO DOC-INS
+               MOVE "000" TO DOC-INS OF DOCFILE01
                READ DOCFILENEW
                  INVALID
-                   GO TO P000
+                   GO TO P000.
                END-READ
            END-READ
            PERFORM DF-SEARCH
