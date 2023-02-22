@@ -1155,7 +1155,11 @@
            GO TO P00.
        
        P000.    
-           READ FILEIN AT END GO TO P98.
+           READ FILEIN 
+             AT END 
+               GO TO P98.
+           DISPLAY FILEIN01
+           ACCEPT OMITTED    
            MOVE FILEIN01 TO HOLD-FILEIN01
            MOVE 0 TO CNTR DIAG-CNTR TOT-AMOUNT MAMMO-FLAG CLIA-FLAG
            MOVE FI-PAYCODE TO DOC-INS OF DOCFILE01
