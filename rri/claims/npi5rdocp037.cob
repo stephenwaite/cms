@@ -1211,7 +1211,9 @@
            IF END-FLAG = 1 GO TO P98.
            MOVE SAVE01 TO FILEIN01
            IF FI-DOCP NOT = HOLD-DOCP 
-             MOVE FILEIN01 TO HOLD-FILEIN01
+             display fi-docp " fi-docp " hold-docp " hold-docp"
+                accept  omitted
+                
              MOVE FILEIN01 TO HOLD-FILEIN01
              MOVE HOLD-DOCP TO DOC-NUM OF DOCFILE01
              MOVE "000" to DOC-INS
