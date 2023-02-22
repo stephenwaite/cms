@@ -1165,7 +1165,7 @@
                MOVE "000" TO DOC-INS OF DOCFILE01
                READ DOCFILENEW
                  INVALID
-                   GO TO P000.
+                   GO TO P000
                END-READ
            END-READ
            PERFORM DF-SEARCH
