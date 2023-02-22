@@ -1162,11 +1162,10 @@
            MOVE FI-DOCP TO DOC-NUM OF DOCFILE01
            READ DOCFILENEW
              INVALID
+               DISPLAY DOCFILE01
+               ACCEPT OMITTED
                MOVE "000" TO DOC-INS OF DOCFILE01
-               READ DOCFILENEW
-                 DISPLAY DOCFILE01
-                 ACCEPT OMITTED
-                 
+               READ DOCFILENEW   
                  INVALID
                    GO TO P000
                END-READ
