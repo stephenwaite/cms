@@ -1164,6 +1164,9 @@
              INVALID
                MOVE "000" TO DOC-INS OF DOCFILE01
                READ DOCFILENEW
+                 DISPLAY DOCFILE01
+                 ACCEPT OMITTED
+                 
                  INVALID
                    GO TO P000
                END-READ
