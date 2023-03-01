@@ -1740,7 +1740,7 @@
       *     DISPLAY PC-AMOUNT
             COMPUTE CAS-REDUCE(X) = CAS-REDUCE(X) + PC-AMOUNT
            GO TO CAS-TOT-2.
-           IF (PC-PAYCODE = G-PRINS)  
+           IF (PC-PAYCODE = G-PRINS OR "075")  
              AND (PC-DENIAL = "  " OR "DD" OR "07" OR "08")
              COMPUTE CAS-PAID(X) = CAS-PAID(X) + PC-AMOUNT
              MOVE PC-DATE-T TO CAS-PAYDATE(X)
