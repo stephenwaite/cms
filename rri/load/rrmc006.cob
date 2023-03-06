@@ -75,7 +75,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD  ERRFILE.
-       01  ERRFILE01 PIC X(80).
+       01  ERRFILE01 PIC X(120).
 
        FD  EMAILAUTHFILE.
            copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".           
