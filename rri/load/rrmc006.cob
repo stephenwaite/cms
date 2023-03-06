@@ -1711,7 +1711,13 @@
              end-if
            end-if
 
-           
+           IF R3-OBSERV = "OBSER" 
+               STRING A-GARNAME " WAS UNDER OBSERVATION, USING POS OUTP"
+                " FOR CPT " R3-CPT
+                 DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+           end-if 
+
            IF ((REF = "A3Z"
                OR "B1T" OR "B51" OR "B7C" 
                OR "D55" OR "D3Z"
