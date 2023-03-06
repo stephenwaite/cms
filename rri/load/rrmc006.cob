@@ -1713,7 +1713,7 @@
 
            IF R3-OBSERV = "OBSER" 
                STRING A-GARNAME " WAS UNDER OBSERVATION, USING POS OUTP"
-                " FOR CPT " R3-CPT
+                " FOR CPT " R3-CPT " AND DATE " R3-DATE
                  DELIMITED BY SIZE INTO ERRFILE01
                WRITE ERRFILE01
            end-if 
