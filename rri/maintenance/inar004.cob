@@ -771,6 +771,7 @@
                        "MEDREC"
                DISPLAY "LM= LIST E-MAIL AND SSN NY MEDREC NUMBER"
                DISPLAY "AM= ADD E-MAIL"
+               DISPLAY "PG = PRINT GARNO FOR BCBSVT TEMPLATE"
 
                GO TO 1000-ACTION
            END-IF
@@ -908,7 +909,16 @@
                MOVE 1 TO PB1
                OPEN INPUT CHARCUR PAYFILE
                GO TO 1000-ACTION
-           END-IF    
+           END-IF
+
+           IF KEYFLAG = 1 AND ACTION = "PG"
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE LAST-TAB(FLAG) TO G-GARNO
+               READ GARFILE
+               GO TO PG-1
+               
+           END-IF 
            
            IF KEYFLAG = 1 AND ACTION = "PCF"
                MOVE PAYFILE-KEY TO IN-FIELD
@@ -4432,6 +4442,23 @@
            CLOSE FILEOUT
            CALL "SYSTEM" USING "pap-4"
            OPEN OUTPUT FILEOUT
+           GO TO 1000-ACTION.
+
+       PG-1.
+           DISPLAY "Name of patient: " G-GARNAME
+           DISPLAY "DOB:             " G-DOB
+           DISPLAY "ID:              " G-PRIPOL
+           DISPLAY "DOS:             "
+           DISPLAY "BILLED:           $"
+           DISPLAY "CLAIM:           " 
+           DISPLAY "ACCOUNT:         " G-GARNO
+           DISPLAY ""
+           DISPLAY "Thank you"
+           DISPLAY ""
+           DISPLAY "Rutland Radiologists"
+           DISPLAY "NPI    1700935780"
+           DISPLAY "Tax ID 03-0238095"
+           DISPLAY "Phone  800-371-8685"
            GO TO 1000-ACTION.
 
        CD-SET.
