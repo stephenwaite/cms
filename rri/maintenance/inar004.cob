@@ -4446,7 +4446,8 @@
 
        PG-1.
            DISPLAY "Name of patient: " G-GARNAME
-           DISPLAY "DOB:             " G-DOB
+           DISPLAY "DOB:             " G-DOB(5:2) "/" G-DOB(7:2) "/"
+             G-DOB(1:4)
            DISPLAY "ID:              " G-PRIPOL
            DISPLAY "DOS:             "
            DISPLAY "BILLED:           $"
