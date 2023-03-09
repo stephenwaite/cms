@@ -4452,9 +4452,9 @@
            DISPLAY "BILLED:           $"
            DISPLAY "CLAIM:           " 
            DISPLAY "ACCOUNT:         " G-GARNO
-           DISPLAY ""
+           DISPLAY " "
            DISPLAY "Thank you"
-           DISPLAY ""
+           DISPLAY " "
            DISPLAY "Rutland Radiologists"
            DISPLAY "NPI    1700935780"
            DISPLAY "Tax ID 03-0238095"
