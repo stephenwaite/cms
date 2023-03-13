@@ -990,7 +990,7 @@
                            DISPLAY INS-REDUCE " INS-REDUCE"
                        END-IF
                
-                       IF CAS-6 NOT = SPACE
+                       IF CAS-6 NOT = SPACE AND CAS-5 NOT = "104"
                            MOVE SPACE TO ALF8
                            MOVE CAS-6 TO ALF8
                            PERFORM AMOUNT-1
