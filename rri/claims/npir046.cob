@@ -254,6 +254,12 @@
                GO TO P1
            END-IF    
 
+           IF CC-DOCP = "00"
+               MOVE "00 FOR DOCP, STILL UNREAD?" TO EF2
+               PERFORM S1
+               GO TO P1
+           END-IF  
+           
            IF CC-DOCP = "02"
                MOVE "02 FOR DOCP, STILL UNREAD?" TO EF2
                PERFORM S1
