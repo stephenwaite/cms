@@ -1458,6 +1458,8 @@
            ACCEPT OMITTED
            
       *     IF CNTR = 1
+             display hold-docr " hold-docr 2310a"
+             accept omitted
              MOVE HOLD-DOCR TO CLM-DOCR
       *     end-if
 
