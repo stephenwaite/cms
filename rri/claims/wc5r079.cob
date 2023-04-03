@@ -1384,7 +1384,7 @@
            if Fi-docp not = clm-docp
              perform 2420a through 2420a-exit
            end-if
-            
+
            IF FI-DOCR NOT = CLM-DOCR
              PERFORM 2420F THRU 2420F-EXIT
            end-if  
@@ -1412,7 +1412,7 @@
            EXIT.
 
        2420A.
-           MOVE CLM-DOCP TO DOC-NUM
+           MOVE FI-DOCP TO DOC-NUM
            MOVE "000" TO DOC-INS
            READ DOCFILENEW
              INVALID
@@ -1437,29 +1437,18 @@
            MOVE DOC-TAXONOMY TO PRV-TAX
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM PRV01.
-       
-      *     MOVE "SY" TO REF-CODE
-      *     MOVE DOC-SSNUM TO REF-ID
-      *     MOVE SPACE TO SEGFILE01.
-      *     WRITE SEGFILE01 FROM REF01.
 
        2420A-EXIT.
            EXIT.
 
        2420F.
-           IF HOLD-DOCR = "000" 
+           IF FI-DOCR = "000" 
              GO TO REF-2.
 
-           MOVE HOLD-DOCR TO REF-KEY 
+           MOVE FI-DOCR TO REF-KEY 
            
            display CNTR " CNTR"
            ACCEPT OMITTED
-           
-      *     IF CNTR = 1
-             display hold-docr " hold-docr 2310a"
-             accept omitted
-             MOVE HOLD-DOCR TO CLM-DOCR
-      *     end-if
 
            READ REFPHY 
              INVALID 
