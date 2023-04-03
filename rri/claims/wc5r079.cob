@@ -1453,6 +1453,9 @@
 
            MOVE HOLD-DOCR TO REF-KEY 
            
+           display CNTR " CNTR"
+           ACCEPT OMITTED
+           
            IF CNTR = 1
              MOVE HOLD-DOCR TO CLM-DOCR
            end-if
