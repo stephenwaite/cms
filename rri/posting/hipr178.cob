@@ -990,7 +990,7 @@
                            DISPLAY INS-REDUCE " INS-REDUCE"
                        END-IF
                
-                       IF CAS-6 NOT = SPACE
+                       IF CAS-6 NOT = SPACE AND CAS-5 NOT = "104"
                            MOVE SPACE TO ALF8
                            MOVE CAS-6 TO ALF8
                            PERFORM AMOUNT-1
@@ -1113,10 +1113,11 @@
                    OR (CAS-1 = "PI" AND CAS-2 = "11   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "96   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "97   ")
+                   OR (CAS-1 = "PR" AND CAS-2 = "16   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "26   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "27   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "31   ")
-                   OR (CAS-1 = "PR" AND CAS-2 = "31   ")
+                   OR (CAS-1 = "PR" AND CAS-2 = "35   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "96   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "151  ")                  
                    MOVE 1 TO FLAG

@@ -75,7 +75,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD  ERRFILE.
-       01  ERRFILE01 PIC X(80).
+       01  ERRFILE01 PIC X(120).
 
        FD  EMAILAUTHFILE.
            copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".           
@@ -1711,7 +1711,13 @@
              end-if
            end-if
 
-           
+           IF R3-OBSERV = "OBSER" 
+               STRING A-GARNAME " WAS UNDER OBSERVATION, USING POS OUTP"
+                " FOR CPT " R3-CPT " AND DATE " R3-DATE
+                 DELIMITED BY SIZE INTO ERRFILE01
+               WRITE ERRFILE01
+           end-if 
+
            IF ((REF = "A3Z"
                OR "B1T" OR "B51" OR "B7C" 
                OR "D55" OR "D3Z"

@@ -318,6 +318,11 @@
                MOVE SPACE TO TABX(Z)
              END-IF
 
+             IF T-CODE(X) = "74        "
+                AND T-CODE(Z) = "130       "
+               MOVE SPACE TO TABX(Z)
+             END-IF
+
              IF T-CODE(X) = "82        "
                 AND T-CODE(Z) = "102       "
                MOVE SPACE TO TABX(Z)

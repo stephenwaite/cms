@@ -50,6 +50,6 @@
            GO TO P1.
        P3. MOVE PF5 TO FO-3
            MOVE CNTR TO FO-1
-           COMPUTE FO-2 = CNTR * .75
+           COMPUTE FO-2 = CNTR * .81
            WRITE FILEOUT01.
            CLOSE FILEOUT. STOP RUN.
