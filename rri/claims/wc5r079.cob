@@ -1374,6 +1374,7 @@
            WRITE SEGFILE01 FROM DTP01
            
            IF HOLD-DOCR NOT = CLM-DOCR
+              AND CLM-DOCR NOT = SPACE
              display hold-docr " hold-docr"
              display clm-docr " clm-docr"
              accept omitted
@@ -1382,6 +1383,7 @@
 
            
            if hold-docp not = clm-docp
+              AND CLM-DOCP NOT = SPACE
              display hold-docp " hold-docp"
              display clm-docp " clm-docp"
              accept omitted
