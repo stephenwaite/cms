@@ -1409,6 +1409,7 @@
                    MOVE "3" TO CC-REC-STAT
                END-IF
            
+               MOVE "E" TO CC-PAPER
                MOVE BHT-DATE TO CC-DATE-A
            REWRITE CHARCUR01
            END-READ.
