@@ -1374,7 +1374,7 @@
            WRITE SEGFILE01 FROM DTP01
            
            IF FI-DOCR NOT = CLM-DOCR
-             display hold-docr " hold-docr"
+             display FI-docr " FI-docr"
              display clm-docr " clm-docr"
              accept omitted
              PERFORM 2310A THRU 2310A-EXIT
@@ -1382,7 +1382,7 @@
 
            
            if FI-docp not = clm-docp
-             display hold-docp " hold-docp"
+             display FI-docp " FI-docp"
              display clm-docp " clm-docp"
              accept omitted
              perform 2420a through 2420a-exit
