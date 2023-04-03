@@ -1373,8 +1373,7 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-           IF HOLD-DOCR NOT = CLM-DOCR
-              AND CLM-DOCR NOT = SPACE
+           IF FI-DOCR NOT = CLM-DOCR
              display hold-docr " hold-docr"
              display clm-docr " clm-docr"
              accept omitted
@@ -1382,8 +1381,7 @@
            end-if  
 
            
-           if hold-docp not = clm-docp
-              AND CLM-DOCP NOT = SPACE
+           if FI-docp not = clm-docp
              display hold-docp " hold-docp"
              display clm-docp " clm-docp"
              accept omitted
@@ -1448,6 +1446,8 @@
            EXIT.
 
        2310A.
+
+           
            IF HOLD-DOCR = "000" 
              GO TO REF-2.
 
