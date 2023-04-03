@@ -1557,6 +1557,9 @@
            WRITE SEGFILE01 FROM DTP01
            
            IF HOLD-DOCR NOT = CLM-DOCR
+             display hold-docr " hold-docr"
+             display clm-docr " clm-docr"
+             accept omitted
              PERFORM 2310A THRU 2310A-EXIT
            end-if  
 
