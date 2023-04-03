@@ -70,6 +70,12 @@
              STRING G-PRINS " pri " G-SEINS " sec " G-GARNO
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
+           END-IF
+
+           IF SE-INS = "091"
+               STRING "Why is 091 2ndary?" G-GARNO
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
            END-IF    
 
            GO TO P0-1.  
