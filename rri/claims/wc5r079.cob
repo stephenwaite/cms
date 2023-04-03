@@ -1380,7 +1380,7 @@
              display hold-docr " hold-docr"
              display clm-docr " clm-docr"
              accept omitted
-             PERFORM 2310A THRU 2310A-EXIT
+             PERFORM 2420E THRU 2420E-EXIT
            end-if  
 
            
@@ -1447,6 +1447,54 @@
 
        2420A-EXIT.
            EXIT.
+
+       2420E.
+           IF HOLD-DOCR = "000" 
+             GO TO REF-2.
+
+           MOVE HOLD-DOCR TO REF-KEY 
+           
+           display CNTR " CNTR"
+           ACCEPT OMITTED
+           
+      *     IF CNTR = 1
+             display hold-docr " hold-docr 2310a"
+             accept omitted
+             MOVE HOLD-DOCR TO CLM-DOCR
+      *     end-if
+
+           READ REFPHY 
+             INVALID 
+               GO TO REF-2.
+
+           MOVE "DN " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING REF-NAME DELIMITED BY ", " OR " ,"
+             OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
+
+           MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
+           MOVE "XX" TO NM1-EINSS
+           MOVE REF-NPI TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+           GO TO 2310A-EXIT.
+
+       REF-2.
+           MOVE "DN" TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING DOC-NAME DELIMITED BY ";" INTO
+           NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           MOVE "XX" TO NM1-EINSS
+           MOVE DOC-NPI TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420E-EXIT.
+           EXIT.    
 
        2310A.
            IF HOLD-DOCR = "000" 
