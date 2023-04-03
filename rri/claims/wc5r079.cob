@@ -1380,15 +1380,11 @@
              PERFORM 2310A THRU 2310A-EXIT
            end-if  
 
-           display hold-docp " hold-docp"
-           display clm-docp " clm-docp"
-           accept omitted
            
            if hold-docp not = clm-docp
              display hold-docp " hold-docp"
              display clm-docp " clm-docp"
              accept omitted
-             
              perform 2420a through 2420a-exit
            end-if
 
