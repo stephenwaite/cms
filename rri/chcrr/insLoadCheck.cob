@@ -72,7 +72,7 @@
                WRITE FILEOUT01
            END-IF
 
-           IF SE-INS = "091"
+           IF G-SEINS = "091"
                STRING "Why is 091 2ndary?" G-GARNO
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
