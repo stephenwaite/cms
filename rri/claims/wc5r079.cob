@@ -566,11 +566,10 @@
            END-READ.
 
        P1-1. 
+           display filein01 " filein01"
+           display hold-filein01 " hold-filein01"
+           accept omitted
            IF FI-NEIC NOT = HOLD-NEIC 
-             display fi-neic " fi-neic"
-             display hold-neic " hold-neic"
-             accept omitted
-             
              GO TO P2.
 
            IF DIAG-CNTR > 11 
