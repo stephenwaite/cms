@@ -1480,7 +1480,7 @@
            WRITE SEGFILE01 FROM NM101.
            GO TO 2310A-EXIT.
 
-       REF-2.
+       2420e-2.
            MOVE "DN" TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
