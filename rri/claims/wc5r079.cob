@@ -213,7 +213,7 @@
            COPY GAPFILE.CPY IN "C:\Users\sid\cms\copylib".
 
        FD  DIAGFILE.
-           COPY DIAGFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY DIAGFILE.CPY IN "C:\Users\sid\cms\copylib".
 
        WORKING-STORAGE SECTION.
 
