@@ -1011,7 +1011,7 @@
 
        ACCIDENT-1.
            MOVE "OA" TO CLM-11.           
-           IF INS-NEIC = "WX867" OR "J1868"
+           IF SBR-INSCODE = "WC"
              MOVE "EM" TO CLM-11
              MOVE ":::VT" TO CLM-11-4.
              
@@ -1377,8 +1377,8 @@
            WRITE SEGFILE01 FROM ALF108.
 
       *    write pwk segment for medical attachments
-           MOVE FILEIN01(1:11) TO PWK-7
            MOVE SPACE TO SEGFILE01
+           MOVE FILEIN01(1:11) TO PWK-7
            WRITE SEGFILE01 FROM PWK01.
 
            MOVE "472" TO DTP-1 D8TP-1
