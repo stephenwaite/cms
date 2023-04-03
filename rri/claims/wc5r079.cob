@@ -567,6 +567,10 @@
 
        P1-1. 
            IF FI-NEIC NOT = HOLD-NEIC 
+             display fi-neic " fi-neic"
+             display hold-neic " hold-neic"
+             accept omitted
+             
              GO TO P2.
 
            IF DIAG-CNTR > 11 
