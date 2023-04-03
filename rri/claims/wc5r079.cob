@@ -1563,6 +1563,10 @@
              PERFORM 2310A THRU 2310A-EXIT
            end-if  
 
+           display hold-docp " hold-docp"
+           display clm-docp " clm-docp"
+           accept omitted
+           
            if hold-docp not = clm-docp
              display hold-docp " hold-docp"
              display clm-docp " clm-docp"
@@ -1634,9 +1638,9 @@
 
            MOVE HOLD-DOCR TO REF-KEY 
            
-           IF CNTR = 1
+      *     IF CNTR = 1
              MOVE HOLD-DOCR TO CLM-DOCR
-           end-if
+      *     end-if
 
            READ REFPHY 
              INVALID 
