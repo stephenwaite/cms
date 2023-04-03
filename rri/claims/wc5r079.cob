@@ -1052,8 +1052,10 @@
                MOVE SPACE TO SEGFILE01
                WRITE SEGFILE01 FROM N401
            END-IF.
+
        2310D-EXIT.
            EXIT.
+
        2310E.
            IF LASTREF = SPACE GO TO 2310E-EXIT.
            MOVE LASTREF TO REF-KEY
@@ -1070,6 +1072,7 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
            GO TO 2310E-EXIT.
+
        2310E-1.
            IF ORDER-FLAG = 1
            MOVE HOLD-DOCP TO NUM2
@@ -1084,10 +1087,9 @@
            MOVE DOC-NPI TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
+
        2310E-EXIT.
            EXIT.
-
-
 
        2320A.
            GO TO 2320A-EXIT.
@@ -1098,7 +1100,10 @@
            IF G-SEINS = "004" OR "064" PERFORM CAID-1 GO TO 2320A-EXIT.
            MOVE 0 TO GAP-FLAG
            IF G-SEINS = "062" PERFORM GAP-1 THRU GAP-1-EXIT. 
-       2320A-EXIT. EXIT.
+
+       2320A-EXIT. 
+           EXIT.
+
        CMP-1.
            MOVE "S" TO SBR-PST
            MOVE G-SE-GROUP TO SBR-GROUP
@@ -1382,8 +1387,11 @@
              accept omitted
              PERFORM 2420E THRU 2420E-EXIT
            end-if  
+            
+           display hold-docp " hold-docp"
+             display clm-docp " clm-docp"
+             accept omitted
 
-           
            if hold-docp not = clm-docp
              display hold-docp " hold-docp"
              display clm-docp " clm-docp"
@@ -1502,12 +1510,9 @@
 
            MOVE HOLD-DOCR TO REF-KEY 
            
-           display CNTR " CNTR"
-           ACCEPT OMITTED
-           
       *     IF CNTR = 1
-             display hold-docr " hold-docr 2310a"
-             accept omitted
+      *       display hold-docr " hold-docr 2310a"
+      *       accept omitted
              MOVE HOLD-DOCR TO CLM-DOCR
       *     end-if
 
