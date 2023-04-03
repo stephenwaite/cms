@@ -1455,9 +1455,9 @@
 
            MOVE HOLD-DOCR TO REF-KEY 
            
-      *     IF CNTR = 1
+           IF CNTR = 1
              MOVE HOLD-DOCR TO CLM-DOCR
-      *     end-if
+           end-if
 
            READ REFPHY 
              INVALID 
@@ -1493,9 +1493,9 @@
            EXIT.
 
        2310B.
-      *     IF CNTR = 1
+           IF CNTR = 1
              MOVE hold-docp to CLM-DOCP
-      *     end-if
+           end-if
 
            MOVE "82 " TO NM1-1
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
