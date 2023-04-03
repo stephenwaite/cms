@@ -566,9 +566,9 @@
            END-READ.
 
        P1-1. 
-           display filein01 " filein01"
-           display hold-filein01 " hold-filein01"
-           accept omitted
+      *     display filein01 " filein01"
+      *     display hold-filein01 " hold-filein01"
+      *     accept omitted
            IF FI-NEIC NOT = HOLD-NEIC 
              GO TO P2.
 
@@ -1381,23 +1381,13 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-           IF hold-DOCR NOT = CLM-DOCR
-             display hold-docr " hold-docr"
-             display clm-docr " clm-docr"
-             accept omitted
-             PERFORM 2420E THRU 2420E-EXIT
-           end-if  
-            
-           display hold-docp " hold-docp"
-             display clm-docp " clm-docp"
-             accept omitted
-
-           if hold-docp not = clm-docp
-             display hold-docp " hold-docp"
-             display clm-docp " clm-docp"
-             accept omitted
+           if Fi-docp not = clm-docp
              perform 2420a through 2420a-exit
            end-if
+            
+           IF FI-DOCR NOT = CLM-DOCR
+             PERFORM 2420F THRU 2420F-EXIT
+           end-if  
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
            
@@ -1456,7 +1446,7 @@
        2420A-EXIT.
            EXIT.
 
-       2420E.
+       2420F.
            IF HOLD-DOCR = "000" 
              GO TO REF-2.
 
@@ -1488,7 +1478,7 @@
            WRITE SEGFILE01 FROM NM101.
            GO TO 2310A-EXIT.
 
-       2420e-2.
+       2420F-2.
            MOVE "DN" TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
@@ -1501,7 +1491,7 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
 
-       2420E-EXIT.
+       2420F-EXIT.
            EXIT.    
 
        2310A.
