@@ -1376,6 +1376,11 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM ALF108.
 
+      *    write pwk segment for medical attachments
+           MOVE FILEIN01(1:11) TO PWK-7
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM PWK01.
+
            MOVE "472" TO DTP-1 D8TP-1
            MOVE SPACE TO SEGFILE01
            MOVE FI-DATE-T TO DTP-3
@@ -1446,9 +1451,6 @@
              GO TO REF-2.
 
            MOVE FI-DOCR TO REF-KEY 
-           
-           display CNTR " CNTR"
-           ACCEPT OMITTED
 
            READ REFPHY 
              INVALID 
@@ -1570,7 +1572,7 @@
              INVALID
                DISPLAY FI-PAYCODE.
 
-           MOVE "CI" TO SBR-INSCODE
+           MOVE "WC" TO SBR-INSCODE
            IF INS-NEIC = "WX867" OR "J1868"
              MOVE "WC" TO SBR-INSCODE.
   
