@@ -64,7 +64,7 @@
            02 FO-CC-DATE-A PIC X(8).
 
        FD  INSFILE.
-           COPY INSFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY INSFILE.CPY IN "C:\Users\sid\cms\copylib".
 
        FD  GARFILE.
            COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
