@@ -1011,9 +1011,12 @@
 
        ACCIDENT-1.
            MOVE "OA" TO CLM-11.           
-           IF SBR-INSCODE = "WC"
+           IF CC-ACC-TYPE = "1"
              MOVE "EM" TO CLM-11
-             MOVE ":::VT" TO CLM-11-4.
+           ELSE IF CC-ACC-TYPE = "2"
+             MOVE "AA" TO CLM-11.
+
+           MOVE ":::VT" TO CLM-11-4.
              
        ACCIDENT-EXIT.
            EXIT.
