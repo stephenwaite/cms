@@ -20,7 +20,7 @@ $bearer = json_decode((string) $response->getBody(), true)['access_token'];
 //exit;
 
 function getControlNumber() {
-    $fn = 'change_wc_control_number';
+    $fn = '/home/rri/change_wc_control_number';
     $fh_wcomp_cntrl_no = fopen($fn, 'r+');
     if (!$fh_wcomp_cntrl_no) {
         die("no control # file to read\n");
@@ -39,7 +39,7 @@ $headers = [
 ];
 
 $cntr = 0;
-$fh_wcomp_sid = fopen('wcompin', 'r');
+$fh_wcomp_sid = fopen('/home/rri/wcompin', 'r');
 if ($fh_wcomp_sid) {
     while ($row = fgets($fh_wcomp_sid)) {
         $cntr++;
@@ -145,7 +145,7 @@ if ($fh_wcomp_sid) {
                 [
                     'name' => 'files',
                     'filename' => $charcur_key . '.pdf',
-                    'contents' => Utils::tryFopen($charcur_key . '.pdf', 'r'),
+                    'contents' => Utils::tryFopen('/home/rri/' . $charcur_key . '.pdf', 'r'),
                 ],
                 [
                     'name' => 'request',
