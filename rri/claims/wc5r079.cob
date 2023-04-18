@@ -1010,11 +1010,13 @@
            EXIT.
 
        ACCIDENT-1.
-           MOVE "OA" TO CLM-11.           
-           IF CC-ACC-TYPE = "1"
+           IF FI-ACC-TYPE = "1"
              MOVE "EM" TO CLM-11
-           ELSE IF CC-ACC-TYPE = "2"
-             MOVE "AA" TO CLM-11.
+           ELSE IF FI-ACC-TYPE = "2"
+             MOVE "AA" TO CLM-11
+           ELSE
+             MOVE "OA" TO CLM-11.           
+  
 
            MOVE ":::VT" TO CLM-11-4.
              
