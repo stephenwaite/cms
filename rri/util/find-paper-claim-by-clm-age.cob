@@ -46,10 +46,11 @@
              AT END 
                GO TO P99.
 
-           START CHARCUR KEY NOT < LOW-VALUES.    
+           MOVE LOW-VALUES TO CHARCUR-KEY
+           START CHARCUR KEY NOT < CHARCUR-KEY.    
 
        P00.        
-           READ CHARCUR
+           READ CHARCUR NEXT
              AT END 
                GO TO P99.
 
