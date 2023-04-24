@@ -54,7 +54,7 @@
              AT END 
                GO TO P99.
 
-           IF ((CC-PAPER = "P" OR CC-PAPER = "O")
+           IF ((CC-PAPER = "A" OR CC-PAPER = "O")
               AND CC-DATE-A = FILEIN01)
              WRITE FILEOUT01 FROM CHARCUR01.
            
