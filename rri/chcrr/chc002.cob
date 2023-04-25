@@ -70,7 +70,6 @@
        WORKING-STORAGE SECTION.
        01  TAB-X PIC X VALUE H"09".
        01  ALF9 PIC X(9).
-       01  FO-PRIM-DAT1 PIC X(10).
 
        PROCEDURE DIVISION.
        0005-S0TART.
