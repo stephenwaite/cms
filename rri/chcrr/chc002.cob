@@ -128,8 +128,8 @@
              FO-3RD-POL  
              FO-3RD-NAME
              FO-3RD-CITY.
-           DISPLAY "FO-PRIM-DAT1 " FO-PRIM-DAT1  
-           ACCEPT OMITTED
+      *     DISPLAY "FO-PRIM-DAT1 " FO-PRIM-DAT1  
+      *     ACCEPT OMITTED
 
            MOVE SPACE TO ALF9
            STRING FO-PRIM-ZIP(1:5) FO-PRIM-ZIP(7:4) INTO ALF9
