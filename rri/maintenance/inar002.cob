@@ -2364,9 +2364,9 @@
            DISPLAY INS-ASSIGN "    " INS-CLAIMTYPE "   " INS-NEIC
            "    " INS-NEICLEVEL " " INS-NEIC-ASSIGN "    " INS-PPO
            "  " INS-PRVNUM "    " INS-HMO " " INS-STATUS " "
-           INS-LASTDATE "   "    INS-CAID "     "  INS-WC
+           INS-LASTDATE "   "    INS-CAID "     "  INS-ACC-TYPE
            DISPLAY "ASGM TYP NEIC NCLVL NCSM PPO PPONUM    HMO STAT LAST
-      -    " DATE VTCAID# WC".
+      -    " DATE VTCAID# ACC-TYPE".
        LI-1-EXIT. EXIT.
        CD-1. IF CD2 = 0 MOVE 1 TO CD2 DISPLAY "CHARGE LIST"
            ELSE MOVE 0 TO CD2 DISPLAY "NO CHARGE LIST AFTER ADD".

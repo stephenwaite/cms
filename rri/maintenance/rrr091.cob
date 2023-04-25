@@ -2167,7 +2167,7 @@
            DISPLAY " 5=STATE     6=ZIP     7=ASSIGN  8=CLM-TYPE"
            DISPLAY " 9=NEIC     11=CLM-ASSIGN       12=PPO"
            DISPLAY "13=PRVNUM   14=HMO    15=STATUS 16=LEVEL"
-           DISPLAY "17=CHANGE LASTDATE 18=VT-CAID# 19=WC"
+           DISPLAY "17=CHANGE LASTDATE 18=VT-CAID# 19=ACC-TYPE"
            GO TO INS-CP.
            UNSTRING DATAIN DELIMITED BY "," INTO FIELD-CODE IN-FIELD.
            INSPECT FIELD-CODE REPLACING LEADING SPACE BY "0".
@@ -2382,9 +2382,9 @@
            GO TO INSDEE.
        19-INS.
            IF IN-FIELD = "?"
-           DISPLAY "WC CODES 0= OA 1= EM 2= WC"
+           DISPLAY "ACC-TYPE CODES 1 = EM 2 = AA 3 = OA"
            GO TO INS-TI.
-           MOVE IN-FIELD-1 TO INS-WC
+           MOVE IN-FIELD-1 TO INS-ACC-TYPE
            GO TO INSDEE.
 
        INSDEE. 
@@ -2675,9 +2675,9 @@
            DISPLAY INS-ASSIGN "    " INS-CLAIMTYPE "   " INS-NEIC
            "    " INS-NEICLEVEL " " INS-NEIC-ASSIGN "    " INS-PPO
            "  " INS-PRVNUM "    " INS-HMO " " INS-STATUS " "
-           INS-LASTDATE "   "    INS-CAID "     "  INS-WC
+           INS-LASTDATE "   "    INS-CAID "     "  INS-ACC-TYPE
            DISPLAY "ASGM TYP NEIC NCLVL NCSM PPO PPONUM    HMO STAT LAST
-      -    " DATE VTCAID# WC".
+      -    " DATE VTCAID# ACC-TYPE".
        LI-1-EXIT. EXIT.
        INS-NEIC-1.
            MOVE IN-FIELD-5 TO INS-NEIC
