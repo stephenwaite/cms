@@ -3712,7 +3712,7 @@
            DISPLAY "TYPE THE 2ND MODIFIER OR <CR>"
            GO TO CC-2000TI.
            DISPLAY "IN-FIELD " IN-FIELD
-           IF IN-FIELD-2 = SPACE
+           IF IN-FIELD(2:1) = SPACE
              DISPLAY "INVALID"
              GO TO CC-2000TI.
            MOVE IN-FIELD-2 TO CC-MOD2 GO TO 4900CPC.
