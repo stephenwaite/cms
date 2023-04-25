@@ -2187,7 +2187,7 @@
            DISPLAY " 5=STATE     6=ZIP     7=ASSIGN  8=CLM-TYPE"
            DISPLAY " 9=NEIC     11=CLM-ASSIGN       12=PPO"
            DISPLAY "13=PRVNUM   14=HMO    15=STATUS 16=LEVEL"
-           DISPLAY "17=CHANGE LASTDATE 18=VT-CAID# 19=REFWARN"
+           DISPLAY "17=CHANGE LASTDATE 18=VT-CAID# 19=WC"
            GO TO INS-CP.
            UNSTRING DATAIN DELIMITED BY "," INTO FIELD-CODE IN-FIELD.
            INSPECT FIELD-CODE REPLACING LEADING SPACE BY "0".
@@ -2402,15 +2402,17 @@
            GO TO INSDEE.
        19-INS.
            IF IN-FIELD = "?"
-           DISPLAY "0= NO WARNING 1= WARN ABOUT REF-PHYS"
+           DISPLAY "WC CODES 0= OA 1= EM 2= WC"
            GO TO INS-TI.
-           MOVE IN-FIELD-1 TO INS-REFWARN
-           IF INS-REFWARN = "0" OR "1" GO TO INSDEE.
-           DISPLAY "INVALID" GO TO INS-TI.
+           MOVE IN-FIELD-1 TO INS-WC
+           GO TO INSDEE.
 
-       INSDEE. IF ACT-1 = "C" GO TO INS-CP.
+       INSDEE. 
+           IF ACT-1 = "C" GO TO INS-CP.
+
        INSDEEX.
            EXIT.
+
        5000-WRITE-INSFILE.
            MOVE INSFILE01 TO INSBACK
            CLOSE INSFILE
@@ -2693,7 +2695,7 @@
            DISPLAY INS-ASSIGN "    " INS-CLAIMTYPE "   " INS-NEIC
            "    " INS-NEICLEVEL " " INS-NEIC-ASSIGN "    " INS-PPO
            "  " INS-PRVNUM "    " INS-HMO " " INS-STATUS " "
-           INS-LASTDATE "   "    INS-CAID "     "  INS-REFWARN
+           INS-LASTDATE "   "    INS-CAID "     "  INS-WC
            DISPLAY "ASGM TYP NEIC NCLVL NCSM PPO PPONUM    HMO STAT LAST
       -    " DATE VTCAID# REFPRMT".
        LI-1-EXIT. EXIT.

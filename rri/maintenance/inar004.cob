@@ -4204,7 +4204,7 @@
            DISPLAY INS-ASSIGN "    " INS-CLAIMTYPE "   " INS-NEIC
            "    " INS-NEICLEVEL " " INS-NEIC-ASSIGN "    " INS-PPO
            "  " INS-PRVNUM "    " INS-HMO " " INS-STATUS " "
-           INS-LASTDATE "   "    INS-CAID "     "  INS-REFWARN
+           INS-LASTDATE "   "    INS-CAID "     "  INS-WC
            DISPLAY "ASGM TYP NEIC NCLVL NCSM PPO PPONUM    HMO STAT LAST
       -    " DATE VTCAID# REFPRMT".
        LI-1-EXIT. EXIT.
