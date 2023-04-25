@@ -36,6 +36,7 @@
            02 FO-PRIM-ZIP PIC X(10).
            02 FO-PRIM-GRP PIC X(10).
            02 FO-PRIM-POL PIC X(16).
+           02 FO-PRIM-DAT1 PIC X(10).
            02 FO-PRIM-NAMEL PIC X(24).
            02 FO-PRIM-NAMEF PIC X(24).
            02 FO-PRIM-SUBSEX PIC X(10).
