@@ -46,7 +46,7 @@
            02 FO-SEC-CITY PIC X(18).
            02 FO-SEC-STATE PIC XX.
            02 FO-SEC-ZIP PIC X(10).
-           02 FO-SEC-GRP PIC X(10).
+           02 FO-SEC-DAT1 PIC X(10).
            02 FO-SEC-POL PIC X(16).
            02 FO-SEC-NAMEL PIC X(24).
            02 FO-SEC-NAMEF PIC X(24).
@@ -110,7 +110,7 @@
              FO-SEC-CITY   
              FO-SEC-STATE   
              FO-SEC-ZIP    
-             FO-DAT1     
+             FO-SEC-DAT1     
              FO-SEC-POL     
              FO-SEC-NAMEL   
              FO-SEC-NAMEF  
