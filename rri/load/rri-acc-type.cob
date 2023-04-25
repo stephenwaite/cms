@@ -17,6 +17,15 @@
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
 
+           SELECT INSFILE ASSIGN TO "S40" ORGANIZATION INDEXED
+               ACCESS IS DYNAMIC  RECORD KEY IS INS-KEY
+               ALTERNATE RECORD KEY IS INS-NAME WITH DUPLICATES
+               ALTERNATE RECORD KEY IS INS-CITY WITH DUPLICATES
+               ALTERNATE RECORD KEY IS INS-ASSIGN WITH DUPLICATES
+               ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
+               ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
+               ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES.
+
        DATA DIVISION.
 
        FILE SECTION.
@@ -24,12 +33,16 @@
        FD  CHARNEW.
            copy charnew.cpy in "c:\users\sid\cms\copylib\rri".
 
+       FD  INSFILE.
+           copy insfile.cpy in "c:\users\sid\cms\copylib".    
+
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).   
 
        PROCEDURE DIVISION.
 
        P0. 
+           OPEN INPUT INSFILE
            OPEN I-O    CHARNEW
            OPEN OUTPUT FILEOUT
            MOVE SPACE TO CHARNEW-KEY
@@ -45,7 +58,12 @@
                GO TO P2
            END-READ    
            
-           IF  CD-PAYCODE = "160"
+           MOVE CD-PAYCODE TO INS-KEY.
+           READ INSFILE
+             INVALID 
+               DISPLAY "BAD INS " CHARNEW01.
+
+           IF  CD-PAYCODE = "160" OR INS-ACC-TYPE = "2"
                MOVE "2" TO CD-ACC-TYPE
                REWRITE CHARNEW01
                STRING "MVA INS " CD-NAME " " CD-DATE-T " " CD-PROC1
@@ -55,18 +73,19 @@
                GO TO P1
            END-IF
 
-           IF ((CD-PROC2(1:5) = "77065") AND 
-               (CD-PROC1 = "1091" OR "1092" OR "1441"))
-               MOVE CD-MOD2 TO CD-MOD3
-               MOVE "GG" TO CD-MOD2
+           IF  INS-ACC-TYPE = "1"
+               MOVE "1" TO CD-ACC-TYPE
                REWRITE CHARNEW01
-               STRING "GG mod for same day screen with diag "
-                       CD-NAME " " CD-DATE-T " " CD-PROC1
+               STRING "W/C INS " CD-NAME " " CD-DATE-T " " CD-PROC1
+                 " ACC-TYPE " CD-ACC-TYPE
                DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01        
+               WRITE FILEOUT01
+               GO TO P1
            END-IF
+
+           
 
            GO TO P1.
        P2. 
-           CLOSE CHARNEW FILEOUT.
+           CLOSE CHARNEW FILEOUT INSFILE.
            STOP RUN.
