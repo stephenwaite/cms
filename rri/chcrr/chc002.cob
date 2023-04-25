@@ -99,6 +99,7 @@
              FO-PRIM-CITY 
              FO-PRIM-STATE 
              FO-PRIM-ZIP 
+             FO-PRIM-GRP
              FO-PRIM-POL 
              FO-PRIM-DAT1 
              FO-PRIM-NAMEL 
@@ -128,7 +129,9 @@
              FO-3RD-ALFA 
              FO-3RD-POL  
              FO-3RD-NAME
-             FO-3RD-CITY
+             FO-3RD-CITY.
+           DISPLAY "FO-PRIM-DAT1 " FO-PRIM-DAT1  
+           ACCEPT OMITTED
            MOVE SPACE TO ALF9
            STRING FO-PRIM-ZIP(1:5) FO-PRIM-ZIP(7:4) INTO ALF9
            MOVE SPACE TO FO-PRIM-ZIP
