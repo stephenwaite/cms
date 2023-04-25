@@ -139,7 +139,6 @@
            STRING FO-SEC-ZIP(1:5) FO-SEC-ZIP(7:4) INTO ALF9
            MOVE SPACE TO FO-SEC-ZIP
            MOVE ALF9 TO FO-SEC-ZIP
-           MOVE SPACE TO FO-SEC-GRP
 
            WRITE FILEOUT01
            GO TO P1.
