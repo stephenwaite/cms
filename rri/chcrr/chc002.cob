@@ -34,7 +34,6 @@
            02 FO-PRIM-CITY PIC X(18).
            02 FO-PRIM-STATE PIC XX.
            02 FO-PRIM-ZIP PIC X(10).
-           02 FO-PRIM-GRP PIC X(10).
            02 FO-PRIM-POL PIC X(16).
            02 FO-PRIM-DAT1 PIC X(10).
            02 FO-PRIM-NAMEL PIC X(24).
@@ -99,7 +98,6 @@
              FO-PRIM-CITY 
              FO-PRIM-STATE 
              FO-PRIM-ZIP 
-             FO-PRIM-GRP
              FO-PRIM-POL 
              FO-PRIM-DAT1 
              FO-PRIM-NAMEL 
@@ -132,6 +130,7 @@
              FO-3RD-CITY.
            DISPLAY "FO-PRIM-DAT1 " FO-PRIM-DAT1  
            ACCEPT OMITTED
+
            MOVE SPACE TO ALF9
            STRING FO-PRIM-ZIP(1:5) FO-PRIM-ZIP(7:4) INTO ALF9
            MOVE SPACE TO FO-PRIM-ZIP
@@ -140,7 +139,6 @@
            STRING FO-SEC-ZIP(1:5) FO-SEC-ZIP(7:4) INTO ALF9
            MOVE SPACE TO FO-SEC-ZIP
            MOVE ALF9 TO FO-SEC-ZIP
-           MOVE SPACE TO FO-PRIM-GRP
            MOVE SPACE TO FO-SEC-GRP
 
            WRITE FILEOUT01
