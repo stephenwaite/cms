@@ -2677,7 +2677,7 @@
            "  " INS-PRVNUM "    " INS-HMO " " INS-STATUS " "
            INS-LASTDATE "   "    INS-CAID "     "  INS-WC
            DISPLAY "ASGM TYP NEIC NCLVL NCSM PPO PPONUM    HMO STAT LAST
-      -    " DATE VTCAID# REFPRMT".
+      -    " DATE VTCAID# WC".
        LI-1-EXIT. EXIT.
        INS-NEIC-1.
            MOVE IN-FIELD-5 TO INS-NEIC
