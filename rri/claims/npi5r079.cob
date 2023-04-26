@@ -1561,10 +1561,16 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
+           display "fi-docr " fi-docr " clm-docr " clm-docr
+           accept omitted
+           
            IF FI-DOCR NOT = CLM-DOCR
              PERFORM 2310A THRU 2310A-EXIT
            end-if  
 
+           display "fi-docp " fi-docp " clm-docp " clm-docp
+           accept omitted
+           
            if FI-docp not = CLM-docp
              perform 2420a through 2420a-exit
            end-if
@@ -1672,7 +1678,6 @@
        2310B.
            IF CNTR = 1
              MOVE hold-docp to CLM-DOCP
-             MOVE HOLD-DOCR TO CLM-DOCR
            end-if
 
            MOVE "82 " TO NM1-1
