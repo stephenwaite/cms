@@ -1672,7 +1672,7 @@
        2310B.
            IF CNTR = 1
              MOVE hold-docp to CLM-DOCP
-             MOVE HOLD-DOC4 TO CLM-DOCR
+             MOVE HOLD-DOCR TO CLM-DOCR
            end-if
 
            MOVE "82 " TO NM1-1
