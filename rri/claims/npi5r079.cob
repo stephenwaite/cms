@@ -1145,7 +1145,7 @@
       *    CURRENTLY UNUSED     
       *     CLM-11-2 CLM-11-3 CLM-11-5
            
-           IF HOLD-DAT1 NOT = ZEROES
+           IF HOLD-ACC-TYPE NOT = SPACE
                PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT.
            
            MOVE SPACE TO SEGFILE01
@@ -1190,10 +1190,15 @@
            EXIT.
 
        ACCIDENT-1.
-           MOVE "OA" TO CLM-11.           
-           IF INS-NEIC = "WX867" OR "J1868"
+
+           IF HOLD-ACC-TYPE = "1"
              MOVE "EM" TO CLM-11
-             MOVE ":::VT" TO CLM-11-4.
+           ELSE IF HOLD-ACC-TYPE = "2"
+             MOVE "AA" TO CLM-11
+           ELSE IF HOLD-ACC-TYPE = "3"
+             MOVE "OA" TO CLM-11.           
+           
+           MOVE ":::VT" TO CLM-11-4.
              
        ACCIDENT-EXIT.
            EXIT.
@@ -1556,13 +1561,13 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-      *     IF HOLD-DOCR NOT = CLM-DOCR
-      *       PERFORM 2310A THRU 2310A-EXIT
-      *     end-if  
+           IF HOLD-DOCR NOT = CLM-DOCR
+             PERFORM 2310A THRU 2310A-EXIT
+           end-if  
 
-      *     if hold-docp not = clm-docp
-      *       perform 2420a through 2420a-exit
-      *     end-if
+           if hold-docp not = clm-docp
+             perform 2420a through 2420a-exit
+           end-if
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
            
