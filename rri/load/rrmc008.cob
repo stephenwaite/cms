@@ -372,6 +372,16 @@
                MOVE "71555" TO R3-CPT    
            END-IF
 
+           IF (R3-PROC = "6263" OR "6267") 
+              AND (r3-cpt = "C8912")
+               move space to ERRFILE01
+               string "RRMC SENT US " R3-CPT " " R3-HCPCS
+                 " CHANGING THIS TO CPT 73725" 
+                   delimited by size INTO ERRFILE01    
+               write errfile01               
+               MOVE "73725" TO R3-CPT    
+           END-IF
+
            IF PROC-AMOUNT = 0
                AND R3-GLC NOT = 0
                GO TO BAD-2
