@@ -658,7 +658,7 @@
                END-WRITE
              NOT INVALID
                ADD 1 TO WEB-NUM             
-               REWRITE WEBFILE01
+      *         REWRITE WEBFILE01
            END-READ
            
            COMPUTE NUM9 = WEB-NUM
@@ -1561,11 +1561,11 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-           IF HOLD-DOCR NOT = CLM-DOCR
+           IF FI-DOCR NOT = CLM-DOCR
              PERFORM 2310A THRU 2310A-EXIT
            end-if  
 
-           if hold-docp not = clm-docp
+           if FI-docp not = clm-docp
              perform 2420a through 2420a-exit
            end-if
 
@@ -1585,7 +1585,7 @@
                END-IF
            
                MOVE BHT-DATE TO CC-DATE-A
-           REWRITE CHARCUR01
+      *     REWRITE CHARCUR01
            END-READ.
 
        2400SRV-EXIT.
@@ -2053,6 +2053,6 @@
       *     WRITE SEGFILE01 FROM IEA01.
 
        P99.
-           REWRITE WEBFILE01.
+      *     REWRITE WEBFILE01.
             CLOSE GARFILE WEBFILE CHARCUR ERRFILE.
             STOP RUN.
