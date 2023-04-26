@@ -372,7 +372,7 @@
                MOVE "71555" TO R3-CPT    
            END-IF
 
-           IF (R3-PROC = "6263" OR "6267") 
+           IF (R3-PROC = "6263") 
              display "r3-proc " r3-proc " r3-hcpcs " r3-hcpcs
              accept omitted
            END-IF  
