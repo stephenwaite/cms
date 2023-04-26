@@ -1561,14 +1561,14 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-           display "fi-docr " fi-docr " clm-docr " clm-docr
+           display "2420srv fi-docr " fi-docr " clm-docr " clm-docr
            accept omitted
            
            IF FI-DOCR NOT = CLM-DOCR
              PERFORM 2310A THRU 2310A-EXIT
            end-if  
 
-           display "fi-docp " fi-docp " clm-docp " clm-docp
+           display "2400srv fi-docp " fi-docp " clm-docp " clm-docp
            accept omitted
            
            if FI-docp not = CLM-docp
@@ -1638,12 +1638,12 @@
 
            MOVE HOLD-DOCR TO REF-KEY 
 
-           display "2310a hold-docr " hold-docr " clm-docr " clm-docr
-           accept omitted
-
            IF CNTR = 1
              MOVE HOLD-DOCR TO CLM-DOCR
            end-if
+
+           display "2310a hold-docr " hold-docr " clm-docr " clm-docr
+           accept omitted
 
            READ REFPHY 
              INVALID 
@@ -1679,12 +1679,13 @@
            EXIT.
 
        2310B.
-           display "2310b hold-docp " hold-docp " clm-docp " clm-docp
-           accept omitted
 
            IF CNTR = 1
              MOVE hold-docp to CLM-DOCP
            end-if
+
+           display "2310b hold-docp " hold-docp " clm-docp " clm-docp
+           accept omitted
 
            MOVE "82 " TO NM1-1
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
