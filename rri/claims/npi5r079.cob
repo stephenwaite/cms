@@ -1386,9 +1386,10 @@
            WRITE SEGFILE01 FROM ALF108.
 
       *    write pwk segment for medical attachments
-           MOVE SPACE TO SEGFILE01
-           MOVE FILEIN01(1:11) TO PWK-7
-           WRITE SEGFILE01 FROM PWK01.
+           IF HOLD-ACC-TYPE NOT = SPACE
+             MOVE SPACE TO SEGFILE01
+             MOVE FILEIN01(1:11) TO PWK-7
+             WRITE SEGFILE01 FROM PWK01.
 
            MOVE "472" TO DTP-1 D8TP-1
            MOVE SPACE TO SEGFILE01
