@@ -1565,7 +1565,7 @@
              PERFORM 2310A THRU 2310A-EXIT
            end-if  
 
-           if FI-docp not = clm-docp
+           if FI-docp not = CLM-docp
              perform 2420a through 2420a-exit
            end-if
 
@@ -1670,9 +1670,10 @@
            EXIT.
 
        2310B.
-      *     IF CNTR = 1
+           IF CNTR = 1
              MOVE hold-docp to CLM-DOCP
-      *     end-if
+             MOVE HOLD-DOC4 TO CLM-DOCR
+           end-if
 
            MOVE "82 " TO NM1-1
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
