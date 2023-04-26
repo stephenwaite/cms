@@ -1641,7 +1641,7 @@
            IF CNTR = 1
              MOVE HOLD-DOCR TO CLM-DOCR
            end-if
-
+           display "cntr " cntr
            display "2310a hold-docr " hold-docr " clm-docr " clm-docr
            accept omitted
 
@@ -1680,10 +1680,11 @@
 
        2310B.
 
+           display "cntr " cntr
            IF CNTR = 1
              MOVE hold-docp to CLM-DOCP
            end-if
-
+           
            display "2310b hold-docp " hold-docp " clm-docp " clm-docp
            accept omitted
 
