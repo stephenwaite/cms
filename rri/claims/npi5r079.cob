@@ -771,7 +771,12 @@
                GO TO P2
              END-IF
 
-             ADD 1 TO CNTR 
+             ADD 1 TO CNTR
+
+             IF CNTR = 1
+               MOVE HOLD-DOCR TO CLM-DOCR
+               MOVE hold-docp to CLM-DOCP
+             end-if
            
       *       IF FI-PROC1 = "76090" OR "76091" OR "76092"
       *         OR "77055" OR "77056" OR "77057"
@@ -1638,10 +1643,6 @@
 
            MOVE HOLD-DOCR TO REF-KEY 
 
-           IF CNTR = 1
-             MOVE HOLD-DOCR TO CLM-DOCR
-           end-if
-           display "cntr " cntr
            display "2310a hold-docr " hold-docr " clm-docr " clm-docr
            accept omitted
 
@@ -1679,12 +1680,6 @@
            EXIT.
 
        2310B.
-
-           display "cntr " cntr
-           IF CNTR = 1
-             MOVE hold-docp to CLM-DOCP
-           end-if
-           
            display "2310b hold-docp " hold-docp " clm-docp " clm-docp
            accept omitted
 
