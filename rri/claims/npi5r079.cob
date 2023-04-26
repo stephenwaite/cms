@@ -658,7 +658,7 @@
                END-WRITE
              NOT INVALID
                ADD 1 TO WEB-NUM             
-      *         REWRITE WEBFILE01
+               REWRITE WEBFILE01
            END-READ
            
            COMPUTE NUM9 = WEB-NUM
@@ -771,12 +771,7 @@
                GO TO P2
              END-IF
 
-             ADD 1 TO CNTR
-
-             IF CNTR = 1
-               MOVE HOLD-DOCR TO CLM-DOCR
-               MOVE hold-docp to CLM-DOCP
-             end-if
+             ADD 1 TO CNTR 
            
       *       IF FI-PROC1 = "76090" OR "76091" OR "76092"
       *         OR "77055" OR "77056" OR "77057"
@@ -1150,7 +1145,7 @@
       *    CURRENTLY UNUSED     
       *     CLM-11-2 CLM-11-3 CLM-11-5
            
-           IF HOLD-ACC-TYPE NOT = SPACE
+           IF HOLD-DAT1 NOT = ZEROES
                PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT.
            
            MOVE SPACE TO SEGFILE01
@@ -1195,15 +1190,10 @@
            EXIT.
 
        ACCIDENT-1.
-
-           IF HOLD-ACC-TYPE = "1"
+           MOVE "OA" TO CLM-11.           
+           IF INS-NEIC = "WX867" OR "J1868"
              MOVE "EM" TO CLM-11
-           ELSE IF HOLD-ACC-TYPE = "2"
-             MOVE "AA" TO CLM-11
-           ELSE IF HOLD-ACC-TYPE = "3"
-             MOVE "OA" TO CLM-11.           
-           
-           MOVE ":::VT" TO CLM-11-4.
+             MOVE ":::VT" TO CLM-11-4.
              
        ACCIDENT-EXIT.
            EXIT.
@@ -1566,19 +1556,13 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-           display "2420srv fi-docr " fi-docr " clm-docr " clm-docr
-           accept omitted
-           
-           IF FI-DOCR NOT = CLM-DOCR
-             PERFORM 2310A THRU 2310A-EXIT
-           end-if  
+      *     IF HOLD-DOCR NOT = CLM-DOCR
+      *       PERFORM 2310A THRU 2310A-EXIT
+      *     end-if  
 
-           display "2400srv fi-docp " fi-docp " clm-docp " clm-docp
-           accept omitted
-           
-           if FI-docp not = CLM-docp
-             perform 2420a through 2420a-exit
-           end-if
+      *     if hold-docp not = clm-docp
+      *       perform 2420a through 2420a-exit
+      *     end-if
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
            
@@ -1596,7 +1580,7 @@
                END-IF
            
                MOVE BHT-DATE TO CC-DATE-A
-      *     REWRITE CHARCUR01
+           REWRITE CHARCUR01
            END-READ.
 
        2400SRV-EXIT.
@@ -1642,9 +1626,10 @@
              GO TO REF-2.
 
            MOVE HOLD-DOCR TO REF-KEY 
-
-           display "2310a hold-docr " hold-docr " clm-docr " clm-docr
-           accept omitted
+           
+           IF CNTR = 1
+             MOVE HOLD-DOCR TO CLM-DOCR
+           end-if
 
            READ REFPHY 
              INVALID 
@@ -1680,8 +1665,9 @@
            EXIT.
 
        2310B.
-           display "2310b hold-docp " hold-docp " clm-docp " clm-docp
-           accept omitted
+      *     IF CNTR = 1
+             MOVE hold-docp to CLM-DOCP
+      *     end-if
 
            MOVE "82 " TO NM1-1
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
@@ -2062,6 +2048,6 @@
       *     WRITE SEGFILE01 FROM IEA01.
 
        P99.
-      *     REWRITE WEBFILE01.
+           REWRITE WEBFILE01.
             CLOSE GARFILE WEBFILE CHARCUR ERRFILE.
             STOP RUN.
