@@ -1576,13 +1576,14 @@
            READ INSFILE 
              INVALID
                DISPLAY FI-PAYCODE.
-
+           
+           MOVE "CI" TO SBR-INSCODE.
+           
            IF HOLD-ACC-TYPE = "1"
              MOVE "WC" TO SBR-INSCODE.
 
            IF HOLD-ACC-TYPE = "2"
              MOVE "AM" TO SBR-INSCODE.  
-
 
            MOVE SPACE TO SBR-TYPE.
            IF
