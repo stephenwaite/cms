@@ -373,6 +373,12 @@
            END-IF
 
            IF (R3-PROC = "6263" OR "6267") 
+             display "r3-proc " r3-proc " r3-hcpcs " r3-hcpcs
+             accept omitted
+           END-IF  
+
+
+           IF (R3-PROC = "6263" OR "6267") 
               AND (r3-cpt = "C8912" OR r3-hcpcs = "C8912")
                move space to ERRFILE01
                string "RRMC SENT US " R3-CPT " " R3-HCPCS
