@@ -1637,7 +1637,10 @@
              GO TO REF-2.
 
            MOVE HOLD-DOCR TO REF-KEY 
-           
+
+           display "2310a hold-docr " hold-docr " clm-docr " clm-docr
+           accept omitted
+
            IF CNTR = 1
              MOVE HOLD-DOCR TO CLM-DOCR
            end-if
@@ -1676,6 +1679,9 @@
            EXIT.
 
        2310B.
+           display "2310b hold-docp " hold-docp " clm-docp " clm-docp
+           accept omitted
+
            IF CNTR = 1
              MOVE hold-docp to CLM-DOCP
            end-if
