@@ -781,7 +781,7 @@
                END-IF
            END-IF
 
-      *     PERFORM NO-SURPRISE.
+           PERFORM NO-SURPRISE.
            
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR
@@ -1893,9 +1893,6 @@
       *     GO TO P1-CLP.
 
        NO-SURPRISE.
-           DISPLAY "NO-SUPRISE "
-           ACCEPT OMITTED.
-           
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
              IF LQ-SVC(Y) = X               
                MOVE SPACE TO FILEIN01
