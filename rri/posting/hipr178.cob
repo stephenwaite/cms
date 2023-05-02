@@ -780,6 +780,8 @@
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
            END-IF
+
+           PERFORM NO-SURPRISE.
            
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR
@@ -1452,6 +1454,27 @@
                end-if
              end-if               
            END-PERFORM. 
+
+       NO-SURPRISE.
+           PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
+             IF LQ-SVC(Y) = X               
+               MOVE SPACE TO FILEIN01
+               MOVE LQ-TAB(Y) TO FILEIN01
+               MOVE SPACE TO LQ01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                 LQ-0 LQ-1 LQ-2 
+
+               IF LQ-2 = "N860" OR "N877"
+                 MOVE LQ-2 TO rarc-key
+                 READ rarcfile with lock
+                   invalid
+                     continue
+                 end-read
+                 PERFORM P1-LOST-SVC
+                 GO TO P5-SVC-LOOP-EXIT
+               end-if
+             end-if               
+           END-PERFORM.    
 
        DUMP-1.
            MOVE SPACE TO ERROR-FILE01
