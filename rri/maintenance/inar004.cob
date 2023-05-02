@@ -3711,8 +3711,8 @@
            IF IN-FIELD = "?"
            DISPLAY "TYPE THE 2ND MODIFIER OR <CR>"
            GO TO CC-2000TI.
-           DISPLAY "IN-FIELD(1:1) " IN-FIELD(1:1)
-           DISPLAY "IN-FIELD(2:1) " IN-FIELD(2:1)
+      *     DISPLAY "IN-FIELD(1:1) " IN-FIELD(1:1)
+      *     DISPLAY "IN-FIELD(2:1) " IN-FIELD(2:1)
            IF IN-FIELD(1:1) NOT = SPACE AND IN-FIELD(2:1) = SPACE
              DISPLAY "INVALID, MOD SHOULD BE 2 CHARS"
              GO TO CC-2000TI.
