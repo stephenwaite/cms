@@ -72,23 +72,30 @@
            02 FI-PAT-STR1 PIC X(22).
            02 FI-PAT-STR2 PIC X(22).
            02 FI-PAT-CITY PIC X(18).
+      * col 111     
            02 FI-PAT-STATE PIC XX.
            02 FI-PAT-ZIP PIC X(9).
            02 FI-PAT-DOB PIC X(10).
            02 FI-PAT-SEX PIC X.
+      * col 133     
            02 PRIME-INS.
              03 FI-PRIM-ALFA PIC X(10).
              03 FI-PRIM-NAME PIC X(30).
              03 FI-PRIM-STR1 PIC X(22).
+      * col 195       
              03 FI-PRIM-CITY PIC X(18).
              03 FI-PRIM-STATE PIC XX.
              03 FI-PRIM-ZIP PIC X(10).
-             03 FI-PRIM-DAT1 PIC X(10).
+      * col 225       
              03 FI-PRIM-POL PIC X(16).
+             03 FI-PRIM-DAT1 PIC X(10).
+      * col 251       
              03 FI-PRIM-NAMEL PIC X(24).
              03 FI-PRIM-NAMEF PIC X(24).
+      * col 299       
              03 FI-PRIM-SUBSEX PIC X(10).
              03 FI-PRIM-SUBRELATE PIC XXXX.
+      * col 313       
            02 SECOND-INS. 
              03 FI-SEC-ALFA PIC X(10).
              03 FI-SEC-NAME PIC X(30).
@@ -96,11 +103,13 @@
              03 FI-SEC-CITY PIC X(18).
              03 FI-SEC-STATE PIC XX.
              03 FI-SEC-ZIP PIC X(10).
+      * col 405
+             03 FI-SEC-DAT1 PIC X(8).       
              03 FI-SEC-POL PIC X(16).
              03 FI-SEC-NAMEL PIC X(24).
              03 FI-SEC-NAMEF PIC X(24).
              03 FI-SEC-SUBSEX PIC X(10).
-             03 FI-SEC-SUBRELATE PIC XXXX.
+             03 FI-SEC-SUBRELATE PIC XXXX.       
            02 FI-PROC.
                03 FI-PROC1 PIC X(5).
                03 FI-PROC2 PIC XX.
@@ -110,7 +119,7 @@
            02 FI-DX4 PIC X(8).
            02 FI-DATE-T PIC X(10).
            02 FI-PROVNPI PIC X(10).
-           02 FI-DAT1 PIC X(10).
+           02 FI-DAT1 PIC X(8).
            02 THIRD-INS.
              03 FI-3RD-ALFA PIC X(10).
              03 FI-3RD-POL PIC X(16).
