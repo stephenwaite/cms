@@ -305,6 +305,7 @@
            02 FI-PAT-STR1 PIC X(22).
            02 FI-PAT-STR2 PIC X(22).
            02 FI-PAT-CITY PIC X(18).
+      * col 110     
            02 FI-PAT-STATE PIC XX.
            02 FI-PAT-ZIP PIC X(9).
            02 FI-PAT-DOB PIC X(10).
@@ -316,6 +317,8 @@
            02 FI-PRIM-STATE PIC XX.
            02 FI-PRIM-ZIP PIC X(10).
            02 FI-PRIM-POL PIC X(16).
+      * col 240     
+           02 FI-PRIM-DAT1 PIC X(10).
            02 FI-PRIM-NAMEL PIC X(24).
            02 FI-PRIM-NAMEF PIC X(24).
            02 FI-PRIM-SUBSEX PIC X(10).
@@ -326,6 +329,8 @@
            02 FI-SEC-CITY PIC X(18).
            02 FI-SEC-STATE PIC XX.
            02 FI-SEC-ZIP PIC X(10).
+      * col 404     
+           02 FI-SEC-DAT1 PIC X(8).       
            02 FI-SEC-POL PIC X(16).
            02 FI-SEC-NAMEL PIC X(24).
            02 FI-SEC-NAMEF PIC X(24).
@@ -334,13 +339,15 @@
            02 FI-PROC.
                03 FI-PROC1 PIC X(5).
                03 FI-PROC2 PIC XX.
+      * col 497
            02 FI-DX1 PIC X(8).
            02 FI-DX2 PIC X(8).
            02 FI-DX3 PIC X(8).
            02 FI-DX4 PIC X(8).
-           02 FI-DATE-T PIC X(10).
+      * col 529     
+           02 FI-DATE-T PIC X(10).   
            02 FI-PROVNPI PIC X(10).
-           02 FI-DAT1 PIC X(10).
+           02 FI-DAT1 PIC X(8).
            02 FI-3RD-ALFA PIC X(10).
            02 FI-3RD-POL PIC X(16).
            02 FI-4TH-ALFA PIC X(10).
@@ -851,7 +858,7 @@
                MOVE "20" TO T-YYYY(1:2)
            END-IF
            
-           UNSTRING FI-DAT1 DELIMITED BY "/" INTO T-MM T-DD T-YYYY
+           UNSTRING FI-PRIM-DAT1 DELIMITED BY "/" INTO T-MM T-DD T-YYYY
            MOVE SPACE TO RIGHT-2
            UNSTRING T-MM DELIMITED BY " " INTO RIGHT-2
            INSPECT RIGHT-2 REPLACING ALL " " BY "0"
