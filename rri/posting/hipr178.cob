@@ -781,7 +781,7 @@
                END-IF
            END-IF
 
-           PERFORM NO-SURPRISE.
+      *     PERFORM NO-SURPRISE.
            
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR
