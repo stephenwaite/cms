@@ -83,7 +83,7 @@
              03 FI-PRIM-CITY PIC X(18).
              03 FI-PRIM-STATE PIC XX.
              03 FI-PRIM-ZIP PIC X(10).
-             03 FI-PRIM-GRP PIC X(10).
+             03 FI-PRIM-DAT1 PIC X(10).
              03 FI-PRIM-POL PIC X(16).
              03 FI-PRIM-NAMEL PIC X(24).
              03 FI-PRIM-NAMEF PIC X(24).
@@ -96,7 +96,6 @@
              03 FI-SEC-CITY PIC X(18).
              03 FI-SEC-STATE PIC XX.
              03 FI-SEC-ZIP PIC X(10).
-             03 FI-SEC-GRP PIC X(10).
              03 FI-SEC-POL PIC X(16).
              03 FI-SEC-NAMEL PIC X(24).
              03 FI-SEC-NAMEF PIC X(24).
@@ -127,7 +126,6 @@
              03 T-CITY PIC X(18).
              03 T-STATE PIC XX.
              03 T-ZIP PIC X(9).
-             03 T-GRP PIC X(10).
              03 T-POL PIC X(16).
              03 T-NAMEL PIC X(24).
              03 T-NAMEF PIC X(24).
@@ -215,7 +213,6 @@
              MOVE ALF5X TO FI-PRIM-ZIP.
 
            MOVE FI-PRIM-ZIP TO T-ZIP(1)
-           MOVE FI-PRIM-GRP TO T-GRP(1)
            MOVE FI-PRIM-POL TO T-POL(1)
            MOVE FI-PRIM-NAMEL TO T-NAMEL(1)
            MOVE FI-PRIM-NAMEF TO T-NAMEF(1)
@@ -237,7 +234,6 @@
            IF ALF5X NOT = SPACE
              MOVE ALF5X TO FI-SEC-ZIP.
            MOVE FI-SEC-ZIP TO T-ZIP(2)
-           MOVE FI-SEC-GRP TO T-GRP(2)
            MOVE FI-SEC-POL TO T-POL(2)
            MOVE FI-SEC-NAMEL TO T-NAMEL(2)
            MOVE FI-SEC-NAMEF TO T-NAMEF(2)
@@ -247,7 +243,7 @@
            MOVE SPACE TO ALF10X
 
            MOVE SPACE TO T-CODE(3) T-NAME(3) T-CITY(3) T-STATE(3)
-             T-ZIP(3) T-GRP(3) T-POL(3) T-NAMEL(3) T-NAMEF(3)
+             T-ZIP(3) T-POL(3) T-NAMEL(3) T-NAMEF(3)
              T-SUBSEX(3) T-SUBRELATE(3)
            IF FI-3RD-ALFA NOT = 0
              MOVE FI-3RD-ALFA TO ALF10X
@@ -259,7 +255,6 @@
              MOVE FI-3RD-CITY TO T-CITY(3)
              MOVE SPACE TO T-STATE(3)
              MOVE SPACE TO T-ZIP(3)
-             MOVE SPACE TO T-GRP(3)
              MOVE FI-3RD-POL TO T-POL(3)
              MOVE SPACE TO T-NAMEL(3)
              MOVE SPACE TO T-NAMEF(3)
@@ -445,7 +440,6 @@
            MOVE T-STATE(1) TO FI-PRIM-STATE
 
            MOVE T-ZIP(1) TO FI-PRIM-ZIP
-           MOVE T-GRP(1) TO FI-PRIM-GRP
            MOVE T-POL(1) TO FI-PRIM-POL
            MOVE T-NAMEL(1) TO FI-PRIM-NAMEL 
            MOVE T-NAMEF(1) TO FI-PRIM-NAMEF 
@@ -458,7 +452,6 @@
            MOVE T-CITY(2) TO FI-SEC-CITY
            MOVE T-STATE(2) TO FI-SEC-STATE
            MOVE T-ZIP(2) TO FI-SEC-ZIP
-           MOVE T-GRP(2) TO FI-SEC-GRP
            MOVE T-POL(2) TO FI-SEC-POL 
            MOVE T-NAMEL(2) TO FI-SEC-NAMEL 
            MOVE T-NAMEF(2) TO FI-SEC-NAMEF 

@@ -315,7 +315,6 @@
            02 FI-PRIM-CITY PIC X(18).
            02 FI-PRIM-STATE PIC XX.
            02 FI-PRIM-ZIP PIC X(10).
-           02 FI-PRIM-GRP PIC X(10).
            02 FI-PRIM-POL PIC X(16).
            02 FI-PRIM-NAMEL PIC X(24).
            02 FI-PRIM-NAMEF PIC X(24).
@@ -327,7 +326,6 @@
            02 FI-SEC-CITY PIC X(18).
            02 FI-SEC-STATE PIC XX.
            02 FI-SEC-ZIP PIC X(10).
-           02 FI-SEC-GRP PIC X(10).
            02 FI-SEC-POL PIC X(16).
            02 FI-SEC-NAMEL PIC X(24).
            02 FI-SEC-NAMEF PIC X(24).
@@ -676,12 +674,8 @@
                    MOVE "M" TO RPG-RELATE
                END-IF
            END-IF
-
-           IF FI-PRIM-GRP = "0" MOVE SPACE TO FI-PRIM-GRP.
-
-           IF FI-SEC-GRP = "0" MOVE SPACE TO FI-SEC-GRP.
            
-           MOVE FI-PRIM-GRP TO RPG-PR-GROUP
+           MOVE SPACE TO RPG-PR-GROUP
            MOVE SPACE TO TAB1601
            MOVE FI-PRIM-POL TO RPG-PRIPOL
 
@@ -715,7 +709,7 @@
                MOVE RPG-GARNAME TO RPG-SENAME
            END-IF
            
-           MOVE FI-SEC-GRP TO RPG-SE-GROUP
+           MOVE SPACE TO RPG-SE-GROUP
            MOVE FI-SEC-POL TO RPG-SECPOL
            
            IF RPG-GARNAME = RPG-SENAME
