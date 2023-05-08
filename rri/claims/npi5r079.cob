@@ -562,8 +562,6 @@
            READ FILEIN
              display "filein01 " filein01
              display "end-flag " end-flag
-             accept omitted
-             
              AT END
                MOVE 1 TO END-FLAG
                GO TO P2
