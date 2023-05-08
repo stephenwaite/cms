@@ -1497,7 +1497,6 @@
            MOVE REF-NPI TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
-           GO TO 2310A-EXIT.
 
        2420F-2.
            MOVE "DN" TO NM1-1
