@@ -592,6 +592,11 @@
              END-IF
 
              ADD 1 TO CNTR
+
+             IF CNTR = 1
+               MOVE FI-DOCR TO CLM-DOCR
+               MOVE FI-DOCP TO CLM-DOCP
+             end-if
            
       *       IF FI-PROC1 = "76090" OR "76091" OR "76092"
       *         OR "77055" OR "77056" OR "77057"
@@ -1391,11 +1396,11 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-           if Fi-docp not = HOLD-docp
-             perform 2420a through 2420a-exit
+           if FI-DOCP NOT = CLM-DOCP
+             PERFORM 2420A THRU 2420A-EXIT
            end-if
 
-           IF FI-DOCR NOT = HOLD-DOCR
+           IF FI-DOCR NOT = CLM-DOCR
              PERFORM 2420F THRU 2420F-EXIT
            end-if  
 
