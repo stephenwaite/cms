@@ -521,7 +521,7 @@
        START-BEGIN.
            READ FILEIN
              AT END
-               display "start-begin"
+      *         display "start-begin"
                GO TO P98
            END-READ.    
 
@@ -562,13 +562,20 @@
        P1. 
            READ FILEIN
              AT END
-               display "filein01 " filein01
-               display "end-flag " end-flag
+      *         display "filein01 " filein01
+      *         display "end-flag " end-flag
                MOVE 1 TO END-FLAG
                GO TO P2
            END-READ.
 
-       P1-1. 
+       P1-1.
+
+           display filein01 " filein01"
+           display hold-filein01 " hold-filein01"
+           display fi-neic " fi-neic"
+           display hold-neic " hold-neic"
+           accept omitted
+           
            IF FI-NEIC NOT = HOLD-NEIC 
              GO TO P2.
 
@@ -610,10 +617,10 @@
 
        P2.  
            MOVE FILEIN01 TO SAVE01
-           display filein01 " filein01"
-           display hold-filein01 " hold-filein01"
-           DISPLAY end-flag "END-FLAG "
-           accept omitted
+      *     display filein01 " filein01"
+      *     display hold-filein01 " hold-filein01"
+      *     DISPLAY end-flag "END-FLAG "
+      *     accept omitted
 
            PERFORM 2300CLM THRU 2300CLM-EXIT
 
@@ -632,7 +639,7 @@
               VARYING X FROM 1 BY 1 UNTIL X > CNTR
            
            IF END-FLAG = 1 
-             "display end-flag is 1 so ending"
+      *       "display end-flag is 1 so ending"
              GO TO P98.
            
            MOVE SAVE01 TO FILEIN01
@@ -1918,8 +1925,8 @@
        MAKE-IT-UP-EXIT.
            EXIT.
        P98.
-           display "p98 ending"
-           accept omitted
+      *     display "p98 ending"
+      *     accept omitted
            
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SE01
