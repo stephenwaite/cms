@@ -609,6 +609,10 @@
 
        P2.  
            MOVE FILEIN01 TO SAVE01
+           display filein01 " filein01"
+           display hold-filein01 " hold-filein01"
+           DISPLAY end-flag "END-FLAG "
+           accept omitted
 
            PERFORM 2300CLM THRU 2300CLM-EXIT
 
@@ -629,10 +633,6 @@
            IF END-FLAG = 1 GO TO P98.
            
            MOVE SAVE01 TO FILEIN01
-           
-           display filein01 " filein01"
-           display hold-filein01 " hold-filein01"
-           accept omitted
 
            IF FI-NEIC NOT = HOLD-NEIC
                MOVE SPACE TO SEGFILE01
@@ -1399,8 +1399,8 @@
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
            
-           display "FI-DOCP " FI-DOCP " FI-DOCR " FI-DOCR
-           ACCEPT OMITTED
+      *     display "FI-DOCP " FI-DOCP " FI-DOCR " FI-DOCR
+      *     ACCEPT OMITTED
            
            if FI-DOCP NOT = CLM-DOCP
              PERFORM 2420A THRU 2420A-EXIT
