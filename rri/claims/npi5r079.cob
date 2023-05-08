@@ -643,8 +643,8 @@
              GO TO P98.
            
            MOVE SAVE01 TO FILEIN01
-           display filein01 " filein01"
-           display hold01 " hold01"
+           display fi-neic " fi-neic"
+           display hold-neic " hold-neic"
            accept omitted 
 
            IF FI-NEIC NOT = HOLD-NEIC
