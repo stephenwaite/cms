@@ -631,7 +631,9 @@
            PERFORM 2400SRV THRU 2400SRV-EXIT
               VARYING X FROM 1 BY 1 UNTIL X > CNTR
            
-           IF END-FLAG = 1 GO TO P98.
+           IF END-FLAG = 1 
+             "display end-flag is 1 so ending"
+             GO TO P98.
            
            MOVE SAVE01 TO FILEIN01
 
