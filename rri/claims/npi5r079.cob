@@ -640,23 +640,6 @@
                GO TO START-HIGHER
            END-IF    
            
-           IF FI-DOCP NOT = HOLD-DOCP 
-               MOVE FILEIN01 TO HOLD-FILEIN01
-               MOVE HOLD-DOCP TO DOC-NUM
-               MOVE "000" to DOC-INS
-               
-               READ DOCFILENEW
-                 INVALID
-                   MOVE "000" TO DOC-INS                   
-                   READ DOCFILENEW
-                     INVALID
-                       GO TO START-BEGIN
-                   END-READ
-               END-READ
-
-               PERFORM DOCP-1
-           END-IF
-
            MOVE FILEIN01 TO HOLD-FILEIN01
            PERFORM 2000B 
            GO TO P0000.
