@@ -560,8 +560,9 @@
 
        P1. 
            READ FILEIN
-             display "filein01 " filein01
-             display "end-flag " end-flag
+             NOT INVALID
+               display "filein01 " filein01
+               display "end-flag " end-flag.
              AT END
                MOVE 1 TO END-FLAG
                GO TO P2
