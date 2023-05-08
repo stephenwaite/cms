@@ -1915,6 +1915,9 @@
        MAKE-IT-UP-EXIT.
            EXIT.
        P98.
+           display "p98 ending"
+           accept omitted
+           
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SE01
            ADD 1 TO GE-CNTR
