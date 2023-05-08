@@ -566,9 +566,6 @@
            END-READ.
 
        P1-1. 
-           display filein01 " filein01"
-           display hold-filein01 " hold-filein01"
-           accept omitted
            IF FI-NEIC NOT = HOLD-NEIC 
              GO TO P2.
 
@@ -630,6 +627,10 @@
            IF END-FLAG = 1 GO TO P98.
            
            MOVE SAVE01 TO FILEIN01
+           
+           display filein01 " filein01"
+           display hold-filein01 " hold-filein01"
+           accept omitted
            
            IF FI-NEIC NOT = HOLD-NEIC
                MOVE SPACE TO SEGFILE01
