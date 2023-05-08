@@ -594,8 +594,8 @@
              ADD 1 TO CNTR
 
              IF CNTR = 1
-               MOVE FI-DOCR TO CLM-DOCR
-               MOVE FI-DOCP TO CLM-DOCP
+               MOVE HOLD-DOCR TO CLM-DOCR
+               MOVE HOLD-DOCP TO CLM-DOCP
              end-if
            
       *       IF FI-PROC1 = "76090" OR "76091" OR "76092"
