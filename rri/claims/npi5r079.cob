@@ -521,6 +521,7 @@
        START-BEGIN.
            READ FILEIN
              AT END
+               display "start-begin"
                GO TO P98
            END-READ.    
 
