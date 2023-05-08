@@ -560,6 +560,10 @@
 
        P1. 
            READ FILEIN
+             display "filein01 " filein01
+             display "end-flag " end-flag
+             accept omitted
+             
              AT END
                MOVE 1 TO END-FLAG
                GO TO P2
@@ -631,7 +635,7 @@
            display filein01 " filein01"
            display hold-filein01 " hold-filein01"
            accept omitted
-           
+
            IF FI-NEIC NOT = HOLD-NEIC
                MOVE SPACE TO SEGFILE01
                WRITE SEGFILE01 FROM SE01
