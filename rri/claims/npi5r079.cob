@@ -628,7 +628,6 @@
              GO TO P98.
            
            MOVE SAVE01 TO FILEIN01
-           accept omitted 
 
            IF FI-NEIC NOT = HOLD-NEIC
                MOVE SPACE TO SEGFILE01
