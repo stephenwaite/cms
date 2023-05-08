@@ -570,11 +570,11 @@
 
        P1-1.
 
-           display filein01 " filein01"
-           display hold-filein01 " hold-filein01"
-           display fi-neic " fi-neic"
-           display hold-neic " hold-neic"
-           accept omitted
+      *     display filein01 " filein01"
+      *     display hold-filein01 " hold-filein01"
+      *     display fi-neic " fi-neic"
+      *     display hold-neic " hold-neic"
+      *     accept omitted
            
            IF FI-NEIC NOT = HOLD-NEIC 
              GO TO P2.
@@ -643,6 +643,9 @@
              GO TO P98.
            
            MOVE SAVE01 TO FILEIN01
+           display filein01 " filein01"
+           display hold01 " hold01"
+           accept omitted 
 
            IF FI-NEIC NOT = HOLD-NEIC
                MOVE SPACE TO SEGFILE01
