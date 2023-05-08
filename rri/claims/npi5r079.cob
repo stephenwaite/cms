@@ -521,7 +521,6 @@
        START-BEGIN.
            READ FILEIN
              AT END
-      *         display "start-begin"
                GO TO P98
            END-READ.    
 
@@ -562,20 +561,11 @@
        P1. 
            READ FILEIN
              AT END
-      *         display "filein01 " filein01
-      *         display "end-flag " end-flag
                MOVE 1 TO END-FLAG
                GO TO P2
            END-READ.
 
        P1-1.
-
-      *     display filein01 " filein01"
-      *     display hold-filein01 " hold-filein01"
-      *     display fi-neic " fi-neic"
-      *     display hold-neic " hold-neic"
-      *     accept omitted
-           
            IF FI-NEIC NOT = HOLD-NEIC 
              GO TO P2.
 
@@ -617,10 +607,6 @@
 
        P2.  
            MOVE FILEIN01 TO SAVE01
-      *     display filein01 " filein01"
-      *     display hold-filein01 " hold-filein01"
-      *     DISPLAY end-flag "END-FLAG "
-      *     accept omitted
 
            PERFORM 2300CLM THRU 2300CLM-EXIT
 
@@ -639,12 +625,9 @@
               VARYING X FROM 1 BY 1 UNTIL X > CNTR
            
            IF END-FLAG = 1 
-      *       "display end-flag is 1 so ending"
              GO TO P98.
            
            MOVE SAVE01 TO FILEIN01
-           display fi-neic " fi-neic"
-           display hold-neic " hold-neic"
            accept omitted 
 
            IF FI-NEIC NOT = HOLD-NEIC
@@ -1411,10 +1394,7 @@
            MOVE SPACE TO SEGFILE01
            MOVE FI-DATE-T TO DTP-3
            WRITE SEGFILE01 FROM DTP01
-           
-      *     display "FI-DOCP " FI-DOCP " FI-DOCR " FI-DOCR
-      *     ACCEPT OMITTED
-           
+                      
            if FI-DOCP NOT = CLM-DOCP
              PERFORM 2420A THRU 2420A-EXIT
            end-if
@@ -1924,12 +1904,11 @@
            MOVE "F" TO DMG-GENDER.
       *     DISPLAY G-DOB " " G-SE-RELATE " " G-GARNAME
       *     DISPLAY X-DOB " " G-PR-RELATE " " G-PRNAME.
+
        MAKE-IT-UP-EXIT.
            EXIT.
-       P98.
-      *     display "p98 ending"
-      *     accept omitted
            
+       P98.           
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SE01
            ADD 1 TO GE-CNTR
