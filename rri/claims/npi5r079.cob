@@ -988,6 +988,12 @@
                WRITE SEGFILE01 FROM DTP01
            END-IF                          
            
+      *    write pwk segment for medical attachments
+           IF HOLD-ACC-TYPE NOT = SPACE
+             MOVE SPACE TO SEGFILE01
+             MOVE FILEIN01(1:11) TO PWK-7
+             WRITE SEGFILE01 FROM PWK01.
+             
       *    add auth for VA/VACCN outpatient claims
            MOVE 0 TO AUTH-FLAG
       *     IF (HOLD-PAYCODE = "079" OR "225" OR "926")
@@ -1382,12 +1388,6 @@
            MOVE TAB10801 TO ALF108
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM ALF108.
-
-      *    write pwk segment for medical attachments
-           IF HOLD-ACC-TYPE NOT = SPACE
-             MOVE SPACE TO SEGFILE01
-             MOVE FILEIN01(1:11) TO PWK-7
-             WRITE SEGFILE01 FROM PWK01.
 
            MOVE "472" TO DTP-1 D8TP-1
            MOVE SPACE TO SEGFILE01
