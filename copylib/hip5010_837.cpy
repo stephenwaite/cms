@@ -529,7 +529,7 @@
        01  PWK01.
            02 PWK-1 PIC XXX VALUE "PWK".
            02 PWK-S1 PIC X VALUE "*".
-           02 PWK-2 PIC XX VALUE "PY".
+           02 PWK-2 PIC XX VALUE "OZ".
            02 PWK-S2 PIC X VALUE "*".
            02 PWK-3 PIC XX VALUE "EL".
            02 PWK-S345 PIC XXX VALUE "***".
