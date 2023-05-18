@@ -991,7 +991,7 @@
       *    write pwk segment for medical attachments
            IF HOLD-ACC-TYPE NOT = SPACE
              MOVE SPACE TO SEGFILE01
-             MOVE FILEIN01(1:11) TO PWK-7
+             MOVE HOLD-FILEIN-KEY TO PWK-7
              WRITE SEGFILE01 FROM PWK01.
              
       *    add auth for VA/VACCN outpatient claims
