@@ -52,7 +52,10 @@
        01  FILEOUT01 PIC X(165). 
 
        FD  INSFILE.
-           COPY insfile.cpy IN "C:\Users\sid\cms\copylib\rri".
+           COPY insfile.cpy IN "C:\Users\sid\cms\copylib".
+
+       FD  GARFILE.
+           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".        
 
        PROCEDURE DIVISION.
        P0.
