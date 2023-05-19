@@ -86,7 +86,7 @@
                GO TO P2
            END-READ
 
-           MOVE CC-KEY-8 TO G-GARNO
+           MOVE CC-KEY8 TO G-GARNO
 
            READ GARFILE
              INVALID
