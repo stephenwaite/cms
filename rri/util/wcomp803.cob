@@ -46,7 +46,7 @@
        FD  FILEIN.
        01  FILEIN01. 
            02 FI-1 PIC X(11).
-           02 FILLER PIC X(160).
+           02 FILLER PIC X(180).
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(165). 
