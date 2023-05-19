@@ -60,13 +60,6 @@ $body = '{
     "dateOfBirth": "18800102",
     "groupNumber": "0000000000"
   },
-  "dependent": {
-    "firstName": "janeone",
-    "lastName": "doeone",
-    "gender": "F",
-    "dateOfBirth": "18800101",
-    "groupNumber": "0000000000"
-  },
   "encounter": {
     "beginningDateOfService": "20100101",
     "endDateOfService": "20100102",

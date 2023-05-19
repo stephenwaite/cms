@@ -73,7 +73,7 @@
                GO TO P1
            END-IF
 
-           IF  INS-ACC-TYPE = "1"
+           IF  CD-PAYCODE = "091" OR INS-ACC-TYPE = "1"
                MOVE "1" TO CD-ACC-TYPE
                REWRITE CHARNEW01
                STRING "W/C INS " CD-NAME " " CD-DATE-T " " CD-PROC1
