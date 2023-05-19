@@ -28,4 +28,5 @@ $headers = [
 ];
 $request = new Request('GET', $url, $headers);
 $res = $client->sendAsync($request)->wait();
-echo $res->getBody();
+
+echo json_encode(json_decode($res->getBody()), JSON_PRETTY_PRINT);
