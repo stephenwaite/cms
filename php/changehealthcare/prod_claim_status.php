@@ -17,13 +17,13 @@ function getControlNumber() {
     return $control_number;
 }
 
-$base_uri = 'https://sandbox.apigw.changehealthcare.com/';
+$base_uri = 'https://apigw.changehealthcare.com/';
 $guzzle = new Client();
 $response = $guzzle->post($base_uri . 'apip/auth/v2/token', [
     'form_params' => [
         'grant_type' => 'client_credentials',
-        'client_id' => getenv('TEST_CHANGE_CLIENT_ID'),
-        'client_secret' => getenv('TEST_CHANGE_CLIENT_SECRET'),
+        'client_id' => getenv('PROD_CHANGE_CLIENT_ID'),
+        'client_secret' => getenv('PROD_CHANGE_CLIENT_SECRET'),
     ],
 ]);
 $bearer = json_decode((string) $response->getBody(), true)['access_token'];
@@ -69,50 +69,20 @@ if ($fh_wcomp_sid) {
         $trading_partner_name = $ins_name;       
 
         $control_array = array(
-            'controlNumber' => '000000001',
-            'tradingPartnerServiceId' => 'serviceId',
-        );
-
-        /* $control_array = array(
             'controlNumber' => getControlNumber(),
             'tradingPartnerServiceId' => $trading_partner_service_id,
-        ); */
+        );
 
         $datum = new stdClass();
-        $datum->organization_name = 'TestProvider';
-        $datum->taxId = '0123456789';
+        $datum->organization_name = 'RUTLAND RADIOLOGISTS';
+        $datum->taxId = '030238095';
         $datum->providerType = 'BillingProvider';
         $datum_array = array($datum);
         $providers = array(
             'providers' => $datum_array
         );
-            /* array(
-                "organizationName" => "happy doctors group",
-                "npi" => "1760854442",
-                "providerType" => "ServiceProvider"
-            ) */
-
-
-        /* $providers = array(
-            'providers' => array(
-                'organizationName' => 'RUTLAND RADIOLOGISTS',
-                'taxId'            => '030238095',
-                'providerType'     => 'BillingProvider'
-            )
-        ); */
 
         $subscriber = array(
-            'subscriber' => array(
-                'memberId' => '0000000000',
-                'firstName' => 'johnone',
-                'lastName' => 'doeone',
-                'gender' => 'M',
-                'dateOfBirth' => '18800102',
-                'groupNumber' => '0000000000'
-            )
-        );
-
-        /* $subscriber = array(
             'subscriber' => array(
                 'memberId' => $g_pripol,
                 'firstName' => $firstName,
@@ -121,23 +91,15 @@ if ($fh_wcomp_sid) {
                 'dateOfBirth' => $g_dob,
                 'groupNumber' => $g_group_number
             )
-        ); */
-
-        $encounter = array(
-            'encounter' => array(
-                'beginningDateOfService' => '20100101',
-                'endDateOfService'       => '20100102',
-                'trackingNumber'         => 'ABCD'
-            )
         );
 
-        /* $encounter = array(
+        $encounter = array(
             'encounter' => array(
                 'beginningDateOfService' => $cc_date_t,
                 'endDateOfService'       => $cc_date_t,
                 'trackingNumber'         => getControlNumber()
             )
-        ); */
+        );
     }
 }
 
@@ -151,35 +113,7 @@ $body = array_merge(
 //echo json_encode($body, JSON_PRETTY_PRINT);
 //exit;
 
-/* $body = '{
-  "controlNumber": "000000001",
-  "tradingPartnerServiceId": "serviceId",
-  "providers": [
-    {
-      "organizationName": "TestProvider",
-      "taxId": "0123456789",
-      "providerType": "BillingProvider"
-    },
-    {
-      "organizationName": "happy doctors group",
-      "npi": "1760854442",
-      "providerType": "ServiceProvider"
-    }
-  ],
-  "subscriber": {
-    "memberId": "0000000000",
-    "firstName": "johnone",
-    "lastName": "doeone",
-    "gender": "M",
-    "dateOfBirth": "18800102",
-    "groupNumber": "0000000000"
-  },
-  "encounter": {
-    "beginningDateOfService": "20100101",
-    "endDateOfService": "20100102",
-    "trackingNumber": "ABCD"
-  }
-}'; */
+
 $request = new Request(
     'POST', 
     $base_uri . 'medicalnetwork/claimstatus/v2',
@@ -191,6 +125,7 @@ try {
     $res = $client->sendAsync($request)->wait();
 } catch (Exception $e) {
     throw new Exception($e->getResponse()->getBody()->getContents());
+    exit;
 } 
 echo json_encode(json_decode($res->getBody()), JSON_PRETTY_PRINT);
 
