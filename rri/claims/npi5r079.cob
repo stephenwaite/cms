@@ -1023,11 +1023,10 @@
              MOVE "EM" TO CLM-11
            ELSE IF FI-ACC-TYPE = "2"
              MOVE "AA" TO CLM-11
+             MOVE ":::VT" TO CLM-11-4
            ELSE
              MOVE "OA" TO CLM-11.           
-  
-           MOVE ":::VT" TO CLM-11-4.
-             
+               
        ACCIDENT-EXIT.
            EXIT.
 
