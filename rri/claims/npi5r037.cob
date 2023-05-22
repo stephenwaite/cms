@@ -1080,6 +1080,7 @@
               03 DOC-NPI PIC X(10).
 
        01  AUTH-FLAG PIC 9.
+       01  DIAG-OVER PIC 9.
        
        PROCEDURE DIVISION.
        P0. 
@@ -1153,6 +1154,7 @@
            READ FILEIN AT END GO TO P98.
            MOVE FILEIN01 TO HOLD-FILEIN01
            MOVE 0 TO CNTR DIAG-CNTR TOT-AMOUNT MAMMO-FLAG CLIA-FLAG
+             DIAG-OVER
            PERFORM DF-SEARCH
            PERFORM 2000A THRU 2000B
            GO TO P1-1.
@@ -1161,6 +1163,7 @@
            MOVE SAVE01 TO HOLD-FILEIN01.
            PERFORM DF-SEARCH.
            MOVE 0 TO CNTR DIAG-CNTR TOT-AMOUNT MAMMO-FLAG CLIA-FLAG
+             DIAG-OVER
            GO TO P1-1.
 
        P1. 
@@ -1170,7 +1173,7 @@
                GO TO P2.
 
        P1-1. 
-           IF DIAG-CNTR > 11
+           IF DIAG-CNTR > 11 OR DIAG-OVER = 1
              GO TO P2.
 
            IF  FI-PLACE = HOLD-PLACE
@@ -1184,7 +1187,7 @@
              AND CNTR < 50
              PERFORM DIAG-1 THRU DIAG-EXIT 
             
-             IF DIAG-CNTR > 12
+             IF DIAG-CNTR > 12 OR DIAG-OVER = 1
                GO TO P2
              END-IF
             
@@ -1232,6 +1235,7 @@
            
            IF FLAG = 0
              IF DIAG-CNTR = 12
+               MOVE 1 TO DIAG-OVER
                GO TO DIAG-EXIT
              END-IF
              ADD 1 TO DIAG-CNTR
@@ -1246,6 +1250,7 @@
            
            IF FLAG = 0
              IF DIAG-CNTR = 12
+               MOVE 1 TO DIAG-OVER
                GO TO DIAG-EXIT
              END-IF
              ADD 1 TO DIAG-CNTR
