@@ -1231,8 +1231,10 @@
            PERFORM DIAG-2 VARYING X FROM 1 BY 1 UNTIL X > DIAG-CNTR
            
            IF FLAG = 0
+             IF DIAG-CNTR = 12
+               GO TO DIAG-EXIT
+             END-IF
              ADD 1 TO DIAG-CNTR
-             
              MOVE FI-DIAG TO DIAGTAB(DIAG-CNTR).
 
            IF FI-DX2 = "0000000"  GO TO DIAG-EXIT.
@@ -1243,8 +1245,10 @@
            PERFORM DIAG-2 VARYING X FROM 1 BY 1 UNTIL X > DIAG-CNTR
            
            IF FLAG = 0
+             IF DIAG-CNTR = 12
+               GO TO DIAG-EXIT
+             END-IF
              ADD 1 TO DIAG-CNTR
-             
              MOVE FI-DX2 TO DIAGTAB(DIAG-CNTR).
 
            IF FI-DX3 = "0000000"  GO TO DIAG-EXIT.
