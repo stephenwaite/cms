@@ -1183,9 +1183,7 @@
              AND FI-ACC-TYPE = HOLD-ACC-TYPE
              AND CNTR < 50
              PERFORM DIAG-1 THRU DIAG-EXIT 
-             DISPLAY "DIAG-CNTR " DIAG-CNTR
-             ACCEPT OMITTED
-             
+            
              IF DIAG-CNTR > 12
                GO TO P2
              END-IF
@@ -1234,6 +1232,9 @@
            
            IF FLAG = 0
              ADD 1 TO DIAG-CNTR
+             IF DIAG-CNTR > 12
+               GO TO DIAG-EXIT
+             END-IF
              MOVE FI-DIAG TO DIAGTAB(DIAG-CNTR).
 
            IF FI-DX2 = "0000000"  GO TO DIAG-EXIT.
@@ -1245,6 +1246,9 @@
            
            IF FLAG = 0
              ADD 1 TO DIAG-CNTR
+             IF DIAG-CNTR > 12
+               GO TO DIAG-EXIT
+             END-IF
              MOVE FI-DX2 TO DIAGTAB(DIAG-CNTR).
 
            IF FI-DX3 = "0000000"  GO TO DIAG-EXIT.
