@@ -16,4 +16,4 @@
 /git-update
 
 # composer ignore
-vendor/
+/vendor/*
