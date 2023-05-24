@@ -55,17 +55,11 @@ $jsonobj = json_decode($res->getBody());
 //exit;
 
 foreach($jsonobj->items as $item) {
-    //echo "item is new? " . $item->isNew . "\n";
-    var_dump($item);
     if ($item->isNew) {
-        // Pass a resource returned from fopen() to write the response to a PHP stream:
-        //$resource = fopen('./' . $item->name, 'w');
-        //$client->request('GET', '/stream/20', );
-        //$dl_file_url = 'https://moveit.bcbsvt.com/api/v1/folders/' . $subfolderId . '/files/' . $item->id . '/download';
-        //$dl_req =  new Request('GET', $dl_file_url, $headers, ['sink' => $resource]);
-        //$dl_res = $client->sendAsync($dl_req)->wait();
-        //echo json_encode(json_decode($dl_res->getBody()), JSON_PRETTY_PRINT);
-        //var_dump($dl_res);
+        echo "*** NEW ERROR *** " . $item->path . " " . $item->uploadStamp . "\n";
+    } else {
+        //var_dump($item);
+        echo "old error " . $item->path . " " . $item->uploadStamp . "\n";
     }
 }
 
