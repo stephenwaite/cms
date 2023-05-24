@@ -1080,6 +1080,7 @@
               03 DOC-NPI PIC X(10).
 
        01  AUTH-FLAG PIC 9.
+       01  DIAG-OVER PIC 9.
        
        PROCEDURE DIVISION.
        P0. 
@@ -1153,6 +1154,7 @@
            READ FILEIN AT END GO TO P98.
            MOVE FILEIN01 TO HOLD-FILEIN01
            MOVE 0 TO CNTR DIAG-CNTR TOT-AMOUNT MAMMO-FLAG CLIA-FLAG
+             DIAG-OVER
            PERFORM DF-SEARCH
            PERFORM 2000A THRU 2000B
            GO TO P1-1.
@@ -1161,100 +1163,128 @@
            MOVE SAVE01 TO HOLD-FILEIN01.
            PERFORM DF-SEARCH.
            MOVE 0 TO CNTR DIAG-CNTR TOT-AMOUNT MAMMO-FLAG CLIA-FLAG
+             DIAG-OVER
            GO TO P1-1.
-       P1. READ FILEIN AT END MOVE 1 TO END-FLAG GO TO P2.
+
+       P1. 
+           READ FILEIN 
+             AT END
+               MOVE 1 TO END-FLAG
+               GO TO P2.
+
        P1-1. 
-           IF DIAG-CNTR > 11 GO TO P2.
+           IF DIAG-CNTR > 11 OR DIAG-OVER = 1
+             GO TO P2.
+
            IF  FI-PLACE = HOLD-PLACE
-            AND FI-KEY8 = HOLD-KEY8
-            AND FI-PATID = HOLD-PATID
-            AND FI-DOCP = HOLD-DOCP
-            AND FI-DOCR = HOLD-DOCR
-            AND FI-DAT1 = HOLD-DAT1
-            AND FI-DATE-T = HOLD-DATE-T
-            AND FI-ACC-TYPE = HOLD-ACC-TYPE
-            AND CNTR < 50
-            PERFORM DIAG-1 THRU DIAG-EXIT 
-             IF DIAG-CNTR > 12
+             AND FI-KEY8 = HOLD-KEY8
+             AND FI-PATID = HOLD-PATID
+             AND FI-DOCP = HOLD-DOCP
+             AND FI-DOCR = HOLD-DOCR
+             AND FI-DAT1 = HOLD-DAT1
+             AND FI-DATE-T = HOLD-DATE-T
+             AND FI-ACC-TYPE = HOLD-ACC-TYPE
+             AND CNTR < 50
+             PERFORM DIAG-1 THRU DIAG-EXIT 
+            
+             IF DIAG-CNTR > 12 OR DIAG-OVER = 1
                GO TO P2
              END-IF
-            IF FI-SERVICE = "4"
+            
+             IF FI-SERVICE = "4"
                MOVE 1 TO CLIA-FLAG
-            END-IF
-            ADD 1 TO CNTR
-            MOVE FILEIN01 TO FILETAB(CNTR)
-            ADD FI-AMOUNT TO TOT-AMOUNT
-            GO TO P1
-           END-IF.
-       P2.  
-            MOVE FILEIN01 TO SAVE01
-            PERFORM 2300CLM
-            PERFORM HI-DIAG THRU HI-DIAG-EXIT.
-            PERFORM 2310A THRU 2310A-EXIT.
-            PERFORM 2310D 
-            PERFORM 2320A THRU 2320A-EXIT
-            PERFORM 2400SRV THRU 2400SRV-EXIT
-                   VARYING X FROM 1 BY 1 UNTIL X > CNTR
-           IF END-FLAG = 1 GO TO P98.
-           MOVE SAVE01 TO FILEIN01
-           IF FI-DOCP NOT = HOLD-DOCP 
-           MOVE FILEIN01 TO HOLD-FILEIN01
+             END-IF
 
-           PERFORM DOCP-1.
+             ADD 1 TO CNTR
+             MOVE FILEIN01 TO FILETAB(CNTR)
+             ADD FI-AMOUNT TO TOT-AMOUNT
+             GO TO P1
+           END-IF.
+
+       P2.  
+           MOVE FILEIN01 TO SAVE01
+           PERFORM 2300CLM
+           PERFORM HI-DIAG THRU HI-DIAG-EXIT.
+           PERFORM 2310A THRU 2310A-EXIT.
+           PERFORM 2310D 
+           PERFORM 2320A THRU 2320A-EXIT
+           PERFORM 2400SRV THRU 2400SRV-EXIT
+             VARYING X FROM 1 BY 1 UNTIL X > CNTR
+           
+           IF END-FLAG = 1 GO TO P98.
+           
+           MOVE SAVE01 TO FILEIN01
+           
+           IF FI-DOCP NOT = HOLD-DOCP 
+             MOVE FILEIN01 TO HOLD-FILEIN01
+             PERFORM DOCP-1.
+  
            MOVE FILEIN01 TO HOLD-FILEIN01
+  
            PERFORM 2000B 
+  
            GO TO P0000.
            
        DIAG-1.
            IF FI-DIAG = "0000000"  GO TO DIAG-EXIT.
+           
            MOVE FI-DIAG TO DIAG-X
            MOVE 0 TO FLAG
+           
            PERFORM DIAG-2 VARYING X FROM 1 BY 1 UNTIL X > DIAG-CNTR
+           
            IF FLAG = 0
-           ADD 1 TO DIAG-CNTR
-           MOVE FI-DIAG TO DIAGTAB(DIAG-CNTR).
+             IF DIAG-CNTR = 12
+               MOVE 1 TO DIAG-OVER
+               GO TO DIAG-EXIT
+             END-IF
+             ADD 1 TO DIAG-CNTR
+             MOVE FI-DIAG TO DIAGTAB(DIAG-CNTR).
 
            IF FI-DX2 = "0000000"  GO TO DIAG-EXIT.
+           
            MOVE FI-DX2 TO DIAG-X.
            MOVE 0 TO FLAG
+           
            PERFORM DIAG-2 VARYING X FROM 1 BY 1 UNTIL X > DIAG-CNTR
+           
            IF FLAG = 0
-           ADD 1 TO DIAG-CNTR
-           MOVE FI-DX2 TO DIAGTAB(DIAG-CNTR).
+             IF DIAG-CNTR = 12
+               MOVE 1 TO DIAG-OVER
+               GO TO DIAG-EXIT
+             END-IF
+             ADD 1 TO DIAG-CNTR
+             MOVE FI-DX2 TO DIAGTAB(DIAG-CNTR).
 
            IF FI-DX3 = "0000000"  GO TO DIAG-EXIT.
+           
            MOVE FI-DX3 TO DIAG-X
            MOVE 0 TO FLAG
+           
            PERFORM DIAG-2 VARYING X FROM 1 BY 1 UNTIL X > DIAG-CNTR
+           
            IF FLAG = 0
-           ADD 1 TO DIAG-CNTR
-           MOVE FI-DX3 TO DIAGTAB(DIAG-CNTR).
+             ADD 1 TO DIAG-CNTR
+             MOVE FI-DX3 TO DIAGTAB(DIAG-CNTR).
+
            IF FI-DX4 = "0000000"  GO TO DIAG-EXIT.
+           
            MOVE FI-DX4 TO DIAG-X
            MOVE 0 TO FLAG
+           
            PERFORM DIAG-2 VARYING X FROM 1 BY 1 UNTIL X > DIAG-CNTR
+           
            IF FLAG = 0
-           ADD 1 TO DIAG-CNTR
-           MOVE FI-DX4 TO DIAGTAB(DIAG-CNTR).
-      *     IF FI-DX5 = "0000000"  GO TO DIAG-EXIT.
-      *     MOVE FI-DX5 TO DIAG-X
-      *     MOVE 0 TO FLAG
-      *     PERFORM DIAG-2 VARYING X FROM 1 BY 1 UNTIL X > DIAG-CNTR
-      *     IF FLAG = 0
-      *     ADD 1 TO DIAG-CNTR
-      *     MOVE FI-DX5 TO DIAGTAB(DIAG-CNTR).
-      *     IF FI-DX6 = "0000000"  GO TO DIAG-EXIT.
-      *     MOVE FI-DX6 TO DIAG-X
-      *     MOVE 0 TO FLAG
-      *     PERFORM DIAG-2 VARYING X FROM 1 BY 1 UNTIL X > DIAG-CNTR
-      *     IF FLAG = 0
-      *     ADD 1 TO DIAG-CNTR
-      *     MOVE FI-DX6 TO DIAGTAB(DIAG-CNTR).
+             ADD 1 TO DIAG-CNTR
+             MOVE FI-DX4 TO DIAGTAB(DIAG-CNTR).
+      
        DIAG-EXIT.
            EXIT.
-       DIAG-2. IF DIAGTAB(X) = DIAG-X
-           MOVE DIAG-CNTR TO X
-           MOVE 1 TO FLAG.
+
+       DIAG-2. 
+           IF DIAGTAB(X) = DIAG-X
+             MOVE DIAG-CNTR TO X
+             MOVE 1 TO FLAG.
 
        2000A. 
            ADD 1 TO HL-NUM

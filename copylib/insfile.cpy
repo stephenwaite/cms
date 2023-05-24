@@ -17,5 +17,5 @@
            02 INS-LEVEL PIC X.
            02 INS-LASTDATE PIC X(8).
            02 INS-CAID PIC XXX.
-           02 INS-REFWARN PIC X.
+           02 INS-ACC-TYPE PIC X.
            02 INS-FUTURE PIC X(8).

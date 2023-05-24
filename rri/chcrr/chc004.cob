@@ -72,23 +72,30 @@
            02 FI-PAT-STR1 PIC X(22).
            02 FI-PAT-STR2 PIC X(22).
            02 FI-PAT-CITY PIC X(18).
+      * col 111     
            02 FI-PAT-STATE PIC XX.
            02 FI-PAT-ZIP PIC X(9).
            02 FI-PAT-DOB PIC X(10).
            02 FI-PAT-SEX PIC X.
+      * col 133     
            02 PRIME-INS.
              03 FI-PRIM-ALFA PIC X(10).
              03 FI-PRIM-NAME PIC X(30).
              03 FI-PRIM-STR1 PIC X(22).
+      * col 195       
              03 FI-PRIM-CITY PIC X(18).
              03 FI-PRIM-STATE PIC XX.
              03 FI-PRIM-ZIP PIC X(10).
-             03 FI-PRIM-GRP PIC X(10).
+      * col 225       
              03 FI-PRIM-POL PIC X(16).
+             03 FI-PRIM-DAT1 PIC X(10).
+      * col 251       
              03 FI-PRIM-NAMEL PIC X(24).
              03 FI-PRIM-NAMEF PIC X(24).
+      * col 299       
              03 FI-PRIM-SUBSEX PIC X(10).
              03 FI-PRIM-SUBRELATE PIC XXXX.
+      * col 313       
            02 SECOND-INS. 
              03 FI-SEC-ALFA PIC X(10).
              03 FI-SEC-NAME PIC X(30).
@@ -96,12 +103,13 @@
              03 FI-SEC-CITY PIC X(18).
              03 FI-SEC-STATE PIC XX.
              03 FI-SEC-ZIP PIC X(10).
-             03 FI-SEC-GRP PIC X(10).
+      * col 405
+             03 FI-SEC-DAT1 PIC X(8).       
              03 FI-SEC-POL PIC X(16).
              03 FI-SEC-NAMEL PIC X(24).
              03 FI-SEC-NAMEF PIC X(24).
              03 FI-SEC-SUBSEX PIC X(10).
-             03 FI-SEC-SUBRELATE PIC XXXX.
+             03 FI-SEC-SUBRELATE PIC XXXX.       
            02 FI-PROC.
                03 FI-PROC1 PIC X(5).
                03 FI-PROC2 PIC XX.
@@ -111,7 +119,7 @@
            02 FI-DX4 PIC X(8).
            02 FI-DATE-T PIC X(10).
            02 FI-PROVNPI PIC X(10).
-           02 FI-DAT1 PIC X(10).
+           02 FI-DAT1 PIC X(8).
            02 THIRD-INS.
              03 FI-3RD-ALFA PIC X(10).
              03 FI-3RD-POL PIC X(16).
@@ -127,7 +135,6 @@
              03 T-CITY PIC X(18).
              03 T-STATE PIC XX.
              03 T-ZIP PIC X(9).
-             03 T-GRP PIC X(10).
              03 T-POL PIC X(16).
              03 T-NAMEL PIC X(24).
              03 T-NAMEF PIC X(24).
@@ -215,7 +222,6 @@
              MOVE ALF5X TO FI-PRIM-ZIP.
 
            MOVE FI-PRIM-ZIP TO T-ZIP(1)
-           MOVE FI-PRIM-GRP TO T-GRP(1)
            MOVE FI-PRIM-POL TO T-POL(1)
            MOVE FI-PRIM-NAMEL TO T-NAMEL(1)
            MOVE FI-PRIM-NAMEF TO T-NAMEF(1)
@@ -237,7 +243,6 @@
            IF ALF5X NOT = SPACE
              MOVE ALF5X TO FI-SEC-ZIP.
            MOVE FI-SEC-ZIP TO T-ZIP(2)
-           MOVE FI-SEC-GRP TO T-GRP(2)
            MOVE FI-SEC-POL TO T-POL(2)
            MOVE FI-SEC-NAMEL TO T-NAMEL(2)
            MOVE FI-SEC-NAMEF TO T-NAMEF(2)
@@ -247,7 +252,7 @@
            MOVE SPACE TO ALF10X
 
            MOVE SPACE TO T-CODE(3) T-NAME(3) T-CITY(3) T-STATE(3)
-             T-ZIP(3) T-GRP(3) T-POL(3) T-NAMEL(3) T-NAMEF(3)
+             T-ZIP(3) T-POL(3) T-NAMEL(3) T-NAMEF(3)
              T-SUBSEX(3) T-SUBRELATE(3)
            IF FI-3RD-ALFA NOT = 0
              MOVE FI-3RD-ALFA TO ALF10X
@@ -259,7 +264,6 @@
              MOVE FI-3RD-CITY TO T-CITY(3)
              MOVE SPACE TO T-STATE(3)
              MOVE SPACE TO T-ZIP(3)
-             MOVE SPACE TO T-GRP(3)
              MOVE FI-3RD-POL TO T-POL(3)
              MOVE SPACE TO T-NAMEL(3)
              MOVE SPACE TO T-NAMEF(3)
@@ -445,7 +449,6 @@
            MOVE T-STATE(1) TO FI-PRIM-STATE
 
            MOVE T-ZIP(1) TO FI-PRIM-ZIP
-           MOVE T-GRP(1) TO FI-PRIM-GRP
            MOVE T-POL(1) TO FI-PRIM-POL
            MOVE T-NAMEL(1) TO FI-PRIM-NAMEL 
            MOVE T-NAMEF(1) TO FI-PRIM-NAMEF 
@@ -458,7 +461,6 @@
            MOVE T-CITY(2) TO FI-SEC-CITY
            MOVE T-STATE(2) TO FI-SEC-STATE
            MOVE T-ZIP(2) TO FI-SEC-ZIP
-           MOVE T-GRP(2) TO FI-SEC-GRP
            MOVE T-POL(2) TO FI-SEC-POL 
            MOVE T-NAMEL(2) TO FI-SEC-NAMEL 
            MOVE T-NAMEF(2) TO FI-SEC-NAMEF 

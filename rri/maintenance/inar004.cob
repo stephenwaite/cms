@@ -3525,7 +3525,9 @@
            MOVE INS-ASSIGN TO CC-ASSIGN
            MOVE INS-NEIC-ASSIGN TO CC-NEIC-ASSIGN
            MOVE INS-CLAIMTYPE TO CC-PAPER
-           MOVE INS-KEY TO CC-PAYCODE GO TO 4900CPC.
+           MOVE INS-KEY TO CC-PAYCODE 
+           MOVE INS-ACC-TYPE TO CC-ACC-TYPE
+           GO TO 4900CPC.
 
        CC-2750-WORK.
            IF IN-FIELD = "?"
@@ -3711,6 +3713,11 @@
            IF IN-FIELD = "?"
            DISPLAY "TYPE THE 2ND MODIFIER OR <CR>"
            GO TO CC-2000TI.
+      *     DISPLAY "IN-FIELD(1:1) " IN-FIELD(1:1)
+      *     DISPLAY "IN-FIELD(2:1) " IN-FIELD(2:1)
+           IF IN-FIELD(1:1) NOT = SPACE AND IN-FIELD(2:1) = SPACE
+             DISPLAY "INVALID, MOD SHOULD BE 2 CHARS"
+             GO TO CC-2000TI.
            MOVE IN-FIELD-2 TO CC-MOD2 GO TO 4900CPC.
 
        CC-2-REC-STAT.
@@ -4204,9 +4211,9 @@
            DISPLAY INS-ASSIGN "    " INS-CLAIMTYPE "   " INS-NEIC
            "    " INS-NEICLEVEL " " INS-NEIC-ASSIGN "    " INS-PPO
            "  " INS-PRVNUM "    " INS-HMO " " INS-STATUS " "
-           INS-LASTDATE "   "    INS-CAID "     "  INS-REFWARN
+           INS-LASTDATE "   "    INS-CAID "     "  INS-ACC-TYPE
            DISPLAY "ASGM TYP NEIC NCLVL NCSM PPO PPONUM    HMO STAT LAST
-      -    " DATE VTCAID# REFPRMT".
+      -    " DATE VTCAID# ACC-TYPE".
        LI-1-EXIT. EXIT.
        INS-1. DISPLAY "SEARCH TYPE"
            DISPLAY "1 = BY NUMBER "

@@ -34,8 +34,8 @@
            02 FO-PRIM-CITY PIC X(18).
            02 FO-PRIM-STATE PIC XX.
            02 FO-PRIM-ZIP PIC X(10).
-           02 FO-PRIM-GRP PIC X(10).
            02 FO-PRIM-POL PIC X(16).
+           02 FO-PRIM-DAT1 PIC X(10).
            02 FO-PRIM-NAMEL PIC X(24).
            02 FO-PRIM-NAMEF PIC X(24).
            02 FO-PRIM-SUBSEX PIC X(10).
@@ -46,7 +46,7 @@
            02 FO-SEC-CITY PIC X(18).
            02 FO-SEC-STATE PIC XX.
            02 FO-SEC-ZIP PIC X(10).
-           02 FO-SEC-GRP PIC X(10).
+           02 FO-SEC-DAT1 PIC X(8).
            02 FO-SEC-POL PIC X(16).
            02 FO-SEC-NAMEL PIC X(24).
            02 FO-SEC-NAMEF PIC X(24).
@@ -59,7 +59,7 @@
            02 FO-DX4 PIC X(8).
            02 FO-DATE-T PIC X(10).
            02 FO-PROVNPI PIC X(10).
-           02 FO-DAT1 PIC X(10).
+           02 FO-DAT1 PIC X(8).
            02 FO-3RD-ALFA PIC X(10).
            02 FO-3RD-POL PIC X(16).
            02 FO-3RD-NAME PIC X(30).
@@ -70,7 +70,6 @@
        WORKING-STORAGE SECTION.
        01  TAB-X PIC X VALUE H"09".
        01  ALF9 PIC X(9).
-       01  FO-PRIM-DAT1 PIC X(10).
 
        PROCEDURE DIVISION.
        0005-S0TART.
@@ -111,7 +110,7 @@
              FO-SEC-CITY   
              FO-SEC-STATE   
              FO-SEC-ZIP    
-             FO-DAT1     
+             FO-SEC-DAT1     
              FO-SEC-POL     
              FO-SEC-NAMEL   
              FO-SEC-NAMEF  
@@ -128,7 +127,10 @@
              FO-3RD-ALFA 
              FO-3RD-POL  
              FO-3RD-NAME
-             FO-3RD-CITY
+             FO-3RD-CITY.
+      *     DISPLAY "FO-PRIM-DAT1 " FO-PRIM-DAT1  
+      *     ACCEPT OMITTED
+
            MOVE SPACE TO ALF9
            STRING FO-PRIM-ZIP(1:5) FO-PRIM-ZIP(7:4) INTO ALF9
            MOVE SPACE TO FO-PRIM-ZIP
@@ -137,8 +139,6 @@
            STRING FO-SEC-ZIP(1:5) FO-SEC-ZIP(7:4) INTO ALF9
            MOVE SPACE TO FO-SEC-ZIP
            MOVE ALF9 TO FO-SEC-ZIP
-           MOVE SPACE TO FO-PRIM-GRP
-           MOVE SPACE TO FO-SEC-GRP
 
            WRITE FILEOUT01
            GO TO P1.

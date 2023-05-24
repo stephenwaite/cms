@@ -791,10 +791,6 @@
            REWRITE CLAIM01.
            UNLOCK CLAIMFILE RECORD
 
-           IF INS-REFWARN = "1"
-             MOVE "1 " TO IN-FIELD-2
-             PERFORM AUTH-1 THRU AUTH-1-EXIT.
-
            MOVE CD-DOCP TO NUM-2
            MOVE     CD-amount TO X-AMOUNT           
 
@@ -1493,10 +1489,7 @@
            MOVE G-PRINS TO CD-paycode
            MOVE G-PRINS TO INS-KEY
            READ INSFILE INVALID DISPLAY "NO VALID INS." GO TO 2000TI.
-           IF INS-REFWARN = "1"
-           DISPLAY "ALL CHARGES REQUIRE A REF. PHYS.".
-           DISPLAY INS-KEY " " INS-ASSIGN " " INS-CLAIMTYPE " "
-           INS-NAME.
+
            MOVE G-PR-ASSIGN TO CD-ASSIGN
            MOVE INS-NEIC-ASSIGN TO CD-NEIC-ASSIGN
            MOVE INS-CLAIMTYPE TO CD-paper.
@@ -1705,11 +1698,7 @@
            DISPLAY "OR TYPE F TO SEARCH FOR CODE"
            DISPLAY "A <CR> IF NO REFERRING PHYSICIAN."
            GO TO 2000TI.
-           IF ((IN-FIELD-3 = SPACE)
-           AND (CD-PROC > "99240  " AND < "99281  "))
-           OR ((INS-REFWARN = "1") AND (IN-FIELD-3 = SPACE))
-           DISPLAY "REFERRING PHYS. REQUIRED ON THIS CHARGE." BELL0.
-           IF IN-FIELD-3 = "000" OR SPACES MOVE ZEROES TO CD-docr 
+           
            GO TO 4900DEE.
            IF IN-FIELD = "F" GO TO 1REF-SEARCH.
            MOVE IN-FIELD-3 TO REF-KEY.
@@ -2375,9 +2364,9 @@
            DISPLAY INS-ASSIGN "    " INS-CLAIMTYPE "   " INS-NEIC
            "    " INS-NEICLEVEL " " INS-NEIC-ASSIGN "    " INS-PPO
            "  " INS-PRVNUM "    " INS-HMO " " INS-STATUS " "
-           INS-LASTDATE "   "    INS-CAID "     "  INS-REFWARN
+           INS-LASTDATE "   "    INS-CAID "     "  INS-ACC-TYPE
            DISPLAY "ASGM TYP NEIC NCLVL NCSM PPO PPONUM    HMO STAT LAST
-      -    " DATE VTCAID# REFPRMT".
+      -    " DATE VTCAID# ACC-TYPE".
        LI-1-EXIT. EXIT.
        CD-1. IF CD2 = 0 MOVE 1 TO CD2 DISPLAY "CHARGE LIST"
            ELSE MOVE 0 TO CD2 DISPLAY "NO CHARGE LIST AFTER ADD".

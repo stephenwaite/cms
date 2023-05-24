@@ -123,27 +123,7 @@
            02 GAP-FUTURE PIC X(40).
 
        FD  INSFILE.
-       01  INSFILE01.
-           02 INS-KEY PIC XXX.
-           02 INS-NAME PIC X(22).
-           02 INS-STREET PIC X(24).
-           02 INS-CITY PIC X(15).
-           02 INS-STATE PIC XX.
-           02 INS-ZIP PIC X(9).
-           02 INS-ASSIGN PIC X.
-           02 INS-CLAIMTYPE PIC X.
-           02 INS-NEIC PIC X(5).
-           02 INS-NEICLEVEL PIC X.
-           02 INS-NEIC-ASSIGN PIC X.
-           02 INS-PPO PIC X.
-           02 INS-PRVNUM PIC X(10).
-           02 INS-HMO PIC X(3).
-           02 INS-STATUS PIC X.
-           02 INS-LEVEL PIC X.
-           02 INS-LASTDATE PIC X(8).
-           02 INS-CAID PIC XXX.
-           02 INS-REFWARN PIC X.
-           02 INS-FUTURE PIC X(8).
+           copy insfile.cpy in "c:\users\sid\cms\copylib".
 
        FD PATFILE.
        01 PATFILE01.
@@ -2187,7 +2167,7 @@
            DISPLAY " 5=STATE     6=ZIP     7=ASSIGN  8=CLM-TYPE"
            DISPLAY " 9=NEIC     11=CLM-ASSIGN       12=PPO"
            DISPLAY "13=PRVNUM   14=HMO    15=STATUS 16=LEVEL"
-           DISPLAY "17=CHANGE LASTDATE 18=VT-CAID# 19=REFWARN"
+           DISPLAY "17=CHANGE LASTDATE 18=VT-CAID# 19=ACC-TYPE"
            GO TO INS-CP.
            UNSTRING DATAIN DELIMITED BY "," INTO FIELD-CODE IN-FIELD.
            INSPECT FIELD-CODE REPLACING LEADING SPACE BY "0".
@@ -2402,15 +2382,17 @@
            GO TO INSDEE.
        19-INS.
            IF IN-FIELD = "?"
-           DISPLAY "0= NO WARNING 1= WARN ABOUT REF-PHYS"
+           DISPLAY "ACC-TYPE CODES 1 = EM 2 = AA 3 = OA"
            GO TO INS-TI.
-           MOVE IN-FIELD-1 TO INS-REFWARN
-           IF INS-REFWARN = "0" OR "1" GO TO INSDEE.
-           DISPLAY "INVALID" GO TO INS-TI.
+           MOVE IN-FIELD-1 TO INS-ACC-TYPE
+           GO TO INSDEE.
 
-       INSDEE. IF ACT-1 = "C" GO TO INS-CP.
+       INSDEE. 
+           IF ACT-1 = "C" GO TO INS-CP.
+
        INSDEEX.
            EXIT.
+
        5000-WRITE-INSFILE.
            MOVE INSFILE01 TO INSBACK
            CLOSE INSFILE
@@ -2693,9 +2675,9 @@
            DISPLAY INS-ASSIGN "    " INS-CLAIMTYPE "   " INS-NEIC
            "    " INS-NEICLEVEL " " INS-NEIC-ASSIGN "    " INS-PPO
            "  " INS-PRVNUM "    " INS-HMO " " INS-STATUS " "
-           INS-LASTDATE "   "    INS-CAID "     "  INS-REFWARN
+           INS-LASTDATE "   "    INS-CAID "     "  INS-ACC-TYPE
            DISPLAY "ASGM TYP NEIC NCLVL NCSM PPO PPONUM    HMO STAT LAST
-      -    " DATE VTCAID# REFPRMT".
+      -    " DATE VTCAID# ACC-TYPE".
        LI-1-EXIT. EXIT.
        INS-NEIC-1.
            MOVE IN-FIELD-5 TO INS-NEIC
