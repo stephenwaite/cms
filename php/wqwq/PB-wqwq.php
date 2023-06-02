@@ -3,7 +3,7 @@ include "/home/stee/src/cms/vendor/autoload.php";
 putenv('TMPDIR=/tmp/cms');
 $pdf = new Cezpdf('LETTER');
 $pdf->ezSetMargins(170, 0, 10, 0);
-//$pdf->selectFont('Courier');
+$pdf->selectFont('Courier');
 $page_count = 0;
 $continued = false;
 $is_continued = false;
