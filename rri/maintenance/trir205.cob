@@ -456,7 +456,7 @@
            02 L7F5 PIC ZZZ9.99CR.
            02 F75 PIC X.
            02 L7F6 PIC ZZZ9.99CR.
-           02 FILLER PIC X(10) VALUE SPACE.
+           02 FILLER PIC X(11) VALUE SPACE.
            02 L7F7 PIC ZZZZ9.99CR.
        01 LINE-8.
            02 L8F1 PIC X(24).
