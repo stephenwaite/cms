@@ -905,7 +905,7 @@
                MOVE IN-FIELD-1 TO FLAG
                MOVE LAST-TAB(FLAG) TO G-GARNO
                CLOSE CHARCUR PAYFILE
-               CALL "/home/sidw/trir205.b" USING PB1 G-GARNO
+               CALL "/home/sidw/trir205.acu" USING PB1 G-GARNO
                MOVE 1 TO PB1
                OPEN INPUT CHARCUR PAYFILE
                GO TO 1000-ACTION
