@@ -435,7 +435,7 @@
            02 L6-PROC PIC X(7).
            02 F65 PIC X.
            02 L6F6 PIC ZZZ9.99CR.
-           02 FILLER PIC X(8) VALUE SPACE.
+           02 FILLER PIC X(9) VALUE SPACE.
            02 L6F7X PIC X(9).
        01  LINE-6P.
            02 FILLER PIC X(65).
