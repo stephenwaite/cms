@@ -163,9 +163,11 @@
            02 RPGCHARFILE-KEY.
              03 RPG-KEY8 PIC X(32).
              03 RPG-KEY3 PIC XXX.
+      * 35       
            02 RPG-PATID PIC X(8).
            02 RPG-CLAIM PIC X(6).
            02 RPG-SERVICE PIC X.
+      * 50     
            02 RPG-DIAG PIC X(7).
            02 RPG-PROC. 
               03 RPG-PROC1 PIC X(4).
@@ -174,6 +176,7 @@
            02 RPG-MOD3 PIC XX.
            02 RPG-MOD4 PIC XX.
            02 RPG-AMOUNT PIC X(6).
+      * 80     
            02 RPG-DOCR PIC X(3).
            02 RPG-DOCP PIC X(2).
            02 RPG-PAYCODE PIC XXX.
@@ -181,6 +184,7 @@
            02 RPG-WORK PIC XX.
            02 RPG-DAT1 PIC X(8).
            02 RPG-RESULT PIC X.
+      * 100     
            02 RPG-ACT PIC X.
            02 RPG-SORCREF PIC X.
            02 RPG-COLLECT PIC X.
@@ -188,6 +192,7 @@
            02 RPG-PAPER PIC X.
            02 RPG-PLACE PIC X.
            02 RPG-NAME PIC X(24).
+      * 130     
            02 RPG-EPSDT PIC X.
            02 RPG-DATE-T PIC X(8).
            02 RPG-DATE-E PIC X(8).
@@ -195,6 +200,7 @@
            02 RPG-DX2 PIC X(7).
            02 RPG-DX3 PIC X(7).
            02 RPG-DATE-A PIC X(8).
+      *175     
            02 RPG-ACC-TYPE PIC X.
            02 RPG-DATE-M PIC X(8).
            02 RPG-ASSIGN PIC X.
@@ -1224,9 +1230,9 @@
            MOVE "0" TO RPG-COLLECT
            MOVE SPACE TO RPG-ACC-TYPE
 
-           IF FI-PRIM-ALFA = "26" MOVE "2" TO RPG-ACC-TYPE.
+      *     IF FI-PRIM-ALFA = "26" MOVE "2" TO RPG-ACC-TYPE.
 
-           IF FI-PRIM-ALFA = "84" MOVE "1" TO RPG-ACC-TYPE.
+      *     IF FI-PRIM-ALFA = "84" MOVE "1" TO RPG-ACC-TYPE.
 
            MOVE SPACE TO RPG-FUTURE
            MOVE SPACE TO RPG-PATID RPG-CLAIM
