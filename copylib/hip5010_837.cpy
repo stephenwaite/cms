@@ -536,4 +536,22 @@
            02 PWK-6 PIC XX VALUE "AC".
            02 PWK-S6 PIC X VALUE "*".
            02 PWK-7 PIC X(11).
-           02 PWK-END PIC X(1) VALUE "~".     
+           02 PWK-END PIC X(1) VALUE "~".
+
+       01  LIN01.
+           02 LIN-0 PIC XXX VALUE "LIN".
+           02 LIN-S0 PIC X VALUE "*".
+           02 LIN-S1 PIC X VALUE "*".
+           02 LIN-1 PIC XX VALUE "N4".
+           02 LIN-S2 PIC X VALUE "*".
+           02 LIN-NDC PIC X(11).
+           02 LIN-END PIC X VALUE "~".
+       01  CTP01.
+           02 CTP-0 PIC XXX VALUE "CTP".
+           02 CTP-S012 PIC XXX VALUE "***".
+           02 CTP-3 PIC X(8).
+           02 CTP-S3 PIC X VALUE "*".
+           02 CTP-4 PIC XX.
+           02 CTP-S4 PIC X VALUE "*".
+           02 CTP-5 PIC XX VALUE "UN".
+           02 CPT-END PIC X VALUE "~".
