@@ -474,6 +474,7 @@
 
               IF N1-2(1:5) = "WELLC"
                 MOVE N1-2(1:5) TO INS-NAME-HOLD
+                display payorid1 " payorid1"
               end-if  
            END-IF
         
