@@ -470,6 +470,10 @@
               MOVE N1-ID TO EQUITY-ID
               IF N1-2(1:5) = "MVP H" AND PAYORID1 = space
                 MOVE N1-2(1:5) TO INS-NAME-HOLD
+              end-if
+
+              IF N1-2(1:5) = "WELLC"
+                MOVE N1-2(1:5) TO INS-NAME-HOLD
               end-if  
            END-IF
         
@@ -801,6 +805,10 @@
 
            IF INS-NAME-HOLD = "MVP H"
              MOVE "14156" TO PAYORID
+           end-if
+
+           IF INS-NAME-HOLD = "WELLC"
+             MOVE "14163" TO PAYORID
            end-if
 
            IF PAYORID = space OR "11329"
