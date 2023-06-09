@@ -237,7 +237,7 @@
            COPY "mplrfile.cpy" IN "C:\Users\sid\cms\copylib".
 
        FD  AUTHFILE.
-           COPY "authfile.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "newauthfile.cpy" IN "C:\Users\sid\cms\copylib".
 
        FD  REFPHY.
            COPY "refphy.cpy" IN "C:\Users\sid\cms\copylib".
