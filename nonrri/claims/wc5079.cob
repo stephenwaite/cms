@@ -231,7 +231,7 @@
            COPY "insfile.cpy" IN "C:\Users\sid\cms\copylib".
 
        FD PATFILE.
-           COPY "patfile.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "patfile.cpy" IN "C:\Users\sid\cms\copylib\rri".
 
        FD  MPLRFILE.
            COPY "mplrfile.cpy" IN "C:\Users\sid\cms\copylib".
@@ -1533,7 +1533,7 @@
 
            IF HOLD-ACC-TYPE = "2"
              MOVE "AM" TO SBR-INSCODE.  
-             
+
            MOVE SPACE TO SBR-TYPE.
 
            IF
