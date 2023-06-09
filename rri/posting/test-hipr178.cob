@@ -474,16 +474,9 @@
                     WRITE ERROR-FILE01  
                END-READ
 
-               MOVE G-PRINS TO INS-NEIC
-               START INSFILE KEY NOT < INS-NEIC
-                 INVALID
-                   MOVE SPACE TO ERROR-FILE01
-                    STRING "BAD INS " FILEIN01 DELIMITED BY SIZE
-                      INTO ERROR-FILE01
-                    WRITE ERROR-FILE01         
-               END-START
+               MOVE G-PRINS TO INS-KEY
 
-               READ INSFILE NEXT
+               READ INSFILE
                  AT END
                    MOVE SPACE TO ERROR-FILE01
                     STRING "BAD INS " FILEIN01 DELIMITED BY SIZE
