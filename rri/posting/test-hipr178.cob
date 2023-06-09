@@ -492,7 +492,7 @@
                END-READ     
 
                MOVE INS-NEIC TO PAYORID
-               DISPLAY FILEIN01
+               DISPLAY PAYORID
                GO TO P0000
            END-IF
            
