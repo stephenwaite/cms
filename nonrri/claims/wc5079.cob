@@ -941,10 +941,11 @@
            COMPUTE NUM7 = TOT-AMOUNT
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO CLM-2
-           MOVE SPACE TO CLM-11
-           MOVE SPACE TO CLM-11 CLM-COLON-ACCIDENT
+           MOVE SPACE TO CLM-11 CLM-11-4
+      *     CURRENTLY UNUSED     
+      *     CLM-11-2 CLM-11-3 CLM-11-5           
            
-           IF HOLD-DAT1 NOT = ZEROES
+           IF HOLD-ACC-TYPE NOT = SPACE
                PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT
            END-IF
 
@@ -964,6 +965,11 @@
                MOVE SPACE TO SEGFILE01
                WRITE SEGFILE01 FROM DTP01
            END-IF
+
+           IF HOLD-ACC-TYPE NOT = SPACE
+             MOVE SPACE TO SEGFILE01
+             MOVE HOLD-FILEIN-KEY TO PWK-7
+             WRITE SEGFILE01 FROM PWK01.
                
            MOVE SPACE TO LASTREF
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > CNTR
@@ -1018,8 +1024,13 @@
            EXIT.
 
        ACCIDENT-1.
-           MOVE "OA" TO CLM-11.
-      *     MOVE ":" TO CLM-COLON-ACCIDENT.
+           IF FI-ACC-TYPE = "1"
+             MOVE "EM" TO CLM-11
+           ELSE IF FI-ACC-TYPE = "2"
+             MOVE "AA" TO CLM-11
+             MOVE ":::VT" TO CLM-11-4
+           ELSE
+             MOVE "OA" TO CLM-11. 
 
        ACCIDENT-EXIT.
            EXIT.
@@ -1370,33 +1381,28 @@
            WRITE SEGFILE01 FROM ALF108.
            MOVE "472" TO DTP-1 D8TP-1
            MOVE SPACE TO SEGFILE01
-           IF (FI-PROC1 = "59425" OR "59426")
-             AND (INS-NEIC = "62308")
-             MOVE SPACE TO D8TP-3
-             STRING FI-DAT1 "-" FI-DATE-T DELIMITED BY SIZE
-             INTO D8TP-3
-             WRITE SEGFILE01 FROM D8TP01
-           ELSE
-             MOVE FI-DATE-T TO DTP-3
-             WRITE SEGFILE01 FROM DTP01
-           END-IF.
+           MOVE FI-DATE-T TO DTP-3
+           WRITE SEGFILE01 FROM DTP01
+
            PERFORM 2410 THRU 2410-EXIT.
 
-           IF NOT ( HOLD-NEIC = " SX065")
-
-             IF EINSS-TYPE = "E"
+           IF EINSS-TYPE = "E"
               PERFORM 2420A THRU 2420A-EXIT
-             END-IF
-           end-if.
+           END-IF
+
            MOVE FILEIN-KEY TO CHARCUR-KEY
-           READ CHARCUR WITH LOCK INVALID CONTINUE
-           NOT INVALID
-           IF CC-REC-STAT = "0"  MOVE "2" TO CC-REC-STAT
-           END-IF
-           IF CC-REC-STAT = "1"  MOVE "3" TO CC-REC-STAT
-           END-IF
-           MOVE BHT-DATE TO CC-DATE-A
-           REWRITE CHARCUR01
+           READ CHARCUR WITH LOCK 
+             INVALID CONTINUE
+             NOT INVALID
+               IF CC-REC-STAT = "0"
+                 MOVE "2" TO CC-REC-STAT
+               END-IF
+               IF CC-REC-STAT = "1"
+                 MOVE "3" TO CC-REC-STAT
+               END-IF
+               MOVE "E" TO CC-PAPER
+               MOVE BHT-DATE TO CC-DATE-A
+               REWRITE CHARCUR01
            END-READ.
 
        2400SRV-EXIT.
@@ -1514,7 +1520,20 @@
            READ GARFILE INVALID DISPLAY "BAD BAD BAD" GO TO P99.
            MOVE "P" TO SBR-PST.
            MOVE G-PR-GROUP TO SBR-GROUP
+
+           MOVE FI-PAYCODE TO INS-KEY
+           READ INSFILE 
+             INVALID
+               DISPLAY FI-PAYCODE.
+
            MOVE "CI" TO SBR-INSCODE
+
+           IF HOLD-ACC-TYPE = "1"
+             MOVE "WC" TO SBR-INSCODE.
+
+           IF HOLD-ACC-TYPE = "2"
+             MOVE "AM" TO SBR-INSCODE.  
+             
            MOVE SPACE TO SBR-TYPE.
 
            IF
