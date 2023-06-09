@@ -477,7 +477,7 @@
                MOVE G-PRINS TO INS-KEY
 
                READ INSFILE
-                 AT END
+                 INVALID
                    MOVE SPACE TO ERROR-FILE01
                     STRING "BAD INS " FILEIN01 DELIMITED BY SIZE
                       INTO ERROR-FILE01
