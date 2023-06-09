@@ -1457,7 +1457,7 @@
            EXIT.
 
        2310A.
-           IF HOLD-DOCR = "000" GO TO REF-2.
+           IF HOLD-DOCR = "000" GO TO 2310A-EXIT.
            MOVE HOLD-DOCR TO REF-KEY
            READ REFPHY INVALID GO TO REF-2.
            MOVE "DN " TO NM1-1
