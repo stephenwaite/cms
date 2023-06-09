@@ -449,7 +449,7 @@
            MOVE SPACE TO TRN01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                TRN-0 TRN-1 TRN-2.
-           MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG.
+           MOVE SPACE TO PAYORID.
 
        P000.
            MOVE SPACE TO FILEIN01
@@ -459,75 +459,45 @@
            END-READ    
 
            IF F1 = "CLP"
+             UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               CLP-0 CLP-1 CLP-2CLMSTAT CLP-3TOTCLMCHG CLP-4TOTCLMPAY 
+               CLP-5PATRESP CLP-6PLANCODE CLP-7ICN CLP-8FACILITY 
+               CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN 
+               CLP-13PERCENT
+
+               MOVE CLP-1(1:8) TO G-GARNO
+               READ GARFILE
+                 INVALID
+                    MOVE SPACE TO ERROR-FILE01
+                    STRING "BAD GARNO " FILEIN01 DELIMITED BY SIZE
+                      INTO ERROR-FILE01
+                    WRITE ERROR-FILE01  
+               END-READ
+
+               MOVE G-PRINS TO INS-NEIC
+               START INSFILE KEY NOT < INS-NEIC
+                 INVALID
+                   MOVE SPACE TO ERROR-FILE01
+                    STRING "BAD INS " FILEIN01 DELIMITED BY SIZE
+                      INTO ERROR-FILE01
+                    WRITE ERROR-FILE01         
+               END-START
+
+               READ INSFILE NEXT
+                 AT END
+                   MOVE SPACE TO ERROR-FILE01
+                    STRING "BAD INS " FILEIN01 DELIMITED BY SIZE
+                      INTO ERROR-FILE01
+                    WRITE ERROR-FILE01
+               END-READ     
+
+               MOVE INS-NEIC TO PAYORID
                GO TO P0000
-           END-IF
-
-           IF FILEIN01(1:5) = "N1*PR"
-              MOVE SPACE TO N101
-              UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                  N1-0 N1-1 N1-2 N1-3 N1-ID                  
-              MOVE N1-ID(1:5) TO PAYORID1
-              MOVE N1-ID TO EQUITY-ID
-              IF N1-2(1:5) = "MVP H" AND PAYORID1 = space
-                MOVE N1-2(1:5) TO INS-NAME-HOLD
-              end-if
-
-              IF N1-2(1:5) = "WELLC"
-                MOVE N1-2(1:5) TO INS-NAME-HOLD
-                display payorid1 " payorid1"
-              end-if  
-           END-IF
-        
-           IF (F1 = "REF" AND F21 = "*2U")
-               MOVE SPACE TO REF01
-               UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                   REF-0 REF-1 REF-2
-               MOVE REF-2 TO PAYORID
-           END-IF
-
-           IF (F1 = "N1*" AND F21= "PE*")
-               MOVE SPACE TO N101
-               UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                   N1-0 N1-1 N1-2 N1-3 N1-ID
-               MOVE N1-ID TO PERM-ID
-           END-IF
-           
-           IF (F1 = "REF" AND F21= "*TJ")
-               MOVE SPACE TO REF01
-               UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                   REF-0 REF-1 REF-2
            END-IF
            
            GO TO P000.
 
        P0000.
-           IF (PERM-ID NOT = ID-NPI1)
-               AND (PERM-ID NOT = ID-NPI)
-               AND (REF-2 NOT =  PF-1)
-               AND (PERM-ID NOT = PF-1)
-               MOVE 1 TO PROV-FLAG
-           END-IF
-
-      *    FOR HEALTHEQUITY EFT 835s
-      *     DISPLAY "EQUITY-ID " EQUITY-ID " PERM-ID " PERM-ID " PF-1 "
-      *              PF-1
-      *              ACCEPT OMITTED
-
-           IF ((EQUITY-ID = "411410766")
-               AND (PERM-ID = PF-1))
-               MOVE 0 TO PROV-FLAG
-           END-IF
-
-      *     display FILEIN01
-      *     accept omitted
-
-           IF (PROV-FLAG = 1)
-               GO TO P00
-           END-IF
-           
-           IF PAYORID = SPACE
-               MOVE PAYORID1 TO PAYORID
-           END-IF           
 
            IF TITLE-FLAG = 0
                MOVE 1 TO TITLE-FLAG
