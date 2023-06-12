@@ -1881,7 +1881,6 @@
                      continue
                  end-read
                  PERFORM P1-LOST-SVC
-                 GO TO P5-SVC-LOOP-EXIT
                end-if
              end-if               
            END-PERFORM.    
