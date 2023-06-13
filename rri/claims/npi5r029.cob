@@ -1287,12 +1287,9 @@
             MOVE PARMFIRST TO NM1-NAMEF
             MOVE PARMMIDDLE TO NM1-NAMEM
             MOVE "SY" TO REF-CODE
-           END-IF
-
-      *     MOVE "85" TO NM1-1
-      *     IF HOLD-NEIC = "14165"
+           END-IF.
+      *     remove 2010AB pay to address
       *     MOVE "87" TO NM1-1
-      *     END-IF
       *     MOVE SPACE TO NM1-CODE
       *     MOVE "XX" TO NM1-EINSS
       *     MOVE INSGROUP-CODE TO NM1-CODE
