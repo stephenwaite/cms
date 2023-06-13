@@ -1446,6 +1446,9 @@
                  MOVE LQ-2 TO rarc-key
                  READ rarcfile with lock
                    invalid
+                     MOVE SPACE TO RARC-REASON
+                     STRING LQ-2 ' INVALID RARC CODE" DELIMITED BY size 
+                       INTO ERROR-FILE01
                      continue
                  end-read
                  MOVE SPACE TO ERROR-FILE01
