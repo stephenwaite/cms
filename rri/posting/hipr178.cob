@@ -772,8 +772,8 @@
 
            IF PD-AMOUNT = 0
                MOVE 0 TO FLAG
-               DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
-               ACCEPT OMITTED                   
+      *         DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
+      *         ACCEPT OMITTED                   
                PERFORM DUMP50 
                IF FLAG = 1
                    PERFORM P1-LOST-SVC
@@ -989,7 +989,7 @@
                            MOVE CAS-3 TO ALF8
                            PERFORM AMOUNT-1
                            COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                           DISPLAY INS-REDUCE " INS-REDUCE"
+      *                     DISPLAY INS-REDUCE " INS-REDUCE"
                        END-IF
                
                        IF CAS-6 NOT = SPACE AND CAS-5 NOT = "104"
@@ -1449,6 +1449,7 @@
                      MOVE SPACE TO RARC-REASON
                      STRING LQ-2 " INVALID RARC CODE" DELIMITED BY size 
                        INTO ERROR-FILE01
+                     WRITE ERROR-FILE01  
                      continue
                  end-read
                  MOVE SPACE TO ERROR-FILE01
