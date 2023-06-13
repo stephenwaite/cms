@@ -772,8 +772,8 @@
 
            IF PD-AMOUNT = 0
                MOVE 0 TO FLAG
-      *         DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
-      *         ACCEPT OMITTED                   
+               DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
+               ACCEPT OMITTED                   
                PERFORM DUMP50 
                IF FLAG = 1
                    PERFORM P1-LOST-SVC
