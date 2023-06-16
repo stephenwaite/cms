@@ -1447,7 +1447,7 @@
                  READ rarcfile with lock
                    invalid
                      MOVE SPACE TO RARC-REASON
-                     STRING LQ-2 " INVALID RARC CODE" DELIMITED BY size 
+                     STRING LQ-2 " INVALID RARC" DELIMITED BY size 
                        INTO ERROR-FILE01
                      WRITE ERROR-FILE01  
                      continue
