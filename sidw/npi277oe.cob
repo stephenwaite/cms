@@ -213,7 +213,7 @@
        01  TRN01.
            02 TRN-0 PIC XXX.
            02 TRN-1 PIC X.
-           02 TRN-2 PIC X(10).
+           02 TRN-2 PIC X(12).
        01  STC01.
            02 STC-0 PIC XXX.
            02 STC-1 PIC X(12).
