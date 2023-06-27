@@ -56,4 +56,4 @@
       * 184                
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(23).
-           02 CD-ACCESSION PIC X(7).
+           02 CD-VISITNO PIC X(7).

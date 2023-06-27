@@ -14,8 +14,8 @@
            02 C-DOCP PIC XX.
            02 C-ADMIT-DIAG PIC X(17).
       * took 6 from above to create mods   
-      * then took 7 from C-ADMIT-DIAG for C-ACCESSION  
-           02 C-ACCESSION PIC X(7).
+      * then took 7 from C-ADMIT-DIAG for C-VISITNO  
+           02 C-VISITNO PIC X(7).
            02 C-MOD2 PIC X(2).
            02 C-MOD3 PIC X(2).
            02 C-MOD4 PIC X(2).
