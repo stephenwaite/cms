@@ -73,7 +73,8 @@
            02 CD-DX5-3 PIC X(3).
            02 CD-DX6 PIC X(7).
            02 CD-CLINICAL PIC X(40).
-           02 CD-ADMIT-DIAG PIC X(30).
+           02 CD-ADMIT-DIAG PIC X(23).
+           02 CD-VISITNO PIC X(7).
 
       * THIS BECOMES CHARFILE IN AC     
 
@@ -121,9 +122,8 @@
            02 CD-DX4 PIC X(7).
            02 CD-QP1 PIC XX.
            02 CD-QP2 PIC XX.
-           02 CD-DX5-3 PIC X(3).
-           02 CD-DX6 PIC X(7).
-           02 CD-FUTURE PIC X(6).
+           02 CD-VISITNO PIC X(7).
+           02 CD-FUTURE PIC X(9).
        FD  FILEOUT.
        01  FILEOUT01 PIC X(120).   
 
