@@ -23,43 +23,11 @@
 
        FILE SECTION.
 
-       FD ORDFILE
-           DATA RECORD IS ORDFILE01.
-       01 ORDFILE01.
-           02 ORDNO.
-             03 ORD8 PIC X(8).
-             03 ORD3 PIC XXX.
-           02 CHARGE1 PIC X(4).
-           02 CHARGE2 PIC X.
-           02 C-REF PIC XXX.
-           02 C-IOPAT PIC X.
-           02 C-DATE-A PIC X(8).
-           02 C-DATE-T PIC X(8).
-           02 C-DATE-ADMIT PIC X(8).
-           02 C-ORDER PIC XXXX.
-           02 C-CLINICAL PIC X(40).
-           02 C-ADMIT-DIAG PIC X(30).
-           02 C-DATE-E PIC X(8).
-           02 C-CPT PIC X(5).
+       FD  ORDFILE.
+           copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
 
-       FD ORDFILEBK
-           DATA RECORD IS ORDFILEBK01.
-       01 ORDFILEBK01.
-           02 ORDNOBK.
-             03 ORD8BK PIC X(8).
-             03 ORD3BK PIC XXX.
-           02 CHARGEBK1 PIC X(4).
-           02 CHARGEBK2 PIC X.
-           02 C-REFBK PIC XXX.
-           02 C-IOPATBK PIC X.
-           02 C-DATE-ABK PIC X(8).
-           02 C-DATE-TBK PIC X(8).
-           02 C-DATE-ADMITBK PIC X(8).
-           02 C-ORDERBK PIC XXXX.
-           02 C-CLINICALBK PIC X(40).
-           02 C-ADMIT-DIAGBK PIC X(30).
-           02 C-DATEBK-E PIC X(8).
-           02 C-CPTBK PIC X(5).
+       FD ORDFILEBK.
+           copy "ordfilebk.cpy" in "c:\Users\sid\cms\copylib\rri".       
 
        WORKING-STORAGE SECTION.
 
@@ -81,7 +49,7 @@
                GO TO P2
            END-READ
     
-           IF CHARGE1 = "1131" OR "1321" OR "1838"
+           IF C-PROC = "1131" OR "1321" OR "1838"
            OR "1911" OR "1950" OR "1951" OR "1956" OR "1958" OR "1959"
            OR "1985"  OR "4052" OR "0700" OR "0502" OR "0518" 
            OR "1408" OR "1853"  OR "1400" OR "1401" OR "0901"
@@ -89,7 +57,7 @@
            OR "0749" OR "0750" OR "0751" OR "0752"
            GO TO A1.
 
-           IF CHARGE1 = "0535" OR
+           IF C-PROC = "0535" OR
            "0902" OR "0501" OR "0505" OR "0508" OR "0509" OR "0507"
            OR "0503" OR "0701" OR "0702" OR "0504" OR "0512" OR "0519"
            OR "0500" OR "0600" OR "0514" OR "0515" OR "0506" OR "0525"
@@ -100,13 +68,13 @@
            OR "0812" OR "0803" OR "0807" OR "4051" OR "0811" OR "0818"
            GO TO A1.
 
-           IF CHARGE1 = "7405" OR "7406" OR "7601" OR "7602" OR "1616"
+           IF C-PROC = "7405" OR "7406" OR "7601" OR "7602" OR "1616"
            OR "4622" OR "4623" OR "4470" OR "4472" OR "7003"
            OR "4510" OR "4421" OR "4626" OR "4627" OR "2310" OR "7001"
            OR "7506" OR "7513"
            GO TO A1.
 
-           IF CHARGE1 = "8284" OR "8296" OR "8303" OR "8304" 
+           IF C-PROC = "8284" OR "8296" OR "8303" OR "8304" 
            GO TO A1.
 
            GO TO P1.

@@ -412,7 +412,8 @@
            02 FILLER PIC X(35).
       * col 181     
            02 R3-LOCO PIC X(4).
-      * col 185     
+           02 FILLER PIC X(36).
+           02 R3-ACCESSION PIC X(7).
 
        01  NAME-TEST PIC X(25).
        01  NAME-LAST PIC X(24).
@@ -1762,6 +1763,7 @@
            
            MOVE R3-CLINICAL TO C-CLINICAL
            MOVE R2-DIAG TO C-ADMIT-DIAG
+           MOVE R1-PATNUM TO C-VISITNO
            MOVE R3-CPT TO C-CPT
            MOVE R3-MOD1 TO C-MOD2
            MOVE R3-MOD2 TO C-MOD3

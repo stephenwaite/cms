@@ -803,6 +803,9 @@
              MOVE "14156" TO PAYORID
            end-if
 
+      *     DISPLAY PAYORID " PAYORID"
+      *     ACCEPT OMITTED
+           
            IF PAYORID = space OR "11329"
              PERFORM P1-LOST-SVC 
              GO TO P5-SVC-LOOP-EXIT.
@@ -830,7 +833,7 @@
              AND PAYORID NOT = "52192"
              GO TO P3-NEXT.
 
-           IF CLP-2CLMSTAT = "1"
+           IF CLP-2CLMSTAT = "1" OR "19"
              IF G-PRINS NOT = INS-KEY
                GO TO P3-NEXT
              ELSE
@@ -877,6 +880,10 @@
            END-IF
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
+           
+      *     DISPLAY CLAIM-TOT " CLAIM-TOT " CC-AMOUNT " CC-AMOUNT "
+      *       PD-AMOUNT " PD-AMOUNT"
+      *     ACCEPT OMITTED
            
            PERFORM S4 THRU S5
            
@@ -1043,6 +1050,9 @@
            IF INS-REDUCE NOT = 0
                COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT - INS-REDUCE
                PERFORM S4 THRU S5
+               
+      *         DISPLAY CLAIM-TOT " CLAIM-TOT"
+      *         ACCEPT OMITTED
                
                IF CLAIM-TOT < 0
                    PERFORM P1-LOST-SVC

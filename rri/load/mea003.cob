@@ -6,8 +6,8 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
 
-           SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+           SELECT CHARNEW ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARNEW-KEY
            LOCK MODE MANUAL.
            
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
@@ -17,65 +17,18 @@
        FILE SECTION.
        FD  FILEOUT.
        01  FILEOUT01 PIC X(70).
-       FD  CHARFILE
-           BLOCK CONTAINS 2 RECORDS
-           DATA RECORD IS CHARFILE01.
-       01  CHARFILE01.
-           02 CHARFILE-KEY.
-             03 CD-KEY8 PIC X(8).
-             03 CD-KEY3 PIC XXX.
-           02 CD-PATID PIC X(8).
-           02 CD-CLAIM PIC X(6).
-           02 CD-SERVICE PIC X.
-           02 CD-DIAG PIC X(7).
-           02 CD-PROC.
-              03 CD-PROC0 PIC X(4).
-              03 CD-PROC1 PIC X(5).
-              03 CD-PROC2 PIC XX.
-           02 CD-MOD2 PIC XX.
-           02 CD-MOD3 PIC XX.
-           02 CD-MOD4 PIC XX.
-           02 CD-AMOUNT PIC S9(4)V99.
-           02 CD-DOCR PIC X(3).
-           02 CD-DOCP PIC X(2).
-           02 CD-PAYCODE PIC XXX.
-           02 CD-STAT PIC X.
-           02 CD-WORK PIC XX.
-           02 CD-DAT1 PIC X(8).
-           02 CD-RESULT PIC X.
-           02 CD-ACT PIC X.
-           02 CD-SORCREF PIC X.
-           02 CD-COLLT PIC X.
-           02 CD-AGE PIC X.
-           02 CD-PAPER PIC X.
-           02 CD-PLACE PIC X.
-           02 CD-NAME PIC X(24).
-           02 CD-ESPDT PIC X.
-           02 CD-DATE-T PIC X(8).
-           02 CD-DATE-E PIC X(8).
-           02 CD-ORDER PIC X(6).
-           02 CD-DX2 PIC X(7).
-           02 CD-DX3 PIC X(7).
-           02 CD-DATE-A PIC X(8).
-           02 CD-ACC-TYPE PIC X.
-           02 CD-DATE-M PIC X(8).
-           02 CD-ASSIGN PIC X.
-           02 CD-NEIC-ASSIGN PIC X.
-           02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
-           02 CD-DX6 PIC X(7).
-           02 CD-CLINICAL PIC X(40).
-           02 CD-ADMIT-DIAG PIC X(30).
+       FD  CHARNEW.
+           copy "charnew.cpy" in "c:\Users\sid\cms\copylib\rri".
 
        WORKING-STORAGE SECTION.
        01 HOLD8 PIC X(8).
        PROCEDURE DIVISION.
        0005-START.
-           OPEN I-O CHARFILE 
+           OPEN I-O CHARNEW 
            OPEN OUTPUT FILEOUT.
-           MOVE SPACE TO CHARFILE-KEY.
+           MOVE SPACE TO CHARNEW-KEY.
        P1. 
-           READ CHARFILE NEXT WITH LOCK AT END
+           READ CHARNEW NEXT WITH LOCK AT END
                GO TO P2
            END-READ
 
@@ -96,7 +49,7 @@
                       CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01   
-               REWRITE CHARFILE01
+               REWRITE CHARNEW01
                GO TO P1
            END-IF     
 
@@ -135,7 +88,7 @@
                       CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
-               REWRITE CHARFILE01
+               REWRITE CHARNEW01
                GO TO P1
            END-IF
 
@@ -174,7 +127,7 @@
                       CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
-               REWRITE CHARFILE01
+               REWRITE CHARNEW01
                GO TO P1
            END-IF
             
@@ -185,7 +138,7 @@
              STRING "147 " CD-PAYCODE " " CD-PROC1 " " CD-DATE-T " "
                CD-NAME DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01 
-             REWRITE CHARFILE01
+             REWRITE CHARNEW01
              GO TO P1
            END-IF
 	
@@ -200,7 +153,7 @@
              STRING "405 " CD-PAYCODE " " CD-PROC1 " " CD-DATE-T " "
                CD-NAME DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01 
-             REWRITE CHARFILE01
+             REWRITE CHARNEW01
              GO TO P1
            END-IF
 
@@ -216,7 +169,7 @@
              STRING "406 " CD-PAYCODE " " CD-PROC1 " " CD-DATE-T " " 
                CD-NAME DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01 
-             REWRITE CHARFILE01
+             REWRITE CHARNEW01
              GO TO P1
            END-IF
 
@@ -241,7 +194,7 @@
                       CD-PROC1 " " CD-DATE-T " " CD-NAME 
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
-               REWRITE CHARFILE01 
+               REWRITE CHARNEW01 
                GO TO P1
            END-IF
 
@@ -258,11 +211,11 @@
                        CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
-               REWRITE CHARFILE01
+               REWRITE CHARNEW01
                GO TO P1
            END-IF
 
            GO TO P1.
        P2.
-           CLOSE CHARFILE.
+           CLOSE CHARNEW.
            STOP RUN.

@@ -10,8 +10,8 @@
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT CHARFILE ASSIGN TO "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS SEQUENTIAL RECORD KEY IS CHARFILE-KEY.
+           SELECT CHARNEW ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS SEQUENTIAL RECORD KEY IS CHARNEW-KEY.
            SELECT FILEOUT ASSIGN TO "S35"
            ORGANIZATION LINE SEQUENTIAL.
            SELECT GARFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
@@ -47,56 +47,8 @@
            02 PROC-TYPE PIC X.
            02 PROC-TITLE PIC X(28).
            02 PROC-AMOUNT PIC 9(4)V99.
-       FD  CHARFILE
-           BLOCK CONTAINS 2 RECORDS
-           DATA RECORD IS CHARFILE01.
-       01  CHARFILE01.
-           02 CHARFILE-KEY.
-             03 CD-KEY8 PIC X(8).
-             03 CD-KEY3 PIC XXX.
-           02 CD-PATID PIC X(8).
-           02 CD-CLAIM PIC X(6).
-           02 CD-SERVICE PIC X.
-           02 CD-DIAG PIC X(7).
-           02 CD-PROC.
-           03 CD-PROC1 PIC X(4).
-           03 CD-PROC2 PIC X(7).
-           02 CD-MOD2 PIC XX.
-           02 CD-MOD3 PIC XX.
-           02 CD-MOD4 PIC XX.
-           02 CD-AMOUNT PIC S9(4)V99.
-           02 CD-DOCR PIC X(3).
-           02 CD-DOCP PIC X(2).
-           02 CD-PAYCODE PIC XXX.
-           02 CD-STAT PIC X.
-           02 CD-WORK PIC XX.
-           02 CD-DAT1 PIC X(8).
-           02 CD-RESULT PIC X.
-           02 CD-ACT PIC X.
-           02 CD-SORCREF PIC X.
-           02 CD-COLLT PIC X.
-           02 CD-AGE PIC X.
-           02 CD-PAPER PIC X.
-           02 CD-PLACE PIC X.
-           02 CD-NAME PIC X(24).
-           02 CD-ESPDT PIC X.
-           02 CD-DATE-T PIC X(8).
-           02 CD-DATE-E PIC X(8).
-           02 CD-ORDER PIC X(6).
-           02 CD-DX2 PIC X(7).
-           02 CD-DX3 PIC X(7).
-           02 CD-DATE-A PIC X(8).
-           02 CD-ACC-TYPE PIC X.
-           02 CD-DATE-M PIC X(8).
-           02 CD-ASSIGN PIC X.
-           02 CD-NEIC-ASSIGN PIC X.
-           02 CD-DX4 PIC X(7).
-           02 CD-DX5 PIC X(7).
-           02 CD-DX6 PIC X(7).
-           02 C-CLINICAL.
-             03 CD-CLIN1 PIC X(4).
-             03 CD-CLIN2 PIC X(36).
-           02 CD-ADMIT-DIAG PIC X(30).
+       FD  CHARNEW.
+           copy "charnew.cpy" in "c:\Users\sid\cms\copylib\rri".
        FD FILEOUT.
        01 FILEOUT01 PIC X(177).
        FD GARFILE
@@ -179,11 +131,11 @@
 
        0005-START.
 
-           OPEN INPUT PROCFILE CHARFILE GARFILE REFPHY.
+           OPEN INPUT PROCFILE CHARNEW GARFILE REFPHY.
            OPEN OUTPUT FILEOUT.
 
        P1. 
-           READ CHARFILE 
+           READ CHARNEW 
              AT END
                GO TO P3.
 
@@ -193,7 +145,7 @@
            MOVE CD-KEY8 TO G-GARNO.
            READ GARFILE INVALID GO TO P1.
            MOVE CD-DATE-T TO FO-1
-           MOVE CHARFILE-KEY TO FO-2
+           MOVE CHARNEW-KEY TO FO-2
            MOVE G-GARNAME TO FO-3
            MOVE CD-PAYCODE TO FO-31
            MOVE CD-PROC TO FO-4
@@ -206,14 +158,18 @@
            MOVE CD-DOCR TO REF-KEY
            READ REFPHY INVALID MOVE SPACE TO REF-NAME.
            MOVE REF-NAME TO FO-6.
-           IF CD-CLIN1 = "XXXX" MOVE "\/\/" TO CD-CLIN1.
-           MOVE C-CLINICAL TO CLIN
+           IF  CD-CLINICAL(1:4) = "XXXX" 
+             MOVE "\/\/" TO CD-CLINICAL(1:4).
+           MOVE CD-CLINICAL TO CLIN
            MOVE CD-ADMIT-DIAG TO ADMIT-DIAG
-           IF CD-CLIN1 = "\/\/" MOVE G-GARNAME TO SORTDIAG
-           ELSE MOVE SPACE TO SORTDIAG.
+           IF CD-CLINICAL(1:4) = "\/\/" 
+             MOVE G-GARNAME TO SORTDIAG
+           ELSE 
+             MOVE SPACE TO SORTDIAG.
+             
            WRITE FILEOUT01 FROM FILE-OUT01
            GO TO P1.
       
        P3. 
-           CLOSE CHARFILE FILEOUT PROCFILE REFPHY GARFILE.
+           CLOSE CHARNEW FILEOUT PROCFILE REFPHY GARFILE.
            STOP RUN.

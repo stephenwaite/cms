@@ -47,6 +47,7 @@
            02 CC-NEIC-ASSIGN PIC X.
            02 CC-DX4 PIC X(7).
       * 140     
-           02 CC-DX5 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
+           02 CC-QP1 PIC XX.
+           02 CC-QP2 PIC XX.
+           02 CC-VISITNO PIC X(7)
+           02 CC-FUTURE PIC X(9).
