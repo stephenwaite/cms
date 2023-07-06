@@ -44,13 +44,11 @@
            END-READ
             
       *    also adding problematic cxrs that come over with laterality
-           IF NOT (
-             CD-PROC1 = "7300026" OR "7303026" OR "7314026"
-           )
+           IF NOT (CD-PROC1 = "7300026" OR "7303026" OR "7314026")
                GO TO P1
            END-IF
                    
-           IF CD-MOD2 == SPACE
+           IF CD-MOD2 = SPACE
              STRING "MISSING LAT MOD ON " CD-PROC " FOR " 
                 CD-KEY8 " DOS " CD-DATE-T "?"
                 DELIMITED BY SIZE INTO FILEOUT01
