@@ -4,8 +4,8 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. sssr803.
-       AUTHOR. SID WAITE.
+       PROGRAM-ID. nonrri-wcomp803.
+       AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -40,7 +40,7 @@
        FILE SECTION.
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib".
        
 
        FD  FILEIN.
@@ -55,7 +55,7 @@
            COPY insfile.cpy IN "C:\Users\sid\cms\copylib".
 
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".        
+           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".        
 
        PROCEDURE DIVISION.
        P0.
