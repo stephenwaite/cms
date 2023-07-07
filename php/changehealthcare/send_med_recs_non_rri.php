@@ -76,7 +76,7 @@ $provider = array(
 );
 
 $cntr = 0;
-$fh_wcomp_sid = fopen('/home/rri/wcompin', 'r');
+$fh_wcomp_sid = fopen('wcompin', 'r');
 if ($fh_wcomp_sid) {
     while ($row = fgets($fh_wcomp_sid)) {
         $cntr++;
@@ -160,7 +160,7 @@ if ($fh_wcomp_sid) {
                 [
                     'name' => 'files',
                     'filename' => $charcur_key . '.pdf',
-                    'contents' => Utils::tryFopen('/home/rri/' . $charcur_key . '.pdf', 'r'),
+                    'contents' => Utils::tryFopen($charcur_key . '.pdf', 'r'),
                 ],
                 [
                     'name' => 'request',
