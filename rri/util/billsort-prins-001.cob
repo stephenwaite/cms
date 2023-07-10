@@ -29,7 +29,7 @@
            select fileout assign to   "S45" organization 
              line sequential.
 
-           select fileout2 assign to   "S50" organization 
+           select fileout2 assign to  "S50" organization 
              line sequential.  
 
        DATA DIVISION.
@@ -58,7 +58,7 @@
 
        P0.
            OPEN INPUT filein GARFILE CHARCUR.
-           open output fileout.
+           open output fileout fileout2.
 
        P1. 
            MOVE SPACE TO filein01
@@ -79,8 +79,8 @@
        
            if G-PRINS = "001"
               if G-PRIPOL(1:1) NOT = SPACE
-              AND G-PRIPOL(9:1) NOT = SPACE
-              AND G-PRIPOL(10:1) = SPACE
+                AND G-PRIPOL(9:1) NOT = SPACE
+                AND G-PRIPOL(10:1) = SPACE
                  move g-garno to CC-KEY8
                  move "999" to cc-key3
                  start charcur key not > charcur-key
