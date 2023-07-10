@@ -21,6 +21,11 @@
              ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
              LOCK MODE MANUAL.
 
+           SELECT CHARCUR ASSIGN TO   "S35" ORGANIZATION IS INDEXED
+             ACCESS MODE IS DYNAMIC RECORD KEY IS CHARCUR-KEY
+             ALTERNATE RECORD KEY IS CC-PAYCODE WITH DUPLICATES
+             LOCK MODE MANUAL.  
+
            select fileout assign to   "S45" organization 
              line sequential.
 
@@ -43,7 +48,7 @@
        PROCEDURE DIVISION.
 
        P0.
-           OPEN INPUT filein GARFILE.
+           OPEN INPUT filein GARFILE CHARCUR.
            open output fileout.
 
        P1. 
@@ -64,7 +69,15 @@
        
        
            if G-PRINS = "001"
-             write fileout01 from garfile01.  
+             start charcur key not > g-garno
+               INVALID DISPLAY "NO CHARGES" 
+               ACCEPT OMITTED
+               CONTINUE.
+             READ CHARCUR PREVIOUS AT END
+               DISPLAY "NO CHARGES" 
+               ACCEPT OMITTED.
+
+             write fileout01 from charcur01.  
 
            GO TO P1.         
 
