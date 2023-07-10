@@ -74,7 +74,7 @@
            if G-PRINS = "001"
              move g-garno to CC-KEY8
              move "999" to cc-key3
-             start charcur key not > charcur-key
+             start charcur key < charcur-key
                INVALID DISPLAY "NO CHARGES" 
                ACCEPT OMITTED
                CONTINUE.
