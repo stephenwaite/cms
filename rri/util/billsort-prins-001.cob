@@ -85,10 +85,10 @@
                  ACCEPT OMITTED
                  go to p1
              END-READ
+             move space to fileout01
+             write fileout01 from charcur01.  
            END-IF      
            
-           move space to fileout01
-           write fileout01 from charcur01.  
            GO TO P1.         
 
        p99.
