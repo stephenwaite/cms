@@ -29,6 +29,9 @@
            select fileout assign to   "S45" organization 
              line sequential.
 
+           select fileout2 assign to   "S50" organization 
+             line sequential.  
+
        DATA DIVISION.
        
        FILE SECTION.
@@ -45,6 +48,9 @@
 
        fd  fileout.
        01  fileout01 pic x(200).
+
+       fd  fileout2.
+       01  fileout201 pic x(200).
        
        WORKING-STORAGE SECTION.    
 
@@ -72,27 +78,35 @@
        
        
            if G-PRINS = "001"
-             move g-garno to CC-KEY8
-             move "999" to cc-key3
-             start charcur key not > charcur-key
-               INVALID DISPLAY "NO CHARGES" 
-               ACCEPT OMITTED
-               go to p1
-             END-START  
-             READ CHARCUR PREVIOUS
-               AT END
-                 DISPLAY "NO CHARGES" 
-                 ACCEPT OMITTED
-                 go to p1
-             END-READ
-             move space to fileout01
-             write fileout01 from charcur01
+              if g-PRIPOL(1:1) NOT = SPACE
+              AND G-PRPOL(9:1) NOT = SPACE
+              AND G-PRIPOL(10:1) = SPACE
+                 move g-garno to CC-KEY8
+                 move "999" to cc-key3
+                 start charcur key not > charcur-key
+                   INVALID DISPLAY "NO CHARGES" 
+                   ACCEPT OMITTED
+                   go to p1
+                 END-START  
+                 READ CHARCUR PREVIOUS
+                   AT END
+                     DISPLAY "NO CHARGES" 
+                     ACCEPT OMITTED
+                     go to p1
+                 END-READ
+                 move space to fileout01
+                 write fileout01 from charcur01
+             else
+                 move space to fileout201
+                 write fileout201 from charcur01
+
+             end-if 
            END-IF      
            
            GO TO P1.         
 
        p99.
-           CLOSE filein GARFILE charcur fileout.
+           CLOSE filein GARFILE charcur fileout fileout2.
            STOP RUN.
 
       
