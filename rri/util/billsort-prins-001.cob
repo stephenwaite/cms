@@ -77,10 +77,11 @@
              start charcur key < charcur-key
                INVALID DISPLAY "NO CHARGES" 
                ACCEPT OMITTED
-               CONTINUE.
+               go to p1.
              READ CHARCUR PREVIOUS AT END
                DISPLAY "NO CHARGES" 
-               ACCEPT OMITTED.
+               ACCEPT OMITTED
+               go to p1.
 
              write fileout01 from charcur01.  
 
