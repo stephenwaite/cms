@@ -86,7 +86,7 @@
                  go to p1
              END-READ
              move space to fileout01
-             write fileout01 from charcur01.  
+             write fileout01 from charcur01
            END-IF      
            
            GO TO P1.         
