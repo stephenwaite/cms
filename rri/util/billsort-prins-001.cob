@@ -74,13 +74,16 @@
            if G-PRINS = "001"
              move g-garno to CC-KEY8
              move "999" to cc-key3
-             start charcur key < charcur-key
+             start charcur key not > charcur-key
                INVALID DISPLAY "NO CHARGES" 
                ACCEPT OMITTED
                go to p1.
-             READ CHARCUR PREVIOUS AT END
-               DISPLAY "NO CHARGES" 
-               ACCEPT OMITTED
+             READ CHARCUR PREVIOUS
+               invalid DISPLAY "INVALID PREVIOUS READ ON CHARCUR" 
+                 ACCEPT OMITTED
+               AT END
+                 DISPLAY "NO CHARGES" 
+                 ACCEPT OMITTED
                go to p1.
 
              write fileout01 from charcur01.  
