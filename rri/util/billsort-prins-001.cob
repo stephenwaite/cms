@@ -40,6 +40,9 @@
        FD  GARFILE.
            COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
        
+       FD  CHARCUR.
+           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+
        fd  fileout.
        01  fileout01 pic x(200).
        
@@ -82,7 +85,7 @@
            GO TO P1.         
 
        p99.
-           CLOSE filein GARFILE fileout.
+           CLOSE filein GARFILE charcur fileout.
            STOP RUN.
 
       
