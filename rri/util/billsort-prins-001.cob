@@ -80,6 +80,8 @@
                go to p1
              END-START  
              READ CHARCUR PREVIOUS
+               INVALID
+                 DISPLAY CC-KEY8 " INVALID CHARCUR READ"
                AT END
                  DISPLAY "NO CHARGES" 
                  ACCEPT OMITTED
