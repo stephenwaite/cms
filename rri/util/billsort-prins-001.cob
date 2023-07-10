@@ -87,7 +87,7 @@
              END-READ
            END-IF      
            
-           move space to fileou01
+           move space to fileout01
            write fileout01 from charcur01.  
            GO TO P1.         
 
