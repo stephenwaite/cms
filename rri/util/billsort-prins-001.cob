@@ -79,10 +79,6 @@
                ACCEPT OMITTED
                go to p1.
              READ CHARCUR
-               invalid 
-                 DISPLAY "INVALID READ ON CHARCUR" 
-                 ACCEPT OMITTED
-                 GO TO P1
                AT END
                  DISPLAY "NO CHARGES" 
                  ACCEPT OMITTED
