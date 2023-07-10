@@ -81,11 +81,12 @@
              READ CHARCUR
                invalid 
                  DISPLAY "INVALID READ ON CHARCUR" 
-                 ACCEPT OMITTED  
+                 ACCEPT OMITTED
+                 GO TO P1
                AT END
                  DISPLAY "NO CHARGES" 
                  ACCEPT OMITTED
-               go to p1.
+                 go to p1.
 
              write fileout01 from charcur01.  
 
