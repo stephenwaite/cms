@@ -78,9 +78,10 @@
                INVALID DISPLAY "NO CHARGES" 
                ACCEPT OMITTED
                go to p1.
-             READ CHARCUR PREVIOUS
-               invalid DISPLAY "INVALID PREVIOUS READ ON CHARCUR" 
-                 ACCEPT OMITTED
+             READ CHARCUR
+               invalid 
+                 DISPLAY "INVALID READ ON CHARCUR" 
+                 ACCEPT OMITTED  
                AT END
                  DISPLAY "NO CHARGES" 
                  ACCEPT OMITTED
