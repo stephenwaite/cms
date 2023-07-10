@@ -21,7 +21,7 @@
              ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
              LOCK MODE MANUAL.
 
-           select fileout assign to   "S35" organization 
+           select fileout assign to   "S45" organization 
              line sequential.
 
        DATA DIVISION.
