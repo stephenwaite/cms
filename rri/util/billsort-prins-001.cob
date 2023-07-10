@@ -69,7 +69,7 @@
            GO TO P1.         
 
        p99.
-           CLOSE filein GARFILE CHARCUR PAYCUR fileout.
+           CLOSE filein GARFILE fileout.
            STOP RUN.
 
       
