@@ -426,7 +426,7 @@
            MOVE SPACE TO NM1-CODE
            MOVE G-SECPOL TO NM1-CODE
       *     IF G-PRINS = "064"
-      *     MOVE G-PRIPOL TO NM1-CODE
+           MOVE G-PRIPOL TO NM1-CODE
       *     END-IF
            MOVE "MI" TO NM1-EINSS
            MOVE SPACE TO SEGFILE01
