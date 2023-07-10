@@ -78,8 +78,8 @@
        
        
            if G-PRINS = "001"
-              if g-PRIPOL(1:1) NOT = SPACE
-              AND G-PRPOL(9:1) NOT = SPACE
+              if G-PRIPOL(1:1) NOT = SPACE
+              AND G-PRIPOL(9:1) NOT = SPACE
               AND G-PRIPOL(10:1) = SPACE
                  move g-garno to CC-KEY8
                  move "999" to cc-key3
