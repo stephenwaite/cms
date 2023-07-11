@@ -902,9 +902,15 @@
            MOVE INS-STATE TO N4-STATE
            MOVE INS-ZIP TO N4-ZIP
            IF N4-ZIP(6:4) = SPACE
-           MOVE "9999" TO N4-ZIP(6:4).
+             MOVE "9999" TO N4-ZIP(6:4).
            MOVE SPACE TO SEGFILE01.
            WRITE SEGFILE01 FROM N401.
+           IF INS-NEIC = "WP540"
+             MOVE "2U" TO REF-CODE
+             MOVE "101337700" TO REF-ID
+             MOVE SPACE TO SEGFILE01
+             WRITE SEGFILE01 FROM REF01.
+
        2000C.
            MOVE HL-NUMX TO HL-PARENT
            MOVE "0" TO HL-CHILD
