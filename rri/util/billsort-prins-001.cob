@@ -99,7 +99,7 @@
              end-if 
            else
                move space to fileout201
-               write fileout201 from charcur01   
+               write fileout201 from garfile01   
            END-IF      
            
            GO TO P1.         
