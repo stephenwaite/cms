@@ -1132,6 +1132,8 @@
                    OR (CAS-1 = "PR" AND CAS-2 = "35   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "96   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "151  ")                  
+                   OR (CAS-1 = "PR" AND CAS-2 = "243  ")                  
+
                    MOVE 1 TO FLAG
                    MOVE CAS-CNTR TO Z
                  END-IF               
