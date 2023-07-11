@@ -765,6 +765,8 @@
                DISPLAY "HS,HSC,HSP,# TO SEARCH HISTORY RECORDS."
                DISPLAY "PB,<GARNO> TO PRINT BILL. LB,<GARNO> LAB FORM"
                DISPLAY "PCF TO PRINT A POSTED CHARGE 1500-HCFA FORM"
+               DISPLAY "GR TO GRAB A READ FROM RRI OPENEMR"
+ 
                DISPLAY "RA = RE-AGE CHARGES TO CURRENT END = END THE "
                        "JOB."
                DISPLAY "DC= DELETE OLD WC ADDS LA= LIST ACCOUNTS BY "
@@ -925,6 +927,13 @@
                MOVE IN-FIELD-1 TO FLAG
                MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
                GO TO 10-PR
+           END-IF
+
+           IF KEYFLAG = 1 AND ACTION = "GR"
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
+               GO TO 10-GR
            END-IF
              
            IF KEYFLAG = 1 AND ACTION = "CC"
@@ -4450,6 +4459,26 @@
            CALL "SYSTEM" USING "pap-4"
            OPEN OUTPUT FILEOUT
            GO TO 1000-ACTION.
+
+       10-GR. 
+           MOVE CC-KEY8 TO G-GARNO
+           READ GARFILE INVALID DISPLAY "BAD ACCT # "  
+           GO TO 1000-ACTION.
+           READ CHARCUR INVALID DISPLAY "BAD SELECTION"
+           GO TO 1000-ACTION.
+           IF CC-PLACE = "1" OR "3" OR "5" OR "E" OR "O"
+             NEXT SENTENCE
+           ELSE DISPLAY "CAN NOT GET CHCRR READS YET."
+           GO TO 1000-ACTION.
+           
+           MOVE SPACE TO FILEOUT01
+
+           STRING G-ACCT CC-DATE-T DELIMITED BY SIZE INTO FILEOUT01
+           WRITE FILEOUT01.
+           CLOSE FILEOUT
+           CALL "SYSTEM" USING "emr-4"
+           OPEN OUTPUT FILEOUT
+           GO TO 1000-ACTION.    
 
        PG-1.
            DISPLAY "Name of patient: " G-GARNAME
