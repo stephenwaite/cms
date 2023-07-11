@@ -96,11 +96,10 @@
                  END-READ
                  move space to fileout01
                  write fileout01 from charcur01
-             else
-                 move space to fileout201
-                 write fileout201 from charcur01
-
              end-if 
+           else
+               move space to fileout201
+               write fileout201 from charcur01   
            END-IF      
            
            GO TO P1.         
