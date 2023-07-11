@@ -96,10 +96,10 @@
                  END-READ
                  move space to fileout01
                  write fileout01 from charcur01
-             end-if 
-           else
+              else
                move space to fileout201
-               write fileout201 from garfile01   
+               write fileout201 from garfile01      
+             end-if 
            END-IF      
            
            GO TO P1.         
