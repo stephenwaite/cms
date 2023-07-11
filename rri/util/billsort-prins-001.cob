@@ -82,6 +82,10 @@
                 AND G-PRIPOL(9:1) NOT = SPACE
                 AND G-PRIPOL(10:1) = SPACE
                 AND G-PRIPOL(1:9) NOT = "000000000"
+                 if g-garno = "GRI1203G"
+                    DISPLAY G-PRIPOL
+                    ACCEPT OMITTED.
+                    
                  move g-garno to CC-KEY8
                  move "999" to cc-key3
                  start charcur key not > charcur-key
