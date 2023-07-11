@@ -4431,8 +4431,8 @@
            GO TO 1000-ACTION.
            READ CHARCUR INVALID DISPLAY "BAD SELECTION"
            GO TO 1000-ACTION.
-           IF CC-PLACE = ("1" OR "3" OR "5" OR "E" OR "O" )
-             AND CC-DATE-T > "20230515"
+           IF (CC-PLACE = "1" OR "3" OR "5" OR "E" OR "O")
+             AND (CC-DATE-T > "20230515")
              NEXT SENTENCE
            ELSE DISPLAY "CAN NOT GRAB THAT READ."
            GO TO 1000-ACTION.
