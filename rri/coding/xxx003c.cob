@@ -42,7 +42,10 @@
                ALTERNATE RECORD KEY IS DIAG9-TITLE WITH DUPLICATES.
 
            SELECT OUTFILE ASSIGN TO   "S65" ORGANIZATION IS 
-               LINE SEQUENTIAL.  
+               LINE SEQUENTIAL.
+
+           SELECT FILEOUT2 ASSIGN TO "S70" ORGANIZATION
+             LINE SEQUENTIAL.    
 
        DATA DIVISION.
 
@@ -112,6 +115,10 @@
        FD  OUTFILE.
        01  OUTFILE01 PIC X(132).
 
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(40).
+
+
        WORKING-STORAGE SECTION.
 
        01  BELL0 USAGE INDEX.
@@ -177,6 +184,7 @@
                       TAGDIAG DIAG9FILE.
            OPEN EXTEND OUTFILE.
            OPEN INPUT CHARNEW.
+           OPEN OUTPUT FILEOUT2.
            DISPLAY "0 = start new, 1 = skip ahead to undone"
            ACCEPT ALF1.
 
@@ -755,6 +763,19 @@
                ACCEPT OMITTED
                GO TO P2-00
            END-IF.    
+
+           IF IN-FIELD-7 = "G"
+             GO TO 10-GR
+           END-IF.
+
+       10-GR.
+           MOVE SPACE TO FILEOUT201
+           STRING G-ACCT CD-VISITNO DELIMITED BY SIZE INTO FILEOUT201
+           WRITE FILEOUT201.
+           CLOSE FILEOUT2
+           CALL "SYSTEM" USING "emr-4"
+           OPEN OUTPUT FILEOUT2.
+
        P2-9.
            MOVE IN-FIELD-7 TO DIAG-KEY
            READ DIAGFILE
@@ -1263,6 +1284,6 @@
 
        P99.
            CLOSE CHARNEW PROCFILE GARFILE DIAGFILE DIAG9FILE
-                 ALLOWFILE FILE-OUT OUTFILE TAGDIAG.
+                 ALLOWFILE FILE-OUT OUTFILE TAGDIAG FILEOUT2.
            STOP RUN.
 
