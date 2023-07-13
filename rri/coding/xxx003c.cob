@@ -748,7 +748,11 @@
            
            IF IN-FIELD-7 = "."
                MOVE HOLD7 TO IN-FIELD-7
-           END-IF    
+           END-IF
+
+           IF IN-FIELD-7 = "G"
+             GO TO 10-GR
+           END-IF.
            
            MOVE IN-FIELD-7 TO DIAG-KEY
            MOVE SPACE TO HOLD-DIAG
@@ -763,10 +767,6 @@
                ACCEPT OMITTED
                GO TO P2-00
            END-IF.    
-
-           IF IN-FIELD-7 = "G"
-             GO TO 10-GR
-           END-IF.
 
        P2-9.
            MOVE IN-FIELD-7 TO DIAG-KEY
@@ -1281,7 +1281,7 @@
            CLOSE FILEOUT2
            CALL "SYSTEM" USING "emr-4"
            OPEN OUTPUT FILEOUT2.
-           
+
        P99.
            CLOSE CHARNEW PROCFILE GARFILE DIAGFILE DIAG9FILE
                  ALLOWFILE FILE-OUT OUTFILE TAGDIAG FILEOUT2.
