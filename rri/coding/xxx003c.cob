@@ -514,9 +514,9 @@
                DISPLAY "GARNO NOT AVAILABLE FOR SOME UNKNOWN REASON"
                DISPLAY "PLEASE RECORD THIS FACT " FO-KEY(1:8)
                CONTINUE
-           END-READ 
+           END-READ.
 
-           INSPECT G-ACCT REPLACING LEADING "0" BY " ".
+      *     INSPECT G-ACCT REPLACING LEADING "0" BY " ".
 
        P2-00.
            DISPLAY CD-DATE-T(5:2) "-" CD-DATE-T(7:2) "-" CD-DATE-T(1:4)
@@ -1279,7 +1279,7 @@
            MOVE SPACE TO FILEOUT201
            STRING G-ACCT CD-VISITNO DELIMITED BY SIZE INTO FILEOUT201
            WRITE FILEOUT201.
-           ACCEPT ANS
+      *     ACCEPT ANS
            CLOSE FILEOUT2
            CALL "SYSTEM" USING "emr-4"
            OPEN OUTPUT FILEOUT2.
