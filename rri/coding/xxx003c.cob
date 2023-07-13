@@ -752,7 +752,6 @@
 
            IF IN-FIELD-7 = "G"
              GO TO 10-GR
-             GO TO P2-000
            END-IF.
            
            MOVE IN-FIELD-7 TO DIAG-KEY
@@ -1282,7 +1281,8 @@
       *     ACCEPT ANS
            CLOSE FILEOUT2
            CALL "SYSTEM" USING "emr-4"
-           OPEN OUTPUT FILEOUT2.
+           OPEN OUTPUT FILEOUT2
+           GO TO P2-000.
 
        P99.
            CLOSE CHARNEW PROCFILE GARFILE DIAGFILE DIAG9FILE
