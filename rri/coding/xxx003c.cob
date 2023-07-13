@@ -557,6 +557,10 @@
                DISPLAY "? for help"            
                ACCEPT CD-QP1
                
+               IF CD-QP1 = "G"
+                 GO TO 10-GR
+               END-IF  
+               
                IF NOT (CD-QP1(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
                                        OR "4" OR "5" OR "6" OR "B")
                  GO TO P2-0
@@ -589,6 +593,11 @@
            IF CD-PAYCODE = "010"
                DISPLAY " MEASURE 147: ENTER 3P, 8P OR BLANK, ? FOR HELP"
                ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 GO TO 10-GR
+               END-IF
+
                IF NOT (CD-QP1 = "3P" OR "8P" OR SPACE OR "?")
                    GO TO P2-0
                END-IF
@@ -603,6 +612,11 @@
            IF CD-PAYCODE = "011"
                DISPLAY " mea 195: Stenosis carotid 8P or <Enter>"
                ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 GO TO 10-GR
+               END-IF
+
                IF NOT (CD-QP1 = "8P" OR "?" OR SPACE)
                    GO TO P2-0
                END-IF
@@ -620,6 +634,11 @@
            IF CD-PAYCODE = "012"
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
                ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 GO TO 10-GR
+               END-IF
+
                IF CD-QP1 = "?"
                   DISPLAY "Cystic renal lesion that is simple appearing"
                      " or Adrenal lesion less than or equal to 1.0 cm"
@@ -644,6 +663,11 @@
                DISPLAY " Measure 406: <Enter> no lesion or 1 or 2 or 3"
                        " or ? for help"
                ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 GO TO 10-GR
+               END-IF
+
                IF CD-QP1 = "?"
                    DISPLAY "CT, CTA, or MR studies of chest or neck"
                    DISPLAY "for patients aged 18 and older with "
@@ -679,6 +703,11 @@
                DISPLAY " <Enter> for no lesion"
                DISPLAY " ? for help"
                ACCEPT CD-QP2
+
+               IF CD-QP2 = "G"
+                 GO TO 10-GR
+               END-IF
+
                IF CD-QP2 = "?"
                    DISPLAY "CT, CTA, or MR studies of chest or neck"
                    DISPLAY "for patients aged 18 and older with "
