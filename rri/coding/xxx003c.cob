@@ -752,6 +752,7 @@
 
            IF IN-FIELD-7 = "G"
              GO TO 10-GR
+             GO TO P2-000
            END-IF.
            
            MOVE IN-FIELD-7 TO DIAG-KEY
