@@ -241,6 +241,7 @@
            END-IF
 
            IF CD-DOCP = "00"
+               PERFORM 10-GR
                DISPLAY "RRMC tape says study not read, is it read now?"
                DISPLAY "If so enter doc ## or 02 to leave unread."
                DISPLAY "Type ? for our radiologist doc ##s ie 06"
@@ -558,7 +559,8 @@
                ACCEPT CD-QP1
                
                IF CD-QP1 = "G"
-                 GO TO 10-GR
+                   PERFORM 10-GR
+                   GO TO P2-000
                END-IF  
                
                IF NOT (CD-QP1(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
@@ -595,7 +597,8 @@
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
-                 GO TO 10-GR
+                 PERFORM 10-GR
+                 GO TO P2-000
                END-IF
 
                IF NOT (CD-QP1 = "3P" OR "8P" OR SPACE OR "?")
@@ -614,7 +617,8 @@
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
-                 GO TO 10-GR
+                 PERFORM 10-GR
+                 GO TO P2-000
                END-IF
 
                IF NOT (CD-QP1 = "8P" OR "?" OR SPACE)
@@ -636,7 +640,8 @@
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
-                 GO TO 10-GR
+                 PERFORM 10-GR
+                 GO TO P2-000
                END-IF
 
                IF CD-QP1 = "?"
@@ -665,7 +670,8 @@
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
-                 GO TO 10-GR
+                 PERFORM 10-GR
+                 GO TO P2-000
                END-IF
 
                IF CD-QP1 = "?"
@@ -705,7 +711,8 @@
                ACCEPT CD-QP2
 
                IF CD-QP2 = "G"
-                 GO TO 10-GR
+                 PERFORM 10-GR
+                 GO TO P2-000
                END-IF
 
                IF CD-QP2 = "?"
@@ -780,7 +787,8 @@
            END-IF
 
            IF IN-FIELD-7 = "G"
-             GO TO 10-GR
+             PERFORM 10-GR
+             GO TO P2-000
            END-IF.
            
            MOVE IN-FIELD-7 TO DIAG-KEY
@@ -1310,8 +1318,7 @@
       *     ACCEPT ANS
            CLOSE FILEOUT2
            CALL "SYSTEM" USING "emr-4"
-           OPEN OUTPUT FILEOUT2
-           GO TO P2-000.
+           OPEN OUTPUT FILEOUT2.
 
        P99.
            CLOSE CHARNEW PROCFILE GARFILE DIAGFILE DIAG9FILE
