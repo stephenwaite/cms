@@ -560,7 +560,7 @@
                
                IF CD-QP1 = "G"
                    PERFORM 10-GR
-                   GO TO P2-000
+                   GO TO P2-0
                END-IF  
                
                IF NOT (CD-QP1(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
@@ -598,7 +598,7 @@
 
                IF CD-QP1 = "G"
                  PERFORM 10-GR
-                 GO TO P2-000
+                 GO TO P2-0
                END-IF
 
                IF NOT (CD-QP1 = "3P" OR "8P" OR SPACE OR "?")
@@ -618,7 +618,7 @@
 
                IF CD-QP1 = "G"
                  PERFORM 10-GR
-                 GO TO P2-000
+                 GO TO P2-0
                END-IF
 
                IF NOT (CD-QP1 = "8P" OR "?" OR SPACE)
@@ -641,7 +641,7 @@
 
                IF CD-QP1 = "G"
                  PERFORM 10-GR
-                 GO TO P2-000
+                 GO TO P2-0
                END-IF
 
                IF CD-QP1 = "?"
@@ -671,7 +671,7 @@
 
                IF CD-QP1 = "G"
                  PERFORM 10-GR
-                 GO TO P2-000
+                 GO TO P2-0
                END-IF
 
                IF CD-QP1 = "?"
@@ -712,7 +712,7 @@
 
                IF CD-QP2 = "G"
                  PERFORM 10-GR
-                 GO TO P2-000
+                 GO TO P2-0
                END-IF
 
                IF CD-QP2 = "?"
@@ -788,7 +788,7 @@
 
            IF IN-FIELD-7 = "G"
              PERFORM 10-GR
-             GO TO P2-000
+             GO TO P2-0
            END-IF.
            
            MOVE IN-FIELD-7 TO DIAG-KEY
