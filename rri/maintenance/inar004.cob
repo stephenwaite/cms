@@ -926,7 +926,7 @@
                MOVE PAYFILE-KEY TO IN-FIELD
                MOVE IN-FIELD-1 TO FLAG
                MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
-               GO TO 10-PR
+               GO TO 10-PCF
            END-IF
 
            IF KEYFLAG = 1 AND ACTION = "GR"
@@ -4404,7 +4404,7 @@
        AUTH-1-EXIT. 
            EXIT.
 
-       10-PR. 
+       10-PCF. 
            MOVE CC-KEY8 TO G-GARNO
            READ GARFILE INVALID DISPLAY "BAD ACCT # "  
            GO TO 1000-ACTION.
@@ -4453,7 +4453,8 @@
            CALL "SYSTEM" USING "emr-4"
            OPEN OUTPUT FILEOUT
            GO TO 1000-ACTION.    
-10-PR. 
+       
+       10-PR. 
            MOVE CC-KEY8 TO G-GARNO
            READ GARFILE INVALID DISPLAY "BAD ACCT # "  
            GO TO 1000-ACTION.
