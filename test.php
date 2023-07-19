@@ -71,9 +71,9 @@ if (!empty($jsonObj['entry'])) {
         $note .= "Reference No: " . $charcur_key . "\n";
         $note .= $entry['resource']['note'][0]['text'];
         $pdf->ezText($note,10);
-        //if ($cntr != $count) {
+        if ($cntr != $count) {
             $pdf->ezNewPage();
-        //}
+        }
     }
     //echo $note . "\n";
 } else {
@@ -82,5 +82,12 @@ if (!empty($jsonObj['entry'])) {
 //exit;
 //var_dump(json_decode($res->getBody()));
 
-
-$pdf->ezStream();
+$pdf_data = $pdf->ezOutput();
+file_put_contents($charcur_key . ".pdf", $pdf_data);
+file_put_contents('wcomp1', $charcur_key);
+chgrp('wcomp1', 'cms');
+chmod('wcomp1', 0664);
+//echo $charcur_key . ".pdf" . "\n";
+$cmd = "chc-wcomp";
+exec($cmd, $output);
+var_dump($output);
