@@ -935,6 +935,13 @@
                MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
                GO TO 10-GR
            END-IF
+
+           IF KEYFLAG = 1 AND ACTION = "PR"
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
+               GO TO 10-PR
+           END-IF
              
            IF KEYFLAG = 1 AND ACTION = "CC"
                MOVE PAYFILE-KEY TO IN-FIELD
@@ -4444,6 +4451,27 @@
            WRITE FILEOUT01.
            CLOSE FILEOUT
            CALL "SYSTEM" USING "emr-4"
+           OPEN OUTPUT FILEOUT
+           GO TO 1000-ACTION.    
+10-PR. 
+           MOVE CC-KEY8 TO G-GARNO
+           READ GARFILE INVALID DISPLAY "BAD ACCT # "  
+           GO TO 1000-ACTION.
+           READ CHARCUR INVALID DISPLAY "BAD SELECTION"
+           GO TO 1000-ACTION.
+           IF (CC-PLACE = "1" OR "3" OR "5" OR "E" OR "O")
+             AND (CC-DATE-T > "20230626")
+             NEXT SENTENCE
+           ELSE DISPLAY "CAN NOT GRAB THAT READ."
+           GO TO 1000-ACTION.
+           
+           MOVE SPACE TO FILEOUT01
+
+           STRING G-ACCT CC-VISITNO CHARCUR-KEY DELIMITED BY SIZE 
+             INTO FILEOUT01
+           WRITE FILEOUT01.
+           CLOSE FILEOUT
+           CALL "SYSTEM" USING "wc-4"
            OPEN OUTPUT FILEOUT
            GO TO 1000-ACTION.    
 
