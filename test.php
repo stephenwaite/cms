@@ -85,9 +85,10 @@ if (!empty($jsonObj['entry'])) {
 $pdf_data = $pdf->ezOutput();
 file_put_contents($charcur_key . ".pdf", $pdf_data);
 file_put_contents('wcomp1', $charcur_key);
-chgrp('wcomp1', 'cms');
-chmod('wcomp1', 0664);
+//chgrp('wcomp1', 'cms');
+//chmod('wcomp1', 0664);
 //echo $charcur_key . ".pdf" . "\n";
 $cmd = "chc-wcomp";
 exec($cmd, $output);
 var_dump($output);
+unlink('/tmp/cachedHelvetica.php');
