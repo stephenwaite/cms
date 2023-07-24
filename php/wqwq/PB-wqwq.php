@@ -1,5 +1,10 @@
 <?php
 include "/home/stee/src/cms/vendor/autoload.php";
+if (!file_exists('/tmp/cms')) {
+    mkdir('/tmp/cms');
+    chgrp('/tmp/cms', 'cms');
+}
+
 putenv('TMPDIR=/tmp/cms');
 $pdf = new Cezpdf('LETTER');
 $pdf->ezSetMargins(170, 0, 10, 0);
@@ -133,5 +138,7 @@ $fname = tempnam('/tmp', 'PDF');
 file_put_contents($fname, $pdf->ezOutput());
 $command = "cp $fname ~/bill.pdf";
 exec($command);
+
+unlink('/tmp/cms/cachedCourier.php');
 
 exit();
