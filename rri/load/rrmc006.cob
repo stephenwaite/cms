@@ -1243,6 +1243,9 @@
            MOVE X-IP TO HOSP-KEY
 
            IF X-IP = SPACE OR X-IP = "00951   "
+              DISPLAY "X-IP IS 00951 IN SEL-SEINS"
+                ACCEPT OMITTED
+                
                GO TO SEL-SEINS-EXIT.
 
            READ HOSPFILE INVALID
