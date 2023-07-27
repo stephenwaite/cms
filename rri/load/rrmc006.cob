@@ -1651,6 +1651,8 @@
 	       END-IF 
 
 	       MOVE ACTFILE01 TO SAVEMASTER.
+           display savemaster
+           accept omitted
            READ ACTFILE
              INVALID
                MOVE SAVEMASTER TO ACTFILE01
