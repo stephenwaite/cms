@@ -50,7 +50,9 @@ if (empty($pt_uuid)) {
 
 //echo $pt_uuid . "\n";
 
-$request = new Request('GET', 'https://cmsvt.com/openemr/apis/2400/fhir/Observation?patient=' . $pt_uuid . '&external_id=' . $visit_no, $headers);
+$site_id = getenv($RRI_SITE_ID);
+
+$request = new Request('GET', $site_id . '/fhir/Observation?patient=' . $pt_uuid . '&external_id=' . $visit_no, $headers);
 $res = $client->sendAsync($request)->wait();
 
 $jsonObj = json_decode($res->getBody(), true);
