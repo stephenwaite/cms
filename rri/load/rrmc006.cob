@@ -1152,7 +1152,8 @@
            MOVE 0 TO FLAG
            MOVE X-IP TO HOSP-KEY
 
-           IF X-IP = SPACE
+           IF X-IP = SPACE OR 
+              X-IP = "00951"
                GO TO SEL-PRINS-EXIT
            END-IF     
            
@@ -1651,8 +1652,7 @@
 	       END-IF 
 
 	       MOVE ACTFILE01 TO SAVEMASTER.
-           display savemaster
-           accept omitted
+           
            READ ACTFILE
              INVALID
                MOVE SAVEMASTER TO ACTFILE01
@@ -1660,7 +1660,6 @@
                GO TO B1
            END-READ
 
-           IF PLANNUM NOT = "1" GO TO B1.
            MOVE A-GARNO TO S-GARNO  
            MOVE SAVEMASTER TO ACTFILE01
            REWRITE ACTFILE01.
