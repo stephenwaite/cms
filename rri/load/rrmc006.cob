@@ -1660,6 +1660,7 @@
                GO TO B1
            END-READ
 
+           IF PLANNUM NOT = "1" GO TO B1.
            MOVE A-GARNO TO S-GARNO  
            MOVE SAVEMASTER TO ACTFILE01
            REWRITE ACTFILE01.
