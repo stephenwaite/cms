@@ -1,6 +1,6 @@
 <?php
 
-require_once('vendor/autoload.php');
+require_once('../../vendor/autoload.php');
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
@@ -13,6 +13,7 @@ $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
 $charcur_key = substr($file, 15, 11);
 $base_url = getenv($BASE_OEMR_URL);
+$site_id = getenv($OEMR_RRI_SITE_ID);
 $base_uri = $base_url . '/oauth2/' . $site_id . '/token';
 $guzzle = new Client(
     ['verify' => false],
@@ -49,8 +50,6 @@ if (empty($pt_uuid)) {
 }
 
 //echo $pt_uuid . "\n";
-
-$site_id = getenv($OEMR_RRI_SITE_ID);
 
 $request = new Request('GET', $base_url . '/apis/' . $site_id . '/fhir/Observation?patient=' . $pt_uuid . '&external_id=' . $visit_no, $headers);
 $res = $client->sendAsync($request)->wait();
