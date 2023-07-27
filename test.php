@@ -12,8 +12,8 @@ $file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . getenv('USER'
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
 $charcur_key = substr($file, 15, 11);
-// 000121359669901BUC0891G016
-$base_uri = 'https://cmsvt.com/openemr/oauth2/2400/token';
+$base_url = getenv($BASE_OEMR_URL);
+$base_uri = $base_url . '/oauth2/' . $site_id . '/token';
 $guzzle = new Client(
     ['verify' => false],
     ['debug' => true]
@@ -39,7 +39,7 @@ $headers = [
   'Authorization' => 'Bearer ' . $bearer,
   'Accept' => 'application/json',
 ];
-$request = new Request('GET', 'https://cmsvt.com/openemr/apis/2400/fhir/Patient?identifier=' . $mrn, $headers);
+$request = new Request('GET', $base_url . '/apis/' . $site_id . '/fhir/Patient?identifier=' . $mrn, $headers);
 $res = $client->sendAsync($request)->wait();
 $jsonObj = json_decode($res->getBody(), true);
 $pt_uuid = $jsonObj['entry'][0]['resource']['id'] ?? null;
@@ -50,9 +50,9 @@ if (empty($pt_uuid)) {
 
 //echo $pt_uuid . "\n";
 
-$site_id = getenv($RRI_SITE_ID);
+$site_id = getenv($OEMR_RRI_SITE_ID);
 
-$request = new Request('GET', $site_id . '/fhir/Observation?patient=' . $pt_uuid . '&external_id=' . $visit_no, $headers);
+$request = new Request('GET', $base_url . '/apis/' . $site_id . '/fhir/Observation?patient=' . $pt_uuid . '&external_id=' . $visit_no, $headers);
 $res = $client->sendAsync($request)->wait();
 
 $jsonObj = json_decode($res->getBody(), true);
