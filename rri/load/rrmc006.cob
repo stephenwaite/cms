@@ -1665,6 +1665,9 @@
 
            MOVE A-GARNO TO S-GARNO  
            MOVE SAVEMASTER TO ACTFILE01
+           display "about to rewrite actfile " actfile01
+           accept omitted
+           
            REWRITE ACTFILE01.
            GO TO B1.
            
