@@ -213,6 +213,9 @@
                GO TO P1
            END-READ           
 
+           DISPLAY A-PRINS
+           ACCEPT OMITTED
+           
            IF (A-GARNO = SPACE)
              GO TO P2
            END-IF
