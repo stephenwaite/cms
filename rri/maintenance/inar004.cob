@@ -765,6 +765,8 @@
                DISPLAY "HS,HSC,HSP,# TO SEARCH HISTORY RECORDS."
                DISPLAY "PB,<GARNO> TO PRINT BILL. LB,<GARNO> LAB FORM"
                DISPLAY "PCF TO PRINT A POSTED CHARGE 1500-HCFA FORM"
+               DISPLAY "GR TO GRAB A READ FROM RRI OPENEMR"
+ 
                DISPLAY "RA = RE-AGE CHARGES TO CURRENT END = END THE "
                        "JOB."
                DISPLAY "DC= DELETE OLD WC ADDS LA= LIST ACCOUNTS BY "
@@ -921,6 +923,20 @@
            END-IF 
            
            IF KEYFLAG = 1 AND ACTION = "PCF"
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
+               GO TO 10-PCF
+           END-IF
+
+           IF KEYFLAG = 1 AND ACTION = "GR"
+               MOVE PAYFILE-KEY TO IN-FIELD
+               MOVE IN-FIELD-1 TO FLAG
+               MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
+               GO TO 10-GR
+           END-IF
+
+           IF KEYFLAG = 1 AND ACTION = "PR"
                MOVE PAYFILE-KEY TO IN-FIELD
                MOVE IN-FIELD-1 TO FLAG
                MOVE CCKEY-TAB(FLAG) TO CHARCUR-KEY
@@ -3202,7 +3218,6 @@
            CC-2-DX2 CC-2-DX3 CC-2-DATE-A CC-2-COLLT
            CC-2-ACC-TYPE CC-2-ADMIT CC-2-MOD3 CC-2-AUTH CC-2-ASSIGN
            CC-2-NEIC-ASSIGN CC-2-DX4 CC-2-MOD4
-      *     CC-2-DX5 CC-2-DX6
            DEPENDING ON CCINDX.
 
        CC-2000TI.
@@ -3351,40 +3366,6 @@
            PERFORM  CC10 THRU CC10-EXIT
            IF RETURN-FLAG = 1 GO TO CC-2000TI.
            MOVE IN-FIELD-7 TO CC-DX4.
-           GO TO 4900CPC.
-
-       CC-2-DX5.
-           IF IN-FIELD = "?"
-               DISPLAY "ENTER A FIFTH DX  CODE."
-           DISPLAY " OR TYPE F TO SEARCH FOR A DIAGNOSIS CODE"
-           DISPLAY "BY NUMBER OR DESCRIPTION"
-           DISPLAY "OR A <CR> IF NO DIAGNOSIS IS NECESSARY."
-           DISPLAY " TYPE F TO FIND DIAGNOSIS CODES"
-           DISPLAY " OR TYPE M TO MAP ICD9 TO ICD10 CODES"
-               GO TO CC-2000TI.
-           IF IN-FIELD = "0000000" OR SPACES MOVE ZEROES TO CC-DX5
-           GO TO 4900CPC.
-           MOVE 0 TO RETURN-FLAG
-           PERFORM  CC10 THRU CC10-EXIT
-           IF RETURN-FLAG = 1 GO TO CC-2000TI.
-           MOVE IN-FIELD-7 TO CC-DX5.
-           GO TO 4900CPC.
-
-       CC-2-DX6.
-           IF IN-FIELD = "?"
-               DISPLAY "ENTER A SIXTH DX  CODE."
-           DISPLAY " OR TYPE F TO SEARCH FOR A DIAGNOSIS CODE"
-           DISPLAY "BY NUMBER OR DESCRIPTION"
-           DISPLAY "OR A <CR> IF NO DIAGNOSIS IS NECESSARY."
-           DISPLAY " TYPE F TO FIND DIAGNOSIS CODES"
-           DISPLAY " OR TYPE M TO MAP ICD9 TO ICD10 CODES"
-               GO TO CC-2000TI.
-           IF IN-FIELD = "0000000" OR SPACES MOVE ZEROES TO CC-DX6
-           GO TO 4900CPC.
-           MOVE 0 TO RETURN-FLAG
-           PERFORM  CC10 THRU CC10-EXIT
-           IF RETURN-FLAG = 1 GO TO CC-2000TI.
-           MOVE IN-FIELD-7 TO CC-DX6.
            GO TO 4900CPC.
 
        CC-2140-PROC.
@@ -4423,7 +4404,7 @@
        AUTH-1-EXIT. 
            EXIT.
 
-       10-PR. 
+       10-PCF. 
            MOVE CC-KEY8 TO G-GARNO
            READ GARFILE INVALID DISPLAY "BAD ACCT # "  
            GO TO 1000-ACTION.
@@ -4450,6 +4431,50 @@
            CALL "SYSTEM" USING "pap-4"
            OPEN OUTPUT FILEOUT
            GO TO 1000-ACTION.
+
+       10-GR. 
+           MOVE CC-KEY8 TO G-GARNO
+           READ GARFILE INVALID DISPLAY "BAD ACCT # "  
+           GO TO 1000-ACTION.
+           READ CHARCUR INVALID DISPLAY "BAD SELECTION"
+           GO TO 1000-ACTION.
+           IF (CC-PLACE = "1" OR "3" OR "5" OR "E" OR "O")
+             AND (CC-DATE-T > "20230626")
+             NEXT SENTENCE
+           ELSE DISPLAY "CAN NOT GRAB THAT READ."
+           GO TO 1000-ACTION.
+           
+           MOVE SPACE TO FILEOUT01
+
+           STRING G-ACCT CC-VISITNO CHARCUR-KEY DELIMITED BY SIZE 
+             INTO FILEOUT01
+           WRITE FILEOUT01.
+           CLOSE FILEOUT
+           CALL "SYSTEM" USING "emr-4"
+           OPEN OUTPUT FILEOUT
+           GO TO 1000-ACTION.    
+       
+       10-PR. 
+           MOVE CC-KEY8 TO G-GARNO
+           READ GARFILE INVALID DISPLAY "BAD ACCT # "  
+           GO TO 1000-ACTION.
+           READ CHARCUR INVALID DISPLAY "BAD SELECTION"
+           GO TO 1000-ACTION.
+           IF (CC-PLACE = "1" OR "3" OR "5" OR "E" OR "O")
+             AND (CC-DATE-T > "20230626")
+             NEXT SENTENCE
+           ELSE DISPLAY "CAN NOT GRAB THAT READ."
+           GO TO 1000-ACTION.
+           
+           MOVE SPACE TO FILEOUT01
+
+           STRING G-ACCT CC-VISITNO CHARCUR-KEY DELIMITED BY SIZE 
+             INTO FILEOUT01
+           WRITE FILEOUT01.
+           CLOSE FILEOUT
+           CALL "SYSTEM" USING "wc-4"
+           OPEN OUTPUT FILEOUT
+           GO TO 1000-ACTION.    
 
        PG-1.
            DISPLAY "Name of patient: " G-GARNAME

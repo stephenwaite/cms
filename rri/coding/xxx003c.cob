@@ -42,7 +42,10 @@
                ALTERNATE RECORD KEY IS DIAG9-TITLE WITH DUPLICATES.
 
            SELECT OUTFILE ASSIGN TO   "S65" ORGANIZATION IS 
-               LINE SEQUENTIAL.  
+               LINE SEQUENTIAL.
+
+           SELECT FILEOUT2 ASSIGN TO "S70" ORGANIZATION
+             LINE SEQUENTIAL.    
 
        DATA DIVISION.
 
@@ -112,6 +115,10 @@
        FD  OUTFILE.
        01  OUTFILE01 PIC X(132).
 
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(40).
+
+
        WORKING-STORAGE SECTION.
 
        01  BELL0 USAGE INDEX.
@@ -177,6 +184,7 @@
                       TAGDIAG DIAG9FILE.
            OPEN EXTEND OUTFILE.
            OPEN INPUT CHARNEW.
+           OPEN OUTPUT FILEOUT2.
            DISPLAY "0 = start new, 1 = skip ahead to undone"
            ACCEPT ALF1.
 
@@ -233,6 +241,7 @@
            END-IF
 
            IF CD-DOCP = "00"
+               PERFORM 10-GR
                DISPLAY "RRMC tape says study not read, is it read now?"
                DISPLAY "If so enter doc ## or 02 to leave unread."
                DISPLAY "Type ? for our radiologist doc ##s ie 06"
@@ -506,9 +515,9 @@
                DISPLAY "GARNO NOT AVAILABLE FOR SOME UNKNOWN REASON"
                DISPLAY "PLEASE RECORD THIS FACT " FO-KEY(1:8)
                CONTINUE
-           END-READ 
+           END-READ.
 
-           INSPECT G-ACCT REPLACING LEADING "0" BY " ".
+      *     INSPECT G-ACCT REPLACING LEADING "0" BY " ".
 
        P2-00.
            DISPLAY CD-DATE-T(5:2) "-" CD-DATE-T(7:2) "-" CD-DATE-T(1:4)
@@ -549,6 +558,11 @@
                DISPLAY "? for help"            
                ACCEPT CD-QP1
                
+               IF CD-QP1 = "G"
+                   PERFORM 10-GR
+                   GO TO P2-0
+               END-IF  
+               
                IF NOT (CD-QP1(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
                                        OR "4" OR "5" OR "6" OR "B")
                  GO TO P2-0
@@ -581,6 +595,12 @@
            IF CD-PAYCODE = "010"
                DISPLAY " MEASURE 147: ENTER 3P, 8P OR BLANK, ? FOR HELP"
                ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
                IF NOT (CD-QP1 = "3P" OR "8P" OR SPACE OR "?")
                    GO TO P2-0
                END-IF
@@ -595,6 +615,12 @@
            IF CD-PAYCODE = "011"
                DISPLAY " mea 195: Stenosis carotid 8P or <Enter>"
                ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
                IF NOT (CD-QP1 = "8P" OR "?" OR SPACE)
                    GO TO P2-0
                END-IF
@@ -612,6 +638,12 @@
            IF CD-PAYCODE = "012"
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
                ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
                IF CD-QP1 = "?"
                   DISPLAY "Cystic renal lesion that is simple appearing"
                      " or Adrenal lesion less than or equal to 1.0 cm"
@@ -636,6 +668,12 @@
                DISPLAY " Measure 406: <Enter> no lesion or 1 or 2 or 3"
                        " or ? for help"
                ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
                IF CD-QP1 = "?"
                    DISPLAY "CT, CTA, or MR studies of chest or neck"
                    DISPLAY "for patients aged 18 and older with "
@@ -671,6 +709,12 @@
                DISPLAY " <Enter> for no lesion"
                DISPLAY " ? for help"
                ACCEPT CD-QP2
+
+               IF CD-QP2 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
                IF CD-QP2 = "?"
                    DISPLAY "CT, CTA, or MR studies of chest or neck"
                    DISPLAY "for patients aged 18 and older with "
@@ -740,7 +784,12 @@
            
            IF IN-FIELD-7 = "."
                MOVE HOLD7 TO IN-FIELD-7
-           END-IF    
+           END-IF
+
+           IF IN-FIELD-7 = "G"
+             PERFORM 10-GR
+             GO TO P2-0
+           END-IF.
            
            MOVE IN-FIELD-7 TO DIAG-KEY
            MOVE SPACE TO HOLD-DIAG
@@ -755,6 +804,7 @@
                ACCEPT OMITTED
                GO TO P2-00
            END-IF.    
+
        P2-9.
            MOVE IN-FIELD-7 TO DIAG-KEY
            READ DIAGFILE
@@ -1261,8 +1311,17 @@
        RE-WRITE-CHARNEW-EXIT.
            EXIT.
 
+       10-GR.
+           MOVE SPACE TO FILEOUT201
+           STRING G-ACCT CD-VISITNO DELIMITED BY SIZE INTO FILEOUT201
+           WRITE FILEOUT201.
+      *     ACCEPT ANS
+           CLOSE FILEOUT2
+           CALL "SYSTEM" USING "emr-4"
+           OPEN OUTPUT FILEOUT2.
+
        P99.
            CLOSE CHARNEW PROCFILE GARFILE DIAGFILE DIAG9FILE
-                 ALLOWFILE FILE-OUT OUTFILE TAGDIAG.
+                 ALLOWFILE FILE-OUT OUTFILE TAGDIAG FILEOUT2.
            STOP RUN.
 
