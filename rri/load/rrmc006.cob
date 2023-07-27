@@ -1152,9 +1152,8 @@
            MOVE 0 TO FLAG
            MOVE X-IP TO HOSP-KEY
 
-           IF X-IP = SPACE OR 
-              X-IP = "00951"
-               GO TO SEL-PRINS-EXIT
+           IF X-IP = SPACE
+             GO TO SEL-PRINS-EXIT
            END-IF     
            
            READ HOSPFILE
@@ -1243,7 +1242,8 @@
            MOVE 0 TO FLAG
            MOVE X-IP TO HOSP-KEY
 
-           IF X-IP = SPACE GO TO SEL-SEINS-EXIT.
+           IF X-IP = SPACE OR X-IP = "00951"
+               GO TO SEL-SEINS-EXIT.
 
            READ HOSPFILE INVALID
              MOVE X-CERT TO A-SECPOL
