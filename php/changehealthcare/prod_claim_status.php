@@ -77,6 +77,7 @@ if ($fh_wcomp_sid) {
         $datum = new stdClass();
         $datum->organization_name = 'RUTLAND RADIOLOGISTS';
         $datum->taxId = '030238095';
+        $datum->npi = '1700935780';
         $datum->providerType = 'BillingProvider';
         $datum_array = array($datum);
         $providers = array(
