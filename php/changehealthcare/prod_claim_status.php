@@ -1,6 +1,6 @@
 <?php
 
-require_once('vendor/autoload.php');
+require_once('../../vendor/autoload.php');
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
@@ -65,7 +65,8 @@ if ($fh_wcomp_sid) {
         $g_sex = substr($row, 170, 1);
 
         $control_number = getControlNumber();
-        $trading_partner_service_id = $ins_neic;
+        //$trading_partner_service_id = $ins_neic;
+        $trading_partner_service_id = 'BCVTC';
         $trading_partner_name = $ins_name;       
 
         $control_array = array(

@@ -333,11 +333,11 @@
            MOVE SPACE TO CODE1 CODE2 CODE3
            UNSTRING STC-1 DELIMITED BY ":" INTO CODE1 CODE2 CODE3
 
-           IF
-           STC-3 NOT = "U " GO TO XX1-EXIT.
-            move space to dtp01
-            unstring dtp-tab(x) delimited by "*" into
-            dtp-0 dtp-1 dtp-2 dtp-3
+           IF STC-3 NOT = "U " GO TO XX1-EXIT.
+           
+           move space to dtp01
+           unstring dtp-tab(x) delimited by "*" into
+             dtp-0 dtp-1 dtp-2 dtp-3
 
            MOVE TRN-2(1:8) TO G-GARNO
            READ GARFILE INVALID DISPLAY TRN-2 " BAD GARNO"
@@ -394,10 +394,9 @@
            MOVE SPACE TO FILEOUT301
            MOVE DTP-3 TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
-           STRING
-           CSCC-KEY " " CSC-KEY " " NM1-NAMEL " " TRN-2(1:10)
-           " " G-GARNAME  " " DISPLAY-DATE
-            DELIMITED BY SIZE INTO FILEOUT301
+           STRING CSCC-KEY " " CSC-KEY " " NM1-NAMEL " " TRN-2(1:10)
+             " " G-GARNAME  " " DISPLAY-DATE
+             DELIMITED BY SIZE INTO FILEOUT301
            WRITE FILEOUT301
            MOVE SPACE TO FILEOUT301
            MOVE CSCC-TITLE(1:120) TO FILEOUT301
