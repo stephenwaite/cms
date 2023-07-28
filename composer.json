@@ -2,6 +2,7 @@
     "require": {
         "league/csv": "^9.6",
         "rospdf/pdf-php": "^0.12.63",
-        "smalot/pdfparser": "^2.5"
+        "smalot/pdfparser": "^2.5",
+        "guzzlehttp/guzzle": "7.5.0"
     }
 }

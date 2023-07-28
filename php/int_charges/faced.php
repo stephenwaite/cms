@@ -28,10 +28,10 @@ foreach ($records as $offset => $record) {
     //if (in_array($record['Date'], $record)) {
     //echo $record['Date'] . "\n";
     //echo implode('', array_reverse(explode('/', $record['Date']))) . "\n";
-    $cdm = $record['CDM'];
-    $cpt = $record['CPT'] ?: $record['HCPCS'];
-    $dos = $record['DOS'];
-    $mrn = $record['MRN'];
+    $cdm = $record['CDM'] ?? null;
+    $cpt = $record['CPT'] ?? null ?: $record['HCPCS'] ?? null;
+    $dos = $record['DOS'] ?? null;
+    $mrn = $record['MRN'] ?? null;
     if ($record['HCPCS'] == "G1004") {
         $cpt = "G1004";
     }
