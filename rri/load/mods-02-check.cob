@@ -66,7 +66,7 @@
            IF  NOT (CD-PAYCODE = "002" OR "074" OR "268")
                GO TO P1.
 
-           IF (CD-PROC2(1:5) = ("50200" OR "73000" OR "73030" OR "73110" 
+           IF (CD-PROC2(1:5) = "50200" OR "73000" OR "73030" OR "73110" 
              OR "73120" OR "73140" OR "73201" OR "73273" OR "73564" 
              OR "73600" OR "73630" OR "73660")
              AND CD-MOD2 = SPACE
