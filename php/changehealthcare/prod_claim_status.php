@@ -91,9 +91,12 @@ if ($fh_wcomp_sid) {
                 'lastName' => $lastName,
                 'gender' => $g_sex,
                 'dateOfBirth' => $g_dob,
-                'groupNumber' => $g_group_number
             )
         );
+
+        if ($g_group_number ?? null) {
+            $subscriber['subscriber']['groupNumber'] = $g_group_number;
+        }
 
         $encounter = array(
             'encounter' => array(
