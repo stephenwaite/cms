@@ -68,12 +68,12 @@
 
            IF (CD-PROC2(1:5) = "50200" OR "73000" OR "73030" OR "73110" 
              OR "73120" OR "73140" OR "73201" OR "73273" OR "73564" 
-             OR "73600" OR "73630" OR "73660" OR "76641")
+             OR "73600" OR "73630" OR "73660" OR "76641" OR "76642")
              AND CD-MOD2 = SPACE
              AND CD-MOD3 = SPACE
              AND CD-MOD4 = SPACE
                MOVE SPACE TO FILEOUT01
-               STRING "02 REQUIRES MOD FOR " CD-NAME " " CD-DATE-T " " 
+               STRING "CHECK MODS FOR " CD-NAME " " CD-DATE-T " " 
                  CD-PROC DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
