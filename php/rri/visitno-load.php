@@ -1,6 +1,6 @@
 <?php
 
-$lines = file('/home/stee/Downloads/hosprri');
+$lines = file($argv[1]);
 
 $load = [];
 $visitno = '';
