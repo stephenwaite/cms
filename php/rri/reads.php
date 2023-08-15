@@ -16,6 +16,8 @@ $file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . getenv('USER'
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
 $charcur_key = substr($file, 15, 11);
+$date_of_service = substr($file, 30, 2) . "-" .
+  substr($file, 32, 2) ."-" . substr($file, 26, 4);
 $base_url = getenv('BASE_OEMR_URL');
 $site_id = getenv('OEMR_RRI_SITE_ID');
 $base_uri = $base_url . '/oauth2/' . $site_id . '/token';
@@ -65,7 +67,8 @@ if (!empty($jsonObj['entry'])) {
         $cntr++;
 
         $note .= $entry['resource']['code']['coding'][0]['display'] . "\n";
-        $note .= $entry['resource']['effectiveDateTime'] . "\n";
+        $note .= 'DOS: ' . $date_of_service . "\n";
+        $note .= 'Date read: ' . $entry['resource']['effectiveDateTime'] . "\n";
         $note .= $entry['resource']['note'][0]['text'];
         
         if (!empty($context) && $context == 'pdf') {
