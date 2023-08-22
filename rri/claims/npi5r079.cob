@@ -906,7 +906,7 @@
            MOVE SPACE TO SEGFILE01.
            WRITE SEGFILE01 FROM N401.
            IF INS-NEIC = "WP540"
-             MOVE "2U" TO REF-CODE
+             MOVE "G2" TO REF-CODE
              MOVE "101337700" TO REF-ID
              MOVE SPACE TO SEGFILE01
              WRITE SEGFILE01 FROM REF01.
