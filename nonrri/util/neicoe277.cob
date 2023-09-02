@@ -255,10 +255,7 @@
            READ PARMFILE AT END GO TO P99.
            MOVE SPACE TO PROV-1 PROV-2
            UNSTRING PARMFILE01 DELIMITED BY " " INTO PROV-1 PROV-2.
-           DISPLAY PROV-1 " " PROV-2
-           ACCEPT OMITTED.
-           
-
+    
        P00.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P99.
@@ -438,6 +435,6 @@
            END-READ.
 
        P99.
-           CLOSE CSCFILE CSCCFILE GARFILE CHARCUR
+           CLOSE CSCFILE CSCCFILE  
                  FILEOUT1 FILEOUT2 FILEOUT3
            STOP RUN.
