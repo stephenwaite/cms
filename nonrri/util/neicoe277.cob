@@ -246,8 +246,8 @@
            02 dtp-tab pic x(120) occurs 4000 times.
        PROCEDURE DIVISION.
        0005-START.
-           OPEN INPUT FILEIN CSCFILE CSCCFILE GARFILE
-           CHARCUR PARMFILE.
+           OPEN INPUT FILEIN CSCFILE CSCCFILE 
+            PARMFILE.
            OPEN OUTPUT FILEOUT1 FILEOUT2 FILEOUT3.
 
            READ PARMFILE AT END GO TO P99.
@@ -353,9 +353,9 @@
             
            PERFORM CODE-X
 
-           PERFORM XX6
+           PERFORM XX6.
            
-           PERFORM XX2-1 THRU XX5.
+      *     PERFORM XX2-1 THRU XX5.
 
        XX1-EXIT.
            EXIT.
