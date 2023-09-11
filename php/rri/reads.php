@@ -67,11 +67,14 @@ $jsonObj = json_decode($res->getBody(), true);
 
 if (!empty($jsonObj['entry'])) {
     $note = '';
+    $count = count($jsonObj['entry']);
+    $cntr = 0;
     foreach ($jsonObj['entry'] as $entry) {
+        $cntr++;
         $note = $entry['resource']['code']['coding'][0]['display'] . "\n";
         $note .= 'DOS: ' . $date_of_service . "\n";
         $note .= 'Date read: ' . $entry['resource']['effectiveDateTime'] . "\n";
-        $note .= $entry['resource']['note'][0]['text']. "\n";
+        $note .= $entry['resource']['note'][0]['text'] . "\n";
 
         if (!empty($context) && $context == 'pdf') {
             $pdf->ezText($note, 10);
