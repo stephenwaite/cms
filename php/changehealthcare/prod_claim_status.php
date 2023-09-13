@@ -1,6 +1,6 @@
 <?php
 
-require_once('../../vendor/autoload.php');
+require_once(__DIR__ . '/../../vendor/autoload.php');
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
@@ -77,6 +77,7 @@ if ($fh_wcomp_sid) {
         $datum = new stdClass();
         $datum->organization_name = 'RUTLAND RADIOLOGISTS';
         $datum->taxId = '030238095';
+        $datum->npi = '1700935780';
         $datum->providerType = 'BillingProvider';
         $datum_array = array($datum);
         $providers = array(
@@ -90,9 +91,12 @@ if ($fh_wcomp_sid) {
                 'lastName' => $lastName,
                 'gender' => $g_sex,
                 'dateOfBirth' => $g_dob,
-                'groupNumber' => $g_group_number
             )
         );
+
+        if ($g_group_number ?? null) {
+            $subscriber['subscriber']['groupNumber'] = $g_group_number;
+        }
 
         $encounter = array(
             'encounter' => array(

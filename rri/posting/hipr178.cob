@@ -977,11 +977,11 @@
 
                    IF (CAS-1 = "CO" OR "PI" OR "OA")
                                AND
-                      ((CAS-2 = "A2" OR "B6" OR "B10" OR
+                      ((CAS-2 = "A1" OR "A2" OR "B6" OR "B10" OR
                                 "18" OR "42" OR "45" OR 
                                 "59" OR "253" OR "131" OR "P12")
                                OR
-                      (CAS-5 = "A2" OR "B6" OR "B10" OR 
+                      (CAS-5 = "A1" OR "A2" OR "B6" OR "B10" OR 
                                "18" OR "42" OR "45" OR
                                "59" OR "253" OR "131"))
                                AND 

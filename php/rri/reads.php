@@ -16,6 +16,8 @@ $file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . getenv('USER'
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
 $charcur_key = substr($file, 15, 11);
+$date_of_service = substr($file, 30, 2) . "-" .
+  substr($file, 32, 2) . "-" . substr($file, 26, 4);
 $base_url = getenv('BASE_OEMR_URL');
 $site_id = getenv('OEMR_RRI_SITE_ID');
 $base_uri = $base_url . '/oauth2/' . $site_id . '/token';
@@ -35,8 +37,9 @@ $response = $guzzle->post($base_uri, [
 ]);
 $bearer = json_decode((string) $response->getBody(), true)['access_token'];
 
-$client = new Client(['verify' => false],
-['debug' => true]
+$client = new Client(
+    ['verify' => false],
+    ['debug' => true]
 );
 $headers = [
   'Authorization' => 'Bearer ' . $bearer,
@@ -48,10 +51,15 @@ $jsonObj = json_decode($res->getBody(), true);
 $pt_uuid = $jsonObj['entry'][0]['resource']['id'] ?? null;
 
 if (empty($pt_uuid)) {
-  echo "no patient uuid in the emr for some reason \n";
+    echo "no patient uuid in the emr for some reason \n";
 }
 
-$request = new Request('GET', $base_url . '/apis/' . $site_id . '/fhir/Observation?patient=' . $pt_uuid . '&external_id=' . $visit_no, $headers);
+$request = new Request(
+    'GET',
+    $base_url . '/apis/' . $site_id . '/fhir/Observation?patient=' . $pt_uuid . '&external_id=' . $visit_no,
+    $headers
+);
+
 $res = $client->sendAsync($request)->wait();
 
 $jsonObj = json_decode($res->getBody(), true);
@@ -61,15 +69,15 @@ if (!empty($jsonObj['entry'])) {
     $note = '';
     $count = count($jsonObj['entry']);
     $cntr = 0;
-    foreach($jsonObj['entry'] as $entry) {
+    foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
+        $note = $entry['resource']['code']['coding'][0]['display'] . "\n";
+        $note .= 'DOS: ' . $date_of_service . "\n";
+        $note .= 'Date read: ' . $entry['resource']['effectiveDateTime'] . "\n";
+        $note .= $entry['resource']['note'][0]['text'] . "\n";
 
-        $note .= $entry['resource']['code']['coding'][0]['display'] . "\n";
-        $note .= $entry['resource']['effectiveDateTime'] . "\n";
-        $note .= $entry['resource']['note'][0]['text'];
-        
         if (!empty($context) && $context == 'pdf') {
-            $pdf->ezText($note,10);
+            $pdf->ezText($note, 10);
             if ($cntr != $count) {
                 $pdf->ezNewPage();
             }
@@ -82,14 +90,20 @@ if (!empty($jsonObj['entry'])) {
 }
 
 if (!empty($context) && $context == 'pdf') {
-
     $pdf_data = $pdf->ezOutput();
     file_put_contents($charcur_key . ".pdf", $pdf_data);
     file_put_contents('wcomp1', $charcur_key);
-    
-    $cmd = "chc-wcomp";
-    exec($cmd, $output);
-    var_dump($output);
+
+    // just save file to rri dir if need a pdf of all reports for uhc for instance
+    $line = strtoupper(readline("Upload " . $charcur_key . ".pdf to change wcomp? (y or Y) "));
+    if (strpos($line, "Y") !== false) {
+        echo "uploading to change\n";
+        $cmd = "chc-wcomp";
+        exec($cmd, $output);
+        var_dump($output);
+    } else {
+        echo "saved pdf under rri but not uploading \n";
+    }
     unlink('/tmp/cachedHelvetica.php');
 }
 exit;
