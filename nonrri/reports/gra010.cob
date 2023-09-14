@@ -435,9 +435,15 @@
            IF DAYS > PF1 ADD CLAIM-TOT TO XBAL30 GO TO CH-EXIT.
            ADD CLAIM-TOT TO XCUR.
 
-       CH-EXIT. EXIT.
-       PH2. IF CC-CLAIM = PHR-CLAIM(Y)
-           ADD PHR-AMOUNT(Y) CLAIM-TOT GIVING CLAIM-TOT.
+       CH-EXIT.
+           EXIT.
+
+       PH2.
+           IF CC-CLAIM = PHR-CLAIM(Y)
+             DISPLAY PHR-CLAIM(Y) " " PHR-AMOUNT(Y) " " PHR-PAYCODE(Y)
+             ACCEPT OMITTED  
+             ADD PHR-AMOUNT(Y) CLAIM-TOT GIVING CLAIM-TOT.
+             
        Z1.
            MOVE SPACE TO CREDIT01
            WRITE CREDIT01
