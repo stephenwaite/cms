@@ -106,10 +106,11 @@ if (!empty($context) && $context == 'pdf') {
         echo "saved pdf under rri but not uploading \n";
         $line = strtoupper(readline("Download " . $charcur_key . ".pdf to your comp? (y or Y) "));
         if (strpos($line, "Y") !== false) {
-            echo "downloading\n";
+            $filename = exec('pwd') . "/" . $charcur_key . ".pdf";
+            echo "downloading $filename \n";
             echo " for $cms_user \n";
             if ($cms_user == 'lynda') {
-                $cmd = "sz " . $charcur_key . ".pdf";
+                $cmd = "sz $filename";
                 exec($cmd, $output);
                 //var_dump($output);
             } else {
