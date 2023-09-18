@@ -432,7 +432,7 @@
            ADD CLAIM-TOT TO XINS GO TO CH-EXIT.
            IF DAYS > PF3 
              ADD CLAIM-TOT TO XCOL 
-             DISPLAY CLAIM-TOT " CLAIM-TOT"
+             DISPLAY CLAIM-TOT " CLAIM-TOT" CC-DATE-T " CC-DATE-T"
              ACCEPT OMITTED  
              GO TO CH-EXIT.
            IF DAYS > PF2 ADD CLAIM-TOT TO XBAL60 GO TO CH-EXIT.
