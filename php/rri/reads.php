@@ -107,6 +107,7 @@ if (!empty($context) && $context == 'pdf') {
         $line = strtoupper(readline("Download " . $charcur_key . ".pdf to your comp? (y or Y) "));
         if (strpos($line, "Y") !== false) {
             echo "downloading\n";
+            echo " for $cms_user \n";
             if ($cms_user == 'lynda') {
                 $cmd = "sz " . $charcur_key . ".pdf";
                 exec($cmd, $output);
