@@ -103,6 +103,13 @@ if (!empty($context) && $context == 'pdf') {
         var_dump($output);
     } else {
         echo "saved pdf under rri but not uploading \n";
+        $line = strtoupper(readline("Download " . $charcur_key . ".pdf to Lynda's comp? (y or Y) "));
+        if (strpos($line, "Y") !== false) {
+            echo "downloading\n";
+            $cmd = "sz " . $charcur_key . ".pdf";
+            exec($cmd, $output);
+            //var_dump($output);
+        }
     }
     unlink('/tmp/cachedHelvetica.php');
 }
