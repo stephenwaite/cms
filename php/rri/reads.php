@@ -107,10 +107,11 @@ if (!empty($context) && $context == 'pdf') {
         $line = strtoupper(readline("Download " . $charcur_key . ".pdf to your comp? (y or Y) "));
         if (strpos($line, "Y") !== false) {
             $filename = exec('pwd') . "/" . $charcur_key . ".pdf";
+            $tty = exec('tty');
             echo "downloading $filename \n";
             echo " for $cms_user \n";
             if ($cms_user == 'lynda') {
-                $cmd = "sz $filename";
+                $cmd = "sz $filename > $tty < $tty";
                 exec($cmd, $output);
                 //var_dump($output);
             } else {
