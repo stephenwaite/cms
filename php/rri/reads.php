@@ -11,7 +11,8 @@ if (!empty($context) && $context == 'pdf') {
     $pdf = new Cezpdf();
     $pdf->selectFont('Helvetica');
 }
-$file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . getenv('USER'));
+$cms_user = getenv('USER');
+$file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . $cms_user);
 
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
@@ -103,12 +104,16 @@ if (!empty($context) && $context == 'pdf') {
         var_dump($output);
     } else {
         echo "saved pdf under rri but not uploading \n";
-        $line = strtoupper(readline("Download " . $charcur_key . ".pdf to Lynda's comp? (y or Y) "));
+        $line = strtoupper(readline("Download " . $charcur_key . ".pdf to your comp? (y or Y) "));
         if (strpos($line, "Y") !== false) {
             echo "downloading\n";
-            $cmd = "sz " . $charcur_key . ".pdf";
-            exec($cmd, $output);
-            //var_dump($output);
+            if ($cms_user == 'lynda') {
+                $cmd = "sz " . $charcur_key . ".pdf";
+                exec($cmd, $output);
+                //var_dump($output);
+            } else {
+                echo "not implemented for " . $cms_user . "/n";
+            }
         }
     }
     unlink('/tmp/cachedHelvetica.php');
