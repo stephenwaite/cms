@@ -430,7 +430,11 @@
            WRITE DATAOUT01.
            IF CC-ASSIGN = "A"
            ADD CLAIM-TOT TO XINS GO TO CH-EXIT.
-           IF DAYS > PF3 ADD CLAIM-TOT TO XCOL GO TO CH-EXIT.
+           IF DAYS > PF3 
+             ADD CLAIM-TOT TO XCOL 
+             DISPLAY CLAIM-TOT " CLAIM-TOT"
+             ACCEPT OMITTED  
+             GO TO CH-EXIT.
            IF DAYS > PF2 ADD CLAIM-TOT TO XBAL60 GO TO CH-EXIT.
            IF DAYS > PF1 ADD CLAIM-TOT TO XBAL30 GO TO CH-EXIT.
            ADD CLAIM-TOT TO XCUR.
@@ -440,8 +444,8 @@
 
        PH2.
            IF CC-CLAIM = PHR-CLAIM(Y)
-             DISPLAY PHR-CLAIM(Y) " " PHR-AMOUNT(Y) " " PHR-PAYCODE(Y)
-             ACCEPT OMITTED  
+      *       DISPLAY PHR-CLAIM(Y) " " PHR-AMOUNT(Y) " " PHR-PAYCODE(Y)
+      *       ACCEPT OMITTED  
              ADD PHR-AMOUNT(Y) CLAIM-TOT GIVING CLAIM-TOT.
 
        Z1.
