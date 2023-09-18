@@ -113,7 +113,7 @@ if (!empty($context) && $context == 'pdf') {
                 exec($cmd, $output);
                 //var_dump($output);
             } else {
-                echo "not implemented for " . $cms_user . "/n";
+                echo "                not implemented for " . $cms_user . "\n";
             }
         }
     }
