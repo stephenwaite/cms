@@ -305,7 +305,7 @@
            MOVE DOCNAME TO DOCTAB(DOCNUM) GO TO D0.
 
        R1. READ GARFILE AT END GO TO Z1.
-           IF G-GARNO NOT = "SHA2582G" GO TO R1.
+           IF G-GARNO NOT = "MCD2951G" GO TO R1.
       *    ADD 1 TO CNTR IF CNTR > 50 GO TO Z1.
            MOVE 0 TO XCUR XBAL30 XBAL60 XCOL XINS.
            MOVE 0 TO XYZ
@@ -443,7 +443,7 @@
              DISPLAY PHR-CLAIM(Y) " " PHR-AMOUNT(Y) " " PHR-PAYCODE(Y)
              ACCEPT OMITTED  
              ADD PHR-AMOUNT(Y) CLAIM-TOT GIVING CLAIM-TOT.
-             
+
        Z1.
            MOVE SPACE TO CREDIT01
            WRITE CREDIT01
