@@ -1176,6 +1176,7 @@
                 OR (CAS-1 = "CO" AND CAS-2 = "58   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "96   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "97   ")
+                OR (CAS-1 = "CO" AND CAS-2 = "163  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "197  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "236  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "236  ")

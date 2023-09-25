@@ -67,7 +67,7 @@
                MOVE "2" TO CD-ACC-TYPE
                REWRITE CHARNEW01
                STRING "MVA INS " CD-NAME " " CD-DATE-T " " CD-PROC1
-                 " ACC-TYPE " CD-ACC-TYPE
+                 " ACC-TYPE " CD-ACC-TYPE " " CD-KEY8
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
                GO TO P1
@@ -77,7 +77,7 @@
                MOVE "1" TO CD-ACC-TYPE
                REWRITE CHARNEW01
                STRING "W/C INS " CD-NAME " " CD-DATE-T " " CD-PROC1
-                 " ACC-TYPE " CD-ACC-TYPE
+                 " ACC-TYPE " CD-ACC-TYPE " " CD-KEY8
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
                GO TO P1
