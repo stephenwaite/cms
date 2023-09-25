@@ -74,8 +74,14 @@ if (!empty($jsonObj['entry'])) {
         $cntr++;
         $note = $entry['resource']['code']['coding'][0]['display'] . "\n";
         $note .= 'DOS: ' . $date_of_service . "\n";
-        $note .= 'Date read: ' . $entry['resource']['effectiveDateTime'] . "\n";
+        $date_of_read = $entry['resource']['effectiveDateTime'];
+        $note .= 'Date read: ' . $date_of_read . "\n";
         $note .= $entry['resource']['note'][0]['text'] . "\n";
+        $date_dos = new DateTime($date_of_service);
+        $date_read = new DateTime($date_of_read);
+        if ($date_read < $date_dos) {
+            echo "*** Date read is before DOS. *** \n";
+        }
 
         if (!empty($context) && $context == 'pdf') {
             $pdf->ezText($note, 10);
