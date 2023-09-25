@@ -439,13 +439,6 @@
              03 PL-ZIP PIC X(9).
              03 PL-NPI PIC X(10).
 
-
-
-
-
-
-
-
        01  LINE-0.
            02 L0F0 PIC X.
            02 FILLER PIC X.
@@ -1322,7 +1315,7 @@
            MOVE SPACE TO OUT01
            if hold-date-t > "20150930" 
             move 
-            "                                          0"
+            "                                           0"
             to out01
             else
             move

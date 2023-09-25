@@ -11,7 +11,8 @@ if (!empty($context) && $context == 'pdf') {
     $pdf = new Cezpdf();
     $pdf->selectFont('Helvetica');
 }
-$file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . getenv('USER'));
+$cms_user = getenv('USER');
+$file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . $cms_user);
 
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
@@ -73,8 +74,14 @@ if (!empty($jsonObj['entry'])) {
         $cntr++;
         $note = $entry['resource']['code']['coding'][0]['display'] . "\n";
         $note .= 'DOS: ' . $date_of_service . "\n";
-        $note .= 'Date read: ' . $entry['resource']['effectiveDateTime'] . "\n";
+        $date_of_read = $entry['resource']['effectiveDateTime'];
+        $note .= 'Date read: ' . $date_of_read . "\n";
         $note .= $entry['resource']['note'][0]['text'] . "\n";
+        $date_dos = new DateTime($date_of_service);
+        $date_read = new DateTime($date_of_read);
+        if ($date_read < $date_dos) {
+            echo "*** Date read is before DOS. *** \n";
+        }
 
         if (!empty($context) && $context == 'pdf') {
             $pdf->ezText($note, 10);
@@ -103,6 +110,20 @@ if (!empty($context) && $context == 'pdf') {
         var_dump($output);
     } else {
         echo "saved pdf under rri but not uploading \n";
+        $line = strtoupper(readline("Download " . $charcur_key . ".pdf to your comp? (y or Y) "));
+        if (strpos($line, "Y") !== false) {
+            $filename = exec('pwd') . "/" . $charcur_key . ".pdf";
+            $tty = exec('tty');
+            echo "downloading $filename \n";
+            echo " for $cms_user \n";
+            if ($cms_user == 'lynda') {
+                $cmd = "sz $filename > $tty < $tty";
+                exec($cmd, $output);
+                //var_dump($output);
+            } else {
+                echo "                not implemented for " . $cms_user . "\n";
+            }
+        }
     }
     unlink('/tmp/cachedHelvetica.php');
 }

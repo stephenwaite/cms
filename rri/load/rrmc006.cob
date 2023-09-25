@@ -1704,6 +1704,7 @@
            
            IF R3-PLACE = "INPT" 
              MOVE "3" TO C-IOPAT
+             MOVE SPACE TO ERRFILE01
              IF C-DATE-ADMIT = SPACE
                STRING A-GARNAME " WAS SENT AS INPT WITH NO ADMIT DATE "
                  "THIS MUST BE FIXED OR CLAIM FILE WILL REJECT."
@@ -1713,6 +1714,7 @@
            end-if
 
            IF R3-OBSERV = "OBSER" 
+               MOVE SPACE TO ERRFILE01
                STRING A-GARNAME " WAS UNDER OBSERVATION, USING POS OUTP"
                 " FOR CPT " R3-CPT " AND DATE " R3-DATE
                  DELIMITED BY SIZE INTO ERRFILE01

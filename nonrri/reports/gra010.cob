@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. JUD010.
+       PROGRAM-ID. gra010.
        AUTHOR. SID WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -305,6 +305,7 @@
            MOVE DOCNAME TO DOCTAB(DOCNUM) GO TO D0.
 
        R1. READ GARFILE AT END GO TO Z1.
+           IF G-GARNO NOT = "MCD2951G" GO TO R1.
       *    ADD 1 TO CNTR IF CNTR > 50 GO TO Z1.
            MOVE 0 TO XCUR XBAL30 XBAL60 XCOL XINS.
            MOVE 0 TO XYZ
@@ -429,14 +430,24 @@
            WRITE DATAOUT01.
            IF CC-ASSIGN = "A"
            ADD CLAIM-TOT TO XINS GO TO CH-EXIT.
-           IF DAYS > PF3 ADD CLAIM-TOT TO XCOL GO TO CH-EXIT.
+           IF DAYS > PF3 
+             ADD CLAIM-TOT TO XCOL 
+             DISPLAY CLAIM-TOT " CLAIM-TOT " CC-DATE-T " CC-DATE-T"
+             ACCEPT OMITTED  
+             GO TO CH-EXIT.
            IF DAYS > PF2 ADD CLAIM-TOT TO XBAL60 GO TO CH-EXIT.
            IF DAYS > PF1 ADD CLAIM-TOT TO XBAL30 GO TO CH-EXIT.
            ADD CLAIM-TOT TO XCUR.
 
-       CH-EXIT. EXIT.
-       PH2. IF CC-CLAIM = PHR-CLAIM(Y)
-           ADD PHR-AMOUNT(Y) CLAIM-TOT GIVING CLAIM-TOT.
+       CH-EXIT.
+           EXIT.
+
+       PH2.
+           IF CC-CLAIM = PHR-CLAIM(Y)
+      *       DISPLAY PHR-CLAIM(Y) " " PHR-AMOUNT(Y) " " PHR-PAYCODE(Y)
+      *       ACCEPT OMITTED  
+             ADD PHR-AMOUNT(Y) CLAIM-TOT GIVING CLAIM-TOT.
+
        Z1.
            MOVE SPACE TO CREDIT01
            WRITE CREDIT01
