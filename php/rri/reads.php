@@ -17,6 +17,7 @@ $file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . $cms_user);
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
 $charcur_key = substr($file, 15, 11);
+$raw_date_of_service = substr($file, 26, 8);
 $date_of_service = substr($file, 30, 2) . "-" .
   substr($file, 32, 2) . "-" . substr($file, 26, 4);
 $base_url = getenv('BASE_OEMR_URL');
@@ -77,7 +78,7 @@ if (!empty($jsonObj['entry'])) {
         $date_of_read = $entry['resource']['effectiveDateTime'];
         $note .= 'Date read: ' . $date_of_read . "\n";
         $note .= $entry['resource']['note'][0]['text'] . "\n";
-        $date_dos = new DateTime($date_of_service);
+        $date_dos = new DateTime($raw_date_of_service);
         $date_read = new DateTime($date_of_read);
         if ($date_read < $date_dos) {
             echo "*** Date read is before DOS. *** \n";
