@@ -404,7 +404,7 @@
            MOVE DTP-3 TO TEST-DATE
            MOVE CORR TEST-DATE TO DISPLAY-DATE
                       
-           STRING CSCC-KEY " " CSC-KEY " " NM1-NAMEL " " TRN-2(1:10)
+           STRING CSCC-KEY " " CSC-KEY " " NM1-NAMEL " " TRN-2(1:12)
              " " G-GARNAME  " " DISPLAY-DATE
              DELIMITED BY SIZE INTO FILEOUT301
            WRITE FILEOUT301
