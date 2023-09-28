@@ -81,7 +81,7 @@ if (!empty($jsonObj['entry'])) {
         $date_dos = new DateTime($raw_date_of_service);
         $date_read = new DateTime($date_of_read);
         if ($date_read < $date_dos) {
-            echo "*** Date read " . $date_read . " is before DOS " . $date_read . " *** \n";
+            echo "*** Date read " . $date_read . " is before DOS " . $date_dos . " *** \n";
         }
 
         if (!empty($context) && $context == 'pdf') {
