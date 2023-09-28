@@ -1880,7 +1880,7 @@ X           02 DF1 PIC X.
            ACCEPT OMITTED
            
            if FI-DOCP NOT = CLM-DOCP
-             PERFORM 2420A THRU 2420A-EXIT.
+             PERFORM 2420A THRU 2420A-EXIT
            end-if
 
            IF FI-DOCR NOT = CLM-DOCR
