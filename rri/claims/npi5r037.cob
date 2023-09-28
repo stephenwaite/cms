@@ -1082,6 +1082,7 @@
        01  AUTH-FLAG PIC 9.
        01  DIAG-OVER PIC 9.
        01  CLM-DOCR PIC XXX.
+       01  CLM-DOCP pic 99.
        
        PROCEDURE DIVISION.
        P0. 
