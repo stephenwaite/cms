@@ -1875,9 +1875,9 @@ X           02 DF1 PIC X.
            MOVE SPACE TO SEGFILE01
             WRITE SEGFILE01 FROM DTP01.
 
-           display fi-docp " fi-docp " fi-docr " fi-docr"
-           display clm-docp " clm-docp " clm-docr " clm-docr"
-           ACCEPT OMITTED
+      *     display fi-docp " fi-docp " fi-docr " fi-docr"
+      *     display clm-docp " clm-docp " clm-docr " clm-docr"
+      *     ACCEPT OMITTED
            
            if FI-DOCP NOT = CLM-DOCP
              PERFORM 2420A THRU 2420A-EXIT
