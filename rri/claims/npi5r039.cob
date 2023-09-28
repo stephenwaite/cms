@@ -1150,8 +1150,8 @@ X           02 DF1 PIC X.
            IF  FI-PLACE = HOLD-PLACE
                AND FI-KEY8 = HOLD-KEY8
                AND FI-PATID = HOLD-PATID
-          *     AND FI-DOCP = HOLD-DOCP
-          *     AND FI-DOCR = HOLD-DOCR
+      *         AND FI-DOCP = HOLD-DOCP
+      *         AND FI-DOCR = HOLD-DOCR
                AND FI-DAT1 = HOLD-DAT1
                AND FI-DATE-T = HOLD-DATE-T
                AND FI-ACC-TYPE = HOLD-ACC-TYPE
