@@ -1875,6 +1875,10 @@ X           02 DF1 PIC X.
            MOVE SPACE TO SEGFILE01
             WRITE SEGFILE01 FROM DTP01.
 
+           display fi-docp " fi-docp " fi-docr " fi-docr"
+           display clm-docp " clm-docp " clm-docr " clm-docr"
+           ACCEPT OMITTED
+           
            if FI-DOCP NOT = CLM-DOCP
              PERFORM DOCP-1
            end-if
@@ -1936,6 +1940,45 @@ X           02 DF1 PIC X.
            MOVE "1" TO SAVE-DOCNM1-SOLO
            MOVE SPACE TO SAVE-DOCNM1-NAMES 
            MOVE "XX" TO SAVE-DOCNM1-EINSS.
+
+       2420A.
+           MOVE "82 " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE "XX" TO NM1-EINSS
+           MOVE SPACE TO NM1-CODE NM1-NAMEL NM1-NAMEF
+           NM1-NAMEM NM1-NAMES
+           MOVE DOC-LASTNAME(FI-DOCP) TO NM1-NAMEL
+           MOVE DOC-FIRSTNAME(FI-DOCP) TO NM1-NAMEF
+           MOVE DOC-MI(FI-DOCP) TO NM1-NAMEM
+           MOVE DOC-NPI(FI-DOCP) TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420A-EXIT.
+           EXIT.
+
+       2420F.
+
+           MOVE FI-DOCR TO REF-KEY 
+
+           READ REFPHY 
+             INVALID 
+               GO TO REF-2.
+
+           MOVE "DN " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING REF-NAME DELIMITED BY ", " OR " ,"
+             OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
+
+           MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
+           MOVE "XX" TO NM1-EINSS
+           MOVE REF-NPI TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420F-EXIT.
+           EXIT.        
 
        SUBSCRIBER-1.
            MOVE HOLD-KEY8 TO G-GARNO
