@@ -14,7 +14,7 @@ $was_continued = false;
 $line_count = 0;
 $old_body = '';
 $total_line_count = 0;
-$hcfa_image = "./cms1500.png";
+$hcfa_image = "/home/stee/src/cms/php/wqwq/cms1500.png";
 
 
 $content = file_get_contents($argv[1]);
@@ -23,6 +23,7 @@ $content = file_get_contents($argv[1]);
 
 $pages = explode("\014", $content); // form feeds separate pages
 foreach ($pages as $page) {
+    //echo $page;
     $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin']);
     $pdf->addPngFromFile("$hcfa_image", 0, 0, 612, 792);
     $pdf->ezText($page, 12, array(
@@ -33,8 +34,8 @@ foreach ($pages as $page) {
 
 $fname = './wsid.pdf';
 file_put_contents($fname, $pdf->ezOutput());
-$command = "cp $fname ./bill.pdf";
-exec($command);
+//$command = "cp $fname ./bill.pdf";
+//exec($command);
 
 exit();
 
