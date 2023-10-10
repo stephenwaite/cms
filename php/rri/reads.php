@@ -91,8 +91,6 @@ if (!empty($jsonObj['entry'])) {
         //var_dump($date_of_read_nyc);
         $date_of_read_nyc_display = $date_of_read_nyc->format('m-d-Y');
         $note .= 'Date of Read: ' . $date_of_read_nyc_display . "\n";
-        echo $note . "\n";
-        exit;
         $note .= $entry['resource']['note'][0]['text'] . "\n";
         $date_dos = new DateTime($raw_date_of_service);
 
@@ -145,4 +143,3 @@ if (!empty($context) && $context == 'pdf') {
     }
     unlink('/tmp/cachedHelvetica.php');
 }
-exit;
