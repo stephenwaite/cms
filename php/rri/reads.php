@@ -50,7 +50,14 @@ $headers = [
 $request = new Request('GET', $base_url . '/apis/' . $site_id . '/fhir/Patient?identifier=' . $mrn, $headers);
 $res = $client->sendAsync($request)->wait();
 $jsonObj = json_decode($res->getBody(), true);
+
 $pt_uuid = $jsonObj['entry'][0]['resource']['id'] ?? null;
+$pt_name_array = $jsonObj['entry'][0]['resource']['name'] ?? null;
+$pt_name_text = $pt_name_array[0]['family'] . ", " . $pt_name_array[0]['given'][0];
+$pt_birthdate = $jsonObj['entry'][0]['resource']['birthDate'] ?? null;
+$pt_dob = new DateTimeImmutable($pt_birthdate);
+$pt_line = $pt_name_text . " DOB: " . $pt_dob->format('m-d-Y');
+
 
 if (empty($pt_uuid)) {
     echo "no patient uuid in the emr for some reason \n";
@@ -66,22 +73,31 @@ $res = $client->sendAsync($request)->wait();
 
 $jsonObj = json_decode($res->getBody(), true);
 
-
 if (!empty($jsonObj['entry'])) {
     $note = '';
     $count = count($jsonObj['entry']);
     $cntr = 0;
     foreach ($jsonObj['entry'] as $entry) {
+        //var_dump($entry);
         $cntr++;
-        $note = $entry['resource']['code']['coding'][0]['display'] . "\n";
-        $note .= 'DOS: ' . $date_of_service . "\n";
+        $note = $pt_line . "\n";
+        $note .= $entry['resource']['code']['coding'][0]['display'] . "\n";
+        $note .= 'Date of Srvc: ' . $date_of_service . "\n";
         $date_of_read = $entry['resource']['effectiveDateTime'];
-        $note .= 'Date read: ' . $date_of_read . "\n";
+        //echo $date_of_read . "\n";
+        $date_of_read_utc = new DateTimeImmutable($date_of_read);
+        //var_dump($date_of_read_utc);
+        $date_of_read_nyc = $date_of_read_utc->setTimezone(new DateTimeZone('America/New_York'));
+        //var_dump($date_of_read_nyc);
+        $date_of_read_nyc_display = $date_of_read_nyc->format('m-d-Y');
+        $note .= 'Date of Read: ' . $date_of_read_nyc_display . "\n";
+        echo $note . "\n";
+        exit;
         $note .= $entry['resource']['note'][0]['text'] . "\n";
         $date_dos = new DateTime($raw_date_of_service);
-        $date_read = new DateTime($date_of_read);
-        if ($date_read < $date_dos) {
-            echo "*** Date read " . $date_read->format('Y-m-d H:i:s') .
+
+        if ($date_of_read_nyc < $date_dos) {
+            echo "*** Date read " .  $date_read_nyc_display .
                 " is before DOS " . $date_dos->format('Y-m-d H:i:s') . " *** \n";
         }
 
