@@ -9,7 +9,7 @@ use GuzzleHttp\Psr7\Request;
 $context = $argv[1] ?? null;
 if (!empty($context) && $context == 'pdf') {
     $pdf = new Cezpdf();
-    $pdf->selectFont('Helvetica');
+    $pdf->selectFont('Courier');
 }
 $cms_user = getenv('USER');
 $file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . $cms_user);
@@ -49,14 +49,15 @@ $headers = [
 ];
 $request = new Request('GET', $base_url . '/apis/' . $site_id . '/fhir/Patient?identifier=' . $mrn, $headers);
 $res = $client->sendAsync($request)->wait();
-$jsonObj = json_decode($res->getBody(), true);
-
-$pt_uuid = $jsonObj['entry'][0]['resource']['id'] ?? null;
-$pt_name_array = $jsonObj['entry'][0]['resource']['name'] ?? null;
-$pt_name_text = $pt_name_array[0]['family'] . ", " . $pt_name_array[0]['given'][0];
-$pt_birthdate = $jsonObj['entry'][0]['resource']['birthDate'] ?? null;
+$ptObj = json_decode($res->getBody(), true);
+$pt_uuid = $ptObj['entry'][0]['resource']['id'] ?? null;
+$pt_name_array = $ptObj['entry'][0]['resource']['name'] ?? null;
+$pt_name_text = $pt_name_array[0]['family'] . ", " . $pt_name_array[0]['given'][0] .
+    " " . $pt_name_array[0]['given'][1] ?? '';
+$pt_birthdate = $ptObj['entry'][0]['resource']['birthDate'] ?? null;
 $pt_dob = new DateTimeImmutable($pt_birthdate);
-$pt_line = $pt_name_text . " DOB: " . $pt_dob->format('m-d-Y');
+$pt_dob_line = "DOB: " . $pt_dob->format('m-d-Y');
+$pt_dos_line = 'DOS: ' . $date_of_service;
 
 
 if (empty($pt_uuid)) {
@@ -79,11 +80,20 @@ if (!empty($jsonObj['entry'])) {
     $cntr = 0;
     foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
-        $banner_length = strlen($pt_line);
+        $coding_display = $entry['resource']['code']['coding'][0]['display'];
+        $coding_display_length = strlen($coding_display);
+        $pt_name_text_length = strlen($pt_name_text);
+        if ($coding_display_length > 15 || $pt_name_text_length > 15) {
+            $banner_length = ($coding_display_length > $pt_name_text_length) ?
+                $coding_display_length : $pt_name_text_length;
+        } else {
+            $banner_length = 15;
+        }
         $note = str_pad('', $banner_length, '#') . "\n";
-        $note .= $pt_line . "\n";
-        $note .= $entry['resource']['code']['coding'][0]['display'] . "\n";
-        $note .= 'Date of Srvc: ' . $date_of_service . "\n";
+        $note .= $pt_name_text . "\n";
+        $note .= $pt_dob_line . "\n";
+        $note .= $coding_display . "\n";
+        $note .= $pt_dos_line . "\n";
         $note .= str_pad('', $banner_length, '#') . "\n\n";
         $date_of_read = $entry['resource']['effectiveDateTime'];
         $date_of_read_utc = new DateTimeImmutable($date_of_read);
