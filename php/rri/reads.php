@@ -51,18 +51,18 @@ $request = new Request('GET', $base_url . '/apis/' . $site_id . '/fhir/Patient?i
 $res = $client->sendAsync($request)->wait();
 $ptObj = json_decode($res->getBody(), true);
 $pt_uuid = $ptObj['entry'][0]['resource']['id'] ?? null;
+if (empty($pt_uuid)) {
+    echo "no patient uuid in the emr for some reason \n";
+    exit;
+}
+
 $pt_name_array = $ptObj['entry'][0]['resource']['name'] ?? null;
-$pt_name_text = $pt_name_array[0]['family'] . ", " . $pt_name_array[0]['given'][0] .
+$pt_name_text = $pt_name_array[0]['family'] ?? '' . ", " . $pt_name_array[0]['given'][0] ?? '' .
     " " . $pt_name_array[0]['given'][1] ?? '';
 $pt_birthdate = $ptObj['entry'][0]['resource']['birthDate'] ?? null;
 $pt_dob = new DateTimeImmutable($pt_birthdate);
 $pt_dob_line = "DOB: " . $pt_dob->format('m-d-Y');
 $pt_dos_line = 'DOS: ' . $date_of_service;
-
-
-if (empty($pt_uuid)) {
-    echo "no patient uuid in the emr for some reason \n";
-}
 
 $request = new Request(
     'GET',
