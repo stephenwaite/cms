@@ -148,5 +148,5 @@ if (!empty($context) && $context == 'pdf') {
             }
         }
     }
-    unlink('/tmp/cachedHelvetica.php');
+    unlink('/tmp/cachedCourier.php');
 }
