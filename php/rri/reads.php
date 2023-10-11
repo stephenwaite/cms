@@ -56,9 +56,9 @@ if (empty($pt_uuid)) {
     exit;
 }
 
-$pt_name_array = $ptObj['entry'][0]['resource']['name'] ?? null;
-$pt_name_text = $pt_name_array[0]['family'] ?? '' . ", " . $pt_name_array[0]['given'][0] ?? '' .
-    " " . $pt_name_array[0]['given'][1] ?? '';
+$pt_name_array = $ptObj['entry'][0]['resource']['name'][0] ?? null;
+$pt_name_text = ($pt_name_array['family'] ?? '') . ", " . ($pt_name_array['given'][0] ?? '') .
+    " " . ($pt_name_array['given'][1] ?? '');
 $pt_birthdate = $ptObj['entry'][0]['resource']['birthDate'] ?? null;
 $pt_dob = new DateTimeImmutable($pt_birthdate);
 $pt_dob_line = "DOB: " . $pt_dob->format('m-d-Y');
