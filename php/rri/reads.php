@@ -78,19 +78,17 @@ if (!empty($jsonObj['entry'])) {
     $count = count($jsonObj['entry']);
     $cntr = 0;
     foreach ($jsonObj['entry'] as $entry) {
-        //var_dump($entry);
         $cntr++;
-        $note = $pt_line . "\n";
+        $banner_length = strlen($pt_line);
+        $note = str_pad('', $banner_length, '#') . "\n";
+        $note .= $pt_line . "\n";
         $note .= $entry['resource']['code']['coding'][0]['display'] . "\n";
         $note .= 'Date of Srvc: ' . $date_of_service . "\n";
+        $note .= str_pad('', $banner_length, '#') . "\n\n";
         $date_of_read = $entry['resource']['effectiveDateTime'];
-        //echo $date_of_read . "\n";
         $date_of_read_utc = new DateTimeImmutable($date_of_read);
-        //var_dump($date_of_read_utc);
         $date_of_read_nyc = $date_of_read_utc->setTimezone(new DateTimeZone('America/New_York'));
-        //var_dump($date_of_read_nyc);
         $date_of_read_nyc_display = $date_of_read_nyc->format('m-d-Y');
-        $note .= 'Date of Read: ' . $date_of_read_nyc_display . "\n";
         $note .= $entry['resource']['note'][0]['text'] . "\n";
         $date_dos = new DateTime($raw_date_of_service);
 
@@ -135,7 +133,6 @@ if (!empty($context) && $context == 'pdf') {
             if ($cms_user == 'lynda') {
                 $cmd = "sz $filename > $tty < $tty";
                 exec($cmd, $output);
-                //var_dump($output);
             } else {
                 echo "                not implemented for " . $cms_user . "\n";
             }
