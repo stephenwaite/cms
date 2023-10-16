@@ -6,6 +6,9 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 
+// first remove tmp courier cached file in case some other script put it there
+unlink('/tmp/cachedCourier.php');
+
 $context = $argv[1] ?? null;
 if (!empty($context) && $context == 'pdf') {
     $pdf = new Cezpdf();
@@ -103,7 +106,7 @@ if (!empty($jsonObj['entry'])) {
         $date_dos = new DateTime($raw_date_of_service);
 
         if ($date_of_read_nyc < $date_dos) {
-            echo "*** Date read " .  $date_read_nyc_display .
+            echo "*** Date read " .  $date_of_read_nyc_display .
                 " is before DOS " . $date_dos->format('Y-m-d H:i:s') . " *** \n";
         }
 
