@@ -6,10 +6,13 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 
+// first remove tmp courier cached file in case some other script put it there
+unlink('/tmp/cachedCourier.php');
+
 $context = $argv[1] ?? null;
 if (!empty($context) && $context == 'pdf') {
     $pdf = new Cezpdf();
-    $pdf->selectFont('Helvetica');
+    $pdf->selectFont('Courier');
 }
 $cms_user = getenv('USER');
 $file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . $cms_user);
@@ -49,12 +52,20 @@ $headers = [
 ];
 $request = new Request('GET', $base_url . '/apis/' . $site_id . '/fhir/Patient?identifier=' . $mrn, $headers);
 $res = $client->sendAsync($request)->wait();
-$jsonObj = json_decode($res->getBody(), true);
-$pt_uuid = $jsonObj['entry'][0]['resource']['id'] ?? null;
-
+$ptObj = json_decode($res->getBody(), true);
+$pt_uuid = $ptObj['entry'][0]['resource']['id'] ?? null;
 if (empty($pt_uuid)) {
     echo "no patient uuid in the emr for some reason \n";
+    exit;
 }
+
+$pt_name_array = $ptObj['entry'][0]['resource']['name'][0] ?? null;
+$pt_name_text = ($pt_name_array['family'] ?? '') . ", " . ($pt_name_array['given'][0] ?? '') .
+    " " . ($pt_name_array['given'][1] ?? '');
+$pt_birthdate = $ptObj['entry'][0]['resource']['birthDate'] ?? null;
+$pt_dob = new DateTimeImmutable($pt_birthdate);
+$pt_dob_line = "DOB: " . $pt_dob->format('m-d-Y');
+$pt_dos_line = 'DOS: ' . $date_of_service;
 
 $request = new Request(
     'GET',
@@ -66,22 +77,36 @@ $res = $client->sendAsync($request)->wait();
 
 $jsonObj = json_decode($res->getBody(), true);
 
-
 if (!empty($jsonObj['entry'])) {
     $note = '';
     $count = count($jsonObj['entry']);
     $cntr = 0;
     foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
-        $note = $entry['resource']['code']['coding'][0]['display'] . "\n";
-        $note .= 'DOS: ' . $date_of_service . "\n";
+        $coding_display = $entry['resource']['code']['coding'][0]['display'];
+        $coding_display_length = strlen($coding_display);
+        $pt_name_text_length = strlen($pt_name_text);
+        if ($coding_display_length > 15 || $pt_name_text_length > 15) {
+            $banner_length = ($coding_display_length > $pt_name_text_length) ?
+                $coding_display_length : $pt_name_text_length;
+        } else {
+            $banner_length = 15;
+        }
+        $note = str_pad('', $banner_length, '#') . "\n";
+        $note .= $pt_name_text . "\n";
+        $note .= $pt_dob_line . "\n";
+        $note .= $coding_display . "\n";
+        $note .= $pt_dos_line . "\n";
+        $note .= str_pad('', $banner_length, '#') . "\n\n";
         $date_of_read = $entry['resource']['effectiveDateTime'];
-        $note .= 'Date read: ' . $date_of_read . "\n";
+        $date_of_read_utc = new DateTimeImmutable($date_of_read);
+        $date_of_read_nyc = $date_of_read_utc->setTimezone(new DateTimeZone('America/New_York'));
+        $date_of_read_nyc_display = $date_of_read_nyc->format('m-d-Y');
         $note .= $entry['resource']['note'][0]['text'] . "\n";
         $date_dos = new DateTime($raw_date_of_service);
-        $date_read = new DateTime($date_of_read);
-        if ($date_read < $date_dos) {
-            echo "*** Date read " . $date_read->format('Y-m-d H:i:s') .
+
+        if ($date_of_read_nyc < $date_dos) {
+            echo "*** Date read " .  $date_of_read_nyc_display .
                 " is before DOS " . $date_dos->format('Y-m-d H:i:s') . " *** \n";
         }
 
@@ -121,12 +146,10 @@ if (!empty($context) && $context == 'pdf') {
             if ($cms_user == 'lynda') {
                 $cmd = "sz $filename > $tty < $tty";
                 exec($cmd, $output);
-                //var_dump($output);
             } else {
                 echo "                not implemented for " . $cms_user . "\n";
             }
         }
     }
-    unlink('/tmp/cachedHelvetica.php');
+    unlink('/tmp/cachedCourier.php');
 }
-exit;

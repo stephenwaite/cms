@@ -1055,6 +1055,9 @@ X           02 DF1 PIC X.
        01  LASTREF PIC XXX.
        01  MAMMO-FLAG PIC 9.
        01  MAMMO-CODE PIC X(6).
+       01  CLM-DOCR PIC XXX.
+       01  CLM-DOCP pic 99.
+       
 
        PROCEDURE DIVISION.
        P0. 
@@ -1145,43 +1148,50 @@ X           02 DF1 PIC X.
        P1-1. 
            IF DIAG-CNTR > 11 GO TO P2.
            IF  FI-PLACE = HOLD-PLACE
-           AND FI-KEY8 = HOLD-KEY8
-           AND FI-PATID = HOLD-PATID
-           AND FI-DOCP = HOLD-DOCP
-           AND FI-DOCR = HOLD-DOCR
-           AND FI-DAT1 = HOLD-DAT1
-           AND FI-DATE-T = HOLD-DATE-T
-           AND FI-ACC-TYPE = HOLD-ACC-TYPE
-           AND CNTR < 50
-           PERFORM DIAG-1 THRU DIAG-EXIT 
-           IF DIAG-CNTR > 12 GO TO P2
-           END-IF
-           IF FI-SERVICE NOT = "6" MOVE 1 TO ORDER-FLAG
-           END-IF
-           IF FI-PROC1 = "76090" OR "76091" OR "76092"
-           OR "77055" OR "77056" OR "77057" OR "77067"
-           MOVE 1 TO MAMMO-FLAG
-           END-IF
+               AND FI-KEY8 = HOLD-KEY8
+               AND FI-PATID = HOLD-PATID
+      *         AND FI-DOCP = HOLD-DOCP
+      *         AND FI-DOCR = HOLD-DOCR
+               AND FI-DAT1 = HOLD-DAT1
+               AND FI-DATE-T = HOLD-DATE-T
+               AND FI-ACC-TYPE = HOLD-ACC-TYPE
+               AND CNTR < 50
+               PERFORM DIAG-1 THRU DIAG-EXIT 
+               IF DIAG-CNTR > 12 GO TO P2
+               END-IF
+               IF FI-SERVICE NOT = "6" MOVE 1 TO ORDER-FLAG
+               END-IF
+               IF FI-PROC1 = "76090" OR "76091" OR "76092"
+               OR "77055" OR "77056" OR "77057" OR "77067"
+               MOVE 1 TO MAMMO-FLAG
+               END-IF
 
-           ADD 1 TO CNTR 
-           MOVE FILEIN01 TO FILETAB(CNTR)
-           ADD FI-AMOUNT TO TOT-AMOUNT
-           GO TO P1.
+               ADD 1 TO CNTR 
+
+               IF CNTR = 1
+                   MOVE HOLD-DOCR TO CLM-DOCR
+                   MOVE HOLD-DOCP TO CLM-DOCP
+               end-if
+
+               MOVE FILEIN01 TO FILETAB(CNTR)
+               ADD FI-AMOUNT TO TOT-AMOUNT
+               GO TO P1
+           END-IF.
        P2.  
             MOVE FILEIN01 TO SAVE01
             PERFORM 2300CLM THRU 2300CLM-EXIT
             PERFORM HI-DIAG THRU HI-DIAG-EXIT
             PERFORM 2310D THRU 2310D-EXIT
-            PERFORM 2310E THRU 2310E-EXIT
+      *      PERFORM 2310E THRU 2310E-EXIT
             PERFORM 2320A THRU 2320A-EXIT
             PERFORM 2400SRV THRU 2400SRV-EXIT
              VARYING X FROM 1 BY 1 UNTIL X > CNTR
            IF END-FLAG = 1 GO TO P98.
            MOVE SAVE01 TO FILEIN01
            IF FI-DOCP NOT = HOLD-DOCP 
-           MOVE FILEIN01 TO HOLD-FILEIN01
+             MOVE FILEIN01 TO HOLD-FILEIN01
+             PERFORM DOCP-1.
 
-           PERFORM DOCP-1.
            MOVE FILEIN01 TO HOLD-FILEIN01
            PERFORM 2000B 
            GO TO P0000.
@@ -1864,6 +1874,19 @@ X           02 DF1 PIC X.
            MOVE FI-DATE-T TO DTP-3
            MOVE SPACE TO SEGFILE01
             WRITE SEGFILE01 FROM DTP01.
+
+      *     display fi-docp " fi-docp " fi-docr " fi-docr"
+      *     display clm-docp " clm-docp " clm-docr " clm-docr"
+      *     ACCEPT OMITTED
+           
+           if FI-DOCP NOT = CLM-DOCP
+             PERFORM 2420A THRU 2420A-EXIT
+           end-if
+
+           IF FI-DOCR NOT = CLM-DOCR
+             PERFORM 2420F THRU 2420F-EXIT
+           end-if  
+
            MOVE FILEIN-KEY TO CHARCUR-KEY
            READ CHARCUR WITH LOCK INVALID CONTINUE
            NOT INVALID 
@@ -1912,11 +1935,50 @@ X           02 DF1 PIC X.
            MOVE DOC-MI(HOLD-DOCP) TO SAVE-DOCNM1-NAMES 
            MOVE DOC-NPI(HOLD-DOCP) TO SAVE-DOCNM1-CODE
            MOVE DOC-SS(HOLD-DOCP) TO SAVE-DOCREF-ID
-           MOVE "SY" TO SAVE-DOCREF-CODE
+           MOVE "XX" TO SAVE-DOCREF-CODE
            MOVE "82 " TO SAVE-DOCNM1-1
            MOVE "1" TO SAVE-DOCNM1-SOLO
            MOVE SPACE TO SAVE-DOCNM1-NAMES 
            MOVE "XX" TO SAVE-DOCNM1-EINSS.
+
+       2420A.
+           MOVE "82 " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE "XX" TO NM1-EINSS
+           MOVE SPACE TO NM1-CODE NM1-NAMEL NM1-NAMEF
+           NM1-NAMEM NM1-NAMES
+           MOVE DOC-LASTNAME(FI-DOCP) TO NM1-NAMEL
+           MOVE DOC-FIRSTNAME(FI-DOCP) TO NM1-NAMEF
+           MOVE DOC-MI(FI-DOCP) TO NM1-NAMEM
+           MOVE DOC-NPI(FI-DOCP) TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420A-EXIT.
+           EXIT.
+
+       2420F.
+
+           MOVE FI-DOCR TO REF-KEY 
+
+           READ REFPHY 
+             INVALID 
+               GO TO REF-2.
+
+           MOVE "DN " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING REF-NAME DELIMITED BY ", " OR " ,"
+             OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
+
+           MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
+           MOVE "XX" TO NM1-EINSS
+           MOVE REF-NPI TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420F-EXIT.
+           EXIT.        
 
        SUBSCRIBER-1.
            MOVE HOLD-KEY8 TO G-GARNO

@@ -1076,6 +1076,8 @@
        01  ANS PIC X.
        01  MAMMO-FLAG PIC 9.
        01  MAMMO-NUM PIC X(6).
+       01  CLM-DOCR PIC XXX.
+       01  CLM-DOCP pic 99.
 
        PROCEDURE DIVISION.
        P0. 
@@ -1188,8 +1190,8 @@
            IF  FI-PLACE = HOLD-PLACE
            AND FI-KEY8 = HOLD-KEY8
            AND FI-PATID = HOLD-PATID
-           AND FI-DOCP = HOLD-DOCP
-           AND FI-DOCR = HOLD-DOCR
+      *     AND FI-DOCP = HOLD-DOCP
+      *     AND FI-DOCR = HOLD-DOCR
            AND FI-DATE-T = HOLD-DATE-T
            AND FI-DAT1 = HOLD-DAT1
            AND FI-ACC-TYPE = HOLD-ACC-TYPE
@@ -1198,6 +1200,10 @@
            IF DIAG-CNTR > 12 GO TO P2
            END-IF
            ADD 1 TO CNTR 
+           IF CNTR = 1
+               MOVE HOLD-DOCR TO CLM-DOCR
+               MOVE HOLD-DOCP TO CLM-DOCP
+           end-if
            IF FI-PROC1 = "76090" OR "76091" OR "76092"
            OR "77055" OR "77056" OR "77057"
            MOVE 1 TO MAMMO-FLAG
@@ -1984,6 +1990,15 @@
       *        PERFORM 2420A THRU 2420A-EXIT
       *       END-IF
       *     end-if.
+
+           if FI-DOCP NOT = CLM-DOCP
+             PERFORM 2420A THRU 2420A-EXIT
+           end-if
+
+           IF FI-DOCR NOT = CLM-DOCR
+             PERFORM 2420F THRU 2420F-EXIT
+           end-if  
+           
            MOVE FILEIN-KEY TO CHARCUR-KEY
            READ CHARCUR WITH LOCK INVALID CONTINUE
            NOT INVALID 
@@ -2031,6 +2046,32 @@
 
        2420A-EXIT.
            EXIT.
+
+       2420F.
+           IF FI-DOCR = "000" 
+             GO TO REF-2.
+
+           MOVE FI-DOCR TO REF-KEY 
+
+           READ REFPHY 
+             INVALID 
+               GO TO REF-2.
+
+           MOVE "DN " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING REF-NAME DELIMITED BY ", " OR " ,"
+             OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
+
+           MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
+           MOVE "XX" TO NM1-EINSS
+           MOVE REF-NPI TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420F-EXIT.
+           EXIT.    
+               
 
        2310A.
            IF HOLD-DOCR = "000" GO TO REF-2.

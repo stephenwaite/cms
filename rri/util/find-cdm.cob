@@ -72,6 +72,7 @@
            02 FO-DUM PIC X.
            02 FO-SERVICE PIC X.
            02 FO-PROC PIC X(11).
+           02 FO-DIAG PIC X(7).
            02 FO-AMOUNT PIC S9(7)V99.
            02 FO-IO PIC X.
            02 FO-NAME PIC X(24).
@@ -149,6 +150,7 @@
            MOVE CC-DOCP TO FO-DOCP
            MOVE CC-PROC TO FO-PROC
            MOVE CC-DATE-T TO FO-DATE
+           MOVE CC-DIAG TO FO-DIAG
 
       *     MOVE TOT-AMOUNT TO FO-AMOUNT
            
