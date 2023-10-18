@@ -7,7 +7,9 @@ use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 
 // first remove tmp courier cached file in case some other script put it there
-unlink('/tmp/cachedCourier.php');
+if (is_file('/tmp/cachedCourier.php')) {
+    unlink('/tmp/cachedCourier.php');
+}
 
 $context = $argv[1] ?? null;
 if (!empty($context) && $context == 'pdf') {
