@@ -682,11 +682,6 @@
            BPR-9 BPR-10 BPR-11 BPR-12 BPR-13 BPR-14 BPR-15 BPR-16.
            MOVE BPR-16 TO DATE-X.
 
-           MOVE SPACE TO ERROR-FILE01
-           IF BPR-4 = "CHK"
-               STRING BPR01 DELIMITED BY SIZE INTO ERROR-FILE01
-               WRITE ERROR-FILE01.
-      
        P000.
            MOVE SPACE TO FILEIN01
            READ FILEIN
@@ -716,6 +711,11 @@
              MOVE SPACE TO ERROR-FILE01
              MOVE TITLE01 TO ERROR-FILE01
              WRITE ERROR-FILE01.
+
+           IF BPR-4 = "CHK"
+               MOVE SPACE TO ERROR-FILE01
+               STRING BPR01 DELIMITED BY "*" INTO ERROR-FILE01
+               WRITE ERROR-FILE01.
 
        P1-CLP. 
            MOVE SPACE TO FILEIN01
