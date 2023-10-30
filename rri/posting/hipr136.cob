@@ -1184,7 +1184,6 @@
                 OR (CAS-1 = "CO" AND CAS-2 = "163  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "197  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "236  ")
-                OR (CAS-1 = "CO" AND CAS-2 = "236  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "251  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "252  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "B9   ")
@@ -1195,6 +1194,7 @@
                 OR (CAS-1 = "PR" AND CAS-2 = "32   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "95   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "96   ")
+                OR (CAS-1 = "PR" AND CAS-2 = "198  ")
                 OR (CAS-1 = "PR" AND CAS-2 = "252  ")
                 OR (CAS-1 = "CO" AND CAS-2 = "95   ")  
                 MOVE 1 TO FLAG
