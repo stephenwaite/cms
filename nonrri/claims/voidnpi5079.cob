@@ -1854,9 +1854,11 @@
            EXIT.
 
        VOID-CLAIM.
-           move 7 to clm-freq
            display "defaults to 7 correct, 8 for void, or 1 for new clm"
            accept clm-freq
+
+           if clm-freq = space
+               move 7 to clm-freq.
            
            if not( clm-freq = "1" or "7" or "8")
              go to void-claim
