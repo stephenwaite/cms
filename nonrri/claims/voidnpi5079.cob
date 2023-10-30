@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. npi5079.
+       PROGRAM-ID. voidnpi5079.
        AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -237,7 +237,7 @@
            COPY "mplrfile.cpy" IN "C:\Users\sid\cms\copylib".
 
        FD  AUTHFILE.
-           COPY "authfile.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "newauthfile.cpy" IN "C:\Users\sid\cms\copylib".
 
        FD  REFPHY.
            COPY "refphy.cpy" IN "C:\Users\sid\cms\copylib".
@@ -943,8 +943,9 @@
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO CLM-2
            MOVE SPACE TO CLM-11
-           MOVE SPACE TO CLM-11 CLM-COLON-ACCIDENT
-           
+           MOVE SPACE TO CLM-11 
+      *    missing CLM-COLON-ACCIDENT
+
            IF HOLD-DAT1 NOT = ZEROES
                PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT
            END-IF
