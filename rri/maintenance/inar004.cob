@@ -3844,6 +3844,10 @@
       *     MOVE CD-AUTH TO ALF-1
            
            PERFORM AUTH-1 THRU AUTH-1-EXIT
+
+           IF ALF-15(1:2) = "VA"
+             DISPLAY "CHANGE CHARGE INS TO 225 FROM " CC-PAYCODE
+             DISPLAY "CHANGE GARNO INS TO 225 FROM " G-PRINS.
            
            GO TO 4900CPC.
 
