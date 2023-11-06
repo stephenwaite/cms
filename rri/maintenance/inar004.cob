@@ -3846,8 +3846,12 @@
            PERFORM AUTH-1 THRU AUTH-1-EXIT
 
            IF ALF-15(1:2) = "VA"
-             DISPLAY "CHANGE CHARGE INS TO 225 FROM " CC-PAYCODE
-             DISPLAY "CHANGE GARNO INS TO 225 FROM " G-PRINS.
+             DISPLAY "CHANGING " CC-KEY8 " INS TO 225 FROM " G-PRINS
+             MOVE CC-KEY8 TO G-GARNO
+             PERFORM VA-1
+             DISPLAY "CHANGING CHARGE INS TO 225 FROM " CC-PAYCODE
+             MOVE 225 TO CC-PAYCODE
+             GO TO 5000-WRITE-CHARCUR.
            
            GO TO 4900CPC.
 
@@ -5035,7 +5039,34 @@
 
            go to emailauth-1.
        emailauth-exit.
-           exit.                 
+           exit.              
+
+       VA-1.
+           READ GARFILE INVALID DISPLAY "INVALID" GO TO 1000-ACTION.
+           DISPLAY G-GARNO " " G-GARNAME
+           MOVE G-GARNO TO ALF-8
+           CLOSE GARFILE
+           OPEN I-O GARFILE
+           MOVE ALF-8 TO G-GARNO
+           READ GARFILE WITH LOCK 
+             INVALID 
+             DISPLAY "INVALID" 
+             CLOSE GARFILE
+             OPEN INPUT GARFILE
+             GO TO  1000-ACTION.
+           
+           IF GARFILE-STAT NOT = "00"
+             DISPLAY "RECORD LOCKED. TRY AGAIN LATER"
+             CLOSE GARFILE
+             OPEN INPUT GARFILE
+             GO TO 1000-ACTION
+           END-IF
+           
+           MOVE "225" TO G-PRINS
+           REWRITE GARFILE01
+           CLOSE GARFILE
+           OPEN INPUT GARFILE.
+           DISPLAY "G-PRINS CHANGED TO 225".       
 
        9100-CLOSE-MASTER-FILE.
            CLOSE PAYFILE CHARCUR AUTHFILE
