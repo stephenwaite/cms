@@ -1087,6 +1087,11 @@
        01  INSGROUP-LEG PIC X(6).
        01  LASTREF PIC XXX.
        01  ZEF-7 PIC Z,ZZ9.99CR.
+       01  WS-COMPARE-DATE-1.
+           03  WS-COMP-1-CC                 PIC 9(02).
+           03  WS-COMP-1-YY                 PIC 9(02).
+           03  WS-COMP-1-MM                 PIC 9(02).
+           03  WS-COMP-2-DD                 PIC 9(02). 
 
        PROCEDURE DIVISION.
        P0. 
@@ -2149,7 +2154,8 @@
            MOVE "0    " TO HL-CHILD
            MOVE "MB" TO SBR-INSCODE
       *    12 IS WORKING AGED MSP, 43 IS DISABILITY 
-           IF G-DOB < 19590101
+           STRING G-DOB DELIMITED BY SIZE INTO WS-COMPARE-DATE-1.
+           IF WS-COMPARE-DATE-1 < 19590101
              MOVE "12" TO SBR-TYPE
            ELSE 
              MOVE "43" TO SBR-TYPE
