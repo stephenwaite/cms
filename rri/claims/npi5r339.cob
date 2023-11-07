@@ -344,13 +344,8 @@
            02 GAP-ZIP PIC X(9).
            02 GAP-TYPE PIC X.
            02 GAP-FUTURE PIC X(40).
-       FD  DIAGFILE
-           BLOCK CONTAINS 15 RECORDS
-           DATA RECORD IS DIAG01.
-       01  DIAG01.
-           02 DIAG-KEY PIC X(5).
-           02 DIAG-TITLE PIC X(25).
-           02 DIAG-MEDB PIC X(5).
+       FD  DIAGFILE.
+           COPY "diagfile.cpy" IN "C:\Users\sid\cms\copylib".
 
        WORKING-STORAGE SECTION.
        01 ISA01.
