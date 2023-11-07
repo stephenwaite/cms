@@ -2148,24 +2148,30 @@
            MOVE SPACE TO SBR-GROUP
            MOVE "0    " TO HL-CHILD
            MOVE "MB" TO SBR-INSCODE
-           MOVE "12" TO SBR-TYPE
-            IF SBR-PST = "S"
-		 IF G-PRINS = "091"
-		   MOVE "15" TO SBR-TYPE
-		 END-IF
-		 IF G-PRINS = "006"
-		   MOVE "16" TO SBR-TYPE
-		 END-IF
-		 IF G-PRINS = "079"
-		   MOVE "42" TO SBR-TYPE
-		 END-IF
-		IF HOLD-ACC-TYPE = "2"
-		 MOVE "14" TO SBR-TYPE
-		END-IF
-		IF HOLD-ACC-TYPE = "1"
-		 MOVE "15" TO SBR-TYPE
-		END-IF
-	    END-IF.
+      *    12 IS WORKING AGED MSP, 43 IS DISABILITY 
+           IF G-DOB < 19590101
+             MOVE "12" TO SBR-TYPE
+           ELSE 
+             MOVE "43" TO SBR-TYPE
+           END-IF
+
+           IF SBR-PST = "S"
+		     IF G-PRINS = "091"
+		       MOVE "15" TO SBR-TYPE
+		     END-IF
+		     IF G-PRINS = "006"
+		       MOVE "16" TO SBR-TYPE
+		     END-IF
+		     IF G-PRINS = "079"
+		       MOVE "42" TO SBR-TYPE
+		     END-IF
+		     IF HOLD-ACC-TYPE = "2"
+		       MOVE "14" TO SBR-TYPE
+		     END-IF
+		     IF HOLD-ACC-TYPE = "1"
+		       MOVE "15" TO SBR-TYPE
+		     END-IF
+	       END-IF.
        SUBSCRIBER-EXIT. EXIT.
        2000B-PAT.
 	   
