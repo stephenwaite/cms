@@ -28,6 +28,7 @@
            STRING G-DOB DELIMITED BY SIZE INTO WS-COMPARE-DATE-1.
 
            IF WS-COMPARE-DATE-1 < 19590101
-             DISPLAY "THAT'S OLD".
+             DISPLAY "THAT'S OLD"
+             ACCEPT OMITTED.
            
            STOP RUN.
