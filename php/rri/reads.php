@@ -7,8 +7,9 @@ use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 
 // first remove tmp courier cached file in case some other script put it there
-if (is_file('/tmp/cachedCourier.php')) {
-    unlink('/tmp/cachedCourier.php');
+$cache_font_file = "/tmp/cachedCourier.php";
+if (is_file($cache_font_file) && !is_writable($cache_font_file)) {
+    unlink($cache_font_file);
 }
 
 $context = $argv[1] ?? null;

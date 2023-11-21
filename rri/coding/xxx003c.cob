@@ -442,24 +442,6 @@
              END-IF               
            END-IF
 
-      *    prompt for quick code on bone density
-           IF (CD-PROC1 = "1430")
-               IF CD-DOCP = "02"
-                   GO TO P1-1
-               END-IF
-
-               DISPLAY "Quick code of bone density?"
-               DISPLAY "Hit Y for Z780   "
-               display " "  
-               ACCEPT ANS1                                  
-
-               IF ANS1 = "Y"
-                   MOVE "Z780   " TO CD-DIAG
-                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
-                   GO TO P1
-               END-IF    
-           END-IF
-
       *    prompt for quick code on bilat orbits
            IF (CD-PROC1 = "1204" AND CD-MOD2 = "50")
 
