@@ -6,6 +6,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 
+ini_set("xdebug.var_display_max_children", '-1');
+ini_set("xdebug.var_display_max_data", '-1');
+ini_set("xdebug.var_display_max_depth", '-1');
+
 // first remove tmp courier cached file in case some other script put it there
 $cache_font_file = "/tmp/cachedCourier.php";
 if (is_file($cache_font_file) && !is_writable($cache_font_file)) {
@@ -24,13 +28,15 @@ $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
 $charcur_key = substr($file, 15, 11);
 $billing_tape_date_of_service = substr($file, 26, 8);
-$base_url = getenv('BASE_OEMR_URL');
-$site_id = getenv('OEMR_RRI_SITE_ID');
+//$date_of_service = substr($file, 30, 2) . "-" .  substr($file, 32, 2) . "-" . substr($file, 26, 4);
+$base_url = getenv('TEST_BASE_OEMR_URL');
+$site_id = getenv('TEST_OEMR_RRI_SITE_ID');
 $base_uri = $base_url . '/oauth2/' . $site_id . '/token';
 $guzzle = new Client(
     ['verify' => false],
     ['debug' => true]
 );
+
 $response = $guzzle->post($base_uri, [
     'form_params' => [
         'grant_type' => 'password',
