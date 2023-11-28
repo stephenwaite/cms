@@ -96,11 +96,16 @@ if (!empty($jsonObj['entry'])) {
         $note .= $pt_name_text . "\n";
         $note .= $pt_dob_line . "\n";
         $note .= $coding_display . "\n";
-        $date_of_read = $entry['resource']['effectiveDateTime'] ?? '';
-        $date_of_read_utc = new DateTimeImmutable($date_of_read);
-        $date_of_read_nyc = $date_of_read_utc->setTimezone(new DateTimeZone('America/New_York'));
-        $date_of_read_nyc_display = $date_of_read_nyc->format('m-d-Y');
-        $pt_dos_line = 'DOS: ' . $date_of_read_nyc_display;
+        $date_of_order = $entry['resource']['effectiveDateTime'] ?? '';
+        $date_of_order_utc = new DateTimeImmutable($date_of_order);
+        $date_of_order_nyc = $date_of_order_utc->setTimezone(new DateTimeZone('America/New_York'));
+        $date_of_order_nyc_display = $date_of_order_nyc->format('m-d-Y');
+        $date_of_order_nyc_compare = $date_of_order_nyc->format('Ymd');
+        if ($date_of_order_nyc_compare != $billing_tape_date_of_service) {
+            continue;
+        }
+        
+        $pt_dos_line = 'DOS: ' . $date_of_order_nyc_display;
         $note .= $pt_dos_line . "\n";
         $note .= str_pad('', $banner_length, '#') . "\n\n";
         $note .= $entry['resource']['note'][0]['text'] . "\n";
