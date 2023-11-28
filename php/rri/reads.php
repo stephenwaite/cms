@@ -7,13 +7,13 @@ use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 
 // first remove tmp courier cached file in case some other script put it there
-$cache_font_file = "/tmp/cachedCourier.php";
-if (is_file($cache_font_file) && !is_writable($cache_font_file)) {
-    unlink($cache_font_file);
-}
-
 $context = $argv[1] ?? null;
 if (!empty($context) && $context == 'pdf') {
+    // create temp dir for cached courier font
+    if (!is_dir('/tmp/reads')) {
+        mkdir('/tmp/reads');
+        putenv('TMPDIR=/tmp/reads');
+    }
     $pdf = new Cezpdf();
     $pdf->selectFont('Courier');
 }
@@ -104,7 +104,7 @@ if (!empty($jsonObj['entry'])) {
         if ($date_of_order_nyc_compare != $billing_tape_date_of_service) {
             continue;
         }
-        
+
         $pt_dos_line = 'DOS: ' . $date_of_order_nyc_display;
         $note .= $pt_dos_line . "\n";
         $note .= str_pad('', $banner_length, '#') . "\n\n";
@@ -151,5 +151,4 @@ if (!empty($context) && $context == 'pdf') {
             }
         }
     }
-    unlink('/tmp/cachedCourier.php');
 }
