@@ -10,9 +10,9 @@ use GuzzleHttp\Psr7\Request;
 $context = $argv[1] ?? null;
 if (!empty($context) && $context == 'pdf') {
     // create temp dir for cached courier font
+    putenv('TMPDIR=/tmp/reads');
     if (!is_dir('/tmp/reads')) {
         mkdir('/tmp/reads');
-        putenv('TMPDIR=/tmp/reads');
     }
     $pdf = new Cezpdf();
     $pdf->selectFont('Courier');
@@ -151,4 +151,5 @@ if (!empty($context) && $context == 'pdf') {
             }
         }
     }
+    chgrp('/tmp/reads/cachedCourier.php', 'cms');
 }
