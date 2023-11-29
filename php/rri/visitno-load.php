@@ -20,9 +20,9 @@ foreach($lines as $line) {
         if (array_key_exists($mrn, $load)) {
             //echo "$mrn already in load \n";
             if ($load[$mrn]['visitno'] != $visitno) {
-                //echo "*** that's odd, visitno $visitno is different from prior record in this file for mrn $mrn\n";
                 if ($load[$mrn]['rrmc_ins_code'] != $rrmc_ins_code) {
                     echo "*** uh oh, rrmc ins code $rrmc_ins_code is different from prior record ins code " . $load[$mrn]['rrmc_ins_code'] . " in this file for mrn $mrn\n";
+                    echo "*** which means we were given different insurances for distinct charges for the same person and should be remedied.\n";
                 }
             }
         }
