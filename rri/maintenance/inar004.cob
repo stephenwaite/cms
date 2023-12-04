@@ -3845,7 +3845,7 @@
            
            PERFORM AUTH-1 THRU AUTH-1-EXIT
 
-           IF ALF-15(1:2) = "VA"
+           IF HOLD-AUTH(1:2) = "VA"
              DISPLAY "CHANGING " CC-KEY8 " PRINS TO 225 FROM " G-PRINS
              MOVE CC-KEY8 TO G-GARNO
              PERFORM VA-1

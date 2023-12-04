@@ -151,5 +151,4 @@ if (!empty($context) && $context == 'pdf') {
             }
         }
     }
-    chgrp('/tmp/reads/cachedCourier.php', 'cms');
 }
