@@ -30,8 +30,8 @@
            
        WORKING-STORAGE SECTION.
        
-       01  OLD-CHARCUR-KEY PIC X(11).
-       01  NEW-KEY PIC X(11).
+       01  OLD-CHARCUR01 PIC X(160).
+       01  NEW-CHARCUR01 PIC X(160).
 
        
        PROCEDURE DIVISION.
@@ -52,10 +52,13 @@
       *       MOVE FILEIN01 TO CHARCUR01  
       *       DISPLAY "CAN REWRITE " CHARCUR01
       *       REWRITE CHARCUR01.
+              MOVE CHARCUR01 TO OLD-CHARCUR01
               MOVE "LU 3041G001" TO CHARCUR-KEY
               MOVE "LU 3041G" TO CC-PATID
               WRITE FILEOUT01 FROM CHARCUR01
-              REWRITE CHARCUR01.
+              WRITE CHARCUR01
+              MOVE OLD-CHARCUR01 TO CHARCUR01
+              DELETE CHARCUR RECORD.
 
            
        P99. 
