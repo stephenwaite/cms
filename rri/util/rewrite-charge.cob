@@ -37,7 +37,7 @@
        PROCEDURE DIVISION.
        
        P0.
-           OPEN INPUT CHARCUR.
+           OPEN I-O CHARCUR.
            OPEN OUTPUT FILEOUT.
 
            MOVE "LU;3041G001" TO CHARCUR-KEY.
