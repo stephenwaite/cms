@@ -52,7 +52,10 @@
       *       MOVE FILEIN01 TO CHARCUR01  
       *       DISPLAY "CAN REWRITE " CHARCUR01
       *       REWRITE CHARCUR01.
+              MOVE "LU 3041G001" TO CHARCUR-KEY
+              MOVE "LU 3041G" TO CC-PATID
               WRITE FILEOUT01 FROM CHARCUR01.
+
            
        P99. 
            CLOSE CHARCUR FILEOUT.
