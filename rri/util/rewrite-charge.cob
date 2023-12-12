@@ -40,7 +40,7 @@
            OPEN INPUT CHARCUR.
            OPEN OUTPUT FILEOUT.
 
-           START CHARCUR KEY = "LU;3041G001"
+           START CHARCUR KEY IS EQUAL TO "LU;3041G001"
              INVALID
                DISPLAY "COULDN'T START CHARCUR"
                GO TO P99.
