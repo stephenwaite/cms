@@ -881,6 +881,9 @@
            END-IF.
            MOVE SPACE TO SEGFILE01.
            WRITE SEGFILE01 FROM DMG01.
+           
+      *    IF HOLD-ACC-TYPE NOT = SPACE
+               
        2010BB.
            MOVE "PR " TO NM1-1
            MOVE "2" TO NM1-SOLO

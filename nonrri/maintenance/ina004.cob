@@ -3580,6 +3580,24 @@
            OPEN OUTPUT FILEOUT
            GO TO 1000-ACTION.
 
+       PG-1.
+           DISPLAY "Name of patient: " G-GARNAME
+           DISPLAY "DOB: " G-DOB(5:2) "/" G-DOB(7:2) "/"
+             G-DOB(1:4)
+           DISPLAY "ID: " G-PRIPOL
+           DISPLAY "DOS: "
+           DISPLAY "BILLED: $"
+           DISPLAY "CLAIM: " 
+           DISPLAY "ACCOUNT: " G-GARNO
+           DISPLAY " "
+           DISPLAY "Thank you"
+           DISPLAY " "
+           DISPLAY "Rutland Radiologists"
+           DISPLAY "NPI 1700935780"
+           DISPLAY "Tax ID 03-0238095"
+           DISPLAY "Phone 800-371-8685"
+           GO TO 1000-ACTION.
+
        CD-SET.
            DISPLAY "CHARGE DATE?"
            ACCEPT DATE-OF-CHARGE
