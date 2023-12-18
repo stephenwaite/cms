@@ -3201,16 +3201,10 @@
            DISPLAY "THIS MAY NOT BE VALID.  THIS IS ONLY A WARNING".
            PERFORM DX-1 THRU DX-1-EXIT.
 
-
-
            MOVE CHARCUR01 TO CURBACK.
-           REWRITE CHARCUR01 INVALID KEY DISPLAY "NO UPDATE."
-           DISPLAY "THIS SHOULD NOT HAPPEN! CONTACT THE DATA CENTER."
-           DISPLAY "THIS PROGRAM IS TERMINATED!"
-           GO TO 9100-CLOSE-MASTER-FILE.
-           UNLOCK CHARCUR RECORD
-      *    ISQUIET CHARCUR WITH 1 AND 1
-           DISPLAY "UPDATE MADE"  GO TO 1000-ACTION.
+           PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+           GO TO 1000-ACTION.
+
        CC-1200-FIND. START CHARCUR KEY > CHARCUR-KEY INVALID
            DISPLAY " END OF FILE" GO TO 1000-ACTION.
            MOVE "D" TO UPDOWN.
@@ -3350,7 +3344,11 @@
            MOVE G-GARNO TO CC-KEY8
            START CHARCUR KEY > CHARCUR-KEY INVALID DISPLAY "NO RECORDS"
            GO TO 1000-ACTION.
-       CC-2. READ CHARCUR NEXT WITH LOCK AT END GO TO 1000-ACTION.
+       CC-2.
+           READ CHARCUR NEXT 
+             AT END 
+               GO TO 1000-ACTION.
+
            IF CC-KEY8 NOT = G-GARNO GO TO 1000-ACTION.
            IF CC-COLLT = "1" GO TO CC-2.
            MOVE CC-AMOUNT TO NEF-8
@@ -3361,10 +3359,23 @@
            ACCEPT ANS
            IF ANS = "X" GO TO 1000-ACTION.
            IF ANS = "Y"
-           MOVE "1" TO CC-COLLT
-           REWRITE CHARCUR01
-           DISPLAY "COLLECTION" GO TO CC-2.
-           DISPLAY "BYPASSED" GO TO CC-2.
+               MOVE "1" TO CC-COLLT
+               MOVE 0 TO FLAG
+               MOVE CHARCUR01 TO CURBACK
+               PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+               MOVE CURBACK TO CHARCUR01
+               IF FLAG = 1
+                   DISPLAY "COLLECTION"                     
+                   GO TO CC-2
+               ELSE
+                   DISPLAY "CAN NOT MODIFY THIS RECORD"
+                   GO TO CC-2
+               END-IF
+           END-IF    
+
+           DISPLAY "BYPASSED"
+           GO TO CC-2.
+
        RA-1.
            READ GARFILE INVALID DISPLAY "INVALID" GO TO 1000-ACTION.
            DISPLAY G-GARNO " " G-GARNAME
@@ -3391,9 +3402,16 @@
            MOVE G-GARNO TO CC-KEY8
            START CHARCUR KEY > CHARCUR-KEY INVALID DISPLAY "NO RECORDS"
            GO TO 1000-ACTION.
-       RA-2. READ CHARCUR NEXT WITH LOCK AT END GO TO 1000-ACTION.
+
+       RA-2. 
+           READ CHARCUR NEXT 
+             AT END 
+               GO TO 1000-ACTION.
+
            IF CC-KEY8 NOT = G-GARNO GO TO 1000-ACTION.
+
            IF CC-ASSIGN = "A" OR CC-DATE-A = "00000000" GO TO RA-2.
+
            MOVE CC-AMOUNT TO NEF-8
            MOVE CC-DATE-T TO TEST-DATE
            MOVE CORR TEST-DATE TO DISP-DATE
@@ -3404,10 +3422,14 @@
            DISPLAY "RE-AGE TO CURRENT? Y=YES  <CR>=NO  X=QUIT"
            ACCEPT ANS
            IF ANS = "X" GO TO 1000-ACTION.
+           
            IF ANS = "Y"
-           MOVE "00000000" TO CC-DATE-A
-           REWRITE CHARCUR01
-           DISPLAY "RE-AGED" GO TO RA-2.
+               MOVE "00000000" TO CC-DATE-A
+               MOVE 0 TO FLAG
+               MOVE CHARCUR01 TO CURBACK
+               PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+               DISPLAY "RE-AGED" GO TO RA-2.
+
            DISPLAY "BYPASSED" GO TO RA-2.
        
        LI-1.
@@ -3994,6 +4016,26 @@
            DISPLAY PAYFILE-KEY
            DISPLAY "RECORD ADDED".
        WRITE-PAYFILE-EXIT.
+           EXIT.
+
+       RE-WRITE-CC.
+           CLOSE CHARCUR
+           OPEN I-O CHARCUR
+           MOVE CURBACK TO CHARCUR01
+           REWRITE CHARCUR01 INVALID
+                DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
+                DISPLAY CHARCUR-STAT
+                CLOSE CHARCUR
+                OPEN INPUT CHARCUR
+                GO TO RE-WRITE-CC-EXIT
+           END-REWRITE
+
+           CLOSE CHARCUR
+           OPEN INPUT CHARCUR
+           DISPLAY "RECORD CHANGED".
+           MOVE 1 TO FLAG.
+           
+       RE-WRITE-CC-EXIT.
            EXIT.    
 
        9100-CLOSE-MASTER-FILE.
