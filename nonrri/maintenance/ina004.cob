@@ -1097,19 +1097,38 @@
            COMPUTE PD-AMOUNT = -1 * PD-AMOUNT.
            MOVE PAYFILE01 TO PAYBACK01
            MOVE 0 TO XYZ.
-       DR1-1. ADD 1 TO XYZ MOVE XYZ TO PD-KEY3
+
+       DR1-1.
+           ADD 1 TO XYZ MOVE XYZ TO PD-KEY3
            IF XYZ = 999 DISPLAY "NO UPDATE"
            DISPLAY "THIS SHOULD NOT HAVE HAPPENED! CONTACT DATA CENTER."
            DISPLAY "THIS PROGRAM HAS BEEN TERMINATED"
            GO TO 9100-CLOSE-MASTER-FILE.
-           WRITE PAYFILE01 INVALID KEY GO TO DR1-1.
-           DISPLAY PAYFILE-KEY " " PD-NAME.
-           DISPLAY "RECORD IS ADDED".
+           READ PAYFILE 
+           INVALID
+               MOVE 0 TO FLAG
+               PERFORM WRITE-PAYFILE THRU WRITE-PAYFILE-EXIT
+
+               IF FLAG = 0
+                   DISPLAY "CAN NOT WRITE THE PAYMENT RECORD"
+                   DISPLAY "THIS INDICATES A PROBLEM"
+                   DISPLAY "CALL CMS IMMEDIATELY"
+                   ACCEPT ANS
+                   GO TO 1000-ACTION
+               END-IF
+
+           NOT INVALID
+               GO TO DR1-1
+           END-READ
+
            MOVE PAYFILE01 TO PAYBACK01.
            MOVE 0 TO FLAGX.
            MOVE PD-KEY3 TO XYZ.
            IF DI = 1 PERFORM WH1 THRU WH1-EXIT.
-       DR1-EXIT. EXIT.
+       
+       DR1-EXIT.
+           EXIT.
+
        WO1. IF DR = -1 GO TO M2.
            IF (PD-PAYCODE > "006" AND < "020") 
            AND (PD-PAYCODE NOT = "018")
@@ -1154,20 +1173,47 @@
            IF X-AMOUNT < PD-AMOUNT
            DISPLAY "THIS WILL CAUSE A CREDIT BALANCE" GO TO WO1.
            MOVE X-AMOUNT TO PD-AMOUNT.
+
        WO4.
            MOVE "14" TO PD-DENIAL
            ACCEPT ORDER-8 FROM TIME
            MOVE ORDER-6 TO PD-ORDER
            MOVE CURRENT-BATCH TO PD-DATE-E
            MOVE PAYFILE01 TO PAYBACK01.
-       WO13. ADD 1 TO XYZ.
+
+       WO13. 
+           ADD 1 TO XYZ.
            MOVE XYZ TO PD-KEY3.
-           READ PAYFILE INVALID GO TO WO14.
-           IF XYZ = 999 DISPLAY "TOO MANY RECORDS CALL CMS"
-           GO TO 1000-ACTION ELSE GO TO WO13.
-       WO14. MOVE PD-AMOUNT TO NEF-8 DISPLAY "REDUCTION " NEF-8.
-           MOVE PAYBACK01 TO PAYFILE01 MOVE XYZ TO PD-KEY3.
-           WRITE PAYFILE01 INVALID GO TO WO13.
+           READ PAYFILE INVALID 
+               GO TO WO14.
+
+           IF XYZ = 999 
+               DISPLAY "TOO MANY RECORDS CALL CMS"
+               ACCEPT ANS
+               GO TO 1000-ACTION 
+           ELSE 
+              GO TO WO13.
+       WO14.
+           MOVE PD-AMOUNT TO NEF-8
+           DISPLAY "REDUCTION " NEF-8.
+           MOVE PAYBACK01 TO PAYFILE01 
+           MOVE XYZ TO PD-KEY3.
+
+           READ PAYFILE INVALID
+               MOVE 0 TO FLAG
+               PERFORM WRITE-PAYFILE THRU WRITE-PAYFILE-EXIT
+           
+               IF FLAG = 0
+                   DISPLAY "CAN NOT WRITE THE PAYMENT RECORD"
+                   DISPLAY "THIS INDICATES A PROBLEM"
+                   DISPLAY "CALL CMS IMMEDIATELY"
+                   ACCEPT ANS
+                   GO TO 1000-ACTION
+               END-IF
+           END-READ
+
+           GO TO WO13.
+
        M2. DISPLAY "MORE PAYMENTS ?".
            MOVE PD-KEY3 TO XYZ.
            ACCEPT ANS.
@@ -3924,6 +3970,28 @@
            MOVE 1 TO FLAG.
        RE-WRITE-PD-EXIT.
            EXIT.
+
+       WRITE-PAYFILE.
+           CLOSE PAYFILE
+           OPEN I-O PAYFILE
+           MOVE PAYBACK01 TO PAYFILE01
+           MOVE XYZ TO PD-KEY3
+
+           WRITE PAYFILE01 INVALID
+                DISPLAY "RECORD NOT ADDED AT THIS TIME"
+                DISPLAY PAYFILE-STAT
+                CLOSE PAYFILE
+                OPEN INPUT PAYFILE
+                GO TO WRITE-PAYFILE-EXIT
+           END-WRITE
+           
+           MOVE 1 TO FLAG
+           CLOSE PAYFILE
+           OPEN INPUT PAYFILE
+           DISPLAY PAYFILE-KEY
+           DISPLAY "RECORD ADDED".
+       WRITE-PAYFILE-EXIT.
+           EXIT.    
 
        9100-CLOSE-MASTER-FILE.
            CLOSE PAYFILE CHARCUR
