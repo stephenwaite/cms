@@ -732,9 +732,9 @@
            SET BELL0 TO 7.
            MOVE ZERO TO DF-DATE DF-PAYCODE DF-DENIAL.
            MOVE 10 TO DF-AMOUNT.
-           OPEN I-O PAYFILE.
-           OPEN I-O CHARCUR.
-           OPEN I-O AUTHFILE.
+           OPEN INPUT PAYFILE.
+           OPEN INPUT CHARCUR.
+           OPEN INPUT AUTHFILE.
            OPEN OUTPUT FILEOUT
            OPEN INPUT GARFILE TAGDIAG.
            OPEN INPUT CMNTFILE.
@@ -772,20 +772,20 @@
            OPEN INPUT GARFILE PATFILE MPLRFILE INSFILE GAPFILE
            GO TO 1000-ACTION.
            IF DATAIN = "AC"
-           CLOSE CHARFILE
-           CLOSE CHARCUR
-           CLOSE PAYFILE
-           CLOSE FILEOUT
-           CLOSE PAYCUR
-           CLOSE PROCFILE
-           CLOSE TAGDIAG
-           CLOSE DIAGFILE
-           CALL "/home/sidw/ina002.b" USING CHAR1
-           MOVE 1 TO CHAR1
-           OPEN INPUT CHARFILE PAYCUR PROCFILE TAGDIAG DIAGFILE
-           OPEN OUTPUT FILEOUT
-           OPEN I-O CHARCUR PAYFILE
-           GO TO 1000-ACTION.
+               CLOSE CHARFILE
+               CLOSE CHARCUR
+               CLOSE PAYFILE
+               CLOSE FILEOUT
+               CLOSE PAYCUR
+               CLOSE PROCFILE
+               CLOSE TAGDIAG
+               CLOSE DIAGFILE
+               CALL "/home/sidw/ina002.b" USING CHAR1
+               MOVE 1 TO CHAR1
+               OPEN INPUT CHARFILE PAYCUR PROCFILE TAGDIAG DIAGFILE
+                 CHARCUR PAYFILE
+               OPEN OUTPUT FILEOUT
+               GO TO 1000-ACTION.
       *     IF DATAIN = "NONBAT" GO TO 999-A.
       *     IF DATAIN = "BAT" CALL "/home/sidw/tri007.b" 
       *     USING CURRENT-BATCH CBN
@@ -1618,12 +1618,11 @@
        1200-SEARCH-EXIT.
            EXIT.
        1300DEL.
-           READ PAYFILE WITH LOCK INVALID DISPLAY "NOT ON FILE"
-           GO TO 1000-ACTION.
-           IF PAYFILE-STAT NOT = "00"
-           DISPLAY "STATUS = " PAYFILE-STAT
-           DISPLAY "RECORD BEING USED. NO DELETE CAN BE MADE"
-           GO TO 1000-ACTION.
+           CLOSE PAYFILE
+           OPEN I-O PAYFILE
+           READ PAYFILE WITH LOCK INVALID 
+             DISPLAY "STATUS = " PAYFILE-STAT
+             GO TO 1000-ACTION.
            MOVE PD-DATE-T TO TEST-DATE
            MOVE CORR TEST-DATE TO DISP-DATE
            MOVE PD-AMOUNT TO NEF-5
@@ -1636,8 +1635,9 @@
            DISPLAY "N = NO"
            GO TO 1300DEL1.
            IF ANS NOT = "Y" DISPLAY "NO DELETE"
-           UNLOCK PAYFILE RECORD
-           GO TO 1000-ACTION.
+             UNLOCK PAYFILE RECORD
+             CLOSE PAYFILE
+             GO TO 1000-ACTION.
            DELETE PAYFILE RECORD.
       *    ISQUIET PAYFILE WITH 1 AND 3
            DISPLAY "RECORD DELETED" GO TO 1000-ACTION.
@@ -2174,12 +2174,8 @@
            COMPUTE PD-AMOUNT = -1 * PD-AMOUNT.
 
            MOVE PAYFILE01 TO PAYBACK01
-           REWRITE PAYFILE01 INVALID KEY DISPLAY "NO UPDATE."
-           DISPLAY "THIS SHOULD NOT HAPPEN! CONTACT THE DATA CENTER."
-           DISPLAY "THIS PROGRAM IS TERMINATED!"
-           GO TO 9100-CLOSE-MASTER-FILE.
-           UNLOCK PAYFILE RECORD
-           DISPLAY "UPDATE MADE"  GO TO 1000-ACTION.
+           PERFORM RE-WRITE-PD THRU RE-WRITE-PD-EXIT
+           GO TO 1000-ACTION.
 
        CUR-1.
            MOVE G-GARNO TO CC-KEY8 MOVE "000" TO CC-KEY3.
@@ -3904,18 +3900,37 @@
        CC10-EXIT.
            EXIT.
 
+       RE-WRITE-PD.
+           CLOSE PAYFILE
+           OPEN I-O PAYFILE
+           
+           MOVE PAYBACK(1:11) TO PAYFILE-KEY
+           READ PAYFILE WITH LOCK INVALID
+               DISPLAY PAYFILE-STAT " " PAYFILE-KEY
+           END-READ
 
+           MOVE PAYBACK TO PAYFILE01
+           REWRITE PAYFILE01 INVALID
+                DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
+                DISPLAY PAYFILE-STAT
+                CLOSE PAYFILE
+                OPEN INPUT PAYFILE
+                GO TO RE-WRITE-PD-EXIT
+           END-REWRITE  
+           
+           CLOSE PAYFILE
+           OPEN INPUT PAYFILE.
+           DISPLAY "RECORD CHANGED".
+           MOVE 1 TO FLAG.
+       RE-WRITE-PD-EXIT.
+           EXIT.
 
        9100-CLOSE-MASTER-FILE.
-           CLOSE PAYFILE.
-           CLOSE CHARCUR.
-           CLOSE AUTHFILE.
-           CLOSE GARFILE
-           CLOSE PATFILE
-           CLOSE CHARFILE
-           CLOSE CMNTFILE
-           CLOSE INSFILE.
-           CLOSE DIAGFILE
-           CLOSE PROCFILE
-           CLOSE REFPHY.
+           CLOSE PAYFILE CHARCUR AUTHFILE
+           CLOSE FILEOUT GARFILE TAGDIAG
+           CLOSE EMAILAUTHFILE CMNTFILE
+           CLOSE PATFILE CHARFILE PAYCUR
+           CLOSE PROCFILE DIAGFILE GAPFILE
+           CLOSE INSFILE MPLRFILE
+           CLOSE REFPHY DOCPARM.
            STOP RUN.
