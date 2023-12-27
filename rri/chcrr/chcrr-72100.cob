@@ -93,7 +93,7 @@
            
            IF CD-DIAG = "Z0000  "
              MOVE SPACE TO FILEOUT01
-             STRING "OH NO, DX " CD-DIAG FOR " PROC " CD-PROC 
+             STRING "OH NO, DX " CD-DIAG " FOR PROC " CD-PROC 
                 " FOR " CD-KEY8 " DOS " CD-DATE-T 
                 DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01
