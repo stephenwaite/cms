@@ -90,7 +90,15 @@
            READ CHARFILE NEXT AT END
                GO TO P99
            END-READ
-            
+           
+           IF CD-DIAG = "Z0000  "
+             MOVE SPACE TO FILEOUT01
+             STRING "OH NO, DX " CD-DIAG FOR " PROC " CD-PROC 
+                " FOR " CD-KEY8 " DOS " CD-DATE-T 
+                DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+           END-IF
+
       *    also adding problematic cxrs that come over with laterality
            IF NOT (
              CD-PROC0 = "1235"
@@ -108,6 +116,7 @@
              MOVE SPACE TO CD-MOD2
              REWRITE CHARFILE01   
 
+             MOVE SPACE TO FILEOUT01
              STRING "REMOVED MOD ON " CD-PROC " FOR " CD-KEY8 " DOS "
                CD-DATE-T DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01
