@@ -129,7 +129,7 @@
 
       *     perform DF-SEARCH thru DF-SEARCH-EXIT
 
-      *     DISPLAY "hit THORACENTESIS "
+           DISPLAY "last bill date " G-LASTBILL
       *       CC-PROC(1:4)
       *     accept OMITTED                            
 
