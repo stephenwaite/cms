@@ -118,12 +118,12 @@
       *     IF CC-PROC NOT = CCPROCIN01 
       *       GO TO P1.   
 
-           IF CC-DATE-A < "20231103"
-             GO TO P1.
-           
       *     IF CC-COLLT NOT = "1" GO TO P1.        
            MOVE CC-PATID TO G-GARNO
            READ GARFILE INVALID GO TO P1.
+
+           IF G-LASTBILL < "20231126"
+             GO TO P1.
 
            IF G-DUNNING NOT = "4" GO TO P1.
 
