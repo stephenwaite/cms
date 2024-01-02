@@ -732,9 +732,9 @@
            SET BELL0 TO 7.
            MOVE ZERO TO DF-DATE DF-PAYCODE DF-DENIAL.
            MOVE 10 TO DF-AMOUNT.
-           OPEN I-O PAYFILE.
-           OPEN I-O CHARCUR.
-           OPEN I-O AUTHFILE.
+           OPEN INPUT PAYFILE.
+           OPEN INPUT CHARCUR.
+           OPEN INPUT AUTHFILE.
            OPEN OUTPUT FILEOUT
            OPEN INPUT GARFILE TAGDIAG.
            OPEN INPUT CMNTFILE.
@@ -772,20 +772,20 @@
            OPEN INPUT GARFILE PATFILE MPLRFILE INSFILE GAPFILE
            GO TO 1000-ACTION.
            IF DATAIN = "AC"
-           CLOSE CHARFILE
-           CLOSE CHARCUR
-           CLOSE PAYFILE
-           CLOSE FILEOUT
-           CLOSE PAYCUR
-           CLOSE PROCFILE
-           CLOSE TAGDIAG
-           CLOSE DIAGFILE
-           CALL "/home/sidw/ina002.b" USING CHAR1
-           MOVE 1 TO CHAR1
-           OPEN INPUT CHARFILE PAYCUR PROCFILE TAGDIAG DIAGFILE
-           OPEN OUTPUT FILEOUT
-           OPEN I-O CHARCUR PAYFILE
-           GO TO 1000-ACTION.
+               CLOSE CHARFILE
+               CLOSE CHARCUR
+               CLOSE PAYFILE
+               CLOSE FILEOUT
+               CLOSE PAYCUR
+               CLOSE PROCFILE
+               CLOSE TAGDIAG
+               CLOSE DIAGFILE
+               CALL "/home/sidw/ina002.b" USING CHAR1
+               MOVE 1 TO CHAR1
+               OPEN INPUT CHARFILE PAYCUR PROCFILE TAGDIAG DIAGFILE
+                 CHARCUR PAYFILE
+               OPEN OUTPUT FILEOUT
+               GO TO 1000-ACTION.
       *     IF DATAIN = "NONBAT" GO TO 999-A.
       *     IF DATAIN = "BAT" CALL "/home/sidw/tri007.b" 
       *     USING CURRENT-BATCH CBN
@@ -1097,19 +1097,38 @@
            COMPUTE PD-AMOUNT = -1 * PD-AMOUNT.
            MOVE PAYFILE01 TO PAYBACK01
            MOVE 0 TO XYZ.
-       DR1-1. ADD 1 TO XYZ MOVE XYZ TO PD-KEY3
+
+       DR1-1.
+           ADD 1 TO XYZ MOVE XYZ TO PD-KEY3
            IF XYZ = 999 DISPLAY "NO UPDATE"
            DISPLAY "THIS SHOULD NOT HAVE HAPPENED! CONTACT DATA CENTER."
            DISPLAY "THIS PROGRAM HAS BEEN TERMINATED"
            GO TO 9100-CLOSE-MASTER-FILE.
-           WRITE PAYFILE01 INVALID KEY GO TO DR1-1.
-           DISPLAY PAYFILE-KEY " " PD-NAME.
-           DISPLAY "RECORD IS ADDED".
+           READ PAYFILE 
+           INVALID
+               MOVE 0 TO FLAG
+               PERFORM WRITE-PAYFILE THRU WRITE-PAYFILE-EXIT
+
+               IF FLAG = 0
+                   DISPLAY "CAN NOT WRITE THE PAYMENT RECORD"
+                   DISPLAY "THIS INDICATES A PROBLEM"
+                   DISPLAY "CALL CMS IMMEDIATELY"
+                   ACCEPT ANS
+                   GO TO 1000-ACTION
+               END-IF
+
+           NOT INVALID
+               GO TO DR1-1
+           END-READ
+
            MOVE PAYFILE01 TO PAYBACK01.
            MOVE 0 TO FLAGX.
            MOVE PD-KEY3 TO XYZ.
            IF DI = 1 PERFORM WH1 THRU WH1-EXIT.
-       DR1-EXIT. EXIT.
+       
+       DR1-EXIT.
+           EXIT.
+
        WO1. IF DR = -1 GO TO M2.
            IF (PD-PAYCODE > "006" AND < "020") 
            AND (PD-PAYCODE NOT = "018")
@@ -1154,20 +1173,47 @@
            IF X-AMOUNT < PD-AMOUNT
            DISPLAY "THIS WILL CAUSE A CREDIT BALANCE" GO TO WO1.
            MOVE X-AMOUNT TO PD-AMOUNT.
+
        WO4.
            MOVE "14" TO PD-DENIAL
            ACCEPT ORDER-8 FROM TIME
            MOVE ORDER-6 TO PD-ORDER
            MOVE CURRENT-BATCH TO PD-DATE-E
            MOVE PAYFILE01 TO PAYBACK01.
-       WO13. ADD 1 TO XYZ.
+
+       WO13. 
+           ADD 1 TO XYZ.
            MOVE XYZ TO PD-KEY3.
-           READ PAYFILE INVALID GO TO WO14.
-           IF XYZ = 999 DISPLAY "TOO MANY RECORDS CALL CMS"
-           GO TO 1000-ACTION ELSE GO TO WO13.
-       WO14. MOVE PD-AMOUNT TO NEF-8 DISPLAY "REDUCTION " NEF-8.
-           MOVE PAYBACK01 TO PAYFILE01 MOVE XYZ TO PD-KEY3.
-           WRITE PAYFILE01 INVALID GO TO WO13.
+           READ PAYFILE INVALID 
+               GO TO WO14.
+
+           IF XYZ = 999 
+               DISPLAY "TOO MANY RECORDS CALL CMS"
+               ACCEPT ANS
+               GO TO 1000-ACTION 
+           ELSE 
+              GO TO WO13.
+       WO14.
+           MOVE PD-AMOUNT TO NEF-8
+           DISPLAY "REDUCTION " NEF-8.
+           MOVE PAYBACK01 TO PAYFILE01 
+           MOVE XYZ TO PD-KEY3.
+
+           READ PAYFILE INVALID
+               MOVE 0 TO FLAG
+               PERFORM WRITE-PAYFILE THRU WRITE-PAYFILE-EXIT
+           
+               IF FLAG = 0
+                   DISPLAY "CAN NOT WRITE THE PAYMENT RECORD"
+                   DISPLAY "THIS INDICATES A PROBLEM"
+                   DISPLAY "CALL CMS IMMEDIATELY"
+                   ACCEPT ANS
+                   GO TO 1000-ACTION
+               END-IF
+           END-READ
+
+           GO TO WO13.
+
        M2. DISPLAY "MORE PAYMENTS ?".
            MOVE PD-KEY3 TO XYZ.
            ACCEPT ANS.
@@ -1618,12 +1664,11 @@
        1200-SEARCH-EXIT.
            EXIT.
        1300DEL.
-           READ PAYFILE WITH LOCK INVALID DISPLAY "NOT ON FILE"
-           GO TO 1000-ACTION.
-           IF PAYFILE-STAT NOT = "00"
-           DISPLAY "STATUS = " PAYFILE-STAT
-           DISPLAY "RECORD BEING USED. NO DELETE CAN BE MADE"
-           GO TO 1000-ACTION.
+           CLOSE PAYFILE
+           OPEN I-O PAYFILE
+           READ PAYFILE WITH LOCK INVALID 
+             DISPLAY "STATUS = " PAYFILE-STAT
+             GO TO 1000-ACTION.
            MOVE PD-DATE-T TO TEST-DATE
            MOVE CORR TEST-DATE TO DISP-DATE
            MOVE PD-AMOUNT TO NEF-5
@@ -1636,11 +1681,15 @@
            DISPLAY "N = NO"
            GO TO 1300DEL1.
            IF ANS NOT = "Y" DISPLAY "NO DELETE"
-           UNLOCK PAYFILE RECORD
-           GO TO 1000-ACTION.
+             UNLOCK PAYFILE RECORD
+             CLOSE PAYFILE
+             GO TO 1000-ACTION.
            DELETE PAYFILE RECORD.
       *    ISQUIET PAYFILE WITH 1 AND 3
-           DISPLAY "RECORD DELETED" GO TO 1000-ACTION.
+           DISPLAY "RECORD DELETED" 
+           CLOSE PAYFILE
+           OPEN INPUT PAYFILE
+           GO TO 1000-ACTION.
        1400-CHANGE-IT.
            READ PAYFILE WITH LOCK INVALID KEY DISPLAY "NOT ON FILE"
              GO TO 1000-ACTION.
@@ -2174,12 +2223,8 @@
            COMPUTE PD-AMOUNT = -1 * PD-AMOUNT.
 
            MOVE PAYFILE01 TO PAYBACK01
-           REWRITE PAYFILE01 INVALID KEY DISPLAY "NO UPDATE."
-           DISPLAY "THIS SHOULD NOT HAPPEN! CONTACT THE DATA CENTER."
-           DISPLAY "THIS PROGRAM IS TERMINATED!"
-           GO TO 9100-CLOSE-MASTER-FILE.
-           UNLOCK PAYFILE RECORD
-           DISPLAY "UPDATE MADE"  GO TO 1000-ACTION.
+           PERFORM RE-WRITE-PD THRU RE-WRITE-PD-EXIT
+           GO TO 1000-ACTION.
 
        CUR-1.
            MOVE G-GARNO TO CC-KEY8 MOVE "000" TO CC-KEY3.
@@ -3156,16 +3201,10 @@
            DISPLAY "THIS MAY NOT BE VALID.  THIS IS ONLY A WARNING".
            PERFORM DX-1 THRU DX-1-EXIT.
 
-
-
            MOVE CHARCUR01 TO CURBACK.
-           REWRITE CHARCUR01 INVALID KEY DISPLAY "NO UPDATE."
-           DISPLAY "THIS SHOULD NOT HAPPEN! CONTACT THE DATA CENTER."
-           DISPLAY "THIS PROGRAM IS TERMINATED!"
-           GO TO 9100-CLOSE-MASTER-FILE.
-           UNLOCK CHARCUR RECORD
-      *    ISQUIET CHARCUR WITH 1 AND 1
-           DISPLAY "UPDATE MADE"  GO TO 1000-ACTION.
+           PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+           GO TO 1000-ACTION.
+
        CC-1200-FIND. START CHARCUR KEY > CHARCUR-KEY INVALID
            DISPLAY " END OF FILE" GO TO 1000-ACTION.
            MOVE "D" TO UPDOWN.
@@ -3305,7 +3344,11 @@
            MOVE G-GARNO TO CC-KEY8
            START CHARCUR KEY > CHARCUR-KEY INVALID DISPLAY "NO RECORDS"
            GO TO 1000-ACTION.
-       CC-2. READ CHARCUR NEXT WITH LOCK AT END GO TO 1000-ACTION.
+       CC-2.
+           READ CHARCUR NEXT 
+             AT END 
+               GO TO 1000-ACTION.
+
            IF CC-KEY8 NOT = G-GARNO GO TO 1000-ACTION.
            IF CC-COLLT = "1" GO TO CC-2.
            MOVE CC-AMOUNT TO NEF-8
@@ -3316,10 +3359,23 @@
            ACCEPT ANS
            IF ANS = "X" GO TO 1000-ACTION.
            IF ANS = "Y"
-           MOVE "1" TO CC-COLLT
-           REWRITE CHARCUR01
-           DISPLAY "COLLECTION" GO TO CC-2.
-           DISPLAY "BYPASSED" GO TO CC-2.
+               MOVE "1" TO CC-COLLT
+               MOVE 0 TO FLAG
+               MOVE CHARCUR01 TO CURBACK
+               PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+               MOVE CURBACK TO CHARCUR01
+               IF FLAG = 1
+                   DISPLAY "COLLECTION"                     
+                   GO TO CC-2
+               ELSE
+                   DISPLAY "CAN NOT MODIFY THIS RECORD"
+                   GO TO CC-2
+               END-IF
+           END-IF    
+
+           DISPLAY "BYPASSED"
+           GO TO CC-2.
+
        RA-1.
            READ GARFILE INVALID DISPLAY "INVALID" GO TO 1000-ACTION.
            DISPLAY G-GARNO " " G-GARNAME
@@ -3346,9 +3402,16 @@
            MOVE G-GARNO TO CC-KEY8
            START CHARCUR KEY > CHARCUR-KEY INVALID DISPLAY "NO RECORDS"
            GO TO 1000-ACTION.
-       RA-2. READ CHARCUR NEXT WITH LOCK AT END GO TO 1000-ACTION.
+
+       RA-2. 
+           READ CHARCUR NEXT 
+             AT END 
+               GO TO 1000-ACTION.
+
            IF CC-KEY8 NOT = G-GARNO GO TO 1000-ACTION.
+
            IF CC-ASSIGN = "A" OR CC-DATE-A = "00000000" GO TO RA-2.
+
            MOVE CC-AMOUNT TO NEF-8
            MOVE CC-DATE-T TO TEST-DATE
            MOVE CORR TEST-DATE TO DISP-DATE
@@ -3359,10 +3422,14 @@
            DISPLAY "RE-AGE TO CURRENT? Y=YES  <CR>=NO  X=QUIT"
            ACCEPT ANS
            IF ANS = "X" GO TO 1000-ACTION.
+           
            IF ANS = "Y"
-           MOVE "00000000" TO CC-DATE-A
-           REWRITE CHARCUR01
-           DISPLAY "RE-AGED" GO TO RA-2.
+               MOVE "00000000" TO CC-DATE-A
+               MOVE 0 TO FLAG
+               MOVE CHARCUR01 TO CURBACK
+               PERFORM RE-WRITE-CC THRU RE-WRITE-CC-EXIT
+               DISPLAY "RE-AGED" GO TO RA-2.
+
            DISPLAY "BYPASSED" GO TO RA-2.
        
        LI-1.
@@ -3904,18 +3971,79 @@
        CC10-EXIT.
            EXIT.
 
+       RE-WRITE-PD.
+           CLOSE PAYFILE
+           OPEN I-O PAYFILE
+           
+           MOVE PAYBACK01(1:11) TO PAYFILE-KEY
+           READ PAYFILE WITH LOCK INVALID
+               DISPLAY PAYFILE-STAT " " PAYFILE-KEY
+           END-READ
 
+           MOVE PAYBACK01 TO PAYFILE01
+           REWRITE PAYFILE01 INVALID
+                DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
+                DISPLAY PAYFILE-STAT
+                CLOSE PAYFILE
+                OPEN INPUT PAYFILE
+                GO TO RE-WRITE-PD-EXIT
+           END-REWRITE  
+           
+           CLOSE PAYFILE
+           OPEN INPUT PAYFILE.
+           DISPLAY "RECORD CHANGED".
+           MOVE 1 TO FLAG.
+       RE-WRITE-PD-EXIT.
+           EXIT.
+
+       WRITE-PAYFILE.
+           CLOSE PAYFILE
+           OPEN I-O PAYFILE
+           MOVE PAYBACK01 TO PAYFILE01
+           MOVE XYZ TO PD-KEY3
+
+           WRITE PAYFILE01 INVALID
+                DISPLAY "RECORD NOT ADDED AT THIS TIME"
+                DISPLAY PAYFILE-STAT
+                CLOSE PAYFILE
+                OPEN INPUT PAYFILE
+                GO TO WRITE-PAYFILE-EXIT
+           END-WRITE
+           
+           MOVE 1 TO FLAG
+           CLOSE PAYFILE
+           OPEN INPUT PAYFILE
+           DISPLAY PAYFILE-KEY
+           DISPLAY "RECORD ADDED".
+       WRITE-PAYFILE-EXIT.
+           EXIT.
+
+       RE-WRITE-CC.
+           CLOSE CHARCUR
+           OPEN I-O CHARCUR
+           MOVE CURBACK TO CHARCUR01
+           REWRITE CHARCUR01 INVALID
+                DISPLAY "RECORD NOT MODIFIED AT THIS TIME"
+                DISPLAY CHARCUR-STAT
+                CLOSE CHARCUR
+                OPEN INPUT CHARCUR
+                GO TO RE-WRITE-CC-EXIT
+           END-REWRITE
+
+           CLOSE CHARCUR
+           OPEN INPUT CHARCUR
+           DISPLAY "RECORD CHANGED".
+           MOVE 1 TO FLAG.
+           
+       RE-WRITE-CC-EXIT.
+           EXIT.    
 
        9100-CLOSE-MASTER-FILE.
-           CLOSE PAYFILE.
-           CLOSE CHARCUR.
-           CLOSE AUTHFILE.
-           CLOSE GARFILE
-           CLOSE PATFILE
-           CLOSE CHARFILE
-           CLOSE CMNTFILE
-           CLOSE INSFILE.
-           CLOSE DIAGFILE
-           CLOSE PROCFILE
-           CLOSE REFPHY.
+           CLOSE PAYFILE CHARCUR
+           CLOSE FILEOUT GARFILE TAGDIAG
+           CLOSE AUTHFILE CMNTFILE
+           CLOSE PATFILE CHARFILE PAYCUR
+           CLOSE PROCFILE DIAGFILE GAPFILE
+           CLOSE INSFILE MPLRFILE
+           CLOSE REFPHY DOCPARM.
            STOP RUN.

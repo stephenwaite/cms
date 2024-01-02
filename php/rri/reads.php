@@ -6,18 +6,20 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 
+$cms_user = getenv('USER');
+
 // first remove tmp courier cached file in case some other script put it there
 $context = $argv[1] ?? null;
 if (!empty($context) && $context == 'pdf') {
     // create temp dir for cached courier font
-    putenv('TMPDIR=/tmp/reads');
-    if (!is_dir('/tmp/reads')) {
-        mkdir('/tmp/reads');
+    $tmp_dir = '/tmp/reads' . $cms_user;
+    putenv('TMPDIR=' . $tmp_dir);
+    if (!is_dir($tmp_dir)) {
+        mkdir($tmp_dir);
     }
     $pdf = new Cezpdf();
     $pdf->selectFont('Courier');
 }
-$cms_user = getenv('USER');
 $file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . $cms_user);
 
 $mrn = ltrim(substr($file, 0, 8), '0');
