@@ -122,14 +122,16 @@
            MOVE CC-PATID TO G-GARNO
            READ GARFILE INVALID GO TO P1.
 
-           IF G-LASTBILL < "20231126"
+           IF CC-DATE-A NOT = "20231227"
              GO TO P1.
 
-           IF G-DUNNING NOT = "4" GO TO P1.
+           IF CC-PAYCODE NOT = 018 GO TO P1.
+
+           IF CC-DATE-T < "20230831" GO TO P1.
 
       *     perform DF-SEARCH thru DF-SEARCH-EXIT
 
-           DISPLAY "last bill date " G-LASTBILL.
+      *     DISPLAY "last bill date " G-LASTBILL.
       *       CC-PROC(1:4)
       *     accept OMITTED                            
 
