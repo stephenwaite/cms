@@ -50,12 +50,12 @@ while (!feof($file)) {
     $fees[$cpt]['ratio'] = round($fees[$cpt]['fee'] / $cms_cpt_array[$cpt]['allow'], 2);
 
 
-//    if (empty($fees[$cpt]['fee'])) {
-//      $fees[$cpt]['fee'] = $fee;
-//      //echo $cpt . " " . $fee . "\n";
-//    } elseif ($fees[$cpt]['fee'] != $fee) {
-//      echo "uh oh, fees not equal for $cpt \n";
-//    }
+    /* if (empty($fees[$cpt]['fee'])) {
+      $fees[$cpt]['fee'] = $fee;
+      //echo $cpt . " " . $fee . "\n";
+    } elseif ($fees[$cpt]['fee'] != $fee) {
+      echo "uh oh, fees not equal for $cpt \n";
+    } */
 }
 
 //var_dump($fees);
