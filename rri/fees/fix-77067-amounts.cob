@@ -61,14 +61,12 @@
            
            IF CD-PROC1 NOT = "7706726" GO TO P1.
 
-           STRING "SINCE " CD-DATE-T(1:4) " FOR ACCT " CD-KEY8 
-               " CHANGING FEE TO " PROC-AMOUNT
-               " FOR PROCEDURE " CD-PROC
+           STRING "FOR ACCT " CD-KEY8 " FEE IS " CD-AMOUNT 
+               " CHANGING FEE TO " PROC-AMOUNT " FOR " CD-PROC
                DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01
-      *         MOVE PROC-AMOUNT TO CD-AMOUNT
-      *         REWRITE CHARFILE01
-      *     END-IF
+           WRITE FILEOUT01
+           MOVE PROC-AMOUNT TO CD-AMOUNT
+      *     REWRITE CHARFILE01
 
            GO TO P1.
        P2.
