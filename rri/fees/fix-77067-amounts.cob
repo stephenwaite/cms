@@ -68,7 +68,7 @@
                WRITE FILEOUT01
       *         MOVE PROC-AMOUNT TO CD-AMOUNT
       *         REWRITE CHARFILE01
-           END-IF
+      *     END-IF
 
            GO TO P1.
        P2.
