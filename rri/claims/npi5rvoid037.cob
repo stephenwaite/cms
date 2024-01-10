@@ -506,7 +506,7 @@
            02 SUBPER-S0 PIC X VALUE "*".
            02 SUBPER-1 PIC XX VALUE "IC". 
            02 SUBPER-S1 PIC X VALUE "*".
-           02 SUBPER-2 PIC X(9) VALUE "SID WAITE".
+           02 SUBPER-2 PIC X(9) VALUE "S WAITE".
            02 SUBPER-S2 PIC X VALUE "*".
            02 SUBPER-3 PIC XX VALUE "TE".
            02 SUBPER-S3 PIC X VALUE "*".
@@ -518,7 +518,7 @@
            02 SUBPER-S6 PIC X VALUE "*".
            02 SUBPER-7 PIC XX VALUE "EM".
            02 SUBPER-S7 PIC X VALUE "*".
-           02 SUBPER-8  PIC X(17) VALUE "cmswest@sover.net".
+           02 SUBPER-8  PIC X(17) VALUE "stephen.waite@cmsvt.com".
            02 SUBPER-S9 PIC X VALUE "*".
            02 SUBPER-END PIC X VALUE "~".
        01  INSNM01.
@@ -1081,6 +1081,8 @@
 
        01  AUTH-FLAG PIC 9.
        01  ANS PIC X.
+       01  CLM-DOCR PIC XXX.
+       01  CLM-DOCP pic 99.
 
        PROCEDURE DIVISION.
        P0. 
@@ -1169,20 +1171,28 @@
            IF  FI-PLACE = HOLD-PLACE
             AND FI-KEY8 = HOLD-KEY8
             AND FI-PATID = HOLD-PATID
-            AND FI-DOCP = HOLD-DOCP
-            AND FI-DOCR = HOLD-DOCR
+      *      AND FI-DOCP = HOLD-DOCP
+      *      AND FI-DOCR = HOLD-DOCR
             AND FI-DAT1 = HOLD-DAT1
             AND FI-DATE-T = HOLD-DATE-T
             AND FI-ACC-TYPE = HOLD-ACC-TYPE
             AND CNTR < 50
             PERFORM DIAG-1 THRU DIAG-EXIT 
-             IF DIAG-CNTR > 12
-               GO TO P2
-             END-IF
-            IF FI-SERVICE = "4"
-               MOVE 1 TO CLIA-FLAG
+            IF DIAG-CNTR > 12
+                GO TO P2
             END-IF
+
+            IF FI-SERVICE = "4"
+                MOVE 1 TO CLIA-FLAG
+            END-IF
+            
             ADD 1 TO CNTR
+            
+            IF CNTR = 1
+               MOVE HOLD-DOCR TO CLM-DOCR
+               MOVE HOLD-DOCP TO CLM-DOCP
+            end-if
+
             MOVE FILEIN01 TO FILETAB(CNTR)
             ADD FI-AMOUNT TO TOT-AMOUNT
             GO TO P1
@@ -1839,6 +1849,18 @@
            WRITE SEGFILE01 FROM DTP01.
       *     PERFORM 2410 THRU 2410-EXIT.
       *     PERFORM 2420A.
+
+      *     display fi-docp " fi-docp " fi-docr " fi-docr"
+      *     display clm-docp " clm-docp " clm-docr " clm-docr"
+
+           if FI-DOCP NOT = CLM-DOCP
+             PERFORM 2420A THRU 2420A-EXIT
+           end-if
+
+           IF FI-DOCR NOT = CLM-DOCR
+             PERFORM 2420F THRU 2420F-EXIT
+           end-if
+
            MOVE FILEIN-KEY TO CHARCUR-KEY
            READ CHARCUR WITH LOCK INVALID GO TO 2400SRV-EXIT.
            IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
@@ -1888,6 +1910,33 @@
            MOVE DOC-NUM(FI-DOCP) TO REF-ID
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM REF01.
+       2420A-EXIT.
+           EXIT.    
+
+       2420F.
+           IF FI-DOCR = "000" 
+             GO TO REF-2.
+
+           MOVE FI-DOCR TO REF-KEY 
+
+           READ REFPHY 
+             INVALID 
+               GO TO REF-2.
+
+           MOVE "DN " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING REF-NAME DELIMITED BY ", " OR " ,"
+             OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
+
+           MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
+           MOVE "XX" TO NM1-EINSS
+           MOVE REF-NPI TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420F-EXIT.
+           EXIT.        
 
        2310A.
            IF HOLD-DOCR = "000" GO TO REF-2.
