@@ -1025,6 +1025,16 @@
               WRITE SEGFILE01 FROM REF01.
       *     END-IF.   
 
+      *    claim number
+           MOVE SPACE TO REF-CODE
+           MOVE "F8" TO REF-CODE
+           MOVE SPACE TO REF-ID
+
+           DISPLAY "ENTER CLAIM #"
+           ACCEPT REF-ID  
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM REF01.
+
        2300CLM-EXIT.
            EXIT.
 
