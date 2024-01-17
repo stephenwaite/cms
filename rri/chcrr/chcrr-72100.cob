@@ -101,7 +101,8 @@
 
       *    also adding problematic cxrs that come over with laterality
            IF NOT (
-             CD-PROC0 = "1235"
+             CD-PROC0 = "1207"
+             OR "1235"
              OR "1302"
              OR "1316"
              OR "1317"
