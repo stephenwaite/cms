@@ -1011,9 +1011,6 @@
            MOVE HOLD-KEY8 TO AUTH-KEY8
            MOVE HOLD-CLAIM TO AUTH-KEY6
            READ AUTHFILE 
-               INVALID
-                   MOVE 1 TO AUTH-FLAG
-                   GO TO 2300CLM-EXIT
                NOT INVALID
                    MOVE SPACE TO REF-CODE
                    MOVE "G1" TO REF-CODE
