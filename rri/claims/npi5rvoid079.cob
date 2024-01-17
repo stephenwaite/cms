@@ -1003,24 +1003,27 @@
            IF HOLD-ACC-TYPE NOT = SPACE
              MOVE SPACE TO SEGFILE01
              MOVE HOLD-FILEIN-KEY TO PWK-7
-             WRITE SEGFILE01 FROM PWK01.
+             WRITE SEGFILE01 FROM PWK01
+           END-IF  
              
       *    add auth
            MOVE 0 TO AUTH-FLAG
            MOVE HOLD-KEY8 TO AUTH-KEY8
            MOVE HOLD-CLAIM TO AUTH-KEY6
-           READ AUTHFILE INVALID
-               MOVE 1 TO AUTH-FLAG
-               GO TO 2300CLM-EXIT
+           READ AUTHFILE 
+               INVALID
+                   MOVE 1 TO AUTH-FLAG
+                   GO TO 2300CLM-EXIT
+               NOT INVALID
+                   MOVE SPACE TO REF-CODE
+                   MOVE "G1" TO REF-CODE
+                   MOVE SPACE TO REF-ID
+                   IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
+                       MOVE AUTH-NUM TO REF-ID
+                   END-IF  
+                   MOVE SPACE TO SEGFILE01
+                   WRITE SEGFILE01 FROM REF01
            END-READ    
-           MOVE SPACE TO REF-CODE
-           MOVE "G1" TO REF-CODE
-           MOVE SPACE TO REF-ID
-           IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
-               MOVE AUTH-NUM TO REF-ID
-           END-IF  
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM REF01.
 
       *    claim number for corrected/voided claims
            MOVE SPACE TO REF-CODE
