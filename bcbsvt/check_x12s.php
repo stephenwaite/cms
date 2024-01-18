@@ -19,10 +19,10 @@ if (!empty($rawlist)) {
     foreach ($rawlist as $file) {
         //var_dump($file);
         if (!empty($file)) {
-            $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s', $file->mtime));
-            //$dt_nyc = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
+            $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s a', $file->mtime));
+            $date = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
             echo "file: " . $file->filename . " uploaded to 02 on " .
-                $dt_utc->format('Y-m-d H:i:s T') . "\n";
+                $date->format('Y-m-d h:i:s a') . "\n";
         }
     }
 } else {
