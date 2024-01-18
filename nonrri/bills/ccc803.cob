@@ -94,17 +94,17 @@
            END-IF
 
            IF CC-DATEYYYYMM-A = "202309"
-               MOVE "20231031" TO CC-DATE-A
+               MOVE "20231009" TO CC-DATE-A
                GO TO A2
            END-IF
 
            IF CC-DATEYYYYMM-A = "202310"
-               MOVE "20231130" TO CC-DATE-A
+               MOVE "20231109" TO CC-DATE-A
                GO TO A2
            END-IF
 
            IF CC-DATEYYYYMM-A = "202311"
-               MOVE "20231231" TO CC-DATE-A
+               MOVE "20231209" TO CC-DATE-A
                GO TO A2
            END-IF
 

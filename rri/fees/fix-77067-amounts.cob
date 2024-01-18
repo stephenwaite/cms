@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. change-rpgprocfile-fees.
+       PROGRAM-ID. fix-charfile.
        AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -17,8 +17,8 @@
            SELECT FILEOUT ASSIGN TO    "S35" ORGANIZATION IS 
                LINE SEQUENTIAL.
 
-           SELECT RPGPROCFILE ASSIGN TO   "S40" ORGANIZATION IS INDEXED
-               ACCESS MODE IS DYNAMIC RECORD KEY IS rpgproc-key
+           SELECT PROCFILE ASSIGN TO   "S40" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS PROC-KEY
                LOCK MODE MANUAL.
 
        DATA DIVISION.
@@ -30,8 +30,8 @@
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).   
 
-       FD  RPGPROCFILE.
-           COPY rpgprocfile.CPY IN "C:\Users\sid\cms\copylib\rri". 
+       FD  PROCFILE.
+           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri". 
 
        WORKING-STORAGE SECTION.
 
@@ -43,7 +43,7 @@
 
        0005-START.
            OPEN I-O CHARFILE
-           OPEN INPUT  rpgprocfile.
+           OPEN INPUT PROCFILE.
            OPEN OUTPUT FILEOUT.
 
        P1.
@@ -52,25 +52,23 @@
                GO TO P2
            END-READ
 
-           MOVE CD-PROC TO rpgproc-key
-           READ rpgprocfile
+           MOVE CD-PROC TO PROC-KEY
+           READ PROCFILE
              INVALID
-               DISPLAY "NO RPG PROC ON FILE"
+               DISPLAY "NO PROC ON FILE"
            END-READ
            
            
-           IF CD-DATE-T(1:4) NOT = 2023
-               AND CD-AMOUNT NOT = RPGPROC-AMOUNT
-               STRING "SINCE " CD-DATE-T(1:4) " FOR ACCT " CD-KEY8 
-                      " CHANGING FEE TO " RPGPROC-AMOUNT
-                      " FOR PROCEDURE " CD-PROC
-                 DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01
-               MOVE RPGPROC-AMOUNT TO CD-AMOUNT
-      *         REWRITE CHARFILE01
-           END-IF
+           IF CD-PROC1 NOT = "7706726" GO TO P1.
+
+           STRING "FOR ACCT " CD-KEY8 " FEE IS " CD-AMOUNT 
+               " CHANGING FEE TO " PROC-AMOUNT " FOR " CD-PROC
+               DELIMITED BY SIZE INTO FILEOUT01
+           WRITE FILEOUT01
+           MOVE PROC-AMOUNT TO CD-AMOUNT
+           REWRITE CHARFILE01
 
            GO TO P1.
        P2.
-           CLOSE CHARFILE FILEOUT.
+           CLOSE CHARFILE FILEOUT PROCFILE.
            STOP RUN.

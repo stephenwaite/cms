@@ -1,0 +1,41 @@
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PAY001.
+       AUTHOR. SID WAITE.
+       DATE-COMPILED. TODAY.
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT PAYMASTER ASSIGN TO "S30" ORGANIZATION IS INDEXED
+           ACCESS MODE IS DYNAMIC RECORD KEY IS ACCT
+           LOCK MODE IS MANUAL.
+       DATA DIVISION.
+       FILE SECTION.
+       FD  PAYMASTER.
+       01  PAYMASTER01.
+           02 ACCT.
+             03 ACCT1 PIC XX.
+             03 ACCT2 PIC XXX.
+           02 NAME PIC X(24).
+           02 DATEX PIC X(6).
+           02 GROSS PIC 9(5)V99.
+           02 FED PIC 9(5)V99.
+           02 FICA PIC 9(5)V99.
+           02 STATE PIC 9(5)V99.
+           02 NET PIC 9(5)V99.
+           02 FILLER PIC X(15) VALUE SPACE.
+       WORKING-STORAGE SECTION.
+       01 ANS PIC X.
+       PROCEDURE DIVISION.
+       0005-START.
+           OPEN I-O PAYMASTER. 
+       P1.
+           READ PAYMASTER NEXT with lock AT END go to p99.
+           IF ACCT1 = "01" AND DATEX = "121231"
+           DISPLAY PAYMASTER01
+           ACCEPT ANS
+           MOVE "121230" TO DATEX
+           REWRITE PAYMASTER01.
+           GO TO P1.
+       P99.
+           CLOSE PAYMASTER.
+           STOP RUN.

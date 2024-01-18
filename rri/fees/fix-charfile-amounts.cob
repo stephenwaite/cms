@@ -59,7 +59,7 @@
            END-READ
            
            
-           IF CD-DATE-T(1:4) NOT = 2022
+           IF CD-DATE-T(1:4) NOT = 2023
                AND CD-AMOUNT NOT = PROC-AMOUNT
                STRING "SINCE " CD-DATE-T(1:4) " FOR ACCT " CD-KEY8 
                       " CHANGING FEE TO " PROC-AMOUNT
