@@ -14,7 +14,7 @@ $path = '/Distribution/cms-reports/Prod/ErrorReports';
 //print_r($sftp->rawlist($path, true));
 
 foreach (($sftp->rawlist($path, true)) as $file) {
-    //var_dump($file);
+    var_dump($file);
     $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s', $file->mtime));
     $dt_nyc = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
     if (!file_exists($file->filename)) {
