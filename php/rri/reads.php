@@ -20,8 +20,8 @@ if (!empty($context) && $context == 'pdf') {
     $pdf = new Cezpdf();
     $pdf->selectFont('Courier');
 }
-$file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . $cms_user);
-
+$filename = getenv('HOME') . "/W2" . getenv('tid') . $cms_user;
+$file = file_get_contents($filename);
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
 $charcur_key = substr($file, 15, 11);
@@ -84,6 +84,7 @@ if (!empty($jsonObj['entry'])) {
     $count = count($jsonObj['entry']);
     $cntr = 0;
     foreach ($jsonObj['entry'] as $entry) {
+        //var_dump($entry);
         $cntr++;
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
         $coding_display_length = strlen($coding_display);
@@ -100,14 +101,13 @@ if (!empty($jsonObj['entry'])) {
         $note .= $coding_display . "\n";
         $date_of_order = $entry['resource']['effectiveDateTime'] ?? '';
         $date_of_order_utc = new DateTimeImmutable($date_of_order);
-        $date_of_order_nyc = $date_of_order_utc->setTimezone(new DateTimeZone('America/New_York'));
-        $date_of_order_nyc_display = $date_of_order_nyc->format('m-d-Y');
-        $date_of_order_nyc_compare = $date_of_order_nyc->format('Ymd');
-        if ($date_of_order_nyc_compare != $billing_tape_date_of_service) {
+        $date_of_order_utc_display = $date_of_order_utc->format('m-d-Y');
+        $date_of_order_utc_compare = $date_of_order_utc->format('Ymd');
+        if ($date_of_order_utc_compare != $billing_tape_date_of_service) {
             continue;
         }
 
-        $pt_dos_line = 'DOS: ' . $date_of_order_nyc_display;
+        $pt_dos_line = 'DOS: ' . $date_of_order_utc_display;
         $note .= $pt_dos_line . "\n";
         $note .= str_pad('', $banner_length, '#') . "\n\n";
         $note .= $entry['resource']['note'][0]['text'] . "\n";
