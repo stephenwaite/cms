@@ -8,7 +8,10 @@ require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 $cms_user = getenv('MOVEIT_USERNAME');
 $cms_pass = getenv('MOVEIT_PASSWORD');
 $sftp = new SFTP('moveit.bcbsvt.com');
-$sftp->login($cms_user, $cms_pass);
+if (!$sftp->login($cms_user, $cms_pass)) {
+    echo "login failed" . "\n";
+    exit;
+};
 
 $path = '/Home/cms';
 //print_r($sftp->rawlist($path, true));
