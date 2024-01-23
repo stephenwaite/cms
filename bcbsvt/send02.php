@@ -19,9 +19,7 @@ try {
     $sftp = new SFTP("moveit.bcbsvt.com");
     $sftp->login($cms_user, $cms_pass);
     $remote_file_path = "/Home/cms/" . $argv[2];
-    echo $remote_file_path . "\n";
     $file_to_upload = $argv[1];
-    echo $file_to_upload . "\n";
     $sftp->put($remote_file_path, $file_to_upload, SFTP::SOURCE_LOCAL_FILE);
     echo "file uploaded to moveit via sftp \n";
 } catch (Exception $e) {
