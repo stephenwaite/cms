@@ -1190,6 +1190,7 @@
                 OR (CAS-1 = "OA" AND CAS-2 = "18   ")                
                 OR (CAS-1 = "PI" AND CAS-2 = "97   ")
                 OR (CAS-1 = "PI" AND CAS-2 = "204  ")
+                OR (CAS-1 = "PI" AND CAS-2 = "252  ")
                 OR (CAS-1 = "PR" AND CAS-2 = "31   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "32   ")
                 OR (CAS-1 = "PR" AND CAS-2 = "95   ")
