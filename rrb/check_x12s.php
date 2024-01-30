@@ -4,7 +4,7 @@ use phpseclib3\Net\SFTP;
 require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 
 
-$cms_user = getenv('RRBERN_USERNAME');
+$cms_user = getenv('RRB_USERNAME');
 $cms_pass = getenv('RRB_PASSWORD');
 $sftp = new SFTP('edi.palmetto.ahdsxhub.com', '22');
 $sftp->login($cms_user, $cms_pass);
