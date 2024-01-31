@@ -1,59 +1,26 @@
 <?php
 
-class SFTPConnection
-{
-    private $connection;
-    private $sftp;
+use phpseclib3\Net\SFTP;
 
-    public function __construct($host, $port = 22)
-    {
-        $this->connection = ssh2_connect($host, $port);
-        if (! $this->connection) {
-            throw new Exception("Could not connect to $host on port $port.");
-        }
-    }
-
-    public function login($username, $password)
-    {
-        if (! ssh2_auth_password($this->connection, $username, $password)) {
-            throw new Exception("Could not authenticate with username $username " .
-                                "and password $password.");
-        }
-
-        $this->sftp = ssh2_sftp($this->connection);
-        if (! $this->sftp) {
-            throw new Exception("Could not initialize SFTP subsystem.");
-        }
-    }
-
-    public function uploadFile($local_file, $remote_file)
-    {
-        $sftp = $this->sftp;
-        $stream = fopen("ssh2.sftp://$sftp$remote_file", 'w');
-
-        if (! $stream) {
-            throw new Exception("Could not open file: $remote_file");
-        }
-
-        $data_to_send = file_get_contents($local_file);
-        if ($data_to_send === false) {
-            throw new Exception("Could not open local file: $local_file.");
-        }
-
-        if (fwrite($stream, $data_to_send) === false) {
-            throw new Exception("Could not send data from file: $local_file.");
-        }
-
-        fclose($stream);
-    }
-}
+require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 
 try {
     $cms_user = getenv('MOVEIT_USERNAME');
     $cms_pass = getenv('MOVEIT_PASSWORD');
-    $sftp = new SFTPConnection("moveit.bcbsvt.com", 22);
+    $sftp = new SFTP('moveit.bcbsvt.com');
+
+    if (!$sftp->login($cms_user, $cms_pass)) {
+        echo "login failed" . "\n";
+        exit;
+    };
+    
+    $cms_user = getenv('MOVEIT_USERNAME');
+    $cms_pass = getenv('MOVEIT_PASSWORD');
+    $sftp = new SFTP("moveit.bcbsvt.com");
     $sftp->login($cms_user, $cms_pass);
-    $sftp->uploadFile($argv[1], "/Home/cms/" . $argv[2]);
+    $remote_file_path = "/Home/cms/" . $argv[2];
+    $file_to_upload = $argv[1];
+    $sftp->put($remote_file_path, $file_to_upload, SFTP::SOURCE_LOCAL_FILE);
     echo "file uploaded to moveit via sftp \n";
 } catch (Exception $e) {
     echo $e->getMessage() . "\n";
