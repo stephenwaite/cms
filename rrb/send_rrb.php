@@ -12,7 +12,8 @@ try {
         exit;
     };
     $remote_dir = "/outbox/EZComm/BC/1.0/Notify/";
-    $sftp->put($remote_dir . $argv[1], $argv[1]);
+    $file_to_upload = $argv[1];
+    $sftp->put($remote_dir . $file_to_upload, $file_to_upload, SFTP::SOURCE_LOCAL_FILE);
     echo "file uploaded to rrb via sftp \n";
 } catch (Exception $e) {
     echo $e->getMessage() . "\n";
