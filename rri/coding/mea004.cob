@@ -186,19 +186,6 @@
                PERFORM A1 THRU A1-EXIT
                GO TO P0
            END-IF
-	
-           IF CD-PAYCODE = "009"
-               MOVE SPACE TO FILEOUT01
-               STRING "146 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 " 3341F"
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01 
-               MOVE 146 TO FLAG
-               MOVE "003" TO CD-PAYCODE
-               REWRITE CHARFILE01
-               UNLOCK CHARFILE RECORD
-               PERFORM A1 THRU A1-EXIT
-               GO TO P0
-           END-IF
 
            IF CD-PAYCODE = "010"
                MOVE SPACE TO FILEOUT01
@@ -206,19 +193,6 @@
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                MOVE 147 TO FLAG
-               MOVE "003" TO CD-PAYCODE
-               REWRITE CHARFILE01
-               UNLOCK CHARFILE RECORD
-               PERFORM A1 THRU A1-EXIT
-               GO TO P0
-           END-IF
-
-           IF CD-PAYCODE = "011"
-               MOVE SPACE TO FILEOUT01
-               STRING "195 " CD-PROC1 " " CD-DATE-T " " CD-NAME " 3100F"
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01 
-               MOVE 195 TO FLAG
                MOVE "003" TO CD-PAYCODE
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
@@ -267,9 +241,6 @@
 
            IF CD-PAYCODE = "015"
                MOVE SPACE TO FILEOUT01
-               STRING "195 " CD-PROC1 " " CD-DATE-T " " CD-NAME
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01
                STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
@@ -285,19 +256,6 @@
                GO TO P0
            END-IF
 
-           IF CD-PAYCODE = "016"
-               MOVE SPACE TO FILEOUT01
-               STRING "076 " CD-PROC1 " " CD-DATE-T " " CD-NAME
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01 
-               MOVE 076 TO FLAG
-               MOVE "003" TO CD-PAYCODE
-               REWRITE CHARFILE01
-               UNLOCK CHARFILE RECORD
-               PERFORM A1 THRU A1-EXIT
-               GO TO P0
-           END-IF
-
            GO TO P1.
 
       *  create quality code charges     
@@ -305,57 +263,11 @@
       *  set key counter to 0, increment in B1 
            MOVE 0 TO XYZ
 
-           IF FLAG = 076
-               MOVE "00006030F  " TO  X-PROC
-               PERFORM B1 THRU B2
-               STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
-               GO TO A1-EXIT
-           END-IF
-
            IF FLAG = 145
                MOVE "0000G9500  " TO  X-PROC
                PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
-           END-IF
-
-           IF FLAG = 146
-               MOVE "00003341F  " TO  X-PROC
-
-      *    paragraph A1-1 adds HCPCS for measure 225, mammo reminder         
-               IF CD-QP1 = "1 "
-                   GO TO A1-1
-               END-IF
-
-               IF CD-QP1 = "0 "
-                   MOVE "00003340F  " TO  X-PROC
-                   GO TO A1-1
-               END-IF
-
-               IF CD-QP1 = "2 "
-                   MOVE "00003342F  " TO  X-PROC
-                   GO TO A1-1
-               END-IF
-
-               IF CD-QP1 = "3 "
-                   MOVE "00003343F  " TO  X-PROC
-                   GO TO A1-1
-               END-IF
-
-               IF CD-QP1 = "4 "
-                   MOVE "00003344F  " TO  X-PROC
-                   GO TO A1-1
-               END-IF
-
-               IF CD-QP1 = "5 "
-                   MOVE "00003345F  " TO  X-PROC
-                   GO TO A1-1
-               END-IF
-
-               IF CD-QP1 = "6 "
-                   MOVE "00003350F  " TO  X-PROC
-                   GO TO A1-1
-               END-IF
            END-IF
 
            IF FLAG = 147
@@ -366,24 +278,6 @@
                GO TO A1-EXIT
            END-IF
 
-           IF FLAG = 195
-               MOVE "00003100F  " TO  X-PROC
-               MOVE CD-QP1 TO X-PROC(10:2)
-               PERFORM B1 THRU B2
-               STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
-
-      *    handle multi-qpp-cpts by adding measure 145
-               IF (PROC-HOLD = "36222" OR "36223" OR "36224"
-                   OR "37215" OR "37216" OR "37217" OR "37218")
-                   MOVE "0000G9500  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000"
-                       DELIMITED BY SIZE INTO CHARFILE-KEY
-               END-IF
-
-               GO TO A1-EXIT
-           END-IF
-	
            IF FLAG = 405
                IF CD-QP1 = "1 "
                    MOVE "0000G9548  " TO  X-PROC
@@ -498,7 +392,8 @@
            END-IF
 
       *    measure 195 retired in 2022
-      *    flag 999 is cpt 70498 and meas 195, 406 and 436
+      *    measure 076 retired in 2023
+      *    flag 999 is cpt 70498 and meas 406 and 436
       *    so need to add just copy it from above
            IF FLAG = 999
       *    cut and paste in meas 195 logic from above     
@@ -540,16 +435,6 @@
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
            END-IF.
-
-       A1-1.
-           STRING "225 " CD-PROC1 " " CD-DATE-T " " CD-NAME
-               DELIMITED BY SIZE INTO FILEOUT01
-           WRITE FILEOUT01
-           PERFORM B1 THRU B2
-           MOVE "00007025F  " TO  X-PROC
-           PERFORM B1 THRU B2 
-           STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
-           GO TO A1-EXIT.
 
        B1.
            ADD 1 TO XYZ

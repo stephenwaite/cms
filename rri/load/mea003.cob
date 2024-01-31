@@ -37,7 +37,7 @@
            END-IF    
 
       *    70498 is the only multi measure cpt that needs Cady's help
-      *    015 paycode is measures 195, 406 and 436
+      *    015 paycode is measures 406 and 436
            IF (CD-PROC1 = "70498")
                MOVE "015" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
@@ -195,23 +195,6 @@
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARNEW01 
-               GO TO P1
-           END-IF
-
-      *    paycode 016 is measure 076
-	         IF (CD-PROC1 = "36555" OR "36556" OR "36557" OR "36558"
-               OR "36560" OR "36561" OR "36563" OR "36565" OR "36566"
-               OR "36568" OR "36569" OR "36570" OR "36571" OR "36572"
-               OR "36573" OR "36578" OR "36580" OR "36581" OR "36582"
-               OR "36583" OR "36584" OR "36585" OR "93503" OR "93593"
-               OR "93594" OR "93595" OR "93596" OR "93597")
-               MOVE "016" TO CD-PAYCODE
-               MOVE SPACE TO FILEOUT01
-               STRING "076 " CD-PAYCODE " "
-                       CD-PROC1 " " CD-DATE-T " " CD-NAME
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01 
-               REWRITE CHARNEW01
                GO TO P1
            END-IF
 
