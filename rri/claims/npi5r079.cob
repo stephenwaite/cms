@@ -1034,7 +1034,8 @@
              MOVE "AA" TO CLM-11
              MOVE ":::VT" TO CLM-11-4
            ELSE
-             MOVE "OA" TO CLM-11.           
+             MOVE "OA" TO CLM-11
+             MOVE ":::VT" TO CLM-11-4.       
                
        ACCIDENT-EXIT.
            EXIT.
