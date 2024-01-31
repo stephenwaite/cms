@@ -56,7 +56,7 @@
            IF CD-PAYCODE NOT = "270" GO TO P1.
 
       *    IF THE PROCEDURE ISN'T CDM 7216...
-           IF NOT (CD-PROC0 = "7156" OR "8456")
+           IF NOT (CD-PROC0 = "2013" OR "7156" OR "8456")
              GO TO P1.
 
       *    IF THE 1ST MODIFIER IS EMPTY FOR SURG PROCS
