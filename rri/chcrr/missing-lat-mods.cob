@@ -43,8 +43,9 @@
                GO TO P99
            END-READ
             
-      *    also adding problematic cxrs that come over with laterality
-           IF NOT (CD-PROC1 = "7300026" OR "7303026" OR "7314026")
+      *    problematic cxrs that come over without laterality
+           IF NOT (CD-PROC1 = "7300026" OR "7303026" OR "7314026"
+               OR "7308026")
                GO TO P1
            END-IF
                    
