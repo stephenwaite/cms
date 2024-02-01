@@ -276,8 +276,11 @@
 
       * auto-code call back mammos     
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
-               DISPLAY "Autocoded screening call back with R928"
+               DISPLAY "Autocoding call back mammo with R928"
+               DISPLAY "Displaying read though, if looks odd, "
+                   "note to change code later please."
                display " "
+               PERFORM 10-GR
                MOVE "R928   " TO CD-DIAG
       * medicare and adv plans don't follow vt call back policy         
                IF (CD-PAYCODE = "003" OR "028" OR "074" OR "141" 
@@ -369,7 +372,7 @@
                    GO TO P1-1
                END-IF
 
-               DISPLAY "Quick code of diag mammo due to callback?"
+               DISPLAY "Quick code of diag mammo?"
                DISPLAY "Hit Y for R92.8"
                display " "
                ACCEPT ANS1                                  
@@ -461,7 +464,21 @@
                    PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1
                END-IF    
-           END-IF.     
+           END-IF
+
+      *    auto-code call back ultrasounds    
+           IF (CD-PROC1 = "2190" OR "2191" OR "2192")
+               DISPLAY "Autocode screening call back US with R928?"
+               DISPLAY "Hit Y for R92.8"
+               display " "
+               ACCEPT ANS1                                  
+
+               IF ANS1 = "Y"
+                   MOVE "R928   " TO CD-DIAG
+                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
+                   GO TO P1
+               END-IF    
+           END-IF.    
                
        P1-1.
            IF (CD-PAYCODE = "008" OR "010" OR "011" OR "012"
