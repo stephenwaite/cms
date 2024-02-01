@@ -612,7 +612,8 @@
            END-IF
 
            IF CD-PAYCODE = "011"
-               DISPLAY " mea 195: Stenosis carotid 8P or <Enter>"
+               DISPLAY " Measure 364: Incidental Pulmonary Nodule"
+               DISPLAY " ? for help or G for read"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
@@ -620,18 +621,37 @@
                  GO TO P2-0
                END-IF
 
-               IF NOT (CD-QP1 = "8P" OR "?" OR SPACE)
+               IF CD-QP1 = "?"
+                   DISPLAY "CT imaging with a finding of an incidental "
+                       "pulmonary nodule"
+                   DISPLAY " for patients >= 35 yo and no active cancer"
+                   DISPLAY " and no history of cancer except basal cell"
+                       " or squamous cell skin cancer"
+                   DISPLAY " and aren't heavy smokers or lung cancer"
+                       " screening patients"    
+                   DISPLAY "incidentally-detected thyroid nodule"
+                   DISPLAY " <Enter> for no lesion "
+                   DISPLAY " or 1 for performance met - "
+                     "No follow-up recommended in the final CT report"
+                     " OR follow-up is recommended within a designated" 
+                     " time frame in the final CT report."
+                     " Recommendations noted in the final CT report"
+                     " should be in accordance with recommended 
+                     " guidelines."
+                   DISPLAY " or 2 denominator exception -"
+                     " Documentation of medical reason(s) for not"
+                     " including a recommended interval and modality"
+                     " for follow-up or for no follow-up, and source of"
+                     " recommendations (e.g., patients with unexplained"
+                     " fever, immunocompromised patients who are at"
+                     " risk for infection)"
+                   DISPLAY " or 3 for performance not met"
                    GO TO P2-0
                END-IF
-               IF CD-QP1 = "?"
-                   DISPLAY " BLANK = Referenced Distal Internal Carotid"
-                   DISPLAY " Diameter as the Denominator for Stenosis"
-                   DISPLAY " Measurement Referenced"
-                   DISPLAY " 8P = Measurements of Distal Internal"
-                   DISPLAY " Carotid Diameter not Referenced,"
-                   DISPLAY " Reason not Otherwise Specified"
+
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
                    GO TO P2-0
-               END-IF  
+               END-IF
            END-IF
 
            IF CD-PAYCODE = "012"
@@ -694,14 +714,14 @@
       *    since is hard wired in report, ie rrmc does it for us     
 
            IF CD-PAYCODE = "015"
-      *         DISPLAY " CPT 70498 needs 2 assessments"
-      *         DISPLAY " measure 195: 8P or <Enter>"
-      *         DISPLAY " <Enter> = Referenced Dist Int. Car. diameter"
-      *         DISPLAY " 8P = not referenced"    
-      *         ACCEPT CD-QP1
-      *         IF NOT (CD-QP1 = "8P" OR SPACE)
-      *             GO TO P2-0
-      *         END-IF
+               DISPLAY " CPT " CD-PROC2 " needs 2 assessments"
+               DISPLAY " Measure 364: Incidental Pulmonary Nodule"
+               DISPLAY " <Enter> = no nodule"
+               DISPLAY " 8P = not referenced"    
+               ACCEPT CD-QP1
+               IF NOT (CD-QP1 = "8P" OR SPACE)
+                   GO TO P2-0
+               END-IF
                
                DISPLAY " Measure 406: Thyroid nodules"
                DISPLAY " < 1cm lesion use 1 or 2 or 3"

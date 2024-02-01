@@ -36,10 +36,16 @@
                GO TO P1
            END-IF    
 
-      *    70498 is the only multi measure cpt that needs Cady's help
-      *    015 paycode is measures 406 and 436
-           IF (CD-PROC1 = "70498")
+      *    015 paycode represents measures 364, 406 and 436
+           IF (CD-PROC1 = "70490" OR "70491" OR "70492" OR "70498"
+               OR "71250" OR "71260" OR "71270"
+               OR "72125" OR "72126" OR "72127")
                MOVE "015" TO CD-PAYCODE
+               MOVE SPACE TO FILEOUT01
+               STRING "364 " CD-PAYCODE " "
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
                MOVE SPACE TO FILEOUT01
                STRING "406 " CD-PAYCODE " "
                       CD-PROC1 " " CD-DATE-T " " CD-NAME
@@ -197,6 +203,23 @@
                REWRITE CHARNEW01 
                GO TO P1
            END-IF
+
+      *    paycode 011 is potential measure 364
+           IF (CD-PROC1 = "70490" OR "70491" OR "70492" OR "70498" 
+               OR "71250" OR "71260" OR "71270" OR "71275" OR "72125" 
+               OR "72126" OR "72127" OR "72128" OR "72129" OR "72130" 
+               OR "74150" OR "74160" OR "74170" OR "74174" OR "74175"
+               OR "74176" OR "74177" OR "74178" 
+               OR "75571" OR "75572" OR "75573" OR "75574"
+               MOVE "011" TO CD-PAYCODE
+               MOVE SPACE TO FILEOUT01
+               STRING "364 " CD-PAYCODE " " 
+                      CD-PROC1 " " CD-DATE-T " " CD-NAME 
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
+               REWRITE CHARNEW01 
+               GO TO P1
+           END-IF     
 
            GO TO P1.
        P2.
