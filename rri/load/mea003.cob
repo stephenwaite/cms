@@ -36,8 +36,6 @@
                GO TO P1
            END-IF
 
-           DISPLAY CD-CPT " CD-CPT " CD-PAYCODE " PAYCODE AT START"
-
       *    015 paycode represents measures 364, 406 and 436
            IF (CD-CPT = "70490" OR "70491" OR "70492" OR "70498"
                OR "71250" OR "71260" OR "71270"
@@ -222,9 +220,6 @@
                REWRITE CHARNEW01 
                GO TO P1
            END-IF     
-
-           DISPLAY CD-CPT " CD-CPT " CD-PAYCODE " PAYCODE AT END"
-           ACCEPT OMITTED
 
            GO TO P1.
        P2.
