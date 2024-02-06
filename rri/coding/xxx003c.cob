@@ -485,21 +485,14 @@
                OR "013" OR "014" OR "015")  
                GO TO P2
            END-IF    
-      * mammo codes except for medicare measure 009
+      * mammo codes
            IF (CD-PROC2 NOT = "7706726")
                GO TO P2      
            END-IF    
            
            MOVE "Z1231  " TO CD-DIAG  
-           
-           IF CD-PAYCODE = "009"
-             DISPLAY CD-KEY8 " " FO-NAME "Autocoded sreening mammo "
-               "now let us proceed to assessment..."
-             display " "  
-             GO TO P2-0
-           END-IF
 
-           DISPLAY "Non medicare screening mammo -> auto coded "
+           DISPLAY "Screening mammo -> auto coded "
                    CD-KEY8 " " FO-NAME  
            display " "        
 
@@ -536,7 +529,7 @@
            DISPLAY " ".
 
        P2-0.
-           IF (CD-PAYCODE = "008" OR "009" OR "010" OR "011" OR "012"
+           IF (CD-PAYCODE = "008" OR "010" OR "011" OR "012"
                OR "013" OR "014" OR "015")
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
@@ -550,45 +543,6 @@
                    PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1        
                END-IF    
-           END-IF
-
-           IF CD-PAYCODE = "009" 
-               DISPLAY "Enter assessment code"
-               DISPLAY "? for help"            
-               ACCEPT CD-QP1
-               
-               IF CD-QP1 = "G"
-                   PERFORM 10-GR
-                   GO TO P2-0
-               END-IF  
-               
-               IF NOT (CD-QP1(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
-                                       OR "4" OR "5" OR "6" OR "B")
-                 GO TO P2-0
-               END-IF
-
-               IF CD-QP1 = "?"
-                   DISPLAY " 0 = INCOMPLETE NEED ADDITIONAL FILMS"
-                   DISPLAY " 1 = NEGATIVE"
-                   DISPLAY " 2 = BENIGN"
-                   DISPLAY " 3 = PROBABLY BENIGN: ALERT STEVE!"
-                   DISPLAY " 4 = SUSPICIOUS"
-                   DISPLAY " 5 = HIGHLY SUGGESTIVE OF malignancy"
-                   DISPLAY " 6 = KNOWN BIOPSY PROVEN malignancy" 
-                   GO TO P2-0
-               END-IF  
-               
-               IF CD-QP1(1:1) = "B"
-                   DISPLAY FO-KEY " has been skipped"
-                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT    
-                   GO TO P1
-               END-IF
-
-               DISPLAY "medicare screening mammo -> auto coded "
-               display " "  
-               MOVE "Z1231  " TO CD-DIAG
-               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
-               GO TO P1
            END-IF
 
            IF CD-PAYCODE = "010"
@@ -612,46 +566,7 @@
            END-IF
 
            IF CD-PAYCODE = "011"
-               DISPLAY " Measure 364: Incidental Pulmonary Nodule"
-               DISPLAY " ? for help or G for read"
-               ACCEPT CD-QP1
-
-               IF CD-QP1 = "G"
-                 PERFORM 10-GR
-                 GO TO P2-0
-               END-IF
-
-               IF CD-QP1 = "?"
-                   DISPLAY "CT imaging with a finding of an incidental "
-                       "pulmonary nodule"
-                   DISPLAY " for patients >= 35 yo and no active cancer"
-                   DISPLAY " and no history of cancer except basal cell"
-                       " or squamous cell skin cancer"
-                   DISPLAY " and aren't heavy smokers or lung cancer"
-                       " screening patients"    
-                   DISPLAY "incidentally-detected thyroid nodule"
-                   DISPLAY " <Enter> for no lesion "
-                   DISPLAY " or 1 for performance met - "
-                     "No follow-up recommended in the final CT report"
-                     " OR follow-up is recommended within a designated" 
-                     " time frame in the final CT report."
-                     " Recommendations noted in the final CT report"
-                     " should be in accordance with recommended 
-                     " guidelines."
-                   DISPLAY " or 2 denominator exception -"
-                     " Documentation of medical reason(s) for not"
-                     " including a recommended interval and modality"
-                     " for follow-up or for no follow-up, and source of"
-                     " recommendations (e.g., patients with unexplained"
-                     " fever, immunocompromised patients who are at"
-                     " risk for infection)"
-                   DISPLAY " or 3 for performance not met"
-                   GO TO P2-0
-               END-IF
-
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
-                   GO TO P2-0
-               END-IF
+               PERFORM MEA-364.
            END-IF
 
            IF CD-PAYCODE = "012"
@@ -715,13 +630,7 @@
 
            IF CD-PAYCODE = "015"
                DISPLAY " CPT " CD-PROC2 " needs 2 assessments"
-               DISPLAY " Measure 364: Incidental Pulmonary Nodule"
-               DISPLAY " <Enter> = no nodule"
-               DISPLAY " 8P = not referenced"    
-               ACCEPT CD-QP1
-               IF NOT (CD-QP1 = "8P" OR SPACE)
-                   GO TO P2-0
-               END-IF
+               PERFORM MEA-364.
                
                DISPLAY " Measure 406: Thyroid nodules"
                DISPLAY " < 1cm lesion use 1 or 2 or 3"
@@ -1339,6 +1248,48 @@
            CLOSE FILEOUT2
            CALL "SYSTEM" USING "emr-4"
            OPEN OUTPUT FILEOUT2.
+
+       MEA-364.
+           DISPLAY " Measure 364: Incidental Pulmonary Nodule"
+           DISPLAY " ? for help or G for read"
+           ACCEPT CD-QP1
+
+           IF CD-QP1 = "G"
+             PERFORM 10-GR
+             GO TO P2-0
+           END-IF
+
+           IF CD-QP1 = "?"
+               DISPLAY "CT imaging with a finding of an incidental "
+                   "pulmonary nodule"
+               DISPLAY " for patients >= 35 yo and no active cancer"
+               DISPLAY " and no history of cancer except basal cell"
+                   " or squamous cell skin cancer"
+               DISPLAY " and aren't heavy smokers or lung cancer"
+                   " screening patients"    
+               DISPLAY "incidentally-detected thyroid nodule"
+               DISPLAY " <Enter> for no lesion "
+               DISPLAY " or 1 for performance met - "
+                 "No follow-up recommended in the final CT report"
+                 " OR follow-up is recommended within a designated" 
+                 " time frame in the final CT report."
+                 " Recommendations noted in the final CT report"
+                 " should be in accordance with recommended 
+                 " guidelines."
+               DISPLAY " or 2 denominator exception -"
+                 " Documentation of medical reason(s) for not"
+                 " including a recommended interval and modality"
+                 " for follow-up or for no follow-up, and source of"
+                 " recommendations (e.g., patients with unexplained"
+                 " fever, immunocompromised patients who are at"
+                 " risk for infection)"
+               DISPLAY " or 3 for performance not met"
+               GO TO P2-0
+           END-IF
+
+           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
+               GO TO P2-0
+           END-IF.
 
        P99.
            CLOSE CHARNEW PROCFILE GARFILE DIAGFILE DIAG9FILE
