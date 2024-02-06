@@ -8,7 +8,7 @@
            02 CD-DIAG PIC X(7).
            02 CD-PROC.
              03 CD-PROC1 PIC X(4).
-             03 CD-PROC2 
+             03 CD-PROC2.
                04 CD-CPT PIC X(5).
                04 CD-MOD PIC X(2).
            02 CD-MOD2 PIC XX.
