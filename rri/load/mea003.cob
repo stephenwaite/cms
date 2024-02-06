@@ -34,7 +34,9 @@
 
            IF (CD-PAYCODE NOT = "003")
                GO TO P1
-           END-IF    
+           END-IF
+
+           DISPLAY CD-PROC1 " CD-PROC1 " CD-PAYCODE " PAYCODE AT START"
 
       *    015 paycode represents measures 364, 406 and 436
            IF (CD-PROC1 = "70490" OR "70491" OR "70492" OR "70498"
@@ -220,6 +222,9 @@
                REWRITE CHARNEW01 
                GO TO P1
            END-IF     
+
+           DISPLAY CD-PROC1 " CD-PROC1 " CD-PAYCODE " PAYCODE AT END"
+           ACCEPT OMITTED
 
            GO TO P1.
        P2.
