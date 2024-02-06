@@ -630,7 +630,7 @@
 
            IF CD-PAYCODE = "015"
                DISPLAY " CPT " CD-PROC2 " needs 2 assessments"
-               PERFORM MEA-364.
+               PERFORM MEA-364
                
                DISPLAY " Measure 406: Thyroid nodules"
                DISPLAY " < 1cm lesion use 1 or 2 or 3"
