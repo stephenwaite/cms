@@ -566,7 +566,7 @@
            END-IF
 
            IF CD-PAYCODE = "011"
-               PERFORM MEA-364.
+               PERFORM MEA-364
            END-IF
 
            IF CD-PAYCODE = "012"
@@ -1274,7 +1274,7 @@
                  " OR follow-up is recommended within a designated" 
                  " time frame in the final CT report."
                  " Recommendations noted in the final CT report"
-                 " should be in accordance with recommended 
+                 " should be in accordance with recommended "
                  " guidelines."
                DISPLAY " or 2 denominator exception -"
                  " Documentation of medical reason(s) for not"
