@@ -212,7 +212,7 @@
                OR "72126" OR "72127" OR "72128" OR "72129" OR "72130" 
                OR "74150" OR "74160" OR "74170" OR "74174" OR "74175"
                OR "74176" OR "74177" OR "74178" 
-               OR "75571" OR "75572" OR "75573" OR "75574"
+               OR "75571" OR "75572" OR "75573" OR "75574")
                MOVE "011" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
                STRING "364 " CD-PAYCODE " " 
