@@ -1251,6 +1251,7 @@
 
        MEA-364.
            DISPLAY " Measure 364: Incidental Pulmonary Nodule"
+           DISPLAY " Enter for no lesion else use 1 or 2 or 3"
            DISPLAY " ? for help or G for read"
            ACCEPT CD-QP1
 
@@ -1260,22 +1261,24 @@
            END-IF
 
            IF CD-QP1 = "?"
-               DISPLAY "CT imaging with a finding of an incidental "
+               DISPLAY " CT imaging with a finding of an incidental "
                    "pulmonary nodule"
                DISPLAY " for patients >= 35 yo and no active cancer"
                DISPLAY " and no history of cancer except basal cell"
                    " or squamous cell skin cancer"
                DISPLAY " and aren't heavy smokers or lung cancer"
-                   " screening patients"    
-               DISPLAY "incidentally-detected thyroid nodule"
+                   " screening patients"
+               DISPLAY " "     
                DISPLAY " <Enter> for no lesion "
+               DISPLAY " "
                DISPLAY " or 1 for performance met - "
-                 "No follow-up recommended in the final CT report"
+                 " No follow-up recommended in the final CT report"
                  " OR follow-up is recommended within a designated" 
                  " time frame in the final CT report."
                  " Recommendations noted in the final CT report"
                  " should be in accordance with recommended "
                  " guidelines."
+               DISPLAY " "     
                DISPLAY " or 2 denominator exception -"
                  " Documentation of medical reason(s) for not"
                  " including a recommended interval and modality"

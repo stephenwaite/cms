@@ -166,8 +166,8 @@
                GO TO P2
            END-READ          
 
-           IF NOT (CD-PAYCODE = "008" OR "009" OR "010" OR "011" 
-               OR "012" OR "013" OR "014" OR "015" OR "016")
+           IF NOT (CD-PAYCODE = "008" OR "010" OR "011" 
+               OR "012" OR "013" OR "014" OR "015")
                GO TO P1
            END-IF
 
@@ -193,6 +193,19 @@
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                MOVE 147 TO FLAG
+               MOVE "003" TO CD-PAYCODE
+               REWRITE CHARFILE01
+               UNLOCK CHARFILE RECORD
+               PERFORM A1 THRU A1-EXIT
+               GO TO P0
+           END-IF
+
+           IF CD-PAYCODE = "011"
+               MOVE SPACE TO FILEOUT01
+               STRING "364 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+               MOVE "364" TO FLAG
                MOVE "003" TO CD-PAYCODE
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
@@ -241,6 +254,10 @@
 
            IF CD-PAYCODE = "015"
                MOVE SPACE TO FILEOUT01
+               STRING "364 " CD-PROC1 " " CD-DATE-T " " CD-NAME
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+               MOVE SPACE TO FILEOUT01
                STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-NAME
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
@@ -275,6 +292,60 @@
                MOVE CD-QP1 TO X-PROC(10:2)
                PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
+               GO TO A1-EXIT
+           END-IF
+
+           IF FLAG = 364
+               IF CD-QP1 = "1 "
+                   MOVE "0000G9548  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                       DELIMITED BY SIZE INTO CHARFILE-KEY
+               END-IF
+
+               IF CD-QP1 = "2 "
+                   MOVE "0000G9549  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                       DELIMITED BY SIZE INTO CHARFILE-KEY
+               END-IF
+
+               IF CD-QP1 = "3 "
+                   MOVE "0000G9550  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                       DELIMITED BY SIZE INTO CHARFILE-KEY
+               END-IF
+           
+               IF CD-QP1 = "2 " OR "3 "
+                   MOVE SPACE TO FILEOUT01
+                   STRING "405 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                          " PERFORMANCE NOT MET! please review" 
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01 
+               end-if
+
+               IF CD-QP1 = "1 " OR "2 " OR "3 "      
+                   MOVE "0000G9547  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                       DELIMITED BY SIZE INTO CHARFILE-KEY
+               ELSE
+                   MOVE "0000G9551  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000" 
+                       DELIMITED BY SIZE INTO CHARFILE-KEY     
+               END-IF
+                              
+      *    handle multi-qpp-cpts by doing mea 436
+               IF (PROC-HOLD = "74150" OR "74160" OR "74170"
+                   OR "74176" OR "74177" OR "74178")
+                   MOVE "0000G9637  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                       DELIMITED BY SIZE INTO CHARFILE-KEY
+               END-IF
+
                GO TO A1-EXIT
            END-IF
 
