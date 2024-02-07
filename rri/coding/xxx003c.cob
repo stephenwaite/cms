@@ -357,15 +357,6 @@
                MOVE "GG" TO CD-MOD2
            END-IF    
 
-      * auto code LD lung screen
-           IF (CD-PROC1 = "5232" OR "5233")
-               DISPLAY "LD lung screen -> auto coded"
-               display " "
-               MOVE "Z87891 " TO CD-DIAG
-               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
-               GO TO P1
-           END-IF.
-
       * prompt for quick code on diag mammos
            IF (CD-PROC1 = "1093" OR "1094" OR "1095")
                IF CD-DOCP = "02"
@@ -606,6 +597,13 @@
                GO TO P1        
            END-IF    
 
+           IF (CD-PROC1 = "5232" OR "5233")
+               DISPLAY "LD lung screen -> auto coded"
+               display " "
+               MOVE "Z87891 " TO CD-DIAG
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
+               GO TO P1
+           END-IF
 
            DISPLAY " DIAG? "
            ACCEPT IN-FIELD-7.
@@ -1187,51 +1185,6 @@
            CLOSE FILEOUT2
            CALL "SYSTEM" USING "emr-4"
            OPEN OUTPUT FILEOUT2.
-
-       MEA-364.
-           DISPLAY " Measure 364: Incidental Pulmonary Nodule"
-           DISPLAY " Enter for no lesion else use 1 or 2 or 3"
-           DISPLAY " ? for help or G for read"
-           ACCEPT CD-QP1
-
-           IF CD-QP1 = "G"
-             PERFORM 10-GR
-             GO TO P2-0
-           END-IF
-
-           IF CD-QP1 = "?"
-               DISPLAY " CT imaging with a finding of an incidental "
-                   "pulmonary nodule"
-               DISPLAY " for patients >= 35 yo and no active cancer"
-               DISPLAY " and no history of cancer except basal cell"
-                   " or squamous cell skin cancer"
-               DISPLAY " and aren't heavy smokers or lung cancer"
-                   " screening patients"
-               DISPLAY " "     
-               DISPLAY " <Enter> for no lesion "
-               DISPLAY " "
-               DISPLAY " or 1 for performance met - "
-                 " No follow-up recommended in the final CT report"
-                 " OR follow-up is recommended within a designated" 
-                 " time frame in the final CT report."
-                 " Recommendations noted in the final CT report"
-                 " should be in accordance with recommended "
-                 " guidelines."
-               DISPLAY " "     
-               DISPLAY " or 2 denominator exception -"
-                 " Documentation of medical reason(s) for not"
-                 " including a recommended interval and modality"
-                 " for follow-up or for no follow-up, and source of"
-                 " recommendations (e.g., patients with unexplained"
-                 " fever, immunocompromised patients who are at"
-                 " risk for infection)"
-               DISPLAY " or 3 for performance not met"
-               GO TO P2-0
-           END-IF
-
-           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
-               GO TO P2-0
-           END-IF.
 
        P99.
            CLOSE CHARNEW PROCFILE GARFILE DIAGFILE DIAG9FILE
