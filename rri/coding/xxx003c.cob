@@ -481,8 +481,7 @@
            END-IF.    
                
        P1-1.
-           IF (CD-PAYCODE = "008" OR "010" OR "011" OR "012"
-               OR "013" OR "014" OR "015")  
+           IF (CD-PAYCODE = "008" OR "012" OR "013" OR "014")  
                GO TO P2
            END-IF    
       * mammo codes
@@ -529,8 +528,7 @@
            DISPLAY " ".
 
        P2-0.
-           IF (CD-PAYCODE = "008" OR "010" OR "011" OR "012"
-               OR "013" OR "014" OR "015")
+           IF (CD-PAYCODE = "008" OR "012" OR "013" OR "014")
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
                    DISPLAY "quality codes as well once study is read"
@@ -543,30 +541,6 @@
                    PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1        
                END-IF    
-           END-IF
-
-           IF CD-PAYCODE = "010"
-               DISPLAY " MEASURE 147: ENTER 3P, 8P OR BLANK, ? FOR HELP"
-               ACCEPT CD-QP1
-
-               IF CD-QP1 = "G"
-                 PERFORM 10-GR
-                 GO TO P2-0
-               END-IF
-
-               IF NOT (CD-QP1 = "3P" OR "8P" OR SPACE OR "?")
-                   GO TO P2-0
-               END-IF
-               IF CD-QP1 = "?"
-                   DISPLAY " BLANK = REPORT INDICATES CORRELATION"
-                   DISPLAY " 3P = NO RELEVANT STUDIES"
-                   DISPLAY " 8P = NOT CORRELATED, PERF NOT MET! STEVE?"
-                   GO TO P2-0
-               END-IF  
-           END-IF
-
-           IF CD-PAYCODE = "011"
-               PERFORM MEA-364
            END-IF
 
            IF CD-PAYCODE = "012"
@@ -624,41 +598,6 @@
                    GO TO P2-0
                END-IF
            END-IF
-
-      *    CD-PAYCODE 014 does not need any input from coders
-      *    since is hard wired in report, ie rrmc does it for us     
-
-           IF CD-PAYCODE = "015"
-               DISPLAY " CPT " CD-PROC2 " needs 2 assessments"
-               PERFORM MEA-364
-               
-               DISPLAY " Measure 406: Thyroid nodules"
-               DISPLAY " < 1cm lesion use 1 or 2 or 3"
-               DISPLAY " <Enter> for no lesion"
-               DISPLAY " ? for help"
-               ACCEPT CD-QP2
-
-               IF CD-QP2 = "G"
-                 PERFORM 10-GR
-                 GO TO P2-0
-               END-IF
-
-               IF CD-QP2 = "?"
-                   DISPLAY "CT, CTA, or MR studies of chest or neck"
-                   DISPLAY "for patients aged 18 and older with "
-                   DISPLAY "no known thyroid disease and an "    
-                   DISPLAY "incidentally-detected thyroid nodule"
-                   DISPLAY " < 1.0 cm noted"
-                   DISPLAY " 1 = follow up images recommended"
-                   DISPLAY " 2 = medical resaons for no f/u images"
-                   DISPLAY " 3 = f/u not recommended, perf not met"
-                   GO TO P2-0
-               END-IF
-               IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
-                   DISPLAY " ? for help"
-                   GO TO P2-0
-               END-IF
-           END-IF.
 
        P2-000.
            IF CD-DOCP = "02"
