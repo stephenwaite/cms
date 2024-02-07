@@ -597,7 +597,7 @@
                IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
                    GO TO P2-0
                END-IF
-           END-IF
+           END-IF.
 
        P2-000.
            IF CD-DOCP = "02"

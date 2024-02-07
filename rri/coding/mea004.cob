@@ -369,7 +369,7 @@
                PERFORM B1 THRU B2
                STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
                GO TO A1-EXIT
-           END-IF
+           END-IF.
 
       *    measure 195 retired in 2022
       *    measure 076 retired in 2023
