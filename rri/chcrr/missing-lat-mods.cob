@@ -52,7 +52,7 @@
             
       *    problematic cxrs that come over without laterality
            IF NOT (CD-PROC1 = "7300026" OR "7303026" OR "7314026"
-               OR "7308026")
+               OR "7308026" OR "7363026")
                GO TO P1
            END-IF
                    
