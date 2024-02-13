@@ -42,9 +42,17 @@
            READ CHARFILE NEXT AT END
                GO TO P99
            END-READ
+
+           IF CD-MOD2 = "TC"
+             STRING "REMOVE " CD-MOD2 " ON " CD-PROC " FOR " 
+                CD-KEY8 " DOS " CD-DATE-T "?"
+                DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+           END-IF
             
-      *    also adding problematic cxrs that come over with laterality
-           IF NOT (CD-PROC1 = "7300026" OR "7303026" OR "7314026")
+      *    problematic cxrs that come over without laterality
+           IF NOT (CD-PROC1 = "7300026" OR "7303026" OR "7314026"
+               OR "7308026")
                GO TO P1
            END-IF
                    

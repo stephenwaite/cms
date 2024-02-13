@@ -276,8 +276,11 @@
 
       * auto-code call back mammos     
            IF (CD-PROC1 = "1446" OR "1447" OR "1448")
-               DISPLAY "Autocoded screening call back with R928"
+               DISPLAY "Autocoding call back mammo with R928"
+               DISPLAY "Displaying read though, if looks odd, "
+                   "note to change code later please."
                display " "
+               PERFORM 10-GR
                MOVE "R928   " TO CD-DIAG
       * medicare and adv plans don't follow vt call back policy         
                IF (CD-PAYCODE = "003" OR "028" OR "074" OR "141" 
@@ -354,22 +357,13 @@
                MOVE "GG" TO CD-MOD2
            END-IF    
 
-      * auto code LD lung screen
-           IF (CD-PROC1 = "5232" OR "5233")
-               DISPLAY "LD lung screen -> auto coded"
-               display " "
-               MOVE "Z87891 " TO CD-DIAG
-               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
-               GO TO P1
-           END-IF.
-
       * prompt for quick code on diag mammos
            IF (CD-PROC1 = "1093" OR "1094" OR "1095")
                IF CD-DOCP = "02"
                    GO TO P1-1
                END-IF
 
-               DISPLAY "Quick code of diag mammo due to callback?"
+               DISPLAY "Quick code of diag mammo?"
                DISPLAY "Hit Y for R92.8"
                display " "
                ACCEPT ANS1                                  
@@ -461,28 +455,34 @@
                    PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1
                END-IF    
-           END-IF.     
+           END-IF
+
+      *    auto-code call back ultrasounds    
+           IF (CD-PROC1 = "2190" OR "2191" OR "2192")
+               DISPLAY "Autocode screening call back US with R928?"
+               DISPLAY "Hit Y for R92.8"
+               display " "
+               ACCEPT ANS1                                  
+
+               IF ANS1 = "Y"
+                   MOVE "R928   " TO CD-DIAG
+                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
+                   GO TO P1
+               END-IF    
+           END-IF.    
                
        P1-1.
-           IF (CD-PAYCODE = "008" OR "010" OR "011" OR "012"
-               OR "013" OR "014" OR "015")  
+           IF (CD-PAYCODE = "008" OR "012" OR "013" OR "014")  
                GO TO P2
            END-IF    
-      * mammo codes except for medicare measure 009
+      * mammo codes
            IF (CD-PROC2 NOT = "7706726")
                GO TO P2      
            END-IF    
            
            MOVE "Z1231  " TO CD-DIAG  
-           
-           IF CD-PAYCODE = "009"
-             DISPLAY CD-KEY8 " " FO-NAME "Autocoded sreening mammo "
-               "now let us proceed to assessment..."
-             display " "  
-             GO TO P2-0
-           END-IF
 
-           DISPLAY "Non medicare screening mammo -> auto coded "
+           DISPLAY "Screening mammo -> auto coded "
                    CD-KEY8 " " FO-NAME  
            display " "        
 
@@ -519,8 +519,7 @@
            DISPLAY " ".
 
        P2-0.
-           IF (CD-PAYCODE = "008" OR "009" OR "010" OR "011" OR "012"
-               OR "013" OR "014" OR "015")
+           IF (CD-PAYCODE = "008" OR "012" OR "013" OR "014")
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
                    DISPLAY "quality codes as well once study is read"
@@ -533,88 +532,6 @@
                    PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1        
                END-IF    
-           END-IF
-
-           IF CD-PAYCODE = "009" 
-               DISPLAY "Enter assessment code"
-               DISPLAY "? for help"            
-               ACCEPT CD-QP1
-               
-               IF CD-QP1 = "G"
-                   PERFORM 10-GR
-                   GO TO P2-0
-               END-IF  
-               
-               IF NOT (CD-QP1(1:1) = "0" OR "1" OR "2" OR "3" OR "?"
-                                       OR "4" OR "5" OR "6" OR "B")
-                 GO TO P2-0
-               END-IF
-
-               IF CD-QP1 = "?"
-                   DISPLAY " 0 = INCOMPLETE NEED ADDITIONAL FILMS"
-                   DISPLAY " 1 = NEGATIVE"
-                   DISPLAY " 2 = BENIGN"
-                   DISPLAY " 3 = PROBABLY BENIGN: ALERT STEVE!"
-                   DISPLAY " 4 = SUSPICIOUS"
-                   DISPLAY " 5 = HIGHLY SUGGESTIVE OF malignancy"
-                   DISPLAY " 6 = KNOWN BIOPSY PROVEN malignancy" 
-                   GO TO P2-0
-               END-IF  
-               
-               IF CD-QP1(1:1) = "B"
-                   DISPLAY FO-KEY " has been skipped"
-                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT    
-                   GO TO P1
-               END-IF
-
-               DISPLAY "medicare screening mammo -> auto coded "
-               display " "  
-               MOVE "Z1231  " TO CD-DIAG
-               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
-               GO TO P1
-           END-IF
-
-           IF CD-PAYCODE = "010"
-               DISPLAY " MEASURE 147: ENTER 3P, 8P OR BLANK, ? FOR HELP"
-               ACCEPT CD-QP1
-
-               IF CD-QP1 = "G"
-                 PERFORM 10-GR
-                 GO TO P2-0
-               END-IF
-
-               IF NOT (CD-QP1 = "3P" OR "8P" OR SPACE OR "?")
-                   GO TO P2-0
-               END-IF
-               IF CD-QP1 = "?"
-                   DISPLAY " BLANK = REPORT INDICATES CORRELATION"
-                   DISPLAY " 3P = NO RELEVANT STUDIES"
-                   DISPLAY " 8P = NOT CORRELATED, PERF NOT MET! STEVE?"
-                   GO TO P2-0
-               END-IF  
-           END-IF
-
-           IF CD-PAYCODE = "011"
-               DISPLAY " mea 195: Stenosis carotid 8P or <Enter>"
-               ACCEPT CD-QP1
-
-               IF CD-QP1 = "G"
-                 PERFORM 10-GR
-                 GO TO P2-0
-               END-IF
-
-               IF NOT (CD-QP1 = "8P" OR "?" OR SPACE)
-                   GO TO P2-0
-               END-IF
-               IF CD-QP1 = "?"
-                   DISPLAY " BLANK = Referenced Distal Internal Carotid"
-                   DISPLAY " Diameter as the Denominator for Stenosis"
-                   DISPLAY " Measurement Referenced"
-                   DISPLAY " 8P = Measurements of Distal Internal"
-                   DISPLAY " Carotid Diameter not Referenced,"
-                   DISPLAY " Reason not Otherwise Specified"
-                   GO TO P2-0
-               END-IF  
            END-IF
 
            IF CD-PAYCODE = "012"
@@ -671,47 +588,6 @@
                IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
                    GO TO P2-0
                END-IF
-           END-IF
-
-      *    CD-PAYCODE 014 does not need any input from coders
-      *    since is hard wired in report, ie rrmc does it for us     
-
-           IF CD-PAYCODE = "015"
-      *         DISPLAY " CPT 70498 needs 2 assessments"
-      *         DISPLAY " measure 195: 8P or <Enter>"
-      *         DISPLAY " <Enter> = Referenced Dist Int. Car. diameter"
-      *         DISPLAY " 8P = not referenced"    
-      *         ACCEPT CD-QP1
-      *         IF NOT (CD-QP1 = "8P" OR SPACE)
-      *             GO TO P2-0
-      *         END-IF
-               
-               DISPLAY " Measure 406: Thyroid nodules"
-               DISPLAY " < 1cm lesion use 1 or 2 or 3"
-               DISPLAY " <Enter> for no lesion"
-               DISPLAY " ? for help"
-               ACCEPT CD-QP2
-
-               IF CD-QP2 = "G"
-                 PERFORM 10-GR
-                 GO TO P2-0
-               END-IF
-
-               IF CD-QP2 = "?"
-                   DISPLAY "CT, CTA, or MR studies of chest or neck"
-                   DISPLAY "for patients aged 18 and older with "
-                   DISPLAY "no known thyroid disease and an "    
-                   DISPLAY "incidentally-detected thyroid nodule"
-                   DISPLAY " < 1.0 cm noted"
-                   DISPLAY " 1 = follow up images recommended"
-                   DISPLAY " 2 = medical resaons for no f/u images"
-                   DISPLAY " 3 = f/u not recommended, perf not met"
-                   GO TO P2-0
-               END-IF
-               IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
-                   DISPLAY " ? for help"
-                   GO TO P2-0
-               END-IF
            END-IF.
 
        P2-000.
@@ -721,6 +597,13 @@
                GO TO P1        
            END-IF    
 
+           IF (CD-PROC1 = "5232" OR "5233")
+               DISPLAY "LD lung screen -> auto coded"
+               display " "
+               MOVE "Z87891 " TO CD-DIAG
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
+               GO TO P1
+           END-IF
 
            DISPLAY " DIAG? "
            ACCEPT IN-FIELD-7.
