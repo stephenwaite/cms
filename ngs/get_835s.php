@@ -8,7 +8,7 @@ $cms_pass = getenv('NGS_PASSWORD');
 $sftp = new SFTP('edi.ngs.ahdsxhub.com', '10062');
 
 if (!$sftp->login($cms_user, $cms_pass)) {
-    echo "login failed" . "\n";
+    echo "login failed, maybe wg0 is down or password expired?" . "\n";
     exit;
 };
 
