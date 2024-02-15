@@ -75,6 +75,7 @@
            02 FO-AMOUNT PIC S9(7)V99.
            02 FO-IO PIC X.
            02 FO-NAME PIC X(24).
+           02 FO-MRN PIC X(8).
            02 FO-DATE PIC X(8).
            02 FO-MODS PIC X(10).
            02 FO-CKEY PIC X(12).
@@ -156,6 +157,7 @@
       *     MOVE TOT-AMOUNT TO FO-AMOUNT
            
            MOVE G-GARNAME TO FO-NAME
+           MOVE G-ACCT TO FO-MRN
            STRING " " CHARCUR-KEY INTO FO-CKEY
 
            IF CC-AMOUNT = 0 
