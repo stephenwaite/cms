@@ -1022,6 +1022,8 @@
                    END-IF  
                    MOVE SPACE TO SEGFILE01
                    WRITE SEGFILE01 FROM REF01
+                   display segfile01
+                   accept omitted
            END-READ    
 
       *    claim number for corrected/voided claims
