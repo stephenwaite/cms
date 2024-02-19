@@ -243,15 +243,18 @@
       * 478
            02 R1-SSN11 PIC X(9).
            02 R1-RELATE1 PIC XX.
+      * 489
            02 INSURANCE-1.
             03 R1-INSNAME1 PIC X(25).
             03 R1-INSCONTACT1 PIC X(25).
             03 R1-INSADDR11 PIC X(20).
             03 R1-INSADDR21 PIC X(15).
             03 R1-INSCITY1 PIC X(20).
+      * 594      
             03 R1-INSSTATE1 PIC XX.
             03 R1-INSZIP1 PIC X(10).
             03 R1-INSPHONE1 PIC X(12).
+      * 618      
            02  R1-AUTH PIC X(20).
       * 638
            02 R1-IP2 PIC X(5).
@@ -259,10 +262,13 @@
            02 R1-CERT22 PIC X(20).
            02 R1-GRP2 PIC X(20).
            02 R1-GRPNAME22 PIC X(30).
+      * 743     
            02 R1-SUBNAME22 PIC X(35).
            02 R1-EMPLOYNAME22 PIC X(30).
+      * 808     
            02 R1-GENDER22 PIC X.
            02 FILLER PIC X.
+      * 810     
            02 R1-DOB22 PIC X(10).
            02 R1-SSN22 PIC X(9).
            02 R1-RELATE2 PIC XX.
