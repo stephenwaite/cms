@@ -1024,9 +1024,6 @@
                    WRITE SEGFILE01 FROM REF01
            END-READ    
 
-           display segfile01
-           accept omitted
-
       *    claim number for corrected/voided claims
            MOVE SPACE TO REF-CODE
            MOVE "F8" TO REF-CODE
