@@ -537,7 +537,7 @@
            END-IF
 
            IF CD-PAYCODE = "008"
-               DISPLAY " Mea 145: type ? or 1 or 2"
+               DISPLAY " Mea 145: type ? or 1 or 2 or G"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
@@ -557,7 +557,7 @@
            END-IF
 
            IF CD-PAYCODE = "009"
-               DISPLAY " QMM26: type ? or 1 or 2 or 3 or 4 or 5"
+               DISPLAY " QMM26: type ? or 1 or 2 or 3 or 4 or 5 or G"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
@@ -580,7 +580,7 @@
            END-IF
 
            IF CD-PAYCODE = "010"
-               DISPLAY " MSN15: type ? or 1 or 2 or 3 or <Enter>"
+               DISPLAY " MSN15: type ? or 1 or 2 or 3 or <Enter> or G"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
@@ -603,6 +603,7 @@
 
            IF CD-PAYCODE = "012"
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
+                   " or G to grab read"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
@@ -632,7 +633,7 @@
 
            IF CD-PAYCODE = "013"
                DISPLAY " Measure 406: <Enter> no lesion or 1 or 2 or 3"
-                       " or ? for help"
+                       " or ? for help  or G to grab read"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
