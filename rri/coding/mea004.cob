@@ -11,19 +11,26 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
        
-           SELECT CHARFILE ASSIGN TO  "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
-           LOCK MODE MANUAL.
+           SELECT CHARFILE  ASSIGN TO  "S30" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+               LOCK MODE MANUAL.
 
-           SELECT FILEOUT ASSIGN TO   "S35" ORGANIZATION
-           LINE SEQUENTIAL.
+           SELECT FILEOUT   ASSIGN TO   "S35" ORGANIZATION
+               LINE SEQUENTIAL.
 
            SELECT CLAIMFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS CLAIM-KEY
-           LOCK MODE MANUAL.
+               ACCESS MODE IS DYNAMIC RECORD KEY IS CLAIM-KEY
+               LOCK MODE MANUAL.
+
+           SELECT GARFILE   ASSIGN TO "S45" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+               ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+               LOCK MODE MANUAL.
 
        DATA DIVISION.
+
        FILE SECTION.
+       
        FD  CHARFILE
            DATA RECORD IS CHARFILE01.
        01  CHARFILE01.
@@ -81,6 +88,9 @@
        01  CLAIM01.
            02 CLAIM-KEY PIC X.
            02 CLAIMNO PIC 9(6).
+
+       FD  GARFILE.
+           COPY "garfile.cpy" IN "C:\Users\sid\cms\copylib\rri".     
 
        WORKING-STORAGE SECTION.
 
@@ -166,7 +176,7 @@
                GO TO P2
            END-READ          
 
-           IF NOT (CD-PAYCODE = "008" OR "012" 
+           IF NOT (CD-PAYCODE = "008" OR "009" OR "010" OR "012" 
                OR "013" OR "014")
                GO TO P1
            END-IF
@@ -176,11 +186,39 @@
 
            IF CD-PAYCODE = "008"
                MOVE SPACE TO FILEOUT01
-               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 " G9500"
+               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 "
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                MOVE 145 TO FLAG
                MOVE "003" TO CD-PAYCODE
+               REWRITE CHARFILE01
+               UNLOCK CHARFILE RECORD
+               PERFORM A1 THRU A1-EXIT
+               GO TO P0
+           END-IF
+
+           IF CD-PAYCODE = "009"
+               MOVE SPACE TO FILEOUT01
+               STRING "M26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
+               MOVE 926 TO FLAG
+               PERFORM GET-INS
+               MOVE G-PRINS TO CD-PAYCODE
+               REWRITE CHARFILE01
+               UNLOCK CHARFILE RECORD
+               PERFORM A1 THRU A1-EXIT
+               GO TO P0
+           END-IF
+
+           IF CD-PAYCODE = "010"
+               MOVE SPACE TO FILEOUT01
+               STRING "N15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
+               MOVE 915 TO FLAG
+               PERFORM GET-INS
+               MOVE G-PRINS TO CD-PAYCODE
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
@@ -234,10 +272,25 @@
            MOVE 0 TO XYZ
 
            IF FLAG = 145
-               MOVE "0000G9500  " TO  X-PROC
-               PERFORM B1 THRU B2
-               STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
-               GO TO A1-EXIT
+               IF CD-QP1 = "1 "
+                   MOVE "0000G9500  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000" 
+                       DELIMITED BY SIZE INTO CHARFILE-KEY
+                   GO TO A1-EXIT
+               ELSE
+                   MOVE SPACE TO FILEOUT01
+                   STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                          " PERFORMANCE NOT MET!" 
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01 
+                   MOVE "0000G9501  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000" 
+                       DELIMITED BY SIZE INTO CHARFILE-KEY    
+                   GO TO A1-EXIT     
+               END-IF
+
            END-IF
 
            IF FLAG = 405
@@ -374,6 +427,68 @@
       *    measure 195 retired in 2022
       *    measure 076 retired in 2023
       *    measure 147 retired in 2024
+      *    Dan picked 2 measures from acr qcdr
+           
+           IF FLAG = 926
+               IF CD-QP1 = "1 "                    
+                   MOVE "0000G9554  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                        DELIMITED BY SIZE INTO CHARFILE-KEY
+               END-IF
+           
+               IF CD-QP1 = "2 "
+                   MOVE "0000G9555  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                        DELIMITED BY SIZE INTO CHARFILE-KEY
+               END-IF
+
+               IF CD-QP1 = "3 "
+                   MOVE "0000G9556  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                        DELIMITED BY SIZE INTO CHARFILE-KEY
+      *  log measure fails
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                          " PERFORMANCE NOT MET which is great "
+                          " it's an inverse measure :)"   
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF (CD-QP1 = "1 " OR "2 " OR "3 ")
+                   MOVE "0000G9552  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                        DELIMITED BY SIZE INTO CHARFILE-KEY
+               ELSE
+                   MOVE "0000G9557  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000" 
+                       DELIMITED BY SIZE INTO CHARFILE-KEY
+               END-IF
+             
+              
+      *    handle multi-qpp-cpts by doing mea 436
+               IF (PROC-HOLD = "70486" OR "70487" OR "70488"
+                   OR "70490" OR "70491" OR "70492" OR "70498"
+                   OR "71250" OR "71260" OR "71270" OR "71271"
+                   OR "71275" OR "72125" OR "72126" OR "72127")
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "436 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                          " REPORTED."
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+                   MOVE "0000G9637  " TO  X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                       DELIMITED BY SIZE INTO CHARFILE-KEY
+               END-IF
+               GO TO A1-EXIT
+           END-IF
+
 
        B1.
            ADD 1 TO XYZ
@@ -407,6 +522,14 @@
 
        A1-EXIT.
            EXIT.
+
+       GET-INS.
+           MOVE CD-KEY8 TO G-GARNO
+           READ GARFILE INVALID               
+               DISPLAY "GARNO NOT AVAILABLE FOR SOME UNKNOWN REASON"
+               DISPLAY "PLEASE RECORD THIS FACT " CD-KEY8
+               GO TO P1
+           END-READ.    
 
        P2.
            REWRITE CLAIM01
