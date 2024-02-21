@@ -12,25 +12,87 @@
            
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
            LINE SEQUENTIAL.
+           
+           SELECT GARFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+               ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+               LOCK MODE MANUAL.
 
        DATA DIVISION.
+
        FILE SECTION.
+
        FD  FILEOUT.
        01  FILEOUT01 PIC X(70).
+
        FD  CHARNEW.
            copy "charnew.cpy" in "c:\Users\sid\cms\copylib\rri".
 
+       FD  GARFILE.
+           COPY "garfile.cpy" IN "C:\Users\sid\cms\copylib\rri".               
+
        WORKING-STORAGE SECTION.
-       01 HOLD8 PIC X(8).
+       01  HOLD8 PIC X(8).
+
+       01  SVC-DATE.
+           02 SVC-YYYY PIC 9999.
+           02 SVC-MMDD  PIC 9999.
+
+       01  G-DATE.
+           02 G-YYYY PIC 9999.
+           02 G-MMDD  PIC 9999.
+
+       01  G-AGE PIC 999.    
+
        PROCEDURE DIVISION.
        0005-START.
            OPEN I-O CHARNEW 
            OPEN OUTPUT FILEOUT.
+           OPEN INPUT GARFILE
            MOVE SPACE TO CHARNEW-KEY.
        P1. 
            READ CHARNEW NEXT WITH LOCK AT END
                GO TO P2
            END-READ
+
+      *    move these above check for 03 since these are acr registry
+      *    009 paycode is QMM26: Screening Abdominal Aortic Aneurysm
+      *    reporting with recommendations
+
+           IF (CD-CPT = "76706")
+             PERFORM CHECK-AGE
+      *    measure is for 50 and up 
+             IF (G-AGE < 50) 
+               GO TO P1
+             END-IF  
+
+             MOVE "009" TO CD-PAYCODE
+             MOVE SPACE TO FILEOUT01
+             STRING "QMM26 " CD-PAYCODE " " CD-CPT " " CD-DATE-T " "
+                CD-KEY8 " " CD-NAME DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             REWRITE CHARNEW01
+             GO TO P1
+           END-IF
+
+      *    010 paycode is MSN15: Use of thyroid imaging reporting &
+      *      and data system (TI-RADS) in final report to stratify
+      *      thyroid nodule risk
+
+           IF (CD-CPT = "76536")
+             PERFORM CHECK-AGE
+      *    measure is for 19 and up 
+             IF (G-AGE < 19) 
+               GO TO P1
+             END-IF  
+             MOVE "010" TO CD-PAYCODE
+             MOVE SPACE TO FILEOUT01
+             STRING "MSN15 " CD-PAYCODE " " CD-CPT " " CD-DATE-T " "
+                CD-KEY8 " " CD-NAME DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             REWRITE CHARNEW01
+             GO TO P1
+           END-IF              
 
            IF (CD-PAYCODE NOT = "003")
                GO TO P1
@@ -69,8 +131,8 @@
                MOVE "008" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
                STRING "145 " CD-PAYCODE " "
-                      CD-CPT " " CD-DATE-T " " CD-NAME
-               DELIMITED BY SIZE INTO FILEOUT01
+                      CD-CPT " " CD-DATE-T " " CD-KEY8 " " CD-NAME
+                   DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARNEW01
                GO TO P1
@@ -108,13 +170,14 @@
                MOVE "008" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
                STRING "145 " CD-PAYCODE " "
-                      CD-CPT " " CD-DATE-T " " CD-NAME
-               DELIMITED BY SIZE INTO FILEOUT01
+                      CD-CPT " " CD-DATE-T " " CD-KEY8 " " CD-NAME
+                   DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARNEW01
                GO TO P1
            END-IF
 
+      
             
       *    paycode 012 is measure 405  
            IF (CD-CPT =  "71250" OR "71260" OR "71270" OR "71271"
@@ -125,7 +188,7 @@
              MOVE "012" TO CD-PAYCODE
              MOVE SPACE TO FILEOUT01
              STRING "405 " CD-PAYCODE " " CD-CPT " " CD-DATE-T " "
-               CD-NAME DELIMITED BY SIZE INTO FILEOUT01
+               CD-KEY8 " " CD-NAME DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01 
              REWRITE CHARNEW01
              GO TO P1
@@ -141,7 +204,7 @@
              MOVE "013" TO CD-PAYCODE
              MOVE SPACE TO FILEOUT01
              STRING "406 " CD-PAYCODE " " CD-CPT " " CD-DATE-T " " 
-               CD-NAME DELIMITED BY SIZE INTO FILEOUT01
+               CD-KEY8 " " CD-NAME DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01 
              REWRITE CHARNEW01
              GO TO P1
@@ -165,7 +228,7 @@
                MOVE "014" TO CD-PAYCODE
                MOVE SPACE TO FILEOUT01
                STRING "436 " CD-PAYCODE " " 
-                      CD-CPT " " CD-DATE-T " " CD-NAME 
+                      CD-CPT " " CD-DATE-T " " CD-KEY8 " " CD-NAME 
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                REWRITE CHARNEW01 
@@ -173,6 +236,20 @@
            END-IF
 
            GO TO P1.
+
+       CHECK-AGE.
+           MOVE CD-KEY8 TO G-GARNO
+           READ GARFILE INVALID               
+               DISPLAY "GARNO NOT AVAILABLE FOR SOME UNKNOWN REASON"
+               DISPLAY "PLEASE RECORD THIS FACT " CD-KEY8
+               GO TO P1
+           END-READ
+
+           MOVE G-DOB TO G-DATE
+           MOVE CD-DATE-T TO SVC-DATE
+
+           COMPUTE G-AGE = SVC-YYYY - G-YYYY.
+
        P2.
            CLOSE CHARNEW.
            STOP RUN.
