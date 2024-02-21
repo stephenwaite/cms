@@ -580,7 +580,7 @@
            END-IF
 
            IF CD-PAYCODE = "010"
-               DISPLAY " MSN15: type ? or 1 or 2 or 3"
+               DISPLAY " MSN15: type ? or 1 or 2 or 3 or <Enter>"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
@@ -593,9 +593,10 @@
                    DISPLAY " 1 = incl score and rec"
                    DISPLAY " 2 = performance not met, no score and rec" 
                    DISPLAY " 3 = denom exception, see measure"
+                   DISPLAY " <Enter> = no nodule(s)"
                    GO TO P2-0
                END-IF               
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 ")
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " or SPACE)
                    GO TO P2-0
                END-IF
            END-IF
