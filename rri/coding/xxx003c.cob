@@ -536,6 +536,26 @@
                END-IF    
            END-IF
 
+           IF CD-PAYCODE = "008"
+               DISPLAY " Mea 145: type ? or 1 or 2"
+               ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
+               IF CD-QP1 = "?"
+                   DISPLAY "Radiation exposure indices documented"
+                   DISPLAY " 1 = performance met"
+                   DISPLAY " 2 = performance not met" 
+                   GO TO P2-0
+               END-IF               
+               IF NOT (CD-QP1 = "1 " OR "2 ")
+                   GO TO P2-0
+               END-IF
+           END-IF
+
            IF CD-PAYCODE = "009"
                DISPLAY " QMM26: type ? or 1 or 2 or 3 or 4 or 5"
                ACCEPT CD-QP1
