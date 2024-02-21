@@ -194,7 +194,7 @@
 
            IF CD-PAYCODE = "008"
                MOVE SPACE TO FILEOUT01
-               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 "
+               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                MOVE 145 TO FLAG
@@ -441,7 +441,7 @@
                IF CD-QP1 = "1 "
       *    create comma delimited file to upload to acr registry                              
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
                    "QMM26" CD-PROC1 CD-DIAG "PM002" CD-CLAIM
                    DELIMITED BY "," INTO FILEOUT201
                    WRITE FILEOUT201
@@ -455,7 +455,7 @@
            
                IF CD-QP1 = "2 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
                    "QMM26" CD-PROC1 CD-DIAG "PM102" CD-CLAIM
                    DELIMITED BY "," INTO FILEOUT201
                    WRITE FILEOUT201
@@ -468,7 +468,7 @@
 
                IF CD-QP1 = "3 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
                    "QMM26" CD-PROC1 CD-DIAG "PM202" CD-CLAIM
                    DELIMITED BY "," INTO FILEOUT201
                    WRITE FILEOUT201
@@ -481,7 +481,7 @@
 
                IF CD-QP1 = "4 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
                    "QMM26" CD-PROC1 CD-DIAG "PNM02" CD-CLAIM
                    DELIMITED BY "," INTO FILEOUT201
                    WRITE FILEOUT201
@@ -494,7 +494,7 @@
 
                IF CD-QP1 = "5 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
                    "QMM26" CD-PROC1 CD-DIAG "PE002" CD-CLAIM
                    DELIMITED BY "," INTO FILEOUT201
                    WRITE FILEOUT201
@@ -513,7 +513,7 @@
                IF CD-QP1 = "1 "
       *    create comma delimited file to upload to acr registry                              
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
                    "MSN15" CD-PROC1 CD-DIAG "PM004" CD-CLAIM
                    DELIMITED BY "," INTO FILEOUT201
                    WRITE FILEOUT201
@@ -527,7 +527,7 @@
            
                IF CD-QP1 = "2 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
                    "MSN15" CD-PROC1 CD-DIAG "PNM04" CD-CLAIM
                    DELIMITED BY "," INTO FILEOUT201
                    WRITE FILEOUT201
@@ -540,7 +540,7 @@
 
                IF CD-QP1 = "3 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
                    "MSN15" CD-PROC1 CD-DIAG "PE004" CD-CLAIM
                    DELIMITED BY "," INTO FILEOUT201
                    WRITE FILEOUT201
