@@ -441,66 +441,71 @@
                IF CD-QP1 = "1 "
       *    create comma delimited file to upload to acr registry                              
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
-                   "QMM26" CD-PROC1 CD-DIAG "PM002" CD-CLAIM
-                   DELIMITED BY "," INTO FILEOUT201
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS  "," G-PRIPOL ",QMM26," CD-PROC1  ","
+                       CD-DIAG ",PM002," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
       *    size delimited file for output to coders                                                
                    MOVE SPACE TO FILEOUT01              
                    STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                       "PERFORMANCE MET"
+                       " PERFORMANCE MET"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01                          
                END-IF
            
                IF CD-QP1 = "2 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
-                   "QMM26" CD-PROC1 CD-DIAG "PM102" CD-CLAIM
-                   DELIMITED BY "," INTO FILEOUT201
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 "," 
+                       CD-DIAG ",PM102," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
                    STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                       "PERFORMANCE MET"
+                       " PERFORMANCE MET"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
 
                IF CD-QP1 = "3 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
-                   "QMM26" CD-PROC1 CD-DIAG "PM202" CD-CLAIM
-                   DELIMITED BY "," INTO FILEOUT201
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
+                       CD-DIAG ",PM202," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
                    STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                       "NEGATIVE FOR AAA"
+                       " NEGATIVE FOR AAA"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
 
                IF CD-QP1 = "4 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
-                   "QMM26" CD-PROC1 CD-DIAG "PNM02" CD-CLAIM
-                   DELIMITED BY "," INTO FILEOUT201
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
+                       CD-DIAG ",PNM02," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
                    STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                       "*** PERFORMANCE NOT MET!"
+                       " *** PERFORMANCE NOT MET!"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
 
                IF CD-QP1 = "5 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
-                   "QMM26" CD-PROC1 CD-DIAG "PE002" CD-CLAIM
-                   DELIMITED BY "," INTO FILEOUT201
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
+                       CD-DIAG ",PE002," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
                    STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                       "*** DENOMINATOR EXCEPTION!"
+                       " *** DENOMINATOR EXCEPTION!"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
@@ -513,40 +518,43 @@
                IF CD-QP1 = "1 "
       *    create comma delimited file to upload to acr registry                              
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
-                   "MSN15" CD-PROC1 CD-DIAG "PM004" CD-CLAIM
-                   DELIMITED BY "," INTO FILEOUT201
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
+                       CD-DIAG ",PM004," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
       *    size delimited file for output to coders                                                
                    MOVE SPACE TO FILEOUT01              
                    STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                       "PERFORMANCE MET"
+                       " PERFORMANCE MET"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01                          
                END-IF
            
                IF CD-QP1 = "2 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
-                   "MSN15" CD-PROC1 CD-DIAG "PNM04" CD-CLAIM
-                   DELIMITED BY "," INTO FILEOUT201
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
+                       CD-DIAG ",PNM04," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
                    STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                       "*** PERFORMANCE NOT MET!"
+                       " *** PERFORMANCE NOT MET!"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
 
                IF CD-QP1 = "3 "
                    MOVE SPACE TO FILEOUT201              
-                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-PRINS G-PRIPOL
-                   "MSN15" CD-PROC1 CD-DIAG "PE004" CD-CLAIM
-                   DELIMITED BY "," INTO FILEOUT201
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
+                       CD-DIAG ",PE004," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
                    STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                       "*** DENOMINATOR EXCEPTION!"
+                       " *** DENOMINATOR EXCEPTION!"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
@@ -554,7 +562,7 @@
                IF CD-QP1 = SPACE
                    MOVE SPACE TO FILEOUT01              
                    STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                       "NO NODULE(S)"
+                       " NO NODULE(S)"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
