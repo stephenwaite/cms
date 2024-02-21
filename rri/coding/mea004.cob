@@ -27,6 +27,10 @@
                ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
                LOCK MODE MANUAL.
 
+           SELECT FILEOUT2  ASSIGN TO "S50" ORGANIZATION
+               LINE SEQUENTIAL.
+    
+
        DATA DIVISION.
 
        FILE SECTION.
@@ -83,6 +87,9 @@
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).
+
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(120).
 
        FD  CLAIMFILE.
        01  CLAIM01.
@@ -152,7 +159,8 @@
 
        0005-START.
            OPEN I-O CHARFILE CLAIMFILE. 
-           OPEN OUTPUT FILEOUT.
+           OPEN OUTPUT FILEOUT FILEOUT2.
+           OPEN INPUT GARFILE.
 
            MOVE SPACE TO CHARFILE-KEY.
            MOVE "A" TO CLAIM-KEY.
@@ -430,65 +438,130 @@
       *    Dan picked 2 measures from acr qcdr
            
            IF FLAG = 926
-               IF CD-QP1 = "1 "                    
-                   MOVE "0000G9554  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000"
-                        DELIMITED BY SIZE INTO CHARFILE-KEY
+               IF CD-QP1 = "1 "
+      *    create comma delimited file to upload to acr registry                              
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   "QMM26" CD-PROC1 CD-DIAG "PM002" CD-CLAIM
+                   DELIMITED BY "," INTO FILEOUT201
+                   WRITE FILEOUT201
+      *    size delimited file for output to coders                                                
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       "PERFORMANCE MET"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01                          
                END-IF
            
                IF CD-QP1 = "2 "
-                   MOVE "0000G9555  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000"
-                        DELIMITED BY SIZE INTO CHARFILE-KEY
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   "QMM26" CD-PROC1 CD-DIAG "PM102" CD-CLAIM
+                   DELIMITED BY "," INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       "PERFORMANCE MET"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
                END-IF
 
                IF CD-QP1 = "3 "
-                   MOVE "0000G9556  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000"
-                        DELIMITED BY SIZE INTO CHARFILE-KEY
-      *  log measure fails
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   "QMM26" CD-PROC1 CD-DIAG "PM202" CD-CLAIM
+                   DELIMITED BY "," INTO FILEOUT201
+                   WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
-                   STRING "406 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                          " PERFORMANCE NOT MET which is great "
-                          " it's an inverse measure :)"   
+                   STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       "NEGATIVE FOR AAA"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
 
-               IF (CD-QP1 = "1 " OR "2 " OR "3 ")
-                   MOVE "0000G9552  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000"
-                        DELIMITED BY SIZE INTO CHARFILE-KEY
-               ELSE
-                   MOVE "0000G9557  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000" 
-                       DELIMITED BY SIZE INTO CHARFILE-KEY
-               END-IF
-             
-              
-      *    handle multi-qpp-cpts by doing mea 436
-               IF (PROC-HOLD = "70486" OR "70487" OR "70488"
-                   OR "70490" OR "70491" OR "70492" OR "70498"
-                   OR "71250" OR "71260" OR "71270" OR "71271"
-                   OR "71275" OR "72125" OR "72126" OR "72127")
+               IF CD-QP1 = "4 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   "QMM26" CD-PROC1 CD-DIAG "PNM02" CD-CLAIM
+                   DELIMITED BY "," INTO FILEOUT201
+                   WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
-                   STRING "436 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                          " REPORTED."
+                   STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       "*** PERFORMANCE NOT MET!"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
-                   MOVE "0000G9637  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000"
-                       DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
+
+               IF CD-QP1 = "5 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   "QMM26" CD-PROC1 CD-DIAG "PE002" CD-CLAIM
+                   DELIMITED BY "," INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       "*** DENOMINATOR EXCEPTION!"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
                GO TO A1-EXIT
+
            END-IF
 
+           IF FLAG = 915
+               IF CD-QP1 = "1 "
+      *    create comma delimited file to upload to acr registry                              
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   "MSN15" CD-PROC1 CD-DIAG "PM004" CD-CLAIM
+                   DELIMITED BY "," INTO FILEOUT201
+                   WRITE FILEOUT201
+      *    size delimited file for output to coders                                                
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       "PERFORMANCE MET"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01                          
+               END-IF
+           
+               IF CD-QP1 = "2 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   "MSN15" CD-PROC1 CD-DIAG "PNM04" CD-CLAIM
+                   DELIMITED BY "," INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       "*** PERFORMANCE NOT MET!"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF CD-QP1 = "3 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T G-GARNO G-DOB G-SEX G-INS G-PRIPOL
+                   "MSN15" CD-PROC1 CD-DIAG "PE004" CD-CLAIM
+                   DELIMITED BY "," INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       "*** DENOMINATOR EXCEPTION!"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF CD-QP1 = SPACE
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       "NO NODULE(S)"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               GO TO A1-EXIT
+               
+           END-IF.
 
        B1.
            ADD 1 TO XYZ
