@@ -111,7 +111,7 @@
            PERFORM DF-SEARCH.
            IF CC-SERVICE < "1" OR > "7" MOVE "4" TO FO-SERVICE
            ELSE MOVE CC-SERVICE TO FO-SERVICE.
-           IF CC-PATID8 = "G" PERFORM B1
+           IF CC-PATID(8:1) = "G" PERFORM B1
            ELSE PERFORM B2.
            MOVE "1" TO FO-DUM.
            MOVE "01" TO FO-DOCP
