@@ -5,7 +5,7 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
        PROGRAM-ID. mvp5r079.
-       AUTHOR. SID WAITE.
+       AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -541,7 +541,7 @@
            02 SUBPER-S0 PIC X VALUE "*".
            02 SUBPER-1 PIC XX VALUE "IC". 
            02 SUBPER-S1 PIC X VALUE "*".
-           02 SUBPER-2 PIC X(9) VALUE "SID WAITE".
+           02 SUBPER-2 PIC X(9) VALUE "S WAITE".
            02 SUBPER-S2 PIC X VALUE "*".
            02 SUBPER-3 PIC XX VALUE "TE".
            02 SUBPER-S3 PIC X VALUE "*".
@@ -553,7 +553,7 @@
            02 SUBPER-S6 PIC X VALUE "*".
            02 SUBPER-7 PIC XX VALUE "EM".
            02 SUBPER-S7 PIC X VALUE "*".
-           02 SUBPER-8  PIC X(17) VALUE "cmswest@sover.net".
+           02 SUBPER-8  PIC X(23) VALUE "stephen.waite@cmsvt.com".
            02 SUBPER-S9 PIC X VALUE "*".
            02 SUBPER-END PIC X VALUE "~".
        01  INSNM01.
