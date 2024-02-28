@@ -472,8 +472,7 @@
            END-IF.    
                
        P1-1.
-           IF (CD-PAYCODE = "008" OR "009" OR "010" OR 
-               "012" OR "013" OR "014")  
+           IF (CD-PAYCODE = "009" OR "010" OR "012" OR "013" OR "014")  
                GO TO P2
            END-IF    
       * mammo codes
@@ -520,8 +519,7 @@
            DISPLAY " ".
 
        P2-0.
-           IF (CD-PAYCODE = "008" OR "009" OR "010" OR 
-               "012" OR "013" OR "014")
+           IF (CD-PAYCODE = "009" OR "010" OR "012" OR "013" OR "014")
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
                    DISPLAY "quality codes as well once study is read"
@@ -534,26 +532,6 @@
                    PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1        
                END-IF    
-           END-IF
-
-           IF CD-PAYCODE = "008"
-               DISPLAY " Mea 145: type ? or 1 or 2 or G"
-               ACCEPT CD-QP1
-
-               IF CD-QP1 = "G"
-                 PERFORM 10-GR
-                 GO TO P2-0
-               END-IF
-
-               IF CD-QP1 = "?"
-                   DISPLAY "Radiation exposure indices documented"
-                   DISPLAY " 1 = performance met"
-                   DISPLAY " 2 = performance not met" 
-                   GO TO P2-0
-               END-IF               
-               IF NOT (CD-QP1 = "1 " OR "2 ")
-                   GO TO P2-0
-               END-IF
            END-IF
 
            IF CD-PAYCODE = "009"

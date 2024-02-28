@@ -184,26 +184,13 @@
                GO TO P2
            END-READ          
 
-           IF NOT (CD-PAYCODE = "008" OR "009" OR "010" OR "012" 
+           IF NOT (CD-PAYCODE = "009" OR "010" OR "012" 
                OR "013" OR "014")
                GO TO P1
            END-IF
 
            MOVE CHARFILE01 TO CHARBACK01
            MOVE CD-PROC1 TO PROC-HOLD           
-
-           IF CD-PAYCODE = "008"
-               MOVE SPACE TO FILEOUT01
-               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01 
-               MOVE 145 TO FLAG
-               MOVE "003" TO CD-PAYCODE
-               REWRITE CHARFILE01
-               UNLOCK CHARFILE RECORD
-               PERFORM A1 THRU A1-EXIT
-               GO TO P0
-           END-IF
 
            IF CD-PAYCODE = "009"
                MOVE SPACE TO FILEOUT01
@@ -278,28 +265,6 @@
        A1. 
       *  set key counter to 0, increment in B1 
            MOVE 0 TO XYZ
-
-           IF FLAG = 145
-               IF CD-QP1 = "1 "
-                   MOVE "0000G9500  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000" 
-                       DELIMITED BY SIZE INTO CHARFILE-KEY
-                   GO TO A1-EXIT
-               ELSE
-                   MOVE SPACE TO FILEOUT01
-                   STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                          " PERFORMANCE NOT MET!" 
-                   DELIMITED BY SIZE INTO FILEOUT01
-                   WRITE FILEOUT01 
-                   MOVE "0000G9501  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000" 
-                       DELIMITED BY SIZE INTO CHARFILE-KEY    
-                   GO TO A1-EXIT     
-               END-IF
-
-           END-IF
 
            IF FLAG = 405
                IF CD-QP1 = "1 "
