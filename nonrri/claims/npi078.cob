@@ -457,7 +457,7 @@
            STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE INTO FILEOUT01
            
            IF (INS-NEIC = "14165" OR "60054" OR "62308" OR "87726" OR
-               "14163" OR "04271" OR "13551")
+               "04271" OR "13551" OR "06111")
              WRITE FILEOUT201 FROM FILEOUT01
            ELSE
              WRITE FILEOUT01
