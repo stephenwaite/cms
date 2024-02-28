@@ -3,8 +3,8 @@ use phpseclib3\Net\SFTP;
 
 require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 
-
-$cms_user = getenv('RRB_USERNAME');
+$ans = readline("era, enter 1, or 277, enter anything else, ? \n");
+$cms_user = ($ans == 1) ? getenv('RRBERN_USERNAME') : getenv('RRB_USERNAME');
 $cms_pass = getenv('RRB_PASSWORD');
 $sftp = new SFTP('edi.palmetto.ahdsxhub.com', '22');
 $sftp->login($cms_user, $cms_pass);

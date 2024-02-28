@@ -11,19 +11,30 @@
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
        
-           SELECT CHARFILE ASSIGN TO  "S30" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
-           LOCK MODE MANUAL.
+           SELECT CHARFILE  ASSIGN TO  "S30" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS CHARFILE-KEY
+               LOCK MODE MANUAL.
 
-           SELECT FILEOUT ASSIGN TO   "S35" ORGANIZATION
-           LINE SEQUENTIAL.
+           SELECT FILEOUT   ASSIGN TO   "S35" ORGANIZATION
+               LINE SEQUENTIAL.
 
            SELECT CLAIMFILE ASSIGN TO "S40" ORGANIZATION IS INDEXED
-           ACCESS MODE IS DYNAMIC RECORD KEY IS CLAIM-KEY
-           LOCK MODE MANUAL.
+               ACCESS MODE IS DYNAMIC RECORD KEY IS CLAIM-KEY
+               LOCK MODE MANUAL.
+
+           SELECT GARFILE   ASSIGN TO "S45" ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
+               ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+               LOCK MODE MANUAL.
+
+           SELECT FILEOUT2  ASSIGN TO "S50" ORGANIZATION
+               LINE SEQUENTIAL.
+    
 
        DATA DIVISION.
+
        FILE SECTION.
+       
        FD  CHARFILE
            DATA RECORD IS CHARFILE01.
        01  CHARFILE01.
@@ -77,10 +88,16 @@
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).
 
+       FD  FILEOUT2.
+       01  FILEOUT201 PIC X(120).
+
        FD  CLAIMFILE.
        01  CLAIM01.
            02 CLAIM-KEY PIC X.
            02 CLAIMNO PIC 9(6).
+
+       FD  GARFILE.
+           COPY "garfile.cpy" IN "C:\Users\sid\cms\copylib\rri".     
 
        WORKING-STORAGE SECTION.
 
@@ -142,7 +159,8 @@
 
        0005-START.
            OPEN I-O CHARFILE CLAIMFILE. 
-           OPEN OUTPUT FILEOUT.
+           OPEN OUTPUT FILEOUT FILEOUT2.
+           OPEN INPUT GARFILE.
 
            MOVE SPACE TO CHARFILE-KEY.
            MOVE "A" TO CLAIM-KEY.
@@ -166,7 +184,7 @@
                GO TO P2
            END-READ          
 
-           IF NOT (CD-PAYCODE = "008" OR "012" 
+           IF NOT (CD-PAYCODE = "009" OR "010" OR "012" 
                OR "013" OR "014")
                GO TO P1
            END-IF
@@ -174,13 +192,28 @@
            MOVE CHARFILE01 TO CHARBACK01
            MOVE CD-PROC1 TO PROC-HOLD           
 
-           IF CD-PAYCODE = "008"
+           IF CD-PAYCODE = "009"
                MOVE SPACE TO FILEOUT01
-               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 " G9500"
+               STRING "M26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
-               MOVE 145 TO FLAG
-               MOVE "003" TO CD-PAYCODE
+               MOVE 926 TO FLAG
+               PERFORM GET-INS
+               MOVE G-PRINS TO CD-PAYCODE
+               REWRITE CHARFILE01
+               UNLOCK CHARFILE RECORD
+               PERFORM A1 THRU A1-EXIT
+               GO TO P0
+           END-IF
+
+           IF CD-PAYCODE = "010"
+               MOVE SPACE TO FILEOUT01
+               STRING "N15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
+               MOVE 915 TO FLAG
+               PERFORM GET-INS
+               MOVE G-PRINS TO CD-PAYCODE
                REWRITE CHARFILE01
                UNLOCK CHARFILE RECORD
                PERFORM A1 THRU A1-EXIT
@@ -232,13 +265,6 @@
        A1. 
       *  set key counter to 0, increment in B1 
            MOVE 0 TO XYZ
-
-           IF FLAG = 145
-               MOVE "0000G9500  " TO  X-PROC
-               PERFORM B1 THRU B2
-               STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
-               GO TO A1-EXIT
-           END-IF
 
            IF FLAG = 405
                IF CD-QP1 = "1 "
@@ -374,6 +400,141 @@
       *    measure 195 retired in 2022
       *    measure 076 retired in 2023
       *    measure 147 retired in 2024
+      *    Dan picked 2 measures from acr qcdr
+           
+           IF FLAG = 926
+               IF CD-QP1 = "1 "
+      *    create comma delimited file to upload to acr registry                              
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS  "," G-PRIPOL ",QMM26," CD-PROC1  ","
+                       CD-DIAG ",PM002," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+      *    size delimited file for output to coders                                                
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " PERFORMANCE MET"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01                          
+               END-IF
+           
+               IF CD-QP1 = "2 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 "," 
+                       CD-DIAG ",PM102," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " PERFORMANCE MET"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF CD-QP1 = "3 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
+                       CD-DIAG ",PM202," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " NEGATIVE FOR AAA"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF CD-QP1 = "4 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
+                       CD-DIAG ",PNM02," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " *** PERFORMANCE NOT MET!"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF CD-QP1 = "5 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
+                       CD-DIAG ",PE002," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM26 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " *** DENOMINATOR EXCEPTION!"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               GO TO A1-EXIT
+
+           END-IF
+
+           IF FLAG = 915
+               IF CD-QP1 = "1 "
+      *    create comma delimited file to upload to acr registry                              
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
+                       CD-DIAG ",PM004," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+      *    size delimited file for output to coders                                                
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " PERFORMANCE MET"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01                          
+               END-IF
+           
+               IF CD-QP1 = "2 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
+                       CD-DIAG ",PNM04," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " *** PERFORMANCE NOT MET!"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF CD-QP1 = "3 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
+                       CD-DIAG ",PE004," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " *** DENOMINATOR EXCEPTION!"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF CD-QP1 = SPACE
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " NO NODULE(S)"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               GO TO A1-EXIT
+               
+           END-IF.
 
        B1.
            ADD 1 TO XYZ
@@ -407,6 +568,14 @@
 
        A1-EXIT.
            EXIT.
+
+       GET-INS.
+           MOVE CD-KEY8 TO G-GARNO
+           READ GARFILE INVALID               
+               DISPLAY "GARNO NOT AVAILABLE FOR SOME UNKNOWN REASON"
+               DISPLAY "PLEASE RECORD THIS FACT " CD-KEY8
+               GO TO P1
+           END-READ.    
 
        P2.
            REWRITE CLAIM01

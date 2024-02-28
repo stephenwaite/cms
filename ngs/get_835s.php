@@ -6,7 +6,11 @@ require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 $cms_user = getenv('NGS_USERNAME');
 $cms_pass = getenv('NGS_PASSWORD');
 $sftp = new SFTP('edi.ngs.ahdsxhub.com', '10062');
-$sftp->login($cms_user, $cms_pass);
+
+if (!$sftp->login($cms_user, $cms_pass)) {
+    echo "login failed, maybe wg0 is down or password expired?" . "\n";
+    exit;
+};
 
 $path = 'current';
 

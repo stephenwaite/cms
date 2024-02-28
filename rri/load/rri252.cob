@@ -45,7 +45,7 @@
                GO TO P2
            END-READ    
            
-           IF (CD-PROC1 = "4094" OR "4095" OR "4073")
+           IF (CD-PROC1 = "4094" OR "4095" OR "4073" OR "4111")
                MOVE "024" TO CD-PAYCODE
                MOVE "P" TO CD-PAPER
                REWRITE CHARNEW01
@@ -54,6 +54,8 @@
                WRITE FILEOUT01
                GO TO P1
            END-IF
+
+
 
            IF ((CD-PROC2(1:5) = "77065") AND 
                (CD-PROC1 = "1091" OR "1092" OR "1441"))

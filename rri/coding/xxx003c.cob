@@ -472,7 +472,7 @@
            END-IF.    
                
        P1-1.
-           IF (CD-PAYCODE = "008" OR "012" OR "013" OR "014")  
+           IF (CD-PAYCODE = "009" OR "010" OR "012" OR "013" OR "014")  
                GO TO P2
            END-IF    
       * mammo codes
@@ -519,7 +519,7 @@
            DISPLAY " ".
 
        P2-0.
-           IF (CD-PAYCODE = "008" OR "012" OR "013" OR "014")
+           IF (CD-PAYCODE = "009" OR "010" OR "012" OR "013" OR "014")
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
                    DISPLAY "quality codes as well once study is read"
@@ -534,8 +534,54 @@
                END-IF    
            END-IF
 
+           IF CD-PAYCODE = "009"
+               DISPLAY " QMM26: type ? or 1 or 2 or 3 or 4 or 5 or G"
+               ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
+               IF CD-QP1 = "?"
+                   DISPLAY "Screening AAA pt >= 50 yo"
+                   DISPLAY " 1 = incl rec < 5.5cm in size"
+                   DISPLAY " 2 = incl rec > 5.5cm in size"
+                   DISPLAY " 3 = negative for AAA"
+                   DISPLAY " 4 = performance not met with rec for f/u" 
+                   DISPLAY " 5 = den exception, pt under act surveil"
+                   GO TO P2-0
+               END-IF               
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR "4 " OR "5 ")
+                   GO TO P2-0
+               END-IF
+           END-IF
+
+           IF CD-PAYCODE = "010"
+               DISPLAY " MSN15: type ? or 1 or 2 or 3 or <Enter> or G"
+               ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
+               IF CD-QP1 = "?"
+                   DISPLAY "TI-RADS >= 19 yo"
+                   DISPLAY " 1 = incl score and rec"
+                   DISPLAY " 2 = performance not met, no score and rec" 
+                   DISPLAY " 3 = denom exception, see measure"
+                   DISPLAY " <Enter> = no nodule(s)"
+                   GO TO P2-0
+               END-IF               
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " or SPACE)
+                   GO TO P2-0
+               END-IF
+           END-IF
+
            IF CD-PAYCODE = "012"
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
+                   " or G to grab read"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
@@ -565,7 +611,7 @@
 
            IF CD-PAYCODE = "013"
                DISPLAY " Measure 406: <Enter> no lesion or 1 or 2 or 3"
-                       " or ? for help"
+                       " or ? for help  or G to grab read"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
