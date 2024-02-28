@@ -369,7 +369,7 @@
              INTO FILEOUT01
 
            IF (INS-NEIC = "14165" OR "60054" OR "62308" OR "87726" OR
-               "14163" OR "04271" OR "12115" OR "13551")
+               "14163" OR "04271" OR "13551")
                WRITE FILEOUT201 FROM FILEOUT01
            ELSE
                WRITE FILEOUT01
