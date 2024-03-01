@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. wc5r079.
+       PROGRAM-ID. oa837.
        AUTHOR. SWAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
@@ -511,10 +511,10 @@
            MOVE "40 " TO NM1-1
            MOVE "2" TO  NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF
-           MOVE "WEBMD" TO NM1-NAMEL
+           MOVE "OFFICE ALLY" TO NM1-NAMEL
            MOVE "46" TO NM1-EINSS
            MOVE SPACE TO NM1-CODE
-           MOVE "133052274" TO NM1-CODE
+           MOVE "330897513" TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
 
@@ -998,10 +998,10 @@
            END-IF                          
            
       *    write pwk segment for medical attachments
-           IF HOLD-ACC-TYPE NOT = SPACE
-             MOVE SPACE TO SEGFILE01
-             MOVE HOLD-FILEIN-KEY TO PWK-7
-             WRITE SEGFILE01 FROM PWK01.
+      *     IF HOLD-ACC-TYPE NOT = SPACE
+      *       MOVE SPACE TO SEGFILE01
+      *       MOVE HOLD-FILEIN-KEY TO PWK-7
+      *       WRITE SEGFILE01 FROM PWK01.
              
       *    add auth for VA/VACCN outpatient claims
            MOVE 0 TO AUTH-FLAG
