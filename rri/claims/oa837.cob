@@ -764,18 +764,18 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM PER01
            
-           IF EINSS-TYPE = "E"
-               MOVE "2" TO NM1-SOLO
-               MOVE ORG-NAME TO NM1-NAMEL
-               MOVE SPACE TO NM1-NAMEF NM1-NAMEM NM1-NAMES
-               MOVE "EI" TO REF-CODE
-           ELSE 
-               MOVE "1" TO NM1-SOLO
-               MOVE PARMLAST TO NM1-NAMEL
-               MOVE PARMFIRST TO NM1-NAMEF
-               MOVE PARMMIDDLE TO NM1-NAMEM
-               MOVE "SY" TO REF-CODE
-           END-IF
+      *     IF EINSS-TYPE = "E"
+      *         MOVE "2" TO NM1-SOLO
+      *         MOVE ORG-NAME TO NM1-NAMEL
+      *         MOVE SPACE TO NM1-NAMEF NM1-NAMEM NM1-NAMES
+      *         MOVE "EI" TO REF-CODE
+      *     ELSE 
+      *         MOVE "1" TO NM1-SOLO
+      *         MOVE PARMLAST TO NM1-NAMEL
+      *         MOVE PARMFIRST TO NM1-NAMEF
+      *         MOVE PARMMIDDLE TO NM1-NAMEM
+      *         MOVE "SY" TO REF-CODE
+      *     END-IF
 
            MOVE "87" TO NM1-1
            MOVE SPACE TO NM1-CODE
