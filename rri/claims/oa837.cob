@@ -217,7 +217,7 @@
 
        WORKING-STORAGE SECTION.
 
-       COPY "hip5010_837.cpy" IN "C:\Users\sid\cms\copylib".
+       COPY "hip5010_837_oa.cpy" IN "C:\Users\sid\cms\copylib".
 
        01  TEST-DATE.
            05 T-CC  PIC XX.
