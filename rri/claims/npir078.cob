@@ -64,9 +64,6 @@
            ACCESS MODE IS DYNAMIC RECORD KEY IS AUTH-KEY
            LOCK MODE MANUAL.  
 
-           SELECT FILEOUT3 ASSIGN TO "S95" ORGANIZATION
-           LINE SEQUENTIAL.         
-
        DATA DIVISION.
 
        FILE SECTION.
@@ -100,9 +97,6 @@
        01  FILEOUT01 PIC X(165).
 
        FD  FILEOUT2.
-       01  FILEOUT201 PIC X(165).
-
-       FD  FILEOUT3.
        01  FILEOUT201 PIC X(165).
       
        FD  INSIN.
@@ -374,10 +368,7 @@
            STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE
              INTO FILEOUT01
 
-           IF (INS-NEIC = "60054" OR "03036")
-               WRITE FILEOUT301 FROM FILEOUT01
-           ELSE IF (INS-NEIC = "14165" OR "62308" OR "87726" OR
-               "04271" OR "13551" OR "06111")
+           IF (INS-NEIC = "14165")
                WRITE FILEOUT201 FROM FILEOUT01    
            ELSE
                WRITE FILEOUT01
