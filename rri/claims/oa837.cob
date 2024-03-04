@@ -997,7 +997,7 @@
                WRITE SEGFILE01 FROM DTP01
            END-IF                          
            
-           write pwk segment for medical attachments
+      *    write pwk segment for medical attachments
             IF HOLD-ACC-TYPE NOT = SPACE
              MOVE SPACE TO SEGFILE01
              MOVE HOLD-FILEIN-KEY TO PWK-7
