@@ -14,10 +14,6 @@ try {
         exit;
     };
     
-    $cms_user = getenv('MOVEIT_USERNAME');
-    $cms_pass = getenv('MOVEIT_PASSWORD');
-    $sftp = new SFTP("moveit.bcbsvt.com");
-    $sftp->login($cms_user, $cms_pass);
     $remote_file_path = "/Home/cms/" . $argv[2];
     $file_to_upload = $argv[1];
     $sftp->put($remote_file_path, $file_to_upload, SFTP::SOURCE_LOCAL_FILE);

@@ -14,10 +14,14 @@ try {
         exit;
     };
     
-    $remote_file_path = "/inbound/" . $argv[1] . ".txt";
+    $date = new DateTimeImmutable();
+    $stamp = $date->format('YmdHis');
+
+    $remote_file_path = "/inbound/" . $argv[1] . "-" . $stamp . ".txt";
     $file_to_upload = $argv[1];
     $sftp->put($remote_file_path, $file_to_upload, SFTP::SOURCE_LOCAL_FILE);
     echo "file uploaded to oa via sftp \n";
+    copy($argv[1], $argv[1] . "-" . $stamp . ".txt");
 } catch (Exception $e) {
     echo $e->getMessage() . "\n";
 }
