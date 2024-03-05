@@ -71,7 +71,7 @@
        FD  REMITFILE.
        01  REMITFILE01.
            02 REMIT-KEY PIC X(68).
-           02 REMIT-DATE PIC X(8).
+           02 REMIT-DATE-E PIC X(8).
 
        FD  rarcfile.
        01  rarcfile01.
@@ -463,7 +463,7 @@
 
            READ REMITFILE     
                INVALID
-                   MOVE DATE-X TO REMIT-DATE
+                   ACCEPT REMIT-DATE-E FROM CENTURY-DATE
                    WRITE REMITFILE01
                    END-WRITE
                NOT INVALID
