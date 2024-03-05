@@ -7,7 +7,13 @@ require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 $cms_user = getenv('OA_USERNAME');
 $cms_pass = getenv('OA_PASSWORD');
 $sftp = new SFTP('ftp10.officeally.com');
-$sftp->login($cms_user, $cms_pass);
+if (!$sftp->login($cms_user, $cms_pass)) {
+    echo "login failed" . "\n";
+    exit;
+};
+
+// preserve date time
+$sftp->enableDatePreservation();
 
 $path = '/outbound';
 //print_r($sftp->rawlist($path, true));
