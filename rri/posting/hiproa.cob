@@ -464,7 +464,8 @@
            READ REMITFILE     
                INVALID
                    MOVE DATE-X TO REMIT-DATE
-                   WRITE REMITFILE01   
+                   WRITE REMITFILE01
+                   END-WRITE
                NOT INVALID
                    MOVE SPACE TO ERROR-FILE01
                    STRING "THIS REMIT IS ALREADY IN OUR DB"
