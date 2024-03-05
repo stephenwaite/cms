@@ -462,7 +462,7 @@
            STRING DATE-X TRN-2 TRN-3 TRN-4 DELIMITED BY SIZE
                INTO REMIT-KEY.   
 
-           MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG.
+           MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG REMITFILE01.
 
        P000.
            MOVE SPACE TO FILEIN01
@@ -507,7 +507,7 @@
            END-IF
 
            IF F1 = "DTM" AND F2 = "*405"
-               MOVE F3(1:8) TO REMIT-DATE-P
+               MOVE F3(2:8) TO REMIT-DATE-P
            END-IF 
            
            GO TO P000.
