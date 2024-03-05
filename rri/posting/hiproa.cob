@@ -459,20 +459,7 @@
                TRN-0 TRN-1 TRN-2 TRN-3 TRN-4.
 
            STRING DATE-X TRN-2 TRN-3 TRN-4 DELIMITED BY SIZE
-               INTO REMIT-KEY.
-
-           READ REMITFILE     
-               INVALID
-                   ACCEPT REMIT-DATE-E FROM CENTURY-DATE
-                   WRITE REMITFILE01
-                   END-WRITE
-               NOT INVALID
-                   MOVE SPACE TO ERROR-FILE01
-                   STRING REMITFILE01 " DUPE CHECK"
-                       DELIMITED BY SIZE INTO ERROR-FILE01
-                   WRITE ERROR-FILE01
-                   GO TO P00
-           END-READ        
+               INTO REMIT-KEY.   
 
            MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG.
 
@@ -544,6 +531,19 @@
            IF (PROV-FLAG = 1)
                GO TO P00
            END-IF
+
+           READ REMITFILE     
+               INVALID
+                   ACCEPT REMIT-DATE-E FROM CENTURY-DATE
+                   WRITE REMITFILE01
+                   END-WRITE
+               NOT INVALID
+                   MOVE SPACE TO ERROR-FILE01
+                   STRING REMITFILE01 " DUPE CHECK"
+                       DELIMITED BY SIZE INTO ERROR-FILE01
+                   WRITE ERROR-FILE01
+                   GO TO P00
+           END-READ     
            
            IF PAYORID = SPACE
                MOVE PAYORID1 TO PAYORID
