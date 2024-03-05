@@ -72,6 +72,7 @@
        01  REMITFILE01.
            02 REMIT-KEY PIC X(68).
            02 REMIT-DATE-E PIC X(8).
+           02 REMIT-DATE-P PIC X(8).
 
        FD  rarcfile.
        01  rarcfile01.
@@ -450,9 +451,13 @@
                GO TO P9
            END-READ
 
+           IF F1 = "DTM" AND F2 = "*405"
+               MOVE F3(1:8) TO REMIT-DATE-P
+           END-IF  
+
            IF F1 NOT = "TRN"
                GO TO P00
-           END-IF
+           END-IF  
 
            MOVE SPACE TO TRN01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
