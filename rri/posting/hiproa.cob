@@ -462,16 +462,16 @@
                INTO REMIT-KEY.
 
            READ REMITFILE     
-               INVALID KEY
+               INVALID
                    MOVE DATE-X TO REMIT-DATE
-                   WRITE REMITFILE01
-               NOT INVALID KEY
+                   WRITE REMITFILE01   
+               NOT INVALID
                    MOVE SPACE TO ERROR-FILE01
                    STRING "THIS REMIT IS ALREADY IN OUR DB"
                        DELIMITED BY SIZE INTO ERROR-FILE01
                    WRITE ERROR-FILE01
-                   GO TO P00  
-           END-READ          
+                   GO TO P00
+           END-READ        
 
            MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG.
 
