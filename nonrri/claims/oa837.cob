@@ -942,7 +942,7 @@
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO CLM-2
            MOVE SPACE TO CLM-11
-           MOVE SPACE TO CLM-11 CLM-COLON-ACCIDENT
+           MOVE SPACE TO CLM-11-4
            
            IF HOLD-DAT1 NOT = ZEROES
                PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT
@@ -1018,8 +1018,14 @@
            EXIT.
 
        ACCIDENT-1.
-           MOVE "OA" TO CLM-11.
-      *     MOVE ":" TO CLM-COLON-ACCIDENT.
+           IF HOLD-ACC-TYPE = "1"
+             MOVE "EM" TO CLM-11
+           ELSE IF HOLD-ACC-TYPE = "2"
+             MOVE "AA" TO CLM-11
+             MOVE ":::VT" TO CLM-11-4
+           ELSE
+             MOVE "OA" TO CLM-11
+             MOVE ":::VT" TO CLM-11-4.  
 
        ACCIDENT-EXIT.
            EXIT.
