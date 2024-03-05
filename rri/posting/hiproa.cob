@@ -468,7 +468,7 @@
                    END-WRITE
                NOT INVALID
                    MOVE SPACE TO ERROR-FILE01
-                   STRING "THIS REMIT IS ALREADY IN OUR DB"
+                   STRING REMITFILE01 " DUPE CHECK"
                        DELIMITED BY SIZE INTO ERROR-FILE01
                    WRITE ERROR-FILE01
                    GO TO P00
