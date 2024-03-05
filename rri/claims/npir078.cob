@@ -62,7 +62,7 @@
 
            SELECT AUTHFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS AUTH-KEY
-           LOCK MODE MANUAL.           
+           LOCK MODE MANUAL.  
 
        DATA DIVISION.
 
@@ -368,9 +368,8 @@
            STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE
              INTO FILEOUT01
 
-           IF (INS-NEIC = "14165" OR "60054" OR "62308" OR "87726" OR
-               "04271" OR "13551" OR "06111")
-               WRITE FILEOUT201 FROM FILEOUT01
+           IF (INS-NEIC = "14165")
+               WRITE FILEOUT201 FROM FILEOUT01    
            ELSE
                WRITE FILEOUT01
            END-IF

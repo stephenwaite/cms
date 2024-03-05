@@ -4,6 +4,6 @@
         "rospdf/pdf-php": "^0.12.63",
         "smalot/pdfparser": "^2.5",
         "guzzlehttp/guzzle": "7.5.0",
-        "phpseclib/phpseclib": "3.0.34"
+        "phpseclib/phpseclib": "3.0.36"
     }
 }

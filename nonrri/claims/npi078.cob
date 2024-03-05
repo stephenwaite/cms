@@ -235,16 +235,8 @@
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
 
-       FD  AUTHFILE
-           DATA RECORD IS AUTHFILE01.
-       01  AUTHFILE01.
-           02 AUTH-KEY.
-              03 AUTH-KEY8 PIC X(8).
-              03 AUTH-KEY6 PIC X(6).
-           02 AUTH-NUM PIC X(15).
-           02 AUTH-QNTY PIC XX.
-           02 AUTH-DATE-E PIC X(8).
-           02 AUTH-FILLER PIC X(41).           
+       FD  AUTHFILE.
+           COPY authfile.CPY IN "C:\Users\sid\cms\copylib".        
  
        WORKING-STORAGE SECTION.
        01  INSTAB01.
@@ -456,8 +448,7 @@
            MOVE SPACE TO FILEOUT01
            STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE INTO FILEOUT01
            
-           IF (INS-NEIC = "14165" OR "60054" OR "62308" OR "87726" OR
-               "04271" OR "13551" OR "06111")
+           IF (INS-NEIC = "14165")
              WRITE FILEOUT201 FROM FILEOUT01
            ELSE
              WRITE FILEOUT01
