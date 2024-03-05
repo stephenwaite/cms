@@ -250,7 +250,7 @@
 
        WORKING-STORAGE SECTION.
 
-           COPY "hip5010_837.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "hip5010_837_oa.cpy" IN "C:\Users\sid\cms\copylib".
 
        01  TEST-DATE.
            05 T-CC  PIC XX.
@@ -530,10 +530,10 @@
            MOVE "40 " TO NM1-1
            MOVE "2" TO  NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF
-           MOVE "WEBMD" TO NM1-NAMEL
+           MOVE "OFFICE ALLY" TO NM1-NAMEL
            MOVE "46" TO NM1-EINSS
            MOVE SPACE TO NM1-CODE
-           MOVE "133052274" TO NM1-CODE
+           MOVE "330897513" TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
 
