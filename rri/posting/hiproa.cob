@@ -449,11 +449,7 @@
            READ FILEIN
              AT END
                GO TO P9
-           END-READ
-
-           IF F1 = "DTM" AND F2 = "*405"
-               MOVE F3(1:8) TO REMIT-DATE-P
-           END-IF  
+           END-READ 
 
            IF F1 NOT = "TRN"
                GO TO P00
@@ -509,6 +505,10 @@
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    REF-0 REF-1 REF-2
            END-IF
+
+           IF F1 = "DTM" AND F2 = "*405"
+               MOVE F3(1:8) TO REMIT-DATE-P
+           END-IF 
            
            GO TO P000.
 
