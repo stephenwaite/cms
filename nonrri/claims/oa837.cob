@@ -237,7 +237,7 @@
            COPY "mplrfile.cpy" IN "C:\Users\sid\cms\copylib".
 
        FD  AUTHFILE.
-           COPY "authfile.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "newauthfile.cpy" IN "C:\Users\sid\cms\copylib".
 
        FD  REFPHY.
            COPY "refphy.cpy" IN "C:\Users\sid\cms\copylib".
@@ -1414,8 +1414,8 @@
            READ AUTHFILE 
              INVALID 
                GO TO 2410-EXIT.
-           IF AUTH-NUM NOT NUMERIC GO TO 2410-EXIT.
-           MOVE AUTH-NUM TO LIN-NDC
+           IF AUTH-NDC NOT NUMERIC GO TO 2410-EXIT.
+           MOVE AUTH-NDC TO LIN-NDC
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM LIN01.
            MOVE FI-WORK TO NUM2
