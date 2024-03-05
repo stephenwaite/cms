@@ -462,13 +462,13 @@
                INTO REMIT-KEY.
 
            READ REMITFILE
-               NOT INVALID
+               NOT INVALID KEY
                    MOVE SPACE TO ERROR-FILE01
                    STRING "THIS REMIT IS ALREADY IN OUR DB"
                        DELIMITED BY SIZE INTO ERROR-FILE01
                    WRITE ERROR-FILE01
                    GO TO P00    
-               INVALID
+               INVALID KEY
                    MOVE DATE-X TO REMIT-DATE
                    WRITE RECORD REMITFILE01
            END-READ          
