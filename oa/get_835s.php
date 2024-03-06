@@ -23,7 +23,7 @@ foreach (($sftp->rawlist($path, true)) as $file) {
     echo "downloading " . $file->filename . "\n";
     $sftp->get($path . "/" . $file->filename, $file->filename);
     if ($sftp->rename($path . "/" . $file->filename, '/tmp/' . $file->filename)) {
-        echo "move file to oa's tmp dir" . $file->filename . "\n";
+        echo "move file to oa's tmp dir " . $file->filename . "\n";
     } else {
         echo "huh, file already exists in oa server in tmp dir\n";
     }
