@@ -101,7 +101,7 @@
            IF CD-PROC1 NOT = "99153"
              GO TO P1.
 
-           IF CD-PLACE NOT = "3" GO TO P1.
+      *     IF CD-PLACE NOT = "3" GO TO P1.
 
       *     display cd-paycode " " cd-key8          
       *     accept omitted
