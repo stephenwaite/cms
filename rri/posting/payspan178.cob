@@ -943,7 +943,7 @@
 
                    IF (CAS-1 = "CO" OR "PI" OR "OA")
                                AND
-                      ((CAS-2 = "A2" OR "B6" OR "B10" OR "11"
+                      ((CAS-2 = "A2" OR "B6" OR "B10" OR "11" OR
                                 "18" OR "42" OR "45" OR 
                                 "59" OR "253" OR "131" OR "P12")
                                OR
