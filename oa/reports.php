@@ -1,6 +1,9 @@
 <?php
 
-unlink('/tmp/w22');
+if (file_exists('/tmp/w22')) {
+    unlink('/tmp/w22');
+}
+
 foreach (new DirectoryIterator('.') as $file) {
     if ($file->isDot()) {
         continue;
