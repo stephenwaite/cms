@@ -600,7 +600,6 @@
                    DISPLAY " 3 = denom exception, see measure"
                    DISPLAY " <Enter> = no osteopenia"
                    GO TO P2-0
-               END-IF               
                IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " or SPACE)
                    GO TO P2-0
                END-IF

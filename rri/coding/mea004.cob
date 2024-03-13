@@ -184,7 +184,7 @@
                GO TO P2
            END-READ          
 
-           IF NOT (CD-PAYCODE = "009" OR "010" OR "012" 
+           IF NOT (CD-PAYCODE = "009" OR "010" OR "011" OR "012"
                OR "013" OR "014")
                GO TO P1
            END-IF
