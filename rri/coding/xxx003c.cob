@@ -583,7 +583,7 @@
            END-IF
 
            IF CD-PAYCODE = "011"
-               DISPLAY " QMM19: type ? or 1 or 2 or 3 or <Enter> or G"
+               DISPLAY " QMM19: type ? or 1 or 2 or 3 or G"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
@@ -596,10 +596,9 @@
                    DISPLAY " 1 = incl score and rec"
                    DISPLAY " 2 = performance not met, no score and rec" 
                    DISPLAY " 3 = denom exception, see measure"
-                   DISPLAY " <Enter> = no osteopenia"
                    GO TO P2-0
                END-IF               
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " or SPACE)
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 ")
                    GO TO P2-0
                END-IF
            END-IF

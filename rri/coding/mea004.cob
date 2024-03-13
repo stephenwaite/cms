@@ -219,6 +219,20 @@
                PERFORM A1 THRU A1-EXIT
                GO TO P0
            END-IF
+
+           IF CD-PAYCODE = "011"
+               MOVE SPACE TO FILEOUT01
+               STRING "N19 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
+               MOVE 919 TO FLAG
+               PERFORM GET-INS
+               MOVE G-PRINS TO CD-PAYCODE
+               REWRITE CHARFILE01
+               UNLOCK CHARFILE RECORD
+               PERFORM A1 THRU A1-EXIT
+               GO TO P0
+           END-IF
 	
            IF CD-PAYCODE = "012"
                MOVE SPACE TO FILEOUT01
@@ -528,6 +542,63 @@
                    MOVE SPACE TO FILEOUT01              
                    STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
                        " NO NODULE(S)"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               GO TO A1-EXIT
+               
+           END-IF
+
+           IF FLAG = 919
+               IF CD-QP1 = "1 "
+      *    create comma delimited file to upload to acr registry                              
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",QMM19," CD-PROC1 ","
+                       CD-DIAG ",PM019," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+      *    size delimited file for output to coders                                                
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM19 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " PERFORMANCE MET"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01                          
+               END-IF
+           
+               IF CD-QP1 = "2 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",QMM19," CD-PROC1 ","
+                       CD-DIAG ",PNM19," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM19 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " *** PERFORMANCE NOT MET!"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF CD-QP1 = "3 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
+                       CD-DIAG ",PE004," CD-CLAIM
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "MSN15 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " *** DENOMINATOR EXCEPTION!"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF CD-QP1 = SPACE
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "QMM19 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " AGE INELIGIBLE OR NO OSTEOPENIA"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF

@@ -97,11 +97,6 @@
       *    011 paycode is QMM19: DEXA/DXA and Fracture Risk Assess
       
            IF (CD-CPT = "77080" OR "77081" OR "77085" OR "77086")
-             PERFORM CHECK-AGE
-      *    measure is for 40 to 90
-             IF NOT (G-AGE > 39 AND G-AGE < 91) 
-               GO TO P1
-             END-IF  
              MOVE "011" TO CD-PAYCODE
              MOVE SPACE TO FILEOUT01
              STRING "QMM19 " CD-PAYCODE " " CD-CPT " " CD-DATE-T " "
@@ -115,7 +110,7 @@
                GO TO P1
            END-IF
 
-      *    paycode 012 is measure 405  
+
            IF (CD-CPT =  "71250" OR "71260" OR "71270" OR "71271"
              OR "71275" OR "71555" OR "72131" OR "72191" OR "72192"
              OR "72193" OR "72194" OR "72195" OR "72196" OR "72197"
