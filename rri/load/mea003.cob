@@ -58,7 +58,7 @@
       *    move these above check for 03 since these are acr registry
       *    009 paycode is QMM26: Screening Abdominal Aortic Aneurysm
       *    reporting with recommendations
-
+           
            IF (CD-CPT = "76706")
              PERFORM CHECK-AGE
       *    measure is for 50 and up 
@@ -97,6 +97,28 @@
            IF (CD-PAYCODE NOT = "003")
                GO TO P1
            END-IF
+
+      *    011 paycode is QMM19: DEXA/DXA and Fracture Risk Assess
+      
+           IF (CD-CPT = "77080" OR "77081" OR "77085" OR "77086")
+             PERFORM CHECK-AGE
+      *    measure is for 40 to 90
+             IF (G-AGE > 39 AND G-AGE < 91) 
+               GO TO P1
+             END-IF  
+             MOVE "011" TO CD-PAYCODE
+             MOVE SPACE TO FILEOUT01
+             STRING "QMM19 " CD-PAYCODE " " CD-CPT " " CD-DATE-T " "
+                CD-KEY8 " " CD-NAME DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             REWRITE CHARNEW01
+             GO TO P1
+           END-IF              
+
+           IF (CD-PAYCODE NOT = "003")
+               GO TO P1
+           END-IF
+
             
       *    paycode 012 is measure 405  
            IF (CD-CPT =  "71250" OR "71260" OR "71270" OR "71271"
@@ -172,3 +194,5 @@
        P2.
            CLOSE CHARNEW.
            STOP RUN.
+
+

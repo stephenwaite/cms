@@ -473,7 +473,8 @@
            END-IF.    
                
        P1-1.
-           IF (CD-PAYCODE = "009" OR "010" OR "012" OR "013" OR "014")  
+           IF (CD-PAYCODE = "009" OR "010" OR "011" OR "012" OR "013"
+               OR "014")
                GO TO P2
            END-IF    
       * mammo codes
@@ -520,7 +521,8 @@
            DISPLAY " ".
 
        P2-0.
-           IF (CD-PAYCODE = "009" OR "010" OR "012" OR "013" OR "014")
+           IF (CD-PAYCODE = "009" OR "010" OR "011" OR "012" OR "013"
+               OR "014")
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
                    DISPLAY "quality codes as well once study is read"
@@ -579,6 +581,29 @@
                    GO TO P2-0
                END-IF
            END-IF
+
+           IF CD-PAYCODE = "011"
+               DISPLAY " QMM19: type ? or 1 or 2 or 3 or G"
+               ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
+               IF CD-QP1 = "?"
+                   DISPLAY "DEXA > 39 < 90 yo"
+                   DISPLAY " 1 = incl score and rec"
+                   DISPLAY " 2 = performance not met, no score and rec" 
+                   DISPLAY " 3 = denom exception, see measure"
+                   GO TO P2-0
+               END-IF               
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 ")
+                   GO TO P2-0
+               END-IF
+           END-IF
+
+
 
            IF CD-PAYCODE = "012"
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
