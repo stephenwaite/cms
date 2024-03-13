@@ -120,16 +120,15 @@
            READ CCPROCIN.
            READ CHARDATE.
       *     READ PAYDATE.
-      *     READ DOCFILE AT END GO TO P1.
+      *    READ DOCFILE AT END GO TO P1.
 
+           display "ONLY MEDICARE? Y/N"
+           accept alf4.
    
        P1. 
            READ CHARCUR
              AT END
                GO TO P99.
-
-           display "ONLY MEDICARE? Y/N"
-           accept alf4.
 
            IF CC-PROC NOT = CCPROCIN01 
              GO TO P1.                      
