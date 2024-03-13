@@ -574,7 +574,7 @@
                        "stratify thyroid nodules on patients 19 "
                        "years of age or older."
                    DISPLAY " 1 = incl score and rec"
-                   DISPLAY " 2 = performance not met, no score and rec" 
+                   DISPLAY " 2 = perf not met, no score and/or rec" 
                    DISPLAY " 3 = denom exception, see measure"
                    DISPLAY " <Enter> = no nodule(s)"
                    GO TO P2-0
@@ -596,7 +596,7 @@
                IF CD-QP1 = "?"
                    DISPLAY "All final reports for DEXA scans."
                    DISPLAY " 1 = incl score and rec"
-                   DISPLAY " 2 = performance not met, no score and rec" 
+                   DISPLAY " 2 = perf not met, no score and/or rec" 
                    DISPLAY " 3 = denom exception, see measure"
                    DISPLAY " <Enter> = no osteopenia"
                    GO TO P2-0
