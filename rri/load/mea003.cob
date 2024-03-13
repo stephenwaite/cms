@@ -103,7 +103,7 @@
            IF (CD-CPT = "77080" OR "77081" OR "77085" OR "77086")
              PERFORM CHECK-AGE
       *    measure is for 40 to 90
-             IF (G-AGE > 39 AND G-AGE < 91) 
+             IF NOT (G-AGE > 39 AND G-AGE < 91) 
                GO TO P1
              END-IF  
              MOVE "011" TO CD-PAYCODE
