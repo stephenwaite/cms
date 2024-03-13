@@ -79,7 +79,7 @@
            02 FO-MRN PIC X(8).
            02 FO-DATE PIC X(8).
            02 FO-CKEY PIC X(12).
-           02 FO-FILLER PIC X FILLER.
+           02 FO-FILLER PIC X VALUE SPACE.
            02 FO-INS PIC X(3).
            02 FO-MSG PIC X(20).
 
