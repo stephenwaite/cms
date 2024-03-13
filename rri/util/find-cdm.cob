@@ -105,6 +105,7 @@
        01  CC-PL PIC X.
        01  FLAG PIC 9.
        01  TOT-AMOUNT PIC S9(7)V99.
+       01  ALF4 PIC X.
 
       *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
        
@@ -118,11 +119,15 @@
            READ CHARDATE.
       *     READ PAYDATE.
       *     READ DOCFILE AT END GO TO P1.
+
    
        P1. 
            READ CHARCUR
              AT END
                GO TO P99.
+
+           display "ONLY MEDICARE? Y/N"
+           accept alf4.
 
            IF CC-PROC NOT = CCPROCIN01 
              GO TO P1.                      
@@ -142,6 +147,10 @@
            READ GARFILE 
              INVALID 
                MOVE SPACE TO G-GARNAME.
+           
+      *    ONLY REPORT MEDICARE ON ACCOUNT
+           IF G-PRINS NOT = "003" AND ALF4 = "Y"
+               GO TO P1. 
 
            MOVE G-GARNAME TO FO-NAME
            MOVE G-ACCT TO FO-MRN       
