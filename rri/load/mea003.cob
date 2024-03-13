@@ -94,10 +94,6 @@
              GO TO P1
            END-IF              
 
-           IF (CD-PAYCODE NOT = "003")
-               GO TO P1
-           END-IF
-
       *    011 paycode is QMM19: DEXA/DXA and Fracture Risk Assess
       
            IF (CD-CPT = "77080" OR "77081" OR "77085" OR "77086")
@@ -119,7 +115,6 @@
                GO TO P1
            END-IF
 
-            
       *    paycode 012 is measure 405  
            IF (CD-CPT =  "71250" OR "71260" OR "71270" OR "71271"
              OR "71275" OR "71555" OR "72131" OR "72191" OR "72192"
