@@ -561,7 +561,7 @@
            END-IF
 
            IF CD-PAYCODE = "010"
-               DISPLAY " MSN15: type ? or 1 or 2 or 3 or <Enter> or G"
+               DISPLAY " MSN15: type ? or 1 or 2 or 3 or G"
                ACCEPT CD-QP1
 
                IF CD-QP1 = "G"
@@ -570,14 +570,14 @@
                END-IF
 
                IF CD-QP1 = "?"
-                   DISPLAY "TI-RADS >= 19 yo"
+                   DISPLAY "Use of TI-RADS to stratify thyroid nodules"
+                       " on patients 19 years of age or older."
                    DISPLAY " 1 = incl score and rec"
                    DISPLAY " 2 = performance not met, no score and rec" 
                    DISPLAY " 3 = denom exception, see measure"
-                   DISPLAY " <Enter> = no nodule(s)"
                    GO TO P2-0
                END-IF               
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " or SPACE)
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 ")
                    GO TO P2-0
                END-IF
            END-IF
@@ -592,7 +592,7 @@
                END-IF
 
                IF CD-QP1 = "?"
-                   DISPLAY "DEXA > 39 < 90 yo with osteopenia"
+                   DISPLAY "All final reports for DEXA scans."
                    DISPLAY " 1 = incl score and rec"
                    DISPLAY " 2 = performance not met, no score and rec" 
                    DISPLAY " 3 = denom exception, see measure"
