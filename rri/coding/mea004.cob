@@ -414,7 +414,7 @@
       *    measure 195 retired in 2022
       *    measure 076 retired in 2023
       *    measure 147 retired in 2024
-      *    Dan picked 2 measures from acr qcdr
+      *    Dan picked 3 measures from acr qcdr
            
            IF FLAG = 926
                IF CD-QP1 = "1 "
@@ -598,7 +598,7 @@
                IF CD-QP1 = SPACE
                    MOVE SPACE TO FILEOUT01              
                    STRING "QMM19 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                       " AGE INELIGIBLE OR NO OSTEOPENIA"
+                       " NO OSTEOPENIA"
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
