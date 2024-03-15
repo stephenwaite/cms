@@ -1,7 +1,8 @@
 <?php
 
-if (file_exists('/tmp/w22')) {
-    unlink('/tmp/w22');
+$batch_file = '/tmp/w22' . $_ENV['USER'];
+if (file_exists($batch_file)) {
+    unlink($batch_file);
 }
 
 foreach (new DirectoryIterator('.') as $file) {
@@ -32,12 +33,11 @@ foreach (new DirectoryIterator('.') as $file) {
                 $stat = $za->statIndex($i);
                 $fileName277 = basename($stat['name']) . PHP_EOL;
                 $za->extractTo('/tmp');
-                file_put_contents('/tmp/w22', '/tmp/' . $fileName277, FILE_APPEND);
+                file_put_contents($batch_file, '/tmp/' . $fileName277, FILE_APPEND);
             }
             $za->close();
             break;
     }
 }
-
 
 exit;
