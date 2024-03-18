@@ -41,7 +41,7 @@ if (!empty($rawlist)) {
 try {
     $cms_user = getenv('NGS_RI_USERNAME');
     $cms_pass = getenv('NGS_RI_PASSWORD');
-    
+    $sftp = new SFTP('edi.ngs.ahdsxhub.com', '10062');
     if (!$sftp->login($cms_user, $cms_pass)) {
         echo "ngs ri login failed, maybe wg0 is down or password expired?, exiting" . "\n";
         exit;
@@ -58,7 +58,7 @@ try {
     };
 } catch (Exception $e) {
     echo $e->getMessage() . "\n";
-} 
+}
 
 
 echo "numfiles: " . $zip->numFiles . "\n";
