@@ -27,6 +27,8 @@
            02 TRN-0 PIC XXX.
            02 TRN-1 PIC X.
            02 TRN-2 PIC X(30).
+           02 TRN-3 PIC X(30).
+           02 TRN-4 PIC X(30).
 
        01  CAS01.
            02 CAS-0 PIC XXX.

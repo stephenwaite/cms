@@ -79,6 +79,8 @@
            02 FO-MRN PIC X(8).
            02 FO-DATE PIC X(8).
            02 FO-CKEY PIC X(12).
+           02 FO-FILLER PIC X VALUE SPACE.
+           02 FO-INS PIC X(3).
            02 FO-MSG PIC X(20).
 
        WORKING-STORAGE SECTION.
@@ -105,6 +107,7 @@
        01  CC-PL PIC X.
        01  FLAG PIC 9.
        01  TOT-AMOUNT PIC S9(7)V99.
+       01  ALF4 PIC X.
 
       *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
        
@@ -117,7 +120,10 @@
            READ CCPROCIN.
            READ CHARDATE.
       *     READ PAYDATE.
-      *     READ DOCFILE AT END GO TO P1.
+      *    READ DOCFILE AT END GO TO P1.
+
+           display "ONLY MEDICARE? Y/N"
+           accept alf4.
    
        P1. 
            READ CHARCUR
@@ -142,7 +148,12 @@
            READ GARFILE 
              INVALID 
                MOVE SPACE TO G-GARNAME.
+           
+      *    ONLY REPORT MEDICARE ON ACCOUNT
+           IF G-PRINS NOT = "003" AND ALF4 = "Y"
+               GO TO P1. 
 
+           MOVE G-PRINS TO FO-INS
            MOVE G-GARNAME TO FO-NAME
            MOVE G-ACCT TO FO-MRN       
 
@@ -162,6 +173,8 @@
            IF CC-AMOUNT = 0 
              STRING " CHARGE ZEROED " INTO FO-MSG
            END-IF
+
+
            WRITE FILEOUT01.
 
            GO TO P1.

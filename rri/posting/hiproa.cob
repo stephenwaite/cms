@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. payspan178.
+       PROGRAM-ID. hipr178.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -62,8 +62,17 @@
            ACCESS IS DYNAMIC RECORD KEY IS rarc-key
            LOCK MODE MANUAL.   
 
+           SELECT REMITFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS REMIT-KEY.
+
        DATA DIVISION.
        FILE SECTION.
+
+       FD  REMITFILE.
+       01  REMITFILE01.
+           02 REMIT-KEY PIC X(68).
+           02 REMIT-DATE-E PIC X(8).
+           02 REMIT-DATE-P PIC X(8).
 
        FD  rarcfile.
        01  rarcfile01.
@@ -366,7 +375,7 @@
        0005-START.
            OPEN INPUT INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE
              PAYCUR CAIDFILE rarcfile.
-           OPEN I-O PAYFILE 
+           OPEN I-O PAYFILE REMITFILE.
            OPEN OUTPUT TRNPAYFILE ERROR-FILE.
            MOVE SPACE TO NAR-KEY01 
            MOVE ALL ZEROES TO NAR-CNTR01 STATUSCODES01 
@@ -440,16 +449,22 @@
            READ FILEIN
              AT END
                GO TO P9
-           END-READ
+           END-READ 
 
            IF F1 NOT = "TRN"
                GO TO P00
-           END-IF
+           END-IF  
 
            MOVE SPACE TO TRN01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-               TRN-0 TRN-1 TRN-2.
-           MOVE SPACE TO PAYORID.
+               TRN-0 TRN-1 TRN-2 TRN-3 TRN-4.
+
+           MOVE SPACE TO REMITFILE01.    
+
+           STRING DATE-X TRN-2 TRN-3 TRN-4 DELIMITED BY SIZE
+               INTO REMIT-KEY.   
+
+           MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG.
 
        P000.
            MOVE SPACE TO FILEIN01
@@ -459,39 +474,87 @@
            END-READ    
 
            IF F1 = "CLP"
-             UNSTRING FILEIN01 DELIMITED BY "*" INTO
-               CLP-0 CLP-1 CLP-2CLMSTAT CLP-3TOTCLMCHG CLP-4TOTCLMPAY 
-               CLP-5PATRESP CLP-6PLANCODE CLP-7ICN CLP-8FACILITY 
-               CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN 
-               CLP-13PERCENT
-
-               MOVE CLP-1(1:8) TO G-GARNO
-               READ GARFILE
-                 INVALID
-                    MOVE SPACE TO ERROR-FILE01
-                    STRING "BAD GARNO " FILEIN01 DELIMITED BY SIZE
-                      INTO ERROR-FILE01
-                    WRITE ERROR-FILE01  
-               END-READ
-
-               MOVE G-PRINS TO INS-KEY
-
-               READ INSFILE
-                 INVALID
-                   MOVE SPACE TO ERROR-FILE01
-                    STRING "BAD INS " FILEIN01 DELIMITED BY SIZE
-                      INTO ERROR-FILE01
-                    WRITE ERROR-FILE01
-               END-READ     
-
-               MOVE INS-NEIC TO PAYORID
-      *         DISPLAY PAYORID
                GO TO P0000
            END-IF
+
+           IF FILEIN01(1:5) = "N1*PR"
+              MOVE SPACE TO N101
+              UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                  N1-0 N1-1 N1-2 N1-3 N1-ID                  
+              MOVE N1-ID(1:5) TO PAYORID1
+              MOVE N1-ID TO EQUITY-ID
+              IF N1-2(1:5) = "MVP H" AND PAYORID1 = space
+                MOVE N1-2(1:5) TO INS-NAME-HOLD
+              end-if  
+           END-IF
+        
+           IF (F1 = "REF" AND F21 = "*2U")
+               MOVE SPACE TO REF01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                   REF-0 REF-1 REF-2
+               MOVE REF-2 TO PAYORID
+           END-IF
+
+           IF (F1 = "N1*" AND F21= "PE*")
+               MOVE SPACE TO N101
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                   N1-0 N1-1 N1-2 N1-3 N1-ID
+               MOVE N1-ID TO PERM-ID
+           END-IF
+           
+           IF (F1 = "REF" AND F21= "*TJ")
+               MOVE SPACE TO REF01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                   REF-0 REF-1 REF-2
+           END-IF
+
+           IF F1 = "DTM" AND F2 = "*405"
+               MOVE F3(2:8) TO REMIT-DATE-P
+           END-IF 
            
            GO TO P000.
 
        P0000.
+           IF (PERM-ID NOT = ID-NPI1)
+               AND (PERM-ID NOT = ID-NPI)
+               AND (REF-2 NOT =  PF-1)
+               AND (PERM-ID NOT = PF-1)
+               MOVE 1 TO PROV-FLAG
+           END-IF
+
+      *    FOR HEALTHEQUITY EFT 835s
+      *     DISPLAY "EQUITY-ID " EQUITY-ID " PERM-ID " PERM-ID " PF-1 "
+      *              PF-1
+      *              ACCEPT OMITTED
+
+           IF ((EQUITY-ID = "411410766")
+               AND (PERM-ID = PF-1))
+               MOVE 0 TO PROV-FLAG
+           END-IF
+
+      *     display FILEIN01
+      *     accept omitted
+
+           IF (PROV-FLAG = 1)
+               GO TO P00
+           END-IF
+
+           READ REMITFILE     
+               INVALID
+                   ACCEPT REMIT-DATE-E FROM CENTURY-DATE
+                   WRITE REMITFILE01
+                   END-WRITE
+               NOT INVALID
+                   MOVE SPACE TO ERROR-FILE01
+                   STRING REMITFILE01 " DUPE CHECK"
+                       DELIMITED BY SIZE INTO ERROR-FILE01
+                   WRITE ERROR-FILE01
+                   GO TO P00
+           END-READ     
+           
+           IF PAYORID = SPACE
+               MOVE PAYORID1 TO PAYORID
+           END-IF           
 
            IF TITLE-FLAG = 0
                MOVE 1 TO TITLE-FLAG
@@ -772,10 +835,9 @@
              MOVE "14156" TO PAYORID
            end-if
 
-           IF INS-NAME-HOLD = "WELLC"
-             MOVE "14163" TO PAYORID
-           end-if
-
+      *     DISPLAY PAYORID " PAYORID"
+      *     ACCEPT OMITTED
+           
            IF PAYORID = space OR "11329"
              PERFORM P1-LOST-SVC 
              GO TO P5-SVC-LOOP-EXIT.
@@ -803,7 +865,7 @@
              AND PAYORID NOT = "52192"
              GO TO P3-NEXT.
 
-           IF CLP-2CLMSTAT = "1"
+           IF CLP-2CLMSTAT = "1" OR "19"
              IF G-PRINS NOT = INS-KEY
                GO TO P3-NEXT
              ELSE
@@ -850,6 +912,10 @@
            END-IF
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
+           
+      *     DISPLAY CLAIM-TOT " CLAIM-TOT " CC-AMOUNT " CC-AMOUNT "
+      *       PD-AMOUNT " PD-AMOUNT"
+      *     ACCEPT OMITTED
            
            PERFORM S4 THRU S5
            
@@ -943,11 +1009,11 @@
 
                    IF (CAS-1 = "CO" OR "PI" OR "OA")
                                AND
-                      ((CAS-2 = "A2" OR "B6" OR "B10" OR "11" OR
+                      ((CAS-2 = "A1" OR "A2" OR "B6" OR "B10" OR
                                 "18" OR "42" OR "45" OR 
                                 "59" OR "253" OR "131" OR "P12")
                                OR
-                      (CAS-5 = "A2" OR "B6" OR "B10" OR "11" OR
+                      (CAS-5 = "A1" OR "A2" OR "B6" OR "B10" OR 
                                "18" OR "42" OR "45" OR
                                "59" OR "253" OR "131"))
                                AND 
@@ -1016,6 +1082,9 @@
            IF INS-REDUCE NOT = 0
                COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT - INS-REDUCE
                PERFORM S4 THRU S5
+               
+      *         DISPLAY CLAIM-TOT " CLAIM-TOT"
+      *         ACCEPT OMITTED
                
                IF CLAIM-TOT < 0
                    PERFORM P1-LOST-SVC
@@ -1088,6 +1157,7 @@
                    OR (CAS-1 = "PI" AND CAS-2 = "11   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "96   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "97   ")
+                   OR (CAS-1 = "PI" AND CAS-2 = "234  ")
                    OR (CAS-1 = "PR" AND CAS-2 = "16   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "26   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "27   ")
@@ -1095,6 +1165,8 @@
                    OR (CAS-1 = "PR" AND CAS-2 = "35   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "96   ")
                    OR (CAS-1 = "PR" AND CAS-2 = "151  ")                  
+                   OR (CAS-1 = "PR" AND CAS-2 = "243  ")                  
+
                    MOVE 1 TO FLAG
                    MOVE CAS-CNTR TO Z
                  END-IF               
@@ -1419,6 +1491,10 @@
                  MOVE LQ-2 TO rarc-key
                  READ rarcfile with lock
                    invalid
+                     MOVE SPACE TO RARC-REASON
+                     STRING LQ-2 " INVALID RARC" DELIMITED BY size 
+                       INTO ERROR-FILE01
+                     WRITE ERROR-FILE01  
                      continue
                  end-read
                  MOVE SPACE TO ERROR-FILE01
@@ -1774,7 +1850,9 @@
             END-IF
            END-PERFORM.
            
-           CLOSE PAYFILE TRNPAYFILE GARFILE CHARCUR
+           CLOSE INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE
+               PAYCUR CAIDFILE rarcfile PAYFILE REMITFILE
+               TRNPAYFILE ERROR-FILE.
            STOP RUN.
 
        P169.

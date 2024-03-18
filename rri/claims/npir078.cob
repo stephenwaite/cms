@@ -362,6 +362,12 @@
                    PERFORM E1
                    GO TO A2
                END-READ
+           END-IF
+
+           IF (INS-ACC-TYPE NOT = SPACE AND CC-DAT1 = "00000000")
+               MOVE "NO ACC DATE ON CHARGE " TO EF2
+               PERFORM E1
+               GO TO A2
            END-IF    
                     
            MOVE SPACE TO FILEOUT01

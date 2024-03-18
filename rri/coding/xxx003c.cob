@@ -284,7 +284,8 @@
                MOVE "R928   " TO CD-DIAG
       * medicare and adv plans don't follow vt call back policy         
                IF (CD-PAYCODE = "003" OR "028" OR "074" OR "141" 
-                 OR "200" OR "245" OR "270" or "697" OR "868" OR "912")
+                 OR "200" OR "245" OR "270" or "697" OR "868" OR "912"
+                 OR "409")
                    IF (CD-PROC1 = "1446")
                        MOVE "LT" TO CD-MOD2
                        MOVE "10937706526" TO CD-PROC
@@ -472,7 +473,8 @@
            END-IF.    
                
        P1-1.
-           IF (CD-PAYCODE = "009" OR "010" OR "012" OR "013" OR "014")  
+           IF (CD-PAYCODE = "009" OR "010" OR "011" OR "012" OR "013"
+               OR "014")
                GO TO P2
            END-IF    
       * mammo codes
@@ -519,7 +521,8 @@
            DISPLAY " ".
 
        P2-0.
-           IF (CD-PAYCODE = "009" OR "010" OR "012" OR "013" OR "014")
+           IF (CD-PAYCODE = "009" OR "010" OR "011" OR "012" OR "013"
+               OR "014")
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
                    DISPLAY "quality codes as well once study is read"
@@ -567,9 +570,11 @@
                END-IF
 
                IF CD-QP1 = "?"
-                   DISPLAY "TI-RADS >= 19 yo"
+                   DISPLAY "All final reports for use of TI-RADS to "
+                       "stratify thyroid nodules on patients 19 "
+                       "years of age or older."
                    DISPLAY " 1 = incl score and rec"
-                   DISPLAY " 2 = performance not met, no score and rec" 
+                   DISPLAY " 2 = perf not met, no score and/or rec" 
                    DISPLAY " 3 = denom exception, see measure"
                    DISPLAY " <Enter> = no nodule(s)"
                    GO TO P2-0
@@ -578,6 +583,29 @@
                    GO TO P2-0
                END-IF
            END-IF
+
+           IF CD-PAYCODE = "011"
+               DISPLAY " QMM19: type ? or 1 or 2 or 3 or <Enter> or G"
+               ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
+               IF CD-QP1 = "?"
+                   DISPLAY "All final reports for DEXA scans."
+                   DISPLAY " 1 = incl score and rec"
+                   DISPLAY " 2 = perf not met, no score and/or rec" 
+                   DISPLAY " 3 = denom exception, see measure"
+                   DISPLAY " <Enter> = no osteopenia"
+                   GO TO P2-0
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " or SPACE)
+                   GO TO P2-0
+               END-IF
+           END-IF
+
+
 
            IF CD-PAYCODE = "012"
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"

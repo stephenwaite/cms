@@ -13,7 +13,7 @@ try {
         echo "login failed" . "\n";
         exit;
     };
-    
+
     $date = new DateTimeImmutable();
     $stamp = $date->format('YmdHis');
 

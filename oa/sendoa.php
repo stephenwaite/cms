@@ -13,7 +13,7 @@ try {
         echo "login failed" . "\n";
         exit;
     };
-    
+
     $remote_file_path = "/inbound/" . $argv[1];
     $file_to_upload = $argv[1];
     $sftp->put($remote_file_path, $file_to_upload, SFTP::SOURCE_LOCAL_FILE);
