@@ -31,33 +31,35 @@ $rawlist = $sftp->rawlist($path, true);
 
 if (!empty($rawlist)) {
     foreach ($rawlist as $file) {
-        if (!empty($file)) {
-            echo "downloading " . $file->filename . "\n";
-            $sftp->get($path . "/" . $file->filename, $file->filename);
-            echo "adding " . $file->filename . " to ngs.zip\n";
-            $zip->addFile($file->filename);
-        }
+        echo "downloading " . $file->filename . "\n";
+        $sftp->get($path . "/" . $file->filename, $file->filename);
+        echo "adding " . $file->filename . " to ngs.zip\n";
+        $zip->addFile($file->filename);
     }
 }
 
-
-$cms_user = getenv('NGS_RI_USERNAME');
-$cms_pass = getenv('NGS_RI_PASSWORD');
-
-if (!$sftp->login($cms_user, $cms_pass)) {
-    echo "ngs ri login failed, maybe wg0 is down or password expired?, exiting" . "\n";
-    exit;
-} else {
-    $rawlist = $sftp->rawlist($path, true);
-    if (!empty($rawlist)) {
-        foreach (($sftp->rawlist($path, true)) as $file) {
-            echo "downloading " . $file->filename . "\n";
-            $sftp->get($path . "/" . $file->filename, $file->filename);
-            echo "adding " . $file->filename . " to ngs.zip\n";
-            $zip->addFile($file->filename);
+try {
+    $cms_user = getenv('NGS_RI_USERNAME');
+    $cms_pass = getenv('NGS_RI_PASSWORD');
+    
+    if (!$sftp->login($cms_user, $cms_pass)) {
+        echo "ngs ri login failed, maybe wg0 is down or password expired?, exiting" . "\n";
+        exit;
+    } else {
+        $rawlist = $sftp->rawlist($path, true);
+        if (!empty($rawlist)) {
+            foreach (($sftp->rawlist($path, true)) as $file) {
+                echo "downloading " . $file->filename . "\n";
+                $sftp->get($path . "/" . $file->filename, $file->filename);
+                echo "adding " . $file->filename . " to ngs.zip\n";
+                $zip->addFile($file->filename);
+            }
         }
-    }
-};
+    };
+} catch (Exception $e) {
+    echo $e->getMessage() . "\n";
+} 
+
 
 echo "numfiles: " . $zip->numFiles . "\n";
 echo "status: " . $zip->status . "\n";
