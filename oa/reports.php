@@ -1,6 +1,6 @@
 <?php
-
-$batch_file = '/tmp/w22' . $_ENV['USER'];
+$user = $_ENV['USER'];
+$batch_file = '/tmp/w22' . $user;
 if (file_exists($batch_file)) {
     unlink($batch_file);
 }
