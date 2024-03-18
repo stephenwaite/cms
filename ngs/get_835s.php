@@ -38,7 +38,8 @@ $cms_pass = getenv('NGS_RI_PASSWORD');
 $sftp = new SFTP('edi.ngs.ahdsxhub.com', '10062');
 
 if (!$sftp->login($cms_user, $cms_pass)) {
-    echo "ngs ri login failed, maybe wg0 is down or password expired?" . "\n";
+    echo "ngs ri login failed, maybe wg0 is down or password expired?, exiting" . "\n";
+    exit;
 } else {
     foreach(($sftp->rawlist($path, true)) as $file) {
         echo "downloading " . $file->filename . "\n";
