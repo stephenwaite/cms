@@ -1,5 +1,5 @@
 <?php
-$user = $_ENV['USER'];
+$user = getenv(['USER']);
 $batch_file = '/tmp/w22' . $user;
 if (file_exists($batch_file)) {
     unlink($batch_file);
