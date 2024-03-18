@@ -33,7 +33,7 @@ foreach (new DirectoryIterator('.') as $file) {
             readline('enter to continue');
             break;
         case '277':
-            file_put_contents($batch_file, $fileName, FILE_APPEND);
+            file_put_contents($batch_file, $fileName . "\n", FILE_APPEND);
             break;
         case 'zip':
             $za->open($fileName);
