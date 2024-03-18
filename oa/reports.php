@@ -27,6 +27,9 @@ foreach (new DirectoryIterator('.') as $file) {
             echo $contents;
             readline('enter to continue');
             break;
+        case '277':
+            file_put_contents($batch_file, $fileName, FILE_APPEND);
+            break;
         case 'zip':
             $za->open($fileName);
             for ($i = 0; $i < $za->numFiles; $i++) {
