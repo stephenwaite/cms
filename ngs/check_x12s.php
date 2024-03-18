@@ -17,8 +17,9 @@ $rawlist = $sftp->rawlist($path, true);
 if (!empty($rawlist)) {
     foreach($rawlist as $file) {
         if (!empty($file)) {
-            $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s', $file->mtime));
-            echo "file: " . $file->filename . " created by ngs on " . $dt_utc->format('Y-m-d h:i:s a') . "\n";
+            $dt_utc = new DateTimeImmutable(date('Y-m-d H:i:s', $file->mtime));
+            $date = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
+            echo "file: " . $file->filename . " created by ngs on " . $date->format('Y-m-d H:i:s') . "\n";
         //        $dt_nyc->format('Y-m-d H:i:s T'). "\n";
         }
     }
@@ -39,8 +40,9 @@ try {
     if (!empty($rawlist)) {
         foreach($rawlist as $file) {
             if (!empty($file)) {
-                $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s', $file->mtime));
-                echo "file: " . $file->filename . " created by ngsri on " . $dt_utc->format('Y-m-d h:i:s a') . "\n";
+                $dt_utc = new DateTimeImmutable(date('Y-m-d H:i:s', $file->mtime));
+                $date = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
+                echo "file: " . $file->filename . " created by ngsri on " . $date->format('Y-m-d H:i:s') . "\n";
             //        $dt_nyc->format('Y-m-d H:i:s T'). "\n";
             }
         }
