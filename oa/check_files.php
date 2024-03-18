@@ -45,7 +45,7 @@ if (!empty($rawlist)) {
         if (!empty($file)) {
             $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s a', $file->mtime));
             $date = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
-            echo "file: " . $file->filename . " uploaded to oa on " .
+            echo "file: " . $file->filename . " created by oa on " .
                 $date->format('Y-m-d h:i:s a') . "\n";
         }
     }
