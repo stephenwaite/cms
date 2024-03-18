@@ -31,10 +31,12 @@ $rawlist = $sftp->rawlist($path, true);
 
 if (!empty($rawlist)) {
     foreach ($rawlist as $file) {
-        echo "downloading " . $file->filename . "\n";
-        $sftp->get($path . "/" . $file->filename, $file->filename);
-        echo "adding " . $file->filename . " to ngs.zip\n";
-        $zip->addFile($file->filename);
+        if (!empty($file)) {
+            echo "downloading " . $file->filename . "\n";
+            $sftp->get($path . "/" . $file->filename, $file->filename);
+            echo "adding " . $file->filename . " to ngs.zip\n";
+            $zip->addFile($file->filename);
+        }
     }
 }
 
