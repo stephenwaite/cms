@@ -347,7 +347,7 @@
        01  CCLEN-TAB01-RE.
            02 FILLER PIC X(30) VALUE "110806010707060302030102080602".
            02 FILLER PIC X(24) VALUE "240108010106010107070801".
-           02 FILLER PIC X(16) VALUE "0108020201010702".
+           02 FILLER PIC X(16) VALUE "010802020101070202".
 
        01  CCLEN-TAB01 REDEFINES CCLEN-TAB01-RE.
            10 CCLEN-TAB   PIC 99 OCCURS 35 TIMES.
@@ -3153,8 +3153,7 @@
                DISPLAY "21=MOD2   22=REC-STAT   23=SORCREF 24=DX2" 
                DISPLAY "25=DX3    26=CLM-DATE   27=COLLT   28=ACCTYPE" 
                DISPLAY "29=ADMTDT 30=MOD3       31=AUTH/NDC32=ASSIGN" 
-               DISPLAY "33=NEICASG              34=DX4     35=MOD4"
-               DISPLAY "36=QP1"
+               DISPLAY "33=NEICASG 34=DX4   35=MOD4 36=QP1"
                DISPLAY "L TO LIST THE RECORD"
                DISPLAY "UP = UPDATE CHANGES"
                DISPLAY "X = NO UPDATE"
@@ -3784,7 +3783,7 @@
            IF IN-FIELD = "?"
            DISPLAY "HOLDS THE QP1 VALUE"
            GO TO CC-2000TI.
-           IF NOT (IN-FIELD-2 = "0" OR "1 " OR "2 " OR "3 " 
+           IF NOT (IN-FIELD-2 = "0 " OR "1 " OR "2 " OR "3 " 
                OR "4 " OR "5 " OR SPACE)
                DISPLAY "INVALID"
                GO TO CC-2000TI
