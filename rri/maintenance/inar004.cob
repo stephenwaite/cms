@@ -3786,7 +3786,8 @@
            GO TO CC-2000TI.
            IF NOT (IN-FIELD-2 = "0" OR "1 " OR "2 " OR "3 " 
                OR "4 " OR "5 " OR SPACE)
-               GO TO P2-0
+               DISPLAY "INVALID"
+               GO TO CC-2000TI
            END-IF
            MOVE IN-FIELD-2 TO CC-QP1 
            GO TO 4900CPC.
