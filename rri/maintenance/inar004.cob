@@ -4033,9 +4033,9 @@
 
 
            DISPLAY " "
-           DISPLAY CC-DIAG " " CC-DX2 " " CC-DX3 " " CC-DX4
+           DISPLAY CC-DIAG " " CC-DX2 " " CC-DX3 " " CC-DX4 " " CC-QP1
       *     " " CC-DX5 " " CC-DX6
-           DISPLAY "DX1     DX2     DX3     DX4"
+           DISPLAY "DX1     DX2     DX3     DX4     QP1"
       *         DX5     DX6"
 
            DISPLAY " "
