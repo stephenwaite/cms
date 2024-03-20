@@ -29,7 +29,7 @@ if (!empty($rawlist)) {
     // there's a test directory
 }
 
-echo "let's check for 835s /n";
+echo "let's check for 835s \n";
 $path = '/Distribution/cms-reports/Prod/835';
 $rawlist = $sftp->rawlist($path, true);
 if (!empty($rawlist)) {
