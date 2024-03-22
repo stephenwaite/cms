@@ -347,7 +347,7 @@
        01  CCLEN-TAB01-RE.
            02 FILLER PIC X(30) VALUE "110806010707060302030102080602".
            02 FILLER PIC X(24) VALUE "240108010106010107070801".
-           02 FILLER PIC X(16) VALUE "0108020201010702".
+           02 FILLER PIC X(18) VALUE "010802020101070202".
 
        01  CCLEN-TAB01 REDEFINES CCLEN-TAB01-RE.
            10 CCLEN-TAB   PIC 99 OCCURS 35 TIMES.
@@ -363,7 +363,7 @@
                10 FILLER PIC X(24) VALUE "DX-3    CLM-DATECOLLT   ".
                10 FILLER PIC X(24) VALUE "ACC-TYPEADMIT-DTMOD3    ".
                10 FILLER PIC X(24) VALUE "XXXX    ASSIGN  NEICASGN".
-               10 FILLER PIC X(24) VALUE "DX4     MOD4".
+               10 FILLER PIC X(24) VALUE "DX4     MOD4    QP1".
       *         DX5     DX6     ".
 
        01  CCGD-TABLE REDEFINES CCDES-CONSTANT.
@@ -3153,7 +3153,7 @@
                DISPLAY "21=MOD2   22=REC-STAT   23=SORCREF 24=DX2" 
                DISPLAY "25=DX3    26=CLM-DATE   27=COLLT   28=ACCTYPE" 
                DISPLAY "29=ADMTDT 30=MOD3       31=AUTH/NDC32=ASSIGN" 
-               DISPLAY "33=NEICASG              34=DX4     35=MOD4"
+               DISPLAY "33=NEICASG 34=DX4   35=MOD4 36=QP1"
                DISPLAY "L TO LIST THE RECORD"
                DISPLAY "UP = UPDATE CHANGES"
                DISPLAY "X = NO UPDATE"
@@ -3170,7 +3170,7 @@
            END-IF
 
            IF RIGHT-2 = "00" OR "01" OR "03" OR "16" 
-                        OR RIGHT-2 > "35" 
+                        OR RIGHT-2 > "36" 
                DISPLAY "INVALID FIELD-CODE"
                GO TO 1400CPC
            END-IF
@@ -3217,7 +3217,7 @@
            CC-2196-ACTION CC-2-MOD2 CC-2-REC-STAT CC-2-SORCREF
            CC-2-DX2 CC-2-DX3 CC-2-DATE-A CC-2-COLLT
            CC-2-ACC-TYPE CC-2-ADMIT CC-2-MOD3 CC-2-AUTH CC-2-ASSIGN
-           CC-2-NEIC-ASSIGN CC-2-DX4 CC-2-MOD4
+           CC-2-NEIC-ASSIGN CC-2-DX4 CC-2-MOD4 CC-2-QP1
            DEPENDING ON CCINDX.
 
        CC-2000TI.
@@ -3777,7 +3777,19 @@
            IF IN-FIELD = "?"
            DISPLAY "TYPE THE 4TH MODIFIER OR <CR>"
            GO TO CC-2000TI.
-           MOVE IN-FIELD-2 TO CC-MOD4 GO TO 4900CPC.           
+           MOVE IN-FIELD-2 TO CC-MOD4 GO TO 4900CPC.
+
+       CC-2-QP1.
+           IF IN-FIELD = "?"
+           DISPLAY "HOLDS THE QP1 VALUE"
+           GO TO CC-2000TI.
+           IF NOT (IN-FIELD-2 = "0 " OR "1 " OR "2 " OR "3 " 
+               OR "4 " OR "5 " OR SPACE)
+               DISPLAY "INVALID"
+               GO TO CC-2000TI
+           END-IF
+           MOVE IN-FIELD-2 TO CC-QP1 
+           GO TO 4900CPC.
 
        CC-2-ASSIGN.
            IF IN-FIELD = "?"
@@ -4021,9 +4033,9 @@
 
 
            DISPLAY " "
-           DISPLAY CC-DIAG " " CC-DX2 " " CC-DX3 " " CC-DX4
+           DISPLAY CC-DIAG " " CC-DX2 " " CC-DX3 " " CC-DX4 " " CC-QP1
       *     " " CC-DX5 " " CC-DX6
-           DISPLAY "DX1     DX2     DX3     DX4"
+           DISPLAY "DX1     DX2     DX3     DX4     QP1"
       *         DX5     DX6"
 
            DISPLAY " "
