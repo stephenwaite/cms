@@ -1,4 +1,11 @@
 <?php
+/**
+ * @package cms
+ * @link    http://www.cmsvt.com
+ * @author  s waite <stephen.waite@cmsvt.com>
+ * @copyright Copyright (c) 2024 cms <stephen.waite@cmsvt.com>
+ * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
+ */
 
 use phpseclib3\Net\SFTP;
 
