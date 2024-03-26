@@ -364,8 +364,7 @@
                END-READ
            END-IF
 
-           IF  (INS-ACC-TYPE = SPACE OR "0") 
-               AND CC-DAT1 = "00000000"
+           IF (INS-ACC-TYPE NOT = SPACE AND CC-DAT1 = "00000000")
                MOVE "NO ACC DATE ON CHARGE " TO EF2
                PERFORM E1
                GO TO A2
