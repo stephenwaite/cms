@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. hip178.
+       PROGRAM-ID. hipoa.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -583,6 +583,11 @@
            MOVE SPACE TO TRN01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                TRN-0 TRN-1 TRN-2 TRN-3 TRN-4.
+
+           MOVE SPACE TO REMITFILE01.    
+           STRING DATE-X TRN-2 TRN-3 TRN-4 DELIMITED BY SIZE
+               INTO REMIT-KEY.    
+               
            MOVE SPACE TO PAYORID PAYORID1.
 
         P000.
