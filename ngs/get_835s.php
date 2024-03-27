@@ -23,12 +23,12 @@ try {
     $cms_user = getenv('NGS_USERNAME');
     $cms_pass = getenv('NGS_PASSWORD');
     $sftp = new SFTP('edi.ngs.ahdsxhub.com', '10062');
+    $sftp->enableDatePreservation();
 
     if (!$sftp->login($cms_user, $cms_pass)) {
         echo "login failed, maybe wg0 is down or password expired?" . "\n";
         exit;
     };
-
 
     $rawlist = $sftp->rawlist($path, true);
 
@@ -49,6 +49,8 @@ try {
     $cms_user = getenv('NGS_RI_USERNAME');
     $cms_pass = getenv('NGS_RI_PASSWORD');
     $sftp = new SFTP('edi.ngs.ahdsxhub.com', '10062');
+    $sftp->enableDatePreservation();
+
     if (!$sftp->login($cms_user, $cms_pass)) {
         echo "ngs ri login failed, maybe wg0 is down or password expired?, exiting" . "\n";
         exit;

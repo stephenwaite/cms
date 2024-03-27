@@ -4,7 +4,7 @@
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. hipr178.
+       PROGRAM-ID. hiproa.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -136,7 +136,7 @@
        FD  CHARCUR.
            COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
 
-       FD GARFILE.
+       FD  GARFILE.
            COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".       
 
        WORKING-STORAGE SECTION.
@@ -1009,11 +1009,11 @@
 
                    IF (CAS-1 = "CO" OR "PI" OR "OA")
                                AND
-                      ((CAS-2 = "A1" OR "A2" OR "B6" OR "B10" OR
+                      ((CAS-2 = "A1" OR "A2" OR "B6" OR "B9" OR "B10" OR
                                 "18" OR "42" OR "45" OR 
                                 "59" OR "253" OR "131" OR "P12")
                                OR
-                      (CAS-5 = "A1" OR "A2" OR "B6" OR "B10" OR 
+                      (CAS-5 = "A1" OR "A2" OR "B6" OR "B9" OR "B10" OR 
                                "18" OR "42" OR "45" OR
                                "59" OR "253" OR "131"))
                                AND 
