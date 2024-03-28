@@ -3863,6 +3863,7 @@
              PERFORM VA-1
              DISPLAY "CHANGING CHARGE INS TO 225 FROM " CC-PAYCODE
              MOVE 225 TO CC-PAYCODE
+             MOVE "E" TO CC-PAPER
              GO TO 5000-WRITE-CHARCUR.
            
            GO TO 4900CPC.
