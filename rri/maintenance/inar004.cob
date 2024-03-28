@@ -4500,7 +4500,11 @@
            DISPLAY "Name of patient: " G-GARNAME
            DISPLAY "DOB: " G-DOB(5:2) "/" G-DOB(7:2) "/"
              G-DOB(1:4)
-           DISPLAY "ID: " G-PRIPOL
+           IF G-PRINS NOT = "225"  
+               DISPLAY "ID: " G-PRIPOL
+           ELSE 
+               DISPLAY "LAST 4 OF SSN: " G-PRIPOL(6:4)
+           END-IF        
            DISPLAY "DOS: "
            DISPLAY "BILLED: $"
            DISPLAY "CLAIM: " 
@@ -4512,6 +4516,7 @@
            DISPLAY "NPI 1700935780"
            DISPLAY "Tax ID 03-0238095"
            DISPLAY "Phone 800-371-8685"
+           DISPLAY "160 Allen St, Rutland, VT 05701"
            GO TO 1000-ACTION.
 
        CD-SET.
