@@ -4395,6 +4395,7 @@
 
                MOVE "1" TO CC-AUTH
                MOVE ALF-15 TO AUTH-NUM HOLD-AUTH
+               MOVE "Y" TO ANS
                MOVE CC-DATE-T TO AUTH-DATE-E
              end-if  
            end-if    
