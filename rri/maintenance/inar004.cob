@@ -4500,7 +4500,7 @@
            DISPLAY "Name of patient: " G-GARNAME
            DISPLAY "DOB: " G-DOB(5:2) "/" G-DOB(7:2) "/"
              G-DOB(1:4)
-           IF G-PRINS NOT = "225"  
+           IF NOT (G-PRINS = "225" OR "079")
                DISPLAY "ID: " G-PRIPOL
            ELSE 
                DISPLAY "LAST 4 OF SSN: " G-PRIPOL(6:4)
