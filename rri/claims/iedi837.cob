@@ -815,7 +815,9 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM HL01
            MOVE SPACE TO SEGFILE01
-           MOVE "18" TO SBR-RELATE
+      * iedi rejected PAT segment b/c SBR had 18 hardcoded
+      * instead of what is determined in SUBSCRIBER-2     
+      *     MOVE "18" TO SBR-RELATE
            WRITE SEGFILE01 FROM SBR01
            PERFORM 2010BA.
            PERFORM 2010BB.
