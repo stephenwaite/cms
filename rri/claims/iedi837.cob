@@ -816,14 +816,15 @@
            WRITE SEGFILE01 FROM HL01
            MOVE SPACE TO SEGFILE01
       * iedi rejected PAT segment b/c SBR had 18 hardcoded
-      * instead of what is determined in SUBSCRIBER-2     
-      *     MOVE "18" TO SBR-RELATE
+      * instead of what is determined in SUBSCRIBER-2
+      * But iedi doesn't support that so we'll have to revert, 4-1-24
+           MOVE "18" TO SBR-RELATE
            WRITE SEGFILE01 FROM SBR01
            PERFORM 2010BA.
            PERFORM 2010BB.
-           IF  SAVE-RELATE NOT = "18"
-           MOVE SAVE-RELATE TO SBR-PST
-           PERFORM 2000C.
+           IF SAVE-RELATE NOT = "18"
+               MOVE SAVE-RELATE TO SBR-PST
+               PERFORM 2000C.
        2010BA.
            MOVE "IL " TO NM1-1
            MOVE "1" TO NM1-SOLO
