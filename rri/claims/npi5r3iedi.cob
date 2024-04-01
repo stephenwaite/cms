@@ -1132,6 +1132,8 @@
        01  INSGROUP-LEG PIC X(6).
        01  LASTREF PIC XXX.
        01  ZEF-7 PIC Z,ZZ9.99CR.
+       01  CLAIM-ADJ-DATE PIC X(8).
+
        PROCEDURE DIVISION.
        P0. 
            OPEN INPUT FILEIN GARFILE PATFILE INSFILE REFPHY
@@ -1665,7 +1667,7 @@
                AND (PC-DENIAL = SPACE OR "DA" OR "DD" OR "DI" OR "TO"
                                 or "CP"))
 	       COMPUTE CAS-PAID(X) = CAS-PAID(X) + (-1 * PC-AMOUNT)
-	       MOVE PC-DATE-T TO CAS-PAYDATE(X)
+	       MOVE PC-DATE-T TO CAS-PAYDATE(X) CLAIM-ADJ-DATE
              IF PC-DENIAL = "DD"
                MOVE 1 TO CAS-DD(X)
              END-IF
@@ -1804,7 +1806,14 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
 
-       2320S-EXIT.  EXIT.
+           MOVE "573" TO DTP-1
+           MOVE CLAIM-ADJ-DATE TO DTP-3
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM DTP01.
+
+       2320S-EXIT.
+           EXIT.
+           
        CMP-1.
            MOVE "S" TO SBR-PST
            MOVE G-SE-GROUP TO SBR-GROUP
