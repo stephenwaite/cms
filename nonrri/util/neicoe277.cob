@@ -339,9 +339,9 @@
 
            IF STC-3 NOT = "U " GO TO XX1-EXIT.
 
-           IF CODE1 = "A3" AND CODE2 = "21 "
-             UNSTRING STC-10 DELIMiTED BY ":" INTO CODE1 CODE2 CODE3
-           end-if    
+      *     IF CODE1 = "A3" AND CODE2 = "21 "
+      *       UNSTRING STC-10 DELIMiTED BY ":" INTO CODE1 CODE2 CODE3
+      *     end-if    
 
       *     IF CODE1 = "A7" AND CODE2 = "570"
            move space to dtp01
@@ -424,6 +424,10 @@
            IF FILEOUT301 NOT = SPACE
             WRITE FILEOUT301
            END-IF.
+           MOVE SPACE TO FILEOUT301
+           MOVE STC-12 TO FILEOUT301
+           WRITE FILEOUT301.
+           
        CODE-X.
            MOVE CODE1 TO CSCC-KEY
            MOVE SPACE TO CSC-TITLE CSCC-TITLE
@@ -432,8 +436,6 @@
            END-READ.
            MOVE CODE2 TO CSC-KEY
            READ CSCFILE INVALID DISPLAY CODE2 " BAD CODE2"
-           MOVE SPACE TO FILEOUT301
-           WRITE FILEOUT301 FROM STC-12
            ACCEPT OMITTED
            END-READ.
 
