@@ -983,6 +983,9 @@
            
            IF HOLD-ACC-TYPE NOT = SPACE
                PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT.
+
+           IF HOLD-DAT1 NOT = ZEROES AND HOLD-ACC-TYPE = SPACE
+               MOVE "OA" TO CLM-11.
            
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM CLM01.
