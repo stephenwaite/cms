@@ -1,4 +1,5 @@
 <?php
+
 $user = getenv('USER');
 $batch_file = '/tmp/w22' . $user;
 if (file_exists($batch_file)) {
@@ -18,10 +19,10 @@ foreach (new DirectoryIterator('.') as $file) {
     $ext = pathinfo($fileName, PATHINFO_EXTENSION);
     $za = new ZipArchive();
     switch ($ext) {
-        case '999':
+        case 'TXT':
             print $fileName . "\n";
             $contents = file_get_contents($fileName);
-            if ((strpos($contents, 'R') != false) || (strpos($contents, 'R') != false)) {
+            if ((stripos($contents, 'R') != false) || (stripos($contents, 'E') != false)) {
                 echo "uh oh, have to check out 999 error or reject $fileName\n";
             }
             readline('enter to continue');
@@ -33,7 +34,7 @@ foreach (new DirectoryIterator('.') as $file) {
             readline('enter to continue');
             break;
         case '277':
-            file_put_contents($batch_file, '/home/sidw/oa' . $fileName . "\n", FILE_APPEND);
+            file_put_contents($batch_file, '/home/sidw/iedi/' . $fileName . "\n", FILE_APPEND);
             break;
         case 'zip':
             $za->open($fileName);

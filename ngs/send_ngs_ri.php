@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @package cms
  * @link    http://www.cmsvt.com
@@ -20,8 +21,10 @@ if (!$sftp->login($cms_user, $cms_pass)) {
 }
 
 try {
-    $sftp->uploadFile($argv[1], "/" . $argv[1]);
-    echo "file uploaded to ngs via sftp \n";
+    $remote_file_path = $argv[1];
+    $file_to_upload = $argv[1];
+    $sftp->put($remote_file_path, $file_to_upload, SFTP::SOURCE_LOCAL_FILE);
+    echo "file uploaded to ngs ri via sftp \n";
 } catch (Exception $e) {
-    echo $e->getMessage() . "\n";
+    echo "**** uh oh " . $e->getMessage() . "\n";
 }

@@ -333,15 +333,15 @@
            MOVE SPACE TO STC01
            UNSTRING STC-TAB(X) DELIMITED BY "*"
             INTO STC-0 STC-1 STC-2 STC-3 STC-4 STC-5 STC-6 STC-7 STC-8
-            STC-9 STC-10
+            STC-9 STC-10 STC-11 STC-12
            MOVE SPACE TO CODE1 CODE2 CODE3
            UNSTRING STC-1 DELIMITED BY ":" INTO CODE1 CODE2 CODE3
 
            IF STC-3 NOT = "U " GO TO XX1-EXIT.
 
-           IF CODE1 = "A3" AND CODE2 = "21 "
-             UNSTRING STC-10 DELIMiTED BY ":" INTO CODE1 CODE2 CODE3
-           end-if    
+      *     IF CODE1 = "A3" AND CODE2 = "21 "
+      *       UNSTRING STC-10 DELIMiTED BY ":" INTO CODE1 CODE2 CODE3
+      *     end-if    
 
       *     IF CODE1 = "A7" AND CODE2 = "570"
            move space to dtp01
@@ -371,7 +371,8 @@
             GO TO P99.
            MOVE SPACE TO STC01
            UNSTRING FILEIN01 DELIMITED BY "*"
-           INTO STC-0 STC-1 STC-2 STC-3 STC-4
+           INTO STC-0 STC-1 STC-2 STC-3 STC-4 STC-5 STC-6 STC-7 STC-8
+               STC-8 STC-9 STC-10 STC-11 STC-12
            MOVE SPACE TO CODE1 CODE2 CODE3
            UNSTRING STC-1 DELIMITED BY ":" INTO CODE1 CODE2 CODE3
            PERFORM CODE-X
@@ -423,6 +424,10 @@
            IF FILEOUT301 NOT = SPACE
             WRITE FILEOUT301
            END-IF.
+           MOVE SPACE TO FILEOUT301
+           MOVE STC-12 TO FILEOUT301
+           WRITE FILEOUT301.
+           
        CODE-X.
            MOVE CODE1 TO CSCC-KEY
            MOVE SPACE TO CSC-TITLE CSCC-TITLE

@@ -3863,6 +3863,7 @@
              PERFORM VA-1
              DISPLAY "CHANGING CHARGE INS TO 225 FROM " CC-PAYCODE
              MOVE 225 TO CC-PAYCODE
+             MOVE "E" TO CC-PAPER
              GO TO 5000-WRITE-CHARCUR.
            
            GO TO 4900CPC.
@@ -4394,7 +4395,8 @@
                END-IF
 
                MOVE "1" TO CC-AUTH
-               MOVE ALF-15 TO AUTH-NUM
+               MOVE ALF-15 TO AUTH-NUM HOLD-AUTH
+               MOVE "Y" TO ANS
                MOVE CC-DATE-T TO AUTH-DATE-E
              end-if  
            end-if    
@@ -4500,7 +4502,11 @@
            DISPLAY "Name of patient: " G-GARNAME
            DISPLAY "DOB: " G-DOB(5:2) "/" G-DOB(7:2) "/"
              G-DOB(1:4)
-           DISPLAY "ID: " G-PRIPOL
+           IF NOT (G-PRINS = "225" OR "079")
+               DISPLAY "ID: " G-PRIPOL
+           ELSE 
+               DISPLAY "LAST 4 OF SSN: " G-PRIPOL(6:4)
+           END-IF        
            DISPLAY "DOS: "
            DISPLAY "BILLED: $"
            DISPLAY "CLAIM: " 
@@ -4512,6 +4518,7 @@
            DISPLAY "NPI 1700935780"
            DISPLAY "Tax ID 03-0238095"
            DISPLAY "Phone 800-371-8685"
+           DISPLAY "160 Allen St, Rutland, VT 05701"
            GO TO 1000-ACTION.
 
        CD-SET.

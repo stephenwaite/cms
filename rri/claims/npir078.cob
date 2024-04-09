@@ -64,6 +64,9 @@
            ACCESS MODE IS DYNAMIC RECORD KEY IS AUTH-KEY
            LOCK MODE MANUAL.  
 
+           SELECT FILEOUT3 ASSIGN TO "S95" ORGANIZATION
+           LINE SEQUENTIAL.
+
        DATA DIVISION.
 
        FILE SECTION.
@@ -99,6 +102,9 @@
        FD  FILEOUT2.
        01  FILEOUT201 PIC X(165).
       
+       FD  FILEOUT3.
+       01  FILEOUT301 PIC X(165).
+
        FD  INSIN.
        01  INSIN01.
            02 INS-1 PIC 999.
@@ -148,7 +154,7 @@
 
        PROCEDURE DIVISION.
        P0.
-           OPEN OUTPUT FILE-OUT FILEOUT FILEOUT2 ERRORFILE.
+           OPEN OUTPUT FILE-OUT FILEOUT FILEOUT2 FILEOUT3 ERRORFILE.
            
            OPEN INPUT INSIN CHARCUR DOCFILE GARFILE
                FILEIN INSFILE REFPHY AUTHFILE.
@@ -352,6 +358,12 @@
              GO TO A2
            END-IF
 
+           IF (INS-NEIC = "12115")
+               MOVE "USE myvaccn to get auth please " TO EF2
+               PERFORM E1
+               GO TO A2
+           END-IF
+
            IF (INS-NEIC = "VACCN")
                MOVE CC-KEY8 TO AUTH-KEY8
                MOVE CC-CLAIM TO AUTH-KEY6
@@ -376,8 +388,10 @@
 
            IF (INS-NEIC = "14165")
                WRITE FILEOUT201 FROM FILEOUT01    
+           ELSE IF INS-NEIC = "60054" OR INS-ACC-TYPE NOT = SPACE
+               WRITE FILEOUT01 FROM FILEOUT01
            ELSE
-               WRITE FILEOUT01
+               WRITE FILEOUT301 FROM FILEOUT01
            END-IF
 
            GO TO A2.

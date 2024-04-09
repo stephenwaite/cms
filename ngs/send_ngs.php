@@ -18,5 +18,5 @@ try {
     $sftp->put($remote_file_path, $file_to_upload, SFTP::SOURCE_LOCAL_FILE);
     echo "file uploaded to ngs via sftp \n";
 } catch (Exception $e) {
-    echo $e->getMessage() . "\n";
+    echo "**** uh oh " . $e->getMessage() . "\n";
 }
