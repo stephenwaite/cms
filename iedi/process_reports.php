@@ -18,10 +18,10 @@ foreach (new DirectoryIterator('.') as $file) {
     $ext = pathinfo($fileName, PATHINFO_EXTENSION);
     $za = new ZipArchive();
     switch ($ext) {
-        case '999':
+        case 'TXT':
             print $fileName . "\n";
             $contents = file_get_contents($fileName);
-            if ((strpos($contents, 'R') != false) || (strpos($contents, 'R') != false)) {
+            if ((stripos($contents, 'R') != false) || (stripos($contents, 'E') != false)) {
                 echo "uh oh, have to check out 999 error or reject $fileName\n";
             }
             readline('enter to continue');
