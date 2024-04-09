@@ -142,12 +142,12 @@
            DISPLAY "OR X = BACK TO THE BEGINNING"
 
            DISPLAY "A=ALLEN POND, B=BRANDON, C=CAST, M=METTOWEE, "
-             "P=PEDIATRICS, R=RUTLAND, S=SHOREWELL".
+             "N=MANCHESTER, P=PEDIATRICS, R=RUTLAND, S=SHOREWELL".
            ACCEPT NPI-PLACE.
            
            IF NPI-PLACE = "X" GO TO A-EXIT.
 
-           IF NOT (NPI-PLACE = "A" OR "B" OR "C" OR "M" OR "P" OR 
+           IF NOT (NPI-PLACE = "A" OR "B" OR "C" OR "M" OR "N" OR "P" OR
                                "R" OR "S") 
              GO TO A-6
            END-IF    
@@ -242,7 +242,7 @@
            
            IF NPI-PLACE = "X" GO TO P1.
            
-           IF NOT (NPI-PLACE = "A" OR "B" OR "C" OR "M" OR "P" OR 
+           IF NOT (NPI-PLACE = "A" OR "B" OR "C" OR "M" OR "N" OR "P" OR 
                                "R" OR "S")
                GO TO C-1
            END-IF           
