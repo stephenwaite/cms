@@ -16,9 +16,11 @@ try {
 
     $date = new DateTimeImmutable();
     $stamp = $date->format('YmdHis');
-
-    $remote_file_path = "E_ZCHC0409/In/" . $argv[1] . "-" . $stamp;
-    $file_to_upload = $argv[1];
+    $filename = $argv[1];
+    $remote_filename = $filename . "-" . $stamp;
+    copy($filename, $remote_filename);
+    $remote_file_path = "E_ZCHC0409/In/" . $remote_filename;
+    $file_to_upload = $filename;
     $sftp->put($remote_file_path, $file_to_upload, SFTP::SOURCE_LOCAL_FILE);
     echo "file uploaded to iedi via sftp \n";
 } catch (Exception $e) {
