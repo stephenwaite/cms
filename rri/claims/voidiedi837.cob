@@ -982,7 +982,8 @@
       *     CLM-11-2 CLM-11-3 CLM-11-5
            
            IF HOLD-ACC-TYPE NOT = SPACE
-               PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT.    
+               PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT.  
+
            perform void-claim 
            
            IF HOLD-DAT1 NOT = ZEROES AND HOLD-ACC-TYPE = SPACE
@@ -1028,9 +1029,17 @@
       *        ELSE
       *          MOVE "VA9999999999" TO REF-ID
               END-IF  
-              MOVE SPACE TO SEGFILE01
-              WRITE SEGFILE01 FROM REF01.
-      *     END-IF.   
+      *     END-IF.  
+
+      *    claim number for corrected/voided claims
+           MOVE SPACE TO REF-CODE
+           MOVE "F8" TO REF-CODE
+           MOVE SPACE TO REF-ID
+
+           DISPLAY "ENTER CLAIM #"
+           ACCEPT REF-ID  
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM REF01. 
 
        2300CLM-EXIT.
            EXIT.
