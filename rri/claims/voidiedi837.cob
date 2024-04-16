@@ -1007,10 +1007,11 @@
            END-IF                          
            
       *    write pwk segment for medical attachments
-            IF HOLD-ACC-TYPE NOT = SPACE
-             MOVE SPACE TO SEGFILE01
-             MOVE HOLD-FILEIN-KEY TO PWK-7
-             WRITE SEGFILE01 FROM PWK01.
+           IF HOLD-ACC-TYPE NOT = SPACE
+               MOVE SPACE TO SEGFILE01
+               MOVE HOLD-FILEIN-KEY TO PWK-7
+               WRITE SEGFILE01 FROM PWK01
+           END-IF    
              
       *    add auth 
            MOVE 0 TO AUTH-FLAG
@@ -1023,6 +1024,7 @@
            MOVE SPACE TO REF-CODE
            MOVE "G1" TO REF-CODE
            MOVE SPACE TO REF-ID
+
            IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
                MOVE AUTH-NUM TO REF-ID
                MOVE SPACE TO SEGFILE01
@@ -1035,7 +1037,7 @@
            MOVE SPACE TO REF-ID
 
            DISPLAY "ENTER CLAIM #"
-           ACCEPT REF-ID  
+           ACCEPT REF-ID 
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM REF01. 
 
