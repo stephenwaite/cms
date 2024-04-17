@@ -1016,7 +1016,7 @@
               WRITE SEGFILE01 FROM REF01
            END-IF.  
 
-           *    claim number
+      *    claim number
            MOVE SPACE TO REF-CODE
            MOVE "F8" TO REF-CODE
            MOVE SPACE TO REF-ID
