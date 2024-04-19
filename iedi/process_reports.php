@@ -21,8 +21,16 @@ foreach (new DirectoryIterator('.') as $file) {
     switch ($ext) {
         case 'TXT':
             print $fileName . "\n";
-            $contents = file_get_contents($fileName);
-            if ((stripos($contents, 'R') != false) || (stripos($contents, 'E') != false)) {
+            $flag = false;
+            foreach (file($fileName) as $line) {
+                if ((stripos($line, 'R') != false) || (stripos($line, 'E') != false)) {
+                    $flag = true;
+                    if ((stripos($line, 'SE') != false) || (stripos($line, 'GE') != false) || (stripos($line, 'IEA') != false)) {
+                        $flag = false;
+                    }
+                }
+            }
+            if (!empty($flag)) {
                 echo "uh oh, have to check out 999 error or reject $fileName\n";
             }
             readline('enter to continue');
