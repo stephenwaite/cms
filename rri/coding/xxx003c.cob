@@ -523,8 +523,7 @@
        P2-0.
            IF (CD-PAYCODE = "009" OR "010" OR "011" OR "012" OR "013"
                OR "014")
-               display CD-PAYCODE
-           accept omitted
+           
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
                    DISPLAY "quality codes as well once study is read"
@@ -537,6 +536,7 @@
                    PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1        
                END-IF    
+
            END-IF
 
            IF CD-PAYCODE = "009"
@@ -602,14 +602,14 @@
                    DISPLAY " 3 = denom exception, see measure"
                    DISPLAY " <Enter> = no osteopenia"
                    GO TO P2-0
+               END-IF
                IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " or SPACE)
                    GO TO P2-0
                END-IF
            END-IF
 
            IF CD-PAYCODE = "012"
-               display CD-PAYCODE " SHOULD BE 012"
-               accept omitted
+               
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
                    " or G to grab read"
                ACCEPT CD-QP1
