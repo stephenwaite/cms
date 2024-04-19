@@ -521,11 +521,10 @@
            DISPLAY " ".
 
        P2-0.
-           display CD-PAYCODE
-           accept omitted
-           
            IF (CD-PAYCODE = "009" OR "010" OR "011" OR "012" OR "013"
                OR "014")
+               display CD-PAYCODE
+           accept omitted
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
                    DISPLAY "quality codes as well once study is read"
@@ -608,9 +607,9 @@
                END-IF
            END-IF
 
-
-
            IF CD-PAYCODE = "012"
+               display CD-PAYCODE " SHOULD BE 012"
+               accept omitted
                DISPLAY " measure 405: type ? or 1 or 2 or 3 or <Enter>"
                    " or G to grab read"
                ACCEPT CD-QP1
