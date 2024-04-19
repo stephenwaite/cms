@@ -475,7 +475,6 @@
        P1-1.
            IF (CD-PAYCODE = "009" OR "010" OR "011" OR "012" OR "013"
                OR "014")
-               display "going to p2"
                GO TO P2
            END-IF    
       * mammo codes
@@ -522,6 +521,9 @@
            DISPLAY " ".
 
        P2-0.
+           display CD-PAYCODE
+           accept omitted
+           
            IF (CD-PAYCODE = "009" OR "010" OR "011" OR "012" OR "013"
                OR "014")
                IF CD-DOCP = "02"
