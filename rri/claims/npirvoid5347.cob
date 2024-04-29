@@ -2271,9 +2271,6 @@
              PERFORM 2420F THRU 2420F-EXIT
            end-if  
 
-      *     PERFORM 2420A.
-
-
            MOVE SPACE TO REF-CODE  REF-ID
            MOVE "6R" TO REF-CODE
            MOVE FILEIN-KEY TO REF-ID
@@ -2361,7 +2358,10 @@
       *     MOVE SPACE TO SEGFILE01
       *     WRITE SEGFILE01 FROM REF01.
 
-      2420F.
+       2420A-EXIT.
+           EXIT.
+
+       2420F.
            IF FI-DOCR = "000" 
              GO TO REF-2.
 
