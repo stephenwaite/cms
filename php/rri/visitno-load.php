@@ -6,7 +6,7 @@ $load = [];
 $visitno = '';
 foreach($lines as $line) {
     if (substr($line, 0, 2) == '##') {
-        $visitno = substr($line, 2, 7);
+        $visitno = substr($line, 2, 8);
         //echo "$line\n";
         //echo "visitno $visitno \n";
         $rrmc_ins_code = trim(substr($line, 295, 5));
