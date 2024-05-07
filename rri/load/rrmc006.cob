@@ -203,7 +203,7 @@
 
        01  REC101.
            02 R1-1 PIC XX.
-           02 R1-PATNUM PIC X(7).
+           02 R1-PATNUM PIC X(8).
            02 R1-PATNAME.
              03 R1-PATNAME-L PIC X(19).
              03 R1-PATNAME-F PIC X(12).
