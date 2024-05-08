@@ -1771,7 +1771,7 @@
            
            MOVE R3-CLINICAL TO C-CLINICAL
            MOVE R2-DIAG TO C-ADMIT-DIAG
-           MOVE R1-PATNUM TO C-VISITNO
+           MOVE R1-PATNUM(2:7) TO C-VISITNO
            MOVE R3-CPT TO C-CPT
            MOVE R3-MOD1 TO C-MOD2
            MOVE R3-MOD2 TO C-MOD3
