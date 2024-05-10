@@ -32,7 +32,7 @@
 
            SELECT GARFILE ASSIGN TO "S55" ORGANIZATION IS INDEXED
              ACCESS MODE IS RANDOM RECORD KEY IS G-GARNO
-             ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
+             ALTERNATE RECORD KEY IS g-garno WITH DUPLICATES.
            
            SELECT PAYCUR ASSIGN TO "S60" ORGANIZATION IS INDEXED
              ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY.
@@ -61,7 +61,25 @@
            COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".      
       
        FD  DOCFILE.
-           COPY DOCFILE.CPY IN "C:\Users\sid\cms\copylib".  
+       01  DOCFILE01.
+           02 DOC-KEY.
+             03 DOC-INS PIC XXX.
+             03 DOC-NUM PIC XX.
+           02 DOC-FEDID PIC X(14).
+           02 DOC-PVNUM PIC X(14).
+           02 DOC-UPIN PIC X(6).
+           02 DOC-NPI PIC X(10).
+           02 DOC-IND PIC X.
+           02 DOC-GROUP PIC X(14).
+           02 DOC-NPIGROUP PIC X(10).
+           02 DOC-NAME PIC X(24).
+           02 DOC-GROUPNAME PIC X(29).
+           02 DOC-SSNUM PIC X(9).
+           02 DOC-TAXONOMY PIC X(10).
+           02 DOC-NEIC PIC X(5).
+           02 DOC-TAXGROUP PIC X(10).
+           02 DOC-WEBTAX PIC XXX.
+           02 DOC-FUTURE PIC X(12).  
 
        FD  INSFILE.
            COPY INSFILE.CPY IN "C:\Users\sid\cms\copylib".      
@@ -144,7 +162,7 @@
            MOVE HOLD-CHARCUR01(1:8) TO G-GARNO
            READ GARFILE INVALID MOVE SPACE TO G-GARNAME
 
-           MOVE G-ACCT TO FO-ACCT.
+           MOVE g-garno TO FO-ACCT.
            MOVE G-GARNAME TO FO-NAME.           
            MOVE HOLD-CHARCUR01(79:8) TO FO-DATE
            MOVE HOLD-CHARCUR01(1:11) TO FO-CKEY.
