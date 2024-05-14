@@ -129,7 +129,8 @@
        01  G-MIDDLE PIC X(10).
        01  W-PRINSNAME PIC X(22).
        01  W-SEINSNAME PIC X(22).
-       
+       01  W-PRINSNEIC PIC X(5).       
+       01  W-SEINSNEIC PIC X(5).       
 
       *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
        
@@ -174,14 +175,15 @@
                DISPLAY "WHAT THE HECK".
            
            MOVE INS-NAME TO W-PRINSNAME
+           MOVE INS-NEIC TO W-PRINSNEIC
 
            MOVE G-SEINS TO INS-KEY
            READ INSFILE
              INVALID
                DISPLAY "WHAT THE HECK".
-
            
            MOVE INS-NAME TO W-SEINSNAME
+           MOVE INS-NEIC TO W-SEINSNEIC
           
 
            STRING g-garno G-GARNAME G-BILLADD G-STREET
