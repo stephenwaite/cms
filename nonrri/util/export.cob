@@ -127,6 +127,9 @@
        01  G-FIRST PIC X(15).
        01  G-LAST PIC X(15).
        01  G-MIDDLE PIC X(10).
+       01  W-PRINSNAME PIC X(22).
+       01  W-SEINSNAME PIC X(22).
+       
 
       *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
        
@@ -164,6 +167,22 @@
 
       *     STRING G-GARNAME DELIMITED BY ";" INTO G-LAST G-FIRST 
       *       G-MIDDLE.
+
+           MOVE G-PRINS TO INS-KEY
+           READ INSFILE
+             INVALID
+               DISPLAY "WHAT THE HECK".
+           
+           MOVE INS-NAME TO W-PRINSNAME
+
+           MOVE G-SEINS TO INS-KEY
+           READ INSFILE
+             INVALID
+               DISPLAY "WHAT THE HECK".
+
+           
+           MOVE INS-NAME TO W-SEINSNAME
+          
 
            STRING g-garno G-GARNAME G-BILLADD G-STREET
              G-CITY G-STATE G-ZIP G-PHONE G-SEX G-DOB G-PRINS G-PR-GROUP
