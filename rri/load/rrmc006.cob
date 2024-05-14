@@ -203,7 +203,7 @@
 
        01  REC101.
            02 R1-1 PIC XX.
-           02 R1-PATNUM PIC X(7).
+           02 R1-PATNUM PIC X(8).
            02 R1-PATNAME.
              03 R1-PATNAME-L PIC X(19).
              03 R1-PATNAME-F PIC X(12).
@@ -1771,7 +1771,7 @@
            
            MOVE R3-CLINICAL TO C-CLINICAL
            MOVE R2-DIAG TO C-ADMIT-DIAG
-           MOVE R1-PATNUM TO C-VISITNO
+           MOVE R1-PATNUM(2:7) TO C-VISITNO
            MOVE R3-CPT TO C-CPT
            MOVE R3-MOD1 TO C-MOD2
            MOVE R3-MOD2 TO C-MOD3

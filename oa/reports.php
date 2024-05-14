@@ -20,8 +20,16 @@ foreach (new DirectoryIterator('.') as $file) {
     switch ($ext) {
         case '999':
             print $fileName . "\n";
-            $contents = file_get_contents($fileName);
-            if ((strpos($contents, 'R') != false) || (strpos($contents, 'R') != false)) {
+            $flag = false;
+            foreach (file($fileName) as $line) {
+                if ((stripos($line, 'R') != false) || (stripos($line, 'E') != false)) {
+                    $flag = true;
+                    if ((stripos($line, 'SE') != false) || (stripos($line, 'GE') != false) || (stripos($line, 'IEA') != false)) {
+                        $flag = false;
+                    }
+                }
+            }
+            if (!empty($flag)) {
                 echo "uh oh, have to check out 999 error or reject $fileName\n";
             }
             readline('enter to continue');
@@ -33,7 +41,7 @@ foreach (new DirectoryIterator('.') as $file) {
             readline('enter to continue');
             break;
         case '277':
-            file_put_contents($batch_file, '/home/sidw/oa' . $fileName . "\n", FILE_APPEND);
+            file_put_contents($batch_file, '/home/sidw/oa/' . $fileName . "\n", FILE_APPEND);
             break;
         case 'zip':
             $za->open($fileName);
