@@ -302,6 +302,8 @@
            END-READ
 
            IF INS-NEIC = SPACE DISPLAY CHARCUR01 GO TO A2.
+
+           MOVE SPACE TO EF2
            
            IF INS-CITY = SPACE OR INS-STREET = SPACE
              OR INS-STATE = SPACE OR INS-ZIP = SPACE

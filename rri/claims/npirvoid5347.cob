@@ -1221,6 +1221,9 @@
 
        01  ANS PIC X.
 
+       01  CLM-DOCR PIC XXX.
+       01  CLM-DOCP pic 99.
+
        PROCEDURE DIVISION.
 
        P0. 
@@ -1324,21 +1327,29 @@
        P1-1. 
            IF DIAG-CNTR > 11 GO TO P2.
            IF  FI-PLACE = HOLD-PLACE
-           AND FI-KEY8 = HOLD-KEY8
-           AND FI-PATID = HOLD-PATID
-           AND FI-DOCP = HOLD-DOCP
-           AND FI-DOCR = HOLD-DOCR
-           AND FI-DAT1 = HOLD-DAT1
-           AND FI-ACC-TYPE = HOLD-ACC-TYPE
-           AND CNTR < 50
-             PERFORM DIAG-1 THRU DIAG-EXIT 
-             IF DIAG-CNTR > 12
-               GO TO P2
-             END-IF
-             ADD 1 TO CNTR 
-             MOVE FILEIN01 TO FILETAB(CNTR)
-             ADD FI-AMOUNT TO TOT-AMOUNT
-             GO TO P1.
+               AND FI-KEY8 = HOLD-KEY8
+               AND FI-PATID = HOLD-PATID
+      *      AND FI-DOCP = HOLD-DOCP
+      *      AND FI-DOCR = HOLD-DOCR
+               AND FI-DAT1 = HOLD-DAT1
+               AND FI-ACC-TYPE = HOLD-ACC-TYPE
+               AND CNTR < 50
+               PERFORM DIAG-1 THRU DIAG-EXIT 
+               IF DIAG-CNTR > 12
+                   GO TO P2
+               END-IF
+               
+               ADD 1 TO CNTR 
+
+               IF CNTR = 1
+                   MOVE HOLD-DOCR TO CLM-DOCR
+                   MOVE HOLD-DOCP TO CLM-DOCP
+               end-if
+
+               MOVE FILEIN01 TO FILETAB(CNTR)
+               ADD FI-AMOUNT TO TOT-AMOUNT
+               GO TO P1
+           END-IF.  
 
        P2.  
            MOVE FILEIN01 TO SAVE01
@@ -2251,8 +2262,14 @@
            MOVE FI-DATE-T TO DTP-3
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM DTP01.
-           PERFORM 2420A.
 
+           if FI-DOCP NOT = CLM-DOCP
+             PERFORM 2420A THRU 2420A-EXIT
+           end-if
+
+           IF FI-DOCR NOT = CLM-DOCR
+             PERFORM 2420F THRU 2420F-EXIT
+           end-if  
 
            MOVE SPACE TO REF-CODE  REF-ID
            MOVE "6R" TO REF-CODE
@@ -2340,6 +2357,34 @@
       *     MOVE DOC-NUM(FI-DOCP) TO REF-ID
       *     MOVE SPACE TO SEGFILE01
       *     WRITE SEGFILE01 FROM REF01.
+
+       2420A-EXIT.
+           EXIT.
+
+       2420F.
+           IF FI-DOCR = "000" 
+             GO TO REF-2.
+
+           MOVE FI-DOCR TO REF-KEY 
+
+           READ REFPHY 
+             INVALID 
+               GO TO REF-2.
+
+           MOVE "DN " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING REF-NAME DELIMITED BY ", " OR " ,"
+             OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
+
+           MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
+           MOVE "XX" TO NM1-EINSS
+           MOVE REF-NPI TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420F-EXIT.
+           EXIT.     
 
        2310A.
            IF HOLD-DOCR = "000" GO TO REF-2.

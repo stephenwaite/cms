@@ -8,12 +8,13 @@ $reader = Reader::createFromPath($argv[1], 'r');
 $reader->setHeaderOffset(0);
 $header = $reader->getHeader();
 //var_dump($header);
+//exit;
 $i = 1;
 foreach($header as $key => $value) {
     if (empty($value)) {
         $value = (string) $i++;
     }
-    $new_header[$key] = $value;
+    $new_header[$key] = trim($value);
 }
 
 //var_dump($new_header);
@@ -25,8 +26,9 @@ foreach ($records as $offset => $record) {
     //var_dump($offset);
     //var_export($record);
     //exit;
-    //if (in_array($record['Date'], $record)) {
-    //echo $record['Date'] . "\n";
+    //if (in_array($record['CDM'] ?? '', $record)) {
+    //    echo $record['CDM'] ?? '' . "\n";
+    //}
     //echo implode('', array_reverse(explode('/', $record['Date']))) . "\n";
     $cdm = $record['CDM'] ?? null;
     $cpt = $record['CPT'] ?? null ?: $record['HCPCS'] ?? null;
