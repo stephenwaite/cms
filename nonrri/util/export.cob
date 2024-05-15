@@ -228,7 +228,7 @@
            STRING INS-KEY "7000" DELIMITED BY SIZE INTO W-PRINSKEY
 
            IF G-SEINS = "062"
-             MOVE G-SEGROUP TO GAPKEY
+             MOVE G-SE-GROUP TO GAPKEY
              READ GAPFILE
                INVALID
                  DISPLAY "WHAT THE"
@@ -258,7 +258,7 @@
            END-IF      
            
            MOVE INS-NAME TO W-SEINSNAME
-           MOVE INS-NEIC TO W-SEINSNEIC
+           MOVE INS-KEY TO W-SEINSKEY
            
            IF G-TRINS = "000" OR "001"
              MOVE SPACE TO W-TRINSNAME W-TRINSKEY
