@@ -106,8 +106,8 @@
        FD  FILEOUT.
        01  FILEOUT01 PIC X(500).
 
-       FD GAPFILE.
-       01 GAPFILE01.
+       FD  GAPFILE.
+       01  GAPFILE01.
            02 GAPKEY PIC X(7).
            02 GAP-NAME PIC X(25).
            02 GAP-ADDR PIC X(22).
@@ -188,7 +188,7 @@
            MOVE CHARCUR01 TO HOLD-CHARCUR01.
 
        WRITE-FO. 
-           IF CC-PATID = G-GARNO GO TO P1.
+           IF CC-KEY8 = G-GARNO GO TO P1.
            
            MOVE HOLD-CHARCUR01(1:8) TO G-GARNO
            READ GARFILE 
@@ -225,10 +225,10 @@
            END-IF
            
            MOVE INS-NAME TO W-PRINSNAME
-           STRING INS-KEY "7000" DELIMITED BY SIZE INTO W-PRINSKEY
+           STRING "7000" INS-KEY DELIMITED BY SIZE INTO W-PRINSKEY
 
            IF G-SEINS = "062"
-             MOVE G-SE-GROUP TO GAPKEY
+             MOVE G-PR-GROUP TO GAPKEY
              READ GAPFILE
                INVALID
                  DISPLAY "WHAT THE"
@@ -242,7 +242,7 @@
                    DISPLAY "WHAT THE HECK"
                END-READ
                MOVE INS-NAME TO W-SEINSNAME
-               STRING INS-KEY "7000" DELIMITED BY SIZE INTO W-SEINSKEY
+               STRING "7000" INS-KEY DELIMITED BY SIZE INTO W-SEINSKEY
            END-IF    
 
            UNSTRING G-SENAME DELIMITED BY ";" INTO G-SECLAST G-SECFIRST
@@ -269,7 +269,7 @@
                  DISPLAY "WHAT THE HECK"
              END-READ
              MOVE INS-NAME TO W-TRINSNAME
-             STRING INS-KEY "7000" DELIMITED BY SIZE INTO W-TRINSKEY
+             STRING "7000" INS-KEY DELIMITED BY SIZE INTO W-TRINSKEY
            END-IF
 
            STRING g-garno "," G-LAST "," G-FIRST "," G-MIDDLE ","
