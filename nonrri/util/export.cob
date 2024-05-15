@@ -235,7 +235,7 @@
              END-READ
              DISPLAY G-GARNO
              DISPLAY GAP-NAME
-             DISPLAY GAP-KEY
+             DISPLAY GAPKEY
              ACCEPT OMITTED
              MOVE GAP-NAME TO W-SEINSNAME
              MOVE GAPKEY TO W-SEINSKEY
