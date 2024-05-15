@@ -97,7 +97,7 @@
        01  CCPROCIN01 PIC X(11).
        
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(400).
+       01  FILEOUT01 PIC X(500).
 
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.
@@ -135,8 +135,10 @@
        01  G-SECMIDDLE PIC X(10).
        01  W-PRINSNAME PIC X(22).
        01  W-SEINSNAME PIC X(22).
+       01  W-TRINSNAME PIC X(22).
        01  W-PRINSNEIC PIC X(5).       
-       01  W-SEINSNEIC PIC X(5).   
+       01  W-SEINSNEIC PIC X(5).
+       01  W-TRINSNEIC PIC X(5).   
        01  W-PR-RELATE PIC X(5).
        01  W-SE-RELATE PIC X(5).    
 
@@ -203,6 +205,22 @@
            READ INSFILE
              INVALID
                DISPLAY "WHAT THE HECK".
+           
+           MOVE INS-NAME TO W-SEINSNAME
+           MOVE INS-NEIC TO W-SEINSNEIC
+           
+           IF G-TRINS = "000" 
+             MOVE SPACE TO W-TRINSNAME W-TRINSNEIC
+           ELSE 
+             MOVE G-TRINS TO INS-KEY
+             READ INSFILE
+               INVALID
+                 DISPLAY "WHAT THE HECK"
+             END-READ
+             MOVE INS-NAME TO W-TRINSNAME
+             MOVE INS-NEIC TO W-TRINSNEIC
+           END-IF    
+
 
            UNSTRING G-SENAME DELIMITED BY ";" INTO G-SECLAST G-SECFIRST
              G-SECMIDDLE.      
@@ -214,18 +232,17 @@
            ELSE
               MOVE "SPOUSE" TO W-SE-RELATE
            END-IF  
-           
-           MOVE INS-NAME TO W-SEINSNAME
-           MOVE INS-NEIC TO W-SEINSNEIC
 
-           STRING g-garno W-PRIRELATE G-LAST G-FIRST G-MIDDLE 
+           STRING g-garno G-LAST G-FIRST G-MIDDLE 
              G-BILLADD G-STREET G-CITY G-STATE G-ZIP 
              G-PHONE G-SEX G-DOB 
-             W-PRINSNAME W-PRINSNEIC 
+             W-PRINSNAME W-PRINSNEIC W-PR-RELATE
              G-PRIPOL G-PR-GROUP
              G-PRILAST G-PRIFIRST G-PRIMIDDLE
-             W-SEINSNAME W-SEINSNEIC G-SE-GROUP G-SECPOL G-SENAME
-             G-TRINS HOLD-CHARCUR01(80:8) 
+             W-SEINSNAME W-SEINSNEIC W-SE-RELATE
+             G-SECPOL G-SE-GROUP 
+             G-SECLAST G-SECFIRST G-SECMIDDLE
+             W-TRINSNAME W-TRINSNEIC HOLD-CHARCUR01(80:8) 
              DELIMITED BY SIZE INTO FILEOUT01.
    
            
