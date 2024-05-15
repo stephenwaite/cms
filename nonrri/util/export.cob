@@ -233,10 +233,10 @@
                INVALID
                  DISPLAY "WHAT THE"
              END-READ
-             DISPLAY G-GARNO
-             DISPLAY GAP-NAME
-             DISPLAY GAPKEY
-             ACCEPT OMITTED
+      *       DISPLAY G-GARNO
+      *       DISPLAY GAP-NAME
+      *       DISPLAY GAPKEY
+      *       ACCEPT OMITTED
              MOVE GAP-NAME TO W-SEINSNAME
              MOVE GAPKEY TO W-SEINSKEY
            ELSE
