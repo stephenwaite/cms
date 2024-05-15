@@ -44,7 +44,14 @@
                ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
                ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
                ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
-               LOCK MODE MANUAL.  
+               LOCK MODE MANUAL.
+           
+           SELECT GAPFILE ASSIGN TO "S70" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS GAPKEY
+             ALTERNATE RECORD KEY IS GAP-NAME WITH DUPLICATES
+             ALTERNATE RECORD KEY IS GAP-CITY WITH DUPLICATES
+             ALTERNATE RECORD KEY IS GAP-STATE WITH DUPLICATES
+             LOCK MODE MANUAL.    
 
        DATA DIVISION.
 
@@ -99,6 +106,17 @@
        FD  FILEOUT.
        01  FILEOUT01 PIC X(500).
 
+       FD GAPFILE.
+       01 GAPFILE01.
+           02 GAPKEY PIC X(7).
+           02 GAP-NAME PIC X(25).
+           02 GAP-ADDR PIC X(22).
+           02 GAP-CITY PIC X(15).
+           02 GAP-STATE PIC XX.
+           02 GAP-ZIP PIC X(9).
+           02 GAP-TYPE PIC X.
+           02 GAP-FUTURE PIC X(40).
+
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.
            02 PLACE-TAB OCCURS 26 TIMES.
@@ -136,9 +154,9 @@
        01  W-PRINSNAME PIC X(22).
        01  W-SEINSNAME PIC X(22).
        01  W-TRINSNAME PIC X(22).
-       01  W-PRINSNEIC PIC X(5).       
-       01  W-SEINSNEIC PIC X(5).
-       01  W-TRINSNEIC PIC X(5).   
+       01  W-PRINSKEY PIC X(7).       
+       01  W-SEINSKEY PIC X(7).
+       01  W-TRINSKEY PIC X(7).   
        01  W-PR-RELATE PIC X(6).
        01  W-SE-RELATE PIC X(6).    
        01  W-TR-RELATE PIC X(6).
@@ -149,7 +167,7 @@
        
        P0.
            OPEN INPUT DOCFILE GARFILE CHARDATE PAYDATE CHARCUR PAYCUR
-             CCPROCIN INSFILE.
+             CCPROCIN INSFILE GAPFILE.
            OPEN OUTPUT FILEOUT.
            READ CHARDATE.
       *     READ PAYDATE.
@@ -201,12 +219,25 @@
            END-IF
            
            MOVE INS-NAME TO W-PRINSNAME
-           MOVE INS-NEIC TO W-PRINSNEIC
+           STRING INS-KEY "7000" DELIMITED BY SIZE INTO W-PRINSKEY
 
-           MOVE G-SEINS TO INS-KEY
-           READ INSFILE
-             INVALID
-               DISPLAY "WHAT THE HECK".
+           IF G-SEINS = "062"
+             MOVE G-SEGROUP TO GAPKEY
+             READ GAPFILE
+               INVALID
+                 DISPLAY "WHAT THE"
+             END-READ
+             MOVE GAP-NAME TO W-SEINSNAME
+             MOVE GAPKEY TO W-SEINSKEY
+           ELSE
+               MOVE G-SEINS TO INS-KEY
+               READ INSFILE
+                 INVALID
+                   DISPLAY "WHAT THE HECK"
+               END-READ
+               MOVE INS-NAME TO W-SEINSNAME
+               STRING INS-KEY "7000" DELIMITED BY SIZE INTO W-SEINSKEY
+           END-IF    
 
            UNSTRING G-SENAME DELIMITED BY ";" INTO G-SECLAST G-SECFIRST
              G-SECMIDDLE.      
@@ -224,7 +255,7 @@
            MOVE INS-NEIC TO W-SEINSNEIC
            
            IF G-TRINS = "000" OR "001"
-             MOVE SPACE TO W-TRINSNAME W-TRINSNEIC
+             MOVE SPACE TO W-TRINSNAME W-TRINSKEY
            ELSE 
              MOVE G-TRINS TO INS-KEY
              READ INSFILE
@@ -232,7 +263,7 @@
                  DISPLAY "WHAT THE HECK"
              END-READ
              MOVE INS-NAME TO W-TRINSNAME
-             MOVE INS-NEIC TO W-TRINSNEIC
+             STRING INS-KEY "7000" DELIMITED BY SIZE INTO W-TRINSKEY
            END-IF
 
            STRING g-garno "," G-LAST "," G-FIRST "," G-MIDDLE ","
@@ -254,5 +285,5 @@
 
        P99. 
            CLOSE DOCFILE GARFILE CHARDATE PAYDATE CHARCUR
-             PAYCUR CCPROCIN FILEOUT INSFILE.
+             PAYCUR CCPROCIN FILEOUT INSFILE GAPFILE.
            STOP RUN.
