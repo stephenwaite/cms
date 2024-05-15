@@ -193,7 +193,8 @@
 
            IF (G-PR-RELATE = "2" AND G-SEX = "M") OR
               (G-PR-RELATE = "K" AND G-SEX = "F") OR
-              (G-PR-RELATE = SPACE)
+              (G-PR-RELATE = SPACE) OR
+              (G-PRINS = "001")
               MOVE "SELF" TO W-PR-RELATE
            ELSE
               MOVE "SPOUSE" TO W-PR-RELATE
@@ -206,11 +207,23 @@
            READ INSFILE
              INVALID
                DISPLAY "WHAT THE HECK".
+
+           UNSTRING G-SENAME DELIMITED BY ";" INTO G-SECLAST G-SECFIRST
+             G-SECMIDDLE.      
+
+           IF (G-SE-RELATE = "2" AND G-SEX = "M") OR
+              (G-SE-RELATE = "K" AND G-SEX = "F") OR
+              (G-SE-RELATE = SPACE) OR
+              (G-SEINS = "001")
+              MOVE "SELF" TO W-SE-RELATE
+           ELSE
+              MOVE "SPOUSE" TO W-SE-RELATE
+           END-IF      
            
            MOVE INS-NAME TO W-SEINSNAME
            MOVE INS-NEIC TO W-SEINSNEIC
            
-           IF G-TRINS = "000" 
+           IF G-TRINS = "000" OR "001"
              MOVE SPACE TO W-TRINSNAME W-TRINSNEIC
            ELSE 
              MOVE G-TRINS TO INS-KEY
@@ -220,30 +233,18 @@
              END-READ
              MOVE INS-NAME TO W-TRINSNAME
              MOVE INS-NEIC TO W-TRINSNEIC
-           END-IF    
+           END-IF
 
-
-           UNSTRING G-SENAME DELIMITED BY ";" INTO G-SECLAST G-SECFIRST
-             G-SECMIDDLE.      
-
-           IF (G-SE-RELATE = "2" AND G-SEX = "M") OR
-              (G-SE-RELATE = "K" AND G-SEX = "F") OR
-              (G-SE-RELATE = SPACE)
-              MOVE "SELF" TO W-SE-RELATE
-           ELSE
-              MOVE "SPOUSE" TO W-SE-RELATE
-           END-IF  
-
-           STRING g-garno G-LAST G-FIRST G-MIDDLE 
-             G-BILLADD G-STREET G-CITY G-STATE G-ZIP 
-             G-PHONE G-SEX G-DOB 
-             W-PRINSNAME W-PRINSNEIC W-PR-RELATE
-             G-PRIPOL G-PR-GROUP
-             G-PRILAST G-PRIFIRST G-PRIMIDDLE
-             W-SEINSNAME W-SEINSNEIC W-SE-RELATE
-             G-SECPOL G-SE-GROUP 
-             G-SECLAST G-SECFIRST G-SECMIDDLE
-             W-TRINSNAME W-TRINSNEIC HOLD-CHARCUR01(80:8) 
+           STRING g-garno "," G-LAST "," G-FIRST "," G-MIDDLE ","
+             G-BILLADD "," G-STREET "," G-CITY "," G-STATE "," G-ZIP ","
+             G-PHONE "," G-SEX "," G-DOB "," 
+             W-PRINSNAME "," W-PRINSNEIC "," W-PR-RELATE "," 
+             G-PRIPOL "," G-PR-GROUP "," 
+             G-PRILAST "," G-PRIFIRST "," G-PRIMIDDLE "," 
+             W-SEINSNAME "," W-SEINSNEIC "," W-SE-RELATE "," 
+             G-SECPOL "," G-SE-GROUP "," 
+             G-SECLAST "," G-SECFIRST "," G-SECMIDDLE "," 
+             W-TRINSNAME "," W-TRINSNEIC "," HOLD-CHARCUR01(80:8) 
              DELIMITED BY SIZE INTO FILEOUT01.
    
            
