@@ -97,7 +97,7 @@
        01  CCPROCIN01 PIC X(11).
        
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(200).
+       01  FILEOUT01 PIC X(400).
 
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.
@@ -130,10 +130,15 @@
        01  G-PRIFIRST PIC X(20).
        01  G-PRILAST PIC X(20).
        01  G-PRIMIDDLE PIC X(10).
+       01  G-SECFIRST PIC X(20).
+       01  G-SECLAST PIC X(20).
+       01  G-SECMIDDLE PIC X(10).
        01  W-PRINSNAME PIC X(22).
        01  W-SEINSNAME PIC X(22).
        01  W-PRINSNEIC PIC X(5).       
-       01  W-SEINSNEIC PIC X(5).       
+       01  W-SEINSNEIC PIC X(5).   
+       01  W-PR-RELATE PIC X(5).
+       01  W-SE-RELATE PIC X(5).    
 
       *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
        
@@ -182,6 +187,14 @@
 
            UNSTRING G-PRNAME DELIMITED BY ";" INTO G-PRILAST G-PRIFIRST
              G-PRIMIDDLE.      
+
+           IF (G-PR-RELATE = "2" AND G-SEX = "M") OR
+              (G-PR-RELATE = "K" AND G-SEX = "F") OR
+              (G-PR-RELATE = SPACE)
+              MOVE "SELF" TO W-PR-RELATE
+           ELSE
+              MOVE "SPOUSE" TO W-PR-RELATE
+           END-IF
            
            MOVE INS-NAME TO W-PRINSNAME
            MOVE INS-NEIC TO W-PRINSNEIC
@@ -190,18 +203,30 @@
            READ INSFILE
              INVALID
                DISPLAY "WHAT THE HECK".
+
+           UNSTRING G-SENAME DELIMITED BY ";" INTO G-SECLAST G-SECFIRST
+             G-SECMIDDLE.      
+
+           IF (G-SE-RELATE = "2" AND G-SEX = "M") OR
+              (G-SE-RELATE = "K" AND G-SEX = "F") OR
+              (G-SE-RELATE = SPACE)
+              MOVE "SELF" TO W-SE-RELATE
+           ELSE
+              MOVE "SPOUSE" TO W-SE-RELATE
+           END-IF  
            
            MOVE INS-NAME TO W-SEINSNAME
            MOVE INS-NEIC TO W-SEINSNEIC
-          
 
-           STRING g-garno G-LAST G-FIRST G-MIDDLE G-BILLADD G-STREET
-             G-CITY G-STATE G-ZIP G-PHONE G-SEX G-DOB W-PRINSNAME
-             W-PRINSNEIC G-PRIPOL G-PR-GROUP
+           STRING g-garno W-PRIRELATE G-LAST G-FIRST G-MIDDLE 
+             G-BILLADD G-STREET G-CITY G-STATE G-ZIP 
+             G-PHONE G-SEX G-DOB 
+             W-PRINSNAME W-PRINSNEIC 
+             G-PRIPOL G-PR-GROUP
              G-PRILAST G-PRIFIRST G-PRIMIDDLE
              W-SEINSNAME W-SEINSNEIC G-SE-GROUP G-SECPOL G-SENAME
              G-TRINS HOLD-CHARCUR01(80:8) 
-             DELIMITED BY "," INTO FILEOUT01.
+             DELIMITED BY SIZE INTO FILEOUT01.
    
            
            WRITE FILEOUT01.
