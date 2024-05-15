@@ -152,7 +152,7 @@
        01  G-SECLAST PIC X(20).
        01  G-SECMIDDLE PIC X(10).
        01  W-PRINSNAME PIC X(22).
-       01  W-SEINSNAME PIC X(22).
+       01  W-SEINSNAME PIC X(25).
        01  W-TRINSNAME PIC X(22).
        01  W-PRINSKEY PIC X(7).       
        01  W-SEINSKEY PIC X(7).
@@ -234,6 +234,8 @@
                  DISPLAY "WHAT THE"
              END-READ
              DISPLAY G-GARNO
+             DISPLAY GAP-NAME
+             DISPLAY GAP-KEY
              ACCEPT OMITTED
              MOVE GAP-NAME TO W-SEINSNAME
              MOVE GAPKEY TO W-SEINSKEY
@@ -258,9 +260,6 @@
            ELSE
               MOVE "SPOUSE" TO W-SE-RELATE
            END-IF      
-           
-           MOVE INS-NAME TO W-SEINSNAME
-           STRING "7000" INS-KEY DELIMITED BY SIZE INTO W-SEINSKEY
            
            IF G-TRINS = "000" OR "001"
              MOVE SPACE TO W-TRINSNAME W-TRINSKEY
