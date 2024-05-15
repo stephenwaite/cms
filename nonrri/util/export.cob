@@ -233,6 +233,8 @@
                INVALID
                  DISPLAY "WHAT THE"
              END-READ
+             DISPLAY G-GARNO
+             ACCEPT OMITTED
              MOVE GAP-NAME TO W-SEINSNAME
              MOVE GAPKEY TO W-SEINSKEY
            ELSE
@@ -258,7 +260,7 @@
            END-IF      
            
            MOVE INS-NAME TO W-SEINSNAME
-           MOVE INS-KEY TO W-SEINSKEY
+           STRING "7000" INS-KEY DELIMITED BY SIZE INTO W-SEINSKEY
            
            IF G-TRINS = "000" OR "001"
              MOVE SPACE TO W-TRINSNAME W-TRINSKEY
