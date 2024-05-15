@@ -275,13 +275,13 @@
            STRING g-garno "," G-LAST "," G-FIRST "," G-MIDDLE ","
              G-BILLADD "," G-STREET "," G-CITY "," G-STATE "," G-ZIP ","
              G-PHONE "," G-SEX "," G-DOB "," 
-             W-PRINSNAME "," W-PRINSNEIC "," W-PR-RELATE "," 
+             W-PRINSNAME "," W-PRINSKEY "," W-PR-RELATE "," 
              G-PRIPOL "," G-PR-GROUP "," 
              G-PRILAST "," G-PRIFIRST "," G-PRIMIDDLE "," 
-             W-SEINSNAME "," W-SEINSNEIC "," W-SE-RELATE "," 
+             W-SEINSNAME "," W-SEINSKEY "," W-SE-RELATE "," 
              G-SECPOL "," G-SE-GROUP "," 
              G-SECLAST "," G-SECFIRST "," G-SECMIDDLE "," 
-             W-TRINSNAME "," W-TRINSNEIC "," HOLD-CHARCUR01(80:8) 
+             W-TRINSNAME "," W-TRINSKEY "," HOLD-CHARCUR01(80:8) 
              DELIMITED BY SIZE INTO FILEOUT01.
    
            
