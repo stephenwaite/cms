@@ -139,8 +139,9 @@
        01  W-PRINSNEIC PIC X(5).       
        01  W-SEINSNEIC PIC X(5).
        01  W-TRINSNEIC PIC X(5).   
-       01  W-PR-RELATE PIC X(5).
-       01  W-SE-RELATE PIC X(5).    
+       01  W-PR-RELATE PIC X(6).
+       01  W-SE-RELATE PIC X(6).    
+       01  W-TR-RELATE PIC X(6).
 
       *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
        
