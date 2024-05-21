@@ -1,6 +1,6 @@
 <?php
 
-echo $argv[1];
+//echo $argv[1];
 
 $fh = fopen($argv[1], "r");
 

@@ -131,16 +131,17 @@ if (!empty($context) && $context == 'pdf') {
     file_put_contents('wcomp1', $charcur_key);
 
     // just save file to rri dir if need a pdf of all reports for uhc for instance
-    $line = strtoupper(readline("Upload " . $charcur_key . ".pdf to change wcomp? (y or Y) "));
+    /* $line = strtoupper(readline("Upload " . $charcur_key . ".pdf to change wcomp? (y or Y) "));
     if (strpos($line, "Y") !== false) {
         echo "uploading to change\n";
         $cmd = "chc-wcomp";
         exec($cmd, $output);
         var_dump($output);
-    } else {
-        echo "saved pdf under rri but not uploading \n";
-        $line = strtoupper(readline("Download " . $charcur_key . ".pdf to your comp? (y or Y) "));
-        if (strpos($line, "Y") !== false) {
+    } else { */
+        //echo "saved pdf under rri but not uploading \n";
+        echo "saved pdf under rri \n";
+        //$line = strtoupper(readline("Download " . $charcur_key . ".pdf to your comp? (y or Y) "));
+        //if (strpos($line, "Y") !== false) {
             $filename = exec('pwd') . "/" . $charcur_key . ".pdf";
             $tty = exec('tty');
             echo "downloading $filename \n";
@@ -151,6 +152,6 @@ if (!empty($context) && $context == 'pdf') {
             } else {
                 echo "                not implemented for " . $cms_user . "\n";
             }
-        }
-    }
+        //}
+    //}
 }

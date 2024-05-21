@@ -44,7 +44,14 @@
                ALTERNATE RECORD KEY IS INS-CLAIMTYPE WITH DUPLICATES
                ALTERNATE RECORD KEY IS INS-NEIC WITH DUPLICATES
                ALTERNATE RECORD KEY IS INS-NEIC-ASSIGN WITH DUPLICATES
-               LOCK MODE MANUAL.  
+               LOCK MODE MANUAL.
+           
+           SELECT GAPFILE ASSIGN TO "S70" ORGANIZATION IS INDEXED
+             ACCESS IS DYNAMIC RECORD KEY IS GAPKEY
+             ALTERNATE RECORD KEY IS GAP-NAME WITH DUPLICATES
+             ALTERNATE RECORD KEY IS GAP-CITY WITH DUPLICATES
+             ALTERNATE RECORD KEY IS GAP-STATE WITH DUPLICATES
+             LOCK MODE MANUAL.    
 
        DATA DIVISION.
 
@@ -97,11 +104,18 @@
        01  CCPROCIN01 PIC X(11).
        
        FD  FILEOUT.
-       01  FILEOUT01.
-           02 FO-ACCT PIC X(8).
-           02 FO-NAME PIC X(24).
-           02 FO-DATE PIC X(8).
-           02 FO-CKEY PIC X(11).
+       01  FILEOUT01 PIC X(500).
+
+       FD  GAPFILE.
+       01  GAPFILE01.
+           02 GAPKEY PIC X(7).
+           02 GAP-NAME PIC X(25).
+           02 GAP-ADDR PIC X(22).
+           02 GAP-CITY PIC X(15).
+           02 GAP-STATE PIC XX.
+           02 GAP-ZIP PIC X(9).
+           02 GAP-TYPE PIC X.
+           02 GAP-FUTURE PIC X(40).
 
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.
@@ -128,6 +142,24 @@
        01  FLAG PIC 9.
        01  TOT-AMOUNT PIC S9(7)V99.
        01  HOLD-CHARCUR01 PIC X(156).
+       01  G-FIRST PIC X(20).
+       01  G-LAST PIC X(20).
+       01  G-MIDDLE PIC X(10).
+       01  G-PRIFIRST PIC X(20).
+       01  G-PRILAST PIC X(20).
+       01  G-PRIMIDDLE PIC X(10).
+       01  G-SECFIRST PIC X(20).
+       01  G-SECLAST PIC X(20).
+       01  G-SECMIDDLE PIC X(10).
+       01  W-PRINSNAME PIC X(22).
+       01  W-SEINSNAME PIC X(25).
+       01  W-TRINSNAME PIC X(22).
+       01  W-PRINSKEY PIC X(7).       
+       01  W-SEINSKEY PIC X(7).
+       01  W-TRINSKEY PIC X(7).   
+       01  W-PR-RELATE PIC X(6).
+       01  W-SE-RELATE PIC X(6).    
+       01  W-TR-RELATE PIC X(6).
 
       *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
        
@@ -135,7 +167,7 @@
        
        P0.
            OPEN INPUT DOCFILE GARFILE CHARDATE PAYDATE CHARCUR PAYCUR
-             CCPROCIN INSFILE.
+             CCPROCIN INSFILE GAPFILE.
            OPEN OUTPUT FILEOUT.
            READ CHARDATE.
       *     READ PAYDATE.
@@ -156,20 +188,103 @@
            MOVE CHARCUR01 TO HOLD-CHARCUR01.
 
        WRITE-FO. 
-           IF CC-PATID = G-GARNO GO TO P1.
+           IF CC-KEY8 = G-GARNO GO TO P1.
            
            MOVE HOLD-CHARCUR01(1:8) TO G-GARNO
            READ GARFILE 
                INVALID 
                    MOVE SPACE TO G-GARNAME.
 
-           MOVE g-garno TO FO-ACCT.
-           MOVE G-GARNAME TO FO-NAME.           
-           MOVE HOLD-CHARCUR01(80:8) TO FO-DATE
-           MOVE HOLD-CHARCUR01(1:11) TO FO-CKEY.
-   
+           MOVE SPACE TO G-FIRST G-LAST G-MIDDLE G-PRIFIRST
+             G-PRILAST G-PRIMIDDLE G-SECFIRST G-SECLAST G-SECMIDDLE
+             W-PRINSNAME W-SEINSNAME W-TRINSNAME
+             W-PRINSKEY W-SEINSKEY W-TRINSKEY W-PR-RELATE
+             W-SE-RELATE W-TR-RELATE        
 
-      *     MOVE TOT-AMOUNT TO FO-AMOUNT
+      *     STRING G-GARNAME DELIMITED BY ";" INTO G-LAST G-FIRST 
+      *       G-MIDDLE.
+
+           MOVE G-PRINS TO INS-KEY
+           READ INSFILE
+             INVALID
+               DISPLAY "WHAT THE HECK".
+
+           UNSTRING G-GARNAME DELIMITED BY ";" INTO G-LAST G-FIRST
+             G-MIDDLE.
+
+           UNSTRING G-PRNAME DELIMITED BY ";" INTO G-PRILAST G-PRIFIRST
+             G-PRIMIDDLE.      
+
+           IF (G-PR-RELATE = "2" AND G-SEX = "M") OR
+              (G-PR-RELATE = "K" AND G-SEX = "F") OR
+              (G-PR-RELATE = SPACE) OR
+              (G-PRINS = "001")
+              MOVE "SELF" TO W-PR-RELATE
+           ELSE
+              MOVE "SPOUSE" TO W-PR-RELATE
+           END-IF
+           
+           MOVE INS-NAME TO W-PRINSNAME
+           STRING "7000" INS-KEY DELIMITED BY SIZE INTO W-PRINSKEY
+
+           IF G-SEINS = "062"
+             MOVE G-PR-GROUP TO GAPKEY
+             READ GAPFILE
+               INVALID
+                 DISPLAY "WHAT THE"
+             END-READ
+      *       DISPLAY G-GARNO
+      *       DISPLAY GAP-NAME
+      *       DISPLAY GAPKEY
+      *       ACCEPT OMITTED
+             MOVE GAP-NAME TO W-SEINSNAME
+             MOVE GAPKEY TO W-SEINSKEY
+           ELSE
+               MOVE G-SEINS TO INS-KEY
+               READ INSFILE
+                 INVALID
+                   DISPLAY "WHAT THE HECK"
+               END-READ
+               MOVE INS-NAME TO W-SEINSNAME
+               STRING "7000" INS-KEY DELIMITED BY SIZE INTO W-SEINSKEY
+           END-IF    
+
+           UNSTRING G-SENAME DELIMITED BY ";" INTO G-SECLAST G-SECFIRST
+             G-SECMIDDLE.      
+
+           IF (G-SE-RELATE = "2" AND G-SEX = "M") OR
+              (G-SE-RELATE = "K" AND G-SEX = "F") OR
+              (G-SE-RELATE = SPACE) OR
+              (G-SEINS = "001")
+              MOVE "SELF" TO W-SE-RELATE
+           ELSE
+              MOVE "SPOUSE" TO W-SE-RELATE
+           END-IF      
+           
+           IF G-TRINS = "000" OR "001"
+             MOVE SPACE TO W-TRINSNAME W-TRINSKEY
+           ELSE 
+             MOVE G-TRINS TO INS-KEY
+             READ INSFILE
+               INVALID
+                 DISPLAY "WHAT THE HECK"
+             END-READ
+             MOVE INS-NAME TO W-TRINSNAME
+             STRING "7000" INS-KEY DELIMITED BY SIZE INTO W-TRINSKEY
+           END-IF
+
+           STRING g-garno "," G-LAST "," G-FIRST "," G-MIDDLE ","
+             G-BILLADD "," G-STREET "," G-CITY "," G-STATE "," G-ZIP ","
+             G-PHONE "," G-SEX "," G-DOB "," 
+             W-PRINSNAME "," W-PRINSKEY "," W-PR-RELATE "," 
+             G-PRIPOL "," G-PR-GROUP "," 
+             G-PRILAST "," G-PRIFIRST "," G-PRIMIDDLE "," 
+             W-SEINSNAME "," W-SEINSKEY "," W-SE-RELATE "," 
+             G-SECPOL "," G-SE-GROUP "," 
+             G-SECLAST "," G-SECFIRST "," G-SECMIDDLE "," 
+             W-TRINSNAME "," W-TRINSKEY "," HOLD-CHARCUR01(80:8) 
+             DELIMITED BY SIZE INTO FILEOUT01.
+   
            
            WRITE FILEOUT01.
 
@@ -177,5 +292,5 @@
 
        P99. 
            CLOSE DOCFILE GARFILE CHARDATE PAYDATE CHARCUR
-             PAYCUR CCPROCIN FILEOUT INSFILE.
+             PAYCUR CCPROCIN FILEOUT INSFILE GAPFILE.
            STOP RUN.
