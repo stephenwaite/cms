@@ -390,7 +390,7 @@
 
            IF (INS-NEIC = "14165")
                WRITE FILEOUT201 FROM FILEOUT01
-           ELSE IF (INS-NEIC = "60054" OR "IHS24" OR "96277")
+           ELSE IF (INS-NEIC = "60054" OR "IHS24" OR "PAPER")
                OR INS-ACC-TYPE NOT = SPACE
                WRITE FILEOUT01 FROM FILEOUT01
            ELSE
