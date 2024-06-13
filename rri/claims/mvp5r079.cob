@@ -971,7 +971,7 @@
        01 ORG-NAME PIC X(40).
        01 ORG-CITY PIC X(30).
        01 ORG-STATE PIC XX.
-       01 ORG-ZIP PIC X(5).
+       01 ORG-ZIP PIC X(9).
        01 SITE-ID.
           02 SITE-ID-1 PIC X(4).
           02 SITE-ID-2 PIC XX.
@@ -1333,9 +1333,6 @@
            MOVE ORG-CITY TO N4-CITY
            MOVE ORG-STATE TO N4-STATE
            MOVE ORG-ZIP TO N4-ZIP
-           IF N4-ZIP(6:4) = SPACE
-               MOVE "9999" TO N4-ZIP(6:4)
-           END-IF
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N401
            MOVE "EI"TO REF-CODE
