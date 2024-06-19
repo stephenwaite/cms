@@ -227,7 +227,7 @@
            02 STC-9 PIC X.
            02 STC-10 PIC X(12).
            02 STC-11 PIC X.
-           02 STC-12 PIC X(80).
+           02 STC-12 PIC X(118).
 
        01  ALF1 PIC X.
        01  CODE1 PIC XX.
