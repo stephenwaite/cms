@@ -101,7 +101,7 @@
            02 F0.
              03 F1 PIC XXX.
              03 F2 PIC X(4).
-           02 F3 PIC X(113).
+           02 F3 PIC X(153).
        FD GARFILE.
        01 G-MASTER.
            02 G-GARNO.
@@ -309,7 +309,7 @@
            MOVE SPACE TO STC01
            UNSTRING STC-TAB(X) DELIMITED BY "*"
             INTO STC-0 STC-1 STC-2 STC-3 STC-4 STC-5 STC-6 STC-7 STC-8
-            STC-9 STC-10
+            STC-9 STC-10 STC-11 STC-12
            MOVE SPACE TO CODE1 CODE2 CODE3
            UNSTRING STC-1 DELIMITED BY ":" INTO CODE1 CODE2 CODE3
 
@@ -379,20 +379,31 @@
            " " G-GARNAME  " " DISPLAY-DATE
             DELIMITED BY SIZE INTO FILEOUT301
            WRITE FILEOUT301
+           
            MOVE SPACE TO FILEOUT301
            MOVE CSCC-TITLE(1:120) TO FILEOUT301
            WRITE FILEOUT301
+           
            MOVE SPACE TO FILEOUT301
            MOVE CSCC-TITLE(121:120) TO FILEOUT301
            WRITE FILEOUT301
+           
            MOVE SPACE TO FILEOUT301
            MOVE CSC-TITLE(1:130) TO FILEOUT301
            WRITE FILEOUT301
+           
            MOVE SPACE TO FILEOUT301
            MOVE CSC-TITLE(131:131) TO FILEOUT301
+           
            IF FILEOUT301 NOT = SPACE
             WRITE FILEOUT301
+           END-IF
+           
+           IF STC-12 NOT = SPACE
+             MOVE STC-12 TO FILEOUT301
+             WRITE FILEOUT301
            END-IF.
+
        CODE-X.
            MOVE CODE1 TO CSCC-KEY
            MOVE SPACE TO CSC-TITLE CSCC-TITLE
