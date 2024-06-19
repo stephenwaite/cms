@@ -237,7 +237,7 @@
        01  x pic 9999.
        01  stc-cntr pic 9999.
        01  stc-tab01.
-           02 stc-tab pic x(120) occurs 4000 times.
+           02 stc-tab pic x(160) occurs 4000 times.
        01  dtp-tab01.
            02 dtp-tab pic x(120) occurs 4000 times.
        PROCEDURE DIVISION.
