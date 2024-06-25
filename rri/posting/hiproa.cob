@@ -459,6 +459,10 @@
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                TRN-0 TRN-1 TRN-2 TRN-3 TRN-4.
 
+           IF TRN-3 = "1204581265" AND BPR-16 < "20240622"
+               GO TO P00
+           END-IF
+
            MOVE SPACE TO REMITFILE01.    
 
            STRING DATE-X TRN-2 TRN-3 TRN-4 DELIMITED BY SIZE
@@ -1153,6 +1157,11 @@
                    OR (CAS-1 = "CO" AND CAS-2 = "242  ")
                    OR (CAS-1 = "CO" AND CAS-2 = "288  ")
                    OR (CAS-1 = "CO" AND CAS-2 = "B20  ")
+                   OR (CAS-1 = "OA" AND CAS-2 = "18   ")
+                   OR (CAS-1 = "OA" AND CAS-2 = "226  ")
+                   OR (CAS-1 = "OA" AND CAS-2 = "B11  ")
+                   OR (CAS-1 = "OA" AND CAS-2 = "B13  ")
+                   OR (CAS-1 = "OA" AND CAS-2 = "P8   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "5    ")
                    OR (CAS-1 = "PI" AND CAS-2 = "11   ")
                    OR (CAS-1 = "PI" AND CAS-2 = "96   ")
