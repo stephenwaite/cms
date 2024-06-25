@@ -47,9 +47,7 @@ foreach (new DirectoryIterator('.') as $file) {
             readline('enter to continue');
             break;
         case 'txt':
-            if (strpos($fileName, "_ERA_STATUS_") === false) {
-                print $fileName . "\n";
-            }
+            print $fileName . "\n";
             $contents = file_get_contents($fileName);
             echo $contents;
             readline('enter to continue');
@@ -64,9 +62,17 @@ foreach (new DirectoryIterator('.') as $file) {
             $za->open($fileName);
             for ($i = 0; $i < $za->numFiles; $i++) {
                 $stat = $za->statIndex($i);
-                $fileName277 = basename($stat['name']) . PHP_EOL;
+                $fileNameFromZip = basename($stat['name']);
                 $za->extractTo('/tmp');
-                file_put_contents($batch_file, '/tmp/' . $fileName277, FILE_APPEND);
+                // 835 files go in remit file list
+                if (strpos($fileName, "_ERA_835_") !== false) {
+                    file_put_contents($remit_file, '/tmp/' . $fileNameFromZip . PHP_EOL, FILE_APPEND);
+                } elseif (strpos($fileName, "_ERA_STATUS_") !== false) {
+                    // place holder for no action
+                } else {
+                    // 277 files go in batch file
+                    file_put_contents($batch_file, '/tmp/' . $fileNameFromZip . PHP_EOL, FILE_APPEND);
+                }
             }
             $za->close();
             break;
