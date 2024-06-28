@@ -67,7 +67,7 @@ foreach (new DirectoryIterator('.') as $file) {
                 // 835 files go in remit file list
                 if (strpos($fileNameFromZip, "_ERA_835_") !== false) {
                     file_put_contents($remit_file, '/tmp/' . $fileNameFromZip . PHP_EOL, FILE_APPEND);
-                } elseif (strpos($fileNameZip, "_ERA_STATUS_") !== false) {
+                } elseif (strpos($fileNameFromZip, "_ERA_STATUS_") !== false) {
                     // place holder for no action
                 } else {
                     // 277 files go in batch file
