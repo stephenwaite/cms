@@ -1072,6 +1072,11 @@
                    END-IF
                END-IF
            END-PERFORM.
+
+           IF ALF8-1 = "-" AND PAYORID = "J4110"
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF    
            
            COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
 
