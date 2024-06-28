@@ -971,7 +971,7 @@
        01 ORG-NAME PIC X(40).
        01 ORG-CITY PIC X(30).
        01 ORG-STATE PIC XX.
-       01 ORG-ZIP PIC X(5).
+       01 ORG-ZIP PIC X(9).
        01 SITE-ID.
           02 SITE-ID-1 PIC X(4).
           02 SITE-ID-2 PIC XX.
@@ -1317,91 +1317,28 @@
       *   PAY-TO PROVIDER/ADDRESS
 
        2010AA.    
-      *     IF HOLD-NEIC = "14165"
-            MOVE "2" TO NM1-SOLO
-            MOVE ORG-NAME TO NM1-NAMEL
-            MOVE SPACE TO NM1-NAMEF NM1-NAMEM NM1-NAMES
-            MOVE "85" TO NM1-1
-            MOVE SPACE TO NM1-CODE
-            MOVE "XX" TO NM1-EINSS
-            MOVE INSGROUP-CODE TO NM1-CODE
-            MOVE SPACE TO SEGFILE01
-            WRITE SEGFILE01 FROM NM101
-            move space to n3-street
-            move "160 ALLEN ST" to n3-street
-            WRITE SEGFILE01 FROM N301
-            MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
-            MOVE ORG-CITY TO N4-CITY
-            MOVE ORG-STATE TO N4-STATE
-            MOVE ORG-ZIP TO N4-ZIP
-            IF N4-ZIP(6:4) = SPACE
-             MOVE "9999" TO N4-ZIP(6:4)
-            END-IF
-            MOVE SPACE TO SEGFILE01
-            WRITE SEGFILE01 FROM N401
-           MOVE "EI"TO REF-CODE
-           MOVE EIN-CODE TO REF-ID
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM REF01
-           MOVE SPACE TO REF-CODE REF-ID
-           MOVE "G5" TO REF-CODE
-           MOVE SITE-ID TO REF-ID
-           MOVE SPACE TO SEGFILE01
-      *     WRITE SEGFILE01 FROM REF01
-      *     END-IF
-           IF EINSS-TYPE = "E"
-            MOVE "2" TO NM1-SOLO
-            MOVE ORG-NAME TO NM1-NAMEL
-            MOVE "EI" TO REF-CODE
-           ELSE 
-            MOVE "1" TO NM1-SOLO
-            MOVE PARMLAST TO NM1-NAMEL
-            MOVE PARMFIRST TO NM1-NAMEF
-            MOVE PARMMIDDLE TO NM1-NAMEM
-            MOVE "SY" TO REF-CODE
-           END-IF
-           MOVE SPACE TO NM1-NAMEF NM1-NAMEM nm1-namel NM1-NAMES
-
-      *     MOVE "85" TO NM1-1
-      *     IF HOLD-NEIC = "14165"
-           MOVE "87" TO NM1-1
-      *     END-IF
+           MOVE "2" TO NM1-SOLO
+           MOVE ORG-NAME TO NM1-NAMEL
+           MOVE SPACE TO NM1-NAMEF NM1-NAMEM NM1-NAMES
+           MOVE "85" TO NM1-1
            MOVE SPACE TO NM1-CODE
            MOVE "XX" TO NM1-EINSS
            MOVE INSGROUP-CODE TO NM1-CODE
-           move space to nm1-einss nm1-code
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101
-           MOVE SPACE TO N3-STREET N3-BILLADD
-           MOVE ORG-STREET TO N3-STREET
-           MOVE SPACE TO SEGFILE01
-      *     if hold-neic = "14165"
-            move space to n3-street
-            move "PO BOX 440" to n3-street
-      *     end-if
+           move space to n3-street
+           move "160 ALLEN ST" to n3-street
            WRITE SEGFILE01 FROM N301
            MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
            MOVE ORG-CITY TO N4-CITY
            MOVE ORG-STATE TO N4-STATE
            MOVE ORG-ZIP TO N4-ZIP
-           
-           IF N4-ZIP(6:4) = SPACE
-           MOVE "9999" TO N4-ZIP(6:4).
            MOVE SPACE TO SEGFILE01
-      *     if hold-neic = "14165"
-            move "057020440" to n4-zip
-      *    end-if
-           WRITE SEGFILE01 FROM N401.
-      *     IF HOLD-NEIC NOT = "14165"
-      *     MOVE EIN-CODE TO REF-ID
-      *     MOVE SPACE TO SEGFILE01
-      *     WRITE SEGFILE01 FROM REF01
-      *     MOVE SPACE TO REF-CODE REF-ID
-      *     MOVE "G5" TO REF-CODE
-      *     MOVE SITE-ID TO REF-ID
-      *     MOVE SPACE TO SEGFILE01
-      *     WRITE SEGFILE01 FROM REF01
-      *     END-IF.
+           WRITE SEGFILE01 FROM N401
+           MOVE "EI"TO REF-CODE
+           MOVE EIN-CODE TO REF-ID
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM REF01.
 
        2000B.
            ADD 1 TO HL-NUM
