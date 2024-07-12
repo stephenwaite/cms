@@ -439,7 +439,7 @@
       * DEFAULT FOR READING FROM FILEIN 
             MOVE "00000000" TO TB-DATELOW
             MOVE "99999999" TO TB-DATEHIGH
-            MOVE "Y" TO TB-ALL.
+            MOVE SPACE TO TB-ALL.
             MOVE "Y" TO TB-INS.
             MOVE SPACE TO TB-PAY.
       *     DISPLAY "PC = (turn on cp-to-printer) TERMINAL = <CR>"
