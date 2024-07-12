@@ -645,7 +645,7 @@
 
       *     PERFORM HEADER-1
 
-      	   WRITE OUT01 FROM LINE-0.
+      	   WRITE OUT01 FROM LINE-0 AFTER PAGE.
       	   WRITE OUT01 FROM LINE-1
       	   WRITE OUT01 FROM LINE-2.
       	   MOVE SPACES TO TAB2001.
@@ -726,7 +726,7 @@
             
        R15-1.
     	   WRITE OUT01 FROM LINE-8  AFTER 2.
-    	   GO TO R20.
+    	   GO TO R1.
 
 ******* FIND LAST CHARACTER IN CITY NAME *******
        Q1. 
