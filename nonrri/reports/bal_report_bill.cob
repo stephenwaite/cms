@@ -439,7 +439,7 @@
       * DEFAULT FOR READING FROM FILEIN 
            
            READ FILEIN AT END GO TO R20.
-           MOVE FILEIN(30:8) TO G-GARNO
+           MOVE FILEIN01(30:8) TO G-GARNO
       	   READ GARFILE 
                INVALID
       *	           DISPLAY G-GARNO " INVALID ACCT" 
