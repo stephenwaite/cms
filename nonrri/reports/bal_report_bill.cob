@@ -437,18 +437,18 @@
 
        R1. 
       * DEFAULT FOR READING FROM FILEIN 
-            MOVE "00000000" TO TB-DATELOW
-            MOVE "99999999" TO TB-DATEHIGH
-            MOVE SPACE TO TB-ALL.
-            MOVE "Y" TO TB-INS.
-            MOVE SPACE TO TB-PAY.
-      *     DISPLAY "PC = (turn on cp-to-printer) TERMINAL = <CR>"
-      *        " X = NO PRINTING"
-      *     ACCEPT ALF-1 
-      *    IF ALF-1 = "X" GO TO R20.
-	       MOVE "DON1771G" TO G-GARNO
-      	   READ GARFILE INVALID
-      	   DISPLAY G-GARNO " INVALID ACCT" GO TO R20.
+           
+           READ FILEIN AT END GO TO R20.
+           MOVE FILEIN(30:8) TO G-GARNO
+      	   READ GARFILE 
+               INVALID
+      *	           DISPLAY G-GARNO " INVALID ACCT" 
+                   GO TO R1.
+           MOVE "00000000" TO TB-DATELOW
+           MOVE "99999999" TO TB-DATEHIGH
+           MOVE SPACE TO TB-ALL.
+           MOVE "Y" TO TB-INS.
+           MOVE SPACE TO TB-PAY.        
       ******* READ IN ALL   RECORDS TO TABLES FOR THIS GUARANTOR *******
       	   MOVE SPACES TO EIGHTPARTID.
       	   MOVE 0 TO X-INSPEND.
@@ -1145,5 +1145,5 @@
        R20.
            CLOSE OUT-FILE CHARCUR PAYFILE GARFILE CHARFILE PAYCUR 
            PREPRINTFILE PATFILE PROCFILE BILLDATE INSFILE BILLPARM.
-           CALL "SYSTEM" USING "PRINT-BILL $HOME/W1$tid".
+      *     CALL "SYSTEM" USING "PRINT-BILL $HOME/W1$tid".
            EXIT PROGRAM.
