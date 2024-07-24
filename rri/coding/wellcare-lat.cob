@@ -64,11 +64,11 @@
 
            MOVE FILEIN01(1:4) TO CDM-TAB(X).
            MOVE FILEIN01(5:5) TO PROC-TAB(X).
-           MOVE FILEIN01(9:2) TO MOD-TAB(X).   
+           MOVE FILEIN01(10:2) TO MOD-TAB(X).   
 
-           display "cdm " cdm-tab(x) " proc " proc-tab(x) 
-               " mod " mod-tab(x) " x " X
-           ACCEPT OMITTED    
+      *     display "cdm " cdm-tab(x) " proc " proc-tab(x) 
+      *         " mod " mod-tab(x) " x " X
+      *     ACCEPT OMITTED    
 
            GO TO P00.
        P1. 
