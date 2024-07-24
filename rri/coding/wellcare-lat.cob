@@ -68,6 +68,7 @@
 
            display "cdm " cdm-tab(x) " proc " proc-tab(x) 
                " mod " mod-tab(x) " x " X
+           ACCEPT OMITTED    
 
            GO TO P00.
        P1. 
@@ -82,7 +83,7 @@
            
 
        P2.
-           IF (CD-PROC0 = CDM-TAB(X))
+           IF (CD-PROC0 = CDM-TAB(Y))
              AND NOT (CD-MOD2 = "LT" OR "RT" OR "50")
              MOVE SPACE TO FILEOUT01
              STRING "CHARGE MISSING LAT MOD FOR " CD-KEY8 " ON " 
