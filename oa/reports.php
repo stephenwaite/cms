@@ -1,12 +1,24 @@
 <?php
+
 $user = getenv('USER');
 $batch_file = '/tmp/w22' . $user;
+$remit_file = '/tmp/w33' . $user;
+
 if (file_exists($batch_file)) {
     unlink($batch_file);
 }
 
 if (!touch($batch_file)) {
     echo "batch file creation failed, exiting..." . "\n";
+    exit;
+}
+
+if (file_exists($remit_file)) {
+    unlink($remit_file);
+}
+
+if (!touch($remit_file)) {
+    echo "remit file creation failed, exiting..." . "\n";
     exit;
 }
 
@@ -43,13 +55,24 @@ foreach (new DirectoryIterator('.') as $file) {
         case '277':
             file_put_contents($batch_file, '/home/sidw/oa/' . $fileName . "\n", FILE_APPEND);
             break;
+        case '835':
+            file_put_contents($remit_file, '/home/sidw/oa/' . $fileName . "\n", FILE_APPEND);
+            break;
         case 'zip':
             $za->open($fileName);
             for ($i = 0; $i < $za->numFiles; $i++) {
                 $stat = $za->statIndex($i);
-                $fileName277 = basename($stat['name']) . PHP_EOL;
+                $fileNameFromZip = basename($stat['name']);
                 $za->extractTo('/tmp');
-                file_put_contents($batch_file, '/tmp/' . $fileName277, FILE_APPEND);
+                // 835 files go in remit file list
+                if (strpos($fileNameFromZip, "_ERA_835_") !== false) {
+                    file_put_contents($remit_file, '/tmp/' . $fileNameFromZip . PHP_EOL, FILE_APPEND);
+                } elseif (strpos($fileNameFromZip, "_ERA_STATUS_") !== false) {
+                    // place holder for no action
+                } else {
+                    // 277 files go in batch file
+                    file_put_contents($batch_file, '/tmp/' . $fileNameFromZip . PHP_EOL, FILE_APPEND);
+                }
             }
             $za->close();
             break;

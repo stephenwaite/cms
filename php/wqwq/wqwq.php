@@ -33,7 +33,7 @@ foreach ($pages as $page) {
 
     $header = '';
     for ($i = 0; $i < 5; $i++) {
-        $header .= $page_lines[$i];
+        $header .= $page_lines[$i] ?? '';
     }
 
     $body = '';
@@ -44,11 +44,12 @@ foreach ($pages as $page) {
 
     $footer = '';
     for ($i = ($page_lines_count - 3); $i < $page_lines_count; $i++) {
-        if ($page_lines[$i] == '') {
-            $footer .= $page_lines[$i] . "\r";
+        if (empty($page_lines[$i])) {
+            $footer .= "\r\n";
         }
-        $footer .= $page_lines[$i];
+        $footer .= $page_lines[$i] ?? '' . "\r";
     }
+    //error_log($footer);
 
     if (!$is_continued && !$was_continued) {
         printHeader($header, $pdf);
@@ -116,7 +117,7 @@ function printHeader($header, $pdf) {
 }
 
 function printBody($content, $pdf) {
-    $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin'] - 130);
+    $pdf->ezSetY($pdf->ez['pageHeight'] - $pdf->ez['topMargin'] - 140);
     $pdf->ezText($content, 12, array(
         'justification' => 'left',
         'leading' => 12

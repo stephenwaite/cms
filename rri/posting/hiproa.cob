@@ -459,6 +459,10 @@
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                TRN-0 TRN-1 TRN-2 TRN-3 TRN-4.
 
+           IF TRN-3 = "1204581265" AND BPR-16 < "20240622"
+               GO TO P00
+           END-IF
+
            MOVE SPACE TO REMITFILE01.    
 
            STRING DATE-X TRN-2 TRN-3 TRN-4 DELIMITED BY SIZE
@@ -1015,7 +1019,7 @@
                                OR
                       (CAS-5 = "A1" OR "A2" OR "B6" OR "B9" OR "B10" OR 
                                "18" OR "42" OR "45" OR
-                               "59" OR "253" OR "131"))
+                               "59" OR "253" OR "131" OR "P23"))
                                AND 
                       NOT (CLP-2CLMSTAT = "2 " OR "3 ")
                        
@@ -1068,6 +1072,11 @@
                    END-IF
                END-IF
            END-PERFORM.
+
+           IF ALF8-1 = "-" AND PAYORID = "J4110"
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF    
            
            COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
 
@@ -1128,50 +1137,69 @@
            EXIT.
 
        DUMP50.
-           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
-               IF CAS-SVC(Z) = X
-                   MOVE SPACE TO CAS01 
-                   MOVE CAS-TAB(Z) TO FILEIN01
-                   UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                     CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+           IF CAS-CNTR = 0
+             MOVE 1 TO FLAG
+           ELSE
+               PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
+                   IF CAS-SVC(Z) = X
+                       MOVE SPACE TO CAS01 
+                       MOVE CAS-TAB(Z) TO FILEIN01
+                       UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                         CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
+                         CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
+                         CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-                 IF (CAS-2 = "50" OR "109" OR "167" OR "B13")
-                   OR (CAS-1 = "CO" AND CAS-2 = "4    ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "16   ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "18   ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "29   ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "55   ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "58   ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "96   ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "97   ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "146  ")                   
-                   OR (CAS-1 = "CO" AND CAS-2 = "151  ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "197  ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "234  ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "242  ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "288  ")
-                   OR (CAS-1 = "CO" AND CAS-2 = "B20  ")
-                   OR (CAS-1 = "PI" AND CAS-2 = "5    ")
-                   OR (CAS-1 = "PI" AND CAS-2 = "11   ")
-                   OR (CAS-1 = "PI" AND CAS-2 = "96   ")
-                   OR (CAS-1 = "PI" AND CAS-2 = "97   ")
-                   OR (CAS-1 = "PI" AND CAS-2 = "234  ")
-                   OR (CAS-1 = "PR" AND CAS-2 = "16   ")
-                   OR (CAS-1 = "PR" AND CAS-2 = "26   ")
-                   OR (CAS-1 = "PR" AND CAS-2 = "27   ")
-                   OR (CAS-1 = "PR" AND CAS-2 = "31   ")
-                   OR (CAS-1 = "PR" AND CAS-2 = "35   ")
-                   OR (CAS-1 = "PR" AND CAS-2 = "96   ")
-                   OR (CAS-1 = "PR" AND CAS-2 = "151  ")                  
-                   OR (CAS-1 = "PR" AND CAS-2 = "243  ")                  
+                     IF (CAS-2 = "50" OR "109" OR "167" OR "B13")
+                       OR (CAS-1 = "CO" AND CAS-2 = "4    ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "11   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "16   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "18   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "29   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "31   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "55   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "58   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "95   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "96   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "97   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "146  ")                   
+                       OR (CAS-1 = "CO" AND CAS-2 = "151  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "197  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "234  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "242  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "252  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "284  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "288  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "A1   ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "B11  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "B20  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "P12  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "P14  ")
+                       OR (CAS-1 = "OA" AND CAS-2 = "18   ")
+                       OR (CAS-1 = "OA" AND CAS-2 = "226  ")
+                       OR (CAS-1 = "OA" AND CAS-2 = "B11  ")
+                       OR (CAS-1 = "OA" AND CAS-2 = "B13  ")
+                       OR (CAS-1 = "OA" AND CAS-2 = "P8   ")
+                       OR (CAS-1 = "PI" AND CAS-2 = "5    ")
+                       OR (CAS-1 = "PI" AND CAS-2 = "11   ")
+                       OR (CAS-1 = "PI" AND CAS-2 = "96   ")
+                       OR (CAS-1 = "PI" AND CAS-2 = "97   ")
+                       OR (CAS-1 = "PI" AND CAS-2 = "149  ")
+                       OR (CAS-1 = "PI" AND CAS-2 = "234  ")
+                       OR (CAS-1 = "PR" AND CAS-2 = "16   ")
+                       OR (CAS-1 = "PR" AND CAS-2 = "26   ")
+                       OR (CAS-1 = "PR" AND CAS-2 = "27   ")
+                       OR (CAS-1 = "PR" AND CAS-2 = "31   ")
+                       OR (CAS-1 = "PR" AND CAS-2 = "35   ")
+                       OR (CAS-1 = "PR" AND CAS-2 = "96   ")
+                       OR (CAS-1 = "PR" AND CAS-2 = "151  ")                  
+                       OR (CAS-1 = "PR" AND CAS-2 = "243  ")                  
 
-                   MOVE 1 TO FLAG
-                   MOVE CAS-CNTR TO Z
-                 END-IF               
-               END-IF               
-           END-PERFORM.    
+                       MOVE 1 TO FLAG
+                       MOVE CAS-CNTR TO Z
+                     END-IF               
+                   END-IF               
+               END-PERFORM
+           END-IF.    
 
        P9-SVC-LOOP.
            MOVE SAVEFILE01 TO FILEIN01
