@@ -87,7 +87,7 @@
                " AND MODIFIER " CD-MOD2
                DELIMITED BY SIZE INTO FILEOUT01
              WRITE FILEOUT01
-             MOVE X TO Y.
+             MOVE X TO Y
            END-IF.  
            
        P99.
