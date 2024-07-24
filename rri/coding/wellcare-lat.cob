@@ -47,7 +47,7 @@
            02 MOD-TAB PIC X(2) OCCURS 90 TIMES.
 
        01  X PIC 999 VALUE 0.    
-       02  Y PIC 999.
+       01  Y PIC 999.
        
        PROCEDURE DIVISION.
        P0.
