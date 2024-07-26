@@ -24,6 +24,9 @@ $filename = getenv('HOME') . "/W2" . getenv('tid') . $cms_user;
 $file = file_get_contents($filename);
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
+if (substr($visit_no, 0, 1) == '0') {
+    $visit_no = "1" . $visit_no;
+}
 $charcur_key = substr($file, 15, 11);
 $billing_tape_date_of_service = substr($file, 26, 8);
 $base_url = getenv('BASE_OEMR_URL');
@@ -146,12 +149,12 @@ if (!empty($context) && $context == 'pdf') {
             $tty = exec('tty');
             echo "downloading $filename \n";
             echo " for $cms_user \n";
-            if ($cms_user == 'lynda') {
-                $cmd = "sz $filename > $tty < $tty";
-                exec($cmd, $output);
-            } else {
-                echo "                not implemented for " . $cms_user . "\n";
-            }
+    if ($cms_user == 'lynda') {
+        $cmd = "sz $filename > $tty < $tty";
+        exec($cmd, $output);
+    } else {
+        echo "                not implemented for " . $cms_user . "\n";
+    }
         //}
     //}
 }
