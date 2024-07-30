@@ -2052,6 +2052,12 @@
            PERFORM SV-MOD
            COMPUTE NUM7 = FI-AMOUNT
            PERFORM AMT-LEFT
+
+      *    iEDI wants us to suppress leading zero     
+           IF ALF8NUM = "0.00"
+               MOVE ".00" TO ALF8NUM
+           END-IF    
+
            MOVE ALF8NUM TO SV1-AMT
            COMPUTE NUM5 = FI-WORK
            PERFORM NUM-LEFT
