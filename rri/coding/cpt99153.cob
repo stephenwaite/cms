@@ -103,8 +103,8 @@
 
       *     IF CD-PLACE NOT = "3" GO TO P1.
 
-      *     display cd-paycode " " cd-key8          
-      *     accept omitted
+           display cd-paycode " " cd-key8          
+           accept omitted
 
            IF (CD-PAYCODE = "003" OR "200" OR "245")             
              MOVE CD-KEY8 TO G-GARNO
@@ -112,8 +112,8 @@
                INVALID               
                  GO TO P1
              END-READ
-             GO TO P2.
-
+             GO TO P2
+           END-IF  
 
            GO TO P1.
 
