@@ -370,6 +370,7 @@
        01  PROV-FLAG PIC X.
        01  EQUITY-ID PIC X(9).
        01  INS-NAME-HOLD PIC X(5).
+       01  ID-EIN PIC X(9).
        
        PROCEDURE DIVISION.
        0005-START.
@@ -468,7 +469,7 @@
            STRING DATE-X TRN-2 TRN-3 TRN-4 DELIMITED BY SIZE
                INTO REMIT-KEY.   
 
-           MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG.
+           MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG ID-EIN.
 
        P000.
            MOVE SPACE TO FILEIN01
@@ -510,6 +511,7 @@
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    REF-0 REF-1 REF-2
+               MOVE REF-2 TO ID-EIN    
            END-IF
 
            IF F1 = "DTM" AND F2 = "*405"
@@ -521,7 +523,7 @@
        P0000.
            IF (PERM-ID NOT = ID-NPI1)
                AND (PERM-ID NOT = ID-NPI)
-               AND (REF-2 NOT =  PF-1)
+               AND (ID-EIN NOT =  PF-1)
                AND (PERM-ID NOT = PF-1)
                MOVE 1 TO PROV-FLAG
            END-IF
