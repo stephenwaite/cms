@@ -131,6 +131,11 @@
       *    Single-Photon Emission Computed Tomography
            IF HOLD-PROC = "78803" OR "78830" OR "78831" OR "78832"
              GO TO find-auth.
+      
+      *    Scintimammography Gamma Imaging
+           IF HOLD-PROC = "78195" OR "78800" OR "78801" OR "78802" OR
+               "78804" OR "S8080"
+             GO TO find-auth.
 
       *    Attachment V, BCBSVT members
       *    Cardiac blood pool imaging
