@@ -1016,12 +1016,13 @@
                    IF (CAS-1 = "CO" OR "PI" OR "OA")
                                AND
                       ((CAS-2 = "A1" OR "A2" OR "B6" OR "B9" OR "B10" OR
-                                "18" OR "42" OR "45" OR 
+                                "B13" OR "18" OR "24" OR "42" OR "45" OR 
                                 "59" OR "253" OR "131" OR "P12")
                                OR
                       (CAS-5 = "A1" OR "A2" OR "B6" OR "B9" OR "B10" OR 
-                               "18" OR "42" OR "45" OR
-                               "59" OR "253" OR "131" OR "P23"))
+                               "B13" OR "18" OR "42" OR "45" OR
+                               "59" OR "253" OR "131" OR "P12" OR 
+                               "P23"))
                                AND 
                       NOT (CLP-2CLMSTAT = "2 " OR "3 ")
                        
