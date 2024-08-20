@@ -1179,6 +1179,7 @@
                        OR (CAS-1 = "CO" AND CAS-2 = "P14  ")
                        OR (CAS-1 = "OA" AND CAS-2 = "18   ")
                        OR (CAS-1 = "OA" AND CAS-2 = "226  ")
+                       OR (CAS-1 = "OA" AND CAS-2 = "A1   ")
                        OR (CAS-1 = "OA" AND CAS-2 = "B11  ")
                        OR (CAS-1 = "OA" AND CAS-2 = "B13  ")
                        OR (CAS-1 = "OA" AND CAS-2 = "P8   ")
