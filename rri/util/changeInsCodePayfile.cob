@@ -17,7 +17,7 @@
              LOCK MODE MANUAL.
 
            SELECT PAYFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
-             ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY.
+             ACCESS MODE IS DYNAMIC RECORD KEY IS PAYFILE-KEY.
 
        DATA DIVISION.
 
@@ -49,10 +49,7 @@
 
            IF PD-PAYCODE NOT = G-PRINS
                MOVE G-PRINS TO PD-PAYCODE
-               GO TO P1.                                                                   
-
-           
-           REWRITE PAYFILE01.
+               REWRITE PAYFILE01.
 
            go to P1.
       
