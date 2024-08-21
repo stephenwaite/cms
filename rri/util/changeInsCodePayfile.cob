@@ -39,7 +39,7 @@
            OPEN INPUT GARFILE.
    
        P1. 
-           READ payfile next WITH LOCK
+           READ payfile WITH LOCK
              AT END
                GO TO P99.
 
