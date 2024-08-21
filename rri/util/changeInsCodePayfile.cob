@@ -37,9 +37,11 @@
        P0.
            OPEN I-O payfile.
            OPEN INPUT GARFILE.
+           move low-values to PAYFILE-key.
+           START PAYFILE KEY NOT <  PAYFILE-KEY INVALID GO TO P99.
    
        P1. 
-           READ payfile WITH LOCK
+           READ payfile NEXT
              AT END
                GO TO P99.
 
