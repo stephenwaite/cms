@@ -10,7 +10,7 @@ $header = $reader->getHeader();
 //var_dump($header);
 //exit;
 $i = 1;
-foreach($header as $key => $value) {
+foreach ($header as $key => $value) {
     if (empty($value)) {
         $value = (string) $i++;
     }
@@ -34,7 +34,7 @@ foreach ($records as $offset => $record) {
     $cpt = $record['CPT'] ?? null ?: $record['HCPCS'] ?? null;
     $dos = $record['DOS'] ?? null;
     $mrn = $record['MRN'] ?? null;
-    if ($record['HCPCS'] == "G1004") {
+    if ($record['HCPCS'] ?? '' == "G1004") {
         $cpt = "G1004";
     }
     echo $cdm . "," . $cpt . "," . $dos . "," . $mrn . "\n";

@@ -1162,8 +1162,8 @@ X           02 DF1 PIC X.
                IF FI-SERVICE NOT = "6" MOVE 1 TO ORDER-FLAG
                END-IF
                IF FI-PROC1 = "76090" OR "76091" OR "76092"
-               OR "77055" OR "77056" OR "77057" OR "77067"
-               MOVE 1 TO MAMMO-FLAG
+                 OR "77055" OR "77056" OR "77057" OR "77065" OR "77067"
+                 MOVE 1 TO MAMMO-FLAG
                END-IF
 
                ADD 1 TO CNTR 
