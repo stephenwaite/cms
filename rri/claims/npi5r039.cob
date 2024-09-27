@@ -1144,9 +1144,13 @@ X           02 DF1 PIC X.
            MOVE 0 TO CNTR DIAG-CNTR TOT-AMOUNT ORDER-FLAG
            mammo-flag
            GO TO P1-1.
-       P1. READ FILEIN AT END MOVE 1 TO END-FLAG GO TO P2.
+       P1. READ FILEIN 
+               AT END 
+                   MOVE 1 TO END-FLAG 
+                   GO TO P2.
        P1-1. 
            IF DIAG-CNTR > 11 GO TO P2.
+
            IF  FI-PLACE = HOLD-PLACE
                AND FI-KEY8 = HOLD-KEY8
                AND FI-PATID = HOLD-PATID
@@ -1157,14 +1161,19 @@ X           02 DF1 PIC X.
                AND FI-ACC-TYPE = HOLD-ACC-TYPE
                AND CNTR < 50
                PERFORM DIAG-1 THRU DIAG-EXIT 
-               IF DIAG-CNTR > 12 GO TO P2
+               IF DIAG-CNTR > 12 
+                   GO TO P2
                END-IF
-               IF FI-SERVICE NOT = "6" MOVE 1 TO ORDER-FLAG
+               IF FI-SERVICE NOT = "6" 
+                   MOVE 1 TO ORDER-FLAG
                END-IF
-               IF FI-PROC1 = "76090" OR "76091" OR "76092"
-                 OR "77055" OR "77056" OR "77057" OR "77065" OR "77066"
-                 OR "77067" OR "G0279"
-                 MOVE 1 TO MAMMO-FLAG
+
+               IF FI-PROC1 = "76090" OR "76091" OR "76092" OR "77055" 
+                   OR "77056" OR "77057" OR "77065" OR "77066"
+                   OR "77067" OR "G0279"
+                   MOVE 1 TO MAMMO-FLAG
+                   DISPLAY "MAMMO FLAG IS SET FOR " FI-PROC1
+                   ACCEPT OMITTED
                END-IF
 
                ADD 1 TO CNTR 
@@ -1430,25 +1439,30 @@ X           02 DF1 PIC X.
            PERFORM AMT-LEFT
            MOVE ALF8NUM TO CLM-2
            MOVE SPACE TO CLM-11  CLM-COLON-ACCIDENT
+
            IF HOLD-DAT1 NOT = ZEROES
-           PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT.
+               PERFORM ACCIDENT-1 THRU ACCIDENT-EXIT.
+           
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM CLM01.
+           
            IF HOLD-DAT1 NOT = ZEROES
-           MOVE "439" TO DTP-1
-           MOVE HOLD-DAT1 TO DTP-3
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM DTP01.
+               MOVE "439" TO DTP-1
+               MOVE HOLD-DAT1 TO DTP-3
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM DTP01.
+
            IF (CLM-5 = "21" OR "61")
-           MOVE "435" TO DTP-1
-           MOVE HOLD-DATE-M TO DTP-3
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM DTP01.
+               MOVE "435" TO DTP-1
+               MOVE HOLD-DATE-M TO DTP-3
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM DTP01.
+
            IF MAMMO-FLAG= 1
-           MOVE SPACE TO REF-CODE REF-ID SEGFILE01
-           MOVE "EW" TO REF-CODE
-           MOVE MAMMO-CODE TO REF-ID
-           WRITE SEGFILE01 FROM REF01.
+               MOVE SPACE TO REF-CODE REF-ID SEGFILE01
+               MOVE "EW" TO REF-CODE
+               MOVE MAMMO-CODE TO REF-ID
+               WRITE SEGFILE01 FROM REF01.
            
            MOVE SPACE TO LASTREF
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > CNTR
