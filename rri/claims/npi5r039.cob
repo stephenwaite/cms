@@ -1172,8 +1172,6 @@ X           02 DF1 PIC X.
                    OR "77056" OR "77057" OR "77065" OR "77066"
                    OR "77067" OR "G0279"
                    MOVE 1 TO MAMMO-FLAG
-                   DISPLAY "MAMMO FLAG IS SET FOR " FI-PROC1
-                   ACCEPT OMITTED
                END-IF
 
                ADD 1 TO CNTR 
