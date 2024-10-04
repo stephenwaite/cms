@@ -132,9 +132,13 @@
                GO TO A-4
              END-IF
            
-             IF ANS = "N"
-               GO TO A-4
-             END-IF.
+             IF ANS = "A"
+               GO TO A-6
+             END-IF
+
+           END-IF
+
+           GO TO A-4.
 
        A-6.
            DISPLAY "ACCEPTED " REF-KEY
