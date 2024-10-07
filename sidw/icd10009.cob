@@ -37,6 +37,10 @@
        P1.
            MOVE SPACE TO FILEIN01.
            READ FILEIN AT END GO TO P9.
+
+           IF FILEIN01(14:1) = "0"
+               GO TO P1
+           END-IF
            
            IF FILEIN01(1:3) = "ADD"
              MOVE FILEIN01(16:7) TO DIAG-KEY
