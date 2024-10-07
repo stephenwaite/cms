@@ -908,7 +908,7 @@
              MOVE "9999" TO N4-ZIP(6:4).
            MOVE SPACE TO SEGFILE01.
            WRITE SEGFILE01 FROM N401.
-           IF INS-NEIC = "WP540"
+           IF INS-NEIC = "77044"
              MOVE "G2" TO REF-CODE
              MOVE "101337700" TO REF-ID
              MOVE SPACE TO SEGFILE01

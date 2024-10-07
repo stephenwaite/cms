@@ -45,7 +45,9 @@ foreach ($rows as $key => $value) {
     $fields[$cntr][1] = uC($value[2]); //fname
     $fields[$cntr][2] = uC($value[12]);
     $fields[$cntr][3] = uC($value[13]);
-    $fields[$cntr][4] = uC($value[14]);
+    $city = uC($value[14]);
+    //var_dump($city);
+    $fields[$cntr][4] = ($city == 'MANCHESTER CENTER') ? 'MANCHESTER CTR' : $city;
     $fields[$cntr][5] = uC($value[15]);
     $zip = uC($value[16]);
     $fields[$cntr][6] = (strlen($zip) == 4) ? '0' . $zip : $zip;
@@ -162,72 +164,153 @@ function getDos($date)
 
 function uC($string)
 {
-    return trim(strToUpper(str_replace([',', '-'], '', $string)));
+    return trim(strToUpper(str_replace([',', '-'], '', $string ?? '')));
 }
 
 function getNpi($string)
 {
-    if (strpos($string, 'STERLING') !== false) {
-        return '1346453834';
-    } else {
+    if (strpos($string, 'AYRE') !== false) {
         return '1548206428';
+    } elseif (strpos($string, 'HOWARD') !== false) {
+        return '1821222068';
+    } else {
+        return '1346453834'; // sterling
     }
 }
 
 function chcrrInsCode($ins_string, $policy)
 {
     switch ($ins_string) {
-        case (strpos($ins_string, 'MEDICARE BVT') !== false):
+        case (strpos($ins_string, 'MEDICARE B') !== false):
             return '34P';
-            break;
+        break;
+
         case (strpos($ins_string, 'BCBSVT') !== false):
-            return '140';
-            break;
-        case (strpos($ins_string, 'UNITED HEALTHCARE') !== false):
-            return '74P';
-            break;
-        case (strpos($ins_string, 'MVP HEALTH CARE') !== false):
-            return '81P';
-            break;
-        case (strpos($ins_string, 'MEDICAIDVT') !== false):
-            return '82P';
-            break;
-        case (strpos($ins_string, 'ANTHEM BCBSNY') !== false):
-            return '47P';
-            break;
-        case (strpos($ins_string, 'SELFPAY (CASH)') !== false):
-            return '0';
-            break;
-        case (strpos($ins_string, 'BLUE CROSSCA') !== false):
-            return '47P';
-            break;
-        case (strpos($ins_string, 'AETNA & AETNA/US HEALTHCARE') !== false):
-            return '100P';
-            break;
-        case (strpos($ins_string, 'BLUE BENEFIT ADMIN OF MASS') !== false):
-            return '47P';
-            break;
-        case (strpos($ins_string, 'BCBSMN') !== false):
-            return '47P';
-            break;
-        case (strpos($ins_string, 'WC  CORVEL') !== false):
-            return '47P';
-            break;
-        case (strpos($ins_string, 'S&S HEALTHCARE STRATEGIES') !== false):
-            return '58P';
-            break;
-        case (strpos($ins_string, 'BANKERS') !== false):
-            return '27P';
-            break;
-        case (strpos($ins_string, 'AARP') !== false):
-            return '4P';
-            break;
-        case (strpos($ins_string, 'CIGNA') !== false):
-            return '58P';
-            break;
+            return '33P';
+        break;
+
         case (strpos($ins_string, 'BCBS') !== false):
             return '47P';
+        break;
+
+        case (strpos($ins_string, 'UNITED HEALTHCARE') !== false):
+            return '74P';
+        break;
+
+        case (strpos($ins_string, 'MVP HEALTH CARE') !== false):
+            return '81P';
+        break;
+
+        case (strpos($ins_string, 'MEDICAIDVT') !== false):
+            return '82P';
+        break;
+
+        case (strpos($ins_string, 'ANTHEM BCBSNY') !== false):
+            return '47P';
+        break;
+        case (strpos($ins_string, 'SELFPAY (CASH)') !== false):
+            return '0';
+        break;
+        case (strpos($ins_string, 'BLUE CROSSCA') !== false):
+            return '47P';
+        break;
+        case (strpos($ins_string, 'AETNA & AETNA/US HEALTHCARE') !== false):
+            return '100P';
+        break;
+        case (strpos($ins_string, 'BLUE BENEFIT ADMIN OF MASS') !== false):
+            return '47P';
+        break;
+        case (strpos($ins_string, 'BCBSMN') !== false):
+            return '47P';
+        break;
+        case (strpos($ins_string, 'WC  CORVEL') !== false):
+            return '47P';
+        break;
+        case (strpos($ins_string, 'S&S HEALTHCARE STRATEGIES') !== false):
+            return '58P';
+        break;
+        case (strpos($ins_string, 'BANKERS') !== false):
+            return '27P';
+        break;
+        case (strpos($ins_string, 'AARP') !== false):
+            return '4P';
+        break;
+        case (strpos($ins_string, 'CIGNA') !== false):
+            return '58P';
+        break;
+        case (strpos($ins_string, 'BCBS') !== false):
+            return '47P';
+        break;
+        case (strpos($ins_string, 'OXFORD') !== false):
+            return '109P';
+        break;
+        case (strpos($ins_string, 'UNITED MEDICAL') !== false):
+            return '110P';
+        break;
+        case (strpos($ins_string, 'TRICARE EAST') !== false):
+            return '41P';
+        break;
+        case (strpos($ins_string, 'MERCHANTS BENEFIT') !== false):
+            return '163P';
+        break;
+        case (strpos($ins_string, 'HUMANA') !== false):
+            return '86P';
+        break;
+        case (strpos($ins_string, 'WELLCARE') !== false):
+            return '144P';
+        break;
+        case (strpos($ins_string, 'HARVARD PILGRIM') !== false):
+            return '89P';
+        break;
+        case (strpos($ins_string, 'CHAMPVA') !== false):
+            return '24P';
+        break;
+        case (strpos($ins_string, 'SOLIDARITY') !== false):
+            return '164P';
+        break;
+        case (strpos($ins_string, 'BLUE BENEFIT') !== false):
+            return '47P';
             break;
+        case (strpos($ins_string, 'UNICARE') !== false):
+            return '165P';
+        break;
+
+        case (strpos($ins_string, 'ALLEGIANCE') !== false):
+            return '166P';
+        break;
+
+        case (strpos($ins_string, 'MERITAIN') !== false):
+            return '87P';
+        break;
+
+        case (strpos($ins_string, 'FIDELIS') !== false):
+            return '65P';
+        break;
+
+        case (strpos($ins_string, 'FOREIGN') !== false):
+            return '95P';
+        break;
+
+        case (strpos($ins_string, 'EMBLEM') !== false):
+            return '114P';
+        break;
+
+        case (strpos($ins_string, 'TUFTS') !== false):
+            return '167P';
+        break;
+
+        case (strpos($ins_string, 'WELLMED') !== false):
+            return '168P';
+        break;
+
+        case (strpos($ins_string, 'KAISER') !== false):
+            return '169P';
+        break;
+
+        case (strpos($ins_string, 'USFHP') !== false):
+            return '31P';
+        break;
+
         default:
             return '***BAD INS***';
     }

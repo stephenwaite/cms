@@ -37,10 +37,14 @@
        P1.
            MOVE SPACE TO FILEIN01.
            READ FILEIN AT END GO TO P9.
+
+           IF FILEIN01(14:1) = "0"
+               GO TO P1
+           END-IF
            
            IF FILEIN01(1:3) = "ADD"
-             MOVE FILEIN01(14:7) TO DIAG-KEY
-             MOVE FILEIN01(22:61) TO DIAG-TITLE
+             MOVE FILEIN01(16:7) TO DIAG-KEY
+             MOVE FILEIN01(24:61) TO DIAG-TITLE
              MOVE SPACE TO DIAG-MEDB
              WRITE DIAG01
                INVALID
@@ -52,7 +56,7 @@
            END-IF  
            
            IF FILEIN01(1:7) = "DELETE:"
-             MOVE FILEIN01(14:7) TO DIAG-KEY
+             MOVE FILEIN01(16:7) TO DIAG-KEY
              READ DIAGFILE WITH LOCK
                INVALID
                  DISPLAY "RECORD NOT FOUND"
@@ -66,7 +70,7 @@
            END-IF
            
            IF FILEIN01(1:9) = "REVISE TO"
-             MOVE FILEIN01(14:7) TO DIAG-KEY
+             MOVE FILEIN01(16:7) TO DIAG-KEY
              READ DIAGFILE WITH LOCK
                INVALID
                  DISPLAY "RECORD NOT FOUND on REVISE"
@@ -75,7 +79,7 @@
                  GO TO P1
              END-READ
              
-             MOVE FILEIN01(22:61) TO DIAG-TITLE
+             MOVE FILEIN01(24:61) TO DIAG-TITLE
              REWRITE DIAG01
              GO TO P1
            END-IF

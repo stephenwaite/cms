@@ -4653,9 +4653,12 @@
            MOVE TABDX(2) TO CC-DX2
            MOVE TABDX(3) TO CC-DX3
            MOVE TABDX(4) TO CC-DX4.
-      *     MOVE TABDX(5) TO CC-DX5
-      *     MOVE TABDX(6) TO CC-DX6.
-       DX-1-EXIT. EXIT.
+           IF CC-DX2 = SPACE MOVE ZEROES TO CC-DX2.
+           IF CC-DX3 = SPACE MOVE ZEROES TO CC-DX3.
+           IF CC-DX4 = SPACE MOVE ZEROES TO CC-DX4.
+
+       DX-1-EXIT. 
+           EXIT.
 
        LM-1.
            MOVE SPACE TO RIGHT-8

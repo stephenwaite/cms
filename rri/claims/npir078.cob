@@ -337,10 +337,6 @@
              PERFORM E1
              GO TO A2.
 
-           IF INS-NEIC = "23742"
-             PERFORM PAPER-1
-             GO TO P1.
-
            IF G-PR-GROUP = G-PRIPOL
              MOVE "GRP & POLICY ARE THE SAME" TO EF2
              PERFORM E1
@@ -360,11 +356,11 @@
              GO TO A2
            END-IF
 
-           IF (INS-NEIC = "12115")
-               MOVE "USE myvaccn to get auth please " TO EF2
-               PERFORM E1
-               GO TO A2
-           END-IF
+      *     IF (INS-NEIC = "12115")
+      *         MOVE "USE myvaccn to get auth please " TO EF2
+      *         PERFORM E1
+      *         GO TO A2
+      *     END-IF
 
            IF (INS-NEIC = "VACCN")
                MOVE CC-KEY8 TO AUTH-KEY8

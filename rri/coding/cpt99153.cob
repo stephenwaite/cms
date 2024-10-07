@@ -114,7 +114,6 @@
              END-READ
              GO TO P2.
 
-
            GO TO P1.
 
        P2. 
