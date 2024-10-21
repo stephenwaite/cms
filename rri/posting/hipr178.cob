@@ -60,10 +60,19 @@
 
            SELECT rarcfile ASSIGN TO "S85" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS rarc-key
-           LOCK MODE MANUAL.   
+           LOCK MODE MANUAL.
+
+           SELECT REMITFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS REMIT-KEY.
 
        DATA DIVISION.
        FILE SECTION.
+
+       FD  REMITFILE.
+       01  REMITFILE01.
+           02 REMIT-KEY PIC X(68).
+           02 REMIT-DATE-E PIC X(8).
+           02 REMIT-DATE-P PIC X(8).
 
        FD  rarcfile.
        01  rarcfile01.
@@ -366,7 +375,7 @@
        0005-START.
            OPEN INPUT INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE
              PAYCUR CAIDFILE rarcfile.
-           OPEN I-O PAYFILE 
+           OPEN I-O PAYFILE REMITFILE
            OPEN OUTPUT TRNPAYFILE ERROR-FILE.
            MOVE SPACE TO NAR-KEY01 
            MOVE ALL ZEROES TO NAR-CNTR01 STATUSCODES01 
@@ -449,6 +458,12 @@
            MOVE SPACE TO TRN01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                TRN-0 TRN-1 TRN-2.
+
+           MOVE SPACE TO REMITFILE01.    
+
+           STRING DATE-X TRN-2 TRN-3 TRN-4 DELIMITED BY SIZE
+               INTO REMIT-KEY.   
+
            MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG.
 
        P000.
@@ -519,6 +534,19 @@
            IF (PROV-FLAG = 1)
                GO TO P00
            END-IF
+
+           READ REMITFILE     
+               INVALID
+                   ACCEPT REMIT-DATE-E FROM CENTURY-DATE
+                   WRITE REMITFILE01
+                   END-WRITE
+               NOT INVALID
+                   MOVE SPACE TO ERROR-FILE01
+                   STRING REMITFILE01 " DUPE CHECK"
+                       DELIMITED BY SIZE INTO ERROR-FILE01
+                   WRITE ERROR-FILE01
+                   GO TO P00
+           END-READ   
            
            IF PAYORID = SPACE
                MOVE PAYORID1 TO PAYORID
@@ -1818,7 +1846,7 @@
             END-IF
            END-PERFORM.
            
-           CLOSE PAYFILE TRNPAYFILE GARFILE CHARCUR
+           CLOSE PAYFILE TRNPAYFILE GARFILE CHARCUR REMITFILE
            STOP RUN.
 
        P169.
