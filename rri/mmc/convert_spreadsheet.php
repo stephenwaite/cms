@@ -7,7 +7,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 
 $inputFileName = '/tmp/test.xlsx';
 $inputFileType = 'Xlsx';
-$fp = fopen('/tmp/testing.csv', 'w');
+$fp = fopen('/tmp/mmcCharges.csv', 'w');
 
 $reader = IOFactory::createReader($inputFileType);
 $spreadsheet = $reader->load($inputFileName);
@@ -118,13 +118,13 @@ foreach ($fields as $item) {
 }
 
 fclose($fp);
-$fo = fopen('/tmp/test.csv', 'w');
+/* $fo = fopen('/tmp/test.csv', 'w');
 
 
-foreach (file("/tmp/testing.csv") as $line) {
+foreach (file("/tmp/mmcCharges.csv") as $line) {
     $line = str_replace('"', '', $line);
     fwrite($fo, $line);
-}
+} */
 
 
 

@@ -1431,6 +1431,8 @@
             PERFORM NAR-1.
 
        P1-DENIED-SVC.
+           DISPLAY "PERFORMING P1-DENIED-SVC"
+           accept omitted
            PERFORM STATUS-1
            MOVE SPACE TO SVC01 
            MOVE SVC-TAB(X) TO FILEIN01
