@@ -1751,23 +1751,11 @@
 
        FIND-GARNO.    
            MOVE CLP-1 TO G-GARNO
-           MOVE NM1-NAMEL(1:3) TO ID1
-           MOVE ID1 TO ALF-3
-           START GARFILE KEY NOT < G-GARNO
-             INVALID 
-               GO TO FIND-GARNO-EXIT
-           END-START.
-
-       P2. 
        
-           READ GARFILE NEXT
-             AT END
+           READ GARFILE 
+             INVALID
                GO TO FIND-GARNO-EXIT
-           END-READ
-
-           IF ID1 > ALF-3
-               GO TO FIND-GARNO-EXIT
-           END-IF.
+           END-READ.
                
        P3LOOK.
            IF NOT ((G-PRIPOL = NM1-CODE)  
@@ -1780,7 +1768,7 @@
                 display g-secpol " SECPOL"
                 display MPLR-TRIPOL " TRIPOL"
                 accept omitted
-           GO TO P2.
+                GO TO FIND-GARNO-EXIT.
 
       *  START LOOKING FOR MATCHING CHARGES WITH THE GARNO IN QUESTION.
            
