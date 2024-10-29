@@ -1432,7 +1432,7 @@
 
        P1-DENIED-SVC.
            DISPLAY "PERFORMING P1-DENIED-SVC find-ctr " FIND-CNTR 
-               " SVC-CNTR " SVC-CNTR
+               " SVC-CNTR " SVC-CNTR " FLAGY " FLAGY
            accept omitted
            PERFORM STATUS-1
            MOVE SPACE TO SVC01 
