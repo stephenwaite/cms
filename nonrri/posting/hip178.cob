@@ -1750,7 +1750,7 @@
       *  I.E., PERFECTION MUST REIGN!
 
        FIND-GARNO.    
-           MOVE SPACE TO G-GARNO
+           MOVE CLP-1 TO G-GARNO
            MOVE NM1-NAMEL(1:3) TO ID1
            MOVE ID1 TO ALF-3
            START GARFILE KEY NOT < G-GARNO
