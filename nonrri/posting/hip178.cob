@@ -1775,6 +1775,10 @@
                 OR (G-SECPOL = NM1-CODE0)
                 OR (MPLR-TRIPOL = NM1-CODE))
                 display "we have a policy issue"
+                display NM1-CODE
+                display G-PRIPOL
+                display g-secpol
+                display MPLR-TRIPOL
                 accept omitted
            GO TO P2.
 
