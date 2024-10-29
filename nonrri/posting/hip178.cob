@@ -1774,11 +1774,11 @@
                 OR (G-SECPOL = NM1-CODE)
                 OR (G-SECPOL = NM1-CODE0)
                 OR (MPLR-TRIPOL = NM1-CODE))
-                display "we have a policy issue"
-                display NM1-CODE
-                display G-PRIPOL
-                display g-secpol
-                display MPLR-TRIPOL
+                display "we have a policy issue FOR " G-GARNO
+                display NM1-CODE0 " " NM1-CODE " " NM1-CODE2
+                display G-PRIPOL " PRIPOL"
+                display g-secpol " SECPOL"
+                display MPLR-TRIPOL " TRIPOL"
                 accept omitted
            GO TO P2.
 
