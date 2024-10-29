@@ -1774,6 +1774,8 @@
                 OR (G-SECPOL = NM1-CODE)
                 OR (G-SECPOL = NM1-CODE0)
                 OR (MPLR-TRIPOL = NM1-CODE))
+                display "we have a policy issue"
+                accept omitted
            GO TO P2.
 
       *  START LOOKING FOR MATCHING CHARGES WITH THE GARNO IN QUESTION.
