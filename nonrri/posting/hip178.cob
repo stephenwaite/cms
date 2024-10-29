@@ -969,7 +969,6 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.
-           display "in p4-svc-loop"
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
                                OR "20" OR "21")             
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
@@ -1432,9 +1431,9 @@
             PERFORM NAR-1.
 
        P1-DENIED-SVC.
-           DISPLAY "PERFORMING P1-DENIED-SVC find-ctr " FIND-CNTR 
-               " SVC-CNTR " SVC-CNTR " FLAGY " FLAGY
-           accept omitted
+      *     DISPLAY "PERFORMING P1-DENIED-SVC find-ctr " FIND-CNTR 
+      *         " SVC-CNTR " SVC-CNTR " FLAGY " FLAGY
+      *     accept omitted
            PERFORM STATUS-1
            MOVE SPACE TO SVC01 
            MOVE SVC-TAB(X) TO FILEIN01
@@ -1773,6 +1772,7 @@
        P3LOOK.
            IF NOT ((G-PRIPOL = NM1-CODE)  
                 OR (G-SECPOL = NM1-CODE)
+                OR (G-SECPOL = NM1-CODE0)
                 OR (MPLR-TRIPOL = NM1-CODE))
            GO TO P2.
 
