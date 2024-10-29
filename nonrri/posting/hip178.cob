@@ -969,6 +969,7 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.
+           display "in p4-svc-loop"
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
                                OR "20" OR "21")             
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
