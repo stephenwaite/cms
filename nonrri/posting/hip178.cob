@@ -1431,7 +1431,7 @@
             PERFORM NAR-1.
 
        P1-DENIED-SVC.
-           DISPLAY "PERFORMING P1-DENIED-SVC find-ctr " FIND-CTR 
+           DISPLAY "PERFORMING P1-DENIED-SVC find-ctr " FIND-CNTR 
                " SVC-CNTR " SVC-CNTR
            accept omitted
            PERFORM STATUS-1
