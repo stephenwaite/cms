@@ -1734,6 +1734,8 @@
       *     ADD TOT-CLAIM TO TOT-TOT.
 
        LOOK-CHG-EXIT.
+           DISPLAY FIND-CNTR
+           ACCEPT omitted
            EXIT.
 
        A5. 
