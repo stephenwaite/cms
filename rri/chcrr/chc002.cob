@@ -64,6 +64,8 @@
            02 FO-3RD-POL PIC X(16).
            02 FO-3RD-NAME PIC X(30).
            02 FO-3RD-CITY PIC X(18).
+           02 FO-REND-PROV PIC XX.
+           02 FO-POS PIC X.
        FD  FILEIN
            RECORD CONTAINS 1 TO 999 CHARACTERS.
        01  FILEIN01 PIC X(999).
@@ -127,7 +129,9 @@
              FO-3RD-ALFA 
              FO-3RD-POL  
              FO-3RD-NAME
-             FO-3RD-CITY.
+             FO-3RD-CITY
+             FO-REND-PROV
+             FO-POS.
       *     DISPLAY "FO-PRIM-DAT1 " FO-PRIM-DAT1  
       *     ACCEPT OMITTED
 

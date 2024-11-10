@@ -3,17 +3,18 @@
 require __DIR__ . '/../../vendor/autoload.php';
 require_once 'risImport.php';
 
-use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Reader\Csv;
 
-$inputFileName = '/tmp/test.xlsx';
-$inputFileType = 'Xlsx';
+$inputFileName = '/tmp/test.csv';
+$inputFileType = 'csv';
 $fp = fopen('/tmp/charges.csv', 'w');
 
-$reader = IOFactory::createReader($inputFileType);
+$reader = new Csv();
 $spreadsheet = $reader->load($inputFileName);
 $worksheet = $spreadsheet->getActiveSheet();
 $rows = $worksheet->toArray();
-$fields_mmc = array();
+$fields_chcrr = array();
+$newFieldsChcrr = array();
 foreach ($rows as $key => $value) {
     if ($key == 0) {
         //var_dump($value);
@@ -23,123 +24,66 @@ foreach ($rows as $key => $value) {
     //var_dump($value);
     //exit;
 
-    $cpt_arr = explode(':', uC($value[7]));
-    $cpt = trim($cpt_arr[0]);
+    $cpt = substr($value[33], 0, 5);
     if ($cpt == '72072') {
         $cpt = '72070';
     }
 
-    if ($cpt == '73564') {
+    /* if ($cpt == '73564') {
         $cpt = '73562';
-    }
+    } */
 
-    $dos = getDos($value[0]);
+    $dos = getDos($value[38]);
     $rrmc_dos = (new DateTime($dos))->format('Ymd');
     $compare_dos = (new DateTime($dos))->format('Ymd');
     if ($compare_dos < $fromDate || $compare_dos > $toDate) {
         continue;
     }
-    $rawPtLastName = $value[1];
+    $rawPtLastName = $value[0];
     $ptLastName = uC($rawPtLastName); //lname
     // ignore suffixes
     $ptSuffixPos = strpos($rawPtLastName, ',');
     if (!empty($ptSuffixPos)) {
         $ptSuffix = substr($rawPtLastName, 0, $ptSuffixPos);
-        $mmcPtLastName = preg_replace("/[^A-Z]/", '', $ptSuffix);
+        $chcrrPtLastName = preg_replace("/[^A-Z]/", '', $ptSuffix);
     } else {
-        $mmcPtLastName = $ptLastName;
+        $chcrrPtLastName = $ptLastName;
     }
-    $ptFirstName = uC($value[2]); //fname
-    $risKey = $mmcPtLastName . $rrmc_dos . $cpt;
-    $fields_mmc[$risKey] = array($mmcPtLastName, $ptFirstName, $cpt, $dos);
+    $ptFirstName = uC($value[1]); //fname
+    $risKey = $chcrrPtLastName . $rrmc_dos . $cpt;
+    $fields_chcrr[$risKey] = array($chcrrPtLastName, $ptFirstName, $cpt, $dos);
 
-    $fields[$risKey][0] = $ptLastName;
-    $fields[$risKey][1] = $ptFirstName;
-    $fields[$risKey][2] = uC($value[14]); // addr 1
-    $fields[$risKey][3] = uC($value[15]); // addr 2
-    $city = uC($value[16]); // city
-    //var_dump($city);
-    $fields[$risKey][4] = ($city == 'MANCHESTER CENTER') ? 'MANCHESTER CTR' : $city;
-    $fields[$risKey][5] = uC($value[17]); // state
-    $zip = uC($value[18]); // zip
-    $fields[$risKey][6] = (strlen($zip) == 4) ? '0' . $zip : $zip;
-    $fields[$risKey][7] = uC($value[3]); //dob
 
-    $fields[$risKey][8] = uC($value[4]); //gender
-    $fields[$risKey][9] = chcrrInsCode(uC($value[10]), $value[11]);
-    $fields[$risKey][10] = ''; // chcrr ins name
-    $fields[$risKey][11] = ''; // chcrr ins addr
-    $fields[$risKey][12] = ''; // chcrr ins city
-    $fields[$risKey][13] = ''; // chcrr ins state
-    $fields[$risKey][14] = ''; // chcrr ins zip
-    $rawPolicy = $value[11];
-    var_dump($rawPolicy);
-    if (is_numeric($rawPolicy)) {
-        $fields[$risKey][15] = $rawPolicy;
-    } else {
-        $fields[$risKey][15] = uC($value[11]); // policy
-    }
-    $fields[$risKey][16] = ''; // group
-    $fields[$risKey][17] = $fields[$risKey][0]; // hard code guarnator to be patient
-    $fields[$risKey][18] = $fields[$risKey][1];
-    $fields[$risKey][19] = $fields[$risKey][8];
-    $fields[$risKey][20] = 'Self';
-    $fields[$risKey][21] = chcrrInsCode(uC($value[12]), $value[13]);
-    $fields[$risKey][22] = '';
-    $fields[$risKey][23] = '';
-    $fields[$risKey][24] = '';
-    $fields[$risKey][25] = '';
-    $fields[$risKey][26] = '';
-    $fields[$risKey][27] = '';
-    $fields[$risKey][28] = $value[13];
-    $fields[$risKey][29] = '';
-    $fields[$risKey][30] = '';
-    $fields[$risKey][31] = uC($value[4]);
-    $fields[$risKey][32] = 'S';
-    $fields[$risKey][33] = $cpt . "TC"; //chcrr sends TC mod
-    $dx1 = formatDx(uC($value[8]));
-    $fields[$risKey][34] = $dx1;
-    $dx2 = formatDx(uC($value[9]));
-    $fields[$risKey][35] = $dx2;
-    $fields[$risKey][36] = '';
-    $fields[$risKey][37] = '';
-    $fields[$risKey][38] = $dos;
-    // skip value 5 rendering, use value 6 supervising for billing
-    $fields[$risKey][39] = getNpi(uC($value[6]));
-    $fields[$risKey][40] = '';
-    $fields[$risKey][41] = '0';
-    $fields[$risKey][42] = '';
-    $fields[$risKey][43] = '';
-    $fields[$risKey][44] = '';
-
-    //echo $risKey . " " . $fields_rrmc[$risKey][5] . "\n";
     if (!empty($fields_rrmc[$risKey])) {
-        $fields[$risKey][45] = $fields_rrmc[$risKey][5];
-        $fields[$risKey][46] = $fields_rrmc[$risKey][4];
+        $newFieldsChcrr[$key] = $value;
+        array_push($newFieldsChcrr[$key], $fields_rrmc[$risKey][5]);
+        array_push($newFieldsChcrr[$key], $fields_rrmc[$risKey][4]);
+        //var_dump($newFieldsChcrr);
+        //exit;
     }
 }
 
-foreach ($fields_mmc as $mkey => $data) {
-    if (!array_key_exists($mkey, $fields_rrmc)) {
-        echo "this Manch key $mkey is not in rrmc data \n";
+foreach ($fields_chcrr as $okey => $data) {
+    if (!array_key_exists($okey, $fields_rrmc)) {
+        echo "this outread key $okey is not in rrmc data \n";
     }
 }
 
-foreach ($fields_rrmc as $rkey => $data) {
-    if (!array_key_exists($rkey, $fields_mmc)) {
+/* foreach ($fields_rrmc as $rkey => $data) {
+    if (!array_key_exists($rkey, $fields_chcrr)) {
         echo "this RRMC key $rkey is not in Manch data \n";
     }
-}
+} */
 
-foreach ($fields as $item) {
-    fputcsv($fp, $item, "\t");
+foreach ($newFieldsChcrr as $item) {
+    fputcsv($fp, $item);
 }
 
 fclose($fp);
 /* $fo = fopen('/tmp/test.csv', 'w');
 
 
-foreach (file("/tmp/mmcCharges.csv") as $line) {
+foreach (file("/tmp/chcrrCharges.csv") as $line) {
     $line = str_replace('"', '', $line);
     fwrite($fo, $line);
 } */
@@ -160,49 +104,98 @@ function getDos($date)
     return date_format(date_create($date), "m/d/y");
 }
 
-/*
-  array(20) {
-  [0]=>
-  string(15) "Date of Service"
-  [1]=>
-  string(17) "Patient Last Name"
-  [2]=>
-  string(18) "Patient First Name"
-  [3]=>
-  string(7) "Pt  DOB"
-  [4]=>
-  string(6) "Gender"
-  [5]=>
-  string(17) "Ordering Provider"
-  [6]=>
-  string(21) "Supervising Physician"
-  [7]=>
-  string(14) "Exam/CPT  Code"
-  [8]=>
-  string(22) "Primary Diagnosis Code"
-  [9]=>
-  string(25) "Additional Diagnosis Code"
-  [10]=>
-  string(17) "Insurance Company"
-  [11]=>
-  string(17) "Pt Middle Initial"
-  [12]=>
-  string(17) "Pt Address Line 1"
-  [13]=>
-  string(17) "Pt Address Line 2"
-  [14]=>
-  string(4) "City"
-  [15]=>
-  string(5) "State"
-  [16]=>
-  string(3) "ZIP"
-  [17]=>
-  string(19) "Guarantor Last Name"
-  [18]=>
-  string(20) "Guarantor First Name"
-  [19]=>
-  string(16) "Policy ID Number"
-*/
+/* array(45) {
+    [0]=>
+    string(11) "P Last Name"
+    [1]=>
+    string(12) "P First Name"
+    [2]=>
+    string(9) "P Address"
+    [3]=>
+    string(11) "P Address 2"
+    [4]=>
+    string(6) "P City"
+    [5]=>
+    string(7) "P State"
+    [6]=>
+    string(10) "P Zip Code"
+    [7]=>
+    string(15) "P Date of Birth"
+    [8]=>
+    string(13) "P Patient Sex"
+    [9]=>
+    string(21) "HA Insurance Company#"
+    [10]=>
+    string(25) "HA Insurance Company Name"
+    [11]=>
+    string(28) "HA Insurance Company Address"
+    [12]=>
+    string(25) "HA Insurance Company City"
+    [13]=>
+    string(26) "HA Insurance Company State"
+    [14]=>
+    string(24) "HA Insurance Company Zip"
+    [15]=>
+    string(26) "HA Insurance Policy Number"
+    [16]=>
+    string(16) "HA Date of Onset"
+    [17]=>
+    string(27) "P Primary Insured Last Name"
+    [18]=>
+    string(28) "P Primary Insured First Name"
+    [19]=>
+    string(21) "P Primary Insured Sex"
+    [20]=>
+    string(34) "P Primary Relation to Insured Desc"
+    [21]=>
+    string(25) "P Secondary Ins Co Number"
+    [22]=>
+    string(23) "P Secondary Ins Co Name"
+    [23]=>
+    string(27) "P Secondary Ins Co Address1"
+    [24]=>
+    string(23) "P Secondary Ins Co City"
+    [25]=>
+    string(24) "P Secondary Ins Co State"
+    [26]=>
+    string(22) "P Secondary Ins Co Zip"
+    [27]=>
+    string(25) "P Secondary Date of Onset"
+    [28]=>
+    string(25) "P Secondary Policy Number"
+    [29]=>
+    string(29) "P Secondary Insured Last Name"
+    [30]=>
+    string(30) "P Secondary Insured First Name"
+    [31]=>
+    string(23) "P Secondary Insured Sex"
+    [32]=>
+    string(31) "P Secondary Relation to Insured"
+    [33]=>
+    string(17) "HA CPT_HCPCS Code"
+    [34]=>
+    string(16) "HA 1st Diagnosis"
+    [35]=>
+    string(16) "HA 2nd Diagnosis"
+    [36]=>
+    string(16) "HA 3rd Diagnosis"
+    [37]=>
+    string(16) "HA 4th Diagnosis"
+    [38]=>
+    string(15) "HA Service Date"
+    [39]=>
+    string(14) "HA Doctor NPI#"
+    [40]=>
+    string(24) "P Tertiary Date of Onset"
+    [41]=>
+    string(24) "P Tertiary Ins Co Number"
+    [42]=>
+    string(24) "P Tertiary Policy Number"
+    [43]=>
+    string(22) "P Tertiary Ins Co Name"
+    [44]=>
+    string(22) "P Tertiary Ins Co City"
+  } */
 
 function uC($string)
 {
@@ -406,9 +399,9 @@ function chcrrInsCode($ins_string, $policy)
     }
 }
 
-/* if (!array_key_exists($rrmc_mmc_key, $rrmc_fields)) {
-    echo "uh oh, rrmc doesn't have this exam $rrmc_mmc_key \n";
+/* if (!array_key_exists($rrmc_chcrr_key, $rrmc_fields)) {
+    echo "uh oh, rrmc doesn't have this exam $rrmc_chcrr_key \n";
     continue;
 } else {
-    echo "this is in the rrmc db $rrmc_mmc_key \n";
+    echo "this is in the rrmc db $rrmc_chcrr_key \n";
 } */

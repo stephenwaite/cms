@@ -125,6 +125,8 @@
              03 FI-3RD-POL PIC X(16).
              03 FI-3RD-NAME PIC X(30).
              03 FI-3RD-CITY PIC X(18).
+           02 FI-REND-PROV PIC XX.
+           02 FI-POS PIC X.
 
        WORKING-STORAGE SECTION.
        01  TABX01.

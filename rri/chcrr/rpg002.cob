@@ -358,6 +358,8 @@
            02 FI-3RD-POL PIC X(16).
            02 FI-4TH-ALFA PIC X(10).
            02 FI-4TH-POL PIC X(16).
+           02 FI-REND-PROV PIC XX.
+           02 FI-POS PIC X.
 
        FD  REFPHY
            BLOCK CONTAINS 5 RECORDS
@@ -610,11 +612,11 @@
                GO TO P99
            END-READ
 
-           IF FI-PROC1 = "76499" GO TO P1.
+      *     IF FI-PROC1 = "76499" GO TO P1.
 
-           IF FI-PROC1 = "73620" MOVE "73630" TO FI-PROC1.
+      *     IF FI-PROC1 = "73620" MOVE "73630" TO FI-PROC1.
 
-           IF FI-PROC1 = "73070" MOVE "73060" TO FI-PROC1.
+      *     IF FI-PROC1 = "73070" MOVE "73060" TO FI-PROC1.
 
            STRING FI-PATNAMEL ";" FI-PATNAMEF DELIMITED BY "  " INTO
                RPG-GARNAME
@@ -1004,8 +1006,9 @@
            END-READ
            
            MOVE NPI-REFKEY TO RPG-DOCR
-           MOVE NPI-PLACE TO RPG-PLACE.
-
+      *     MOVE NPI-PLACE TO RPG-PLACE.
+           MOVE FI-POS TO RPG-PLACE.
+           MOVE FI-REND-PROV TO RPG-DOCP.
        P2.
            IF RPG-PROC1 = "1402"
                MOVE "1405" TO RPG-PROC1
