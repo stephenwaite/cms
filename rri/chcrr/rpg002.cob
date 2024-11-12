@@ -356,8 +356,8 @@
            02 FI-DAT1 PIC X(8).
            02 FI-3RD-ALFA PIC X(10).
            02 FI-3RD-POL PIC X(16).
-           02 FI-4TH-ALFA PIC X(10).
-           02 FI-4TH-POL PIC X(16).
+           02 FI-3RD-NAME PIC X(30).
+           02 FI-3RD-CITY PIC X(18).
            02 FI-REND-PROV PIC XX.
            02 FI-POS PIC X.
 
