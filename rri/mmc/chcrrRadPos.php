@@ -25,19 +25,15 @@ foreach ($rows as $key => $value) {
     //exit;
 
     $cpt = substr($value[33], 0, 5);
-    if ($cpt == '72072') {
-        $cpt = '72070';
-    }
 
     /* if ($cpt == '73564') {
         $cpt = '73562';
     } */
 
     $dos = getDos($value[38]);
-    $rrmc_dos = (new DateTime($dos))->format('Ymd');
-    $compare_dos = (new DateTime($dos))->format('Ymd');
-    if ($compare_dos < $fromDate || $compare_dos > $toDate) {
-        continue;
+    $outread_dos = (new DateTime($dos))->format('Ymd');
+    if ($outread_dos < $fromDate || $outread_dos > $toDate) {
+        echo "outlier dos " . $value[0] . $value[1] . $dos . $cpt . "\n";
     }
     $rawPtLastName = $value[0];
     $ptLastName = uC($rawPtLastName); //lname
@@ -50,30 +46,121 @@ foreach ($rows as $key => $value) {
         $chcrrPtLastName = $ptLastName;
     }
     $ptFirstName = uC($value[1]); //fname
-    $risKey = $chcrrPtLastName . $rrmc_dos . $cpt;
+    $firstFivePtLastName = str_pad(substr($chcrrPtLastName, 0, 5), 5);
+    $risKey = $firstFivePtLastName . $outread_dos . $cpt;
     $fields_chcrr[$risKey] = array($chcrrPtLastName, $ptFirstName, $cpt, $dos);
-
 
     if (!empty($fields_rrmc[$risKey])) {
         $newFieldsChcrr[$key] = $value;
+        //echo $risKey . "\n";
+        //readline("hit enter to continue ");
         array_push($newFieldsChcrr[$key], $fields_rrmc[$risKey][5]);
         array_push($newFieldsChcrr[$key], $fields_rrmc[$risKey][4]);
         //var_dump($newFieldsChcrr);
         //exit;
+    } else {
+        echo $risKey . "\n";
+        $badFieldsChcrr[$risKey] = $value;
+    }
+}
+//echo "failed to verify " . count($badFieldsChcrr) . " records. \n";
+//var_dump($badFieldsChcrr);
+//exit;
+foreach ($fields_chcrr as $okey => $data) {
+    if (!array_key_exists($okey, $fields_rrmc)) {
+        echo "this outread $okey is not in ris data \n";
+        if ($newKey = DayOffByOne($okey, $fields_rrmc)) {
+            echo "but if you change the dos the newkey is $newKey \n";
+            //var_dump($fields_rrmc[$newKey]);
+            $chcrrFormatDos = (new DateTime(substr($newKey, 5, 8)))->format('m/d/y');
+            $badFieldsChcrr[$okey][38] = $chcrrFormatDos;
+            $newFieldsChcrr[$newKey] = $badFieldsChcrr[$okey];
+            array_push($newFieldsChcrr[$newKey], $fields_rrmc[$newKey][5]);
+            array_push($newFieldsChcrr[$newKey], $fields_rrmc[$newKey][4]);
+            echo "changed DOS \n";
+            unset($badFieldsChcrr[$okey]);
+        } elseif ($newKey = CptOffByOne($okey, $fields_rrmc)) {
+            echo "but if you change the cpt the newkey is $newKey \n";
+            $replaceCpt = substr($newKey, 13, 5);
+            $badFieldsChcrr[$okey][33] = $replaceCpt . "TC";
+            $newFieldsChcrr[$newKey] = $badFieldsChcrr[$okey];
+            array_push($newFieldsChcrr[$newKey], $fields_rrmc[$newKey][5]);
+            array_push($newFieldsChcrr[$newKey], $fields_rrmc[$newKey][4]);
+            echo "changed CPT \n";
+            unset($badFieldsChcrr[$okey]);
+        } else {
+            echo "**** this outread really isn't in ris data \n";
+        }
     }
 }
 
-foreach ($fields_chcrr as $okey => $data) {
-    if (!array_key_exists($okey, $fields_rrmc)) {
-        echo "this outread key $okey is not in rrmc data \n";
+//var_dump($badFieldsChcrr);
+
+function DayOffByOne($key, $array)
+{
+    $okeyLName = substr($key, 0, 5);
+    $okeyDos = substr($key, 5, 8);
+    $okeyCpt = substr($key, 13, 5);
+//echo $okey . "\n";
+    $okeyPrevDayDos = (new DateTime($okeyDos))->sub(DateInterval::createFromDateString('1 day'));
+    $prevDay = $okeyPrevDayDos->format('Ymd');
+//echo " prev Day " . $prevDay . "\n";
+    $prevDayKey = $okeyLName . $prevDay . $okeyCpt;
+    $okeyNextDayDos = (new DateTime($okeyDos))->add(DateInterval::createFromDateString('1 day'));
+    $nextDay = $okeyNextDayDos->format('Ymd');
+    $nextDayKey = $okeyLName . $nextDay . $okeyCpt;
+    if (array_key_exists($prevDayKey, $array)) {
+        $newKey = $prevDayKey;
+        return $newKey;
+    } elseif (array_key_exists($nextDayKey, $array)) {
+        $newKey = $nextDayKey;
+        return $newKey;
     }
+
+    return false;
 }
+
+function CptOffByOne($key, $array): string
+{
+    $keyLName = substr($key, 0, 5);
+    $keyDos = substr($key, 5, 8);
+    $keyCpt = substr($key, 13, 5);
+    switch ($keyCpt) {
+        case '72110':
+            $newKey = $keyLName . $keyDos . '72100';
+            break;
+        case '73100':
+            $newKey = $keyLName . $keyDos . '73110';
+            break;
+        case '73560':
+            $newKey = $keyLName . $keyDos . '73562';
+            break;
+        case '73630':
+            $newKey = $keyLName . $keyDos . '73620';
+            break;
+        case '74018':
+            $newKey = $keyLName . $keyDos . '74019';
+            break;
+        default:
+    }
+
+    if (array_key_exists($newKey ?? '', $array)) {
+        return $newKey;
+    }
+    return false;
+}
+
+//var_dump(array_diff_key($fields_chcrr, $fields_rrmc));
 
 /* foreach ($fields_rrmc as $rkey => $data) {
     if (!array_key_exists($rkey, $fields_chcrr)) {
         echo "this RRMC key $rkey is not in Manch data \n";
     }
 } */
+
+foreach ($badFieldsChcrr as $key => $item) {
+    $newFieldsChcrr[$key] = $item;
+}
 
 foreach ($newFieldsChcrr as $item) {
     fputcsv($fp, $item);
