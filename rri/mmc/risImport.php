@@ -22,7 +22,13 @@ foreach ($rrmc_rows as $rrmc_key => $rrmc_value) {
         continue;
     }
 
-    //var_dump($rrmc_value);
+    if (count(array_filter($rrmc_rows[$rrmc_key], function ($value) {
+        return $value !== null;
+    })) === 0) {
+        break;   // Ignore empty rows
+    }
+
+    var_dump($rrmc_value);
     //exit;
 
     $outreadLocation = trim($rrmc_value[8]);
@@ -82,12 +88,15 @@ foreach ($rrmc_rows as $rrmc_key => $rrmc_value) {
     $rrmcPtLName = $rrmc_value[2];
     $rrmcPtFName = $rrmc_value[3];
     $rrmcAccessionNumber = $rrmc_value[4];
-    $dateTimeString = str_replace('/', '-', $rrmc_value[5]);
-    var_dump($dateTimeString);
-    $rrmcPtDos = DateTimeImmutable::createFromFormat("m-d-Y h:m:s", $dateTimeString);
-    var_dump($rrmcPtDos);
-    exit;
-    $rrmcCompareDos = $rrmcPtDos->format('Ymd');
+    $dateTime = strtotime($rrmc_value[5]);
+    //echo "Created date is " . date("Y-m-d h:i:sa", $dateTime);
+    //echo "Created date is " . date("Ymd", $dateTime);
+    //var_dump($dateTime);
+    //exit;
+    $rrmcPtDos = date("Ymd", $dateTime);
+    echo $rrmcPtDos . "\n";
+    //exit;
+    $rrmcCompareDos = $rrmcPtDos;
     if ($rrmcCompareDos < $fromDate || $rrmcCompareDos > $toDate) {
         echo "skipping dos $rrmc_compare_dos \n";
         echo "fromDate " . $fromDate . " toDate " . $toDate . " rrmcPtDos " . $rrmcPtDos . " rrmc_compare_dos " . $rrmc_compare_dos . "\n";
