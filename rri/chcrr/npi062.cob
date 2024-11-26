@@ -124,7 +124,6 @@
            END-IF.
 
         A-5.
-           DISPLAY REF-NPI " REF-NPI " NPI-KEY " NPI-KEY"
            IF REF-NPI = NPI-KEY
              DISPLAY REF-KEY " " REF-NAME " " REF-NPI
              DISPLAY "A = ADD THIS: N = DON'T ADD, LOOK FURTHER"

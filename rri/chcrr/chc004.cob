@@ -390,32 +390,16 @@
            
            MOVE FI-PROVNPI TO NPI-KEY
            READ NPIFILE
-
-           INVALID
-
-             DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
-                     FI-PROVNPI " IS MISSING"
-               MOVE SPACE TO FILEOUT01
-               STRING FI-PATNAMEL " " FI-PATNAMEF " "
-                     FI-PROVNPI " IS MISSING" DELIMITED BY SIZE
-                    INTO FILEOUT01
-                    WRITE FILEOUT01
-               MOVE SPACE TO FILEOUT01
-               WRITE FILEOUT01
-
-           NOT INVALID
-
-             IF NPI-PLACE = SPACE
-              DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
-                      FI-PROVNPI " ?? PLACE CODE??"
-                MOVE SPACE TO FILEOUT01
-                STRING FI-PATNAMEL " " FI-PATNAMEF " "
-                      FI-PROVNPI " ?? PLACE CODE??" DELIMITED BY SIZE
-                    INTO FILEOUT01
-                    WRITE FILEOUT01
-                MOVE SPACE TO FILEOUT01
-                WRITE FILEOUT01
-             END-IF
+               INVALID
+                   DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
+                       FI-PROVNPI " IS MISSING"
+                   MOVE SPACE TO FILEOUT01
+                   STRING FI-PATNAMEL " " FI-PATNAMEF " "
+                       FI-PROVNPI " IS MISSING" 
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+                   MOVE SPACE TO FILEOUT01
+                   WRITE FILEOUT01
            END-READ
 
            MOVE SPACE TO RPGPROC-KEY
