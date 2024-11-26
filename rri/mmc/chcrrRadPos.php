@@ -59,7 +59,7 @@ foreach ($rows as $key => $value) {
         //var_dump($newFieldsChcrr);
         //exit;
     } else {
-        echo $risKey . "\n";
+        //echo $risKey . "\n";
         $badFieldsChcrr[$risKey] = $value;
     }
 }

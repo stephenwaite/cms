@@ -22,13 +22,15 @@ foreach ($rrmc_rows as $rrmc_key => $rrmc_value) {
         continue;
     }
 
-    if (count(array_filter($rrmc_rows[$rrmc_key], function ($value) {
-        return $value !== null;
-    })) === 0) {
+    if (
+        count(array_filter($rrmc_rows[$rrmc_key], function ($value) {
+            return $value !== null;
+        })) === 0
+    ) {
         break;   // Ignore empty rows
     }
 
-    var_dump($rrmc_value);
+    //var_dump($rrmc_value);
     //exit;
 
     $outreadLocation = trim($rrmc_value[8]);
@@ -94,14 +96,14 @@ foreach ($rrmc_rows as $rrmc_key => $rrmc_value) {
     //var_dump($dateTime);
     //exit;
     $rrmcPtDos = date("Ymd", $dateTime);
-    echo $rrmcPtDos . "\n";
+    //echo $rrmcPtDos . "\n";
     //exit;
     $rrmcCompareDos = $rrmcPtDos;
-    if ($rrmcCompareDos < $fromDate || $rrmcCompareDos > $toDate) {
-        echo "skipping dos $rrmc_compare_dos \n";
-        echo "fromDate " . $fromDate . " toDate " . $toDate . " rrmcPtDos " . $rrmcPtDos . " rrmc_compare_dos " . $rrmc_compare_dos . "\n";
+    /* if ($rrmcCompareDos < $fromDate || $rrmcCompareDos > $toDate) {
+        echo "skipping dos $rrmcCompareDos \n";
+        echo "fromDate " . $fromDate . " toDate " . $toDate . " rrmcPtDos " . $rrmcPtDos . " rrmc_compare_dos " . $rrmcCompareDos . "\n";
         continue;
-    }
+    } */
     $rrmcPtCpt = substr(trim($rrmc_value[6]), -5, 5);
     $firstFiveRisPtLastName = str_pad(substr($rrmcPtLName, 0, 5), 5);
     $risRrmcKey = $firstFiveRisPtLastName . $rrmcCompareDos . $rrmcPtCpt;

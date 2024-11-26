@@ -107,10 +107,10 @@
              INVALID
                DISPLAY "PART NAME NOT FOUND IN THE FILE"
                DISPLAY "MAYBE YOU WILL HAVE TO ADD THIS"
-               DISPLAY "PROVIDER TO THE REF. FILE USING RRI-62"
-               DISPLAY "SINCE THE PROVIDER HAS TO EXIST THERE FIRST!!"
-               GO TO A-3
-               END-START.
+               DISPLAY "PROVIDER TO THE REF FILE USING RRI-62"
+               DISPLAY "SINCE THE PROVIDER HAS TO EXIST THERE FIRST"
+               GO TO A-3  
+           END-START.
         A-4.
            READ REFPHY NEXT 
              AT END
@@ -124,6 +124,7 @@
            END-IF.
 
         A-5.
+           DISPLAY REF-NPI " REF-NPI " NPI-KEY " NPI-KEY"
            IF REF-NPI = NPI-KEY
              DISPLAY REF-KEY " " REF-NAME " " REF-NPI
              DISPLAY "A = ADD THIS: N = DON'T ADD, LOOK FURTHER"
