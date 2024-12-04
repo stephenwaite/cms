@@ -57,7 +57,7 @@
        FD  GARFILE.
            COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".    
 
-       WORKING-STORAGE.
+       WORKING-STORAGE SECTION.
        01  INS-POLICY PIC X(16).
 
        PROCEDURE DIVISION.
