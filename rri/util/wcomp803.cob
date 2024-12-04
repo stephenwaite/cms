@@ -98,7 +98,7 @@
                GO TO P2
            END-READ
 
-           MOVE G-PRIP0L TO INS-POLICY.
+           MOVE G-PRIPOL TO INS-POLICY.
            IF INS-KEY = G-SEINS
                MOVE G-SECPOL TO INS-POLICY.
 
