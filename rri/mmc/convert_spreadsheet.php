@@ -15,13 +15,14 @@ $worksheet = $spreadsheet->getActiveSheet();
 $rows = $worksheet->toArray();
 $fields_mmc = array();
 foreach ($rows as $key => $value) {
+    
     if ($key == 0) {
         //var_dump($value);
         continue;
     }
 
-    //var_dump($value);
-    //exit;
+    /* var_dump($value);
+    exit; */
 
     $cpt_arr = explode(':', uC($value[7]));
     $cpt = trim($cpt_arr[0]);
@@ -50,7 +51,7 @@ foreach ($rows as $key => $value) {
         $mmcPtLastName = $ptLastName;
     }
     $ptFirstName = uC($value[2]); //fname
-    $risKey = $mmcPtLastName . $rrmc_dos . $cpt;
+    $risKey = str_pad(substr($mmcPtLastName, 0, 5), 5) . $rrmc_dos . $cpt;
     $fields_mmc[$risKey] = array($mmcPtLastName, $ptFirstName, $cpt, $dos);
 
     $fields[$risKey][0] = $ptLastName;
@@ -118,7 +119,8 @@ foreach ($rows as $key => $value) {
         $fields[$risKey][46] = $fields_rrmc[$risKey][4];
     }
 }
-
+//var_dump($fields_rrmc);
+//exit;
 foreach ($fields_mmc as $mkey => $data) {
     if (!array_key_exists($mkey, $fields_rrmc)) {
         echo "this Manch key $mkey is not in rrmc data \n";

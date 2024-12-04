@@ -99,11 +99,11 @@ foreach ($rrmc_rows as $rrmc_key => $rrmc_value) {
     //echo $rrmcPtDos . "\n";
     //exit;
     $rrmcCompareDos = $rrmcPtDos;
-    /* if ($rrmcCompareDos < $fromDate || $rrmcCompareDos > $toDate) {
-        echo "skipping dos $rrmcCompareDos \n";
-        echo "fromDate " . $fromDate . " toDate " . $toDate . " rrmcPtDos " . $rrmcPtDos . " rrmc_compare_dos " . $rrmcCompareDos . "\n";
+    if ($rrmcCompareDos < $fromDate || $rrmcCompareDos > $toDate) {
+        //echo "skipping dos $rrmcCompareDos \n";
+        //echo "fromDate " . $fromDate . " toDate " . $toDate . " rrmcPtDos " . $rrmcPtDos . " rrmc_compare_dos " . $rrmcCompareDos . "\n";
         continue;
-    } */
+    }
     $rrmcPtCpt = substr(trim($rrmc_value[6]), -5, 5);
     $firstFiveRisPtLastName = str_pad(substr($rrmcPtLName, 0, 5), 5);
     $risRrmcKey = $firstFiveRisPtLastName . $rrmcCompareDos . $rrmcPtCpt;

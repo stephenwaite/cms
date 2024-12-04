@@ -55,7 +55,10 @@
            COPY insfile.cpy IN "C:\Users\sid\cms\copylib".
 
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".        
+           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".    
+
+       WORKING-STORAGE.
+       01  INS-POLICY PIC X(16).
 
        PROCEDURE DIVISION.
        P0.
@@ -85,7 +88,7 @@
                accept omitted
                GO TO P2
            END-READ
-
+    
            MOVE CC-KEY8 TO G-GARNO
 
            READ GARFILE
@@ -95,8 +98,12 @@
                GO TO P2
            END-READ
 
+           MOVE G-PRIP0L TO INS-POLICY.
+           IF INS-KEY = G-SEINS
+               MOVE G-SECPOL TO INS-POLICY.
+
            STRING CHARCUR-KEY INS-NEIC INS-NAME INS-STREET INS-CITY
-             INS-STATE INS-ZIP G-PRIPOL G-GARNAME G-GARNO CC-DATE-T
+             INS-STATE INS-ZIP INS-POLICY G-GARNAME G-GARNO CC-DATE-T
              CC-DATE-A G-PR-GROUP G-DOB G-SEX
              DELIMITED BY SIZE INTO FILEOUT01
            
