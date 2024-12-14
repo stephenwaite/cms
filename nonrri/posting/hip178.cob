@@ -1767,14 +1767,15 @@
                 display G-PRIPOL " PRIPOL"
                 display g-secpol " SECPOL"
                 display MPLR-TRIPOL " TRIPOL"
-                accept omitted
-                GO TO FIND-GARNO-EXIT.
+           END-IF
 
       *  START LOOKING FOR MATCHING CHARGES WITH THE GARNO IN QUESTION.
            
            MOVE 0 TO FIND-CNTR
+
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
-            BY 1 UNTIL X > SVC-CNTR.
+               BY 1 UNTIL X > SVC-CNTR.
+
        FIND-GARNO-EXIT.
            EXIT.
        
