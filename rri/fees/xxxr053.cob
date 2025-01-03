@@ -87,7 +87,7 @@
            MOVE PROC-TITLE TO FO-NAME
            MOVE PROC-KEY2 TO FO-1
            MOVE PROC-AMOUNT TO NEF-12
-           COMPUTE NUM1 = 1035 * PROC-AMOUNT
+           COMPUTE NUM1 = 1030 * PROC-AMOUNT
            COMPUTE NUM4 = NUM1 / 1000
            COMPUTE DIFF = (NUM1 - (NUM4 * 1000)) / 10.
 
