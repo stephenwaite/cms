@@ -1372,6 +1372,7 @@
                GO TO REPLACE-2
            END-READ
            
+           MOVE INS-ASSIGN TO A-PR-ASSIGN
            DISPLAY INS-NAME.
 
        REPLACE-2-EXIT.
