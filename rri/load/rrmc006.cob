@@ -1395,6 +1395,9 @@
                GO TO REPLACE-3
            END-READ.
 
+           MOVE INS-ASSIGN TO A-SE-ASSIGN
+           DISPLAY INS-NAME.
+
        REPLACE-3-EXIT.
            EXIT.
 
