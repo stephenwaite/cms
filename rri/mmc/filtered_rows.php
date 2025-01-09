@@ -40,13 +40,6 @@ foreach ($spreadsheet->getSheet(0)->getRowIterator() as $row) {
             echo "there's a modifier " . $cpt . "\n";
         }
         $cpt = substr($cpt_arr[0], 0, 5);
-        if ($cpt == '72072') {
-            $cpt = '72070';
-        }
-
-        /* if ($cpt == '73564') {
-            $cpt = '73562';
-        } */
 
         $dosValue = intval($spreadsheet->getSheet(0)->getCell('A' . $row->getRowIndex())->getValue());
         $dosDate = Date::excelToDateTimeObject($dosValue);
@@ -71,87 +64,83 @@ foreach ($spreadsheet->getSheet(0)->getRowIterator() as $row) {
         $risKey = str_pad(substr($mmcPtLastName, 0, 5), 5) . $rrmcDos . $cpt;
         $fields_mmc[$risKey] = array($mmcPtLastName, $ptFirstName, $cpt, $dos);
 
-        $fields[$risKey][0] = $ptLastName;
-        $fields[$risKey][1] = $ptFirstName;
+        $records[$risKey][0] = $ptLastName;
+        $records[$risKey][1] = $ptFirstName;
         $addr1 = uC($spreadsheet->getSheet(0)->getCell('O' . $row->getRowIndex())->getValue()); // addr 1
-        $fields[$risKey][2] = $addr1;
+        $records[$risKey][2] = $addr1;
         $addr2 = uC($spreadsheet->getSheet(0)->getCell('P' . $row->getRowIndex())->getValue()); // addr 2
-        $fields[$risKey][3] = $addr2;
+        $records[$risKey][3] = $addr2;
         $city = uC($spreadsheet->getSheet(0)->getCell('Q' . $row->getRowIndex())->getValue()); // city
-        //var_dump($city);
-        $fields[$risKey][4] = ($city == 'MANCHESTER CENTER') ? 'MANCHESTER CTR' : $city;
+        $records[$risKey][4] = ($city == 'MANCHESTER CENTER') ? 'MANCHESTER CTR' : $city;
         $state = uC($spreadsheet->getSheet(0)->getCell('R' . $row->getRowIndex())->getValue()); // state
-        $fields[$risKey][5] = $state; // state
+        $records[$risKey][5] = $state; // state
         $zip = uC($spreadsheet->getSheet(0)->getCell('S' . $row->getRowIndex())->getValue()); // zip
-        $fields[$risKey][6] = (strlen($zip) == 4) ? '0' . $zip : $zip;
+        $records[$risKey][6] = (strlen($zip) == 4) ? '0' . $zip : $zip;
         $dobValue = uC($spreadsheet->getSheet(0)->getCell('D' . $row->getRowIndex())->getValue()); // dob
         $dobDate = Date::excelToDateTimeObject($dobValue);
         $dob = $dobDate->format('m/d/Y');
-        $fields[$risKey][7] = $dob;
+        $records[$risKey][7] = $dob;
         $gender = uC($spreadsheet->getSheet(0)->getCell('E' . $row->getRowIndex())->getValue()); // gender
-        $fields[$risKey][8] = $gender;
+        $records[$risKey][8] = $gender;
         $primaryInsName = uC($spreadsheet->getSheet(0)->getCell('K' . $row->getRowIndex())->getValue()); // primary ins name
         $primaryPolicyValue = uC($spreadsheet->getSheet(0)->getCell('L' . $row->getRowIndex())->getValue()); // primary policy
-        $fields[$risKey][9] = chcrrInsCode($primaryInsName, $primaryPolicyValue); // chcrr ins code
-        $fields[$risKey][10] = ''; // chcrr ins name
-        $fields[$risKey][11] = ''; // chcrr ins addr
-        $fields[$risKey][12] = ''; // chcrr ins city
-        $fields[$risKey][13] = ''; // chcrr ins state
-        $fields[$risKey][14] = ''; // chcrr ins zip
+        $records[$risKey][9] = chcrrInsCode($primaryInsName, $primaryPolicyValue); // chcrr ins code
+        $records[$risKey][10] = ''; // chcrr ins name
+        $records[$risKey][11] = ''; // chcrr ins addr
+        $records[$risKey][12] = ''; // chcrr ins city
+        $records[$risKey][13] = ''; // chcrr ins state
+        $records[$risKey][14] = ''; // chcrr ins zip
         if (is_numeric($primaryPolicyValue)) {
-            $fields[$risKey][15] = $primaryPolicyValue;
+            $records[$risKey][15] = $primaryPolicyValue;
         } else {
-            $fields[$risKey][15] = uC($primaryPolicyValue); // policy
+            $records[$risKey][15] = uC($primaryPolicyValue); // policy
         }
-        $fields[$risKey][16] = ''; // group number
-        $fields[$risKey][17] = $fields[$risKey][0]; // hard code guarantor to be patient
-        $fields[$risKey][18] = $fields[$risKey][1];
-        $fields[$risKey][19] = $fields[$risKey][8];
-        $fields[$risKey][20] = 'Self';
+        $records[$risKey][16] = ''; // group number
+        $records[$risKey][17] = $records[$risKey][0]; // hard code guarantor to be patient
+        $records[$risKey][18] = $records[$risKey][1];
+        $records[$risKey][19] = $records[$risKey][8];
+        $records[$risKey][20] = 'Self';
         $secondaryInsName = uC($spreadsheet->getSheet(0)->getCell('M' . $row->getRowIndex())->getValue()); // secondary ins name
         $secondaryPolicyValue = uC($spreadsheet->getSheet(0)->getCell('N' . $row->getRowIndex())->getValue()); // secondary policy
-        $fields[$risKey][21] = chcrrInsCode($secondaryInsName, $secondaryPolicyValue);
-        $fields[$risKey][22] = '';
-        $fields[$risKey][23] = '';
-        $fields[$risKey][24] = '';
-        $fields[$risKey][25] = '';
-        $fields[$risKey][26] = '';
-        $fields[$risKey][27] = '';
+        $records[$risKey][21] = chcrrInsCode($secondaryInsName, $secondaryPolicyValue);
+        $records[$risKey][22] = '';
+        $records[$risKey][23] = '';
+        $records[$risKey][24] = '';
+        $records[$risKey][25] = '';
+        $records[$risKey][26] = '';
+        $records[$risKey][27] = '';
 
-        $fields[$risKey][28] = $secondaryPolicyValue;
-        $fields[$risKey][29] = '';
-        $fields[$risKey][30] = '';
+        $records[$risKey][28] = $secondaryPolicyValue;
+        $records[$risKey][29] = '';
+        $records[$risKey][30] = '';
 
-        $fields[$risKey][31] = $gender;
-        $fields[$risKey][32] = 'S';
-        $fields[$risKey][33] = $cpt . "TC"; //chcrr sends TC mod
+        $records[$risKey][31] = $gender;
+        $records[$risKey][32] = 'S';
+        $records[$risKey][33] = $cpt . "TC"; //chcrr sends TC mod
         $dx1Value = uC($spreadsheet->getSheet(0)->getCell('I' . $row->getRowIndex())->getValue()); // DX1
         $dx1 = formatDx($dx1Value);
-        $fields[$risKey][34] = $dx1;
+        $records[$risKey][34] = $dx1;
         $dx2Value = uC($spreadsheet->getSheet(0)->getCell('J' . $row->getRowIndex())->getValue()); // DX2
         $dx2 = formatDx($dx2Value);
-        $fields[$risKey][35] = $dx2;
-        $fields[$risKey][36] = '';
-        $fields[$risKey][37] = '';
-        $fields[$risKey][38] = $dos;
+        $records[$risKey][35] = $dx2;
+        $records[$risKey][36] = '';
+        $records[$risKey][37] = '';
+        $records[$risKey][38] = $dos;
         // skip rendering, use supervising for billing
         $npiValue = uC($spreadsheet->getSheet(0)->getCell('G' . $row->getRowIndex())->getValue()); // Rendering provider
-        $fields[$risKey][39] = getNpi($npiValue);
-        $fields[$risKey][40] = '';
-        $fields[$risKey][41] = '0';
-        $fields[$risKey][42] = '';
-        $fields[$risKey][43] = '';
-        $fields[$risKey][44] = '';
+        $records[$risKey][39] = getNpi($npiValue);
+        $records[$risKey][40] = '';
+        $records[$risKey][41] = '0';
+        $records[$risKey][42] = '';
+        $records[$risKey][43] = '';
+        $records[$risKey][44] = '';
 
-        //echo $risKey . " " . $fields_rrmc[$risKey][5] . "\n";
         if (!empty($fields_rrmc[$risKey])) {
-            $fields[$risKey][45] = $fields_rrmc[$risKey][5];
-            $fields[$risKey][46] = $fields_rrmc[$risKey][4];
+            $matchedRecords[$risKey] = $records[$risKey]; 
+            $matchedRecords[$risKey][45] = $fields_rrmc[$risKey][5];
+            $matchedRecords[$risKey][46] = $fields_rrmc[$risKey][4];
         } else {
-            //echo $risKey . "\n";
-            //var_dump($fields[$risKey]);
-            //exit;
-            $missingRecords[$risKey] = $fields[$risKey];
+            $missingRecords[$risKey] = $records[$risKey];
         }
 
         /* echo $key . ' ' . $dos . " " . $ptLastName . ' ' .  $ptFirstName . ' ' . $cpt . ' ' .
@@ -163,10 +152,6 @@ foreach ($spreadsheet->getSheet(0)->getRowIterator() as $row) {
     }
 }
 
-//var_dump($missingRecords);
-echo count($missingRecords) . " missing records \n";
-echo count($fields) . " fields \n";
-exit;
 foreach ($fields_mmc as $mkey => $data) {
     if (!array_key_exists($mkey, $fields_rrmc)) {
         echo "this Manch key $mkey is not in rrmc data \n";
@@ -180,26 +165,15 @@ foreach ($fields_rrmc as $rkey => $data) {
 }
 
 foreach ($missingRecords as $key => $item) {
-    echo "adding $key to fields array\n";
-    $fields[$key] = $item;
+    echo "adding $key to matched records array so we can edit the file \n";
+    $matchedRecords[$key] = $item;
 }
 
-echo count($fields);
-//var_dump($fields);
-
-foreach ($fields as $item) {
+foreach ($records as $item) {
     fputcsv($fp, $item, "\t");
 }
 
 fclose($fp);
-/* $fo = fopen('/tmp/test.csv', 'w');
-
-
-foreach (file("/tmp/mmcCharges.csv") as $line) {
-    $line = str_replace('"', '', $line);
-    fwrite($fo, $line);
-} */
-
 
 function uC($string)
 {

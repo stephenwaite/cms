@@ -8,6 +8,7 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 $inputFileName = '/tmp/test.xlsx';
 $inputFileType = 'Xlsx';
 $fp = fopen('/tmp/charges.csv', 'w');
+$fpMissing = fopen('/tmp/missing_charges.csv', 'w');
 
 $reader = IOFactory::createReader($inputFileType);
 $spreadsheet = $reader->load($inputFileName);
@@ -25,7 +26,7 @@ foreach ($rows as $key => $value) {
     exit; */
 
     $cpt_arr = explode(':', uC($value[7]));
-    $cpt = trim($cpt_arr[0]);
+    $cpt = trim(substr($cpt_arr[0], 0, 5));
     if ($cpt == '72072') {
         $cpt = '72070';
     }
@@ -40,7 +41,7 @@ foreach ($rows as $key => $value) {
     if ($compare_dos < $fromDate || $compare_dos > $toDate) {
         continue;
     }
-    $rawPtLastName = $value[1];
+    $rawPtLastName = $value[2];
     $ptLastName = uC($rawPtLastName); //lname
     // ignore suffixes
     $ptSuffixPos = strpos($rawPtLastName, ',');
@@ -50,7 +51,7 @@ foreach ($rows as $key => $value) {
     } else {
         $mmcPtLastName = $ptLastName;
     }
-    $ptFirstName = uC($value[2]); //fname
+    $ptFirstName = uC($value[1]); //fname
     $risKey = str_pad(substr($mmcPtLastName, 0, 5), 5) . $rrmc_dos . $cpt;
     $fields_mmc[$risKey] = array($mmcPtLastName, $ptFirstName, $cpt, $dos);
 
@@ -74,7 +75,7 @@ foreach ($rows as $key => $value) {
     $fields[$risKey][13] = ''; // chcrr ins state
     $fields[$risKey][14] = ''; // chcrr ins zip
     $rawPolicy = $value[11];
-    var_dump($rawPolicy);
+    //var_dump($rawPolicy);
     if (is_numeric($rawPolicy)) {
         $fields[$risKey][15] = $rawPolicy;
     } else {
@@ -129,7 +130,8 @@ foreach ($fields_mmc as $mkey => $data) {
 
 foreach ($fields_rrmc as $rkey => $data) {
     if (!array_key_exists($rkey, $fields_mmc)) {
-        echo "this RRMC key $rkey is not in Manch data \n";
+        echo "this RRMC read $rkey is not in Manch data \n";
+        fputcsv($fpMissing, $data);
     }
 }
 

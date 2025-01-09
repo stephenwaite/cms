@@ -27,28 +27,29 @@ foreach ($rrmc_rows as $rrmc_key => $rrmc_value) {
             return $value !== null;
         })) === 0
     ) {
+        echo "found an empty row \n";
         break;   // Ignore empty rows
     }
 
     //var_dump($rrmc_value);
     //exit;
 
-    $outreadLocation = trim($rrmc_value[8]);
+    $outreadLocation = trim($rrmc_value[13]);
 
     switch ($outreadLocation) {
-        case '34':
+        case 'RPC1':
             $oPos = 'R';
             break;
 
-        case '35':
+        case 'CASTLE1':
             $oPos = 'C';
             break;
 
-        case '36':
+        case 'METTOW1':
             $oPos = 'M';
             break;
 
-        case '110':
+        case 'MAN':
             $oPos = 'N';
             break;
 
@@ -91,6 +92,7 @@ foreach ($rrmc_rows as $rrmc_key => $rrmc_value) {
     $rrmcPtFName = $rrmc_value[3];
     $rrmcAccessionNumber = $rrmc_value[4];
     $dateTime = strtotime($rrmc_value[5]);
+    $orderingProvider = $rrmc_value[7];
     //echo "Created date is " . date("Y-m-d h:i:sa", $dateTime);
     //echo "Created date is " . date("Ymd", $dateTime);
     //var_dump($dateTime);
@@ -107,7 +109,7 @@ foreach ($rrmc_rows as $rrmc_key => $rrmc_value) {
     $rrmcPtCpt = substr(trim($rrmc_value[6]), -5, 5);
     $firstFiveRisPtLastName = str_pad(substr($rrmcPtLName, 0, 5), 5);
     $risRrmcKey = $firstFiveRisPtLastName . $rrmcCompareDos . $rrmcPtCpt;
-    $fields_rrmc[$risRrmcKey] = array($rrmcPtLName, $rrmcPtFName, $rrmcCompareDos, $rrmcPtCpt, $oPos, $rPCode);
+    $fields_rrmc[$risRrmcKey] = array($rrmcPtLName, $rrmcPtFName, $rrmcCompareDos, $rrmcPtCpt, $oPos, $rPCode, $orderingProvider);
 }
 
 foreach ($fields_rrmc as $rrmc_item) {

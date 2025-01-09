@@ -48,14 +48,15 @@ foreach ($rows as $key => $value) {
     $ptFirstName = uC($value[1]); //fname
     $firstFivePtLastName = str_pad(substr($chcrrPtLastName, 0, 5), 5);
     $risKey = $firstFivePtLastName . $outread_dos . $cpt;
+    //echo $risKey . "\n";
     $fields_chcrr[$risKey] = array($chcrrPtLastName, $ptFirstName, $cpt, $dos);
 
     if (!empty($fields_rrmc[$risKey])) {
         $newFieldsChcrr[$key] = $value;
         //echo $risKey . "\n";
         //readline("hit enter to continue ");
-        array_push($newFieldsChcrr[$key], $fields_rrmc[$risKey][5]);
-        array_push($newFieldsChcrr[$key], $fields_rrmc[$risKey][4]);
+        $newFieldsChcrr[$key][45] = $fields_rrmc[$risKey][5];
+        $newFieldsChcrr[$key][46] = $fields_rrmc[$risKey][4];
         //var_dump($newFieldsChcrr);
         //exit;
     } else {
@@ -68,28 +69,28 @@ foreach ($rows as $key => $value) {
 //exit;
 foreach ($fields_chcrr as $okey => $data) {
     if (!array_key_exists($okey, $fields_rrmc)) {
-        echo "this outread $okey is not in ris data \n";
+        //echo "this outread $okey is not in ris data \n";
         if ($newKey = DayOffByOne($okey, $fields_rrmc)) {
-            echo "but if you change the dos the newkey is $newKey \n";
+            //echo "but if you change the dos the newkey is $newKey \n";
             //var_dump($fields_rrmc[$newKey]);
             $chcrrFormatDos = (new DateTime(substr($newKey, 5, 8)))->format('m/d/y');
             $badFieldsChcrr[$okey][38] = $chcrrFormatDos;
             $newFieldsChcrr[$newKey] = $badFieldsChcrr[$okey];
-            array_push($newFieldsChcrr[$newKey], $fields_rrmc[$newKey][5]);
-            array_push($newFieldsChcrr[$newKey], $fields_rrmc[$newKey][4]);
-            echo "changed DOS \n";
+            $newFieldsChcrr[$newKey][45] =$fields_rrmc[$newKey][5];
+            $newFieldsChcrr[$newKey][46] = $fields_rrmc[$newKey][4];
+            //echo "changed DOS \n";
             unset($badFieldsChcrr[$okey]);
         } elseif ($newKey = CptOffByOne($okey, $fields_rrmc)) {
-            echo "but if you change the cpt the newkey is $newKey \n";
+            //echo "but if you change the cpt the newkey is $newKey \n";
             $replaceCpt = substr($newKey, 13, 5);
             $badFieldsChcrr[$okey][33] = $replaceCpt . "TC";
             $newFieldsChcrr[$newKey] = $badFieldsChcrr[$okey];
-            array_push($newFieldsChcrr[$newKey], $fields_rrmc[$newKey][5]);
-            array_push($newFieldsChcrr[$newKey], $fields_rrmc[$newKey][4]);
-            echo "changed CPT \n";
+            $newFieldsChcrr[$newKey][45] = $fields_rrmc[$newKey][5];
+            $newFieldsChcrr[$newKey][46] = $fields_rrmc[$newKey][4];
+            //echo "changed CPT \n";
             unset($badFieldsChcrr[$okey]);
         } else {
-            echo "**** this outread really isn't in ris data \n";
+            echo "**** this outread $okey really isn't in ris data \n";
         }
     }
 }
