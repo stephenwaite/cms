@@ -78,7 +78,7 @@
                GO TO P99
            END-READ
 
-           IF CD-PAYCODE NOT = "002" GO TO P1.
+           IF NOT (CD-PAYCODE = "002" OR "074") GO TO P1.
 
            IF CD-PLACE NOT = "5" GO TO P1.
 
