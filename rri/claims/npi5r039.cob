@@ -525,7 +525,7 @@ X           02 DF1 PIC X.
            02 SUBPER-S0 PIC X VALUE "*".
            02 SUBPER-1 PIC XX VALUE "IC". 
            02 SUBPER-S1 PIC X VALUE "*".
-           02 SUBPER-2 PIC X(9) VALUE "SID WAITE".
+           02 SUBPER-2 PIC X(9) VALUE "S WAITE".
            02 SUBPER-S2 PIC X VALUE "*".
            02 SUBPER-3 PIC XX VALUE "TE".
            02 SUBPER-S3 PIC X VALUE "*".
