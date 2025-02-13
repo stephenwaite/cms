@@ -1775,7 +1775,7 @@
            IF CC-AUTH = "1" PERFORM READ-AUTH 
       *     ADD 1 TO Z
                IF AUTH-NUM NOT = SPACE
-                   DISPLAY "AUTHNUM= " AUTH-NUM
+                   DISPLAY "AUTHNUM = " AUTH-NUM
                END-IF
            END-IF
 

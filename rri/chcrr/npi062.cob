@@ -107,10 +107,10 @@
              INVALID
                DISPLAY "PART NAME NOT FOUND IN THE FILE"
                DISPLAY "MAYBE YOU WILL HAVE TO ADD THIS"
-               DISPLAY "PROVIDER TO THE REF. FILE USING RRI-62"
-               DISPLAY "SINCE THE PROVIDER HAS TO EXIST THERE FIRST!!"
-               GO TO A-3
-               END-START.
+               DISPLAY "PROVIDER TO THE REF FILE USING RRI-62"
+               DISPLAY "SINCE THE PROVIDER HAS TO EXIST THERE FIRST"
+               GO TO A-3  
+           END-START.
         A-4.
            READ REFPHY NEXT 
              AT END

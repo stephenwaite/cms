@@ -1173,6 +1173,7 @@
               IF (CAS-2 = "50" OR "109" OR "167" OR "B13")
                 OR (CAS-1 = "CO" AND CAS-2 = "4    ")
                 OR (CAS-1 = "CO" AND CAS-2 = "8    ")
+                OR (CAS-1 = "CO" AND CAS-2 = "9    ")
                 OR (CAS-1 = "CO" AND CAS-2 = "16   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "18   ")
                 OR (CAS-1 = "CO" AND CAS-2 = "22   ")

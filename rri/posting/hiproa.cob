@@ -1027,9 +1027,9 @@
                                AND 
                       NOT (CLP-2CLMSTAT = "2 " OR "3 ")
                        
-      *                 display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
-      *                   CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
-      *                 accept omitted             
+      *                display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
+      *                  CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
+      *                accept omitted             
                        
                        IF CAS-3 NOT = SPACE
                            MOVE SPACE TO ALF8
@@ -1171,6 +1171,7 @@
                        OR (CAS-1 = "CO" AND CAS-2 = "234  ")
                        OR (CAS-1 = "CO" AND CAS-2 = "242  ")
                        OR (CAS-1 = "CO" AND CAS-2 = "252  ")
+                       OR (CAS-1 = "CO" AND CAS-2 = "226  ")
                        OR (CAS-1 = "CO" AND CAS-2 = "284  ")
                        OR (CAS-1 = "CO" AND CAS-2 = "288  ")
                        OR (CAS-1 = "CO" AND CAS-2 = "A1   ")
@@ -1633,8 +1634,8 @@
        LOOK-CHG.       
            MOVE SPACE TO SVC01 FILEIN01
            MOVE SVC-TAB(X) TO FILEIN01  
-      *     display filein01
-      *     accept omitted                    
+      *    display filein01
+      *    accept omitted                    
            
            UNSTRING FILEIN01 DELIMITED BY "*" INTO 
                SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 

@@ -124,6 +124,7 @@
            02 RPG-MOD4 PIC XX.
            02 RPG-AMOUNT PIC X(6).
            02 RPG-DOCR PIC X(3).
+      * 84     
            02 RPG-DOCP PIC X(2).
            02 RPG-PAYCODE PIC XXX.
            02 RPG-STAT PIC X.
@@ -135,6 +136,7 @@
            02 RPG-COLLECT PIC X.
            02 RPG-AUTH PIC X.
            02 RPG-PAPER PIC X.
+      * 106     
            02 RPG-PLACE PIC X.
            02 RPG-NAME PIC X(24).
            02 RPG-EPSDT PIC X.

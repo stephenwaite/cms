@@ -125,6 +125,8 @@
              03 FI-3RD-POL PIC X(16).
              03 FI-3RD-NAME PIC X(30).
              03 FI-3RD-CITY PIC X(18).
+           02 FI-REND-PROV PIC XX.
+           02 FI-POS PIC X.
 
        WORKING-STORAGE SECTION.
        01  TABX01.
@@ -166,9 +168,6 @@
            OPEN OUTPUT FILEOUT FILEOUT2.
        P1.
            READ FILEIN AT END GO TO P99.
-           IF FI-PROC1 = "73620" MOVE "73630" TO FI-PROC1.
-           IF FI-PROC1 = "73070" MOVE "73060" TO FI-PROC1.
-           IF FI-PROC1 = "72072" MOVE "72070" TO FI-PROC1.
            MOVE SPACE TO ALF1 ALF1X
            UNSTRING FI-PRIM-POL DELIMITED BY "+" INTO ALF1 ALF1X
            IF ALF1X NOT = SPACE
@@ -388,32 +387,16 @@
            
            MOVE FI-PROVNPI TO NPI-KEY
            READ NPIFILE
-
-           INVALID
-
-             DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
-                     FI-PROVNPI " IS MISSING"
-               MOVE SPACE TO FILEOUT01
-               STRING FI-PATNAMEL " " FI-PATNAMEF " "
-                     FI-PROVNPI " IS MISSING" DELIMITED BY SIZE
-                    INTO FILEOUT01
-                    WRITE FILEOUT01
-               MOVE SPACE TO FILEOUT01
-               WRITE FILEOUT01
-
-           NOT INVALID
-
-             IF NPI-PLACE = SPACE
-              DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
-                      FI-PROVNPI " ?? PLACE CODE??"
-                MOVE SPACE TO FILEOUT01
-                STRING FI-PATNAMEL " " FI-PATNAMEF " "
-                      FI-PROVNPI " ?? PLACE CODE??" DELIMITED BY SIZE
-                    INTO FILEOUT01
-                    WRITE FILEOUT01
-                MOVE SPACE TO FILEOUT01
-                WRITE FILEOUT01
-             END-IF
+               INVALID
+                   DISPLAY FI-PATNAMEL " " FI-PATNAMEF " "
+                       FI-PROVNPI " IS MISSING"
+                   MOVE SPACE TO FILEOUT01
+                   STRING FI-PATNAMEL " " FI-PATNAMEF " "
+                       FI-PROVNPI " IS MISSING" 
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+                   MOVE SPACE TO FILEOUT01
+                   WRITE FILEOUT01
            END-READ
 
            MOVE SPACE TO RPGPROC-KEY

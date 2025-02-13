@@ -1431,6 +1431,9 @@
             PERFORM NAR-1.
 
        P1-DENIED-SVC.
+      *     DISPLAY "PERFORMING P1-DENIED-SVC find-ctr " FIND-CNTR 
+      *         " SVC-CNTR " SVC-CNTR " FLAGY " FLAGY
+      *     accept omitted
            PERFORM STATUS-1
            MOVE SPACE TO SVC01 
            MOVE SVC-TAB(X) TO FILEIN01
@@ -1747,36 +1750,32 @@
       *  I.E., PERFECTION MUST REIGN!
 
        FIND-GARNO.    
-           MOVE SPACE TO G-GARNO
-           MOVE NM1-NAMEL(1:3) TO ID1
-           MOVE ID1 TO ALF-3
-           START GARFILE KEY NOT < G-GARNO
-             INVALID 
-               GO TO FIND-GARNO-EXIT
-           END-START.
-
-       P2. 
+           MOVE CLP-1 TO G-GARNO
        
-           READ GARFILE NEXT
-             AT END
+           READ GARFILE 
+             INVALID
                GO TO FIND-GARNO-EXIT
-           END-READ
-
-           IF ID1 > ALF-3
-               GO TO FIND-GARNO-EXIT
-           END-IF.
+           END-READ.
                
        P3LOOK.
            IF NOT ((G-PRIPOL = NM1-CODE)  
                 OR (G-SECPOL = NM1-CODE)
+                OR (G-SECPOL = NM1-CODE0)
                 OR (MPLR-TRIPOL = NM1-CODE))
-           GO TO P2.
+                display "we have a policy issue FOR " G-GARNO
+                display NM1-CODE0 " " NM1-CODE " " NM1-CODE2
+                display G-PRIPOL " PRIPOL"
+                display g-secpol " SECPOL"
+                display MPLR-TRIPOL " TRIPOL"
+           END-IF
 
       *  START LOOKING FOR MATCHING CHARGES WITH THE GARNO IN QUESTION.
            
            MOVE 0 TO FIND-CNTR
+
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
-            BY 1 UNTIL X > SVC-CNTR.
+               BY 1 UNTIL X > SVC-CNTR.
+
        FIND-GARNO-EXIT.
            EXIT.
        

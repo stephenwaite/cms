@@ -49,7 +49,7 @@
            02 CC-PLACE PIC X.
            02 CC-EPSDT PIC X.
            02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A. 
+           02 CC-DATE-A.
               03  CC-DATEYYYYMM-A PIC X(6).
               03  CC-DATEDD-A PIC XX.
            02 CC-DATE-P PIC X(8).
@@ -89,30 +89,30 @@
                GO TO P1
            END-IF
 
-           IF CC-DATEYYYYMM-A < "202403"
+           IF CC-DATEYYYYMM-A < "202408"
                GO TO P1
            END-IF
 
-           IF CC-DATEYYYYMM-A = "202403"
-               MOVE "20240404" TO CC-DATE-A
+           IF CC-DATEYYYYMM-A = "202408"
+               MOVE "20240930" TO CC-DATE-A
                GO TO A2
            END-IF
 
-           IF CC-DATEYYYYMM-A = "202404"
-               MOVE "20240504" TO CC-DATE-A
+           IF CC-DATEYYYYMM-A = "202409"
+               MOVE "20241031" TO CC-DATE-A
                GO TO A2
            END-IF
 
-           IF CC-DATEYYYYMM-A = "202405"
-               MOVE "20240604" TO CC-DATE-A
+           IF CC-DATEYYYYMM-A = "202410"
+               MOVE "20241130" TO CC-DATE-A
                GO TO A2
            END-IF
 
            GO TO P1.
-       A2.  
+       A2.
            REWRITE CHARCUR01
            GO TO P1.
-           
+
        P2.
            CLOSE CHARCUR.
            DISPLAY CNTR

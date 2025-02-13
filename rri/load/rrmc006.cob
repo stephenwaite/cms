@@ -1372,6 +1372,7 @@
                GO TO REPLACE-2
            END-READ
            
+           MOVE INS-ASSIGN TO A-PR-ASSIGN
            DISPLAY INS-NAME.
 
        REPLACE-2-EXIT.
@@ -1393,6 +1394,9 @@
                DISPLAY "BAD"
                GO TO REPLACE-3
            END-READ.
+
+           MOVE INS-ASSIGN TO A-SE-ASSIGN
+           DISPLAY INS-NAME.
 
        REPLACE-3-EXIT.
            EXIT.

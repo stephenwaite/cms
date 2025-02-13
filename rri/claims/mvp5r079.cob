@@ -2041,6 +2041,8 @@
            EXIT.
 
        2310B.
+           MOVE hold-docp to CLM-DOCP
+           
            MOVE "82 " TO NM1-1
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
            UNSTRING DOC-NAME DELIMITED BY ";" INTO
