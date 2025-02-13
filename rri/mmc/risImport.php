@@ -34,28 +34,40 @@ foreach ($rrmc_rows as $rrmc_key => $rrmc_value) {
     //var_dump($rrmc_value);
     //exit;
 
-    $outreadLocation = trim($rrmc_value[13]);
+    $outreadLocation = trim($rrmc_value[13] ?? '');
+    if (empty($outreadLocation)) {
+        $outreadLocation = trim($rrmc_value[8]);
+        switch ($outreadLocation) {
+            case '110':
+                $oPos = 'N';
+                break;
+            default:
+                $oPos = 'N';
+                break;
+        }
+    } else {
+        switch ($outreadLocation) {
+            case 'RPC1':
+                $oPos = 'R';
+                break;
+    
+            case 'CASTLE1':
+                $oPos = 'C';
+                break;
+    
+            case 'METTOW1':
+                $oPos = 'M';
+                break;
+    
+            case 'MAN':
+                $oPos = 'N';
+                break;
+    
+            default:
+                $oPos = 'C';
+                break;
+        }
 
-    switch ($outreadLocation) {
-        case 'RPC1':
-            $oPos = 'R';
-            break;
-
-        case 'CASTLE1':
-            $oPos = 'C';
-            break;
-
-        case 'METTOW1':
-            $oPos = 'M';
-            break;
-
-        case 'MAN':
-            $oPos = 'N';
-            break;
-
-        default:
-            $oPos = 'C';
-            break;
     }
 
     //echo $outreadLocation . "\n";

@@ -5,7 +5,10 @@ require_once 'risImport.php';
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
-$inputFileName = '/tmp/test.xlsx';
+// php convert_spreadsheet 20240901 202040930 0
+// fromdate todate chcrr load are params
+
+$inputFileName = '/home/stee/Documents/test.xlsx';
 $inputFileType = 'Xlsx';
 $fp = fopen('/tmp/charges.csv', 'w');
 $fpMissing = fopen('/tmp/missing_charges.csv', 'w');
@@ -13,7 +16,8 @@ $fpMissing = fopen('/tmp/missing_charges.csv', 'w');
 $reader = IOFactory::createReader($inputFileType);
 $spreadsheet = $reader->load($inputFileName);
 $worksheet = $spreadsheet->getActiveSheet();
-$rows = $worksheet->toArray();
+//$rows = $worksheet->rangeToArray("A1:V1110");
+$rows = $worksheet->ToArray();
 $fields_mmc = array();
 foreach ($rows as $key => $value) {
     
@@ -22,26 +26,23 @@ foreach ($rows as $key => $value) {
         continue;
     }
 
-    /* var_dump($value);
-    exit; */
+    //var_dump($value);
+    //exit;
 
-    $cpt_arr = explode(':', uC($value[7]));
+    $cpt_arr = explode(':', uC($value[8]));
     $cpt = trim(substr($cpt_arr[0], 0, 5));
-    if ($cpt == '72072') {
-        $cpt = '72070';
-    }
 
-    if ($cpt == '73564') {
-        $cpt = '73562';
-    }
-
-    $dos = getDos($value[0]);
+    //echo $value[0] . "\n";
+    //echo $value[1] . "\n";
+    $dos = getDos($value[1]);
+    //echo $dos;
     $rrmc_dos = (new DateTime($dos))->format('Ymd');
+    //var_dump($rrmc_dos);
     $compare_dos = (new DateTime($dos))->format('Ymd');
     if ($compare_dos < $fromDate || $compare_dos > $toDate) {
         continue;
     }
-    $rawPtLastName = $value[2];
+    $rawPtLastName = $value[3];
     $ptLastName = uC($rawPtLastName); //lname
     // ignore suffixes
     $ptSuffixPos = strpos($rawPtLastName, ',');
@@ -51,63 +52,72 @@ foreach ($rows as $key => $value) {
     } else {
         $mmcPtLastName = $ptLastName;
     }
-    $ptFirstName = uC($value[1]); //fname
+    $ptFirstName = uC($value[2]); //fname
     $risKey = str_pad(substr($mmcPtLastName, 0, 5), 5) . $rrmc_dos . $cpt;
     $fields_mmc[$risKey] = array($mmcPtLastName, $ptFirstName, $cpt, $dos);
 
     $fields[$risKey][0] = $ptLastName;
     $fields[$risKey][1] = $ptFirstName;
-    $fields[$risKey][2] = uC($value[14]); // addr 1
-    $fields[$risKey][3] = uC($value[15]); // addr 2
-    $city = uC($value[16]); // city
+    $fields[$risKey][2] = uC($value[15]); // addr 1
+    if (!empty($value[16])) {
+        $fields[$risKey][3] = uC($value[16]); // addr 2
+    } else {
+        $fields[$risKey][3] = '';
+    }
+    $city = uC($value[17]); // city
     //var_dump($city);
     $fields[$risKey][4] = ($city == 'MANCHESTER CENTER') ? 'MANCHESTER CTR' : $city;
-    $fields[$risKey][5] = uC($value[17]); // state
-    $zip = uC($value[18]); // zip
+    $fields[$risKey][5] = uC($value[18]); // state
+    $zip = uC($value[19]); // zip
     $fields[$risKey][6] = (strlen($zip) == 4) ? '0' . $zip : $zip;
-    $fields[$risKey][7] = uC($value[3]); //dob
+    $fields[$risKey][7] = uC($value[4]); //dob
 
-    $fields[$risKey][8] = uC($value[4]); //gender
-    $fields[$risKey][9] = chcrrInsCode(uC($value[10]), $value[11]);
+    $gender = uC(substr($value[5], 0, 1)); //gender
+    $fields[$risKey][8] = $gender;
+    $fields[$risKey][9] = chcrrInsCode(($value[11]), $value[12]);
     $fields[$risKey][10] = ''; // chcrr ins name
     $fields[$risKey][11] = ''; // chcrr ins addr
     $fields[$risKey][12] = ''; // chcrr ins city
     $fields[$risKey][13] = ''; // chcrr ins state
     $fields[$risKey][14] = ''; // chcrr ins zip
-    $rawPolicy = $value[11];
+    $rawPolicy = $value[12];
     //var_dump($rawPolicy);
     if (is_numeric($rawPolicy)) {
         $fields[$risKey][15] = $rawPolicy;
     } else {
-        $fields[$risKey][15] = uC($value[11]); // policy
+        $fields[$risKey][15] = uC($value[12]); // policy
     }
     $fields[$risKey][16] = ''; // group
     $fields[$risKey][17] = $fields[$risKey][0]; // hard code guarnator to be patient
     $fields[$risKey][18] = $fields[$risKey][1];
     $fields[$risKey][19] = $fields[$risKey][8];
     $fields[$risKey][20] = 'Self';
-    $fields[$risKey][21] = chcrrInsCode(uC($value[12]), $value[13]);
+    $fields[$risKey][21] = chcrrInsCode(uC($value[13]), $value[14]);
     $fields[$risKey][22] = '';
     $fields[$risKey][23] = '';
     $fields[$risKey][24] = '';
     $fields[$risKey][25] = '';
     $fields[$risKey][26] = '';
     $fields[$risKey][27] = '';
-    $fields[$risKey][28] = $value[13];
+    if (!empty($value[14])) {
+        $fields[$risKey][28] = $value[14];
+    } else {
+            $fields[$risKey][28] = '';
+    }
     $fields[$risKey][29] = '';
     $fields[$risKey][30] = '';
-    $fields[$risKey][31] = uC($value[4]);
+    $fields[$risKey][31] = $gender;
     $fields[$risKey][32] = 'S';
     $fields[$risKey][33] = $cpt . "TC"; //chcrr sends TC mod
-    $dx1 = formatDx(uC($value[8]));
+    $dx1 = formatDx(uC($value[9]));
     $fields[$risKey][34] = $dx1;
-    $dx2 = formatDx(uC($value[9]));
+    $dx2 = formatDx(uC($value[10]));
     $fields[$risKey][35] = $dx2;
     $fields[$risKey][36] = '';
     $fields[$risKey][37] = '';
     $fields[$risKey][38] = $dos;
     // skip value 5 rendering, use value 6 supervising for billing
-    $fields[$risKey][39] = getNpi(uC($value[6]));
+    $fields[$risKey][39] = getNpi(uC($value[7]));
     $fields[$risKey][40] = '';
     $fields[$risKey][41] = '0';
     $fields[$risKey][42] = '';
@@ -124,7 +134,9 @@ foreach ($rows as $key => $value) {
 //exit;
 foreach ($fields_mmc as $mkey => $data) {
     if (!array_key_exists($mkey, $fields_rrmc)) {
+        //var_dump($data);
         echo "this Manch key $mkey is not in rrmc data \n";
+        //exit;
     }
 }
 
@@ -227,185 +239,202 @@ function getNpi($string)
 function chcrrInsCode($ins_string, $policy)
 {
     switch ($ins_string) {
-        case (strpos($ins_string, 'MEDICARE B') !== false):
+        case (strpos($ins_string, 'Medicare-VT') !== false):
             return '34P';
         break;
 
-        case (strpos($ins_string, 'BCBSVT') !== false):
+        case (strpos($ins_string, 'BCBS-VT') !== false):
             return '33P';
         break;
 
-        case (strpos($ins_string, 'BCBS') !== false):
+        case (stripos($ins_string, 'BCBS') !== false):
             return '47P';
         break;
 
-        case (strpos($ins_string, 'UNITED HEALTHCARE') !== false):
+        case (stripos($ins_string, 'UNITED HEALTHCARE') !== false):
             return '74P';
         break;
 
-        case (strpos($ins_string, 'MVP HEALTH CARE') !== false):
+        case (stripos($ins_string, 'MVP HEALTH CARE') !== false):
             return '81P';
         break;
 
-        case (strpos($ins_string, 'MEDICAIDVT') !== false):
+        case (stripos($ins_string, 'GREEN MOUNTAIN') !== false):
             return '82P';
         break;
 
-        case (strpos($ins_string, 'ANTHEM BCBSNY') !== false):
+        case (stripos($ins_string, 'ANTHEM') !== false):
             return '47P';
         break;
-        case (strpos($ins_string, 'SELFPAY (CASH)') !== false):
+        case (stripos($ins_string, 'SELFPAY (CASH)') !== false):
             return '0';
         break;
-        case (strpos($ins_string, 'BLUE CROSSCA') !== false):
+        case (stripos($ins_string, 'BLUE CROSSCA') !== false):
             return '47P';
         break;
-        case (strpos($ins_string, 'AETNA & AETNA/US HEALTHCARE') !== false):
+        case (stripos($ins_string, 'AETNA & AETNA/US HEALTHCARE') !== false):
             return '100P';
         break;
-        case (strpos($ins_string, 'BLUE BENEFIT ADMIN OF MASS') !== false):
+        case (stripos($ins_string, 'BLUE BENEFIT ADMIN OF MASS') !== false):
             return '47P';
         break;
-        case (strpos($ins_string, 'BCBSMN') !== false):
+        case (stripos($ins_string, 'BCBSMN') !== false):
             return '47P';
         break;
-        case (strpos($ins_string, 'WC  CORVEL') !== false):
+        case (stripos($ins_string, 'WC  CORVEL') !== false):
             return '47P';
         break;
-        case (strpos($ins_string, 'S&S HEALTHCARE STRATEGIES') !== false):
+        case (stripos($ins_string, 'S&S HEALTHCARE STRATEGIES') !== false):
             return '58P';
         break;
-        case (strpos($ins_string, 'BANKERS') !== false):
+        case (stripos($ins_string, 'BANKERS') !== false):
             return '27P';
         break;
-        case (strpos($ins_string, 'AARP') !== false):
+        case (stripos($ins_string, 'AARP') !== false):
             return '4P';
         break;
-        case (strpos($ins_string, 'CIGNA') !== false):
+        case (stripos($ins_string, 'CIGNA') !== false):
             return '58P';
         break;
-        case (strpos($ins_string, 'BCBS') !== false):
+        case (stripos($ins_string, 'BCBS') !== false):
             return '47P';
         break;
-        case (strpos($ins_string, 'OXFORD') !== false):
+        case (stripos($ins_string, 'OXFORD') !== false):
             return '109P';
         break;
-        case (strpos($ins_string, 'UNITED MEDICAL') !== false):
+        case (stripos($ins_string, 'UNITED MEDICAL') !== false):
             return '110P';
         break;
-        case (strpos($ins_string, 'TRICARE EAST') !== false):
+        case (stripos($ins_string, 'TRICARE EAST') !== false):
             return '41P';
         break;
-        case (strpos($ins_string, 'MERCHANTS BENEFIT') !== false):
+        case (stripos($ins_string, 'MERCHANTS BENEFIT') !== false):
             return '163P';
         break;
-        case (strpos($ins_string, 'HUMANA') !== false):
+        case (stripos($ins_string, 'HUMANA') !== false):
             return '86P';
         break;
-        case (strpos($ins_string, 'WELLCARE') !== false):
+        case (stripos($ins_string, 'WELLCARE') !== false):
             return '144P';
         break;
-        case (strpos($ins_string, 'HARVARD PILGRIM') !== false):
+        case (stripos($ins_string, 'HARVARD PILGRIM') !== false):
             return '89P';
         break;
-        case (strpos($ins_string, 'CHAMPVA') !== false):
+        case (stripos($ins_string, 'CHAMPVA') !== false):
             return '24P';
         break;
-        case (strpos($ins_string, 'SOLIDARITY') !== false):
+        case (stripos($ins_string, 'SOLIDARITY') !== false):
             return '164P';
         break;
-        case (strpos($ins_string, 'BLUE BENEFIT') !== false):
+        case (stripos($ins_string, 'BLUE BENEFIT') !== false):
             return '47P';
             break;
-        case (strpos($ins_string, 'UNICARE') !== false):
+        case (stripos($ins_string, 'UNICARE') !== false):
             return '165P';
         break;
 
-        case (strpos($ins_string, 'ALLEGIANCE') !== false):
+        case (stripos($ins_string, 'ALLEGIANCE') !== false):
             return '166P';
         break;
 
-        case (strpos($ins_string, 'MERITAIN') !== false):
+        case (stripos($ins_string, 'MERITAIN') !== false):
             return '87P';
         break;
 
-        case (strpos($ins_string, 'FIDELIS') !== false):
+        case (stripos($ins_string, 'FIDELIS') !== false):
             return '65P';
         break;
 
-        case (strpos($ins_string, 'FOREIGN') !== false):
+        case (stripos($ins_string, 'FOREIGN') !== false):
             return '95P';
         break;
 
-        case (strpos($ins_string, 'EMBLEM') !== false):
+        case (stripos($ins_string, 'EMBLEM') !== false):
             return '114P';
         break;
 
-        case (strpos($ins_string, 'TUFTS') !== false):
+        case (stripos($ins_string, 'TUFTS') !== false):
             return '167P';
         break;
 
-        case (strpos($ins_string, 'WELLMED') !== false):
+        case (stripos($ins_string, 'WELLMED') !== false):
             return '168P';
         break;
 
-        case (strpos($ins_string, 'KAISER') !== false):
+        case (stripos($ins_string, 'KAISER') !== false):
             return '169P';
         break;
 
-        case (strpos($ins_string, 'USFHP') !== false):
+        case (stripos($ins_string, 'MARTIN') !== false):
             return '31P';
         break;
 
-        case (strpos($ins_string, 'PRIORITY') !== false):
+        case (stripos($ins_string, 'PRIORITY') !== false):
             return '170P';
         break;
 
-        case (strpos($ins_string, 'AXA') !== false):
+        case (stripos($ins_string, 'AXA') !== false):
             return '171P';
         break;
 
-        case (strpos($ins_string, 'MERCER') !== false):
+        case (stripos($ins_string, 'MERCER') !== false):
             return '172P';
         break;
 
-        case (strpos($ins_string, 'AETNA LIFE') !== false):
+        case (stripos($ins_string, 'AETNA LIFE') !== false):
             return '173P';
         break;
 
-        case (strpos($ins_string, 'UNITED AMERICAN') !== false):
+        case (stripos($ins_string, 'AETNA') !== false):
+            return '100P';
+        break;
+
+        case (stripos($ins_string, 'UNITED AMERICAN') !== false):
             return '174P';
         break;
 
-        case (strpos($ins_string, 'MUTUAL OF OMAHA') !== false):
+        case (stripos($ins_string, 'MUTUAL OF OMAHA') !== false):
             return '113P';
         break;
 
-        case (strpos($ins_string, 'USAA LIFE') !== false):
+        case (stripos($ins_string, 'USAA LIFE') !== false):
             return '175P';
         break;
 
-        case (strpos($ins_string, 'CONTINENTAL LIFE') !== false):
+        case (stripos($ins_string, 'CONTINENTAL LIFE') !== false):
             return '173P';
         break;
 
-        case (strpos($ins_string, 'WEB TPA') !== false):
+        case (stripos($ins_string, 'WEB TPA') !== false):
             return '171P';
         break;
 
-        case (strpos($ins_string, 'GENWORTH') !== false):
+        case (stripos($ins_string, 'GENWORTH') !== false):
             return '176P';
         break;
 
-        case (strpos($ins_string, 'NASSAU') !== false):
+        case (stripos($ins_string, 'NASSAU') !== false):
             return '177P';
         break;
 
-        case (strpos($ins_string, 'TRICARE FOR LIFE') !== false):
+        case (stripos($ins_string, 'MAGNACARE') !== false):
+            return '178P';
+        break;
+
+        case (stripos($ins_string, 'Palmetto') !== false):
+            return '179P';
+        break;
+
+        case (stripos($ins_string, 'TRICARE FOR LIFE') !== false):
             return '43P';
         break;
 
+        case (stripos($ins_string, '*SELF PAY*') !== false):
+            return '0P';
+        break;
+
         default:
+            echo $ins_string . "\n";
             return '***BAD INS***';
     }
 }
