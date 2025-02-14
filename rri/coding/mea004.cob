@@ -184,13 +184,26 @@
                GO TO P2
            END-READ          
 
-           IF NOT (CD-PAYCODE = "009" OR "010" OR "011" OR "012"
-               OR "013" OR "014")
+           IF NOT (CD-PAYCODE = "008" OR "009" OR "010" OR "011" 
+               OR "012" OR "013")
                GO TO P1
            END-IF
 
            MOVE CHARFILE01 TO CHARBACK01
-           MOVE CD-PROC1 TO PROC-HOLD           
+           MOVE CD-PROC1 TO PROC-HOLD
+
+           IF CD-PAYCODE = "008"
+               MOVE SPACE TO FILEOUT01           
+               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 " G9500"
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01        
+               MOVE 145 TO FLAG
+               MOVE "003" TO CD-PAYCODE 
+               REWRITE CHARFILE01
+               UNLOCK CHARFILE RECORD
+               PERFORM A1 THRU A1-EXIT
+               GO TO P0
+           END-IF                                               
 
            IF CD-PAYCODE = "009"
                MOVE SPACE TO FILEOUT01
@@ -259,19 +272,6 @@
                PERFORM A1 THRU A1-EXIT
                GO TO P0
            END-IF
-           
-           IF CD-PAYCODE = "014"
-               MOVE SPACE TO FILEOUT01
-               STRING "436 " CD-PROC1 " " CD-DATE-T " " CD-NAME
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01 
-               MOVE 436 TO FLAG
-               MOVE "003" TO CD-PAYCODE
-               REWRITE CHARFILE01
-               UNLOCK CHARFILE RECORD
-               PERFORM A1 THRU A1-EXIT
-               GO TO P0
-           END-IF
 
            GO TO P1.
 
@@ -279,6 +279,13 @@
        A1. 
       *  set key counter to 0, increment in B1 
            MOVE 0 TO XYZ
+
+           IF FLAG = 145
+               MOVE "0000G9500  " TO  X-PROC
+               PERFORM B1 THRU B2
+               STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
+               GO TO A1-EXIT
+           END-IF
 
            IF FLAG = 405
                IF CD-QP1 = "1 "
@@ -322,23 +329,6 @@
                    PERFORM B1 THRU B2
                    STRING CD-KEY8 "000" 
                        DELIMITED BY SIZE INTO CHARFILE-KEY     
-               END-IF
-                              
-      *    handle multi-qpp-cpts by doing mea 436
-               IF (PROC-HOLD = "71250" OR "71260" OR "71270"
-                   OR "71271" OR "71275" OR "72131" OR "72191"
-                   OR "72192" OR "72193" OR "72194"
-                   OR "74150" OR "74160" OR "74170"
-                   OR "74176" OR "74177" OR "74178")
-                   MOVE SPACE TO FILEOUT01              
-                   STRING "436 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                          " REPORTED."
-                   DELIMITED BY SIZE INTO FILEOUT01
-                   WRITE FILEOUT01
-                   MOVE "0000G9637  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000"
-                       DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
 
                GO TO A1-EXIT
@@ -385,31 +375,8 @@
                        DELIMITED BY SIZE INTO CHARFILE-KEY
                END-IF
              
-              
-      *    handle multi-qpp-cpts by doing mea 436
-               IF (PROC-HOLD = "70486" OR "70487" OR "70488"
-                   OR "70490" OR "70491" OR "70492" OR "70498"
-                   OR "71250" OR "71260" OR "71270" OR "71271"
-                   OR "71275" OR "72125" OR "72126" OR "72127")
-                   MOVE SPACE TO FILEOUT01              
-                   STRING "436 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                          " REPORTED."
-                   DELIMITED BY SIZE INTO FILEOUT01
-                   WRITE FILEOUT01
-                   MOVE "0000G9637  " TO  X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000"
-                       DELIMITED BY SIZE INTO CHARFILE-KEY
-               END-IF
                GO TO A1-EXIT
            END-IF
-
-           IF FLAG = 436
-               MOVE "0000G9637  " TO  X-PROC
-               PERFORM B1 THRU B2
-               STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
-               GO TO A1-EXIT
-           END-IF.
 
       *    measure 195 retired in 2022
       *    measure 076 retired in 2023
