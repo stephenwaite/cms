@@ -37,7 +37,7 @@ if (!empty($rawlist)) {
 
 function changeFileName($fileName)
 {
-    $moveitFilename = '007111' . rand(10, 99) . '.x12';
+    $moveitFilename = "/Home/cms/" . "007111" . rand(10, 99) . ".x12";
     if (!checkFileNameExists($moveitFilename)) {
         echo "file name $moveitFilename doesn't exist so we can rename it \n";
         if (rename($fileName, $moveitFilename)) {
