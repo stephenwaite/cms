@@ -37,7 +37,7 @@ if (!empty($rawlist)) {
 function changeFileName($fileName) {
     $moveitFilename = '007111' . rand(20, 99) . '.x12';
     if (!checkFileNameExists($moveitFilename)) {
-        echo "file name doesn't exist so we can rename it \n";
+        echo "file name $moveitFilename doesn't exist so we can rename it \n";
         //rename($fileName, $moveitFilename);
     } else {
         echo "file name does exists so we have to try changing the file name";
