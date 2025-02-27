@@ -34,19 +34,24 @@ if (!empty($rawlist)) {
     // there's a test directory
 }
 
-function changeFileName($fileName) {
-    $moveitFilename = '007111' . rand(20, 99) . '.x12';
+function changeFileName($fileName)
+{
+    $moveitFilename = '007111' . rand(10, 99) . '.x12';
     if (!checkFileNameExists($moveitFilename)) {
         echo "file name $moveitFilename doesn't exist so we can rename it \n";
-        //rename($fileName, $moveitFilename);
+        if (rename($fileName, $moveitFilename)) {
+            echo "changed name successfully \n";
+        } else {
+            echo "changed name unsuccessfully \n";
+        }
     } else {
         echo "file name does exists so we have to try changing the file name";
         //changeFileName($fileName);
     }
-   
 }
 
-function checkFileNameExists($moveitFilename) {
+function checkFileNameExists($moveitFilename)
+{
     if (file_exists($moveitFilename)) {
         return true;
     }
