@@ -25,7 +25,7 @@ if (!empty($rawlist)) {
                 $date->format('Y-m-d h:i:s a') . "\n";
             if (stripos($fileName, 'txt') !== false) {
                 echo "we have to change this filename to 00711##.x12 \n";
-                changeFileName($path, $fileName, $sftp);
+                changeFileName($fileName, $sftp);
             }
         }
     }
@@ -33,12 +33,12 @@ if (!empty($rawlist)) {
     // there's a test directory
 }
 
-function changeFileName($path, $fileName, $sftp)
+function changeFileName($fileName, $sftp)
 {
     try {
-        $moveitFilename = $path . "007111" . rand(10, 99) . ".x12";
+        $moveitFilename = "007111" . rand(10, 99) . ".x12";
         echo "file name $moveitFilename doesn't exist so we can rename it \n";
-        if (!$sftp->rename($path . $fileName, $path . $moveitFilename)) {
+        if (!$sftp->rename($fileName, $moveitFilename)) {
             throw new Exception('rename failed');
         }
         echo "changed name successfully \n";
