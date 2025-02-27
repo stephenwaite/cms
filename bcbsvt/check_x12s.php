@@ -26,9 +26,29 @@ if (!empty($rawlist)) {
                 $date->format('Y-m-d h:i:s a') . "\n";
             if (stripos($fileName, 'txt') !== false) {
                 echo "we have to change this filename to 00711##.x12 \n";
+                changeFileName($fileName);
             }
         }
     }
 } else {
     // there's a test directory
+}
+
+function changeFileName($fileName) {
+    $moveitFilename = '007111' . rand(20, 99) . '.x12';
+    if (!checkFileNameExists($moveitFilename)) {
+        echo "file name doesn't exist so we can rename it \n";
+        //rename($fileName, $moveitFilename);
+    } else {
+        echo "file name does exists so we have to try changing the file name";
+        //changeFileName($fileName);
+    }
+   
+}
+
+function checkFileNameExists($moveitFilename) {
+    if (file_exists($moveitFilename)) {
+        return true;
+    }
+    return false;
 }
