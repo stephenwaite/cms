@@ -21,10 +21,10 @@ if (!empty($rawlist)) {
         if (!empty($file)) {
             $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s a', $file->mtime));
             $date = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
-            $filename = $file->filename;
-            echo "file: " . $filename . " uploaded to 02 on " .
+            $fileName = $file->filename;
+            echo "file: " . $fileName . " uploaded to 02 on " .
                 $date->format('Y-m-d h:i:s a') . "\n";
-            if (stripos($file->filename, 'txt') !== false) {
+            if (stripos($fileName, 'txt') !== false) {
                 echo "we have to change this filename to 00711##.x12 \n";
             }
         }
