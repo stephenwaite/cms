@@ -21,7 +21,8 @@ if (!empty($rawlist)) {
         if (!empty($file)) {
             $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s a', $file->mtime));
             $date = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
-            $fileName = $file->filename;
+            // sftp needs to have the full dir
+            $fileName = "/Home/cms/" . $file->filename;
             echo "file: " . $fileName . " uploaded to 02 on " .
                 $date->format('Y-m-d h:i:s a') . "\n";
             if (stripos($fileName, 'txt') !== false) {
