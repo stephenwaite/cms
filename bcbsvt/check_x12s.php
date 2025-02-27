@@ -35,24 +35,14 @@ if (!empty($rawlist)) {
 
 function changeFileName($path, $fileName, $sftp)
 {
-    $moveitFilename = $path . "007111" . rand(10, 99) . ".x12";
-    if (!checkFileNameExists($moveitFilename)) {
+    try {
+        $moveitFilename = $path . "007111" . rand(10, 99) . ".x12";
         echo "file name $moveitFilename doesn't exist so we can rename it \n";
-        if ($sftp->rename($path . $fileName, $path . $moveitFilename)) {
-            echo "changed name successfully \n";
-        } else {
-            echo "changed name unsuccessfully \n";
+        if (!$sftp->rename($path . $fileName, $path . $moveitFilename)) {
+            throw new Exception('rename failed');
         }
-    } else {
-        echo "file name does exists so we have to try changing the file name";
-        changeFileName($path, $fileName, $sftp);
+        echo "changed name successfully \n";
+    } catch (Exception $e) {
+        echo "changed name unsuccessfully " . $e->getMessage();
     }
-}
-
-function checkFileNameExists($moveitFilename)
-{
-    if (file_exists($moveitFilename)) {
-        return true;
-    }
-    return false;
 }
