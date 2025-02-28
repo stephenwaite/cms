@@ -9,6 +9,7 @@ $cms_pass = getenv('MOVEIT_PASSWORD');
 $sftp = new SFTP('moveit.bcbsvt.com');
 try {
     $sftp->login($cms_user, $cms_pass);
+    echo "log in succeeded \n";
 } catch (Exception $e) {
     throw new Exception("login failed");
     die;
@@ -33,6 +34,7 @@ if (!empty($rawlist)) {
     }
 } else {
     // there's a test directory
+    echo "no files on server \n";
 }
 
 function changeFileName($fileName, $sftp)
