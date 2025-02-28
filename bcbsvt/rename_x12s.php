@@ -7,10 +7,12 @@ require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 $cms_user = getenv('MOVEIT_USERNAME');
 $cms_pass = getenv('MOVEIT_PASSWORD');
 $sftp = new SFTP('moveit.bcbsvt.com');
-if (!$sftp->login($cms_user, $cms_pass)) {
-    echo "login failed" . "\n";
-    exit;
-};
+try {
+    $sftp->login($cms_user, $cms_pass);
+} catch (Exception $e) {
+    throw new Exception("login failed");
+    die;
+}
 
 $path = '/Home/cms/';
 
@@ -37,9 +39,8 @@ function changeFileName($fileName, $sftp)
 {
     try {
         $moveitFilename = "007111" . rand(10, 99) . ".x12";
-        echo "file name $moveitFilename doesn't exist so we can rename it \n";
         if (!$sftp->rename($fileName, $moveitFilename)) {
-            throw new Exception('rename failed');
+            throw new Exception('rename from $fileName to $moveitFilename failed');
         }
         echo "changed name successfully \n";
     } catch (Exception $e) {
