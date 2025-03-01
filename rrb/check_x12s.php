@@ -18,7 +18,7 @@ foreach($cms_users as $key => $cms_user) {
         foreach($rawlist as $file) {
             //var_dump($file);
             if (!empty($file)) {
-                $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s', $file->mtime));
+                $dt_utc = new DateTimeImmutable(date('Y-m-d H:i:s', $file->mtime));
                 $dt_nyc = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
                 echo "file: " . $file->filename . " uploaded to palmetto on " .
                     $dt_nyc->format('Y-m-d h:i:s a'). "\n";
