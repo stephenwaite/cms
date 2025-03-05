@@ -6,17 +6,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 
-function getControlNumber() {
-    $fn = '/home/rri/change_wc_control_number';
-    $fh_wcomp_cntrl_no = fopen($fn, 'r+');
-    if (!$fh_wcomp_cntrl_no) {
-        die("no control # file to read\n");
-    }
-    $control_number = str_pad((int) fgets($fh_wcomp_cntrl_no) + 1, 9, '0', STR_PAD_LEFT);
-    file_put_contents($fn, $control_number);
-    return $control_number;
-}
-
 $base_uri = 'https://apigw.changehealthcare.com/';
 $guzzle = new Client();
 $response = $guzzle->post($base_uri . 'apip/auth/v2/token', [
@@ -43,7 +32,7 @@ if ($fh_wcomp_sid) {
     while ($row = fgets($fh_wcomp_sid)) {
         $cntr++;
         $charcur_key = substr($row, 0, 11);
-        $ins_neic = substr($row, 11, 5);
+        $ins_neic = trim(substr($row, 11, 5));
         $ins_name = trim(substr($row, 16, 22));
         $ins_street = trim(substr($row, 38, 24));
         $ins_city = trim(substr($row, 62, 15));
@@ -65,9 +54,9 @@ if ($fh_wcomp_sid) {
         $g_sex = substr($row, 170, 1);
 
         $control_number = getControlNumber();
-        //$trading_partner_service_id = $ins_neic;
-        $trading_partner_service_id = 'BCVTC';
-        $trading_partner_name = $ins_name;       
+        $trading_partner_service_id = $ins_neic;
+        //$trading_partner_service_id = 'BCVTC';
+        $trading_partner_name = $ins_name;
 
         $control_array = array(
             'controlNumber' => getControlNumber(),
@@ -75,7 +64,7 @@ if ($fh_wcomp_sid) {
         );
 
         $datum = new stdClass();
-        $datum->organization_name = 'RUTLAND RADIOLOGISTS';
+        $datum->organizationName = 'RUTLAND RADIOLOGISTS';
         $datum->taxId = '030238095';
         $datum->npi = '1700935780';
         $datum->providerType = 'BillingProvider';
@@ -102,7 +91,8 @@ if ($fh_wcomp_sid) {
             'encounter' => array(
                 'beginningDateOfService' => $cc_date_t,
                 'endDateOfService'       => $cc_date_t,
-                'trackingNumber'         => getControlNumber()
+                'trackingNumber'         => getControlNumber(),
+                //'submittedAmount'        => $cc_amount
             )
         );
     }
@@ -120,7 +110,7 @@ $body = array_merge(
 
 
 $request = new Request(
-    'POST', 
+    'POST',
     $base_uri . 'medicalnetwork/claimstatus/v2',
     $headers,
     json_encode($body)
@@ -131,6 +121,25 @@ try {
 } catch (Exception $e) {
     throw new Exception($e->getResponse()->getBody()->getContents());
     exit;
-} 
-echo json_encode(json_decode($res->getBody()), JSON_PRETTY_PRINT);
+}
 
+$responseJsonFilename = '/home/rri/' . $g_garno . $cc_date_t;
+$fo = fopen($responseJsonFilename, 'w');
+
+$responseJson = json_encode(json_decode($res->getBody()), JSON_PRETTY_PRINT);
+echo $responseJson;
+if ($fo) {
+    file_put_contents($responseJsonFilename, $responseJson);
+}
+
+function getControlNumber()
+{
+    $fn = '/home/rri/change_wc_control_number';
+    $fh_wcomp_cntrl_no = fopen($fn, 'r+');
+    if (!$fh_wcomp_cntrl_no) {
+        die("no control # file to read\n");
+    }
+    $control_number = str_pad((int) fgets($fh_wcomp_cntrl_no) + 1, 9, '0', STR_PAD_LEFT);
+    file_put_contents($fn, $control_number);
+    return $control_number;
+}

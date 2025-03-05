@@ -1,29 +1,18 @@
 <?php
 
-require_once('vendor/autoload.php');
+require_once(__DIR__ . '/../../vendor/autoload.php');
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
-
-function getControlNumber() {
-    $fn = '/home/rri/change_wc_control_number';
-    $fh_wcomp_cntrl_no = fopen($fn, 'r+');
-    if (!$fh_wcomp_cntrl_no) {
-        die("no control # file to read\n");
-    }
-    $control_number = str_pad((int) fgets($fh_wcomp_cntrl_no) + 1, 9, '0', STR_PAD_LEFT);
-    file_put_contents($fn, $control_number);
-    return $control_number;
-}
 
 $base_uri = 'https://sandbox.apigw.changehealthcare.com/';
 $guzzle = new Client();
 $response = $guzzle->post($base_uri . 'apip/auth/v2/token', [
     'form_params' => [
         'grant_type' => 'client_credentials',
-        'client_id' => getenv('TEST_CHANGE_CLIENT_ID'),
-        'client_secret' => getenv('TEST_CHANGE_CLIENT_SECRET'),
+        'client_id' => trim(getenv('TEST_CHANGE_CLIENT_ID')),
+        'client_secret' => trim(getenv('TEST_CHANGE_CLIENT_SECRET')),
     ],
 ]);
 $bearer = json_decode((string) $response->getBody(), true)['access_token'];
@@ -43,8 +32,8 @@ if ($fh_wcomp_sid) {
     while ($row = fgets($fh_wcomp_sid)) {
         $cntr++;
         $charcur_key = substr($row, 0, 11);
-        $ins_neic = substr($row, 11, 5);
-        $ins_name = trim(substr($row, 16, 22));
+        $ins_neic = substr($row, 11, 6);
+        $ins_name = trim(substr($row, 17, 22));
         $ins_street = trim(substr($row, 38, 24));
         $ins_city = trim(substr($row, 62, 15));
         $ins_state = substr($row, 77, 2);
@@ -148,8 +137,8 @@ $body = array_merge(
     $encounter
 );
 
-//echo json_encode($body, JSON_PRETTY_PRINT);
-//exit;
+echo json_encode($body, JSON_PRETTY_PRINT);
+exit;
 
 /* $body = '{
   "controlNumber": "000000001",
@@ -193,4 +182,16 @@ try {
     throw new Exception($e->getResponse()->getBody()->getContents());
 } 
 echo json_encode(json_decode($res->getBody()), JSON_PRETTY_PRINT);
+
+function getControlNumber() {
+    $fn = '/home/rri/change_wc_control_number';
+    $fh_wcomp_cntrl_no = fopen($fn, 'r+');
+    if (!$fh_wcomp_cntrl_no) {
+        die("no control # file to read\n");
+    }
+    $control_number = str_pad((int) fgets($fh_wcomp_cntrl_no) + 1, 9, '0', STR_PAD_LEFT);
+    file_put_contents($fn, $control_number);
+    return $control_number;
+}
+
 

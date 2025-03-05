@@ -287,8 +287,6 @@
            IF (NUM3 NOT = CC-PAYCODE) AND (CC-PAPER = "E")
                MOVE "P" TO CC-PAPER.
 
-           IF CC-PAYCODE = 153 OR "122" OR "123" MOVE "P" TO CC-PAPER.
-
            IF CC-PAPER = "E" GO TO A1-1.
 
            PERFORM PAPER-1 GO TO A2.
