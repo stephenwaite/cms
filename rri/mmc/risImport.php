@@ -8,7 +8,7 @@ $fromDate = $argv[1];
 $toDate = $argv[2];
 $chcrrLoad = $argv[3];
 
-$rrmcInputFileName = '/tmp/outreads.xlsx';
+$rrmcInputFileName = '/tmp/outreads-running-total.xlsx';
 $rrmcInputFileType = 'Xlsx';
 $rrmc_fp = fopen('/tmp/ris.csv', 'w');
 

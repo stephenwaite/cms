@@ -551,11 +551,13 @@
                    WRITE REMITFILE01
                    END-WRITE
                NOT INVALID
-                   MOVE SPACE TO ERROR-FILE01
-                   STRING REMITFILE01 " DUPE CHECK"
-                       DELIMITED BY SIZE INTO ERROR-FILE01
-                   WRITE ERROR-FILE01
-                   GO TO P00
+                   IF TRN-3 NOT = ZEROES
+                       MOVE SPACE TO ERROR-FILE01
+                       STRING REMITFILE01 " DUPE CHECK"
+                           DELIMITED BY SIZE INTO ERROR-FILE01
+                       WRITE ERROR-FILE01
+                       GO TO P00
+                   END-IF    
            END-READ     
            
            IF PAYORID = SPACE
