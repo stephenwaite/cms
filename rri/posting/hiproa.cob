@@ -551,6 +551,8 @@
                    WRITE REMITFILE01
                    END-WRITE
                NOT INVALID
+                   DISPLAY TRN-3
+                   ACCEPT OMITTED
                    IF TRN-3 NOT = ZEROES
                        MOVE SPACE TO ERROR-FILE01
                        STRING REMITFILE01 " DUPE CHECK"
