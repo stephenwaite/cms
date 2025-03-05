@@ -551,7 +551,6 @@
                    WRITE REMITFILE01
                    END-WRITE
                NOT INVALID
-                   ACCEPT OMITTED
                    IF TRN-2 NOT = "0000000000"
                        MOVE SPACE TO ERROR-FILE01
                        STRING REMITFILE01 " DUPE CHECK"
