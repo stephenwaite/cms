@@ -818,12 +818,13 @@
       * iedi rejected PAT segment b/c SBR had 18 hardcoded
       * instead of what is determined in SUBSCRIBER-2
       * But iedi doesn't support that so we'll have to revert, 4-1-24
-           MOVE "18" TO SBR-RELATE
+      *    SBR02 should not be used when subscriber not = patient
+           IF SAVE-RELATE NOT = "18"
+               MOVE SPACE TO SBR-RELATE.
            WRITE SEGFILE01 FROM SBR01
            PERFORM 2010BA.
            PERFORM 2010BB.
            IF SAVE-RELATE NOT = "18"
-               MOVE SAVE-RELATE TO SBR-PST
                PERFORM 2000C.
        2010BA.
            MOVE "IL " TO NM1-1
@@ -851,42 +852,39 @@
            MOVE "MI" TO NM1-EINSS
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
-           MOVE SPACE TO N3-STREET N3-BILLADD
-           MOVE G-BILLADD TO N3-STREET
-           MOVE G-STREET TO N3-BILLADD
-           IF G-BILLADD = SPACE
-           MOVE G-STREET TO N3-STREET
-           MOVE SPACE TO N3-BILLADD.
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM N301.
-           IF SAVE-RELATE NOT = SPACE
-           MOVE N301 TO SAVEPAT-N301.
 
-           MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
-           MOVE G-CITY TO N4-CITY
-           MOVE G-STATE TO N4-STATE
-           MOVE G-ZIP TO N4-ZIP
-           IF N4-ZIP(6:4) = SPACE
-           MOVE "9999" TO N4-ZIP(6:4).
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM N401.
-           IF SAVE-RELATE NOT = SPACE
-           MOVE N401 TO SAVEPAT-N401.
+           IF SBR-RELATE NOT = SPACE
+                MOVE SPACE TO N3-STREET N3-BILLADD
+                MOVE G-BILLADD TO N3-STREET
+                MOVE G-STREET TO N3-BILLADD
+                IF G-BILLADD = SPACE
+                    MOVE G-STREET TO N3-STREET
+                    MOVE SPACE TO N3-BILLADD.
+                MOVE SPACE TO SEGFILE01
+                WRITE SEGFILE01 FROM N301.
+                IF SAVE-RELATE NOT = SPACE
+                    MOVE N301 TO SAVEPAT-N301.
 
-           MOVE G-DOB TO DMG-DOB
-           MOVE G-SEX TO DMG-GENDER
-           IF SAVE-RELATE NOT = "18"
-            PERFORM MAKE-IT-UP THRU MAKE-IT-UP-EXIT
-           ELSE 
-            MOVE "M" TO DMG-GENDER
-            IF G-PR-RELATE NOT NUMERIC
-             MOVE "F" TO DMG-GENDER
-            END-IF
+                MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
+                MOVE G-CITY TO N4-CITY
+                MOVE G-STATE TO N4-STATE
+                MOVE G-ZIP TO N4-ZIP
+                IF N4-ZIP(6:4) = SPACE
+                    MOVE "9999" TO N4-ZIP(6:4).
+                MOVE SPACE TO SEGFILE01
+                WRITE SEGFILE01 FROM N401.
+                IF SAVE-RELATE NOT = SPACE
+                    MOVE N401 TO SAVEPAT-N401.
+
+                MOVE G-DOB TO DMG-DOB
+                MOVE G-SEX TO DMG-GENDER
+                MOVE "M" TO DMG-GENDER
+                IF G-PR-RELATE NOT NUMERIC
+                    MOVE "F" TO DMG-GENDER
+                END-IF
+                MOVE SPACE TO SEGFILE01.
+                WRITE SEGFILE01 FROM DMG01.
            END-IF.
-           MOVE SPACE TO SEGFILE01.
-           WRITE SEGFILE01 FROM DMG01.
-           
-      *    IF HOLD-ACC-TYPE NOT = SPACE
                
        2010BB.
            MOVE "PR " TO NM1-1
@@ -1566,7 +1564,6 @@
            MOVE "XX" TO SAVE-DOCREF-CODE
            MOVE DOC-NPI TO SAVE-DOCREF-ID.
 
-
        SUBSCRIBER-1.
            MOVE HOLD-KEY8 TO G-GARNO
            READ GARFILE INVALID DISPLAY "BAD BAD BAD" GO TO P99.
@@ -1587,13 +1584,15 @@
              MOVE "AM" TO SBR-INSCODE.  
 
            MOVE SPACE TO SBR-TYPE.
-           IF
-      *     (G-GARNAME NOT = G-PRNAME) AND
-           (G-RELATE NOT = G-PR-RELATE)
-             GO TO SUBSCRIBER-2.
+           
+           IF (G-GARNAME NOT = G-PRNAME) AND
+               (G-RELATE NOT = G-PR-RELATE)
+               GO TO SUBSCRIBER-2.
+
            MOVE "18" TO SBR-RELATE
            MOVE "0    " TO HL-CHILD
            GO TO SUBSCRIBER-EXIT.
+
        SUBSCRIBER-2.
            MOVE "01" TO SBR-RELATE.
            IF   (G-RELATE = "4" OR "M")
@@ -1606,7 +1605,6 @@
 
        SUBSCRIBER-EXIT.
            EXIT.
-
 
        PAT-READ. 
            MOVE HOLD-PATID TO P-PATNO
