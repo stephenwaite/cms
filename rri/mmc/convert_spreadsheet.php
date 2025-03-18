@@ -243,6 +243,14 @@ function chcrrInsCode($ins_string, $policy)
             return '34P';
         break;
 
+        case (stripos($ins_string, 'MedicareAR') !== false):
+            return '34P';
+        break;
+
+        case (stripos($ins_string, 'MedicareVT') !== false):
+            return '34P';
+        break;
+
         case (strpos($ins_string, 'BCBS-VT') !== false):
             return '33P';
         break;
@@ -266,9 +274,15 @@ function chcrrInsCode($ins_string, $policy)
         case (stripos($ins_string, 'ANTHEM') !== false):
             return '47P';
         break;
+
         case (stripos($ins_string, 'SELFPAY (CASH)') !== false):
             return '0';
         break;
+
+        case (stripos($ins_string, 'SELMAN') !== false):
+            return '0';
+        break;
+
         case (stripos($ins_string, 'BLUE CROSSCA') !== false):
             return '47P';
         break;
@@ -423,6 +437,10 @@ function chcrrInsCode($ins_string, $policy)
 
         case (stripos($ins_string, 'Palmetto') !== false):
             return '179P';
+        break;
+
+        case (stripos($ins_string, 'Lucent') !== false):
+            return '180P';
         break;
 
         case (stripos($ins_string, 'TRICARE FOR LIFE') !== false):

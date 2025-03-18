@@ -1024,8 +1024,9 @@
               MOVE SPACE TO REF-ID
               IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
                 MOVE AUTH-NUM TO REF-ID
-      *        ELSE
-      *          MOVE "VA9999999999" TO REF-ID
+              ELSE
+                MOVE 1 TO AUTH-FLAG
+                GO TO 2300CLM-EXIT
               END-IF  
               MOVE SPACE TO SEGFILE01
               WRITE SEGFILE01 FROM REF01.
