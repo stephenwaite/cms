@@ -882,8 +882,8 @@
                 IF G-PR-RELATE NOT NUMERIC
                     MOVE "F" TO DMG-GENDER
                 END-IF
-                MOVE SPACE TO SEGFILE01.
-                WRITE SEGFILE01 FROM DMG01.
+                MOVE SPACE TO SEGFILE01
+                WRITE SEGFILE01 FROM DMG01
            END-IF.
                
        2010BB.
