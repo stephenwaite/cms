@@ -835,17 +835,17 @@
            MOVE SPACE TO NAME-1 NAME-2
            UNSTRING NM1-NAMEL DELIMITED BY " " INTO NAME-1 NAME-2
            IF NAME-2 = "JR" OR "JR." OR "SR" OR "II" OR "III" OR "IV"
-           MOVE SPACE TO NM1-NAMEL NM1-NAMES
-           MOVE NAME-1 TO NM1-NAMEL
-           MOVE NAME-2 TO NM1-NAMES.
+                MOVE SPACE TO NM1-NAMEL NM1-NAMES
+                MOVE NAME-1 TO NM1-NAMEL
+                MOVE NAME-2 TO NM1-NAMES.
            IF NM1-NAMEM = SPACE
-           MOVE SPACE TO NAME-1 NAME-2
-           UNSTRING NM1-NAMEF DELIMITED BY " " INTO NAME-1 NAME-2
-            IF NAME-2 NOT = SPACE
-             MOVE SPACE TO NM1-NAMEF NM1-NAMEM
-             MOVE NAME-1 TO NM1-NAMEF
-             MOVE NAME-2 TO NM1-NAMEM
-            END-IF
+                MOVE SPACE TO NAME-1 NAME-2
+                UNSTRING NM1-NAMEF DELIMITED BY " " INTO NAME-1 NAME-2
+                    IF NAME-2 NOT = SPACE
+                    MOVE SPACE TO NM1-NAMEF NM1-NAMEM
+                    MOVE NAME-1 TO NM1-NAMEF
+                    MOVE NAME-2 TO NM1-NAMEM
+                    END-IF
            END-IF.
            MOVE SPACE TO NM1-CODE
            MOVE G-PRIPOL TO NM1-CODE
@@ -859,23 +859,25 @@
                 MOVE G-STREET TO N3-BILLADD
                 IF G-BILLADD = SPACE
                     MOVE G-STREET TO N3-STREET
-                    MOVE SPACE TO N3-BILLADD.
+                    MOVE SPACE TO N3-BILLADD
+                END-IF    
                 MOVE SPACE TO SEGFILE01
-                WRITE SEGFILE01 FROM N301.
+                WRITE SEGFILE01 FROM N301
                 IF SAVE-RELATE NOT = SPACE
-                    MOVE N301 TO SAVEPAT-N301.
-
+                    MOVE N301 TO SAVEPAT-N301
+                END-IF
                 MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
                 MOVE G-CITY TO N4-CITY
                 MOVE G-STATE TO N4-STATE
                 MOVE G-ZIP TO N4-ZIP
                 IF N4-ZIP(6:4) = SPACE
-                    MOVE "9999" TO N4-ZIP(6:4).
+                    MOVE "9999" TO N4-ZIP(6:4)
+                END-IF    
                 MOVE SPACE TO SEGFILE01
-                WRITE SEGFILE01 FROM N401.
+                WRITE SEGFILE01 FROM N401
                 IF SAVE-RELATE NOT = SPACE
-                    MOVE N401 TO SAVEPAT-N401.
-
+                    MOVE N401 TO SAVEPAT-N401
+                END-IF
                 MOVE G-DOB TO DMG-DOB
                 MOVE G-SEX TO DMG-GENDER
                 MOVE "M" TO DMG-GENDER
