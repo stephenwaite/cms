@@ -850,6 +850,10 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
 
+           DISPLAY SAVE-RELATE " SAVE-RELATE"
+                ACCEPT OMITTED
+           DISPLAY SBR-RELATE " SBR-RELATE"
+                ACCEPT OMITTED     
            IF SBR-RELATE NOT = SPACE
                 MOVE SPACE TO N3-STREET N3-BILLADD
                 MOVE G-BILLADD TO N3-STREET
@@ -860,8 +864,7 @@
                 END-IF    
                 MOVE SPACE TO SEGFILE01
                 WRITE SEGFILE01 FROM N301
-                DISPLAY SAVE-RELATE " SAVE-RELATE"
-                ACCEPT OMITTED
+                
                 IF SAVE-RELATE NOT = "18"
                     MOVE N301 TO SAVEPAT-N301
                 END-IF
