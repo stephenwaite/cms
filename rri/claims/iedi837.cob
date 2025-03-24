@@ -815,78 +815,87 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM HL01
            MOVE SPACE TO SEGFILE01
-      * iedi rejected PAT segment b/c SBR had 18 hardcoded
-      * instead of what is determined in SUBSCRIBER-2
-      * But iedi doesn't support that so we'll have to revert, 4-1-24
-           MOVE "18" TO SBR-RELATE
+      *    SBR02 should not be used when subscriber not = patient
+           IF SAVE-RELATE NOT = "18"
+               MOVE SPACE TO SBR-RELATE.
            WRITE SEGFILE01 FROM SBR01
            PERFORM 2010BA.
            PERFORM 2010BB.
            IF SAVE-RELATE NOT = "18"
-               MOVE SAVE-RELATE TO SBR-PST
                PERFORM 2000C.
        2010BA.
            MOVE "IL " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
-            UNSTRING G-PRNAME DELIMITED BY ";" INTO
-            NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING G-PRNAME DELIMITED BY ";" INTO
+               NM1-NAMEL NM1-NAMEF NM1-NAMEM
            MOVE SPACE TO NAME-1 NAME-2
            UNSTRING NM1-NAMEL DELIMITED BY " " INTO NAME-1 NAME-2
+           
            IF NAME-2 = "JR" OR "JR." OR "SR" OR "II" OR "III" OR "IV"
-           MOVE SPACE TO NM1-NAMEL NM1-NAMES
-           MOVE NAME-1 TO NM1-NAMEL
-           MOVE NAME-2 TO NM1-NAMES.
+               MOVE SPACE TO NM1-NAMEL NM1-NAMES
+               MOVE NAME-1 TO NM1-NAMEL
+               MOVE NAME-2 TO NM1-NAMES
+           END-IF
+
            IF NM1-NAMEM = SPACE
-           MOVE SPACE TO NAME-1 NAME-2
-           UNSTRING NM1-NAMEF DELIMITED BY " " INTO NAME-1 NAME-2
-            IF NAME-2 NOT = SPACE
-             MOVE SPACE TO NM1-NAMEF NM1-NAMEM
-             MOVE NAME-1 TO NM1-NAMEF
-             MOVE NAME-2 TO NM1-NAMEM
-            END-IF
-           END-IF.
+               MOVE SPACE TO NAME-1 NAME-2
+               UNSTRING NM1-NAMEF DELIMITED BY " " INTO NAME-1 NAME-2
+               IF NAME-2 NOT = SPACE
+                   MOVE SPACE TO NM1-NAMEF NM1-NAMEM
+                   MOVE NAME-1 TO NM1-NAMEF
+                   MOVE NAME-2 TO NM1-NAMEM
+               END-IF
+           END-IF
+
            MOVE SPACE TO NM1-CODE
            MOVE G-PRIPOL TO NM1-CODE
            MOVE "MI" TO NM1-EINSS
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
+
            MOVE SPACE TO N3-STREET N3-BILLADD
            MOVE G-BILLADD TO N3-STREET
            MOVE G-STREET TO N3-BILLADD
            IF G-BILLADD = SPACE
-           MOVE G-STREET TO N3-STREET
-           MOVE SPACE TO N3-BILLADD.
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM N301.
-           IF SAVE-RELATE NOT = SPACE
-           MOVE N301 TO SAVEPAT-N301.
+               MOVE G-STREET TO N3-STREET
+               MOVE SPACE TO N3-BILLADD
+           END-IF    
+            
+           IF SBR-RELATE NOT = "18"
+               MOVE N301 TO SAVEPAT-N301
+           ELSE
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM N301
+           END-IF
 
            MOVE SPACE TO N4-CITY N4-STATE N4-ZIP
            MOVE G-CITY TO N4-CITY
            MOVE G-STATE TO N4-STATE
            MOVE G-ZIP TO N4-ZIP
            IF N4-ZIP(6:4) = SPACE
-           MOVE "9999" TO N4-ZIP(6:4).
-           MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM N401.
-           IF SAVE-RELATE NOT = SPACE
-           MOVE N401 TO SAVEPAT-N401.
+               MOVE "9999" TO N4-ZIP(6:4)
+           END-IF    
+           
+           IF SBR-RELATE NOT = "18"
+               MOVE N401 TO SAVEPAT-N401
+           ELSE
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM N401
+           END-IF
 
            MOVE G-DOB TO DMG-DOB
            MOVE G-SEX TO DMG-GENDER
-           IF SAVE-RELATE NOT = "18"
-            PERFORM MAKE-IT-UP THRU MAKE-IT-UP-EXIT
-           ELSE 
-            MOVE "M" TO DMG-GENDER
-            IF G-PR-RELATE NOT NUMERIC
-             MOVE "F" TO DMG-GENDER
-            END-IF
-           END-IF.
-           MOVE SPACE TO SEGFILE01.
-           WRITE SEGFILE01 FROM DMG01.
+           MOVE "M" TO DMG-GENDER
            
-      *    IF HOLD-ACC-TYPE NOT = SPACE
+           IF G-PR-RELATE NOT NUMERIC
+               MOVE "F" TO DMG-GENDER
+           END-IF
+           
+           IF SBR-RELATE = "18"
+               MOVE SPACE TO SEGFILE01
+               WRITE SEGFILE01 FROM DMG01
+           END-IF.    
                
        2010BB.
            MOVE "PR " TO NM1-1
@@ -933,7 +942,7 @@
            MOVE SPACE TO PAT-LOCATE PAT-EMPLOYM PAT-STUD
               PAT-QUAL PAT-DATE PAT-MEAS PAT-WT PAT-PREGO
            MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM PAT01.
+           WRITE SEGFILE01 FROM PAT01
 
            MOVE "QC " TO NM1-1
            MOVE "1" TO NM1-SOLO
@@ -943,29 +952,31 @@
            MOVE SPACE TO NAME-1 NAME-2
            UNSTRING NM1-NAMEL DELIMITED BY " " INTO NAME-1 NAME-2
            IF NAME-2 = "JR" OR "JR." OR "SR" OR "II" OR "III" OR "IV"
-           MOVE SPACE TO NM1-NAMEL NM1-NAMES
-           MOVE NAME-1 TO NM1-NAMEL
-           MOVE NAME-2 TO NM1-NAMES.
+                MOVE SPACE TO NM1-NAMEL NM1-NAMES
+                MOVE NAME-1 TO NM1-NAMEL
+                MOVE NAME-2 TO NM1-NAMES
+           END-IF
+
            IF NM1-NAMEM = SPACE
-           MOVE SPACE TO NAME-1 NAME-2
-           UNSTRING NM1-NAMEF DELIMITED BY " " INTO NAME-1 NAME-2
-            IF NAME-2 NOT = SPACE
-             MOVE SPACE TO NM1-NAMEF NM1-NAMEM
-             MOVE NAME-1 TO NM1-NAMEF
-             MOVE NAME-2 TO NM1-NAMEM
-            END-IF
-           END-IF.
+                MOVE SPACE TO NAME-1 NAME-2
+                UNSTRING NM1-NAMEF DELIMITED BY " " INTO NAME-1 NAME-2
+                IF NAME-2 NOT = SPACE
+                    MOVE SPACE TO NM1-NAMEF NM1-NAMEM
+                    MOVE NAME-1 TO NM1-NAMEF
+                    MOVE NAME-2 TO NM1-NAMEM
+                END-IF
+           END-IF
            MOVE SPACES TO NM1-EINSS NM1-CODE
            MOVE SPACE TO NM1-CODE
       *     MOVE G-PRIPOL TO NM1-CODE
       *     MOVE "MI" TO NM1-EINSS
            MOVE SPACE TO NM1-EINSS
            MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM NM101.
+           WRITE SEGFILE01 FROM NM101
            MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM SAVEPAT-N301.
+           WRITE SEGFILE01 FROM SAVEPAT-N301
            MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM SAVEPAT-N401.
+           WRITE SEGFILE01 FROM SAVEPAT-N401
            MOVE G-DOB TO DMG-DOB
            MOVE G-SEX TO DMG-GENDER
            MOVE SPACE TO SEGFILE01
@@ -1566,7 +1577,6 @@
            MOVE "XX" TO SAVE-DOCREF-CODE
            MOVE DOC-NPI TO SAVE-DOCREF-ID.
 
-
        SUBSCRIBER-1.
            MOVE HOLD-KEY8 TO G-GARNO
            READ GARFILE INVALID DISPLAY "BAD BAD BAD" GO TO P99.
@@ -1587,13 +1597,15 @@
              MOVE "AM" TO SBR-INSCODE.  
 
            MOVE SPACE TO SBR-TYPE.
-           IF
-      *     (G-GARNAME NOT = G-PRNAME) AND
-           (G-RELATE NOT = G-PR-RELATE)
-             GO TO SUBSCRIBER-2.
+           
+           IF (G-GARNAME NOT = G-PRNAME) AND
+               (G-RELATE NOT = G-PR-RELATE)
+               GO TO SUBSCRIBER-2.
+
            MOVE "18" TO SBR-RELATE
            MOVE "0    " TO HL-CHILD
            GO TO SUBSCRIBER-EXIT.
+
        SUBSCRIBER-2.
            MOVE "01" TO SBR-RELATE.
            IF   (G-RELATE = "4" OR "M")
@@ -1606,7 +1618,6 @@
 
        SUBSCRIBER-EXIT.
            EXIT.
-
 
        PAT-READ. 
            MOVE HOLD-PATID TO P-PATNO
