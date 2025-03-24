@@ -14,7 +14,7 @@ try {
         exit;
     };
 
-    $date = new DateTimeImmutable();
+    $date = new DateTimeImmutable("now", new DateTimeZone("America/New_York"));
     $stamp = $date->format('YmdHis');
     $filename = $argv[1];
     $remote_filename = $filename . "-" . $stamp;
