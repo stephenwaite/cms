@@ -462,9 +462,11 @@
            MOVE SPACE TO FO-PHONE.
            STRING G-PH1 "-" G-PH2 "-" G-PH3 DELIMITED BY SIZE
            INTO FO-PHONE
-           MOVE SPACE TO FO-GARDOB
+           MOVE SPACE TO FO-GARDOB FO-DOB
            STRING G-DOBMM "/" G-DOBDD "/" G-DOBYY DELIMITED BY SIZE
            INTO FO-GARDOB.
+
+           MOVE FO-GARDOB TO FO-DOB
            
            MOVE "*" TO FO-SSN.
 
