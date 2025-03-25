@@ -346,6 +346,9 @@
            
            IF (A-PRINS NOT = G-PRINS)
                IF A-PRINS = "225" AND G-PRINS = "079"
+                   MOVE SPACE TO ERRORFILE01
+                   STRING G-GARNO " " A-ACTNO " 22 USING 079 GARNO" 
+                   DELIMITED BY SIZE INTO ERRORFILE01
                    GO TO A2 
                END-IF  
                MOVE 1 TO FLAG
