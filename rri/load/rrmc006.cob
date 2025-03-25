@@ -1652,15 +1652,15 @@
                MOVE "19" TO A-DOB(1:2)
            END-IF
 
-	       IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
-	         MOVE "A" TO A-PR-ASSIGN
-	       END-IF
+           IF A-PRINS = "268" AND A-PR-ASSIGN = "U"
+               MOVE "A" TO A-PR-ASSIGN
+           END-IF
 
            IF A-SEINS = "268" AND A-SE-ASSIGN = "U"
-	         MOVE "A" TO A-SE-ASSIGN
-	       END-IF 
+               MOVE "A" TO A-SE-ASSIGN
+           END-IF 
 
-	       MOVE ACTFILE01 TO SAVEMASTER.
+	         MOVE ACTFILE01 TO SAVEMASTER.
            READ ACTFILE
              INVALID
                MOVE SAVEMASTER TO ACTFILE01

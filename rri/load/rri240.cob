@@ -299,7 +299,7 @@
 
            IF (G-ACCT NOT = X-ACTNO)
       *    no good candidates          
-             GO TO P3            
+                GO TO P3            
            END-IF  
 
       *    set flag to zero for validate run, and 1 to gar-flag
@@ -310,8 +310,8 @@
            
            IF FLAG = 0
       *    we've got 1      
-             ADD 1 TO CNTR
-             MOVE G-GARNO TO GAR-TAB(CNTR)
+               ADD 1 TO CNTR
+               MOVE G-GARNO TO GAR-TAB(CNTR)
            END-IF
 
            GO TO P2.
@@ -344,7 +344,10 @@
                GO TO A2
            END-IF    
            
-           IF (A-PRINS NOT = G-PRINS) 
+           IF (A-PRINS NOT = G-PRINS)
+               IF A-PRINS = "225" AND G-PRINS = "079"
+                   GO TO A2 
+               END-IF  
                MOVE 1 TO FLAG
                MOVE SPACE TO ERRORFILE01
                STRING G-GARNO " " A-ACTNO " NO INS MATCH" 
@@ -375,10 +378,8 @@
                  DELIMITED BY SIZE INTO ERRORFILE01
                WRITE ERRORFILE01             
                GO TO A2
-           END-IF
+           END-IF.
             
-           ADD 1 TO CNTR.
-
        A2.
            EXIT.
 
