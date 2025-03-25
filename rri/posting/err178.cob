@@ -324,8 +324,8 @@
            COMPUTE chgx =  -1 * (NUM6 / 100)
             
            if (payx = 0) and (pd-amount = 0) AND
-             ((FILEIN01(119:1) = "2" OR FILEIN01(119:1) = "4") AND
-             ((FILEIN01(123:1) = "1") OR FILEIN01(127:1) = "1") OR 
+             FILEIN01(119:1) = "2" AND
+             (FILEIN01(123:1) = "1" OR FILEIN01(127:1) = "1" OR 
               FILEIN01(123:2) = "23") 
              GO TO P2-2
            END-IF
