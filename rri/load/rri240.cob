@@ -347,16 +347,16 @@
            IF (A-PRINS NOT = G-PRINS)
                IF A-PRINS = "225" AND G-PRINS = "079"
                    MOVE SPACE TO ERRORFILE01
-                   STRING G-GARNO " " A-ACTNO " 22 USING 079 GARNO" 
+                   STRING G-GARNO " " A-ACTNO " 225 USING 079 GARNO" 
                    DELIMITED BY SIZE INTO ERRORFILE01
-                   GO TO A2 
-               END-IF  
-               MOVE 1 TO FLAG
-               MOVE SPACE TO ERRORFILE01
-               STRING G-GARNO " " A-ACTNO " NO INS MATCH" 
-                 DELIMITED BY SIZE INTO ERRORFILE01
-               WRITE ERRORFILE01             
-               GO TO A2
+               ELSE
+                   MOVE 1 TO FLAG
+                   MOVE SPACE TO ERRORFILE01
+                   STRING G-GARNO " " A-ACTNO " NO INS MATCH" 
+                       DELIMITED BY SIZE INTO ERRORFILE01
+                   WRITE ERRORFILE01             
+                   GO TO A2
+               END-IF    
            END-IF
       
       *    non matches of non-medicare 2ndary insurance     
