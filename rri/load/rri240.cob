@@ -355,8 +355,8 @@
                    STRING G-GARNO " " A-ACTNO " NO INS MATCH" 
                        DELIMITED BY SIZE INTO ERRORFILE01
                    WRITE ERRORFILE01             
-                   GO TO A2
                END-IF    
+               GO TO A2
            END-IF
       
       *    non matches of non-medicare 2ndary insurance     
