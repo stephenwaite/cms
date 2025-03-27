@@ -1062,8 +1062,8 @@
            END-IF
            MOVE PROC-TITLE TO L6F2.
            MOVE PROC-KEY2 TO L6-PROC.
-           MOVE CHR-DIAG(A) TO L6F4.
-           IF CHR-DIAG(A) = "0000000" MOVE "       " TO L6F4.
+      *    MOVE CHR-DIAG(A) TO L6F4.
+           MOVE "       " TO L6F4.
            MOVE CHR-AMOUNT(A) TO L6F6.
            MOVE CHR-TOT(A) TO L6F7
            IF CHR-TOT(A) = 0 
