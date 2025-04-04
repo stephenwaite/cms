@@ -1054,8 +1054,9 @@
            IF CHR-PL(A) = "C" OR "M" OR "R"
            MOVE CHR-PROC(A) TO RPGPROC-KEY
            READ RPGPROCFILE
-            INVALID MOVE
-              SPACE TO PROC-TITLE
+            INVALID
+              DISPLAY "NO TITLE SINCE OUTREAD, ENTER ONE PLEASE"
+              ACCEPT PROC-TITLE
             NOT INVALID
               MOVE RPGPROC-TITLE TO PROC-TITLE
            END-READ
