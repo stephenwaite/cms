@@ -1003,10 +1003,23 @@
            PERFORM BLANK-WRITE 2 TIMES
       *     WRITE OUT01 FROM LABEL01 
            ADD 5 TO LINE-CTR
-           IF G-PRINS = "001" WRITE OUT01 FROM NOINS
-           WRITE OUT01 FROM LINE-4 ADD 1 TO LINE-CTR GO TO R15.
-           IF G-PRINS = "091" WRITE OUT01 FROM N9398 
-           WRITE OUT01 FROM LINE-4 ADD 1 TO LINE-CTR.
+
+           IF G-PRINS = "001"
+             DISPLAY "PRINT NO INS MESSAGE Y/N ?"
+             ACCEPT ALF-1
+             IF ALF-1 = "Y"
+                WRITE OUT01 FROM NOINS
+                WRITE OUT01 FROM LINE-4 
+                ADD 1 TO LINE-CTR 
+                GO TO R15
+             END-IF
+           END-IF   
+           
+           IF G-PRINS = "091" 
+             WRITE OUT01 FROM N9398 
+             WRITE OUT01 FROM LINE-4 
+             ADD 1 TO LINE-CTR.
+
        R15. PERFORM Q2-0 THRU Q10 VARYING A FROM 1 BY 1 UNTIL A >
            CHR-IND.
            ADD AMOUNT-DUE X-INSPEND GIVING BAL-FWD.
