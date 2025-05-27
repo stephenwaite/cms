@@ -593,6 +593,7 @@
        01  TALLYL PIC 9.
        01  PRIM-DOB PIC X(8).
        01  SECDOB PIC X(8).
+       01  RPG-ACTNO-LAST PIC X(32).
 
        PROCEDURE DIVISION.
        0005-START.
@@ -639,6 +640,7 @@
 
            MOVE SPACE TO RPG-ACTNO
            STRING RPG-GARNAME RPG-DOB DELIMITED BY SIZE INTO RPG-ACTNO.
+           
            MOVE FI-PAT-STR1 TO RPG-BILLADD
            MOVE FI-PAT-STR2 TO RPG-STREET
            MOVE FI-PAT-CITY TO RPG-CITY
@@ -792,8 +794,11 @@
            MOVE INS-KEY TO RPG-SEINS
            MOVE INS-ASSIGN TO RPG-SE-ASSIGN
            
-           IF FI-PRIM-ALFA = "1" OR "26" OR "84" 
-               PERFORM OLD-1 THRU OLD-1-EXIT
+           IF FI-PRIM-ALFA = "1" OR "26" OR "84"
+               IF RPG-ACTNO NOT = RPG-ACTNO-LAST
+                   PERFORM OLD-1 THRU OLD-1-EXIT
+               END-IF
+               MOVE RPG-ACTNO TO RPG-ACTNO-LAST
            END-IF.
                     
        P1-1.
