@@ -1003,10 +1003,23 @@
            PERFORM BLANK-WRITE 2 TIMES
       *     WRITE OUT01 FROM LABEL01 
            ADD 5 TO LINE-CTR
-           IF G-PRINS = "001" WRITE OUT01 FROM NOINS
-           WRITE OUT01 FROM LINE-4 ADD 1 TO LINE-CTR GO TO R15.
-           IF G-PRINS = "091" WRITE OUT01 FROM N9398 
-           WRITE OUT01 FROM LINE-4 ADD 1 TO LINE-CTR.
+
+           IF G-PRINS = "001"
+             DISPLAY "PRINT NO INS MESSAGE Y/N ?"
+             ACCEPT ALF-1
+             IF ALF-1 = "Y"
+                WRITE OUT01 FROM NOINS
+                WRITE OUT01 FROM LINE-4 
+                ADD 1 TO LINE-CTR 
+                GO TO R15
+             END-IF
+           END-IF   
+           
+           IF G-PRINS = "091" 
+             WRITE OUT01 FROM N9398 
+             WRITE OUT01 FROM LINE-4 
+             ADD 1 TO LINE-CTR.
+
        R15. PERFORM Q2-0 THRU Q10 VARYING A FROM 1 BY 1 UNTIL A >
            CHR-IND.
            ADD AMOUNT-DUE X-INSPEND GIVING BAL-FWD.
@@ -1054,16 +1067,18 @@
            IF CHR-PL(A) = "C" OR "M" OR "R"
            MOVE CHR-PROC(A) TO RPGPROC-KEY
            READ RPGPROCFILE
-            INVALID MOVE
-              SPACE TO PROC-TITLE
+            INVALID
+              DISPLAY "NO TITLE SINCE OUTREAD, ENTER ONE PLEASE"
+              DISPLAY "FOR PROC " RPGPROC-KEY
+              ACCEPT PROC-TITLE
             NOT INVALID
               MOVE RPGPROC-TITLE TO PROC-TITLE
            END-READ
            END-IF
            MOVE PROC-TITLE TO L6F2.
            MOVE PROC-KEY2 TO L6-PROC.
-           MOVE CHR-DIAG(A) TO L6F4.
-           IF CHR-DIAG(A) = "0000000" MOVE "       " TO L6F4.
+      *    MOVE CHR-DIAG(A) TO L6F4.
+           MOVE "       " TO L6F4.
            MOVE CHR-AMOUNT(A) TO L6F6.
            MOVE CHR-TOT(A) TO L6F7
            IF CHR-TOT(A) = 0 
