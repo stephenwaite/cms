@@ -80,7 +80,7 @@
            DISPLAY FL6
            DISPLAY FO-COMMIS
            DISPLAY FO-PAIDX
-           ACCEPT omitted
+      *     ACCEPT omitted
            IF NOT (FL7 = "T")
              MOVE SPACE TO FILEOUT201
              MOVE FILEIN01 TO FILEOUT201
