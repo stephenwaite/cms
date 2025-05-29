@@ -246,7 +246,7 @@
            02 TAB-Y9 PIC X VALUE ",".
            02 FO-SSN PIC X VALUE "*".
            02 TAB-Y10 PIC X VALUE ",".
-           02 FO-DOB PIC X VALUE"*".
+           02 FO-DOB PIC X(10).
            02 TAB-Y11 PIC X VALUE ",".
            02 FO-EMP PIC X VALUE "*".
            02 TAB-Y12 PIC X VALUE ",".
