@@ -1871,6 +1871,8 @@
            MOVE 0 TO PA-FLAG
            PERFORM PA-LIST
            IF AUTH-FLAG = 0 AND PA-FLAG = 1
+               PERFORM 2420E THRU 2420E-EXIT
+           END-IF
 
            IF FI-DOCR NOT = CLM-DOCR
                PERFORM 2420F THRU 2420F-EXIT
