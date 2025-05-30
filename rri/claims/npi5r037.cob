@@ -1523,11 +1523,12 @@
              WRITE SEGFILE01 FROM REF01.
 
       *    add auth to defeat pesky CO*197 denials
-           MOVE 0 TO AUTH-FLAG
+           MOVE 1 TO AUTH-FLAG
            MOVE HOLD-KEY8 TO AUTH-KEY8
            MOVE HOLD-CLAIM TO AUTH-KEY6
-           READ AUTHFILE NOT INVALID
-             MOVE 1 TO AUTH-FLAG
+           READ AUTHFILE
+               INVALID
+                 MOVE 0 TO AUTH-FLAG
            END-READ    
   
            MOVE SPACE TO REF-CODE
@@ -1878,7 +1879,7 @@
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
            REWRITE CHARCUR01.
-           
+
        2400SRV-EXIT.  
            EXIT.
 
