@@ -1,11 +1,11 @@
       * @package cms
       * @link    http://www.cmsvt.com
       * @author  s waite <cmswest@sover.net>
-      * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
+      * @copyright Copyright (c) 2025 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
        PROGRAM-ID. npi5r037.
-       AUTHOR. SID WAITE.
+       AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -1526,7 +1526,7 @@
            MOVE 0 TO AUTH-FLAG
            MOVE HOLD-KEY8 TO AUTH-KEY8
            MOVE HOLD-CLAIM TO AUTH-KEY6
-           READ AUTHFILE INVALID
+           READ AUTHFILE NOT INVALID
              MOVE 1 TO AUTH-FLAG
            END-READ    
   
@@ -1534,7 +1534,7 @@
            MOVE "G1" TO REF-CODE
            MOVE SPACE TO REF-ID
 
-           IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
+           IF (AUTH-FLAG = 1 AND AUTH-NUM NOT = SPACE)
              MOVE AUTH-NUM TO REF-ID
              MOVE SPACE TO SEGFILE01
              WRITE SEGFILE01 FROM REF01
@@ -1863,6 +1863,11 @@
              PERFORM 2420A THRU 2420A-EXIT
            end-if
 
+      *    ACT 111 REQUIRES ORDERING PROVIDER 2420E FOR PA EXCLUSION
+           IF AUTH-FLAG = 1
+               PERFORM 2420E THRU 2420E-EXIT
+           END-IF
+
            IF FI-DOCR NOT = CLM-DOCR
              PERFORM 2420F THRU 2420F-EXIT
            end-if
@@ -1873,7 +1878,10 @@
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
            REWRITE CHARCUR01.
-       2400SRV-EXIT.  EXIT.
+           
+       2400SRV-EXIT.  
+           EXIT.
+
        2410.
            MOVE FI-KEY8 TO AUTH-KEY8
            MOVE FI-CLAIM TO AUTH-KEY6
@@ -1915,6 +1923,31 @@
 
        2420A-EXIT.
            EXIT.    
+
+       2420E.
+           IF FI-DOCR = "000" 
+             GO TO REF-2.
+
+           MOVE FI-DOCR TO REF-KEY 
+
+           READ REFPHY 
+             INVALID 
+               GO TO REF-2.
+
+           MOVE "DK " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING REF-NAME DELIMITED BY ", " OR " ,"
+             OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
+
+           MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
+           MOVE "XX" TO NM1-EINSS
+           MOVE REF-NPI TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420E-EXIT.
+           EXIT.        
 
        2420F.
            IF FI-DOCR = "000" 
