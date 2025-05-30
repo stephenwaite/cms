@@ -1860,18 +1860,19 @@
            
       *     display fi-docp " fi-docp " fi-docr " fi-docr"
       *     display clm-docp " clm-docp " clm-docr " clm-docr"
-           if FI-DOCP NOT = CLM-DOCP
-             PERFORM 2420A THRU 2420A-EXIT
-           end-if
+           IF FI-DOCP NOT = CLM-DOCP
+               PERFORM 2420A THRU 2420A-EXIT
+           END-IF
 
-      *    ACT 111 REQUIRES ORDERING PROVIDER 2420E FOR PA EXCLUSION
-           IF AUTH-FLAG = 1
+      *    ACT 111 PROCEDURES DO NOT HAVE AN AUTH
+      *    THUS REQUIRES ORDERING PROVIDER 2420E FOR PA EXCLUSION
+           IF AUTH-FLAG = 0
                PERFORM 2420E THRU 2420E-EXIT
            END-IF
 
            IF FI-DOCR NOT = CLM-DOCR
-             PERFORM 2420F THRU 2420F-EXIT
-           end-if
+               PERFORM 2420F THRU 2420F-EXIT
+           END-IF
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
            READ CHARCUR WITH LOCK INVALID GO TO 2400SRV-EXIT.
