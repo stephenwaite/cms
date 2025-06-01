@@ -938,6 +938,9 @@
            MOVE 0 TO GAR-FLAG
            
            IF SVC-CNTR = 0
+               display "can't find the svc"
+               ACCEPT OMITTED
+               
                PERFORM P1-NO-SVC 
                GO TO P9-SVC-LOOP
            END-IF
