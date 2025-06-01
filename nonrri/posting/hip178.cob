@@ -962,8 +962,6 @@
             PERFORM FIND-GARNO THRU FIND-GARNO-EXIT
             IF (FIND-CNTR NOT = SVC-CNTR) OR
                (NOT-FLAG = 1 OR 2)
-               DISPLAY "P3-SVC-LOOP"
-               ACCEPT OMITTED
                 PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
                   VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                 GO TO P9-SVC-LOOP
@@ -1433,9 +1431,6 @@
             PERFORM NAR-1.
 
        P1-DENIED-SVC.
-      *     DISPLAY "PERFORMING P1-DENIED-SVC find-ctr " FIND-CNTR 
-      *         " SVC-CNTR " SVC-CNTR " FLAGY " FLAGY
-      *     accept omitted
            PERFORM STATUS-1
            MOVE SPACE TO SVC01 
            MOVE SVC-TAB(X) TO FILEIN01
