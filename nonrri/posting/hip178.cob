@@ -1828,7 +1828,8 @@
                GO TO LOOK-1
            END-IF              
 
-           IF CC-PAYCODE = "001" GO TO LOOK-1.
+           IF CC-PAYCODE = "001" AND CLP-2CLMSTAT = "1 "
+               GO TO LOOK-1.
            
            MOVE SPACE TO CC-PROCY01
 
