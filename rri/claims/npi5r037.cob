@@ -1,11 +1,11 @@
       * @package cms
       * @link    http://www.cmsvt.com
       * @author  s waite <cmswest@sover.net>
-      * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
+      * @copyright Copyright (c) 2025 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
        PROGRAM-ID. npi5r037.
-       AUTHOR. SID WAITE.
+       AUTHOR. S WAITE.
        DATE-COMPILED. TODAY.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -1080,6 +1080,7 @@
               03 DOC-NPI PIC X(10).
 
        01  AUTH-FLAG PIC 9.
+       01  PA-FLAG PIC 9.
        01  DIAG-OVER PIC 9.
        01  CLM-DOCR PIC XXX.
        01  CLM-DOCP pic 99.
@@ -1523,18 +1524,19 @@
              WRITE SEGFILE01 FROM REF01.
 
       *    add auth to defeat pesky CO*197 denials
-           MOVE 0 TO AUTH-FLAG
+           MOVE 1 TO AUTH-FLAG
            MOVE HOLD-KEY8 TO AUTH-KEY8
            MOVE HOLD-CLAIM TO AUTH-KEY6
-           READ AUTHFILE INVALID
-             MOVE 1 TO AUTH-FLAG
+           READ AUTHFILE
+               INVALID
+                 MOVE 0 TO AUTH-FLAG
            END-READ    
   
            MOVE SPACE TO REF-CODE
            MOVE "G1" TO REF-CODE
            MOVE SPACE TO REF-ID
 
-           IF (AUTH-FLAG = 0 AND AUTH-NUM NOT = SPACE)
+           IF (AUTH-FLAG = 1 AND AUTH-NUM NOT = SPACE)
              MOVE AUTH-NUM TO REF-ID
              MOVE SPACE TO SEGFILE01
              WRITE SEGFILE01 FROM REF01
@@ -1827,7 +1829,7 @@
            MOVE ":" TO DIAG-C(DX-CNTR-PT)
            MOVE 12 TO A.
 
-       SV1-0..
+       SV1-0.
            MOVE " " TO SV1-EMER
            IF CLM-5 = "23" MOVE "Y" TO SV1-EMER.
            COMPUTE NUM5 = X
@@ -1859,13 +1861,22 @@
            
       *     display fi-docp " fi-docp " fi-docr " fi-docr"
       *     display clm-docp " clm-docp " clm-docr " clm-docr"
-           if FI-DOCP NOT = CLM-DOCP
-             PERFORM 2420A THRU 2420A-EXIT
-           end-if
+           IF FI-DOCP NOT = CLM-DOCP
+               PERFORM 2420A THRU 2420A-EXIT
+           END-IF
+
+      *    ACT 111 PROCEDURES DO NOT HAVE AN AUTH
+      *    THUS REQUIRES ORDERING PROVIDER 2420E FOR PA EXCLUSION
+      *    COMPARE LIST OF CODES WITH PROC
+           MOVE 0 TO PA-FLAG
+           PERFORM PA-LIST
+           IF AUTH-FLAG = 0 AND PA-FLAG = 1
+               PERFORM 2420E THRU 2420E-EXIT
+           END-IF
 
            IF FI-DOCR NOT = CLM-DOCR
-             PERFORM 2420F THRU 2420F-EXIT
-           end-if
+               PERFORM 2420F THRU 2420F-EXIT
+           END-IF
 
            MOVE FILEIN-KEY TO CHARCUR-KEY
            READ CHARCUR WITH LOCK INVALID GO TO 2400SRV-EXIT.
@@ -1873,7 +1884,10 @@
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
            REWRITE CHARCUR01.
-       2400SRV-EXIT.  EXIT.
+
+       2400SRV-EXIT.  
+           EXIT.
+
        2410.
            MOVE FI-KEY8 TO AUTH-KEY8
            MOVE FI-CLAIM TO AUTH-KEY6
@@ -1915,6 +1929,31 @@
 
        2420A-EXIT.
            EXIT.    
+
+       2420E.
+           IF FI-DOCR = "000" 
+             GO TO REF-2.
+
+           MOVE FI-DOCR TO REF-KEY 
+
+           READ REFPHY 
+             INVALID 
+               GO TO REF-2.
+
+           MOVE "DK " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING REF-NAME DELIMITED BY ", " OR " ,"
+             OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
+
+           MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
+           MOVE "XX" TO NM1-EINSS
+           MOVE REF-NPI TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420E-EXIT.
+           EXIT.        
 
        2420F.
            IF FI-DOCR = "000" 
@@ -2320,7 +2359,44 @@
            END-PERFORM
 
            MOVE MOD-ARRAY01 TO SV1-MOD-FILLER.
-       E1. 
+
+       PA-LIST.
+           IF (SV1-PROC(1:5) = "74261" OR "74262" OR "74263" OR
+             "70450" OR "70460" OR "70470" OR "70480" OR
+             "70481" OR "70482" OR "70486" OR "70487" OR "70488" OR 
+             "70490" OR "70491" OR "70492" OR "71250" OR "71260" OR 
+             "71270" OR "71271" OR "72125" OR "72126" OR "72127" OR 
+             "72128" OR "72129" OR "72130" OR "72131" OR "72132" OR 
+             "72133" OR "72192" OR "72193" OR "72194" OR "73200" OR
+             "73201" OR "73202" OR "73700" OR "73701" OR "73702" OR 
+             "74150" OR "74160" OR "74170" OR "74176" OR "74177" OR
+             "74178" OR "75571" OR "75572" OR "75573" OR "77078" OR
+             "70336" OR "70540" OR "70542" OR "70543" OR
+             "70551" OR "70552" OR "70553" OR "70554" OR "70555" OR
+             "71550" OR "71551" OR "71552" OR "72141" OR "72142" OR 
+             "72146" OR "72147" OR "72148" OR "72149" OR "72156" OR
+             "72157" OR "72158" OR "72195" OR "72196" OR "72197" OR
+             "73218" OR "73219" OR "73220" OR "73221" OR "73222" OR
+             "73223" OR "73718" OR "73719" OR "73720" OR "73721" OR
+             "73722" OR "73723" OR "74181" OR "74182" OR "74183" OR
+             "74712" OR "74713" OR "75557" OR "75559" OR "75561" OR
+             "75563" OR "75565" OR "76390" OR "76391" OR "77046" OR
+             "77047" OR "77048" OR "77049" OR "77084" OR
+             "78459" OR "78491" OR "78429" OR "78430" OR
+             "78431" OR "78432" OR "78433" OR "78434" OR "78492" OR 
+             "78608" OR "78609" OR "78811" OR "78812" OR "78813" OR 
+             "78814" OR "78815" OR "78816" OR
+             "78803" OR "78830" OR "78831" OR "78832" OR
+             "78195" OR "78800" OR "78801" OR "78802" OR
+             "78804" OR "S8080" OR "78472" OR "78473" OR "78481" OR 
+             "78483" OR "78494" OR "70496" OR "70498" OR "71275" OR 
+             "72191" OR "73206" OR "73706" OR "74174" OR "74175" OR 
+             "75574" OR "75635" OR "70544" OR "70545" OR "70546" OR 
+             "70547" OR "70548" OR "70549" OR "71555" OR "72159" OR 
+             "72198" OR "73225" OR "73725" OR "74185")
+
+             MOVE 1 TO PA-FLAG.
+
        P98.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SE01
