@@ -1431,9 +1431,6 @@
             PERFORM NAR-1.
 
        P1-DENIED-SVC.
-      *     DISPLAY "PERFORMING P1-DENIED-SVC find-ctr " FIND-CNTR 
-      *         " SVC-CNTR " SVC-CNTR " FLAGY " FLAGY
-      *     accept omitted
            PERFORM STATUS-1
            MOVE SPACE TO SVC01 
            MOVE SVC-TAB(X) TO FILEIN01
@@ -1826,7 +1823,8 @@
                GO TO LOOK-1
            END-IF              
 
-           IF CC-PAYCODE = "001" GO TO LOOK-1.
+           IF CC-PAYCODE = "001" AND CLP-2CLMSTAT = "1 "
+               GO TO LOOK-1.
            
            MOVE SPACE TO CC-PROCY01
 
