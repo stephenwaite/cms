@@ -49,9 +49,7 @@
        FILE SECTION.
        FD  PREPRINTFILE.
        01  PREPRINTFILE01 PIC X(84).
-       FD  INSFILE
-     *     BLOCK CONTAINS 6 RECORDS
-       DATA RECORD IS INSFILE01.
+       FD  INSFILE.
        01  INSFILE01.
             02 INS-KEY PIC XXX.
             02 INS-NAME PIC X(22).
@@ -73,9 +71,7 @@
             02 INS-CAID PIC XXX.
             02 INS-REFWARN PIC X.
             02 INS-FUTURE PIC X(8).
-       FD  GARFILE
-      *    BLOCK CONTAINS 3 RECORDS
-       DATA RECORD IS GARFILE01.
+       FD  GARFILE.
        01  GARFILE01.
             02 G-GARNO PIC X(8).
             02 G-GARNAME PIC X(24).
@@ -116,9 +112,7 @@
             02 G-BILLCYCLE PIC X.
             02 G-DELETE PIC X.
             02 G-FILLER PIC XXX.
-       FD PATFILE
-      *    BLOCK CONTAINS 5 RECORDS
-       DATA RECORD IS P-MASTER.
+       FD PATFILE.
        01 P-MASTER.
             02 P-PATNO PIC X(8).
             02 P-GARNO PIC X(8).
@@ -128,9 +122,7 @@
             02 P-MSTAT PIC X.
             02 P-DOB PIC X(8).
 
-       FD  CHARFILE
-      *    BLOCK CONTAINS 2 RECORDS
-           DATA RECORD IS CHARFILE01.
+       FD  CHARFILE.
        01  CHARFILE01.
            02 CHARFILE-KEY.
              03 CD-KEY8 PIC X(8).
@@ -171,9 +163,7 @@
            02 CD-NEIC-ASSIGN PIC X.
            02 CD-FUTURE PIC X(6).
 
-       FD  PAYFILE
-      *    BLOCK CONTAINS 4 RECORDS
-       DATA RECORD IS PAYFILE01.
+       FD  PAYFILE.
        01  PAYFILE01.
             02 PAYFILE-KEY.
                 03 PD-KEY8 PIC X(8).
@@ -189,9 +179,7 @@
             02 PD-BATCH PIC X(6).
 
 
-       FD  CHARCUR
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS CHARCUR01.
+       FD  CHARCUR.
        01  CHARCUR01.
            02 CHARCUR-KEY.
              03 CC-KEY8 PIC X(8).
@@ -230,21 +218,17 @@
            02 CC-ASSIGN PIC X.
            02 CC-NEIC-ASSIGN PIC X.
            02 CC-FUTURE PIC X(6).
-       FD  BILLPARM
-       DATA RECORD IS BILLPARM01.
+       FD  BILLPARM.
        01  BILLPARM01.
             02 PF1 PIC S999.
             02 PF2 PIC S999.
             02 PF3 PIC S999.
             02 PF4 PIC X(40).
-       FD  BILLDATE
-       DATA RECORD IS BILLDATE01.
+       FD  BILLDATE.
        01  BILLDATE01.
             02 BILL-DATE PIC X(8).
             02 BILL-CYCLE PIC X(4).
-       FD  PAYCUR
-       BLOCK CONTAINS 7 RECORDS
-       DATA RECORD IS PAYCUR01.
+       FD  PAYCUR.
        01  PAYCUR01.
             02 PAYCUR-KEY.
                 03 PC-KEY8 PIC X(8).
@@ -256,13 +240,11 @@
             02 PC-DATE-T PIC X(8).
             02 PC-DATE-E PIC X(8).
             02 PC-BATCH PIC X(6).
-       FD  OUT-FILE
-       DATA RECORD IS OUT01.
+       FD  OUT-FILE.
        01  OUT01 PIC X(84).
        01  CHNL-2 PIC X.  
        01  CHNL-3 PIC X.
-       FD  PROCFILE
-       DATA RECORD IS PROC01.
+       FD  PROCFILE.
        01  PROC01.
             02 PROC-KEY PIC X(7).
             02 PROC-OLD PIC X(7).
