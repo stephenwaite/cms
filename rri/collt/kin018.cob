@@ -164,7 +164,7 @@
            02 FI-DX6 PIC X(7).
            02 FI-FUTURE PIC X(6).
        FD  FILEOUT1.
-       01  FILEOUT101 PIC X(500).
+       01  FILEOUT101 PIC X(520).
 
        FD  PAYCUR
            BLOCK CONTAINS 6 RECORDS
@@ -352,7 +352,7 @@
        P0.
            OPEN INPUT PAYCUR FILEIN GARFILE INSFILE.
            OPEN OUTPUT FILEOUT1.
-           OPEN I-O CHARCUR.
+           OPEN INPUT CHARCUR.
            MOVE 0 TO TOT-PLACED TOT-CHARGES TOT-PAY TOT-ADJ CLAIM-ADJ
              CLAIM-PAY.
            ACCEPT DATE-X FROM CENTURY-DATE.
@@ -399,7 +399,7 @@
              GO TO P1
            END-IF  
 
-           REWRITE CHARCUR01.
+      *     REWRITE CHARCUR01.
 
            ADD CLAIM-TOT TO TOT-PLACED
            ADD CLAIM-CHARGE TO TOT-CHARGES
