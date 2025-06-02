@@ -876,13 +876,17 @@
             MOVE CD-ASSIGN TO CHR-ASSIGN(CHR-IND)
             MOVE CD-STAT TO CHR-REC-STAT(CHR-IND)
             GO TO S6.
-            R10. IF (TB-PAY NOT = SPACE) AND (TB-PAY NOT = "P" )
+
+       R10. 
+            IF (TB-PAY NOT = SPACE) AND (TB-PAY NOT = "P" )
             AND (TB-PAY NOT NUMERIC) GO TO R11.
             MOVE 0 TO XYZ.
             MOVE G-GARNO TO PD-KEY8
             MOVE XYZ TO PD-KEY3
             START PAYFILE KEY > PAYFILE-KEY INVALID GO TO R11.
-            S8. READ PAYFILE NEXT AT END GO TO R11.
+
+       S8. 
+           READ PAYFILE NEXT AT END GO TO R11.
             IF G-GARNO NOT = PD-KEY8 GO TO R11.
             ADD 1 TO PHR-IND.
             IF PHR-IND > 990 DISPLAY G-GARNO " "  G-GARNAME " PAY"
@@ -1242,12 +1246,14 @@
            IF PHR-DENIAL(X) = "DA" MOVE "NONCOVER DATE"
            TO L5F23.
            IF PHR-DENIAL(X) = "BE" MOVE "BILLING ERROR" TO
-           L5F23.
+             L5F23.
            IF PHR-DENIAL(X) = "PP" MOVE "PATIENT PAID " TO
-           L5F23.
+             L5F23.
+           
            IF PHR-DENIAL(X) = "CB" MOVE "COLL. BUREAU " 
            TO L5F23.
-        IF PHR-DENIAL(X) = "RE" MOVE "REDUCE ERROR"
+           
+           IF PHR-DENIAL(X) = "RE" MOVE "REDUCE ERROR"
             TO L5F23.
             IF PHR-DENIAL(X) = "IN" MOVE "INSURE ERROR"
             TO L5F23.
