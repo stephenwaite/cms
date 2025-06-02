@@ -164,7 +164,7 @@
            02 FI-DX6 PIC X(7).
            02 FI-FUTURE PIC X(6).
        FD  FILEOUT1.
-       01  FILEOUT101 PIC X(500).
+       01  FILEOUT101 PIC X(520).
 
        FD  PAYCUR
            BLOCK CONTAINS 6 RECORDS
