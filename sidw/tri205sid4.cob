@@ -368,7 +368,7 @@
             02 FILLER PIC X(3) VALUE SPACE.
             02 L5F4 PIC ZZZ9.99CR.
             02 FILLER PIC XX VALUE SPACE.
-            *    02 L5F5 PIC ZZZ9.99CR.
+      *    02 L5F5 PIC ZZZ9.99CR.
        01  LINE-6.
             02 L6F1 PIC X(8).
             02 F61 PIC XX.
