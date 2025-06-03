@@ -624,7 +624,7 @@
              IF TB-SHORT = SPACE OR "3" GO TO TB-LOW.
              IF TB-SHORT = "E" GO TO R20.
              IF TB-SHORT = "?"
-             DISPLAY "SELCT THE TYPE OF BILL TO PRINT FROM THE LIST"
+             DISPLAY "SELECT THE TYPE OF BILL TO PRINT FROM THE LIST"
              DISPLAY "OR <CR> TO SELECT A DIFFERENT PRINTING"
              DISPLAY "E = QUIT."
              GO TO TB-QUICK.
@@ -760,9 +760,9 @@
       *     ACCEPT ALF-1 
       *    IF ALF-1 = "X" GO TO R20.
            MOVE TB-GARNO TO G-GARNO
-             READ GARFILE 
+           READ GARFILE 
                INVALID
-                     DISPLAY G-GARNO " INVALID ACCT" 
+                   DISPLAY G-GARNO " INVALID ACCT" 
                    GO TO R20.
 
       ******* READ IN ALL   RECORDS TO TABLES FOR THIS GUARANTOR *******
@@ -784,11 +784,11 @@
                    GO TO R7.
 
            IF G-GARNO NOT = CC-KEY8 GO TO R7.
-           IF CC-DATE-T  < TB-DATELOW OR > TB-DATEHIGH
+           IF CC-DATE-T < TB-DATELOW OR > TB-DATEHIGH
                GO TO R6.
-           IF (TB-INS = "O"  AND CC-ASSIGN = "U") 
-               OR (TB-INS = SPACE AND CC-ASSIGN = "A") 
-               OR ((TB-INS NUMERIC) AND (CC-PAYCODE NOT = TB-INS)) 
+           IF (TB-INS = "O" AND CC-ASSIGN = "U")
+               OR (TB-INS = SPACE AND CC-ASSIGN = "A")
+               OR ((TB-INS NUMERIC) AND (CC-PAYCODE NOT = TB-INS))
                GO TO R6.
 
            ADD 1 TO CHR-IND.
@@ -808,6 +808,8 @@
            MOVE CC-PROC TO CHR-PROC(CHR-IND)
            MOVE CC-DIAG TO CHR-DIAG(CHR-IND)
            MOVE CC-REC-STAT TO CHR-REC-STAT(CHR-IND)
+           DISPLAY CHARCUR01
+           ACCEPT OMITTED
            GO TO R6.
 
        R7. 
