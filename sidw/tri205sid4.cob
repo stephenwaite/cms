@@ -255,7 +255,7 @@
             02 CARE-AMOUNT PIC S9(4)V99.
        WORKING-STORAGE SECTION.
        01  CHR01.
-            02 CHR02 OCCURS 500 TIMES.
+            02 CHR02 OCCURS 990 TIMES.
                 03 CHR-DATE-T PIC X(8).
                 03 CHR-DATE-A PIC X(8).
                 03 CHR-CLAIM PIC X(6).
@@ -784,9 +784,7 @@
                    GO TO R7.
 
            IF G-GARNO NOT = CC-KEY8 GO TO R7.
-           DISPLAY TB-DATELOW "DATE LOW"
-           DISPLAY TB-DATEHIGH "DATE HIGH"
-           DISPLAY CC-DATE-T "CC-DATE-T"
+    
            IF CC-DATE-T < TB-DATELOW OR > TB-DATEHIGH
                GO TO R6.
            IF (TB-INS = "O" AND CC-ASSIGN = "U")
@@ -795,7 +793,7 @@
                GO TO R6.
 
            ADD 1 TO CHR-IND.
-           IF CHR-IND = 501 DISPLAY G-GARNO " " G-GARNAME
+           IF CHR-IND = 991 DISPLAY G-GARNO " " G-GARNAME
                GO TO R20.
            IF CC-DATE-A = "00000000" MOVE BILL-DATE TO
                CHR-DATE-A(CHR-IND)
@@ -811,8 +809,6 @@
            MOVE CC-PROC TO CHR-PROC(CHR-IND)
            MOVE CC-DIAG TO CHR-DIAG(CHR-IND)
            MOVE CC-REC-STAT TO CHR-REC-STAT(CHR-IND)
-           DISPLAY CHARCUR01
-           ACCEPT OMITTED
            GO TO R6.
 
        R7. 
