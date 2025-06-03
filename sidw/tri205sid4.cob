@@ -786,6 +786,7 @@
            IF G-GARNO NOT = CC-KEY8 GO TO R7.
            DISPLAY TB-DATELOW "DATE LOW"
            DISPLAY TB-DATEHIGH "DATE HIGH"
+           DISPLAY CC-DATE-T "CC-DATE-T"
            IF CC-DATE-T < TB-DATELOW OR > TB-DATEHIGH
                GO TO R6.
            IF (TB-INS = "O" AND CC-ASSIGN = "U")
