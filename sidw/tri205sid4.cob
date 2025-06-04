@@ -1044,8 +1044,9 @@
              MOVE G-BALCOL TO L7F6
              MOVE AMOUNT-DUE TO L7F7
              MOVE SPACES TO F71 F72 F73 F74 F75.
-             WRITE OUT01 AFTER 3
-      *       WRITE OUT01 FROM FOOT01.
+             MOVE SPACE TO OUT01
+             WRITE OUT01 AFTER 2
+             WRITE OUT01 FROM FOOT01.
              WRITE OUT01 FROM LINE-7 
              MOVE SPACES TO L8F1.
              
