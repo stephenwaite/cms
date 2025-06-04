@@ -984,7 +984,7 @@
            MOVE L1F2 TO L2F2
            MOVE SPACE TO L1F2.
 
-      *     PERFORM HEADER-1
+           PERFORM HEADER-1
 
              WRITE OUT01 FROM LINE-0.
              WRITE OUT01 FROM LINE-1
