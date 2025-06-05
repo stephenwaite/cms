@@ -470,7 +470,29 @@
                    PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1
                END-IF    
-           END-IF.    
+           END-IF
+
+      *    auto-code calcium screen 
+           IF CD-PROC1 = "5270"
+               IF (CD-PAYCODE = "003" OR "028" OR "074" OR "141" 
+                   OR "200" OR "245" OR "270" or "697" OR "868" OR "912"
+                   OR "409")
+                   MOVE "GY" TO CD-MOD2
+                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
+               END-IF    
+
+               DISPLAY "Autocode calcium screen?"
+               DISPLAY "Hit Y for Z136"
+               display " "
+               ACCEPT ANS1                                  
+
+               IF ANS1 = "Y"
+                   MOVE "Z136   " TO CD-DIAG
+                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
+                   GO TO P1
+               END-IF    
+           END-IF. 
+
                
        P1-1.
            IF (CD-PAYCODE = "008" OR "009" OR "010" OR "011" OR "012"
