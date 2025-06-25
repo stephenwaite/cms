@@ -1870,7 +1870,7 @@
       *    COMPARE LIST OF CODES WITH PROC
            MOVE 0 TO PA-FLAG
            PERFORM PA-LIST
-           IF AUTH-FLAG = 0 AND PA-FLAG = 1
+           IF AUTH-FLAG = 0 AND PA-FLAG = 1 AND FI-PAYCODE = "002"
                PERFORM 2420E THRU 2420E-EXIT
            END-IF
 
