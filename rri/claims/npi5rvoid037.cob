@@ -1511,7 +1511,11 @@
            READ AUTHFILE 
                INVALID
                   MOVE 0 TO AUTH-FLAG
-           END-READ    
+           END-READ
+
+           IF AUTH-NUM = SPACE
+               MOVE 0 TO AUTH-FLAG
+           END-IF
   
            MOVE SPACE TO REF-CODE
            MOVE "G1" TO REF-CODE
@@ -1929,7 +1933,7 @@
        2420E.
            display "in 2420e"
            accept OMITTED
-           
+
            IF FI-DOCR = "000" 
              GO TO REF-2.
 
