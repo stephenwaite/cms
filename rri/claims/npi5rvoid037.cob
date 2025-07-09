@@ -1927,6 +1927,9 @@
            EXIT.  
 
        2420E.
+           display "in 2420e"
+           accept OMITTED
+           
            IF FI-DOCR = "000" 
              GO TO REF-2.
 
