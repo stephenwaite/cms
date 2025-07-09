@@ -1868,9 +1868,7 @@
       *    COMPARE LIST OF CODES WITH PROC
            MOVE 0 TO PA-FLAG
            PERFORM PA-LIST
-           DISPLAY AUTH-FLAG " AUTH-FLAG " PA-FLAG " PA-FLAG " 
-               FI-PAYCODE
-           ACCEPT OMITTED    
+    
            IF AUTH-FLAG = 0 AND PA-FLAG = 1 AND FI-PAYCODE = "002"
                PERFORM 2420E THRU 2420E-EXIT
            END-IF
@@ -1931,9 +1929,6 @@
            EXIT.  
 
        2420E.
-           display "in 2420e"
-           accept OMITTED
-
            IF FI-DOCR = "000" 
              GO TO REF-2.
 

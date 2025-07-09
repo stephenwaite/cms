@@ -1531,6 +1531,10 @@
                INVALID
                  MOVE 0 TO AUTH-FLAG
            END-READ    
+
+           IF AUTH-NUM = SPACE
+               MOVE 0 TO AUTH-FLAG
+           END-IF
   
            MOVE SPACE TO REF-CODE
            MOVE "G1" TO REF-CODE
