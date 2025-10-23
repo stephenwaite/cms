@@ -25,7 +25,7 @@
            02 FO-PAT-STR2 PIC X(22).
            02 FO-PAT-CITY PIC X(18).
            02 FO-PAT-STATE PIC XX.
-           02 FO-PAT-ZIP PIC X(10).
+           02 FO-PAT-ZIP PIC X(9).
            02 FO-PAT-DOB PIC X(10).
            02 FO-PAT-SEX PIC X.
            02 FO-PRIM-ALFA PIC X(10).
