@@ -137,12 +137,12 @@
       *     ACCEPT OMITTED
 
            MOVE SPACE TO ALF9
-           IF FO-PAT-ZIP(6:4) = "0000"
+           IF FO-PAT-ZIP(6:1) = "-"
                MOVE SPACE TO TEMP-ZIP
                MOVE FO-PAT-ZIP(1:5) TO TEMP-ZIP
                MOVE TEMP-ZIP TO FO-PAT-ZIP    
            END-IF
-           STRING FO-PAT-ZIP(1:5) FO-PAT-ZIP(7:4) INTO ALF9
+           STRING FO-PAT-ZIP(1:5) FO-PAT-ZIP(6:4) INTO ALF9
            MOVE SPACE TO FO-PAT-ZIP
            MOVE ALF9 TO FO-PAT-ZIP
 
