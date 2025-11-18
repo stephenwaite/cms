@@ -7,7 +7,7 @@ while ($line = fgetcsv($handle)) {
         continue;
     }
     $cpt = substr($line[1], 0, 5) ?? '';
-    
+
     $mod = $line[2];
     if ($mod == 'TC') {
         continue;
@@ -45,7 +45,7 @@ while (!feof($file)) {
     $fees[$cpt]['cpt'] = $cpt;
     $fees[$cpt]['mod'] = $mod;
     $fees[$cpt]['desc'] = $desc;
-    $fees[$cpt]['fee'] = $fee/100;
+    $fees[$cpt]['fee'] = $fee / 100;
     $fees[$cpt]['allow'] = $cms_cpt_array[$cpt]['allow'];
     $fees[$cpt]['ratio'] = round($fees[$cpt]['fee'] / $cms_cpt_array[$cpt]['allow'], 2);
 
@@ -65,8 +65,8 @@ while (!feof($file)) {
 ksort($fees);
 
 $fileout = fopen('2023_ratio', 'w');
-foreach($fees as $key => $value) {
-    $string = $key . "," . $value['mod'] . "," . $value['desc'] . "," . $value['fee'] . "," . 
+foreach ($fees as $key => $value) {
+    $string = $key . "," . $value['mod'] . "," . $value['desc'] . "," . $value['fee'] . "," .
         $value['allow'] . "," . $value['ratio'] . "\n";
     fwrite($fileout, $string);
 }

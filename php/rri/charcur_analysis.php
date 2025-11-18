@@ -4,15 +4,15 @@
 $myfile = fopen("wste.csv", "r") or die("Unable to open file!");
 // Output one line until end-of-file
 
-while($line = fgets($myfile)) {
-  $pt_facing_codes_array[] = substr($line, 0, 5);
+while ($line = fgets($myfile)) {
+    $pt_facing_codes_array[] = substr($line, 0, 5);
 }
 
 // wsid = unload of charcur
 $rri_charges = fopen("/home/stee/Downloads/wsid", "r") or die("Unable to open file!");
 
 $prev_cpt = '';
-while ($line = fgets($rri_charges)){
+while ($line = fgets($rri_charges)) {
     $cpt = substr($line, 37, 5);
     $dos = substr($line, 83, 8);
     $doc = substr($line, 59, 2);
@@ -31,7 +31,7 @@ while ($line = fgets($rri_charges)){
     if (in_array($cpt, $pt_facing_codes_array)) {
         //if ($doc == "08") {
             //if ($ref == "S1X") {
-                echo $gar. " " . $cpt . " " . $dos . " " . $doc . " " . $pos . " " . $ref . "\n";
+                echo $gar . " " . $cpt . " " . $dos . " " . $doc . " " . $pos . " " . $ref . "\n";
             //}
         //}
         //$pt_facing[$gar] =  $cpt . " " . $dos . " " . $doc;
