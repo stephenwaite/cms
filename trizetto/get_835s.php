@@ -3,11 +3,17 @@
 require_once(dirname(__FILE__) . '/../vendor/autoload.php');
 use phpseclib3\Net\SFTP;
 
+// Enable this script via environment variable
+if (!getenv('OPENEMR_ENABLE_TRIZETTO_SFTP')) {
+    die('Set OPENEMR_ENABLE_TRIZETTO_SFTP=1 environment variable to enable this script');
+}
 
 $cms_user = getenv('TRIZETTO_USERNAME');
 $cms_pass = getenv('TRIZETTO_PASSWORD');
 $sftpUrl = getenv('SFTP_URL');
 $sftp = new SFTP($sftpUrl);
+$sftp->setTimeout(300); // 5 minutes instead of default
+$sftp->setKeepAlive(30); // Send keep-alive every 30 seconds
 if (!$sftp->login($cms_user, $cms_pass)) {
     echo "login failed" . "\n";
     exit;
