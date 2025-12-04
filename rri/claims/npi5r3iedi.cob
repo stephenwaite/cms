@@ -428,7 +428,7 @@
            02 GS-S1 PIC X VALUE "*".
            02 GS-2 PIC X(9) VALUE "030353360".
            02 GS-S2 PIC X VALUE "*".
-           02 GS-3 PIC X(9) VALUE "133052274".
+           02 GS-3 PIC X(9) VALUE "454683454".
            02 GS-S3 PIC X VALUE "*".
            02 GS-4 PIC X(8).
            02 GS-S4 PIC X VALUE "*".
