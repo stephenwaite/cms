@@ -1,7 +1,7 @@
 <?php
 
 // Directory path
-$archiveDirectoryPath = 'archive';
+$archiveDirectoryPath = 'archive' . DIRECTORY_SEPARATOR;
 
 // Prompt the user for a MMDDYY date
 echo "Please enter a date in MMDDYY format: ";
