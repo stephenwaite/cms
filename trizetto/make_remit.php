@@ -1,4 +1,5 @@
 <?php
+
 // Directory path
 $archiveDirectoryPath = 'archive';
 
@@ -24,37 +25,32 @@ if (!file_exists($archiveDirectoryPath)) {
 $outputHandle = fopen($outputFile, 'w');
 
 // Check if the directory is valid
-if ($handle = opendir($directoryPath)) {
     // Loop through the files in the directory
-    while (false !== ($file = readdir($handle))) {
-        // Check if the file ends with .RMT extension
-        if (pathinfo($file, PATHINFO_EXTENSION) === 'RMT') {
-            $filePath = $directoryPath . $file;
-            
-            // Read the content of the RMT file
-            $fileContents = file_get_contents($filePath);
-            
-            // Concatenate the contents to the output file
-            fwrite($outputHandle, $fileContents);
-            
-            // Move the processed file to the archive directory
-            $archivePath = $archiveDirectoryPath . $file;
-            if (rename($filePath, $archivePath)) {
-                echo "File $file moved to archive successfully.\n";
-            } else {
-                echo "Failed to move $file to archive.\n";
-            }
+while (false !== ($file = readdir($handle))) {
+    // Check if the file ends with .RMT extension
+    if (pathinfo($file, PATHINFO_EXTENSION) === 'RMT') {
+        $filePath = $directoryPath . $file;
+
+        // Read the content of the RMT file
+        $fileContents = file_get_contents($filePath);
+
+        // Concatenate the contents to the output file
+        fwrite($outputHandle, $fileContents);
+
+        // Move the processed file to the archive directory
+        $archivePath = $archiveDirectoryPath . $file;
+        if (rename($filePath, $archivePath)) {
+            echo "File $file moved to archive successfully.\n";
+        } else {
+            echo "Failed to move $file to archive.\n";
         }
     }
-    
-    // Close the directory handle
-    closedir($handle);
-    
-    // Close the output file handle
-    fclose($outputHandle);
-    
-    echo "Files concatenated successfully to '$outputFile'.\n";
-} else {
-    echo "Failed to open directory: $directoryPath\n";
 }
-?>
+
+// Close the directory handle
+closedir($handle);
+
+// Close the output file handle
+fclose($outputHandle);
+
+echo "Files concatenated successfully to '$outputFile'.\n";
