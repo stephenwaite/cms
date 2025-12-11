@@ -26,7 +26,8 @@ $outputHandle = fopen($outputFile, 'w');
 
 // Check if the directory is valid
     // Loop through the files in the directory
-while (false !== ($file = readdir('.'))) {
+$dir = opendir('.');
+while (false !== ($file = readdir($dir))) {
     // Check if the file ends with .RMT extension
     if (pathinfo($file, PATHINFO_EXTENSION) === 'RMT') {
         $filePath = $directoryPath . $file;
