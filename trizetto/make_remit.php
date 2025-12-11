@@ -1,7 +1,6 @@
 <?php
-// Directory paths
-$directoryPath = __DIR__ . DIRECTORY_SEPARATOR;
-$archiveDirectoryPath = __DIR__ . DIRECTORY_SEPARATOR . 'archive' . DIRECTORY_SEPARATOR;
+// Directory path
+$archiveDirectoryPath = DIRECTORY_SEPARATOR . 'archive' . DIRECTORY_SEPARATOR;
 
 // Prompt the user for a MMDDYY date
 echo "Please enter a date in MMDDYY format: ";
@@ -14,7 +13,7 @@ if (!preg_match('/^\d{2}\d{2}\d{2}$/', $dateInput)) {
 }
 
 // Format the output filename
-$outputFile = __DIR__ . DIRECTORY_SEPARATOR . 'remittz' . $dateInput . ".edi";
+$outputFile = 'remittz' . $dateInput . ".edi";
 
 // Check if the output directory exists, otherwise create it
 if (!file_exists($archiveDirectoryPath)) {
