@@ -30,7 +30,7 @@ if (!empty($rawlist)) {
     foreach ($rawlist as $file) {
         //var_dump($file);
         $fileName = $file->filename;
-        $destination = __DIR__ . DIRECTORY_SEPARATOR . $fileName;
+        $destination = $fileName;
         echo "downloading " . $fileName . " to " . $destination . "\n";
         $sftp->get($path . "/" . $fileName, $destination);
         if ($sftp->rename($path . "/" . $file->filename, '/WorkedTrans/' . $file->filename)) {
