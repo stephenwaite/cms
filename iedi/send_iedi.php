@@ -8,6 +8,8 @@ try {
     $cms_user = getenv('IEDI_USERNAME');
     $cms_pass = getenv('IEDI_PASSWORD');
     $sftp = new SFTP('ecgpe.healthtechnologygroup.com');
+    $sftp->setTimeout(300); // 5 minutes instead of default
+    $sftp->setKeepAlive(30); // Send keep-alive every 30 seconds
 
     if (!$sftp->login($cms_user, $cms_pass)) {
         echo "login failed" . "\n";
