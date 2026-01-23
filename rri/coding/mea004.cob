@@ -390,6 +390,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS  "," G-PRIPOL ",QMM26," CD-PROC1  ","
                        CD-DIAG ",PM002," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
       *    size delimited file for output to coders                                                
@@ -405,6 +406,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 "," 
                        CD-DIAG ",PM102," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -419,6 +421,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                        CD-DIAG ",PM202," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -433,6 +436,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                        CD-DIAG ",PNM02," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -447,6 +451,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                        CD-DIAG ",PE002," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -467,6 +472,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
                        CD-DIAG ",PM004," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
       *    size delimited file for output to coders                                                
@@ -482,6 +488,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
                        CD-DIAG ",PNM04," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -496,6 +503,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
                        CD-DIAG ",PE004," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -524,6 +532,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM19," CD-PROC1 ","
                        CD-DIAG ",PM019," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
       *    size delimited file for output to coders                                                
@@ -539,6 +548,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM19," CD-PROC1 ","
                        CD-DIAG ",PNM19," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -553,6 +563,7 @@
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
                        CD-DIAG ",PE004," CD-QP1 "," CD-QP2 "," CD-FIN
+                       "," CD-DOCP
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
