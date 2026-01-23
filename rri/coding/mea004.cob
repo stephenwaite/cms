@@ -81,9 +81,8 @@
            02 CD-DX4 PIC X(7).
            02 CD-QP1 PIC XX.
            02 CD-QP2 PIC XX.
-           02 CD-DX5-3 PIC X(3).
            02 CD-FIN PIC X(7).
-           02 CD-FUTURE PIC X(6).
+           02 CD-FUTURE PIC X(9).
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).
