@@ -130,23 +130,6 @@ class CharCurParser {
     }
 }
 
-// Usage for 2M records - memory efficient
-/* foreach (CharCurParser::parseFile('CHARCUR01.txt') as $lineNum => $record) {
-    // Process each record
-    // Example: Insert to database, validate, etc.
-    
-    if ($lineNum % 10000 == 0) {
-        echo "Processed $lineNum records\n";
-    }
-} */
-
-/* // Or get single line
-$sampleLine = "TRA2632G026TRA2632G1115315Z8249  21427670626      020000H7110001 010000000014200 50202512310000000020260102000000000000000 20251231UU00000003   0453973";
-$parsed = CharCurParser::parseLine($sampleLine);
-print_r($parsed);
-
-<?php */
-
 class CsvMatcher {
     
     // Define CSV field positions (0-indexed)
