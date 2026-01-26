@@ -198,11 +198,17 @@
 
            MOVE CHARFILE01 TO CHARBACK01
            MOVE CD-PROC1 TO PROC-HOLD
+           DEBUG-DISPLAY-TABLE.
+           DISPLAY '*** NPI TABLE CONTENTS ***'
+           PERFORM VARYING NPI-IDX FROM 1 BY 1 UNTIL NPI-IDX > 15
+               IF NPI-TBL-KEY(NPI-IDX) NOT = SPACES
+                   DISPLAY 'Entry ' NPI-IDX 
+                           ': Key=' NPI-TBL-KEY(NPI-IDX)
+                           ' NPI=' NPI-TBL-NUMBER(NPI-IDX)
+               END-IF
+           END-PERFORM
+           DISPLAY '*** END TABLE ***'.
            SEARCH NPI-ENTRY
-               DISPLAY NPI-IDX " NPI-IDX"
-               DISPLAY NPI-TBL-KEY(NPI-IDX) " NPI-TBL-KEY(NPI-IDX"
-               DISPLAY NPI-TBL-NUMBER(NPI-IDX) " NPI-TBL-NUMBER(NPI-IDX"
-               ACCEPT OMITTED
                WHEN NPI-TBL-KEY(NPI-IDX) = CD-DOCP
                    MOVE NPI-TBL-NUMBER(NPI-IDX) TO WS-NPI-RESULT
            END-SEARCH
