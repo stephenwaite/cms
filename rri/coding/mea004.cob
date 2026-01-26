@@ -54,7 +54,7 @@
            02 CD-MOD4 PIC XX.
            02 CD-AMOUNT PIC S9(4)V99.
            02 CD-DOCR PIC X(3).
-           02 CD-DOCP PIC 9(2).
+           02 CD-DOCP PIC X(2).
            02 CD-PAYCODE PIC XXX.
            02 CD-REC-STAT PIC X.
            02 CD-WORK PIC XX.
@@ -153,11 +153,13 @@
        01  X-PROC PIC X(11).
        01  PROC-HOLD PIC X(5).
        01  ALF1 PIC X.
-       01  NPI-DIRECT-TABLE.
-           05  NPI-NUMBER OCCURS 99 TIMES PIC 9(10).
-       
-       01  WS-LOOKUP-KEY                PIC 99.
-       01  WS-NPI-RESULT                PIC 9(10).
+       01  NPI-TABLE.
+           05  NPI-ENTRY OCCURS 15 TIMES INDEXED BY NPI-IDX.
+               10  NPI-TBL-KEY          PIC X(2). 
+               10  NPI-TBL-NUMBER       PIC X(10).
+
+       01  WS-LOOKUP-KEY                PIC X(2).
+       01  WS-NPI-RESULT                PIC X(10).        
 
        PROCEDURE DIVISION.
 
@@ -196,7 +198,8 @@
 
            MOVE CHARFILE01 TO CHARBACK01
            MOVE CD-PROC1 TO PROC-HOLD
-           MOVE NPI-NUMBER(CD-DOCP) TO WS-NPI-RESULT
+           MOVE CD-DOCP TO WS-LOOKUP-KEY
+           PERFORM LOOKUP-NPI
 
            IF CD-PAYCODE = "008"
                MOVE SPACE TO FILEOUT01           
@@ -633,17 +636,27 @@
            END-READ.
     
        INIT-NPI-TABLE.
-      *    Initialize all to zeros
-           PERFORM VARYING WS-LOOKUP-KEY FROM 1 BY 1 
-                   UNTIL WS-LOOKUP-KEY > 99
-               MOVE ZEROS TO NPI-NUMBER(WS-LOOKUP-KEY)
-           END-PERFORM
+           MOVE '06' TO NPI-TBL-KEY(1)
+           MOVE '1194737833' TO NPI-TBL-NUMBER(1)
            
-      *    Load the NPI values
-           MOVE 1194737833 TO NPI-NUMBER(06)
-           MOVE 1407002355 TO NPI-NUMBER(08)
-           MOVE 1174889182 TO NPI-NUMBER(09)
-           MOVE 1487884953 TO NPI-NUMBER(10).
+           MOVE '08' TO NPI-TBL-KEY(2)
+           MOVE '1407002355' TO NPI-TBL-NUMBER(2)
+           
+           MOVE '09' TO NPI-TBL-KEY(3)
+           MOVE '1174889182' TO NPI-TBL-NUMBER(3)
+           
+           MOVE '10' TO NPI-TBL-KEY(4)
+           MOVE '1487884953' TO NPI-TBL-NUMBER(4).
+       
+       LOOKUP-NPI.
+           MOVE SPACES TO WS-NPI-RESULT
+           
+           SEARCH NPI-ENTRY
+               AT END
+                   DISPLAY 'Key ' WS-LOOKUP-KEY ': NOT FOUND'
+               WHEN NPI-TBL-KEY(NPI-IDX) = WS-LOOKUP-KEY
+                   MOVE NPI-TBL-NUMBER(NPI-IDX) TO WS-NPI-RESULT
+           END-SEARCH.
 
        P2.
            REWRITE CLAIM01
