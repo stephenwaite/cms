@@ -6,16 +6,26 @@ import re
 import logging
 from datetime import datetime
 
-# Setup logging
+# Setup logging with different levels for file and console
 log_filename = f"vtmedicaid_upload_{datetime.now().strftime('%Y%m%d')}.log"
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(log_filename),
-        logging.StreamHandler()
-    ]
-)
+
+# Create logger
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)  # Capture everything at INFO level
+
+# File handler - logs everything (INFO and above)
+file_handler = logging.FileHandler(log_filename)
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+# Console handler - only logs errors (ERROR and above)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.ERROR)
+console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+# Add both handlers
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
 
 # Get credentials from environment variables
 logon_id = os.getenv('VT_MEDICAID_USER')
@@ -41,7 +51,7 @@ def upload_to_vtmedicaid(logon_id, password, file_path):
             logging.info("Launching browser in headless mode")
             browser = p.chromium.launch(
                 headless=True,
-                args=['--no-sandbox', '--disable-setuid-sandbox']  # Needed for some server environments
+                args=['--no-sandbox', '--disable-setuid-sandbox']
             )
             page = browser.new_page()
             
