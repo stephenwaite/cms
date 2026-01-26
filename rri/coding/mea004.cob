@@ -54,7 +54,7 @@
            02 CD-MOD4 PIC XX.
            02 CD-AMOUNT PIC S9(4)V99.
            02 CD-DOCR PIC X(3).
-           02 CD-DOCP PIC X(2).
+           02 CD-DOCP PIC 9(2).
            02 CD-PAYCODE PIC XXX.
            02 CD-REC-STAT PIC X.
            02 CD-WORK PIC XX.
