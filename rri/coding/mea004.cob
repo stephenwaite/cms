@@ -198,8 +198,10 @@
 
            MOVE CHARFILE01 TO CHARBACK01
            MOVE CD-PROC1 TO PROC-HOLD
-           MOVE CD-DOCP TO WS-LOOKUP-KEY
-           PERFORM LOOKUP-NPI
+           SEARCH NPI-ENTRY
+               WHEN NPI-TBL-KEY(NPI-IDX) = CD-DOCP
+                   MOVE NPI-TBL-NUMBER(NPI-IDX) TO WS-NPI-RESULT
+           END-SEARCH
 
            IF CD-PAYCODE = "008"
                MOVE SPACE TO FILEOUT01           
@@ -647,16 +649,6 @@
            
            MOVE '10' TO NPI-TBL-KEY(4)
            MOVE '1487884953' TO NPI-TBL-NUMBER(4).
-       
-       LOOKUP-NPI.
-           MOVE SPACES TO WS-NPI-RESULT
-           
-           SEARCH NPI-ENTRY
-               AT END
-                   DISPLAY 'Key ' WS-LOOKUP-KEY ': NOT FOUND'
-               WHEN NPI-TBL-KEY(NPI-IDX) = WS-LOOKUP-KEY
-                   MOVE NPI-TBL-NUMBER(NPI-IDX) TO WS-NPI-RESULT
-           END-SEARCH.
 
        P2.
            REWRITE CLAIM01
