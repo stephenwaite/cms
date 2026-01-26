@@ -159,7 +159,8 @@
                10  NPI-TBL-NUMBER       PIC X(10).
 
        01  WS-LOOKUP-KEY                PIC X(2).
-       01  WS-NPI-RESULT                PIC X(10).        
+       01  WS-NPI-RESULT                PIC X(10).
+       01  WS-FOUND-FLAG            PIC X VALUE 'N'.      
 
        PROCEDURE DIVISION.
 
