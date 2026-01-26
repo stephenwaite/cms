@@ -204,6 +204,7 @@
            END-SEARCH
            display cd-docp " cd-docp"
            display ws-npi-result " ws-npi-result"
+           ACCEPT OMITTED
 
            IF CD-PAYCODE = "008"
                MOVE SPACE TO FILEOUT01           
