@@ -199,32 +199,14 @@
 
            MOVE CHARFILE01 TO CHARBACK01
            MOVE CD-PROC1 TO PROC-HOLD
-           DISPLAY '*** NPI TABLE CONTENTS ***'
-           PERFORM VARYING NPI-IDX FROM 1 BY 1 UNTIL NPI-IDX > 15
-               IF NPI-TBL-KEY(NPI-IDX) NOT = SPACES
-                   DISPLAY 'Entry ' NPI-IDX 
-                           ': Key=' NPI-TBL-KEY(NPI-IDX)
-                           ' NPI=' NPI-TBL-NUMBER(NPI-IDX)
-               END-IF
-           END-PERFORM
-           DISPLAY '*** END TABLE ***'.
+
            PERFORM VARYING NPI-IDX FROM 1 BY 1 
                    UNTIL NPI-IDX > 15 OR WS-FOUND-FLAG = 'Y'
                IF NPI-TBL-KEY(NPI-IDX) = CD-DOCP
                    MOVE NPI-TBL-NUMBER(NPI-IDX) TO WS-NPI-RESULT
                    MOVE 'Y' TO WS-FOUND-FLAG
-                   DISPLAY '>>> MATCH at index ' NPI-IDX
-                          ': ' WS-NPI-RESULT
                END-IF
            END-PERFORM
-           display cd-docp " cd-docp"
-           IF CD-DOCP = '09'
-               DISPLAY '>>> CD-DOCP equals literal 09'
-           ELSE
-               DISPLAY '>>> CD-DOCP does NOT equal literal 09'
-           END-IF
-           display ws-npi-result " ws-npi-result"
-           ACCEPT OMITTED
 
            IF CD-PAYCODE = "008"
                MOVE SPACE TO FILEOUT01           
@@ -423,8 +405,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS  "," G-PRIPOL ",QMM26," CD-PROC1  ","
-                       CD-DIAG ",PM002," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PM002," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
       *    size delimited file for output to coders                                                
@@ -439,8 +421,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 "," 
-                       CD-DIAG ",PM102," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PM102," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -454,8 +436,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
-                       CD-DIAG ",PM202," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PM202," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -469,8 +451,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
-                       CD-DIAG ",PNM02," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PNM02," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -484,8 +466,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
-                       CD-DIAG ",PE002," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PE002," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -505,8 +487,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
-                       CD-DIAG ",PM004," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PM004," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
       *    size delimited file for output to coders                                                
@@ -521,8 +503,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
-                       CD-DIAG ",PNM04," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PNM04," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -536,8 +518,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
-                       CD-DIAG ",PE004," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PE004," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -565,8 +547,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM19," CD-PROC1 ","
-                       CD-DIAG ",PM019," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PM019," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
       *    size delimited file for output to coders                                                
@@ -581,8 +563,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",QMM19," CD-PROC1 ","
-                       CD-DIAG ",PNM19," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PNM19," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
@@ -596,8 +578,8 @@
                    MOVE SPACE TO FILEOUT201              
                    STRING CD-DATE-T "," G-GARNO "," G-DOB "," G-SEX ","
                        G-PRINS "," G-PRIPOL ",MSN15," CD-PROC1 ","
-                       CD-DIAG ",PE004," CD-QP1 "," CD-QP2 ",1" CD-FIN
-                       "," WS-NPI-RESULT
+                       CD-DIAG ",PE004," CD-QP1 "," CD-QP2 "," 
+                       WS-NPI-RESULT ",1" CD-FIN
                    DELIMITED BY SIZE INTO FILEOUT201
                    WRITE FILEOUT201
                    MOVE SPACE TO FILEOUT01              
