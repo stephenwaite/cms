@@ -207,10 +207,15 @@
                END-IF
            END-PERFORM
            DISPLAY '*** END TABLE ***'.
-           SEARCH NPI-ENTRY
-               WHEN NPI-TBL-KEY(NPI-IDX) = CD-DOCP
+           PERFORM VARYING NPI-IDX FROM 1 BY 1 
+                   UNTIL NPI-IDX > 15 OR WS-FOUND-FLAG = 'Y'
+               IF NPI-TBL-KEY(NPI-IDX) = CD-DOCP
                    MOVE NPI-TBL-NUMBER(NPI-IDX) TO WS-NPI-RESULT
-           END-SEARCH
+                   MOVE 'Y' TO WS-FOUND-FLAG
+                   DISPLAY '>>> MATCH at index ' NPI-IDX
+                          ': ' WS-NPI-RESULT
+               END-IF
+           END-PERFORM
            display cd-docp " cd-docp"
            IF CD-DOCP = '09'
                DISPLAY '>>> CD-DOCP equals literal 09'
