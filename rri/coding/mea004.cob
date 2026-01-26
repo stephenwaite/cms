@@ -202,6 +202,8 @@
                WHEN NPI-TBL-KEY(NPI-IDX) = CD-DOCP
                    MOVE NPI-TBL-NUMBER(NPI-IDX) TO WS-NPI-RESULT
            END-SEARCH
+           display cd-docp " cd-docp"
+           display ws-npi-result " ws-npi-result"
 
            IF CD-PAYCODE = "008"
                MOVE SPACE TO FILEOUT01           
@@ -638,6 +640,12 @@
            END-READ.
     
        INIT-NPI-TABLE.
+
+           PERFORM VARYING NPI-IDX FROM 1 BY 1 UNTIL NPI-IDX > 15
+               MOVE SPACES TO NPI-TBL-KEY(NPI-IDX)
+               MOVE SPACES TO NPI-TBL-NUMBER(NPI-IDX)
+           END-PERFORM
+
            MOVE '06' TO NPI-TBL-KEY(1)
            MOVE '1194737833' TO NPI-TBL-NUMBER(1)
            
