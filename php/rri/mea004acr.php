@@ -261,12 +261,18 @@ foreach (CsvMatcher::findMatches($argv[2], $charcurIndex) as $result) {
         
     } else {
         // Match found!
-        echo "CSV Line {$result['csv_line']}: MATCH FOUND\n";
-        echo "  CSV: " . implode(',', $result['csv_data']) . "\n";
-        echo "  CHARCUR Patient ID: {$result['charcur_match']['cc_patid']}\n";
-        echo "  CHARCUR Claim: {$result['charcur_match']['cc_claim']}\n";
-        echo "  CHARCUR Amount: {$result['charcur_match']['cc_amount']}\n";
-        echo "\n";
+        //echo "CSV Line {$result['csv_line']}: MATCH FOUND\n";
+        $result_npi = match(trim($result['charcur_match']['cc_docp'])) {
+            '06' => '1194737833',
+            '08' => '1407002355',
+            '09' => '1174889182',
+            '10' => '1487884953'
+        };
+        echo implode(',', $result['csv_data']) . ",{$result_npi},1{$result['charcur_match']['cc_visitno']}\n";
+        //echo "  CHARCUR Patient ID: {$result['charcur_match']['cc_patid']}\n";
+        //echo "  CHARCUR Claim: {$result['charcur_match']['cc_claim']}\n";
+        //echo "  CHARCUR Amount: {$result['charcur_match']['cc_amount']}\n";
+        //echo "\n";
         
         // Do something with the match
         // - Update database
