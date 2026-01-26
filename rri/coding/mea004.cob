@@ -212,6 +212,11 @@
                    MOVE NPI-TBL-NUMBER(NPI-IDX) TO WS-NPI-RESULT
            END-SEARCH
            display cd-docp " cd-docp"
+           IF CD-DOCP = '09'
+               DISPLAY '>>> CD-DOCP equals literal 09'
+           ELSE
+               DISPLAY '>>> CD-DOCP does NOT equal literal 09'
+           END-IF
            display ws-npi-result " ws-npi-result"
            ACCEPT OMITTED
 
