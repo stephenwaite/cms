@@ -141,7 +141,7 @@ if __name__ == "__main__":
     
     if tracking:
         logging.info(f"Upload completed successfully. Tracking: {tracking}")
-        logging.error(f"Upload completed successfully. Tracking: {tracking}")
+        print(f"SUCCESS - Tracking: {tracking}")  # This will always show on console
         sys.exit(0)
     else:
         logging.error("Upload failed")
