@@ -140,10 +140,10 @@ class CsvMatcher {
         'gender'     => 3,  // F
         'field4'     => 4,  // 268
         'field5'     => 5,  // S4R183W03605
-        'field6'     => 6,  // MSN15
+        'measure'     => 6,  // MSN15
         'proc_code'  => 7,  // 76536 (cc_proc1 = 5 chars offset of 4 chars)
-        'field8'     => 8,  // E041
-        'field9'     => 9,  // PM004
+        'dx'     => 8,  // E041
+        'denom'     => 9,  // PM004
         'field10'    => 10, // 005915
     ];
     
@@ -152,7 +152,7 @@ class CsvMatcher {
      * Key format: "cc_key8|cc_proc1|cc_date_t"
      */
     public static function buildCharCurIndex($charcurFile) {
-        echo "Building index from CHARCUR file...\n";
+        //echo "Building index from CHARCUR file...\n";
         $index = [];
         $lineNum = 0;
         
@@ -170,11 +170,11 @@ class CsvMatcher {
             $index[$key] = $record;
             
             if ($lineNum % 100000 == 0) {
-                echo "Indexed $lineNum records...\n";
+                //echo "Indexed $lineNum records...\n";
             }
         }
         
-        echo "Index complete: $lineNum records\n";
+        //echo "Index complete: $lineNum records\n";
         return $index;
     }
     
@@ -204,6 +204,12 @@ class CsvMatcher {
             $csvKey8 = trim($fields[self::$csvFields['key']]);
             $csvProc1 = substr(trim($fields[self::$csvFields['proc_code']]), 0, 5); // 5 chars offset of 4 chars
             $csvDateT = trim($fields[self::$csvFields['date']]);
+            $csvDob = trim($fields[self::$csvFields['dob']]);
+            $gender = trim($fields[self::$csvFields['gender']]);
+            $measure = trim($fields[self::$csvFields['measure']]);
+            $numerator = trim($fields[self::$csvFields['denom']]);
+            $dx = trim($fields[self::$csvFields['dx']]);
+
             
             // Build lookup key
             $lookupKey = sprintf("%s|%s|%s", $csvKey8, $csvProc1, $csvDateT);
@@ -217,7 +223,15 @@ class CsvMatcher {
                     'csv_line' => $lineNum,
                     'csv_data' => $fields,
                     'charcur_match' => $match,
-                    'match_key' => $lookupKey
+                    'match_key' => $lookupKey,
+                    'dob' => $csvDob,
+                    'garno' => $csvKey8,
+                    'gender' => $gender,
+                    'measure' => $measure,
+                    'bcode' => $csvProc1,
+                    'dos' => $csvDateT,
+                    'numerator' => $numerator,
+                    'dx' => $dx
                 ];
             } else {
                 $noMatchCount++;
@@ -231,15 +245,17 @@ class CsvMatcher {
             }
             
             if ($lineNum % 1000 == 0) {
-                echo "Processed $lineNum CSV records ($matchCount matches, $noMatchCount no match)\n";
+                //echo "Processed $lineNum CSV records ($matchCount matches, $noMatchCount no match)\n";
             }
         }
         
         fclose($handle);
         
-        echo "\nFinal: $lineNum CSV records processed\n";
-        echo "Matches: $matchCount\n";
-        echo "No Match: $noMatchCount\n";
+        //echo "\nFinal: $lineNum CSV records processed\n";
+        //echo "Matches: $matchCount\n";
+        if (!empty($noMatchCount)) {
+            echo "No Match: $noMatchCount\n";
+        }
     }
 }
 
@@ -268,7 +284,28 @@ foreach (CsvMatcher::findMatches($argv[2], $charcurIndex) as $result) {
             '09' => '1174889182',
             '10' => '1487884953'
         };
-        echo implode(',', $result['csv_data']) . ",{$result_npi},1{$result['charcur_match']['cc_visitno']}\n";
+        $examDate = date('m/d/Y', strtotime($result['charcur_match']['cc_date_t']));
+        $age = calculateAge($result['dob'], $result['charcur_match']['cc_date_t']);
+        $garno = $result['garno'];
+        $gender = $result['gender'];
+        $measure = $result['measure'];
+        $bcode = $result['bcode'];
+        $dx = $result['dx'];
+        $numerator = $result['numerator'];
+        $output = "1.1," .
+            "107816," .
+            $examDate . "," .
+            "030238095," .
+            $result_npi . "," .
+            $garno . "," .
+            $age . "," .
+            $gender . "," .
+            $measure . "," .
+            $bcode . "," .
+            $dx . "," .
+            $numerator . "," .
+            "1" . $result['charcur_match']['cc_visitno'] . "\n";
+        echo $output;
         //echo "  CHARCUR Patient ID: {$result['charcur_match']['cc_patid']}\n";
         //echo "  CHARCUR Claim: {$result['charcur_match']['cc_claim']}\n";
         //echo "  CHARCUR Amount: {$result['charcur_match']['cc_amount']}\n";
@@ -279,4 +316,11 @@ foreach (CsvMatcher::findMatches($argv[2], $charcurIndex) as $result) {
         // - Write to output file
         // - Process payment, etc.
     }
+}
+
+function calculateAge($birthDate, $dos) {
+    $birth = new DateTime($birthDate);
+    $today = new DateTime($dos);
+    $age = $birth->diff($today)->y;
+    return $age;
 }
