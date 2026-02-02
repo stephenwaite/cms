@@ -543,8 +543,7 @@
            DISPLAY " ".
 
        P2-0.
-           IF (CD-PAYCODE = "008" OR "009" OR "010" OR "011" OR "012"
-               OR "013")
+           IF (CD-PAYCODE = "008" OR "009" OR "012" OR "013")
            
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
@@ -580,52 +579,6 @@
                    GO TO P2-0
                END-IF               
                IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR "4 " OR "5 ")
-                   GO TO P2-0
-               END-IF
-           END-IF
-
-           IF CD-PAYCODE = "010"
-               DISPLAY " MSN15: type ? or 1 or 2 or 3 or <Enter> or G"
-               ACCEPT CD-QP1
-
-               IF CD-QP1 = "G"
-                 PERFORM 10-GR
-                 GO TO P2-0
-               END-IF
-
-               IF CD-QP1 = "?"
-                   DISPLAY "All final reports for use of TI-RADS to "
-                       "stratify thyroid nodules on patients 19 "
-                       "years of age or older."
-                   DISPLAY " 1 = incl score and rec"
-                   DISPLAY " 2 = perf not met, no score and/or rec" 
-                   DISPLAY " 3 = denom exception, see measure"
-                   DISPLAY " <Enter> = no nodule(s)"
-                   GO TO P2-0
-               END-IF               
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " or SPACE)
-                   GO TO P2-0
-               END-IF
-           END-IF
-
-           IF CD-PAYCODE = "011"
-               DISPLAY " QMM19: type ? or 1 or 2 or 3 or <Enter> or G"
-               ACCEPT CD-QP1
-
-               IF CD-QP1 = "G"
-                 PERFORM 10-GR
-                 GO TO P2-0
-               END-IF
-
-               IF CD-QP1 = "?"
-                   DISPLAY "All final reports for DEXA scans."
-                   DISPLAY " 1 = incl score and rec"
-                   DISPLAY " 2 = perf not met, no score and/or rec" 
-                   DISPLAY " 3 = denom exception, see measure"
-                   DISPLAY " <Enter> = no osteopenia"
-                   GO TO P2-0
-               END-IF
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " or SPACE)
                    GO TO P2-0
                END-IF
            END-IF
