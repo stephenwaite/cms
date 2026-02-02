@@ -44,7 +44,8 @@ def download_files(logon_id, password, download_dir):
         try:
             logging.info("Launching browser")
             browser = p.chromium.launch(
-                headless=True,
+                headless=False,
+                executable_path='/snap/bin/chromium',
                 args=['--no-sandbox', '--disable-setuid-sandbox']
             )
             
