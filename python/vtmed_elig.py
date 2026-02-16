@@ -16,7 +16,7 @@ file_handler.setLevel(logging.INFO)
 file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
 console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.ERROR)
+console_handler.setLevel(logging.INFO)  # Changed to INFO so we can see what's happening
 console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
 
 logger.addHandler(file_handler)
@@ -31,6 +31,7 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
     
     if not logon_id or not password:
         logging.error("Missing credentials. Set VT_MEDICAID_USER and VT_MEDICAID_PASS environment variables.")
+        print("ERROR: Missing credentials. Set VT_MEDICAID_USER and VT_MEDICAID_PASS")
         return None
     
     with sync_playwright() as p:
@@ -113,7 +114,7 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
                 print(f"\n{'='*80}")
                 print(f"ELIGIBILITY CHECK - NO RESULTS FOUND")
                 print(f"{'='*80}")
-                print(error_text)
+                print(error_text[:500])  # Print first 500 chars
                 print(f"{'='*80}\n")
                 return None
             
@@ -235,7 +236,28 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
             browser.close()
 
 if __name__ == "__main__":
+    print(f"Script started with {len(sys.argv)} arguments")
+    print(f"Arguments: {sys.argv}")
+    
     if len(sys.argv) != 3:
         print("Usage: python vtmedicaid_eligibility.py <member_id> <date_of_service>")
         print("Example: python vtmedicaid_eligibility.py 1310414 01/15/2026")
+        sys.exit(1)
+    
+    member_id = sys.argv[1]
+    date_of_service = sys.argv[2]
+    
+    print(f"Checking eligibility for Member ID: {member_id}, DOS: {date_of_service}")
+    
+    result = check_eligibility(logon_id, password, member_id, date_of_service)
+    
+    if result is not None:
+        if result.get('error'):
+            print(f"\nFAILED - Invalid member ID or search parameters")
+            sys.exit(1)
+        else:
+            print(f"\nSUCCESS - Eligibility information retrieved")
+            sys.exit(0)
+    else:
+        print(f"\nFAILED - Eligibility check failed")
         sys.exit(1)
