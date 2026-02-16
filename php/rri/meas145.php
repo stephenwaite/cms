@@ -6,15 +6,17 @@ function buildGarnoIndex($garfile) {
     
     if (($handle = fopen($garfile, "r")) !== FALSE) {
         while (($line = fgets($handle)) !== FALSE) {
-            // Fixed-length positions based on COBOL layout
-            $garno = trim(substr($line, 0, 8));     // G-GARNO (8 chars)
-            $sex = trim(substr($line, 116, 1));     // G-SEX (1 char)
-            $dob = trim(substr($line, 119, 8));     // G-DOB (8 chars YYYYMMDD)
+            // Fixed-length positions based on COBOL GARFILE01 layout
+            $garno = trim(substr($line, 0, 8));     // G-GARNO (pos 0, 8 chars total: ID1+ID2+ID3)
+            $sex = trim(substr($line, 116, 1));     // G-SEX (pos 116, 1 char)
+            $dob = trim(substr($line, 119, 8));     // G-DOB (pos 119, 8 chars: YYYYMMDD)
+            $acct = trim(substr($line, 277, 8));    // G-ACCT (pos 277, 8 chars) - MRN
             
             $index[$garno] = [
                 'garno' => $garno,
                 'sex' => $sex,
-                'dob' => $dob
+                'dob' => $dob,
+                'mrn' => $acct
             ];
         }
         fclose($handle);
@@ -75,6 +77,19 @@ function calculateAge($dob, $serviceDate) {
     return $age;
 }
 
+// Format date from YYYYMMDD to MM/DD/YYYY
+function formatDate($dateStr) {
+    if (empty($dateStr) || strlen($dateStr) != 8) {
+        return '';
+    }
+    
+    $year = substr($dateStr, 0, 4);
+    $month = substr($dateStr, 4, 2);
+    $day = substr($dateStr, 6, 2);
+    
+    return $month . '/' . $day . '/' . $year;
+}
+
 // Map provider code to NPI
 function getProviderNPI($providerCode) {
     return match(trim($providerCode)) {
@@ -121,33 +136,35 @@ function writeOutputCSV($filename, $records) {
     
     // Write header
     fputcsv($handle, [
-        'col1',
-        'col2',
-        'col3',
-        'garno',
-        'col5',
-        'g_dob',
-        'g_sex',
+        'version',
+        'facility_id',
+        'date_of_service',
+        'tax_id',
+        'rendering_npi',
+        'mrn',
         'age',
-        'provider_code',
-        'provider_npi'
+        'sex',
+        'diagnosis_pointer',
+        'procedure_code',
+        'modifier',
+        'additional_code'
     ]);
     
     // Write data
     foreach ($records as $record) {
         fputcsv($handle, [
-        '1.1',
-        '107816',
-        formatDate($record['col3']),
-        '030238095',
-        $record['provider_npi'],
-        'garno' => $record['garno'],
-        $record['age'],
-        $record['g_sex'],
-        '145',
-        $record['col2'],
-        '',
-        'G9501',
+            '1.1',                              // version
+            '107816',                           // facility_id
+            formatDate($record['col3']),        // date_of_service
+            '030238095',                        // tax_id
+            $record['provider_npi'],            // rendering_npi
+            $record['mrn'],                     // mrn (from G-ACCT)
+            $record['age'],                     // age
+            $record['g_sex'],                   // sex
+            $record['col1'],                    // diagnosis_pointer (145)
+            $record['col2'],                    // procedure_code (77002)
+            '',                                 // modifier
+            'G9501'
         ]);
     }
     
@@ -195,8 +212,6 @@ foreach ($inputRecords as $record) {
     $charcurKey = $garno . '|' . $procCode . '|' . $serviceDate;
     
     $outputRec = [
-        '1.1',
-        '107816',
         'col1' => $record['col1'],
         'col2' => $record['col2'],
         'col3' => $record['col3'],
@@ -206,13 +221,15 @@ foreach ($inputRecords as $record) {
         'g_sex' => '',
         'age' => '',
         'provider_code' => '',
-        'provider_npi' => ''
+        'provider_npi' => '',
+        'mrn' => ''
     ];
     
-    // Lookup guarantor info
+    // Lookup guarantor info (including MRN from G-ACCT)
     if (isset($garnoIndex[$garno])) {
         $outputRec['g_dob'] = $garnoIndex[$garno]['dob'];
         $outputRec['g_sex'] = $garnoIndex[$garno]['sex'];
+        $outputRec['mrn'] = $garnoIndex[$garno]['mrn'];  // Get MRN from G-ACCT
         
         // Calculate age
         $outputRec['age'] = calculateAge($garnoIndex[$garno]['dob'], $serviceDate);
@@ -250,15 +267,3 @@ echo "Writing output to $outputFile...\n";
 writeOutputCSV($outputFile, $outputRecords);
 
 echo "\nDone! Output file: $outputFile\n";
-
-function formatDate($dateStr) {
-    if (empty($dateStr) || strlen($dateStr) != 8) {
-        return '';
-    }
-    
-    $year = substr($dateStr, 0, 4);
-    $month = substr($dateStr, 4, 2);
-    $day = substr($dateStr, 6, 2);
-    
-    return $month . '/' . $day . '/' . $year;
-}
