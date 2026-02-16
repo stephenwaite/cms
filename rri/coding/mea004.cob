@@ -192,7 +192,7 @@
                GO TO P2
            END-READ          
 
-           IF NOT (CD-PAYCODE = "008" OR "009" OR "012" OR "013")
+           IF NOT (CD-PAYCODE = "009" OR "010" OR "012" OR "013")
                GO TO P1
            END-IF
 
@@ -205,20 +205,7 @@
                    MOVE NPI-TBL-NUMBER(NPI-IDX) TO WS-NPI-RESULT
                    MOVE 'Y' TO WS-FOUND-FLAG
                END-IF
-           END-PERFORM
-
-           IF CD-PAYCODE = "008"
-               MOVE SPACE TO FILEOUT01           
-               STRING "145 " CD-PROC1 " " CD-DATE-T " " CD-KEY8 " G9500"
-               DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01        
-               MOVE 145 TO FLAG
-               MOVE "003" TO CD-PAYCODE 
-               REWRITE CHARFILE01
-               UNLOCK CHARFILE RECORD
-               PERFORM A1 THRU A1-EXIT
-               GO TO P0
-           END-IF                                               
+           END-PERFORM                                          
 
            IF CD-PAYCODE = "009"
                MOVE SPACE TO FILEOUT01
@@ -226,6 +213,20 @@
                DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01 
                MOVE 926 TO FLAG
+               PERFORM GET-INS
+               MOVE G-PRINS TO CD-PAYCODE
+               REWRITE CHARFILE01
+               UNLOCK CHARFILE RECORD
+               PERFORM A1 THRU A1-EXIT
+               GO TO P0
+           END-IF
+
+           IF CD-PAYCODE = "010"
+               MOVE SPACE TO FILEOUT01
+               STRING "364 " CD-PROC1 " " CD-DATE-T " " CD-NAME 
+               DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01 
+               MOVE 364 TO FLAG
                PERFORM GET-INS
                MOVE G-PRINS TO CD-PAYCODE
                REWRITE CHARFILE01
@@ -266,13 +267,6 @@
        A1. 
       *  set key counter to 0, increment in B1 
            MOVE 0 TO XYZ
-
-           IF FLAG = 145
-               MOVE "0000G9500  " TO  X-PROC
-               PERFORM B1 THRU B2
-               STRING CD-KEY8 "000" DELIMITED BY SIZE INTO CHARFILE-KEY
-               GO TO A1-EXIT
-           END-IF
 
            IF FLAG = 405
                IF CD-QP1 = "1 "
@@ -371,6 +365,8 @@
       *    Dan picked 3 measures from acr qcdr
       *    measure msn15 retired in 2026
       *    measure qmm19 retired in 2026
+      *    measure 364 added for acr qcdr in 2026
+      *    measure 145 removed for 2026
            
            IF FLAG = 926
                IF CD-QP1 = "1 "
@@ -449,6 +445,70 @@
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
+
+               GO TO A1-EXIT
+
+           END-IF
+
+           IF FLAG = 364
+
+      *    finding of incidental pulmonary nodule
+               IF (CD-QP1 = "1 " OR "3 ")
+                   MOVE "0000G9754  " TO X-PROC
+                   PERFORM B1 THRU B2
+                   STRING CD-KEY8 "000"
+                        DELIMITED BY SIZE INTO CHARFILE-KEY
+               END-IF         
+
+               IF CD-QP1 = "1 "
+      *    create comma delimited file to upload to acr registry                              
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," g-acct "," G-DOB "," G-SEX ","
+                       G-PRINS  "," G-PRIPOL ",364," CD-PROC1  ","
+                       CD-DIAG ",G9345," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+      *    size delimited file for output to coders                                                
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "364 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " PERFORMANCE MET"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01                          
+               END-IF
+           
+               IF CD-QP1 = "2 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," g-acct "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 "," 
+                       CD-DIAG ",G9755," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "364 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " DENOMINATOR EXCLUSION M1018"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+               IF CD-QP1 = "3 "
+                   MOVE SPACE TO FILEOUT201              
+                   STRING CD-DATE-T "," g-acct "," G-DOB "," G-SEX ","
+                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
+                       CD-DIAG ",G9347," CD-QP1 "," CD-QP2 ","
+                       WS-NPI-RESULT ",1" CD-FIN
+                   DELIMITED BY SIZE INTO FILEOUT201
+                   WRITE FILEOUT201
+                   MOVE SPACE TO FILEOUT01              
+                   STRING "364 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                       " PERFORMANCE NOT MET"
+                   DELIMITED BY SIZE INTO FILEOUT01
+                   WRITE FILEOUT01
+               END-IF
+
+
+            
 
                GO TO A1-EXIT
 
