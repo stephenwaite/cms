@@ -543,7 +543,7 @@
            DISPLAY " ".
 
        P2-0.
-           IF (CD-PAYCODE = "008" OR "009" OR "012" OR "013")
+           IF (CD-PAYCODE = "009" OR "010" OR "012" OR "013")
            
                IF CD-DOCP = "02"
                    DISPLAY "Skipping assessment so will need to code"
@@ -582,6 +582,32 @@
                    GO TO P2-0
                END-IF
            END-IF
+
+           IF CD-PAYCODE = "010"
+               DISPLAY " Measure 364: <Enter> no lesion or 1 or 2 or 3"
+                       " or ? for help  or G to grab read"
+               ACCEPT CD-QP1
+
+               IF CD-QP1 = "G"
+                 PERFORM 10-GR
+                 GO TO P2-0
+               END-IF
+
+               IF CD-QP1 = "?"
+                   DISPLAY "CT studies for patients 35 and older with "
+                   DISPLAY "incidental pulmonary nodule and not active"
+                   DISPLAY "cancer dx, or heavy smoker or lung cx scr"
+                   DISPLAY " 1 = follow up rec documented, perf met"
+                   DISPLAY " 2 = medical reasons for no f/u, "
+                       "denom exception"
+                   DISPLAY " 3 = perf not met, no f/u and reason"
+                   DISPLAY " <Enter> = no lesion"
+                   GO TO P2-0
+               END-IF
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
+                   GO TO P2-0
+               END-IF
+           END-IF.
 
            IF CD-PAYCODE = "012"
                
