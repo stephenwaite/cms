@@ -81,6 +81,29 @@
                GO TO P1
            END-IF
 
+      *    paycode 010 is measure 364
+      *    F/U CT Imaging for Incidentally Detected Pulmonary Nodule
+
+           IF (CD-CPT = "70490" OR "70491" OR "70492" OR "75571" OR
+                         "75572" OR "75573" OR "75574" OR "70498" OR
+                         "71250" OR "71260" OR "71270" OR "71275" OR
+                         "72125" OR "72126" OR "72127" OR "72128" OR
+                         "72129" OR "72130" OR "74150" OR "74160" OR
+                         "74170" OR "74174" OR "74175" OR "74176" OR
+                         "74177" OR "74178")
+             PERFORM CHECK-AGE
+             IF G-AGE < 35
+               GO TO P1
+             END-IF  
+             MOVE "010" TO CD-PAYCODE
+             MOVE SPACE TO FILEOUT01
+             STRING "364 " CD-PAYCODE " " CD-CPT " " CD-DATE-T " "
+                CD-KEY8 " " CD-NAME DELIMITED BY SIZE INTO FILEOUT01
+             WRITE FILEOUT01
+             REWRITE CHARNEW01
+             GO TO P1
+           END-IF              
+
       *    paycode 012 is measure 405       
            IF (CD-CPT =  "71250" OR "71260" OR "71270" OR "71271"
              OR "71275" OR "71555" OR "72131" OR "72191" OR "72192"
