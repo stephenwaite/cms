@@ -37,8 +37,7 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
         try:
             logging.info("Launching browser")
             browser = p.chromium.launch(
-                headless=False,
-                executable_path='/snap/bin/chromium',
+                headless=Truee,
                 args=['--no-sandbox', '--disable-setuid-sandbox']
             )
             
