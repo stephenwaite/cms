@@ -77,7 +77,7 @@
              GO TO P1
            END-IF
 
-           *    paycode 010 is measure 364
+      *    paycode 010 is measure 364
       *    F/U CT Imaging for Incidentally Detected Pulmonary Nodule
 
            IF (CD-CPT = "70490" OR "70491" OR "70492" OR "75571" OR
