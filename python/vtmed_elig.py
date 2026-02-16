@@ -76,13 +76,40 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
             # Wait a moment for results to load
             time.sleep(1)
             
+            # Check for errors first
+            if page.locator('div.errors').count() > 0:
+                error_messages = []
+                error_items = page.locator('div.errors li').all()
+                for item in error_items:
+                    error_messages.append(item.text_content().strip())
+                
+                logging.error(f"Eligibility check error: {'; '.join(error_messages)}")
+                
+                print(f"\n{'='*80}")
+                print(f"ELIGIBILITY CHECK ERROR")
+                print(f"{'='*80}")
+                print(f"Member ID: {member_id}")
+                print(f"Date of Service: {date_of_service}")
+                print(f"\nERROR:")
+                for msg in error_messages:
+                    print(f"  - {msg}")
+                print(f"{'='*80}\n")
+                
+                return {
+                    'member_id': member_id,
+                    'date_of_service': date_of_service,
+                    'error': True,
+                    'error_messages': error_messages
+                }
+            
             # Parse the member information fieldset
             member_info = {}
             
             # Check if results are present
             if page.locator('fieldset.scheduler-border').count() == 0:
-                # No results found - might be an error
+                # No results found
                 error_text = page.locator('body').text_content()
+                logging.error("No results found on page")
                 print(f"\n{'='*80}")
                 print(f"ELIGIBILITY CHECK - NO RESULTS FOUND")
                 print(f"{'='*80}")
@@ -144,7 +171,8 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
                 'member_info': member_info,
                 'eligibility_records': eligibility_records,
                 'important_messages': important_text,
-                'disclaimer': disclaimer
+                'disclaimer': disclaimer,
+                'error': False
             }
             
             # Print results in a formatted way
@@ -210,16 +238,4 @@ if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python vtmedicaid_eligibility.py <member_id> <date_of_service>")
         print("Example: python vtmedicaid_eligibility.py 1310414 01/15/2026")
-        sys.exit(1)
-    
-    member_id = sys.argv[1]
-    date_of_service = sys.argv[2]
-    
-    result = check_eligibility(logon_id, password, member_id, date_of_service)
-    
-    if result is not None:
-        print(f"SUCCESS - Eligibility information retrieved")
-        sys.exit(0)
-    else:
-        logging.error("Eligibility check failed")
         sys.exit(1)
