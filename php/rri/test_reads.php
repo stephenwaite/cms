@@ -21,16 +21,52 @@ if (!empty($context) && $context == 'pdf') {
     $pdf = new Cezpdf();
     $pdf->selectFont('Courier');
 }
+
+
+const CT_QUALIFYING_CPT = [
+    '70490' => true, '70491' => true, '70492' => true,
+    '75571' => true, '75572' => true, '75573' => true, '75574' => true,
+    '70498' => true, '71250' => true, '71260' => true, '71270' => true,
+    '71275' => true, '72125' => true, '72126' => true, '72127' => true,
+    '72128' => true, '72129' => true, '72130' => true, '74150' => true,
+    '74160' => true, '74170' => true, '74174' => true, '74175' => true,
+    '74176' => true, '74177' => true, '74178' => true,
+];
+
+function isQualifyingCtCpt(string $coding_display): ?string
+{
+    foreach (CT_QUALIFYING_CPT as $code => $unused) {
+        if (str_contains($coding_display, $code)) {
+            return $code;
+        }
+    }
+    return false;
+}
+
+function getQualifyingLungFindings(string $note): array
+{
+    $note_lower = strtolower($note);
+
+    return [
+        'pulmonary_nodule'          => str_contains($note_lower, 'pulmonary nodule'),
+        'includes_guidelines'       => str_contains($note_lower, 'fleischner society 2017'),
+    ];
+}
+
 $cms_user = getenv('USER');
 $file = file_get_contents(getenv('HOME') . "/W2" . getenv('tid') . $cms_user);
 
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
+if (substr($visit_no, 0, 1) == '0') {
+    $visit_no = "1" . $visit_no;
+}
+//echo $visit_no . " visit no \n";
 $charcur_key = substr($file, 15, 11);
 $billing_tape_date_of_service = substr($file, 26, 8);
 //$date_of_service = substr($file, 30, 2) . "-" .  substr($file, 32, 2) . "-" . substr($file, 26, 4);
-$base_url = getenv('TEST_BASE_OEMR_URL');
-$site_id = getenv('TEST_OEMR_RRI_SITE_ID');
+$base_url = getenv('BASE_OEMR_URL');
+$site_id = getenv('OEMR_RRI_SITE_ID');
 $base_uri = $base_url . '/oauth2/' . $site_id . '/token';
 $guzzle = new Client(
     ['verify' => false],
@@ -61,6 +97,7 @@ $request = new Request('GET', $base_url . '/apis/' . $site_id . '/fhir/Patient?i
 $res = $client->sendAsync($request)->wait();
 $ptObj = json_decode($res->getBody(), true);
 $pt_uuid = $ptObj['entry'][0]['resource']['id'] ?? null;
+//echo $pt_uuid . " pt uuid\n";
 if (empty($pt_uuid)) {
     echo "no patient uuid in the emr for some reason \n";
     exit;
@@ -90,6 +127,21 @@ if (!empty($jsonObj['entry'])) {
     foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
+        //echo "CODING DISPLAY:" . $coding_display . "\n";
+        $interp = $entry['resource']['note'][0]['text'];
+        //var_dump($interp);
+        $lung_findings = getQualifyingLungFindings($interp);
+        if ($cpt = isQualifyingCtCpt($coding_display)) {
+            if ($lung_findings['pulmonary_nodule']) {
+                if ($lung_findings['includes_guidelines']) {
+                    echo "\n*** Pulmonary nodule and guidelines mentioned for {$cpt} Yay! ***\n";
+                    readline("Press ENTER to continue...");
+                } else {
+                    echo "\n*** ALERT: Pulmonary nodule but NO guidelines mentioned: {$cpt} ***\n";
+                    readline("Press ENTER to continue...");
+                }
+            }
+        }
         $coding_display_length = strlen($coding_display);
         $pt_name_text_length = strlen($pt_name_text);
         if ($coding_display_length > 15 || $pt_name_text_length > 15) {
@@ -109,7 +161,7 @@ if (!empty($jsonObj['entry'])) {
         $pt_dos_line = 'DOS: ' . $date_of_read_nyc_display;
         $note .= $pt_dos_line . "\n";
         $note .= str_pad('', $banner_length, '#') . "\n\n";
-        $note .= $entry['resource']['note'][0]['text'] . "\n";
+        $note .= $interp . "\n";
 
         if (!empty($context) && $context == 'pdf') {
             $pdf->ezText($note, 10);
@@ -117,7 +169,8 @@ if (!empty($jsonObj['entry'])) {
                 $pdf->ezNewPage();
             }
         } else {
-            echo $note . "\n";
+            //echo $note . "\n";
+            //readline("one line at a time?");
         }
     }
 } else {

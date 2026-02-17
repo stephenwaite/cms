@@ -451,15 +451,7 @@
            END-IF
 
            IF FLAG = 364
-
-      *    finding of incidental pulmonary nodule
-               IF (CD-QP1 = "1 " OR "3 ")
-                   MOVE "0000G9754  " TO X-PROC
-                   PERFORM B1 THRU B2
-                   STRING CD-KEY8 "000"
-                        DELIMITED BY SIZE INTO CHARFILE-KEY
-               END-IF         
-
+      *    finding of incidental pulmonary nodule     
                IF CD-QP1 = "1 "
       *    create comma delimited file to upload to acr registry                              
                    MOVE SPACE TO FILEOUT201              
@@ -506,10 +498,7 @@
                    DELIMITED BY SIZE INTO FILEOUT01
                    WRITE FILEOUT01
                END-IF
-
-
-            
-
+               
                GO TO A1-EXIT
 
            END-IF.
