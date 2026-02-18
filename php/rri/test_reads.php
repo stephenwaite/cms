@@ -46,10 +46,12 @@ function isQualifyingCtCpt(string $coding_display): ?string
 function getQualifyingLungFindings(string $note): array
 {
     $note_lower = strtolower($note);
+    $no_nodule  = str_contains($note_lower, 'no pulmonary nodule');
 
     return [
-        'pulmonary_nodule'          => str_contains($note_lower, 'pulmonary nodule'),
-        'includes_guidelines'       => str_contains($note_lower, 'fleischner society 2017'),
+        'no_pulmonary_nodule' => $no_nodule,
+        'pulmonary_nodule'    => !$no_nodule && str_contains($note_lower, 'pulmonary nodule'),
+        'includes_guidelines' => str_contains($note_lower, 'fleischner society 2017'),
     ];
 }
 
@@ -132,14 +134,18 @@ if (!empty($jsonObj['entry'])) {
         //var_dump($interp);
         $lung_findings = getQualifyingLungFindings($interp);
         if ($cpt = isQualifyingCtCpt($coding_display)) {
-            if ($lung_findings['pulmonary_nodule']) {
-                if ($lung_findings['includes_guidelines']) {
-                    echo "\n*** Pulmonary nodule and guidelines mentioned for {$cpt} Yay! ***\n";
-                    readline("Press ENTER to continue...");
-                } else {
-                    echo "\n*** ALERT: Pulmonary nodule but NO guidelines mentioned: {$cpt} ***\n";
-                    readline("Press ENTER to continue...");
-                }
+            $nodule     = $lung_findings['pulmonary_nodule'];
+            $guidelines = $lung_findings['includes_guidelines'];
+
+            if ($nodule && $guidelines) {
+                echo "\n*** Pulmonary nodule and Fleischner guidelines mentioned for {$cpt} ***\n";
+                readline("Press ENTER to continue...");
+            } elseif ($nodule && !$guidelines) {
+                echo "\n*** ALERT: Pulmonary nodule but NO Fleischner guidelines mentioned: {$cpt} ***\n";
+                readline("Press ENTER to continue...");
+            } elseif (!$nodule && $guidelines) {
+                echo "\n*** NOTE: Fleischner guidelines mentioned but no pulmonary nodule: {$cpt} ***\n";
+                readline("Press ENTER to continue...");
             }
         }
         $coding_display_length = strlen($coding_display);
