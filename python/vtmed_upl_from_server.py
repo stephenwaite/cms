@@ -1,0 +1,148 @@
+from playwright.sync_api import sync_playwright
+import sys
+import time
+import os
+import re
+import logging
+from datetime import datetime
+
+# Setup logging with different levels for file and console
+log_filename = f"vtmedicaid_upload_{datetime.now().strftime('%Y%m%d')}.log"
+
+# Create logger
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)  # Capture everything at INFO level
+
+# File handler - logs everything (INFO and above)
+file_handler = logging.FileHandler(log_filename)
+file_handler.setLevel(logging.INFO)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+# Console handler - only logs errors (ERROR and above)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.ERROR)
+console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
+# Add both handlers
+logger.addHandler(file_handler)
+logger.addHandler(console_handler)
+
+# Get credentials from environment variables
+logon_id = os.getenv('VT_MEDICAID_USER')
+password = os.getenv('VT_MEDICAID_PASS')
+
+def upload_to_vtmedicaid(logon_id, password, file_path):
+    logging.info(f"Starting upload process for file: {file_path}")
+    
+    if not logon_id or not password:
+        logging.error("Missing credentials. Set VT_MEDICAID_USER and VT_MEDICAID_PASS environment variables.")
+        return None
+    
+    if not os.path.exists(file_path):
+        logging.error(f"File not found: {file_path}")
+        return None
+    
+    # Get absolute path for file
+    file_path = os.path.abspath(file_path)
+    logging.info(f"Absolute file path: {file_path}")
+    
+    with sync_playwright() as p:
+        try:
+            logging.info("Launching browser in headless mode")
+            browser = p.chromium.launch(
+                headless=True,
+                args=['--no-sandbox', '--disable-setuid-sandbox']
+            )
+            page = browser.new_page()
+            
+            # Set longer timeout for server environments
+            page.set_default_timeout(60000)
+            
+            # Login
+            logging.info("Navigating to VT Medicaid portal")
+            page.goto("https://www.vtmedicaid.com/secure/logon.do", timeout=30000)
+            
+            logging.info("Filling login credentials")
+            page.fill('input[name="logon_id"]', logon_id)
+            page.fill('input[name="password"]', password)
+            
+            # Take screenshot before login (for debugging)
+            page.screenshot(path=f"debug_login_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png")
+            
+            page.click('input[type="submit"]')
+            page.wait_for_load_state('networkidle')
+            logging.info("Login successful")
+            
+            # Navigate to upload
+            logging.info("Clicking secureOptions link")
+            page.click('a#secureOptions')
+            time.sleep(1)
+            
+            # Navigate to upload and click again
+            logging.info("Clicking secureOptions link again")
+            page.click('a#secureOptions')
+            time.sleep(1)
+            
+            logging.info("Clicking Upload Files")
+            page.click('text="Upload Files"')
+            page.wait_for_load_state('networkidle')
+            
+            # Take screenshot before upload (for debugging)
+            page.screenshot(path=f"debug_upload_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png")
+            
+            # Upload file
+            logging.info(f"Uploading file: {file_path}")
+            page.set_input_files('input[name="userfile1"]', file_path)
+            
+            logging.info("Submitting upload form")
+            page.click('input[type="submit"]')
+            
+            # Wait for confirmation
+            logging.info("Waiting for upload confirmation")
+            page.wait_for_selector('div.container:has-text("Uploaded successfully")', timeout=30000)
+            
+            # Take screenshot of success (for verification)
+            page.screenshot(path=f"success_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png")
+            
+            # Get confirmation message
+            confirmation_text = page.locator('div.container:has-text("Uploaded successfully")').first.text_content()
+            logging.info(f"Confirmation received: {confirmation_text.strip()}")
+            
+            # Extract tracking number
+            tracking_match = re.search(r'Tracking Number:\s*(\d+)', confirmation_text)
+            if tracking_match:
+                tracking_number = tracking_match.group(1)
+                logging.info(f"SUCCESS - Tracking Number: {tracking_number}")
+                return tracking_number
+            else:
+                logging.warning("Tracking number not found in confirmation message")
+                return None
+                
+        except Exception as e:
+            logging.error(f"Upload failed: {str(e)}", exc_info=True)
+            try:
+                screenshot_path = f"error_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+                page.screenshot(path=screenshot_path)
+                logging.info(f"Error screenshot saved: {screenshot_path}")
+            except:
+                logging.error("Could not save error screenshot")
+            return None
+            
+        finally:
+            logging.info("Closing browser")
+            browser.close()
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        logging.error("Usage: python vtmedicaid_upload.py <file_path>")
+        sys.exit(1)
+    
+    tracking = upload_to_vtmedicaid(logon_id, password, sys.argv[1])
+    
+    if tracking:
+        logging.info(f"Upload completed successfully. Tracking: {tracking}")
+        print(f"SUCCESS - Tracking: {tracking}")  # This will always show on console
+        sys.exit(0)
+    else:
+        logging.error("Upload failed")
+        sys.exit(1)
