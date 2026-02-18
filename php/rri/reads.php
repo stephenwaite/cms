@@ -20,6 +20,39 @@ if (!empty($context) && $context == 'pdf') {
     $pdf = new Cezpdf();
     $pdf->selectFont('Courier');
 }
+
+const CT_QUALIFYING_CPT = [
+    '70490' => true, '70491' => true, '70492' => true,
+    '75571' => true, '75572' => true, '75573' => true, '75574' => true,
+    '70498' => true, '71250' => true, '71260' => true, '71270' => true,
+    '71275' => true, '72125' => true, '72126' => true, '72127' => true,
+    '72128' => true, '72129' => true, '72130' => true, '74150' => true,
+    '74160' => true, '74170' => true, '74174' => true, '74175' => true,
+    '74176' => true, '74177' => true, '74178' => true,
+];
+
+function isQualifyingCtCpt(string $coding_display): ?string
+{
+    foreach (CT_QUALIFYING_CPT as $code => $unused) {
+        if (str_contains($coding_display, $code)) {
+            return $code;
+        }
+    }
+    return false;
+}
+
+function getQualifyingLungFindings(string $note): array
+{
+    $note_lower = strtolower($note);
+    $no_nodule  = str_contains($note_lower, 'no pulmonary nodule');
+
+    return [
+        'no_pulmonary_nodule' => $no_nodule,
+        'pulmonary_nodule'    => !$no_nodule && str_contains($note_lower, 'pulmonary nodule'),
+        'includes_guidelines' => str_contains($note_lower, 'fleischner society 2017'),
+    ];
+}
+
 $filename = getenv('HOME') . "/W2" . getenv('tid') . $cms_user;
 $file = file_get_contents($filename);
 $mrn = ltrim(substr($file, 0, 8), '0');
@@ -87,9 +120,25 @@ if (!empty($jsonObj['entry'])) {
     $count = count($jsonObj['entry']);
     $cntr = 0;
     foreach ($jsonObj['entry'] as $entry) {
-        //var_dump($entry);
         $cntr++;
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
+        $interp = $entry['resource']['note'][0]['text'];
+        $lung_findings = getQualifyingLungFindings($interp);
+        if ($cpt = isQualifyingCtCpt($coding_display)) {
+            $nodule     = $lung_findings['pulmonary_nodule'];
+            $guidelines = $lung_findings['includes_guidelines'];
+
+            if ($nodule && $guidelines) {
+                echo "\n*** Pulmonary nodule and Fleischner guidelines mentioned for {$cpt} ***\n";
+                readline("Press ENTER to continue...");
+            } elseif ($nodule && !$guidelines) {
+                echo "\n*** ALERT: Pulmonary nodule but NO Fleischner guidelines mentioned: {$cpt} ***\n";
+                readline("Press ENTER to continue...");
+            } elseif (!$nodule && $guidelines) {
+                echo "\n*** NOTE: Fleischner guidelines mentioned but no pulmonary nodule: {$cpt} ***\n";
+                readline("Press ENTER to continue...");
+            }
+        }
         $coding_display_length = strlen($coding_display);
         $pt_name_text_length = strlen($pt_name_text);
         if ($coding_display_length > 15 || $pt_name_text_length > 15) {
@@ -113,7 +162,7 @@ if (!empty($jsonObj['entry'])) {
         $pt_dos_line = 'DOS: ' . $date_of_order_utc_display;
         $note .= $pt_dos_line . "\n";
         $note .= str_pad('', $banner_length, '#') . "\n\n";
-        $note .= $entry['resource']['note'][0]['text'] . "\n";
+        $note .= $interp . "\n";
 
         if (!empty($context) && $context == 'pdf') {
             $pdf->ezText($note, 10);
