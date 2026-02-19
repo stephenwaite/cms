@@ -55,7 +55,8 @@ class CharCurParser {
         'cc_qp1'         => ['start' => 140, 'length' => 2,  'type' => 'string'],
         'cc_qp2'         => ['start' => 142, 'length' => 2,  'type' => 'string'],
         'cc_visitno'     => ['start' => 144, 'length' => 7,  'type' => 'string'],
-        'cc_future'      => ['start' => 151, 'length' => 9,  'type' => 'string'],
+        'cc_qp3'    => ['start' => 151, 'length' => 2,  'type' => 'string'],
+        'cc_future' => ['start' => 153, 'length' => 7,  'type' => 'string'],
     ];
     
     public static function parseFile($filename) {

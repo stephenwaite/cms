@@ -38,7 +38,7 @@ function isQualifyingCtCpt(string $coding_display): ?string
             return $code;
         }
     }
-    return false;
+    return null;
 }
 
 function getQualifyingLungFindings(string $note): array
