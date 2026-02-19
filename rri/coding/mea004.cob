@@ -606,7 +606,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                       CD-DIAG ",PM002," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-VISITNO
+                      WS-NPI-RESULT "," CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -620,7 +620,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                       CD-DIAG ",PM102," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-VISITNO
+                      WS-NPI-RESULT "," CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -634,7 +634,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                       CD-DIAG ",PM202," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-VISITNO
+                      WS-NPI-RESULT "," CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -648,7 +648,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                       CD-DIAG ",PNM02," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-VISITNO
+                      WS-NPI-RESULT "," CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -662,7 +662,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                       CD-DIAG ",PE002," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-VISITNO
+                      WS-NPI-RESULT "," CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -682,7 +682,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
                       CD-DIAG ",G9345," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-VISITNO
+                      WS-NPI-RESULT "," CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -696,7 +696,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
                       CD-DIAG ",G9755," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-VISITNO
+                      WS-NPI-RESULT "," CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -710,7 +710,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
                       CD-DIAG ",G9347," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-VISITNO
+                      WS-NPI-RESULT "," CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01

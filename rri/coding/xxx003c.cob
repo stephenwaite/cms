@@ -491,7 +491,7 @@
        P1-1.
       *    Skip quality measure assessment for already-classified
       *    quality paycodes (pure and hybrid) and for mammo auto-codes
-           IF (CD-PAYCODE = "008" OR "009" OR "010" OR "011" OR "012"
+           IF (CD-PAYCODE = "009" OR "010" OR "011" OR "012"
                OR "013" OR "014" OR "015" OR "016" OR "017")
                GO TO P2
            END-IF

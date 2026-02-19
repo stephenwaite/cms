@@ -283,7 +283,8 @@ foreach (CsvMatcher::findMatches($argv[2], $charcurIndex) as $result) {
             '06' => '1194737833',
             '08' => '1407002355',
             '09' => '1174889182',
-            '10' => '1487884953'
+            '10' => '1487884953',
+            default => '',
         };
         $examDate = date('m/d/Y', strtotime($result['charcur_match']['cc_date_t']));
         $age = calculateAge($result['dob'], $result['charcur_match']['cc_date_t']);
