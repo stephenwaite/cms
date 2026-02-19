@@ -77,53 +77,6 @@
 
        WORKING-STORAGE SECTION.
 
-      *----------------------------------------------------------------
-      *  CHARBACK01 must be a byte-for-byte mirror of charfile.cpy
-      *  Current copybook layout (189 bytes total):
-      *    CHARFILE-KEY     11  (KEY8=8, KEY3=3)
-      *    CD-PATID          8
-      *    CD-CLAIM          6
-      *    CD-SERVICE        1
-      *    CD-DIAG           7
-      *    CD-PROC          11  (PROC0=4, PROC1=5, PROC2=2)
-      *    CD-MOD2           2
-      *    CD-MOD3           2
-      *    CD-MOD4           2
-      *    CD-AMOUNT         6  (S9(4)V99 COMP-3 = 6 bytes display)
-      *    CD-DOCR           3
-      *    CD-DOCP           2
-      *    CD-PAYCODE        3
-      *    CD-REC-STAT       1
-      *    CD-WORK           2
-      *    CD-DAT1           8
-      *    CD-RESULT         1
-      *    CD-ACT            1
-      *    CD-SORCREF        1
-      *    CD-COLLT          1
-      *    CD-AUTH           1
-      *    CD-PAPER          1
-      *    CD-PLACE          1
-      *    CD-NAME          24
-      *    CD-ESPDT          1
-      *    CD-DATE-T         8
-      *    CD-DATE-E         8
-      *    CD-ORDER          6
-      *    CD-DX2            7
-      *    CD-DX3            7
-      *    CD-DATE-A         8
-      *    CD-ACC-TYPE       1
-      *    CD-DATE-M         8
-      *    CD-ASSIGN         1
-      *    CD-NEIC-ASSIGN    1
-      *    CD-DX4            7
-      *    CD-QP1            2  <- comment 166 in copybook
-      *    CD-QP2            2
-      *    CD-QP3            2  <- added in recent copybook change
-      *    FILLER            1  <- replaces 1 byte of old CD-DX5-3
-      *    CD-DX6            7
-      *    CD-FUTURE         6
-      *    CD-FIN            7  <- verify position in your copybook
-      *----------------------------------------------------------------
        01  CHARBACK01.
            02 CHARBACK-KEY.
                03 BK-KEY8        PIC X(8).
@@ -653,7 +606,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                       CD-DIAG ",PM002," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-FIN
+                      WS-NPI-RESULT ",1" CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -667,7 +620,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                       CD-DIAG ",PM102," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-FIN
+                      WS-NPI-RESULT ",1" CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -681,7 +634,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                       CD-DIAG ",PM202," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-FIN
+                      WS-NPI-RESULT ",1" CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -695,7 +648,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                       CD-DIAG ",PNM02," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-FIN
+                      WS-NPI-RESULT ",1" CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -709,7 +662,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",QMM26," CD-PROC1 ","
                       CD-DIAG ",PE002," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-FIN
+                      WS-NPI-RESULT ",1" CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -729,7 +682,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
                       CD-DIAG ",G9345," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-FIN
+                      WS-NPI-RESULT ",1" CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -743,7 +696,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
                       CD-DIAG ",G9755," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-FIN
+                      WS-NPI-RESULT ",1" CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
@@ -757,7 +710,7 @@
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
                       CD-DIAG ",G9347," CD-QP1 "," CD-QP2 ","
-                      WS-NPI-RESULT ",1" CD-FIN
+                      WS-NPI-RESULT ",1" CD-VISITNO
                       DELIMITED BY SIZE INTO FILEOUT201
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
