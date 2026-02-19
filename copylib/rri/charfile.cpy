@@ -19,7 +19,7 @@
            02 CD-DOCR PIC X(3).
            02 CD-DOCP PIC X(2).
            02 CD-PAYCODE PIC XXX.
-           02 CD-STAT PIC X.
+           02 CD-REC-STAT PIC X.
       * 65     
            02 CD-WORK PIC XX.
            02 CD-DAT1 PIC X(8).
@@ -50,7 +50,6 @@
            02 CD-DX4 PIC X(7).
            02 CD-QP1 PIC XX.
            02 CD-QP2 PIC XX.
-           02 CD-DX5-3 PIC X(3).
-      * 166
-           02 CD-DX6 PIC X(7).
-           02 CD-FUTURE PIC X(6).
+           02 CD-QP3 PIC XX.
+           02 CD-VISITNO PIC X(7).
+           02 CD-FUTURE PIC X(7).
