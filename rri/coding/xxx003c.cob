@@ -491,7 +491,7 @@
        P1-1.
       *    Skip quality measure assessment for already-classified
       *    quality paycodes (pure and hybrid) and for mammo auto-codes
-           IF (CD-PAYCODE = "009" OR "010" OR "011" OR "012"
+           IF (CD-PAYCODE = "009" OR "010" OR "012"
                OR "013" OR "014" OR "015" OR "016" OR "017")
                GO TO P2
            END-IF
@@ -881,10 +881,11 @@
            END-IF
            PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
            MOVE CD-DIAG TO HOLD7
-           IF DIAG2 NOT = SPACE
-               MOVE SPACE TO DIAG2
-               GO TO P1.
-
+           IF DIAG2 = SPACE
+               GO TO P3
+           END-IF.
+           
+           GO TO P1.
       *----------------------------------------------------------------
        P3.
            DISPLAY "2nd diag? Y".
