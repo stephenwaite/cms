@@ -124,7 +124,7 @@ if (!empty($jsonObj['entry'])) {
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
         $interp = $entry['resource']['note'][0]['text'];
         $lung_findings = getQualifyingLungFindings($interp);
-        if ($cpt = isQualifyingCtCpt($coding_display)) {
+        /* if ($cpt = isQualifyingCtCpt($coding_display)) {
             $nodule     = $lung_findings['pulmonary_nodule'];
             $guidelines = $lung_findings['includes_guidelines'];
 
@@ -138,7 +138,7 @@ if (!empty($jsonObj['entry'])) {
                 echo "\n*** NOTE: Fleischner guidelines mentioned but no pulmonary nodule: {$cpt} ***\n";
                 readline("Press ENTER to continue...");
             }
-        }
+        } */
         $coding_display_length = strlen($coding_display);
         $pt_name_text_length = strlen($pt_name_text);
         if ($coding_display_length > 15 || $pt_name_text_length > 15) {
