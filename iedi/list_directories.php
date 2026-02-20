@@ -27,6 +27,7 @@ if (!$sftp->login($cms_user, $cms_pass)) {
 }
 
 // --- Resolve start path (use pwd() to get absolute home dir if none given) ---
+$sftp->chdir('.');
 $home      = $sftp->pwd();
 $startPath = isset($argv[1]) ? $argv[1] : $home;
 
