@@ -45,23 +45,22 @@ function listRemoteDirs(SFTP $sftp, string $path, int $depth = 0): void
 
     fwrite(STDERR, "DEBUG: '{$path}' returned " . count($entries) . " entries\n");
 
-    foreach ($entries as $entry) {
-        // phpseclib returns . and .. as plain arrays, not objects — skip them
-        if (!is_object($entry)) {
-            continue;
-        }
-
-        if ($entry->type === NET_SFTP_TYPE_DIRECTORY) {
-            $indent   = str_repeat('  ', $depth);
-            // Don't prepend a slash if we have no base path — this server uses relative paths
-            $fullPath = $path === '' ? $entry->filename : rtrim($path, '/') . '/' . $entry->filename;
-            $modified = date('Y-m-d H:i', $entry->mtime);
-
-            echo "{$indent}[DIR]  {$entry->filename}  (modified: {$modified})  {$fullPath}\n";
-
-            listRemoteDirs($sftp, $fullPath, $depth + 1);
-        }
+    foreach ($entries as $filename => $entry) {
+    // Skip . and ..
+    if (in_array($filename, ['.', '..'], true)) {
+        continue;
     }
+
+    if (is_array($entry) && isset($entry['type']) && $entry['type'] === NET_SFTP_TYPE_DIRECTORY) {
+        $indent   = str_repeat('  ', $depth);
+        $fullPath = $path === '' ? $filename : rtrim($path, '/') . '/' . $filename;
+        $modified = date('Y-m-d H:i', $entry['mtime']);
+
+        echo "{$indent}[DIR]  {$filename}  (modified: {$modified})  {$fullPath}\n";
+
+        listRemoteDirs($sftp, $fullPath, $depth + 1);
+    }
+}
 }
 
 listRemoteDirs($sftp, $startPath);
