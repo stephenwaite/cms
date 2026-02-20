@@ -1,58 +1,57 @@
 <?php
 
+declare(strict_types=1);
+
 use phpseclib3\Net\SFTP;
 
-require_once(dirname(__FILE__) . '/../vendor/autoload.php');
-
+require_once dirname(__FILE__) . '/../vendor/autoload.php';
 
 $cms_user = getenv('IEDI_USERNAME');
 $cms_pass = getenv('IEDI_PASSWORD');
+
+if (!$cms_user || !$cms_pass) {
+    fwrite(STDERR, "Error: IEDI_USERNAME and/or IEDI_PASSWORD environment variables are not set.\n");
+    exit(1);
+}
+
 $sftp = new SFTP('ecgpe.healthtechnologygroup.com');
-$sftp->setTimeout(300); // 5 minutes instead of default
-$sftp->setKeepAlive(30); // Send keep-alive every 30 seconds
+$sftp->setTimeout(300);
+$sftp->setKeepAlive(30);
+
 if (!$sftp->login($cms_user, $cms_pass)) {
-    echo "login failed" . "\n";
-    exit;
-};
-
-$path = 'E_ZCHC0409/In';
-//print_r($sftp->rawlist($path, true));
-
-echo "listing inbound \n";
-$rawlist = $sftp->rawlist($path, true);
-//var_dump($rawlist);
-if (!empty($rawlist)) {
-    foreach ($rawlist as $file) {
-        //var_dump($file);
-        if (!empty($file)) {
-            $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s a', $file->mtime));
-            $date = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
-            echo "file: " . $file->filename . " size: " . $file->size . " created by iedi on " .
-                $date->format('Y-m-d h:i:s a') . "\n";
-        }
-    }
-} else {
-    // there's a test directory
+    fwrite(STDERR, "Error: login failed\n");
+    exit(1);
 }
 
-$path = 'out/Care_Manag';
-//print_r($sftp->rawlist($path, true));
+function listFiles(SFTP $sftp, string $path, string $label): void
+{
+    echo "Listing {$label}: {$path}\n";
 
-echo "listing outbound \n";
-$rawlist = $sftp->rawlist($path, true);
-//var_dump($rawlist);
-if (!empty($rawlist)) {
-    foreach ($rawlist as $file) {
-        //var_dump($file);
-        if (!empty($file)) {
-            $dt_utc = new DateTimeImmutable(date('Y-m-d h:i:s a', $file->mtime));
-            $date = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
-            echo "file: " . $file->filename . " size: " . $file->size . " created by iedi on " .
-                $date->format('Y-m-d h:i:s a') . "\n";
-        }
+    $rawlist = $sftp->rawlist($path, false);
+
+    if ($rawlist === false || empty($rawlist)) {
+        echo "  (no files or path unreadable)\n";
+        return;
     }
-} else {
-    // there's a test directory
+
+    foreach ($rawlist as $filename => $file) {
+        if (in_array($filename, ['.', '..'], true)) {
+            continue;
+        }
+
+        // Skip subdirectories — files only
+        if ($file['type'] === NET_SFTP_TYPE_DIRECTORY) {
+            continue;
+        }
+
+        $dt_utc = new DateTimeImmutable(date('Y-m-d H:i:s', $file['mtime']));
+        $date   = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
+
+        echo "  file: {$filename}  size: {$file['size']}  modified: " . $date->format('Y-m-d h:i:s a') . "\n";
+    }
 }
 
-echo "end of list \n";
+listFiles($sftp, 'E_ZCHC0409/In', 'inbound');
+listFiles($sftp, 'out/Care_Manag', 'outbound');
+
+echo "Done.\n";
