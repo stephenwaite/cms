@@ -26,30 +26,24 @@ if (!$sftp->login($cms_user, $cms_pass)) {
     exit(1);
 }
 
-// --- Resolve start path (use pwd() to get absolute home dir if none given) ---
-$sftp->chdir('.');
-$home      = $sftp->pwd();
-if (empty($home)) {
-    // Last resort — ask the server directly
-    fwrite(STDERR, "Warning: pwd() returned empty, trying realpath\n");
-    $home = $sftp->realpath('.');
-}
-$startPath = isset($argv[1]) ? $argv[1] : $home;
+// --- Start path (relative — this server does not support pwd/realpath) ---
+$startPath = $argv[1] ?? '';
 
-echo "Listing directories on " . SFTP_HOST . " under: {$startPath}\n";
+echo "Listing directories on " . SFTP_HOST . "\n";
 echo str_repeat('-', 60) . "\n";
 
 // --- Recursive directory lister ---
 function listRemoteDirs(SFTP $sftp, string $path, int $depth = 0): void
 {
-    $entries = $sftp->rawlist($path, true);
+    // Use '.' when path is empty to avoid rawlist('') ambiguity
+    $entries = $sftp->rawlist($path === '' ? '.' : $path, true);
 
     if ($entries === false) {
-        fwrite(STDERR, "Warning: Could not read path: {$path}\n");
+        fwrite(STDERR, "Warning: Could not read path: '{$path}'\n");
         return;
     }
 
-    fwrite(STDERR, "DEBUG: {$path} returned " . count($entries) . " entries\n");
+    fwrite(STDERR, "DEBUG: '{$path}' returned " . count($entries) . " entries\n");
 
     foreach ($entries as $entry) {
         // phpseclib returns . and .. as plain arrays, not objects — skip them
@@ -59,7 +53,8 @@ function listRemoteDirs(SFTP $sftp, string $path, int $depth = 0): void
 
         if ($entry->type === NET_SFTP_TYPE_DIRECTORY) {
             $indent   = str_repeat('  ', $depth);
-            $fullPath = rtrim($path, '/') . '/' . $entry->filename;
+            // Don't prepend a slash if we have no base path — this server uses relative paths
+            $fullPath = $path === '' ? $entry->filename : rtrim($path, '/') . '/' . $entry->filename;
             $modified = date('Y-m-d H:i', $entry->mtime);
 
             echo "{$indent}[DIR]  {$entry->filename}  (modified: {$modified})  {$fullPath}\n";
