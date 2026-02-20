@@ -44,18 +44,18 @@ function listRemoteDirs(SFTP $sftp, string $path, int $depth = 0): void
     }
 
     foreach ($entries as $entry) {
-        if (in_array($entry->filename, ['.', '..'], true)) {
+    // phpseclib returns . and .. as plain arrays, not objects — skip them
+        if (!is_object($entry)) {
             continue;
         }
 
         if ($entry->type === NET_SFTP_TYPE_DIRECTORY) {
-            $indent    = str_repeat('  ', $depth);
-            $fullPath  = rtrim($path, '/') . '/' . $entry->filename;
-            $modified  = date('Y-m-d H:i', $entry->mtime);
+            $indent   = str_repeat('  ', $depth);
+            $fullPath = rtrim($path, '/') . '/' . $entry->filename;
+            $modified = date('Y-m-d H:i', $entry->mtime);
 
             echo "{$indent}[DIR]  {$entry->filename}  (modified: {$modified})  {$fullPath}\n";
 
-            // Recurse into subdirectory
             listRemoteDirs($sftp, $fullPath, $depth + 1);
         }
     }
