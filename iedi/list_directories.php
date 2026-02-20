@@ -29,6 +29,11 @@ if (!$sftp->login($cms_user, $cms_pass)) {
 // --- Resolve start path (use pwd() to get absolute home dir if none given) ---
 $sftp->chdir('.');
 $home      = $sftp->pwd();
+if (empty($home)) {
+    // Last resort — ask the server directly
+    fwrite(STDERR, "Warning: pwd() returned empty, trying realpath\n");
+    $home = $sftp->realpath('.');
+}
 $startPath = isset($argv[1]) ? $argv[1] : $home;
 
 echo "Listing directories on " . SFTP_HOST . " under: {$startPath}\n";
