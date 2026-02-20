@@ -27,6 +27,17 @@ if (!$sftp->login($cms_user, $cms_pass)) {
     exit(1);
 }
 
+$entries = $sftp->rawlist($path, true);
+
+if ($entries === false) {
+    fwrite(STDERR, "Warning: Could not read path: {$path}\n");
+    return;
+}
+
+// Add this temporarily:
+fwrite(STDERR, "DEBUG: {$path} returned " . count($entries) . " entries\n");
+exit;
+
 // --- Allow an optional path argument from the command line ---
 $startPath = $argv[1] ?? SFTP_ROOT;
 
