@@ -851,7 +851,7 @@
                DISPLAY "NOT ON FILE" BELL0
                GO TO P2-00
            END-READ
-           IF CD-DATE-T > "20160930" AND DIAG-TITLE(1:1) = "?"
+           IF DIAG-TITLE(1:1) = "?"
                DISPLAY DIAG-KEY " WAS INACTIVATED"
                ACCEPT OMITTED
                GO TO P2-00
@@ -864,7 +864,7 @@
                INVALID DISPLAY "BAD CODE " IN-FIELD-7
                GO TO P2-000
            END-READ
-           IF CD-DATE-T > "20160930" AND DIAG-TITLE(1:1) = "?"
+           IF DIAG-TITLE(1:1) = "?"
                DISPLAY DIAG-KEY " WAS INACTIVATED"
                ACCEPT OMITTED
                GO TO P2-00
@@ -881,10 +881,9 @@
            END-IF
            PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
            MOVE CD-DIAG TO HOLD7
-           IF DIAG2 = SPACE
-               GO TO P3
-           END-IF.
-           
+
+           IF DIAG2 NOT = SPACE
+               MOVE SPACE TO DIAG2
            GO TO P1.
       *----------------------------------------------------------------
        P3.
@@ -970,7 +969,7 @@
                AT END GO TO A5-2
            END-READ
            MOVE ALW-DIAG TO DIAG-KEY
-           IF (CD-DATE-T > "20150930") AND (ALW-DIAG(6:2) = "??")
+           IF (ALW-DIAG(6:2) = "??")
                GO TO A5-1
            END-IF
            IF ALW-PROC NOT = CD-PROC2
@@ -1091,7 +1090,7 @@
            READ DIAGFILE INVALID
                DISPLAY "NOT ON FILE"
            END-READ
-           IF (CD-DATE-T > "20150930" AND DIAG-KEY(6:2) = "??")
+           IF DIAG-KEY(6:2) = "??"
                DISPLAY "USE ICD10 CODE WITH THIS DATE"
                GO TO CD10-EXIT
            END-IF
