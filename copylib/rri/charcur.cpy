@@ -50,4 +50,5 @@
            02 CC-QP1 PIC XX.
            02 CC-QP2 PIC XX.
            02 CC-VISITNO PIC X(7).
-           02 CC-FUTURE PIC X(9).
+           02 CC-QP3 PIC XX.
+           02 CC-FUTURE PIC X(7).
