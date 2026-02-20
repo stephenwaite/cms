@@ -7,8 +7,7 @@ use phpseclib3\Net\SFTP;
 require_once dirname(__FILE__) . '/../vendor/autoload.php';
 
 // --- Configuration ---
-const SFTP_HOST  = 'ecgpe.healthtechnologygroup.com';
-const SFTP_ROOT  = '.';  // Start from home directory; change to '/' for absolute root
+const SFTP_HOST = 'ecgpe.healthtechnologygroup.com';
 
 // --- Credentials ---
 $cms_user = getenv('IEDI_USERNAME');
@@ -27,8 +26,9 @@ if (!$sftp->login($cms_user, $cms_pass)) {
     exit(1);
 }
 
-// --- Allow an optional path argument from the command line ---
-$startPath = $argv[1] ?? SFTP_ROOT;
+// --- Resolve start path (use pwd() to get absolute home dir if none given) ---
+$home      = $sftp->pwd();
+$startPath = isset($argv[1]) ? $argv[1] : $home;
 
 echo "Listing directories on " . SFTP_HOST . " under: {$startPath}\n";
 echo str_repeat('-', 60) . "\n";
@@ -43,10 +43,10 @@ function listRemoteDirs(SFTP $sftp, string $path, int $depth = 0): void
         return;
     }
 
-    fwrite(stream: STDERR, "DEBUG: {$path} returned " . count($entries) . " entries\n");
+    fwrite(STDERR, "DEBUG: {$path} returned " . count($entries) . " entries\n");
 
     foreach ($entries as $entry) {
-    // phpseclib returns . and .. as plain arrays, not objects — skip them
+        // phpseclib returns . and .. as plain arrays, not objects — skip them
         if (!is_object($entry)) {
             continue;
         }
