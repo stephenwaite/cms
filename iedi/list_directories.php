@@ -36,7 +36,7 @@ echo str_repeat('-', 60) . "\n";
 function listRemoteDirs(SFTP $sftp, string $path, int $depth = 0): void
 {
     // Use '.' when path is empty to avoid rawlist('') ambiguity
-    $entries = $sftp->rawlist($path === '' ? '.' : $path, true);
+    $entries = $sftp->rawlist($path === '' ? '.' : $path, false);
 
     if ($entries === false) {
         fwrite(STDERR, "Warning: Could not read path: '{$path}'\n");
