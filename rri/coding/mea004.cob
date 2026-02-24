@@ -77,13 +77,8 @@
 
        WORKING-STORAGE SECTION.
 
-           COPY "charfile.cpy" IN "C:\Users\sid\cms\copylib\rri"
-           REPLACING ==CHARFILE01==    BY ==CHARBACK01==
-                     ==CHARFILE-KEY==  BY ==CHARBACK-KEY==
-                     ==CD-CPT==        BY ==BK-CPT==
-                     ==CD-MOD==        BY ==BK-MOD==
-                     ==CD-==           BY ==BK-==.
-    
+           COPY "charback.cpy" IN "C:\Users\sid\cms\copylib\rri".
+           
        01  XYZ                   PIC 999.
        01  HOLD8                 PIC X(8).
        01  FLAG                  PIC 999.
