@@ -9,8 +9,9 @@
            02 CC-DIAG PIC X(7).
            02 CC-PROC.
              03 CC-PROC0 PIC X(4).
-             03 CC-PROC1 PIC X(5).
-             03 CC-PROC2 PIC X(2).
+             03 CC-PROC1.
+               04 CC-CPT PIC X(5).
+               04 CC-MOD PIC X(2).
            02 CC-MOD2 PIC XX.
            02 CC-MOD3 PIC XX.
            02 CC-MOD4 PIC XX.
