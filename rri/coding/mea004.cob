@@ -122,9 +122,8 @@
            02 BK-QP1             PIC XX.
            02 BK-QP2             PIC XX.
            02 BK-QP3             PIC XX.
-           02 FILLER             PIC X.
-           02 BK-DX6             PIC X(7).
-           02 BK-FUTURE          PIC X(6).
+           02 BK-VISITNO         PIC X(7).
+           02 BK-FUTURE          PIC X(7).
 
        01  XYZ                   PIC 999.
        01  HOLD8                 PIC X(8).
