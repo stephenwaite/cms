@@ -52,16 +52,16 @@
        FILE SECTION.
        
        FD  MPLRFILE.
-           COPY "mplrfile.cpy" IN "C:\Users\sid\cms\copylib\rri".
+           COPY "mplrfile.cpy".
 
        FD  GARFILE.
-           COPY "garfile.cpy" IN "C:\Users\sid\cms\copylib\rri".
+           COPY "garfile.cpy".
 
        FD  CHARCUR.
-           COPY "charcur.cpy" IN "C:\Users\sid\cms\copylib\rri".
+           COPY "charcur.cpy".
 
        FD  CHARFILE.
-           COPY "charfile.cpy" IN "C:\Users\sid\cms\copylib\rri".
+           COPY "charfile.cpy".
        
        FD  PAYFILE.
        01  PAYFILE01.

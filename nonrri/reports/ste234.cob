@@ -48,13 +48,13 @@
        FILE SECTION.
 
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".     
+           COPY GARFILE.CPY.     
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib".      
+           COPY PAYCUR.CPY.      
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib".             
+           COPY CHARCUR.CPY.             
        
        FD  PARMFILE.
        01  PARMFILE01 PIC 9.

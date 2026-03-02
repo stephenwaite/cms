@@ -60,22 +60,22 @@
        01  PREPRINTFILE01 PIC X(84).
 
        FD  INSFILE.
-           COPY "INSFILE.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "INSFILE.cpy".
 
        FD  GARFILE.
-           COPY "GARFILE.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "GARFILE.cpy".
 
        FD  PATFILE.
-           COPY "PATFILE.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "PATFILE.cpy".
 
        FD  CHARFILE.
-           COPY "CHARFILE.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "CHARFILE.cpy".
 
        FD  PAYFILE.
-           COPY "PAYFILE.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "PAYFILE.cpy".
 
        FD  CHARCUR.
-           COPY "CHARCUR.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "CHARCUR.cpy".
 
        FD  BILLPARM.
        01  BILLPARM01.
@@ -90,7 +90,7 @@
 	       02 BILL-CYCLE PIC X(4).
 
        FD  PAYCUR.
-	       COPY "PAYCUR.cpy" IN "C:\Users\sid\cms\copylib".
+	       COPY "PAYCUR.cpy".
 
        FD  OUT-FILE
 	   DATA RECORD IS OUT01.
@@ -99,7 +99,7 @@
        01  CHNL-3 PIC X.
 
        FD  PROCFILE.
-       COPY "PROCFILE.cpy" IN "C:\Users\sid\cms\copylib".
+       COPY "PROCFILE.cpy".
        
        WORKING-STORAGE SECTION.
        01  CHR01.

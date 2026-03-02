@@ -31,10 +31,10 @@
        FILE SECTION.
        
        FD  CHARFILE.
-           copy CHARFILE.cpy in "c:\users\sid\cms\copylib\rri".
+           copy CHARFILE.cpy.
 
        FD  INSFILE.
-           copy insfile.cpy in "c:\users\sid\cms\copylib".    
+           copy insfile.cpy.    
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).   

@@ -133,10 +133,10 @@
            02 FILLER PIC X(39).
            02 FI-PAYORID PIC X(5).
        FD  CHARCUR.
-           copy charcur.cpy in "c:\users\sid\cms\copylib".
+           copy charcur.cpy.
 
        FD  GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib".
+           copy garfile.cpy.
        
 
        WORKING-STORAGE SECTION.

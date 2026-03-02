@@ -31,10 +31,10 @@
        FILE SECTION.
 
        FD  HIPCLAIMFILE.
-           copy hipclaimfile.cpy in "c:\users\sid\cms\copylib".
+           copy hipclaimfile.cpy.
 
        FD  ISAFILE.
-           copy isafile.cpy in "c:\users\sid\cms\copylib".
+           copy isafile.cpy.
              
        FD  FILEIN.
        01  FILEIN01. 

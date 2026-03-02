@@ -51,7 +51,7 @@
 	       02 FI-MEDREC PIC X(6).
 	
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
        
        FD  FILEOUT1.
        01  FILEOUT101 PIC X(80).
@@ -66,7 +66,7 @@
        01  FILEOUT401 PIC X(160).
 
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY garfile.CPY.
 
        WORKING-STORAGE SECTION.
        01  RIGHT-2 PIC XX JUST RIGHT.

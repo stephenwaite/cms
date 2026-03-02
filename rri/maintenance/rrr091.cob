@@ -75,7 +75,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD  COMPFILE.
-           copy compfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy compfile.cpy.
 
        FD  CARRIERFILE.
        01  CARRIERFILE01.
@@ -123,7 +123,7 @@
            02 GAP-FUTURE PIC X(40).
 
        FD  INSFILE.
-           copy insfile.cpy in "c:\users\sid\cms\copylib".
+           copy insfile.cpy.
 
        FD PATFILE.
        01 PATFILE01.

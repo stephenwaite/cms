@@ -37,7 +37,7 @@
        FILE SECTION.
 
        FD  ORDFILE.
-           copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
+           copy "ordfile.cpy".
 
        FD GARFILE
            BLOCK CONTAINS 3 RECORDS

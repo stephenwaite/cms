@@ -122,7 +122,7 @@
            02 SERVDATE PIC X(8).
        
        FD  ORDFILE.
-           copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
+           copy "ordfile.cpy".
        
        FD ACTFILE
            DATA RECORD IS ACTFILE01.

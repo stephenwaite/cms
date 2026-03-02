@@ -22,7 +22,7 @@
        FILE SECTION.
 
        FD  CHARCUR.
-           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY charcur.CPY.
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(160).    

@@ -78,7 +78,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD  DOCFILENEW.
-           COPY DOCFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY DOCFILE.CPY.
        FD  HIPCLAIMFILE.
        01  HIPCLAIMFILE01.
            02 HIP-KEY PIC X.

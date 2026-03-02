@@ -26,7 +26,7 @@
        FILE SECTION.
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
 
        FD  FILEIN.
        01  FILEIN01 PIC X(8).

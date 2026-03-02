@@ -30,10 +30,10 @@
        FILE SECTION.
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib".
+           COPY PAYCUR.CPY.
       
        fd  filein.
        01  filein01 pic x(8).

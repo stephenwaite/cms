@@ -67,16 +67,16 @@
        FILE SECTION.
 
        FD  INSFILE.
-           COPY insfile.CPY IN "C:\Users\sid\cms\copylib".      
+           COPY insfile.CPY.      
 
        FD  CHARNEW.
-           COPY charnew.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY charnew.CPY.      
 
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY garfile.CPY.      
 
        FD  ACTFILE.
-           COPY actfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY actfile.CPY.      
       
 
        FD  FILEIN.
@@ -100,10 +100,10 @@
            02 CLAIMNO PIC 9(6).
 
        FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY procfile.CPY.      
 
        FD  ORDFILE.
-           COPY ordfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY ordfile.CPY.      
 
        WORKING-STORAGE SECTION.
        01  ANS PIC X.

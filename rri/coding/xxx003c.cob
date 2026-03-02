@@ -94,7 +94,7 @@
                03 tag-icd9-7 PIC X(7).
 
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY garfile.CPY.
 
        FD ALLOWFILE
            DATA RECORD ALLOWFILE01.
@@ -105,7 +105,7 @@
            02 ALW-FLAG       PIC X.
 
        FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY procfile.CPY.
 
        FD  DIAGFILE
            BLOCK CONTAINS 8 RECORDS
@@ -124,7 +124,7 @@
            02 DIAG9-MEDB     PIC X(5).
 
        FD  CHARNEW.
-           COPY charnew.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY charnew.CPY.
 
        FD  FILE-OUT.
        01  FILE-OUT01.

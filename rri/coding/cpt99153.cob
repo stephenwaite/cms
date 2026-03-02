@@ -77,7 +77,7 @@
        01  FILEOUT01 PIC X(189). 
 
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".  
+           COPY garfile.CPY.  
 
        WORKING-STORAGE SECTION.
        01  HOLDIT PIC X(8).

@@ -33,16 +33,16 @@
        FILE SECTION.
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib".      
+           COPY PAYCUR.CPY.      
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib".             
+           COPY CHARCUR.CPY.             
       
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY GARFILE.CPY.
 
        FD  CAREFILE.
-           COPY CAREFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY CAREFILE.CPY.
 
        FD  OUTFILE.
        01  OUTFILE01 PIC X(120).      

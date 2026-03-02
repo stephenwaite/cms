@@ -42,16 +42,16 @@
        FILE SECTION.
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY PAYCUR.CPY.      
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".             
+           COPY CHARCUR.CPY.             
       
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY GARFILE.CPY.      
       
        FD  DOCFILE.
-           COPY DOCFILE.CPY IN "C:\Users\sid\cms\copylib\rri".  
+           COPY DOCFILE.CPY.  
 
        FD  CHARDATE.
        01  CHARDATE01. 
@@ -96,7 +96,7 @@
        01  OLD-CHARCUR-KEY PIC X(11).
        01  NEW-KEY PIC X(11).
 
-      *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
+      *     COPY charback.CPY.      
        
        PROCEDURE DIVISION.
        

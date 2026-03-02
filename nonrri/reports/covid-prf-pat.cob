@@ -26,7 +26,7 @@
        FILE SECTION.
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib".             
+           COPY CHARCUR.CPY.             
       
        FD  CHARDATE.
        01  CHARDATE01. 

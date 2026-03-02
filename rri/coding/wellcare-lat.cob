@@ -28,13 +28,13 @@
        FILE SECTION.
 
        FD  CHARFILE.
-           copy charfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy charfile.cpy.
        
        FD  FILEOUT.
        01  FILEOUT01 PIC X(189). 
 
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY garfile.CPY.
 
        FD  FILEIN.
        01  FILEIN01 PIC X(11).    

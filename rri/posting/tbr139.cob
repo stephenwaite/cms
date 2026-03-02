@@ -117,10 +117,10 @@
            02 PD-BATCH PIC X(6).
 
        FD  CHARCUR.
-           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".                
+           COPY charcur.CPY.                
 
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".                
+           COPY garfile.CPY.                
 
        WORKING-STORAGE SECTION.
        01 AMT01.

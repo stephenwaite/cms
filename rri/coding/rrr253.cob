@@ -25,7 +25,7 @@
        01  FILEOUT01 PIC X(80).
 
        FD  CHARNEW.
-           COPY charnew.CPY IN "C:\Users\sid\cms\copylib\rri".           
+           COPY charnew.CPY.           
       
        WORKING-STORAGE SECTION.
 

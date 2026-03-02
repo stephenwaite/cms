@@ -19,7 +19,7 @@
        FILE SECTION.     
        
        FD  paycur.
-           COPY paycur.CPY IN "C:\Users\sid\cms\copylib".                         
+           COPY paycur.CPY.                         
 
        WORKING-STORAGE SECTION.      
        

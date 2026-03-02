@@ -22,7 +22,7 @@
        01  FILEOUT01 PIC X(80).
        
        FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY procfile.CPY.
 
        
        WORKING-STORAGE SECTION.

@@ -23,7 +23,7 @@
        FILE SECTION.
 
        FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib".
+           COPY procfile.CPY.
 
        FD  PROCcci.
        01  PROCcci01.

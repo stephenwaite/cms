@@ -38,13 +38,13 @@
        FILE SECTION.
 
        FD  GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy garfile.cpy.
 
        FD  CHARCUR.
-           copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy charcur.cpy.
 
        FD  PAYCUR.
-           copy paycur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy paycur.cpy.
 
        FD  TB-BILL.
        01  TB-BILL01.

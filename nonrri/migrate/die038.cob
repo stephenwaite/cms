@@ -32,7 +32,7 @@
        01  ERRFILE201 PIC X(90).
       
        Fd  garfile.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY GARFILE.CPY.
       
        FD  FILEIN.
        01  F01 PIC X(90).
