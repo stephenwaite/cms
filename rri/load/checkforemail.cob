@@ -40,7 +40,7 @@
        FILE SECTION.
 
        FD  ACTFILE.
-           copy actfile.cpy in "c:\users\sid\cms\copylib\rri".             
+           copy actfile.cpy.             
 
        FD  FILEIN.
        01  FILEIN01.
@@ -51,16 +51,16 @@
        01  FILEOUT01 PIC X(80).
 
        FD  EMAILAUTHFILE.
-           copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".             
+           copy emailauthfile.cpy.             
 
        FD  ERRFILE.
        01  ERRFILE01 PIC X(80).
        
        WORKING-STORAGE SECTION.
 
-           copy rec101.cpy in "c:\users\sid\cms\copylib\rri\ws".
-           copy rec201.cpy in "c:\users\sid\cms\copylib\rri\ws".             
-           copy rec301.cpy in "c:\users\sid\cms\copylib\rri\ws".             
+           copy rec101.cpy.
+           copy rec201.cpy.             
+           copy rec301.cpy.             
 
        01  X-MEDREC.
               02 X-MEDREC0 PIC XX VALUE "00".

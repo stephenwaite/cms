@@ -236,7 +236,7 @@
            02 CC-FUTURE PIC X(6).
 
        FD  AUTHFILE.
-           COPY authfile.CPY IN "C:\Users\sid\cms\copylib".        
+           COPY authfile.CPY.        
  
        WORKING-STORAGE SECTION.
        01  INSTAB01.

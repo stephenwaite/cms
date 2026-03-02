@@ -48,7 +48,7 @@
            02 PROC-TITLE PIC X(28).
            02 PROC-AMOUNT PIC 9(4)V99.
        FD  CHARNEW.
-           copy "charnew.cpy" in "c:\Users\sid\cms\copylib\rri".
+           copy "charnew.cpy".
        FD FILEOUT.
        01 FILEOUT01 PIC X(177).
        FD GARFILE

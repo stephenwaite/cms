@@ -60,11 +60,11 @@
            02 DIAG-MEDB PIC X(5).
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib".
+           COPY CHARCUR.CPY.
      
       
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY GARFILE.CPY.
 
        WORKING-STORAGE SECTION.
 

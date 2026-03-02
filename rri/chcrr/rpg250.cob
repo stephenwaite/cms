@@ -200,7 +200,7 @@
            02 CD-FUTURE PIC X(6).
 
        FD GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY garfile.CPY.      
 
        FD  CLAIMFILE
            DATA RECORD IS CLAIM01.

@@ -103,7 +103,7 @@
            02 WEB-NUM PIC 9999.
 
        FD  DOCFILENEW.
-           COPY DOCFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY DOCFILE.CPY.
 
        FD  PLACEFILE.
        01  PLACEFILE01.
@@ -395,7 +395,7 @@
 
        WORKING-STORAGE SECTION.
 
-       COPY "hip5010_837.cpy" IN "C:\Users\sid\cms\copylib".      
+       COPY "hip5010_837.cpy".      
 
        01  TEST-DATE.
            05 T-CC  PIC XX.

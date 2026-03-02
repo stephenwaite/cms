@@ -91,13 +91,13 @@
              03 BD-2 PIC 99.
              03 BD-3 PIC 99.
        FD  CHARCUR.
-           copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy charcur.cpy.
 
        FD  PAYCUR.
-           copy paycur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy paycur.cpy.
 
        FD GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy garfile.cpy.
 
        WORKING-STORAGE SECTION.
        01  PHR01.

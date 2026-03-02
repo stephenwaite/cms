@@ -31,13 +31,13 @@
        FILE SECTION.
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib".
+           COPY CHARCUR.CPY.
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY  IN "C:\Users\sid\cms\copylib".
+           COPY PAYCUR.CPY .
       
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY GARFILE.CPY.
        
        WORKING-STORAGE SECTION.    
 

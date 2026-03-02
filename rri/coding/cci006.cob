@@ -19,7 +19,7 @@
        FILE SECTION.
 
        FD  CCIFILE.
-           COPY ccifile.CPY IN "C:\Users\sid\cms\copylib".                           
+           COPY ccifile.CPY.                           
        
        WORKING-STORAGE SECTION.
        01  ANS PIC XXX.

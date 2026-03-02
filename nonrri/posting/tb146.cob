@@ -274,7 +274,7 @@
 
        WORKING-STORAGE SECTION.
 
-           COPY "hip5010_835.cpy" IN "C:\Users\sid\cms\copylib".      
+           COPY "hip5010_835.cpy".      
 
 
        01  HL01.

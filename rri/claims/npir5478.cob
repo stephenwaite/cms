@@ -111,10 +111,10 @@
            02 PROV-ZIP PIC X(5).
 
        FD  CAREFILE.
-           COPY CAREFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY CAREFILE.CPY.
        
        FD  WEBFILE.
-           COPY WEBFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY WEBFILE.CPY.
        
        FD  PLACEFILE.
        01  PLACEFILE01.
@@ -196,35 +196,35 @@
        01  SEGFILE01 PIC X(160).
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
 
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri". 
+           COPY GARFILE.CPY. 
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib".    
+           COPY PAYCUR.CPY.    
 
        FD  INSFILE.
-           COPY INSFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY INSFILE.CPY.
        
        FD  MPLRFILE.
-           COPY MPLRFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY MPLRFILE.CPY.
        
        FD  AUTHFILE.
-           COPY AUTHFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY AUTHFILE.CPY.
        
        FD  REFPHY.
-           COPY REFPHY.CPY IN "C:\Users\sid\cms\copylib".
+           COPY REFPHY.CPY.
 
        FD  GAPFILE.
-           COPY GAPFILE.CPY IN "C:\Users\sid\cms\copylib".    
+           COPY GAPFILE.CPY.    
 
        FD  DIAGFILE.
-           COPY DIAGFILE.CPY IN "C:\Users\sid\cms\copylib".    
+           COPY DIAGFILE.CPY.    
 
        WORKING-STORAGE SECTION.
             
-           COPY HIP5010_837.CPY IN "C:\Users\sid\cms\copylib".
+           COPY HIP5010_837.CPY.
 
        01  TEST-DATE.
            05 T-CC  PIC XX.

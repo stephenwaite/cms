@@ -35,13 +35,13 @@
        FILE SECTION.
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
       
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY GARFILE.CPY.
 
         FD  MPLRFILE.
-           COPY MPLRFILE.CPY IN "C:\Users\sid\cms\copylib\rri".    
+           COPY MPLRFILE.CPY.    
 
        fd  fileout.
        01  fileout01 pic x(132).

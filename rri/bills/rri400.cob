@@ -31,7 +31,7 @@
        FILE SECTION.
 
        FD  GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy garfile.cpy.
 
        FD FILEOUT.
        01 FILEOUT01 PIC X(8).

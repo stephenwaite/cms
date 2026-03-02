@@ -26,7 +26,7 @@
        FILE SECTION.
        
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY GARFILE.CPY.      
       
        FD  FILEIN.
        01  FILEIN01 PIC X(189).

@@ -52,7 +52,7 @@
        FILE SECTION.
 
        FD  PROCFILE.
-           copy procfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy procfile.cpy.
 
        FD  ERRORFILE.
        01  ERRORFILE01.
@@ -63,16 +63,16 @@
            02 EF3 PIC X(22).
        
        FD  REFPHY.
-           copy refphy.cpy in "C:\Users\sid\cms\copylib".
+           copy refphy.cpy.
            
        FD  GAPFILE.
-           copy gapfile.cpy in "C:\Users\sid\cms\copylib".      
+           copy gapfile.cpy.      
 
        FD  DIAGFILE.
-           copy diagfile.cpy in "C:\Users\sid\cms\copylib".
+           copy diagfile.cpy.
        
        FD GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
+           COPY garfile.CPY.           
 
        FD  PAPEROUT.
        01  PAPEROUT01.
@@ -95,7 +95,7 @@
        01  FILEOUT01 PIC X(160).
 
        FD  CHARCUR.
-           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".           
+           COPY charcur.CPY.           
 
        WORKING-STORAGE SECTION.
 

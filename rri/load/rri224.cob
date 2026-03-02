@@ -24,10 +24,10 @@
        FILE SECTION.
 
        FD  ORDFILE.
-           copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
+           copy "ordfile.cpy".
 
        FD ORDFILEBK.
-           copy "ordfilebk.cpy" in "c:\Users\sid\cms\copylib\rri".       
+           copy "ordfilebk.cpy".       
 
        WORKING-STORAGE SECTION.
 

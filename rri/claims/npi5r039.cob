@@ -215,7 +215,7 @@ X           02 DF1 PIC X.
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
        FD  GARFILE.
-           COPY "garfile.cpy" IN "C:\Users\sid\cms\copylib\rri".     
+           COPY "garfile.cpy".     
 
        FD  PAYCUR
       *    BLOCK CONTAINS 3 RECORDS

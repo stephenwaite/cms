@@ -32,13 +32,13 @@
        FILE SECTION.
        
        FD  GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib".
+           copy garfile.cpy.
 
        FD  PAYCUR.
-           copy paycur.cpy in "c:\users\sid\cms\copylib".    
+           copy paycur.cpy.    
 
        FD  CHARCUR.
-           copy charcur.cpy in "c:\users\sid\cms\copylib".
+           copy charcur.cpy.
            
        FD  FILEIN.
        01  FILEIN01. 

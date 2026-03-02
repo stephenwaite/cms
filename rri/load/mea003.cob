@@ -31,10 +31,10 @@
        01  FILEOUT01 PIC X(70).
 
        FD  CHARNEW.
-           COPY "charnew.cpy" IN "c:\Users\sid\cms\copylib\rri".
+           COPY "charnew.cpy".
 
        FD  GARFILE.
-           COPY "garfile.cpy" IN "C:\Users\sid\cms\copylib\rri".
+           COPY "garfile.cpy".
 
        WORKING-STORAGE SECTION.
 

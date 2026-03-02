@@ -25,10 +25,10 @@
        FILE SECTION.     
        
        FD  GARfile.
-           COPY GARfile.CPY IN "C:\Users\sid\cms\copylib\rri".                         
+           COPY GARfile.CPY.                         
 
        FD  payfile.
-           COPY payfile.CPY IN "C:\Users\sid\cms\copylib".                         
+           COPY payfile.CPY.                         
 
        WORKING-STORAGE SECTION.      
        

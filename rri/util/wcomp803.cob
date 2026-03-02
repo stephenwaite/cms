@@ -40,7 +40,7 @@
        FILE SECTION.
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
        
 
        FD  FILEIN.
@@ -52,10 +52,10 @@
        01  FILEOUT01 PIC X(185). 
 
        FD  INSFILE.
-           COPY insfile.cpy IN "C:\Users\sid\cms\copylib".
+           COPY insfile.cpy.
 
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".    
+           COPY GARFILE.CPY.    
 
        WORKING-STORAGE SECTION.
        01  INS-POLICY PIC X(16).

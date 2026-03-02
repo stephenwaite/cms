@@ -44,10 +44,10 @@
        FILE SECTION.
        
        FD  CHARCUR.
-       copy charcur.cpy in "c:\users\sid\cms\copylib".
+       copy charcur.cpy.
        
        FD  INSFILE.
-       copy insfile.cpy in "c:\users\sid\cms\copylib".
+       copy insfile.cpy.
            
        FD  FILEIN.
        01  FILEIN01. 
@@ -64,7 +64,7 @@
            02 DATE-HIGH PIC X(8).      
 
        FD  GARFILE.
-       copy garfile.cpy in "c:\users\sid\cms\copylib".
+       copy garfile.cpy.
 
        FD  MIPSOUT.
        01  MIPSOUT01.       

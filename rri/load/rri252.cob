@@ -22,7 +22,7 @@
        FILE SECTION.
 
        FD  CHARNEW.
-           copy "charnew.cpy" in "c:\Users\sid\cms\copylib\rri".
+           copy "charnew.cpy".
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).   

@@ -23,10 +23,10 @@
        01  FILEOUT01 PIC X(80).
 
        FD  CHARFILE.
-           COPY charfile.CPY IN "C:\Users\sid\cms\copylib".
+           COPY charfile.CPY.
 
        FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib".
+           COPY procfile.CPY.
 
        WORKING-STORAGE SECTION.
 
