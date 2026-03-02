@@ -29,10 +29,10 @@
        01 FILEOUT01 PIC X(8).
 
        FD  ORDFILE.
-           copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
+           copy "ordfile.cpy".
 
        FD ORDFILEBK.
-           copy "ordfilebk.cpy" in "c:\Users\sid\cms\copylib\rri".
+           copy "ordfilebk.cpy".
 
        WORKING-STORAGE SECTION.
        01  CONSTANTS.

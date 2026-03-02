@@ -31,13 +31,13 @@
        DATA DIVISION.
        FILE SECTION.
        FD  PAYCUR.
-           COPY "paycur.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "paycur.cpy".
 
        FD  GARFILE.
-           COPY "garfile.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "garfile.cpy".
        
        FD  PATFILE.
-           COPY "patfile.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "patfile.cpy".
        
        FD  DOCFILE.
        01  DOCFILE01.
@@ -52,7 +52,7 @@
        FD  PARMOUT.
        01  PARMOUT01 PIC X(16).
        FD  CHARCUR.
-           COPY "charcur.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "charcur.cpy".
        
        FD FILEOUT
            DATA RECORD IS FILEOUT01.

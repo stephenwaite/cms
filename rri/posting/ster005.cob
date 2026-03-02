@@ -31,9 +31,9 @@
        01 FILEIN01 PIC X(11).
        
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".                
+           COPY garfile.CPY.                
        FD  CHARCUR.
-           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".                
+           COPY charcur.CPY.                
        
        WORKING-STORAGE SECTION.
        

@@ -42,7 +42,7 @@
        01  FILEOUT301 PIC X(160).
 
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY GARFILE.CPY.
        
        FD  PARMFILE.
        01  PARMFILE01 PIC 9.
@@ -80,10 +80,10 @@
            02 CR-DATE PIC X(8).
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib".    
+           COPY PAYCUR.CPY.    
        
        FD  PAYFILE.
-           COPY PAYFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY PAYFILE.CPY.
 
        FD  INSIN
            DATA RECORD IS INSIN01.
@@ -101,7 +101,7 @@
            02 FO-DOC PIC XX.
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".    
+           COPY CHARCUR.CPY.    
        
 
        WORKING-STORAGE SECTION.

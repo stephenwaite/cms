@@ -26,7 +26,7 @@
        01  FI-1 PIC X(11).
 
        FD  ORDFILE.
-           copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
+           copy "ordfile.cpy".
        
        PROCEDURE DIVISION.
        

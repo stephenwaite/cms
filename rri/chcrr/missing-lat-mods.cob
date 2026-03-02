@@ -22,7 +22,7 @@
        01  FILEOUT01 PIC X(80).
 
        FD  CHARFILE.
-           COPY "charfile.cpy" IN "C:\Users\sid\cms\copylib\rri".
+           COPY "charfile.cpy".
 
        WORKING-STORAGE SECTION.
       *

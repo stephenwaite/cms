@@ -29,7 +29,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD  INSFILE.
-           copy insfile.cpy in "c:\users\sid\cms\copylib".
+           copy insfile.cpy.
 
        FD  AGEDATE.
        01  DATE-X.

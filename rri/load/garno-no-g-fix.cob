@@ -26,7 +26,7 @@
        01  FI1 PIC X(8).
       
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY garfile.CPY.
 
        PROCEDURE DIVISION.
 

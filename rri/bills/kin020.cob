@@ -38,10 +38,10 @@
        01  FILEOUT01 PIC X(160).
 
        FD  CHARCUR.
-           copy charcur.cpy in "c:\Users\sid\cms\copylib\rri".
+           copy charcur.cpy.
 
        FD  PAYCUR.
-           copy paycur.cpy in "c:\Users\sid\cms\copylib\rri".
+           copy paycur.cpy.
 
        WORKING-STORAGE SECTION.    
        01  PHR01.

@@ -78,7 +78,7 @@
            02 DF7 PIC X(9).
 
        FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
+           COPY procfile.CPY.           
       
        FD  ERRORFILE
            DATA RECORD IS ERRORFILE01.
@@ -90,7 +90,7 @@
            02 EF3 PIC X(22).
            
        FD  REFPHY.
-           COPY refphy.CPY IN "C:\Users\sid\cms\copylib".           
+           COPY refphy.CPY.           
       
        FD GAPFILE.
        01 GAPFILE01.
@@ -111,7 +111,7 @@
            02 DIAG-MEDB PIC X(5).
        
        FD GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".  
+           COPY garfile.CPY.  
                     
        FD  PAPEROUT.
        01  PAPEROUT01.
@@ -135,7 +135,7 @@
        01  FILEOUT201 PIC X(160).
 
        FD  CHARCUR.
-           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".           
+           COPY charcur.CPY.           
 
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.

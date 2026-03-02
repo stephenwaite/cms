@@ -143,7 +143,7 @@
            02 DIAG-MEDB PIC X(5).
        
        FD GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
+           COPY garfile.CPY.           
            
        FD  PAPEROUT.
        01  PAPEROUT01.
@@ -166,7 +166,7 @@
        01  FILEOUT01 PIC X(160).
 
        FD  CHARCUR.
-           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".                     
+           COPY charcur.CPY.                     
 
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.

@@ -19,7 +19,7 @@
        FILE SECTION.     
 
        FD  PAYFILE.
-           COPY PAYFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY PAYFILE.CPY.
 	            
        PROCEDURE DIVISION.
 

@@ -131,13 +131,13 @@
        FILE SECTION.
 
        FD  EMAILAUTHFILE.
-           copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".           
+           copy emailauthfile.cpy.           
 
        FD  COMPFILE.
-           copy compfile.cpy in "c:\users\sid\cms\copylib\rri".           
+           copy compfile.cpy.           
            
        FD  ADDRFILE.
-           copy addrfile.cpy in "c:\users\sid\cms\copylib\rri".                 
+           copy addrfile.cpy.                 
 
        FD  TAGDIAG.
        01  TAGDIAG01.
@@ -152,19 +152,19 @@
        01  FILEOUT01 PIC X(40).
 
        FD  RPGPROCFILE.
-           COPY rpgprocfile.CPY IN "C:\Users\sid\cms\copylib\rri".           
+           COPY rpgprocfile.CPY.           
 
        FD  MPLRFILE.
-           COPY mplrfile.CPY IN "C:\Users\sid\cms\copylib".           
+           COPY mplrfile.CPY.           
           
        FD  AUTHFILE.
-           COPY authfile.CPY IN "C:\Users\sid\cms\copylib".           
+           COPY authfile.CPY.           
 
        FD  INSFILE.
-           COPY insfile.CPY IN "C:\Users\sid\cms\copylib".      
+           COPY insfile.CPY.      
       
        FD  GAPFILE.
-           COPY gapfile.CPY IN "C:\Users\sid\cms\copylib".           
+           COPY gapfile.CPY.           
 
        FD  DOCPARM
            DATA RECORD IS DOCPARM01.
@@ -175,7 +175,7 @@
            02 DP-2 PIC X(22).
 
        FD  REFPHY.
-           COPY refphy.CPY IN "C:\Users\sid\cms\copylib".
+           COPY refphy.CPY.
       
        FD  DIAGFILE.
        01  DIAG01.
@@ -188,7 +188,7 @@
            02 DIAG-MEDB PIC X(5).
 
        FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY procfile.CPY.
       
        FD  CMNTFILE
       *    BLOCK CONTAINS 2 RECORDS
@@ -202,13 +202,13 @@
            02 CMNT-DATE-E PIC X(8).
 
        FD  CHARFILE.
-           COPY charfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY charfile.CPY.
      
        FD  CHARCUR.
-           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY charcur.CPY.
 
        FD  PAYFILE.
-           COPY payfile.CPY IN "C:\Users\sid\cms\copylib".
+           COPY payfile.CPY.
           
        FD  PAYCUR
       *    BLOCK CONTAINS 3 RECORDS
@@ -226,10 +226,10 @@
            02 PC-BATCH PIC X(6).
 
        FD GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY garfile.CPY.
 
        FD PATFILE.
-           COPY patfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY patfile.CPY.
       
        WORKING-STORAGE SECTION.
        01 PAY-TAB01.

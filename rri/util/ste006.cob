@@ -29,13 +29,13 @@
        FILE SECTION.
        
        FD  ACTFILE.
-           copy actfile.cpy in "c:\users\sid\cms\copylib\rri".   
+           copy actfile.cpy.   
 
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).
 
        FD  GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".  
+           copy garfile.cpy.  
        WORKING-STORAGE SECTION.
 
        01  LNAME PIC X(20).

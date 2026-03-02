@@ -74,7 +74,7 @@
        01  ERRFILE01 PIC X(80).
 
        FD  EMAILAUTHFILE.
-           copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".           
+           copy emailauthfile.cpy.           
 
        FD  COMPFILE.
        01  COMPFILE01.
@@ -92,7 +92,7 @@
            02 COMP-INSPHONE1 PIC X(12).
 
        FD  INSFILE.
-           copy insfile.cpy in "c:\users\sid\cms\copylib".
+           copy insfile.cpy.
 
        FD  MOBLFILE.
        01  MOBLFILE01.
@@ -130,7 +130,7 @@
            02 REF-NPI PIC X(10).
 
        FD  ORDFILE.
-           copy "ordfile.cpy" in "c:\Users\sid\cms\copylib\rri".
+           copy "ordfile.cpy".
 
        FD  ACTFILE
            DATA RECORD IS ACTFILE01.

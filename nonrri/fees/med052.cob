@@ -33,7 +33,7 @@
            02 MED-AMOUNT PIC 9(4)V99.
 
        FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib".
+           COPY procfile.CPY.
        
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).

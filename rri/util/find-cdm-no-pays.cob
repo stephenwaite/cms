@@ -42,16 +42,16 @@
        FILE SECTION.
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY PAYCUR.CPY.      
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".             
+           COPY CHARCUR.CPY.             
       
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY GARFILE.CPY.      
       
        FD  DOCFILE.
-           COPY DOCFILE.CPY IN "C:\Users\sid\cms\copylib\rri".  
+           COPY DOCFILE.CPY.  
 
        FD  CHARDATE.
        01  CHARDATE01. 
@@ -104,7 +104,7 @@
        01  TOT-AMOUNT PIC S9(7)V99.
        01  PC-CLAIM-HOLD PIC X(6).
 
-      *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
+      *     COPY charback.CPY.      
        
        PROCEDURE DIVISION.
        

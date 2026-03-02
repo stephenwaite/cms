@@ -105,19 +105,19 @@
        01  FILEOUT01 PIC X(40).
 
        FD  PAYFILE.
-           COPY payfile.CPY IN "C:\Users\sid\cms\copylib".
+           COPY payfile.CPY.
       
        FD  GAPFILE.
-           COPY gapfile.CPY IN "C:\Users\sid\cms\copylib".          
+           COPY gapfile.CPY.          
 
        FD  MPLRFILE.
-           COPY mplrfile.CPY IN "C:\Users\sid\cms\copylib".           
+           COPY mplrfile.CPY.           
 
        FD  AUTHFILE.
-           COPY authfile.CPY IN "C:\Users\sid\cms\copylib".
+           COPY authfile.CPY.
 
        FD  INSFILE.
-           COPY insfile.CPY IN "C:\Users\sid\cms\copylib".      
+           COPY insfile.CPY.      
 
        FD  PARMNDEX.
        01  PARMNDEX01.
@@ -135,22 +135,22 @@
            02 DP-2 PIC X(22).
 
        FD  REFPHY.
-           COPY refphy.CPY IN "C:\Users\sid\cms\copylib".
+           COPY refphy.CPY.
        
        FD  CHARFILE.
-           COPY charfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY charfile.CPY.
      
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY garfile.CPY.
 
        FD  PATFILE.
-           COPY patfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY patfile.CPY.
 
        FD  DIAGFILE.
-           COPY diagfile.CPY IN "C:\Users\sid\cms\copylib".
+           COPY diagfile.CPY.
 
        FD  PROCFILE.
-           COPY procfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY procfile.CPY.
       
        FD  CLAIMFILE
            DATA RECORD IS CLAIM01.

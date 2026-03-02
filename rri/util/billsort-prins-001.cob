@@ -41,10 +41,10 @@
            02 fi-acct pic x(8).           
       
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY GARFILE.CPY.
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
 
        fd  fileout.
        01  fileout01 pic x(200).

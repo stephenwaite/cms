@@ -30,7 +30,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD  GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy garfile.cpy.
 
        FD  PARMFILE.
        01  PARMFILE01 PIC 9.
@@ -65,7 +65,7 @@
            02 FO-AGE PIC X(8).
            02 FO-KEY PIC X(11).
        FD  PAYCUR.
-           copy paycur.cpy in "c:\users\sid\cms\copylib".
+           copy paycur.cpy.
 
        FD  INSIN.
        01  INSIN01 PIC 999.
@@ -74,7 +74,7 @@
        01  FILE-OUT01 PIC X(156).
 
        FD  CHARCUR.
-           copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy charcur.cpy.
 
        WORKING-STORAGE SECTION.
        01  X PIC 9999.

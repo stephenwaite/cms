@@ -47,13 +47,13 @@
        01   AGEDATE01 PIC 9(8).
 
        FD  CHARCUR.
-       copy charcur.cpy in "c:\Users\sid\cms\copylib\rri".
+       copy charcur.cpy.
 
        FD  PAYCUR.
-       copy paycur.cpy in "c:\Users\sid\cms\copylib\rri".
+       copy paycur.cpy.
 
        FD  GARFILE.
-       copy garfile.cpy in "c:\Users\sid\cms\copylib\rri".
+       copy garfile.cpy.
 
        FD  errfile.
        01  errfile01 pic x(80).

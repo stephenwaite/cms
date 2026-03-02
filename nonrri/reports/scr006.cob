@@ -175,7 +175,7 @@
            02 G-FILLER PIC XXX.
        
        Fd  refphy.
-           COPY refphy.cpy IN "C:\Users\sid\cms\copylib".           
+           COPY refphy.cpy.           
 
        WORKING-STORAGE SECTION.
        01  ALF8 PIC X(8) VALUE SPACE.

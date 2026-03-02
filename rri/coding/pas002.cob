@@ -42,19 +42,19 @@
        FILE SECTION.
 
        FD  CHARFILE.
-           copy charfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy charfile.cpy.
        
        FD  FILEOUT.
        01  FILEOUT01 PIC X(189). 
 
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY garfile.CPY.
 
        FD  EMAILAUTHFILE.
-           copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri". 
+           copy emailauthfile.cpy. 
 
        FD  AUTHFILE.
-           copy authfile.cpy in "c:\users\sid\cms\copylib\rri".      
+           copy authfile.cpy.      
 
        WORKING-STORAGE SECTION.
        01  AUTHFILE-STAT PIC XX.

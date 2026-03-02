@@ -36,7 +36,7 @@
        FILE SECTION.
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
        
 
        FD  FILEIN.
@@ -50,7 +50,7 @@
            02 FO-2 PIC X(5).
 
        FD  INSFILE.
-           COPY insfile.cpy IN "C:\Users\sid\cms\copylib\rri".
+           COPY insfile.cpy.
 
        PROCEDURE DIVISION.
        P0.

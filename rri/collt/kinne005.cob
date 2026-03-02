@@ -49,10 +49,10 @@
            02 FI-PAID PIC 9(4)V99.
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib".
+           COPY PAYCUR.CPY.
 
        FD  PAYFILE.
-           COPY PAYFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY PAYFILE.CPY.
 
        FD  ERROR-FILE.
        01  ERROR-FILE01 PIC X(132).
@@ -61,10 +61,10 @@
        01  FILEOUT01 PIC X(133).
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
 
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY garfile.CPY.
           
        WORKING-STORAGE SECTION.
        

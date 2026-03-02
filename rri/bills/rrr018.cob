@@ -71,7 +71,7 @@
        01  MVP-BILL01 PIC X(8).
 
        FD  INSFILE.
-           copy insfile.cpy in "c:\users\sid\cms\copylib".
+           copy insfile.cpy.
        
        FD  BILLPARM.
        01  BILLPARM01.
@@ -100,16 +100,16 @@
            02 tb-email pic x(30).
 
        FD  CHARCUR.
-           copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy charcur.cpy.
 
        FD  PAYCUR.
-           copy paycur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy paycur.cpy.
 
        FD  GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy garfile.cpy.
 
        FD  emailauthfile.
-           copy emailauthfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy emailauthfile.cpy.
 
        fd  errorfile.
        01  errorfile01 pic x(80).    

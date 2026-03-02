@@ -80,10 +80,10 @@
            02 rarc-reason pic x(112).   
 
        FD  INSFILE.
-           COPY INSFILE.CPY IN "C:\Users\sid\cms\copylib".
+           COPY INSFILE.CPY.
 
        FD  MPLRFILE.
-           COPY MPLRFILE.CPY IN "C:\Users\sid\cms\copylib\rri".           
+           COPY MPLRFILE.CPY.           
 
        FD  CAIDFILE.
        01  CAIDFILE01.
@@ -91,7 +91,7 @@
            02 CAID-REASON PIC X(70).
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY PAYCUR.CPY.
       
        FD  PARMFILE.
        01  PARMFILE01.
@@ -113,7 +113,7 @@
            02 F3 PIC X(113).
 
        FD  PAYFILE.
-           COPY payfile.CPY IN "C:\Users\sid\cms\copylib".      
+           COPY payfile.CPY.      
 
        FD  TRNPAYFILE
            DATA RECORD IS TRNPAYFILE01.
@@ -134,14 +134,14 @@
            02 TRN-CHKNO PIC X(30).
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
 
        FD GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".       
+           COPY garfile.CPY.       
 
        WORKING-STORAGE SECTION.
 
-       COPY "HIP5010-835.CPY" IN "C:\Users\sid\cms\copylib".
+       COPY "HIP5010-835.CPY".
       
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.

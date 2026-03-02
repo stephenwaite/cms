@@ -80,16 +80,16 @@
            02 EF3 PIC X(22).
 
        FD  REFPHY.
-           COPY refphy.CPY IN "C:\Users\sid\cms\copylib".
+           COPY refphy.CPY.
 
        FD  INSFILE.
-           COPY insfile.CPY IN "C:\Users\sid\cms\copylib".
+           COPY insfile.CPY.
 
        FD  FILEIN.
        01  FILEIN01 PIC 999.
 
        FD  GARFILE.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY garfile.CPY.
 
        FD  DOCFILE.
        01  DOCFILE01.
@@ -123,10 +123,10 @@
            02 FO-PAPER PIC X.
 
        FD  CHARCUR.
-           COPY charcur.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY charcur.CPY.
 
        FD  AUTHFILE.
-           COPY authfile.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY authfile.CPY.
 
 
        WORKING-STORAGE SECTION.

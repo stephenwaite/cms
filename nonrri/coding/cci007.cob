@@ -31,7 +31,7 @@
        FILE SECTION.
 
        FD  CHARCUR.
-           COPY charcur.CPY IN "C:\Users\sid\cms\copylib".    
+           COPY charcur.CPY.    
 
        FD  CCIFILE.
        01  CCIFILE01.
@@ -44,7 +44,7 @@
        01  FILEOUT01 PIC X(120).
 
        FD  CHARFILE.
-           COPY charfile.CPY IN "C:\Users\sid\cms\copylib".
+           COPY charfile.CPY.
 
        WORKING-STORAGE SECTION.
 

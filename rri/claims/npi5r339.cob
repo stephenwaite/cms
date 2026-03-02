@@ -150,10 +150,10 @@
        01  SEGFILE01 PIC X(120).
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
 
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY GARFILE.CPY.
 
        FD  PAYCUR
       *    BLOCK CONTAINS 3 RECORDS
@@ -258,7 +258,7 @@
            02 GAP-TYPE PIC X.
            02 GAP-FUTURE PIC X(40).
        FD  DIAGFILE.
-           COPY "diagfile.cpy" IN "C:\Users\sid\cms\copylib".
+           COPY "diagfile.cpy".
 
        WORKING-STORAGE SECTION.
        01 ISA01.

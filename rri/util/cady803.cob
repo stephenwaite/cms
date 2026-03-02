@@ -37,10 +37,10 @@
        FILE SECTION.
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY CHARCUR.CPY.
 
        FD  garfile.
-           COPY garfile.CPY IN "C:\Users\sid\cms\copylib\rri".                  
+           COPY garfile.CPY.                  
 
        FD  FILEOUT.
        01  FILEOUT01. 
@@ -48,7 +48,7 @@
            02 FO-2 PIC X(5).
 
        FD  INSFILE.
-           COPY insfile.cpy IN "C:\Users\sid\cms\copylib".
+           COPY insfile.cpy.
 
        working-storage section.
 

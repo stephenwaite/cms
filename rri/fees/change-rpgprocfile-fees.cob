@@ -25,13 +25,13 @@
        FILE SECTION.
 
        FD  CHARFILE.
-           COPY charfile.CPY IN "C:\Users\sid\cms\copylib\rri". 
+           COPY charfile.CPY. 
        
        FD  FILEOUT.
        01  FILEOUT01 PIC X(80).   
 
        FD  RPGPROCFILE.
-           COPY rpgprocfile.CPY IN "C:\Users\sid\cms\copylib\rri". 
+           COPY rpgprocfile.CPY. 
 
        WORKING-STORAGE SECTION.
 

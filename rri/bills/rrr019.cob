@@ -68,7 +68,7 @@
            02 FO-7 PIC 9(7).
            
        FD  CHARCUR.
-           copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy charcur.cpy.
 
        FD  BILLBAD.
        01  BILLBAD01.
@@ -157,10 +157,10 @@
            02 CR-FUTURE PIC X(6).
 
        FD  PAYCUR.
-           copy PAYcur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy PAYcur.cpy.
 
        FD  GARFILE.
-           copy GARFILE.cpy in "c:\users\sid\cms\copylib\rri".
+           copy GARFILE.cpy.
 
        WORKING-STORAGE SECTION.    
        01  PHR01.

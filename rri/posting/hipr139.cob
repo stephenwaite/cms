@@ -57,16 +57,16 @@
        FILE SECTION.             
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY IN "C:\Users\sid\cms\copylib\rri".      
+           COPY PAYCUR.CPY.      
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".             
+           COPY CHARCUR.CPY.             
       
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".
+           COPY GARFILE.CPY.
        
        FD  MPLRFILE.
-           COPY mplrfile.CPY IN "C:\Users\sid\cms\copylib\rri".       
+           COPY mplrfile.CPY.       
        
        FD  cascodefile.
        01  cascodefile01.
@@ -112,7 +112,7 @@
                    
        WORKING-STORAGE SECTION.
 
-       COPY "hip5010_835.cpy" IN "C:\Users\sid\cms\copylib".      
+       COPY "hip5010_835.cpy".      
 
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.

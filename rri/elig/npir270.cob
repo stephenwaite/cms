@@ -85,11 +85,11 @@
        01  SEGFILE01 PIC X(120).
 
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib\rri".    
+           COPY CHARCUR.CPY.    
 
 
        FD GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib\rri".    
+           COPY GARFILE.CPY.    
        
        FD  AUTHFILE.
        01  AUTHFILE01.
@@ -102,7 +102,7 @@
            02 AUTH-FILLER PIC XXX.
 
        WORKING-STORAGE SECTION.
-           COPY HIP5010-270.CPY IN "C:\Users\sid\cms\copylib".    
+           COPY HIP5010-270.CPY.    
 
        01  TEST-DATE.
            05 T-CC  PIC XX.

@@ -63,13 +63,13 @@
        FILE SECTION.
        
        FD  INSFILE.
-           copy insfile.cpy in "c:\users\sid\cms\copylib".
+           copy insfile.cpy.
 
        FD  GARFILE.
-           copy garfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy garfile.cpy.
 
        FD  CHARCUR.
-           copy charcur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy charcur.cpy.
 
        FD  BILLPARM.
        01  BILLPARM01.
@@ -90,7 +90,7 @@
            02 TB-4 PIC X. 
 
        FD  PAYCUR.
-           copy paycur.cpy in "c:\users\sid\cms\copylib\rri".
+           copy paycur.cpy.
 
        FD  OUT-FILE.
        01  OUT01 PIC X(84).
@@ -98,10 +98,10 @@
        01  CHNL-3 PIC X.
 
        FD  PROCFILE.
-           copy procfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy procfile.cpy.
 
        FD  RPGPROCFILE.
-           copy rpgprocfile.cpy in "c:\users\sid\cms\copylib\rri".
+           copy rpgprocfile.cpy.
        
        WORKING-STORAGE SECTION.
        01  CHR01.

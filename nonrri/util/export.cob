@@ -58,13 +58,13 @@
        FILE SECTION.
 
        FD  PAYCUR.
-           COPY PAYCUR.CPY  IN "C:\Users\sid\cms\copylib".      
+           COPY PAYCUR.CPY .      
        
        FD  CHARCUR.
-           COPY CHARCUR.CPY IN "C:\Users\sid\cms\copylib".             
+           COPY CHARCUR.CPY.             
       
        FD  GARFILE.
-           COPY GARFILE.CPY IN "C:\Users\sid\cms\copylib".      
+           COPY GARFILE.CPY.      
       
        FD  DOCFILE.
        01  DOCFILE01.
@@ -88,7 +88,7 @@
            02 DOC-FUTURE PIC X(12).  
 
        FD  INSFILE.
-           COPY INSFILE.CPY IN "C:\Users\sid\cms\copylib".      
+           COPY INSFILE.CPY.      
 
        FD  CHARDATE.
        01  CHARDATE01. 
@@ -161,7 +161,7 @@
        01  W-SE-RELATE PIC X(6).    
        01  W-TR-RELATE PIC X(6).
 
-      *     COPY charback.CPY IN "C:\Users\sid\cms\copylib\rri".      
+      *     COPY charback.CPY.      
        
        PROCEDURE DIVISION.
        
