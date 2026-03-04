@@ -251,7 +251,7 @@
                    " CHARGE KEY " FO-PROC
 
       *    auto-DOC and auto-code G1004 for AUC program
-           IF CD-PROC2 = "G1004  "
+           IF CD-PROC1 = "G1004  "
                IF FO-KEY(1:8) = G-GARNO
                    MOVE HOLD-DOCP TO CD-DOCP
                    IF HOLD7 NOT = "0000000"
@@ -297,30 +297,30 @@
            MOVE CD-DOCP TO HOLD-DOCP
 
       *    auto-code call back mammos
-           IF (CD-PROC1 = "1446" OR "1447" OR "1448")
+           IF (CD-PROC0 = "1446" OR "1447" OR "1448")
                DISPLAY "Autocoding call back mammo with R928"
                DISPLAY "Displaying read though, if looks odd, "
                        "note to change code later please."
                DISPLAY " "
                PERFORM 10-GR
                MOVE "R928   " TO CD-DIAG
-               IF (CD-PAYCODE = "003" OR "028" OR "074" OR "141"
-                   OR "200" OR "245" OR "270" OR "409" OR "663"
-                   OR "697" OR "868" OR "912")
-                   IF (CD-PROC1 = "1446")
+               IF (CD-PAYCODE = "003" OR "028" OR "074" OR "079"
+                   OR "141" OR "200" OR "225" OR "245" OR "270"
+                   OR "409" OR "663" OR "697" OR "868" OR "912")
+                   IF (CD-PROC0 = "1446")
                        MOVE "LT" TO CD-MOD2
                        MOVE "10937706526" TO CD-PROC
-                   ELSE IF (CD-PROC1 = "1447")
+                   ELSE IF (CD-PROC0 = "1447")
                        MOVE "RT" TO CD-MOD2
                        MOVE "10947706526" TO CD-PROC
-                   ELSE IF (CD-PROC1 = "1448")
+                   ELSE IF (CD-PROC0 = "1448")
                        MOVE "  " TO CD-MOD2
                        MOVE "10957706626" TO CD-PROC
                        MOVE 184 TO CD-AMOUNT
                    END-IF
                ELSE
                    MOVE "52" TO CD-MOD2
-                   IF (CD-PROC1 = "1448")
+                   IF (CD-PROC0 = "1448")
                        MOVE "  " TO CD-MOD2
                    END-IF
                END-IF
@@ -329,7 +329,7 @@
            END-IF
 
       *    auto-code tomosynthesis
-           IF CD-PROC1 = "1449"
+           IF CD-PROC0 = "1449"
                MOVE "Z1231  " TO CD-DIAG
                DISPLAY "Autocoded tomosynthesis"
                DISPLAY " "
@@ -338,7 +338,7 @@
            END-IF
 
       *    auto-code uni tomo
-           IF (CD-PROC1 = "1456")
+           IF (CD-PROC0 = "1456")
                DISPLAY "unilateral tomosynthesis -> added modifier 52"
                DISPLAY " "
                MOVE "Z1231  " TO CD-DIAG
@@ -348,7 +348,7 @@
            END-IF.
 
       *    high risk screen mammos
-           IF (CD-PROC1 = "1097" OR "1098")
+           IF (CD-PROC0 = "1097" OR "1098")
                DISPLAY "autocoded high risk screen w Z1231"
                DISPLAY " "
                MOVE "Z1231  " TO CD-DIAG
@@ -357,7 +357,7 @@
            END-IF
 
       *    unilateral screening mammo - needs assessment, falls through
-           IF (CD-PROC1 = "1099" OR "1442")
+           IF (CD-PROC0 = "1099" OR "1442")
                DISPLAY "unilateral screening mammogram -> added mod 52"
                DISPLAY " "
                MOVE "Z1231  " TO CD-DIAG
@@ -365,14 +365,14 @@
            END-IF
 
       *    same day screen with diag exam
-           IF (CD-PROC1 = "1091" OR "1092" OR "1441")
+           IF (CD-PROC0 = "1091" OR "1092" OR "1441")
                DISPLAY "adding GG mod to same day screen with dx exam"
                DISPLAY " "
                MOVE "GG" TO CD-MOD2
            END-IF
 
       *    quick code diag mammos
-           IF (CD-PROC1 = "1093" OR "1094" OR "1095")
+           IF (CD-PROC0 = "1093" OR "1094" OR "1095")
                IF CD-DOCP = "02"
                    GO TO P1-1
                END-IF
@@ -387,7 +387,7 @@
                END-IF
            END-IF
 
-           IF (CD-PROC1 = "1450" AND ANS1 = "Y")
+           IF (CD-PROC0 = "1450" AND ANS1 = "Y")
                MOVE "R928   " TO CD-DIAG
                DISPLAY "Autocoded diag tomosynthesis"
                DISPLAY " "
@@ -396,7 +396,7 @@
            END-IF
 
       *    us extremity non vasc 76882
-           IF (CD-PROC1 = "2098")
+           IF (CD-PROC0 = "2098")
                IF CD-DOCP = "02"
                    GO TO P1-1
                END-IF
@@ -411,7 +411,7 @@
            END-IF
 
       *    bilat studies
-           IF ((CD-PROC1 = "1204" OR "1284" OR "1285" OR "3082")
+           IF ((CD-PROC0 = "1204" OR "1284" OR "1285" OR "3082")
                AND CD-MOD2 = "50")
                IF CD-DOCP = "02"
                    GO TO P1-1
@@ -439,7 +439,7 @@
            END-IF
 
       *    quick code bilat orbits
-           IF (CD-PROC1 = "1204" AND CD-MOD2 = "50")
+           IF (CD-PROC0 = "1204" AND CD-MOD2 = "50")
                COMPUTE CD-AMOUNT = 2 * CD-AMOUNT
                IF CD-DOCP = "02"
                    GO TO P1-1
@@ -456,7 +456,7 @@
            END-IF
 
       *    auto-code call back ultrasounds
-           IF (CD-PROC1 = "2190" OR "2191" OR "2192")
+           IF (CD-PROC0 = "2190" OR "2191" OR "2192")
                DISPLAY "Autocode screening call back US with R928?"
                DISPLAY "Hit Y for R92.8"
                DISPLAY " "
@@ -469,7 +469,7 @@
            END-IF
 
       *    auto-code calcium screen
-           IF CD-PROC1 = "5270"
+           IF CD-PROC0 = "5270"
                IF (CD-PAYCODE = "003" OR "028" OR "074" OR "141"
                    OR "200" OR "245" OR "270" OR "409" OR "663"
                    OR "697" OR "868" OR "912")
@@ -497,7 +497,7 @@
            END-IF
 
       *    mammo codes
-           IF (CD-PROC2 NOT = "7706726")
+           IF (CD-PROC1 NOT = "7706726")
                GO TO P2
            END-IF
            MOVE "Z1231  " TO CD-DIAG
@@ -520,7 +520,7 @@
        P2-00.
            DISPLAY CD-DATE-T(5:2) "-" CD-DATE-T(7:2) "-"
                    CD-DATE-T(1:4)
-                   " " CD-PROC2 " " CD-MOD2 " " CD-MOD3
+                   " " CD-PROC1 " " CD-MOD2 " " CD-MOD3
                    " " CD-PAYCODE " " CD-PLACE
                    " " G-DOB(5:2) "-" G-DOB(7:2) "-" G-DOB(1:4)
                    " " G-ACCT " " FO-NAME.
@@ -785,7 +785,7 @@
                GO TO P1
            END-IF
 
-           IF (CD-PROC1 = "5232" OR "5233")
+           IF (CD-PROC0 = "5232" OR "5233")
                DISPLAY "LD lung screen -> auto coded"
                DISPLAY " "
                MOVE "Z87891 " TO CD-DIAG
@@ -943,7 +943,7 @@
 
       *----------------------------------------------------------------
        A4.
-           MOVE CD-PROC2  TO ALW-PROC
+           MOVE CD-PROC1  TO ALW-PROC
            MOVE IN-FIELD-7 TO ALW-DIAG
            READ ALLOWFILE
                INVALID
@@ -972,7 +972,7 @@
            IF (ALW-DIAG(6:2) = "??")
                GO TO A5-1
            END-IF
-           IF ALW-PROC NOT = CD-PROC2
+           IF ALW-PROC NOT = CD-PROC1
                GO TO A5-2
            END-IF
            READ DIAGFILE INVALID

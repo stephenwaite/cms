@@ -1213,7 +1213,17 @@
        SEL-1.
            IF X-CERT = SPACE
                MOVE X-SSN TO A-PRIPOL
-           END-IF    
+           END-IF
+
+           IF X-IP = "00491" AND X-CERT(10:1) NOT = SPACE
+               MOVE X-SSN  TO A-PRIPOL
+               MOVE SPACES TO FILEOUT01
+               STRING "HOSP=" X-IP " " R2-MEDREC " " A-GARNAME
+                       " USING SSN " X-SSN " INSTEAD OF " X-CERT
+                       DELIMITED BY SPACE INTO FILEOUT01
+               DISPLAY FILEOUT01
+               WRITE FILEOUT01
+           END-IF
 
            IF NOT (X-GENDER = "F" OR "M")
                DISPLAY X-SUBNAME  " GENDER F OR M"
