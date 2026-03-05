@@ -323,6 +323,14 @@
              MOVE "NO DOCP              " TO EF2
              PERFORM E1
              GO TO A2.
+           
+           MOVE CC-PLACE TO WS-CC-PLACE
+           IF NOT CC-PLACE-VALID
+               MOVE SPACE TO EF2
+               MOVE "INVALID POS " TO EF2
+               PERFORM E1
+               GO TO A2.
+           END-IF  
 
            IF INS-NEIC = "57106" AND CC-DATE-M = "00000000"
              AND CC-PLACE = "3"
