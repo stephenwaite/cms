@@ -127,30 +127,40 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
                 value = values[i].text_content().strip()
                 member_info[label] = value
             
-            # Parse eligibility table rows
+            # Parse eligibility table — scoped to the "Eligibility" fieldset
             eligibility_records = []
-            table_rows = page.locator('tr:has(td.elig-info)').all()
+            elig_fieldset = page.locator('fieldset.scheduler-border:has(legend:text("Eligibility"))')
+            if elig_fieldset.count() > 0:
+                for row in elig_fieldset.locator('tr:has(td.elig-info)').all():
+                    cells = row.locator('td.elig-info').all()
+                    if len(cells) >= 7:
+                        eligibility_records.append({
+                            'start_date':   cells[0].text_content().strip(),
+                            'end_date':     cells[1].text_content().strip(),
+                            'status':       cells[2].text_content().strip(),
+                            'benefit_plan': cells[3].text_content().strip(),
+                            'service_type': cells[4].inner_text().strip(),
+                            'max_copay':    cells[5].text_content().strip(),
+                            'aco':          cells[6].text_content().strip(),
+                        })
+                    elif len(cells) == 1:
+                        message = cells[0].text_content().strip()
+                        if message:
+                            eligibility_records.append({'message': message})
             
-            for row in table_rows:
-                cells = row.locator('td.elig-info').all()
-                
-                # Check if this is a data row (7 cells) or colspan row
-                if len(cells) == 7:
-                    # Regular eligibility data row
-                    eligibility_records.append({
-                        'start_date':   cells[0].text_content().strip(),
-                        'end_date':     cells[1].text_content().strip(),
-                        'status':       cells[2].text_content().strip(),
-                        'benefit_plan': cells[3].text_content().strip(),
-                        'service_type': cells[4].inner_text().strip(),  # inner_text handles <br>
-                        'max_copay':    cells[5].text_content().strip(),
-                        'aco':          cells[6].text_content().strip(),
-                    })
-                elif len(cells) == 1:
-                    # Colspan row — skip if blank, otherwise treat as message
-                    message = cells[0].text_content().strip()
-                    if message:
-                        eligibility_records.append({'message': message})
+            # Parse Third Party Liability table — scoped to the "Third Party Liability" fieldset
+            tpl_records = []
+            tpl_fieldset = page.locator('fieldset.scheduler-border:has(legend:text("Third Party Liability"))')
+            if tpl_fieldset.count() > 0:
+                for row in tpl_fieldset.locator('tr:has(td.elig-info)').all():
+                    cells = row.locator('td.elig-info').all()
+                    if len(cells) >= 3:
+                        tpl_records.append({
+                            'start_date':  cells[0].text_content().strip(),
+                            'end_date':    cells[1].text_content().strip(),
+                            'coverage':    cells[2].text_content().strip(),
+                            'description': cells[3].text_content().strip() if len(cells) >= 4 else '',
+                        })
             
             # Check for any important messages
             important_messages = page.locator('div.elig-member-info-important').all()
@@ -170,6 +180,7 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
                 'date_of_service': date_of_service,
                 'member_info': member_info,
                 'eligibility_records': eligibility_records,
+                'tpl_records': tpl_records,
                 'important_messages': important_text,
                 'disclaimer': disclaimer,
                 'error': False
@@ -222,6 +233,18 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
                 print("IMPORTANT MESSAGES:")
                 for msg in important_text:
                     print(f"  {msg}")
+            
+            # Print Third Party Liability records
+            if tpl_records:
+                print("\n" + "-" * 80)
+                print("THIRD PARTY LIABILITY:")
+                print("-" * 80)
+                for record in tpl_records:
+                    print(f"Start Date:   {record['start_date']}")
+                    print(f"End Date:     {record['end_date']}")
+                    print(f"Coverage:     {record['coverage']}")
+                    print(f"Description:  {record['description']}")
+                    print("-" * 40)
             
             print("=" * 80 + "\n")
             
