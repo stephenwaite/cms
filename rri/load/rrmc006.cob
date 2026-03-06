@@ -144,7 +144,7 @@
 
        WORKING-STORAGE SECTION.
 
-       COPY REC101.
+       COPY rec101.
 
        01  REC201.
            02 R2-1 PIC XX.
