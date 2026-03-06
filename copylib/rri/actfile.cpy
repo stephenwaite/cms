@@ -25,21 +25,26 @@
            02 A-PRINS PIC XXX.
            02 A-PR-ASSIGN PIC X.
            02 A-PR-OFFICE PIC X(4).
-           02 A-PR-GROUP PIC X(10).
-           02 A-PRIPOL0.
-             03 A-PRIPOL PIC X(9).
-             03 A-PR-SUFX PIC XXX.
+           02 A-PR-GROUP.
+             03 A-PR-GROUP2  PIC XX.
+             03 FILLER       PIC X(8).
+           02 A-PRIPOL.
+             03 A-PRIPOL1 PIC X(9).
+             03 A-PRIPOL2 PIC XXX.
              03 A-PR-FILLER PIC X(4).
            02 A-PRNAME PIC X(24).
            02 A-PR-RELATE PIC X.
            02 A-SE-MPLR PIC X(4).
            02 A-SEINS PIC XXX.
            02 A-SE-ASSIGN PIC X.
-           02 A-SE-OFFICE PIC X(4).
-           02 A-SE-GROUP PIC X(10).
-           02 A-SECPOL0.
-             03 A-SECPOL PIC X(9).
-             03 A-SE-SUFX PIC XXX.
+           02 A-TRINSIND PIC X.
+           02 A-TRINS PIC XXX.
+           02 A-SE-GROUP.
+             03 A-SE-GROUP2 PIC XX.
+             03 FILLER PIC X(8).
+           02 A-SECPOL.
+             03 A-SECPOL1 PIC X(9).
+             03 A-SECPOL2 PIC XXX.
              03 A-SE-FILLER PIC X(4).
            02 A-SENAME PIC X(24).
            02 A-SE-RELATE PIC X.
