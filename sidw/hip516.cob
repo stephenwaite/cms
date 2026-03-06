@@ -175,9 +175,9 @@
                MOVE 1 TO WEB-NUM
                WRITE WEBFILE01
                END-WRITE
-      *       NOT INVALID
-      *         ADD 1 TO WEB-NUM
-      *         REWRITE WEBFILE01
+             NOT INVALID
+               ADD 1 TO WEB-NUM
+               REWRITE WEBFILE01
            END-READ
            
            READ ISAFILE AT END GO TO P99.
