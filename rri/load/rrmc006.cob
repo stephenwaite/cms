@@ -1217,12 +1217,12 @@
 
            IF X-IP = "00491" AND X-CERT(10:1) NOT = SPACE
                MOVE X-SSN  TO A-PRIPOL
-               MOVE SPACES TO FILEOUT01
-               STRING "HOSP=" X-IP " " R2-MEDREC " " A-GARNAME
-                       " USING SSN " X-SSN " INSTEAD OF " X-CERT
-                       DELIMITED BY SPACE INTO FILEOUT01
-               DISPLAY FILEOUT01
-               WRITE FILEOUT01
+               MOVE SPACE TO ERRFILE01
+               STRING A-GARNAME " MEDREC # " R2-MEDREC " HAVE TO USE "
+                   "SSN FOR POLICY " X-SSN " SHOULD BE 9 DIGITS :)"
+                   DELIMITED BY SIZE INTO ERRFILE01
+               DISPLAY ERRFILE01  
+               WRITE ERRFILE01
            END-IF
 
            IF NOT (X-GENDER = "F" OR "M")
