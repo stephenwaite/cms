@@ -136,7 +136,7 @@
        FD  ORDFILE.
            copy "ordfile.cpy".
 
-       FD  ACTFILE
+       FD  ACTFILE.
            copy "actfile.cpy"..
 
        FD  GARFILE.
