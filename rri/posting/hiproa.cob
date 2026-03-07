@@ -764,6 +764,8 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.                      
+           DISPLAY "CLMSTAT=[" CLP-2CLMSTAT "]"
+           ACCEPT OMITTED
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
                                OR "20" OR "21")
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
@@ -1683,8 +1685,8 @@
            END-IF    
       
            MOVE SPACE TO CC-PROCY01
-           MOVE CC-PROC1 TO CC-PROC1Y
-           MOVE CC-PROC2 TO CC-PROC2Y
+           MOVE CC-CPT TO CC-PROC1Y
+           MOVE CC-MOD TO CC-PROC2Y
            MOVE CC-MOD2 TO CC-MOD2Y
            MOVE CC-MOD3 TO CC-MOD3Y
            
