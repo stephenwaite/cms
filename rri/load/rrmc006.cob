@@ -1057,7 +1057,7 @@
            MOVE X-GRP TO A-PR-GROUP
            MOVE X-GRPNAME TO A-PRGRPNAME
            
-           MOVE A-PRINS WS-INS
+           MOVE A-PRINS TO WS-INS
            IF INS-ENTITLE
                MOVE A-GARNAME TO A-PRNAME
                GO TO SEL-1
@@ -1160,7 +1160,7 @@
            MOVE X-GRPNAME TO A-SEGRPNAME
 
 
-           MOVE A-SEINS WS-INS
+           MOVE A-SEINS TO WS-INS
            IF INS-ENTITLE
                MOVE A-GARNAME TO A-SENAME
                GO TO SEL-1
