@@ -764,8 +764,6 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.                      
-           DISPLAY "CLMSTAT=[" CLP-2CLMSTAT "]"
-           ACCEPT OMITTED
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
                                OR "20" OR "21")
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
@@ -1672,8 +1670,8 @@
            ADD 1 TO FIND-CNTR
            MOVE CHARCUR-KEY TO FOUND-KEY(X).
 
-           DISPLAY CHARCUR-KEY
-           ACCEPT OMITTED.
+      *     DISPLAY CHARCUR-KEY
+      *     ACCEPT OMITTED.
 
       *     MOVE CC-AMOUNT TO TOT-CLAIM
       *     PERFORM DMP4 THRU DMP5
