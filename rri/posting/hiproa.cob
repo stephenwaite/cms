@@ -146,7 +146,7 @@
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.
            02 FILLER PIC X(21) VALUE SPACE.
-           02 HL-2 PIC X(27) VALUE "  NEIC UNPOSTED LIST   ".
+           02 HL-2 PIC X(27) VALUE "  OA UNPOSTED LIST   ".
            02 FILLER PIC X(5) VALUE SPACE.
            02 HL-3 PIC X(10).
        01  ERR01.
@@ -846,6 +846,8 @@
       *     DISPLAY PAYORID " PAYORID"
       *     ACCEPT OMITTED
            
+           DISPLAY "PAYORID=[" PAYORID "] PAYORID1=[" PAYORID1 "]"
+           ACCEPT OMITTED
            IF PAYORID = space OR "11329"
              PERFORM P1-LOST-SVC 
              GO TO P5-SVC-LOOP-EXIT.
@@ -1728,8 +1730,8 @@
            ADD 1 TO FIND-CNTR
            MOVE CHARCUR-KEY TO FOUND-KEY(X).
 
-      *     DISPLAY CHARCUR-KEY
-      *     ACCEPT OMITTED.
+           DISPLAY CHARCUR-KEY
+           ACCEPT OMITTED.
 
       *     MOVE CC-AMOUNT TO TOT-CLAIM
       *     PERFORM DMP4 THRU DMP5
