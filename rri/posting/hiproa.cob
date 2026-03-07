@@ -764,6 +764,8 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.                      
+           DISPLAY "CLMSTAT=[" CLP-2CLMSTAT "]"
+           ACCEPT OMITTED
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
                                OR "20" OR "21")
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
@@ -806,6 +808,9 @@
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
 
            IF PD-AMOUNT = 0
+               IF CLP-2CLMSTAT = "2 "
+                   GO TO P5-SVC-LOOP-EXIT
+               END-IF
                MOVE 0 TO FLAG
       *         DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
       *         ACCEPT OMITTED                   
@@ -863,9 +868,9 @@
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
            
-      *     DISPLAY CLAIM-TOT " CLAIM-TOT " CC-AMOUNT " CC-AMOUNT "
-      *       PD-AMOUNT " PD-AMOUNT"
-      *     ACCEPT OMITTED
+           DISPLAY CLAIM-TOT " CLAIM-TOT " CC-AMOUNT " CC-AMOUNT "
+             PD-AMOUNT " PD-AMOUNT"
+           ACCEPT OMITTED
            
            PERFORM S4 THRU S5
            
@@ -1670,8 +1675,8 @@
            ADD 1 TO FIND-CNTR
            MOVE CHARCUR-KEY TO FOUND-KEY(X).
 
-      *     DISPLAY CHARCUR-KEY
-      *     ACCEPT OMITTED.
+           DISPLAY CHARCUR-KEY
+           ACCEPT OMITTED.
 
       *     MOVE CC-AMOUNT TO TOT-CLAIM
       *     PERFORM DMP4 THRU DMP5
