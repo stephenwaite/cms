@@ -136,156 +136,15 @@
        FD  ORDFILE.
            copy "ordfile.cpy".
 
-       FD  ACTFILE
-           DATA RECORD IS ACTFILE01.
-       01  ACTFILE01.
-           02 A-ACTNO PIC X(8).
-           02 A-GARNAME PIC X(24).
-           02 A-BILLADD PIC X(22).
-           02 A-STREET PIC X(22).
-           02 A-CITY PIC X(18).
-           02 A-STATE PIC X(2).
-           02 A-ZIP PIC X(9).
-           02 A-COLLT PIC X.
-           02 A-PHONE.
-             03 A-PHONE1 PIC XXX.
-             03 A-PHONE2 PIC XXX.
-             03 A-PHONE3 PIC X(4).
-           02 A-SEX PIC X.
-           02 A-RELATE PIC X.
-           02 A-MSTAT PIC X.
-           02 A-DOB PIC X(8).
-           02 A-DUNNING PIC X.
-           02 A-ACCTSTAT PIC X.
-           02 A-PR-MPLR PIC X(4).
-           02 A-PRINS PIC XXX.
-           02 A-PR-ASSIGN PIC X.
-           02 A-PR-OFFICE PIC X(4).
-           02 A-PR-GROUP.
-              03 A-PR-GROUP2 PIC XX.
-              03 FILLER PIC X(8).
-           02 A-PRIPOL.
-             03 A-PRIPOL1 PIC X(9).
-             03 A-PRIPOL2 PIC XXX.
-             03 A-PR-FILLER PIC X(4).
-           02 A-PRNAME PIC X(24).
-           02 A-PR-RELATE PIC X.
-           02 A-SE-MPLR PIC X(4).
-           02 A-SEINS PIC XXX.
-           02 A-SE-ASSIGN PIC X.
-           02 A-TRINSIND PIC X.
-           02 A-TRINS PIC XXX.
-           02 A-SE-GROUP. 
-              03 A-SE-GROUP2 PIC XX.
-              03 FILLER PIC X(8).
-           02 A-SECPOL.
-             03 A-SECPOL1 PIC X(9).
-             03 A-SECPOL2 PIC XXX.
-             03 A-SE-FILLER PIC X(4).
-           02 A-SENAME PIC X(24).
-           02 A-SE-RELATE PIC X.
-           02 A-INSPEND PIC X(7).
-           02 A-LASTBILL PIC X(8).
-           02 A-ASSIGNM PIC X.
-           02 A-PRIVATE PIC X.
-           02 A-BILLCYCLE PIC X.
-           02 A-DELETE PIC X.
-           02 A-FILLER PIC XXX.
-           02 A-GARNO PIC X(8).
-           02 A-PRGRPNAME PIC X(15).
-           02 A-SEGRPNAME PIC X(15).
-           02 NAME-KEY PIC XXX.
+       FD  ACTFILE.
+           copy "actfile.cpy".
 
        FD  GARFILE.
            COPY garfile.CPY.    
 
        WORKING-STORAGE SECTION.
 
-       01  REC101.
-           02 R1-1 PIC XX.
-           02 R1-PATNUM PIC X(8).
-           02 R1-PATNAME.
-             03 R1-PATNAME-L PIC X(19).
-             03 R1-PATNAME-F PIC X(12).
-           02 R1-PATADDR1 PIC X(25).
-           02 R1-PATADDR2 PIC X(25).
-           02 R1-PATCITY PIC X(25).
-           02 R1-PATSTATE PIC XX.
-           02 R1-PATZIP PIC X(10).
-             02 R1-ADMIT. 
-              03 R1-ADMITMM PIC XX.
-              03 FILLER PIC X.
-              03 R1-ADMITDD PIC XX.
-              03 FILLER PIC X.
-              03 R1-ADMITYY PIC XXXX.
-           02 R1-ADMITTIME PIC X(5).
-           02 R1-WORKCOMP PIC X.
-           02 R1-GARNAME.
-             03 R1-GARNAME1.
-               05 R1-GARNAME1-L PIC X(21).
-               05 R1-GARNAME1-F PIC X(14).
-           02 R1-GARADDR1 PIC X(25).
-           02 R1-GARADDR2 PIC X(25).
-           02 R1-GARCITY PIC X(25).
-           02 R1-GARSTATE PIC XX.
-           02 R1-GARZIP PIC X(10).
-           02 R1-EMAIL PIC X(30).
-           02 R1-IP1 PIC X(5).
-           02 R1-ID1 PIC X(30).
-           02 R1-CERT11 PIC X(20).
-           02 R1-GRP1 PIC X(20).
-           02 R1-GRPNAME11 PIC X(30).
-           02 R1-SUBNAME11 PIC X(35).
-           02 R1-EMPLOYNAME11 PIC X(30).
-           02 R1-GENDER11 PIC X.
-           02 FILLER PIC X.
-           02 R1-DOB11 PIC X(10).
-      * 478
-           02 R1-SSN11 PIC X(9).
-           02 R1-RELATE1 PIC XX.
-      * 489
-           02 INSURANCE-1.
-            03 R1-INSNAME1 PIC X(25).
-            03 R1-INSCONTACT1 PIC X(25).
-            03 R1-INSADDR11 PIC X(20).
-            03 R1-INSADDR21 PIC X(15).
-            03 R1-INSCITY1 PIC X(20).
-      * 594      
-            03 R1-INSSTATE1 PIC XX.
-            03 R1-INSZIP1 PIC X(10).
-            03 R1-INSPHONE1 PIC X(12).
-      * 618      
-           02  R1-AUTH PIC X(20).
-      * 638
-           02 R1-IP2 PIC X(5).
-           02 R1-ID2 PIC X(30).
-           02 R1-CERT22 PIC X(20).
-           02 R1-GRP2 PIC X(20).
-           02 R1-GRPNAME22 PIC X(30).
-      * 743     
-           02 R1-SUBNAME22 PIC X(35).
-           02 R1-EMPLOYNAME22 PIC X(30).
-      * 808     
-           02 R1-GENDER22 PIC X.
-           02 FILLER PIC X.
-      * 810     
-           02 R1-DOB22 PIC X(10).
-           02 R1-SSN22 PIC X(9).
-           02 R1-RELATE2 PIC XX.
-      * 831
-           02 INSURANCE-2.
-            03 R1-INSNAME2 PIC X(25).
-            03 R1-INSCONTACT2 PIC X(25).
-            03 R1-INSADDR12 PIC X(20).
-            03 R1-INSADDR22 PIC X(15).
-            03 R1-INSCITY2 PIC X(20).
-            03 R1-INSSTATE2 PIC XX.
-            03 R1-INSZIP2 PIC X(10).
-            03 R1-INSPHONE2 PIC X(12).
-      *    02 R1-IO PIC X(4).
-      *    02 FILLER PIC X(2).
-      * 135
-
+       COPY "rec101.cpy".
 
        01  REC201.
            02 R2-1 PIC XX.
@@ -639,6 +498,11 @@
        01  AUTH-FLAG PIC X.     
 
        01  PRIOR-INS PIC X(3).
+
+       01  WS-INS        PIC X(3).
+           88 INS-ENTITLE VALUE "003" "004" "028" "245" 
+               "488" "998".
+
 
        PROCEDURE DIVISION.
        0005-START.
@@ -1193,10 +1057,17 @@
            MOVE X-GRP TO A-PR-GROUP
            MOVE X-GRPNAME TO A-PRGRPNAME
            
-           IF X-SUBNAME = "SELF" OR "UNK" OR SPACE OR "X" OR "XX"
+           MOVE A-PRINS TO WS-INS
+           IF INS-ENTITLE
                MOVE A-GARNAME TO A-PRNAME
                GO TO SEL-1
-           END-IF    
+           END-IF
+
+           IF X-SUBNAME = "SELF" OR "UNK" OR SPACE OR "X" OR "XX"
+               OR "UNKNOWN"
+               MOVE A-GARNAME TO A-PRNAME
+               GO TO SEL-1
+           END-IF   
 
            MOVE SPACE TO A-PRNAME LNAME FNAME
            UNSTRING X-SUBNAME DELIMITED BY ", " OR "," INTO LNAME FNAME
@@ -1217,12 +1088,12 @@
 
            IF X-IP = "00491" AND X-CERT(10:1) NOT = SPACE
                MOVE X-SSN  TO A-PRIPOL
-               MOVE SPACES TO FILEOUT01
-               STRING "HOSP=" X-IP " " R2-MEDREC " " A-GARNAME
-                       " USING SSN " X-SSN " INSTEAD OF " X-CERT
-                       DELIMITED BY SPACE INTO FILEOUT01
-               DISPLAY FILEOUT01
-               WRITE FILEOUT01
+               MOVE SPACE TO ERRFILE01
+               STRING A-GARNAME " MEDREC # " R2-MEDREC " HAVE TO USE "
+                   "SSN FOR POLICY " X-SSN " SHOULD BE 9 DIGITS :)"
+                   DELIMITED BY SIZE INTO ERRFILE01
+               DISPLAY ERRFILE01  
+               WRITE ERRFILE01
            END-IF
 
            IF NOT (X-GENDER = "F" OR "M")
@@ -1288,7 +1159,15 @@
            MOVE X-GRP     TO A-SE-GROUP
            MOVE X-GRPNAME TO A-SEGRPNAME
 
+
+           MOVE A-SEINS TO WS-INS
+           IF INS-ENTITLE
+               MOVE A-GARNAME TO A-SENAME
+               GO TO SEL-1
+           END-IF
+           
            IF X-SUBNAME = "SELF" OR "UNK" OR SPACE OR "X" OR "XX"
+             OR "UNKNOWN"
              MOVE A-GARNAME TO A-SENAME
              GO TO SEL-2.
 

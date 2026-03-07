@@ -151,6 +151,16 @@
            02 T-CC PIC XX.
            02 T-YY PIC XX.
        01  ALF2 PIC XX.
+       
+       01  WS-CC-PLACE-WORK.
+           02 WS-CC-PLACE         PIC X.
+              88 CC-PLACE-VALID   VALUES '1' '3' '5'
+                                         'A' 'B' 'C' 'E'
+                                         'M' 'N' 'O' 'P'
+                                         'R' 'S'.
+              88 CC-PLACE-INVALID VALUE SPACES
+                                        LOW-VALUES
+                                        HIGH-VALUES.
 
        PROCEDURE DIVISION.
        P0.
@@ -313,6 +323,15 @@
              MOVE "NO DOCP              " TO EF2
              PERFORM E1
              GO TO A2.
+           
+           MOVE CC-PLACE TO WS-CC-PLACE
+           
+           IF NOT CC-PLACE-VALID
+               MOVE SPACE TO EF2
+               MOVE "INVALID POS " TO EF2
+               PERFORM E1
+               GO TO A2
+           END-IF  
 
            IF INS-NEIC = "57106" AND CC-DATE-M = "00000000"
              AND CC-PLACE = "3"
