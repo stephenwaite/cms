@@ -797,12 +797,7 @@
            END-IF    
                       
            MOVE SPACE TO ALF8
-      *    health equity pay amount is in CLP 
-           IF PAYORID = "43700" or "92916"
-             MOVE CLP-4TOTCLMPAY TO ALF8
-           ELSE 
-             MOVE SVC-3PAYAMT to ALF8
-           END-IF  
+      
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
@@ -834,64 +829,9 @@
 
            MOVE CC-CLAIM TO PD-CLAIM
            MOVE DATE-X TO PD-DATE-T
-           MOVE G-GARNAME TO PD-NAME.
+           MOVE G-GARNAME TO PD-NAME
                      
-           IF CC-PAYCODE = "062" AND (CLP-2CLMSTAT NOT = "1")
-               MOVE CC-PAYCODE TO PD-PAYCODE
-               GO TO P7-NEXT
-           END-IF
-
-           IF INS-NAME-HOLD = "MVP H"
-             MOVE "14156" TO PAYORID
-           end-if
-
-      *     DISPLAY PAYORID " PAYORID"
-      *     ACCEPT OMITTED
-           
-           DISPLAY "PAYORID=[" PAYORID "] PAYORID1=[" PAYORID1 "]"
-           ACCEPT OMITTED
-           IF PAYORID = space OR "11329"
-             PERFORM P1-LOST-SVC 
-             GO TO P5-SVC-LOOP-EXIT.
-
-           MOVE PAYORID TO INS-NEIC
-           START INSFILE KEY NOT < INS-NEIC
-             INVALID
-               PERFORM P1-LOST-SVC
-               GO TO P5-SVC-LOOP-EXIT                               
-           END-START.
-
-       P3-NEXT.
-           READ INSFILE NEXT
-             AT end
-               PERFORM P1-LOST-SVC
-               GO TO P5-SVC-LOOP-EXIT
-           end-read
-
-           IF PAYORID = "43700"
-             MOVE "075" TO PD-PAYCODE
-             GO TO P7-NEXT
-           END-IF
-             
-           IF INS-NEIC NOT = PAYORID
-             AND PAYORID NOT = "52192"
-             GO TO P3-NEXT.
-
-           IF CLP-2CLMSTAT = "1" OR "19"
-             IF G-PRINS NOT = INS-KEY
-               GO TO P3-NEXT
-             ELSE
-               MOVE G-PRINS TO PD-PAYCODE
-               GO TO P7-NEXT.
-
-           IF CLP-2CLMSTAT = "2"
-             IF G-SEINS NOT = INS-KEY
-               GO TO P3-NEXT
-             ELSE
-               MOVE G-SEINS TO PD-PAYCODE
-               GO TO P7-NEXT.                                                
-           
-           GO TO P3-NEXT.                 
+           MOVE CC-PAYCODE TO PD-PAYCODE.
 
        P7-NEXT.
            MOVE "  " TO PD-DENIAL.
