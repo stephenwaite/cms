@@ -371,6 +371,7 @@
        01  EQUITY-ID PIC X(9).
        01  INS-NAME-HOLD PIC X(5).
        01  ID-EIN PIC X(9).
+       01  DUPFLAG PIC 9.
        
        PROCEDURE DIVISION.
        0005-START.
@@ -1651,7 +1652,7 @@
                GO TO LOOK-1
            END-IF
 
-           MOVE 0 TO FLAGY 
+           MOVE 0 TO FLAGY DUPFLAG
            
            PERFORM A5 THRU A5-EXIT
            
@@ -1662,13 +1663,16 @@
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > FIND-CNTR
            
                IF CHARCUR-KEY = FOUND-KEY(Z)
-                   MOVE 1 TO FLAGY
+                   MOVE 1 TO DUPFLAG
                    MOVE FIND-CNTR TO Z               
                END-IF
 
            END-PERFORM
 
-           IF FLAGY = 1
+           IF DUPFLAG = 1
+               IF PAYORID = "HUMAN"
+                   ADD 1 TO FIND-CNTR
+               END-IF
                GO TO LOOK-1
            END-IF
 
