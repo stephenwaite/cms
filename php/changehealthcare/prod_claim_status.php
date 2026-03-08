@@ -111,8 +111,8 @@ $body = array_merge(
     $encounter
 );
 
-//echo json_encode($body, JSON_PRETTY_PRINT);
-//exit;
+echo json_encode($body, JSON_PRETTY_PRINT);
+exit;
 
 
 $request = new Request(
