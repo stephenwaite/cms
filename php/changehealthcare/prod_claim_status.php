@@ -6,10 +6,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 
-function fmtDate($d) {
-    return substr($d,0,4).'-'.substr($d,4,2).'-'.substr($d,6,2);
-}
-
 $clientId     = getenv('PROD_CHANGE_CLIENT_ID');
 $clientSecret = getenv('PROD_CHANGE_CLIENT_SECRET');
 if (!$clientId || !$clientSecret) {
@@ -89,7 +85,7 @@ if ($fh_wcomp_sid) {
                 'firstName' => $firstName,
                 'lastName' => $lastName,
                 'gender' => $g_sex,
-                'dateOfBirth' => fmtDate($g_dob),
+                'dateOfBirth' => $g_dob,
             )
         );
 
@@ -99,8 +95,8 @@ if ($fh_wcomp_sid) {
 
         $encounter = array(
             'encounter' => array(
-                'beginningDateOfService' => fmtDate($cc_date_t),
-                'endDateOfService'       => fmtDate($cc_date_t),
+                'beginningDateOfService' => $cc_date_t,
+                'endDateOfService'       => $cc_date_t,
                 'trackingNumber'         => getControlNumber(),
                 //'submittedAmount'        => $cc_amount
             )
