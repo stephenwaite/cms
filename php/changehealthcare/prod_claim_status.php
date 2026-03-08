@@ -11,7 +11,7 @@ $clientSecret = getenv('PROD_CHANGE_CLIENT_SECRET');
 if (!$clientId || !$clientSecret) {
     die("ERROR: credentials not found in environment\n");
 }
-$base_uri = 'https://apigw.changehealthcare.com/';
+$base_uri = 'https://apigw.optum.com/';
 $guzzle = new Client();
 $response = $guzzle->post($base_uri . 'apip/auth/v2/token', [
     'form_params' => [
