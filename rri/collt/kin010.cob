@@ -60,6 +60,7 @@
            IF (PD-PAYCODE > "006" AND < "010")
            OR (PD-PAYCODE > "010" AND < "019")
            OR (PD-DENIAL = "08" OR "AA" OR "15")
+           OR (PD-DENIAL = "14" AND PD-PAYCODE NOT = "197")
                GO TO P1
            END-IF.
            
