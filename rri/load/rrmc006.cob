@@ -1163,7 +1163,7 @@
            MOVE A-SEINS TO WS-INS
            IF INS-ENTITLE
                MOVE A-GARNAME TO A-SENAME
-               GO TO SEL-1
+               GO TO SEL-2
            END-IF
            
            IF X-SUBNAME = "SELF" OR "UNK" OR SPACE OR "X" OR "XX"

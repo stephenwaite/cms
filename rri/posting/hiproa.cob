@@ -146,7 +146,7 @@
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.
            02 FILLER PIC X(21) VALUE SPACE.
-           02 HL-2 PIC X(27) VALUE "  NEIC UNPOSTED LIST   ".
+           02 HL-2 PIC X(27) VALUE "  OA UNPOSTED LIST   ".
            02 FILLER PIC X(5) VALUE SPACE.
            02 HL-3 PIC X(10).
        01  ERR01.
@@ -371,6 +371,7 @@
        01  EQUITY-ID PIC X(9).
        01  INS-NAME-HOLD PIC X(5).
        01  ID-EIN PIC X(9).
+       01  DUPFLAG PIC 9.
        
        PROCEDURE DIVISION.
        0005-START.
@@ -764,6 +765,8 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.                      
+      *     DISPLAY "CLMSTAT=[" CLP-2CLMSTAT "]"
+      *     ACCEPT OMITTED
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
                                OR "20" OR "21")
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
@@ -795,12 +798,7 @@
            END-IF    
                       
            MOVE SPACE TO ALF8
-      *    health equity pay amount is in CLP 
-           IF PAYORID = "43700" or "92916"
-             MOVE CLP-4TOTCLMPAY TO ALF8
-           ELSE 
-             MOVE SVC-3PAYAMT to ALF8
-           END-IF  
+      
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
@@ -811,6 +809,9 @@
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
 
            IF PD-AMOUNT = 0
+               IF CLP-2CLMSTAT = "2 "
+                   GO TO P5-SVC-LOOP-EXIT
+               END-IF
                MOVE 0 TO FLAG
       *         DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
       *         ACCEPT OMITTED                   
@@ -832,62 +833,9 @@
 
            MOVE CC-CLAIM TO PD-CLAIM
            MOVE DATE-X TO PD-DATE-T
-           MOVE G-GARNAME TO PD-NAME.
+           MOVE G-GARNAME TO PD-NAME
                      
-           IF CC-PAYCODE = "062" AND (CLP-2CLMSTAT NOT = "1")
-               MOVE CC-PAYCODE TO PD-PAYCODE
-               GO TO P7-NEXT
-           END-IF
-
-           IF INS-NAME-HOLD = "MVP H"
-             MOVE "14156" TO PAYORID
-           end-if
-
-      *     DISPLAY PAYORID " PAYORID"
-      *     ACCEPT OMITTED
-           
-           IF PAYORID = space OR "11329"
-             PERFORM P1-LOST-SVC 
-             GO TO P5-SVC-LOOP-EXIT.
-
-           MOVE PAYORID TO INS-NEIC
-           START INSFILE KEY NOT < INS-NEIC
-             INVALID
-               PERFORM P1-LOST-SVC
-               GO TO P5-SVC-LOOP-EXIT                               
-           END-START.
-
-       P3-NEXT.
-           READ INSFILE NEXT
-             AT end
-               PERFORM P1-LOST-SVC
-               GO TO P5-SVC-LOOP-EXIT
-           end-read
-
-           IF PAYORID = "43700"
-             MOVE "075" TO PD-PAYCODE
-             GO TO P7-NEXT
-           END-IF
-             
-           IF INS-NEIC NOT = PAYORID
-             AND PAYORID NOT = "52192"
-             GO TO P3-NEXT.
-
-           IF CLP-2CLMSTAT = "1" OR "19"
-             IF G-PRINS NOT = INS-KEY
-               GO TO P3-NEXT
-             ELSE
-               MOVE G-PRINS TO PD-PAYCODE
-               GO TO P7-NEXT.
-
-           IF CLP-2CLMSTAT = "2"
-             IF G-SEINS NOT = INS-KEY
-               GO TO P3-NEXT
-             ELSE
-               MOVE G-SEINS TO PD-PAYCODE
-               GO TO P7-NEXT.                                                
-           
-           GO TO P3-NEXT.                 
+           MOVE CC-PAYCODE TO PD-PAYCODE.
 
        P7-NEXT.
            MOVE "  " TO PD-DENIAL.
@@ -1681,8 +1629,8 @@
            END-IF    
       
            MOVE SPACE TO CC-PROCY01
-           MOVE CC-PROC1 TO CC-PROC1Y
-           MOVE CC-PROC2 TO CC-PROC2Y
+           MOVE CC-CPT TO CC-PROC1Y
+           MOVE CC-MOD TO CC-PROC2Y
            MOVE CC-MOD2 TO CC-MOD2Y
            MOVE CC-MOD3 TO CC-MOD3Y
            
@@ -1704,7 +1652,7 @@
                GO TO LOOK-1
            END-IF
 
-           MOVE 0 TO FLAGY 
+           MOVE 0 TO FLAGY DUPFLAG
            
            PERFORM A5 THRU A5-EXIT
            
@@ -1715,13 +1663,16 @@
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > FIND-CNTR
            
                IF CHARCUR-KEY = FOUND-KEY(Z)
-                   MOVE 1 TO FLAGY
+                   MOVE 1 TO DUPFLAG
                    MOVE FIND-CNTR TO Z               
                END-IF
 
            END-PERFORM
 
-           IF FLAGY = 1
+           IF DUPFLAG = 1
+               IF PAYORID = "HUMAN"
+                   ADD 1 TO FIND-CNTR
+               END-IF
                GO TO LOOK-1
            END-IF
 

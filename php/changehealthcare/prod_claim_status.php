@@ -6,13 +6,19 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Utils;
 use GuzzleHttp\Psr7\Request;
 
-$base_uri = 'https://apigw.changehealthcare.com/';
+$clientId     = getenv('PROD_CHANGE_CLIENT_ID');
+$clientSecret = getenv('PROD_CHANGE_CLIENT_SECRET');
+if (!$clientId || !$clientSecret) {
+    die("ERROR: credentials not found in environment\n");
+}
+$base_uri = 'https://apigw.optum.com/';
 $guzzle = new Client();
 $response = $guzzle->post($base_uri . 'apip/auth/v2/token', [
     'form_params' => [
         'grant_type' => 'client_credentials',
-        'client_id' => getenv('PROD_CHANGE_CLIENT_ID'),
-        'client_secret' => getenv('PROD_CHANGE_CLIENT_SECRET'),
+        'client_id' => $clientId,
+        'client_secret' => $clientSecret,
+        'scope'=> 'openid',
     ],
 ]);
 $bearer = json_decode((string) $response->getBody(), true)['access_token'];
