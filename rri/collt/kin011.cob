@@ -46,21 +46,25 @@
        FD  FILEOUT.
        01  FILEOUT01.
            02 FO-ACCT PIC X(8).
-           02 FILLER PIC X VALUE "*".
+           02 FILLER PIC X VALUE X"09".
            02 FO-NAME PIC X(24).
-           02 FILLER PIC X VALUE "*".
+           02 FILLER PIC X VALUE X"09".
            02 FO-PAYCODE PIC XXX.
-           02 FILLER PIC X VALUE "*".
+           02 FILLER PIC X VALUE X"09".
            02 FO-INSNAME PIC X(28).
-           02 FILLER PIC X VALUE "*".
+           02 FILLER PIC X VALUE X"09".
            02 FO-DATE PIC X(10).
-           02 FILLER PIC X VALUE "*".
+           02 FILLER PIC X VALUE X"09".
            02 FO-AMOUNT PIC X(10).
-           02 FILLER PIC X VALUE "*".
+           02 FILLER PIC X VALUE X"09".
+           02 FO-AMTCR PIC XX.
+           02 FILLER PIC X VALUE X"09".
            02 FO-REDUCT PIC X(10).
-           02 FILLER PIC X VALUE "*".
+           02 FILLER PIC X VALUE X"09".
+           02 FO-REDUCTCR PIC XX.
+           02 FILLER PIC X VALUE X"09".
            02 FO-PIF PIC XXX.
-           
+
        FD  KINFILE.
            COPY "kinfile.cpy".
 
@@ -77,7 +81,8 @@
        01  NUM6 PIC 9(6).
        01  KINBACK01 PIC X(73).
        01  ALF1 PIC X.
-       01  NEF-6 PIC Z,ZZ9.99CR.
+       01  NEF-6 PIC Z,ZZ9.99.
+       01  NEF-ABS PIC S9(4)V99.
        01  TOT-CLAIM PIC S9(4)V99.
        01  REDUCT PIC S9(4)V99.
 
@@ -90,12 +95,14 @@
 
            MOVE "ACCT" TO FO-ACCT
            MOVE "NAME" TO FO-NAME
-           MOVE SPACE TO FO-PAYCODE
+           MOVE "PAYCODE" TO FO-PAYCODE
            MOVE "PAYOR" TO FO-INSNAME
            MOVE "DATE" TO FO-DATE
            MOVE "PAID" TO FO-AMOUNT
            MOVE "WRITE-OFF" TO FO-REDUCT
            MOVE "BAL" TO FO-PIF
+           MOVE "CR" TO FO-AMTCR.
+           MOVE "CR" TO FO-REDUCTCR.
            WRITE FILEOUT01.
 
            MOVE "0" TO KIN-STAT
@@ -122,14 +129,25 @@
 
            MOVE INS-NAME TO FO-INSNAME
            MOVE KIN-DATE-T TO FO-DATE
-           MOVE KIN-AMOUNT TO NEF-6
+           COMPUTE NEF-ABS = FUNCTION ABS(KIN-AMOUNT)
+           MOVE NEF-ABS TO NEF-6
            MOVE NEF-6 TO FO-AMOUNT
+           IF KIN-AMOUNT < 0
+               MOVE "CR" TO FO-AMTCR
+           ELSE
+               MOVE SPACE TO FO-AMTCR.
            MOVE SPACE TO FO-PIF
 
            PERFORM PAID-1 THRU PAID-1-EXIT
 
            MOVE REDUCT TO NEF-6
+           COMPUTE NEF-ABS = FUNCTION ABS(REDUCT)
+           MOVE NEF-ABS TO NEF-6
            MOVE NEF-6 TO FO-REDUCT
+           IF REDUCT < 0
+               MOVE "CR" TO FO-REDUCTCR
+           ELSE
+               MOVE SPACE TO FO-REDUCTCR.
            WRITE FILEOUT01
 
            MOVE "1" TO KIN-STAT
