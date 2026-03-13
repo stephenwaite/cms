@@ -56,17 +56,13 @@
            ACCEPT KIN-DATE-E FROM CENTURY-DATE.
        P1.
            READ PAYFILE NEXT AT END GO TO P9.
-           DISPLAY "READ: " PD-KEY8 PD-KEY3 " PAYCODE:" PD-PAYCODE
-               " DENIAL:" PD-DENIAL.
+        
            IF (PD-PAYCODE > "006" AND < "010")
            OR (PD-PAYCODE > "010" AND < "019")
            OR (PD-DENIAL = "08" OR "AA" OR "15")
-               DISPLAY "FILTERED: " PD-KEY8 PD-KEY3
-                   " PAYCODE:" PD-PAYCODE " DENIAL:" PD-DENIAL
                GO TO P1
            END-IF.
-           DISPLAY "PASSED FILTER: " PD-KEY8 PD-KEY3
-               " PAYCODE:" PD-PAYCODE " DENIAL:" PD-DENIAL.
+           
            MOVE PD-KEY8 TO CC-KEY8.
            MOVE SPACE TO CC-KEY3.
            START CHARCUR KEY NOT < CHARCUR-KEY
@@ -74,19 +70,13 @@
                GO TO P1.
        P2.
            READ CHARCUR NEXT AT END
-               DISPLAY "CHARCUR AT END FOR: " PD-KEY8
                GO TO P1.
            IF CC-KEY8 NOT = PD-KEY8
-               DISPLAY "KEY8 MISMATCH CC=" CC-KEY8 " PD=" PD-KEY8
                GO TO P1.
            IF CC-CLAIM NOT = PD-CLAIM
-               DISPLAY "CLAIM MISMATCH CC=" CC-CLAIM " PD=" PD-CLAIM
                GO TO P2.
            IF CC-COLLT NOT = "1"
-               DISPLAY "COLLT NOT 1: " CC-KEY8 CC-KEY3
-                   " COLLT=" CC-COLLT
                GO TO P2.
-           DISPLAY "WRITING KINFILE: " PD-KEY8 " CLAIM:" PD-CLAIM.
            MOVE PD-DATE-T TO KIN-DATE-T.
            MOVE PD-NAME TO KIN-NAME.
            MOVE PD-AMOUNT TO KIN-AMOUNT.
@@ -107,8 +97,6 @@
            MOVE KINBACK01 TO KINFILE01.
            MOVE XYZ TO KIN-KEY3.
            WRITE KINFILE01.
-           DISPLAY KINFILE-KEY " " KIN-NAME.
-           DISPLAY "RECORD IS ADDED".
            GO TO P1.
        P9.
            CLOSE CHARCUR PAYFILE KINFILE.
