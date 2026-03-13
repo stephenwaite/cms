@@ -46,23 +46,23 @@
        FD  FILEOUT.
        01  FILEOUT01.
            02 FO-ACCT PIC X(8).
-           02 FILLER PIC X VALUE X"09".
+           02 FO-TAB1 PIC X.
            02 FO-NAME PIC X(24).
-           02 FILLER PIC X VALUE X"09".
+           02 FO-TAB2 PIC X.
            02 FO-PAYCODE PIC XXX.
-           02 FILLER PIC X VALUE X"09".
+           02 FO-TAB3 PIC X.
            02 FO-INSNAME PIC X(28).
-           02 FILLER PIC X VALUE X"09".
+           02 FO-TAB4 PIC X.
            02 FO-DATE PIC X(10).
-           02 FILLER PIC X VALUE X"09".
+           02 FO-TAB5 PIC X.
            02 FO-AMOUNT PIC X(10).
-           02 FILLER PIC X VALUE X"09".
+           02 FO-TAB6 PIC X.
            02 FO-AMTCR PIC XX.
-           02 FILLER PIC X VALUE X"09".
+           02 FO-TAB7 PIC X.
            02 FO-REDUCT PIC X(10).
-           02 FILLER PIC X VALUE X"09".
+           02 FO-TAB8 PIC X.
            02 FO-REDUCTCR PIC XX.
-           02 FILLER PIC X VALUE X"09".
+           02 FO-TAB9 PIC X.
            02 FO-PIF PIC XXX.
 
        FD  KINFILE.
@@ -85,6 +85,7 @@
        01  NEF-ABS PIC S9(4)V99.
        01  TOT-CLAIM PIC S9(4)V99.
        01  REDUCT PIC S9(4)V99.
+       01  WS-TAB PIC X VALUE H"09".
 
        PROCEDURE DIVISION.
 
@@ -93,6 +94,8 @@
            OPEN INPUT INSFILE CHARCUR PAYCUR
            OPEN OUTPUT FILEOUT.
 
+           MOVE WS-TAB TO FO-TAB1 FO-TAB2 FO-TAB3 FO-TAB4 FO-TAB5
+                          FO-TAB6 FO-TAB7 FO-TAB8 FO-TAB9.
            MOVE "ACCT" TO FO-ACCT
            MOVE "NAME" TO FO-NAME
            MOVE "PAYCODE" TO FO-PAYCODE
