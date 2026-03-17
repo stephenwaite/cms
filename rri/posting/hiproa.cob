@@ -372,6 +372,11 @@
        01  INS-NAME-HOLD PIC X(5).
        01  ID-EIN PIC X(9).
        01  DUPFLAG PIC 9.
+       01  CAS-CODE-CHECK PIC X(5).
+           88 INS-REDUCE-CODE VALUE "A1   " "A2   " "B6   " "B9   "
+               "B10  " "B13  " "18   " "22   " "24   " "42   "
+               "45   " "59   " "131  " "226  " "253  " "288  "
+               "P12  " "P23  " "P24  ".
        
        PROCEDURE DIVISION.
        0005-START.
@@ -955,77 +960,63 @@
            MOVE 0 TO INS-REDUCE
            
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
-           
-               IF CAS-SVC(Z) = X
-                   MOVE SPACE TO CAS01 
-                   MOVE CAS-TAB(Z) TO FILEIN01
-                   UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                     CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-                   IF (CAS-1 = "CO" OR "PI" OR "OA")
-                               AND
-                      ((CAS-2 = "A1" OR "A2" OR "B6" OR "B9" OR "B10" OR
-                                "B13" OR "18" OR "22" OR "24" OR "42" OR
-                                "45" OR "59" OR "131" OR "226" OR "253" 
-                                OR "288" OR "P12" OR "P24")
-                               OR
-                      (CAS-5 = "A1" OR "A2" OR "B6" OR "B9" OR "B10" OR 
-                               "B13" OR "18" OR "22" OR "42" OR "45" OR
-                               "59" OR "131" "226" OR "253" OR "288"
-                               OR "P12" OR "P23" OR "P24"))
-                               AND 
-                      NOT (CLP-2CLMSTAT = "2 " OR "3 ")
-                       
-      *                display CAS-1 " CAS-1 " CAS-2 " CAS-2 " 
-      *                  CAS-3 " CAS-3 " CAS-4 " CAS-4 " CAS-5 " CAS-5"
-      *                accept omitted             
-                       
-                       IF CAS-3 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-3 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-      *                     DISPLAY INS-REDUCE " INS-REDUCE"
-                       END-IF
-               
-                       IF CAS-6 NOT = SPACE AND CAS-5 NOT = "104"
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-6 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-               
-                       IF CAS-9 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-9 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-               
-                       IF CAS-12 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-12 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-               
-                       IF CAS-15 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-15 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-               
-                       IF CAS-18 NOT = SPACE
-                           MOVE SPACE TO ALF8
-                           MOVE CAS-18 TO ALF8
-                           PERFORM AMOUNT-1
-                           COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
-                       END-IF
-                   END-IF
-               END-IF
+            IF CAS-SVC(Z) = X
+                MOVE SPACE TO CAS01
+                MOVE CAS-TAB(Z) TO FILEIN01
+                UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                    CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7
+                    CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14
+                    CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+
+                IF (CAS-1 = "CO" OR "PI" OR "OA")
+                    AND NOT (CLP-2CLMSTAT = "2 " OR "3 ")
+
+                    MOVE CAS-2 TO CAS-CODE-CHECK
+                    IF NOT INS-REDUCE-CODE
+                        MOVE CAS-5 TO CAS-CODE-CHECK
+                    END-IF
+
+                    IF INS-REDUCE-CODE
+                        IF CAS-3 NOT = SPACE
+                            MOVE SPACE TO ALF8
+                            MOVE CAS-3 TO ALF8
+                            PERFORM AMOUNT-1
+                            COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                        END-IF
+                        IF CAS-6 NOT = SPACE AND CAS-5 NOT = "104"
+                            MOVE SPACE TO ALF8
+                            MOVE CAS-6 TO ALF8
+                            PERFORM AMOUNT-1
+                            COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                        END-IF
+                        IF CAS-9 NOT = SPACE
+                            MOVE SPACE TO ALF8
+                            MOVE CAS-9 TO ALF8
+                            PERFORM AMOUNT-1
+                            COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                        END-IF
+                        IF CAS-12 NOT = SPACE
+                            MOVE SPACE TO ALF8
+                            MOVE CAS-12 TO ALF8
+                            PERFORM AMOUNT-1
+                            COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                        END-IF
+                        IF CAS-15 NOT = SPACE
+                            MOVE SPACE TO ALF8
+                            MOVE CAS-15 TO ALF8
+                            PERFORM AMOUNT-1
+                            COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                        END-IF
+                        IF CAS-18 NOT = SPACE
+                            MOVE SPACE TO ALF8
+                            MOVE CAS-18 TO ALF8
+                            PERFORM AMOUNT-1
+                            COMPUTE INS-REDUCE = INS-REDUCE + AMOUNT-X
+                        END-IF
+                    END-IF
+                END-IF
+            END-IF
            END-PERFORM.
 
            IF ALF8-1 = "-" AND PAYORID = "J4110"
