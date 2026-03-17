@@ -798,6 +798,7 @@
            END-IF    
                       
            MOVE SPACE TO ALF8
+           MOVE SVC-3PAYAMT TO ALF8
       
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
@@ -967,13 +968,13 @@
                                AND
                       ((CAS-2 = "A1" OR "A2" OR "B6" OR "B9" OR "B10" OR
                                 "B13" OR "18" OR "22" OR "24" OR "42" OR
-                                "45" OR "59" OR "226" OR "253" OR "131" 
-                                OR "P12" OR "P24")
+                                "45" OR "59" OR "131" OR "226" OR "253" 
+                                OR "288" OR "P12" OR "P24")
                                OR
                       (CAS-5 = "A1" OR "A2" OR "B6" OR "B9" OR "B10" OR 
                                "B13" OR "18" OR "22" OR "42" OR "45" OR
-                               "59" OR "226" OR "253" OR "131" OR "P12" 
-                               OR "P23" OR "P24"))
+                               "59" OR "131" "226" OR "253" OR "288"
+                               OR "P12" OR "P23" OR "P24"))
                                AND 
                       NOT (CLP-2CLMSTAT = "2 " OR "3 ")
                        
