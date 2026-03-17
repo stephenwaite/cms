@@ -60,7 +60,7 @@
 
            SELECT rarcfile ASSIGN TO "S85" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS rarc-key
-           LOCK MODE MANUAL.   
+           LOCK MODE MANUAL.
 
            SELECT REMITFILE ASSIGN TO "S90" ORGANIZATION IS INDEXED
            ACCESS IS DYNAMIC RECORD KEY IS REMIT-KEY.
@@ -77,13 +77,13 @@
        FD  rarcfile.
        01  rarcfile01.
            02 rarc-key pic x(8).
-           02 rarc-reason pic x(112).   
+           02 rarc-reason pic x(112).
 
        FD  INSFILE.
            COPY INSFILE.CPY.
 
        FD  MPLRFILE.
-           COPY MPLRFILE.CPY.           
+           COPY MPLRFILE.CPY.
 
        FD  CAIDFILE.
        01  CAIDFILE01.
@@ -92,7 +92,7 @@
 
        FD  PAYCUR.
            COPY PAYCUR.CPY.
-      
+
        FD  PARMFILE.
        01  PARMFILE01.
            02 PF-1 PIC X(9).
@@ -107,13 +107,13 @@
        01  FILEIN01.
            02 F0.
              03 F1 PIC XXX.
-             03 F2. 
+             03 F2.
                 04 F21 PIC XXX.
                 04 FILLER PIC X.
            02 F3 PIC X(113).
 
        FD  PAYFILE.
-           COPY payfile.CPY.      
+           COPY payfile.CPY.
 
        FD  TRNPAYFILE
            DATA RECORD IS TRNPAYFILE01.
@@ -137,16 +137,16 @@
            COPY CHARCUR.CPY.
 
        FD  GARFILE.
-           COPY garfile.CPY.       
+           COPY garfile.CPY.
 
        WORKING-STORAGE SECTION.
 
        COPY "HIP5010-835.CPY".
-      
+
        01  HL01.
            02 HL-1 PIC X(40) VALUE SPACE.
            02 FILLER PIC X(21) VALUE SPACE.
-           02 HL-2 PIC X(27) VALUE "  OA UNPOSTED LIST   ".
+           02 HL-2 PIC X(27) VALUE "   UNPOSTED LIST   ".
            02 FILLER PIC X(5) VALUE SPACE.
            02 HL-3 PIC X(10).
        01  ERR01.
@@ -225,7 +225,7 @@
            02 T7 PIC X(6) VALUE " CHKNO".
            02 FILLER PIC X(9) VALUE SPACE.
            02 T9 PIC X(11) VALUE " STAT  DNL ".
-           
+
        01  XYZ PIC 999.
        01  TOT-AMT PIC S9(4)V99.
        01  PAYBACK PIC X(80).
@@ -258,7 +258,7 @@
        01  ALF-6 PIC X(6).
        01  NUM-6 PIC 9(6).
        01  AMOUNT-X PIC S9(4)V99.
-       01  ALF8. 
+       01  ALF8.
            02 ALF8-1 PIC X.
            02 ALF8-7 PIC X(7).
        01  ALF9 PIC X(9).
@@ -284,12 +284,12 @@
        01  SVC-CNTR PIC 99.
        01  CAS-CNTR PIC 99.
        01  LQ-CNTR PIC 99.
-       
+
        01  CLP-TAB01.
            02 CLP-TAB PIC XX OCCURS 64 TIMES.
        01  SVC-TAB01.
            02 SVC-TAB PIC X(120) OCCURS 64 TIMES.
-           
+
        01  SVC-DATE01.
            02 SVC-DATE PIC X(8) OCCURS 64 TIMES.
        01  FOUND-TAB01.
@@ -307,7 +307,7 @@
            02 LQ-TAB PIC X(120) OCCURS 64 TIMES.
 
        01  LQ-SVC01.
-           02 LQ-SVC PIC 99 OCCURS 64 TIMES.           
+           02 LQ-SVC PIC 99 OCCURS 64 TIMES.
 
        01  SAVEFILE01 PIC X(120).
        01  CC-PROCX01.
@@ -394,13 +394,13 @@
              PAYCUR CAIDFILE rarcfile.
            OPEN I-O PAYFILE REMITFILE.
            OPEN OUTPUT TRNPAYFILE ERROR-FILE.
-           MOVE SPACE TO NAR-KEY01 
-           MOVE ALL ZEROES TO NAR-CNTR01 STATUSCODES01 
+           MOVE SPACE TO NAR-KEY01
+           MOVE ALL ZEROES TO NAR-CNTR01 STATUSCODES01
            MOVE SPACE TO ERROR-FILE01
            PERFORM STATUS-0
 
-           READ PARMFILE 
-             AT END 
+           READ PARMFILE
+             AT END
                GO TO P9
            END-READ
 
@@ -409,47 +409,47 @@
            READ PARMFILE
              AT END
                GO TO P9
-           END-READ    
-           
+           END-READ
+
            MOVE PARMFILE01 TO PARM-ADDR.
-           
+
            READ PARMFILE
              AT END
                GO TO P9
-           END-READ    
-           
+           END-READ
+
            MOVE PARMFILE01 TO ID-NPI1
-           
+
            READ PARMFILE
              AT END
                GO TO P9
-           END-READ    
-           
+           END-READ
+
            MOVE PARMFILE01 TO ID-NPI
 
            READ PARMFILE
              AT END
                GO TO P9
-           END-READ    
-           
+           END-READ
+
            READ FILEIN
              AT END
                DISPLAY "NO RECORDS"
                GO TO P9
-           END-READ    
-           
+           END-READ
+
            MOVE FILEIN01 TO PD-DATE-E
-           MOVE PD-DATE-E TO TEST-DATE 
+           MOVE PD-DATE-E TO TEST-DATE
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO HL-3.
 
        P00.
            MOVE SPACE TO FILEIN01
-           
+
            READ FILEIN
              AT END
                GO TO P9
-           END-READ.    
+           END-READ.
 
        XX.
            IF F1 NOT = "BPR"
@@ -457,33 +457,33 @@
            END-IF
 
            MOVE SPACE TO BPR01
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-               BPR-0 BPR-1 BPR-2 BPR-3 BPR-4 BPR-5 BPR-6 BPR-7 BPR-8 
+           UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               BPR-0 BPR-1 BPR-2 BPR-3 BPR-4 BPR-5 BPR-6 BPR-7 BPR-8
                BPR-9 BPR-10 BPR-11 BPR-12 BPR-13 BPR-14 BPR-15 BPR-16.
            MOVE BPR-16 TO DATE-X.
-           
+
            MOVE SPACE TO FILEIN01
            READ FILEIN
              AT END
                GO TO P9
-           END-READ 
+           END-READ
 
            IF F1 NOT = "TRN"
                GO TO P00
-           END-IF  
+           END-IF
 
            MOVE SPACE TO TRN01
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO 
+           UNSTRING FILEIN01 DELIMITED BY "*" INTO
                TRN-0 TRN-1 TRN-2 TRN-3 TRN-4.
 
            IF TRN-3 = "1204581265" AND BPR-16 < "20240622"
                GO TO P00
            END-IF
 
-           MOVE SPACE TO REMITFILE01.    
+           MOVE SPACE TO REMITFILE01.
 
            STRING DATE-X TRN-2 TRN-3 TRN-4 DELIMITED BY SIZE
-               INTO REMIT-KEY.   
+               INTO REMIT-KEY.
 
            MOVE SPACE TO PAYORID PAYORID1 PROV-FLAG ID-EIN.
 
@@ -492,7 +492,7 @@
            READ FILEIN
              AT END
                GO TO P9
-           END-READ    
+           END-READ
 
            IF F1 = "CLP"
                GO TO P0000
@@ -501,14 +501,14 @@
            IF FILEIN01(1:5) = "N1*PR"
               MOVE SPACE TO N101
               UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                  N1-0 N1-1 N1-2 N1-3 N1-ID                  
+                  N1-0 N1-1 N1-2 N1-3 N1-ID
               MOVE N1-ID(1:5) TO PAYORID1
               MOVE N1-ID TO EQUITY-ID
               IF N1-2(1:5) = "MVP H" AND PAYORID1 = space
                 MOVE N1-2(1:5) TO INS-NAME-HOLD
-              end-if  
+              end-if
            END-IF
-        
+
            IF (F1 = "REF" AND F21 = "*2U")
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
@@ -522,18 +522,18 @@
                    N1-0 N1-1 N1-2 N1-3 N1-ID
                MOVE N1-ID TO PERM-ID
            END-IF
-           
+
            IF (F1 = "REF" AND F21= "*TJ")
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    REF-0 REF-1 REF-2
-               MOVE REF-2 TO ID-EIN    
+               MOVE REF-2 TO ID-EIN
            END-IF
 
            IF F1 = "DTM" AND F2 = "*405"
                MOVE F3(2:8) TO REMIT-DATE-P
-           END-IF 
-           
+           END-IF
+
            GO TO P000.
 
        P0000.
@@ -561,7 +561,7 @@
                GO TO P00
            END-IF
 
-           READ REMITFILE     
+           READ REMITFILE
                INVALID
                    ACCEPT REMIT-DATE-E FROM CENTURY-DATE
                    WRITE REMITFILE01
@@ -573,12 +573,12 @@
                            DELIMITED BY SIZE INTO ERROR-FILE01
                        WRITE ERROR-FILE01
                        GO TO P00
-                   END-IF    
-           END-READ     
-           
+                   END-IF
+           END-READ
+
            IF PAYORID = SPACE
                MOVE PAYORID1 TO PAYORID
-           END-IF           
+           END-IF
 
            IF TITLE-FLAG = 0
                MOVE 1 TO TITLE-FLAG
@@ -599,11 +599,11 @@
            MOVE 0 TO NOT-FLAG
            MOVE SPACE TO CLP01 DATE-CC
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
-               CLP-0 CLP-1 CLP-2CLMSTAT CLP-3TOTCLMCHG CLP-4TOTCLMPAY 
-               CLP-5PATRESP CLP-6PLANCODE CLP-7ICN CLP-8FACILITY 
-               CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN 
+               CLP-0 CLP-1 CLP-2CLMSTAT CLP-3TOTCLMCHG CLP-4TOTCLMPAY
+               CLP-5PATRESP CLP-6PLANCODE CLP-7ICN CLP-8FACILITY
+               CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN
                CLP-13PERCENT.
-           
+
            MOVE SPACE TO ALF10
            MOVE CLP-1 TO ALF10.
            MOVE CLP-4TOTCLMPAY TO ALF8
@@ -634,56 +634,56 @@
            IF F1 = "SE*"
                MOVE FILEIN01 TO SAVEFILE01
                GO TO P2-SVC-LOOP
-           END-IF    
+           END-IF
 
            IF F1 = "SVC"
                GO TO P1-SVC-LOOP-0
-           END-IF    
+           END-IF
 
-           IF F1 = "CAS" 
+           IF F1 = "CAS"
                MOVE SPACE TO CAS01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                   CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-                   CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                   CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+                   CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7
+                   CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14
+                   CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
                MOVE CAS01 TO CLMCAS01
                MOVE SPACE TO CAS01
                GO TO P1-NM1
            END-IF
-               
+
            IF (F1 = "NM1" AND F2 = "*QC*")
                MOVE SPACE TO NM101
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                   NM1-0 NM1-1 NM1-SOLO NM1-NAMEL NM1-NAMEF NM1-NAMEM 
+                   NM1-0 NM1-1 NM1-SOLO NM1-NAMEL NM1-NAMEF NM1-NAMEM
                    NM1-NAMES NM1-EINSS NM1-PREFIX NM1-CODE0
                GO TO P1-NM1
-           END-IF    
+           END-IF
 
            IF F1 = "DTM" AND F2 = "*232"
                MOVE SPACE TO DTM01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                   DTM-0 DTM-1 DTM-2 
+                   DTM-0 DTM-1 DTM-2
                MOVE DTM-2 TO DATE-CC
                GO TO P1-NM1
-           END-IF          
+           END-IF
 
            GO TO P1-NM1.
-               
-       P1-SVC-LOOP.  
+
+       P1-SVC-LOOP.
 
            MOVE SPACE TO FILEIN01
            READ FILEIN
              AT END
                GO TO P2-SVC-LOOP
-           END-READ    
-           
-           IF F1 = "CLP" OR "SE*" 
+           END-READ
+
+           IF F1 = "CLP" OR "SE*"
                MOVE FILEIN01 TO SAVEFILE01
                GO TO P2-SVC-LOOP
            END-IF.
 
-       P1-SVC-LOOP-0.               
-           IF F1 = "SVC" 
+       P1-SVC-LOOP-0.
+           IF F1 = "SVC"
              iF FILEIN01(12:1) = "F"
                GO TO P1-SVC-LOOP
              END-IF
@@ -694,41 +694,41 @@
                OR "G9553" OR "G9554" OR "G9555" OR "G9556"
                OR "G9557" OR "G9637" OR "G1004")
                GO TO P1-SVC-LOOP
-             END-IF        
-           
+             END-IF
+
              ADD 1 TO SVC-CNTR
              MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
              GO TO P1-SVC-LOOP
-           END-IF    
-           
-           IF F1 = "CAS" 
+           END-IF
+
+           IF F1 = "CAS"
                ADD 1 TO CAS-CNTR
                MOVE FILEIN01 TO CAS-TAB(CAS-CNTR)
                MOVE SVC-CNTR TO CAS-SVC(CAS-CNTR)
                GO TO P1-SVC-LOOP
-           END-IF    
-           
+           END-IF
+
            IF F1 = "AMT" AND F2 = "*B6*"
                MOVE SPACE TO AMT01
-               UNSTRING FILEIN01 DELIMITED BY "*" INTO 
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    AMT-0 AMT-1 AMT-2
                MOVE SPACE TO ALF8
                MOVE AMT-2 TO ALF8
                PERFORM AMOUNT-1
                MOVE AMOUNT-X TO ALLW-TAB(SVC-CNTR)
                GO TO P1-SVC-LOOP
-           END-IF    
+           END-IF
 
-           IF F1 = "LQ*" 
+           IF F1 = "LQ*"
              ADD 1 TO LQ-CNTR
              MOVE FILEIN01 TO LQ-TAB(LQ-CNTR)
              MOVE SVC-CNTR TO LQ-SVC(LQ-CNTR)
              GO TO P1-SVC-LOOP
-           end-if  
+           end-if
 
            IF (F1 = "DTM") AND (F2 = "*150" OR "*472")
                MOVE SPACE TO DTM01
-               UNSTRING FILEIN01 DELIMITED BY "*" INTO 
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    DTM-0 DTM-1 DTM-2
                MOVE DTM-2 TO SVC-DATE(SVC-CNTR)
            END-IF
@@ -738,9 +738,9 @@
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
            MOVE 0 TO GAR-FLAG
-           
+
            IF SVC-CNTR = 0
-              PERFORM P1-NO-SVC 
+              PERFORM P1-NO-SVC
               GO TO P9-SVC-LOOP
            END-IF
 
@@ -748,39 +748,39 @@
            READ GARFILE
              INVALID
                GO TO P3-SVC-LOOP
-           END-READ    
-     
+           END-READ
+
            MOVE 1 TO GAR-FLAG
            MOVE 0 TO FIND-CNTR TOT-TOT
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
                BY 1 UNTIL X > SVC-CNTR
-               
+
            IF FIND-CNTR = SVC-CNTR
       *         DISPLAY "GOING TO P4-SVC-LOOP"
       *         ACCEPT OMITTED
                GO TO P4-SVC-LOOP
            END-IF.
 
-       P3-SVC-LOOP.           
-      * VACCN WENT TO 17 DIGIT POLICY # SO CAN'T USE THIS.                
+       P3-SVC-LOOP.
+      * VACCN WENT TO 17 DIGIT POLICY # SO CAN'T USE THIS.
       *     PERFORM FIND-GARNO THRU FIND-GARNO-EXIT
 
       *  START LOOKING FOR MATCHING CHARGES WITH THE GARNO IN QUESTION.
-           
+
            MOVE 0 TO FIND-CNTR TOT-TOT
 
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1 BY 1
                UNTIL X > SVC-CNTR.
 
            IF (FIND-CNTR NOT = SVC-CNTR)
-               OR (NOT-FLAG = 1 OR 2)               
+               OR (NOT-FLAG = 1 OR 2)
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
                    VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP
            END-IF.
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
-       P4-SVC-LOOP.                      
+       P4-SVC-LOOP.
       *     DISPLAY "CLMSTAT=[" CLP-2CLMSTAT "]"
       *     ACCEPT OMITTED
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
@@ -791,7 +791,7 @@
            END-IF.
 
        P4-UNITED-START.
-           PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT 
+           PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT
                VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP.
 
@@ -799,30 +799,30 @@
            MOVE SPACE TO FILEIN01
            MOVE SVC-TAB(X) TO FILEIN01
            MOVE SPACE TO SVC01
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-               SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
+           UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC
                SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
 
-      *    eliminate qpp codes from printing to error list 
-      *    mammo measure    
+      *    eliminate qpp codes from printing to error list
+      *    mammo measure
            IF SVC-1PROCMOD(8:1) = "F"
                GO TO P5-SVC-LOOP-EXIT
-           END-IF    
+           END-IF
       *    other measures
            IF SVC-1PROCMOD(4:3) = "G95" OR "G96"
                GO TO P5-SVC-LOOP-EXIT
-           END-IF    
-                      
+           END-IF
+
            MOVE SPACE TO ALF8
            MOVE SVC-3PAYAMT TO ALF8
-      
+
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
-           END-IF    
-           
+           END-IF
+
            PERFORM AMOUNT-1
-           
+
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
 
            IF PD-AMOUNT = 0
@@ -831,8 +831,8 @@
                END-IF
                MOVE 0 TO FLAG
       *         DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
-      *         ACCEPT OMITTED                   
-               PERFORM DUMP50 
+      *         ACCEPT OMITTED
+               PERFORM DUMP50
                IF FLAG = 1
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT
@@ -840,10 +840,10 @@
            END-IF
 
            PERFORM NO-SURPRISE.
-           
+
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR
-             INVALID  
+             INVALID
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-READ
@@ -851,7 +851,7 @@
            MOVE CC-CLAIM TO PD-CLAIM
            MOVE DATE-X TO PD-DATE-T
            MOVE G-GARNAME TO PD-NAME
-                     
+
            MOVE CC-PAYCODE TO PD-PAYCODE
            IF PD-PAYCODE = "001"
                MOVE "076" TO PD-PAYCODE
@@ -862,19 +862,19 @@
 
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
                IF CAS-SVC(Z) = X
-                   MOVE SPACE TO CAS01 
+                   MOVE SPACE TO CAS01
                    MOVE CAS-TAB(Z) TO FILEIN01
                    UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                       CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-                       CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                       CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-               
-                   IF (CAS-2 = "1  " OR "126" OR "25 " OR "37 ") 
+                       CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7
+                       CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14
+                       CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+
+                   IF (CAS-2 = "1  " OR "126" OR "25 " OR "37 ")
                        OR (CAS-5 = "1  " OR "126" OR "25 " OR "37 ")
                        OR (CAS-8 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-11 = "1  " OR "126" OR "25 " OR "37 ")  
-                       OR (CAS-14 = "1  " OR "126" OR "25 " OR "37 ") 
-                       OR (CAS-17 = "1  " OR "126" OR "25 " OR "37 ") 
+                       OR (CAS-11 = "1  " OR "126" OR "25 " OR "37 ")
+                       OR (CAS-14 = "1  " OR "126" OR "25 " OR "37 ")
+                       OR (CAS-17 = "1  " OR "126" OR "25 " OR "37 ")
                        MOVE "DD" TO PD-DENIAL
                        MOVE CAS-CNTR TO Z
                    END-IF
@@ -887,31 +887,43 @@
 
            IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS
                     OR "075")
-               PERFORM P1-LOST-SVC 
+               PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
 
+           IF PD-AMOUNT = 0
+               MOVE PD-PAYCODE TO INS-KEY
+               READ INSFILE
+                   INVALID
+                       CONTINUE
+               END-READ
+               IF INS-ACC-TYPE NOT = SPACE
+                   PERFORM P1-LOST-SVC
+                   GO TO P5-SVC-LOOP-EXIT
+               END-IF
+           END-IF
+
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
-           
+
       *     DISPLAY CLAIM-TOT " CLAIM-TOT " CC-AMOUNT " CC-AMOUNT "
       *       PD-AMOUNT " PD-AMOUNT"
       *     ACCEPT OMITTED
-           
+
            PERFORM S4 THRU S5
-           
+
            IF CLAIM-TOT < 0
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
 
            MOVE CC-AMOUNT TO TOT-CLAIM
-           
+
            PERFORM DMP4 THRU DMP5
-           
+
            IF TOT-CLAIM = 0
                GO TO P5-SVC-LOOP-EXIT
-           END-IF    
-           
+           END-IF
+
            ACCEPT ORDER-8 FROM TIME
            MOVE ORDER-6 TO PD-ORDER
            MOVE SPACE TO PD-BATCH
@@ -937,34 +949,34 @@
            MOVE PAYFILE01 TO TRNPAYFILE01
            MOVE TRN-2 TO TRN-CHKNO
            WRITE TRNPAYFILE01
-           
-           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR           
+
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
                IF CAS-SVC(Z) = X
                    MOVE SPACE TO CAS01 ALF8
                    MOVE CAS-TAB(Z) TO FILEIN01
                    UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                     CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-              
+                     CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7
+                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14
+                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+
                    IF (CAS-2 = "104") MOVE CAS-3 TO ALF8
                    END-IF
-              
+
                    IF (CAS-5 = "104") MOVE CAS-6 TO ALF8
                    END-IF
-              
+
                    IF (CAS-8 = "104") MOVE CAS-9 TO ALF8
                    END-IF
-              
+
                    IF (CAS-11 = "104") MOVE CAS-12 TO ALF8
                    END-IF
-              
+
                    IF (CAS-14 = "104") MOVE CAS-15 TO ALF8
                    END-IF
-              
+
                    IF (CAS-17 = "104") MOVE CAS-18 TO ALF8
                    END-IF
-              
+
                    IF ALF8 NOT = SPACE
                        MOVE "DI" TO PD-DENIAL
                        PERFORM AMOUNT-1
@@ -974,9 +986,9 @@
                    END-IF
                END-IF
            END-PERFORM
-           
+
            MOVE 0 TO INS-REDUCE
-           
+
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
 
             IF CAS-SVC(Z) = X
@@ -1040,25 +1052,25 @@
            IF ALF8-1 = "-" AND PAYORID = "J4110"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
-           END-IF    
-           
+           END-IF
+
            COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
 
       *     display claim-tot " claim-tot " ins-reduce " ins-reduce"
       *     accept omitted
-           
+
            IF CLAIM-TOT = 0
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
-           
+
            IF INS-REDUCE NOT = 0
                COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT - INS-REDUCE
                PERFORM S4 THRU S5
-               
+
       *         DISPLAY CLAIM-TOT " CLAIM-TOT"
       *         ACCEPT OMITTED
-               
+
                IF CLAIM-TOT < 0
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT
@@ -1069,10 +1081,10 @@
                PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
                MOVE CAS-CNTR TO Z
            END-IF
-           
+
            GO TO P5-SVC-LOOP-EXIT.
 
-       WRITE-ADJ.     
+       WRITE-ADJ.
            MOVE PAYFILE01 TO PAYBACK.
 
        P4-0.
@@ -1085,7 +1097,7 @@
 
            GO TO P4-0.
 
-       P4-1. 
+       P4-1.
            MOVE PAYBACK TO PAYFILE01
            MOVE XYZ TO PD-KEY3
            WRITE PAYFILE01.
@@ -1148,7 +1160,7 @@
        P1-NO-SVC.
            PERFORM STATUS-1
            MOVE SPACE TO EF1
-           STRING NM1-NAMEL ";" NM1-NAMEF 
+           STRING NM1-NAMEL ";" NM1-NAMEF
            DELIMITED BY "  " INTO EF1
            MOVE NM1-CODE0 TO EF2
 
@@ -1160,7 +1172,7 @@
             MOVE "PAIN OTHER?" TO EF2
            END-IF
 
-           MOVE DATE-CC TO TEST-DATE 
+           MOVE DATE-CC TO TEST-DATE
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO EF3
            MOVE CLP-1 TO EF4
@@ -1175,7 +1187,7 @@
            PERFORM AMOUNT-1
            MOVE AMOUNT-X TO EF5
            MOVE SPACE TO ALF8
-           MOVE CLP-4TOTCLMPAY TO ALF8 
+           MOVE CLP-4TOTCLMPAY TO ALF8
 
            IF ALF8-1 = "-"
            MOVE "-" TO EFSIGN
@@ -1199,7 +1211,7 @@
            MOVE CLMCAS-17 TO EF-DENIAL6
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
-           
+
            IF CLMCAS-2 NOT = SPACE
             MOVE CLMCAS-2 TO ALF3
             PERFORM NAR-1.
@@ -1221,25 +1233,25 @@
 
        P1-DENIED-SVC.
            PERFORM STATUS-1
-           MOVE SPACE TO SVC01 
+           MOVE SPACE TO SVC01
            MOVE SVC-TAB(X) TO FILEIN01
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-           SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
+           UNSTRING FILEIN01 DELIMITED BY "*" INTO
+           SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC
            SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
 
        P1-LOST-SVC.
            PERFORM STATUS-1
 
            MOVE SPACE TO EF1
-           STRING NM1-NAMEL ";" NM1-NAMEF 
+           STRING NM1-NAMEL ";" NM1-NAMEF
            DELIMITED BY "  " INTO EF1
-           
+
            MOVE NM1-CODE0 TO EF2
-           
+
            IF NOT-FLAG = 1
             MOVE "?NOT YOURS?" TO EF2
            END-IF
-           
+
            IF NOT-FLAG = 2
             MOVE "PAID OTHERS" TO EF2
            END-IF
@@ -1247,8 +1259,8 @@
            IF SVC-DATE(X) = SPACE
             MOVE DATE-CC TO SVC-DATE(X)
            END-IF
-           
-           MOVE SVC-DATE(X) TO TEST-DATE 
+
+           MOVE SVC-DATE(X) TO TEST-DATE
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO EF3
            MOVE BPR-16 TO EF-PAYDATE
@@ -1256,18 +1268,18 @@
            MOVE SPACE TO ALF8
            MOVE SVC-2CHRGAMT TO ALF8
            MOVE SPACE TO EFSIGN
-           
+
            IF ALF8-1 = "-"
                MOVE "-" TO EFSIGN
            END-IF
-           
+
            PERFORM AMOUNT-1
-           
+
            MOVE AMOUNT-X TO EF5
            ADD AMOUNT-X TO TOT-CHARGE
            MOVE SPACE TO ALF8
            MOVE SVC-3PAYAMT TO ALF8
-           
+
            IF ALF8-1 = "-"
                MOVE "-" TO EFSIGN
            END-IF
@@ -1290,7 +1302,7 @@
             MOVE TRN-2 TO EF7
             MOVE SPACE TO ALF-17 CC-PROCX01
             MOVE SVC-1PROCMOD TO ALF-17
-            UNSTRING ALF-14 DELIMITED BY ":" INTO 
+            UNSTRING ALF-14 DELIMITED BY ":" INTO
             CC-PROC1X CC-PROC2X CC-MOD2X CC-MOD3X
             MOVE SPACE TO EF-PROC
             STRING CC-PROC1X CC-PROC2X CC-MOD3X DELIMITED BY SIZE
@@ -1298,15 +1310,15 @@
             MOVE SPACE TO EF-TAB01
             MOVE 0 TO DENIAL-CNTR  INS-REDUCE
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > CAS-CNTR
-            IF CAS-SVC(Y) = X 
+            IF CAS-SVC(Y) = X
              MOVE SPACE TO FILEIN01
              MOVE CAS-TAB(Y) TO FILEIN01
              MOVE SPACE TO CAS01
              UNSTRING FILEIN01 DELIMITED BY "*" INTO
-             CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-             CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-             CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
-             
+             CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7
+             CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14
+             CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
+
              IF CAS-2 NOT = SPACE
               ADD 1 TO DENIAL-CNTR
               MOVE CAS-2 TO EF-TAB(DENIAL-CNTR)
@@ -1446,12 +1458,12 @@
              WRITE ERROR-FILE01 FROM ERR301.
 
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
-             IF LQ-SVC(Y) = X               
+             IF LQ-SVC(Y) = X
                MOVE SPACE TO FILEIN01
                MOVE LQ-TAB(Y) TO FILEIN01
                MOVE SPACE TO LQ01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                 LQ-0 LQ-1 LQ-2 
+                 LQ-0 LQ-1 LQ-2
 
                IF NOT (LQ-2 = SPACE OR "N807" OR "MA130" OR "N620"
                  OR "N535")
@@ -1459,17 +1471,17 @@
                  READ rarcfile with lock
                    invalid
                      MOVE SPACE TO RARC-REASON
-                     STRING LQ-2 " INVALID RARC" DELIMITED BY size 
+                     STRING LQ-2 " INVALID RARC" DELIMITED BY size
                        INTO ERROR-FILE01
-                     WRITE ERROR-FILE01  
+                     WRITE ERROR-FILE01
                      continue
                  end-read
                  MOVE SPACE TO ERROR-FILE01
                  STRING rarc-reason DELIMITED BY size INTO ERROR-FILE01
                  WRITE ERROR-FILE01
                end-if
-             end-if               
-           END-PERFORM. 
+             end-if
+           END-PERFORM.
 
        DUMP-1.
            MOVE SPACE TO ERROR-FILE01
@@ -1486,7 +1498,7 @@
            PERFORM ERR-UNITED THRU ERR-UNITED-EXIT
            VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
            GO TO P9-SVC-LOOP.
-           
+
        ERR-UNITED.
 
             MOVE SPACE TO FILEIN01
@@ -1516,7 +1528,7 @@
            EXIT.
 
        NAR-1.
-           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 216 
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > 216
             IF ALF3 = NAR-KEY(Z)
             ADD 1 TO NAR-CNTR(Z)
             MOVE 216 TO Z
@@ -1535,16 +1547,16 @@
       *  CLAIM IS DROPPED TO THE ERROR FILE.
       *  I.E., PERFECTION MUST REIGN!
 
-       FIND-GARNO.    
+       FIND-GARNO.
            MOVE SPACE TO G-GARNO
            MOVE NM1-NAMEL(1:3) TO ID1
            MOVE ID1 TO ALF-3
            START GARFILE KEY NOT < G-GARNO
-             INVALID 
+             INVALID
                GO TO FIND-GARNO-EXIT
            END-START.
 
-       P2. 
+       P2.
            READ GARFILE NEXT
              AT END
                GO TO FIND-GARNO-EXIT
@@ -1555,22 +1567,22 @@
            END-IF.
 
        P3LOOK.
-           IF NOT ((G-PRIPOL = NM1-CODE)  
+           IF NOT ((G-PRIPOL = NM1-CODE)
                 OR (G-SECPOL = NM1-CODE)
                 OR (MPLR-TRIPOL = NM1-CODE))
-           GO TO P2.      
+           GO TO P2.
 
        FIND-GARNO-EXIT.
            EXIT.
-       
-       LOOK-CHG.       
+
+       LOOK-CHG.
            MOVE SPACE TO SVC01 FILEIN01
-           MOVE SVC-TAB(X) TO FILEIN01  
+           MOVE SVC-TAB(X) TO FILEIN01
       *    display filein01
-      *    accept omitted                    
-           
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO 
-               SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC 
+      *    accept omitted
+
+           UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC
                SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN.
 
            MOVE SPACE TO ALF-17
@@ -1588,34 +1600,34 @@
            MOVE G-GARNO TO CC-KEY8
            MOVE "000" TO CC-KEY3
            START CHARCUR KEY NOT < CHARCUR-KEY
-             INVALID 
+             INVALID
                GO TO LOOK-CHG-EXIT
            END-START.
 
-       LOOK-1. 
+       LOOK-1.
            READ CHARCUR NEXT
              AT END
                GO TO LOOK-CHG-EXIT
-           END-READ                  
+           END-READ
 
            IF CC-KEY8 NOT = G-GARNO
                GO TO LOOK-CHG-EXIT
            END-IF
-                   
+
            IF SVC-DATE(X) = SPACE
                MOVE DATE-CC TO SVC-DATE(X)
-           END-IF    
+           END-IF
 
            IF CC-DATE-T NOT = SVC-DATE(X)
                GO TO LOOK-1
-           END-IF    
-      
+           END-IF
+
            MOVE SPACE TO CC-PROCY01
            MOVE CC-CPT TO CC-PROC1Y
            MOVE CC-MOD TO CC-PROC2Y
            MOVE CC-MOD2 TO CC-MOD2Y
            MOVE CC-MOD3 TO CC-MOD3Y
-           
+
            IF CC-PROC2Y = SPACE
                MOVE CC-MOD2Y TO CC-PROC2Y
                MOVE SPACE TO CC-MOD2Y
@@ -1635,18 +1647,18 @@
            END-IF
 
            MOVE 0 TO FLAGY DUPFLAG
-           
+
            PERFORM A5 THRU A5-EXIT
-           
+
            IF FLAGY = 1
                GO TO LOOK-1
            END-IF
 
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > FIND-CNTR
-           
+
                IF CHARCUR-KEY = FOUND-KEY(Z)
                    MOVE 1 TO DUPFLAG
-                   MOVE FIND-CNTR TO Z               
+                   MOVE FIND-CNTR TO Z
                END-IF
 
            END-PERFORM
@@ -1672,13 +1684,13 @@
        LOOK-CHG-EXIT.
            EXIT.
 
-       A5. 
-           MOVE G-GARNO TO PD-KEY8 
+       A5.
+           MOVE G-GARNO TO PD-KEY8
            MOVE "000" TO PD-KEY3.
            START PAYFILE KEY NOT < PAYFILE-KEY
              INVALID
                GO TO A5-EXIT
-           END-START.    
+           END-START.
 
        A5-1.
            READ PAYFILE NEXT
@@ -1688,70 +1700,70 @@
 
            IF PD-KEY8 NOT = CC-KEY8
                GO TO A5-EXIT
-           END-IF    
-           
+           END-IF
+
            IF PD-CLAIM NOT = CC-CLAIM
                GO TO A5-1
            END-IF
 
            MOVE 1 TO FLAGY.
 
-       A5-EXIT. 
+       A5-EXIT.
            EXIT.
 
-       S4. 
-           MOVE CC-KEY8 TO PC-KEY8 
+       S4.
+           MOVE CC-KEY8 TO PC-KEY8
            MOVE "000" TO PC-KEY3.
            START PAYCUR KEY NOT <  PAYCUR-KEY INVALID GO TO S5.
 
        S41.
            READ PAYCUR NEXT AT END GO TO S5.
            IF PC-KEY8 NOT = CC-KEY8 GO TO S5.
-           IF PC-CLAIM NOT = CC-CLAIM GO TO S41. 
+           IF PC-CLAIM NOT = CC-CLAIM GO TO S41.
            IF (PC-PAYCODE = G-PRINS)
              AND ((PC-DENIAL = "14") OR (PC-PAYCODE = "014"))
-             AND (CLP-2CLMSTAT = "2") 
+             AND (CLP-2CLMSTAT = "2")
              GO TO S41
-           END-IF             
+           END-IF
            ADD PC-AMOUNT TO CLAIM-TOT.
            GO TO S41.
 
-       S5. 
+       S5.
            EXIT.
 
-       DMP4. 
-           MOVE CC-KEY8 TO PC-KEY8 
+       DMP4.
+           MOVE CC-KEY8 TO PC-KEY8
            MOVE "000" TO PC-KEY3.
            START PAYCUR KEY NOT <  PAYCUR-KEY
              INVALID
                GO TO DMP5
            END-START.
 
-       DMP41. 
+       DMP41.
            READ PAYCUR NEXT
              AT END
                GO TO DMP5
            END-READ
 
            IF PC-KEY8 NOT = CC-KEY8 GO TO DMP5.
-           
-           IF PC-CLAIM NOT = CC-CLAIM GO TO DMP41. 
-           
+
+           IF PC-CLAIM NOT = CC-CLAIM GO TO DMP41.
+
            IF (PC-PAYCODE = G-PRINS)
                AND ((PC-DENIAL = "14") OR (PC-PAYCODE = "014"))
-               AND (CLP-2CLMSTAT = "2") 
+               AND (CLP-2CLMSTAT = "2")
                GO TO DMP41
-           END-IF             
+           END-IF
 
            ADD PC-AMOUNT TO TOT-CLAIM.
            GO TO DMP41.
 
-       DMP5. 
+       DMP5.
            EXIT.
 
        AMOUNT-1.
            MOVE SPACES TO SIGN-DOLLAR CENTS.
-           
+
            IF ALF8-1 = "-"
                UNSTRING ALF8-7 DELIMITED BY "." INTO SIGN-DOLLAR CENTS
            ELSE
@@ -1765,12 +1777,12 @@
            STRING RIGHT-4 CENTS DELIMITED BY SIZE INTO ALF-6
            MOVE ALF-6 TO NUM-6
            DIVIDE NUM-6 BY 100 GIVING AMOUNT-X.
-           
+
            IF ALF8-1 = "-"
                COMPUTE AMOUNT-X = -1 * AMOUNT-X
            END-IF.
 
-       P9. 
+       P9.
            MOVE "UNPOSTED" TO EF1
            MOVE "PAYMENTS" TO EF2
            MOVE "TOTAL" TO EF3
@@ -1779,10 +1791,10 @@
            MOVE TOT-REDUCE TO EF-REDUCE
            MOVE TOT-PAY TO EF6
            MOVE SPACE TO  EF7 EF8 EF-PROC EF-DENIAL02
-           MOVE SPACE TO ERROR-FILE01 
+           MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01
            MOVE ERR01 TO ERROR-FILE01
-           WRITE ERROR-FILE01. 
+           WRITE ERROR-FILE01.
            MOVE SPACE TO ERROR-FILE01
            MOVE "DENIAL REASONS SUMMARY" TO ERROR-FILE01
            WRITE ERROR-FILE01 AFTER 2
@@ -1798,28 +1810,28 @@
              READ CAIDFILE INVALID MOVE SPACE TO CAID-REASON
              END-READ
             MOVE CAID-KEY TO EF2-DENIAL
-            MOVE NAR-CNTR(Z) TO EF2-NUM 
+            MOVE NAR-CNTR(Z) TO EF2-NUM
             MOVE CAID-REASON TO EF2-REASON
             MOVE SPACE TO ERROR-FILE01
             WRITE ERROR-FILE01 FROM ERR201
            END-PERFORM
-           
+
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01
            MOVE "STATUS CODES" TO ERROR-FILE01
            WRITE ERROR-FILE01
-           
+
            PERFORM VARYING A FROM 1 BY 1 UNTIL A > 27
             IF STATUSCODE(A) = 1
              MOVE STATUSNAR(A) TO ALF25
              MOVE A TO NEF-2
              MOVE SPACE TO ERROR-FILE01
-             STRING NEF-2 " " ALF25 
+             STRING NEF-2 " " ALF25
              DELIMITED BY SIZE INTO ERROR-FILE01
              WRITE ERROR-FILE01
             END-IF
            END-PERFORM.
-           
+
            CLOSE INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE
                PAYCUR CAIDFILE rarcfile PAYFILE REMITFILE
                TRNPAYFILE ERROR-FILE.
@@ -1828,12 +1840,12 @@
        P169.
             PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
              IF CAS-SVC(Z) = X
-              MOVE SPACE TO CAS01 
+              MOVE SPACE TO CAS01
               MOVE CAS-TAB(Z) TO FILEIN01
               UNSTRING FILEIN01 DELIMITED BY "*" INTO
-              CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7 
-              CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14 
-              CAS-15 CAS-16 CAS-17 CAS-18 CAS-19 
+              CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5 CAS-6 CAS-7
+              CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14
+              CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
               IF CAS-1 = "OA" AND CAS-2 = "1  "
                 MOVE SPACE TO ALF8
                 MOVE CAS-3 TO ALF8
@@ -1875,7 +1887,7 @@
                MOVE "NOT OUR CLAIM FORWARDED " TO STATUSNAR(23).
                MOVE "PREDETERMINATION PRICING" TO STATUSNAR(25).
                MOVE "REVIEWED                " TO STATUSNAR(27).
-       STATUS-1.        
+       STATUS-1.
                IF CLP-2CLMSTAT = "1 " MOVE 1 TO STATUSCODE(1).
                IF CLP-2CLMSTAT = "2 " MOVE 1 TO STATUSCODE(2).
                IF CLP-2CLMSTAT = "3 " MOVE 1 TO STATUSCODE(3).
@@ -1904,8 +1916,8 @@
       *     AND ((ID-NPI1 NOT = ALF10-2) AND (ID-NPI1 NOT = SPACE))
       *     MOVE 1 TO NOT-FLAG
       *     GO TO P1-CLP-2.
-      *     IF 
-      *          ((PARM-ADDR NOT = N3-STREET) 
+      *     IF
+      *          ((PARM-ADDR NOT = N3-STREET)
       *             AND (PARM-ADDR NOT = N3-STREET2)
       *             AND (PARM-ADDR NOT = SPACE))
       *     AND ((ID-NPI1 = ALF10-2) AND (ID-NPI1 NOT = SPACE))
@@ -1915,12 +1927,12 @@
 
        NO-SURPRISE.
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
-             IF LQ-SVC(Y) = X               
+             IF LQ-SVC(Y) = X
                MOVE SPACE TO FILEIN01
                MOVE LQ-TAB(Y) TO FILEIN01
                MOVE SPACE TO LQ01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                 LQ-0 LQ-1 LQ-2 
+                 LQ-0 LQ-1 LQ-2
 
                IF LQ-2 = "N860" OR "N877"
                  MOVE LQ-2 TO rarc-key
@@ -1930,5 +1942,5 @@
                  end-read
                  PERFORM P1-LOST-SVC
                end-if
-             end-if               
-           END-PERFORM.    
+             end-if
+           END-PERFORM.
