@@ -852,7 +852,10 @@
            MOVE DATE-X TO PD-DATE-T
            MOVE G-GARNAME TO PD-NAME
                      
-           MOVE CC-PAYCODE TO PD-PAYCODE.
+           MOVE CC-PAYCODE TO PD-PAYCODE
+           IF PD-PAYCODE = "001"
+               MOVE "076" TO PD-PAYCODE
+           END-IF.
 
        P7-NEXT.
            MOVE "  " TO PD-DENIAL.
