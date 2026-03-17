@@ -751,8 +751,9 @@
                GO TO P4-SVC-LOOP
            END-IF.
 
-       P3-SVC-LOOP.                          
-           PERFORM FIND-GARNO THRU FIND-GARNO-EXIT
+       P3-SVC-LOOP.           
+      * VACCN WENT TO 17 DIGIT POLICY # SO CAN'T USE THIS.                
+      *     PERFORM FIND-GARNO THRU FIND-GARNO-EXIT
 
       *  START LOOKING FOR MATCHING CHARGES WITH THE GARNO IN QUESTION.
            
@@ -866,6 +867,10 @@
                    END-IF
                END-IF
            END-PERFORM
+
+           DISPLAY "CC-PAYCODE=[" CC-PAYCODE "] G-PRINS=[" G-PRINS
+               "] G-SEINS=[" G-SEINS "] G-TRINS=[" G-TRINS "]"
+           ACCEPT OMITTED
 
            IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS
                     OR "075")
