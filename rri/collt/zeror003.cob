@@ -38,19 +38,16 @@
                10  FILLER          PIC X.
                10  FI-YYYY         PIC X(4).
            05  FILLER              PIC X(339).
-
        WORKING-STORAGE SECTION.
-       01  CLAIM-TOT           PIC S9(6)V99.
-       01  CLAIM-DISP          PIC -ZZZ,ZZZ.99.
-         01  WS-DATE                 PIC X(8).
+       01  CLAIM-TOT               PIC S9(6)V99.
+       01  CLAIM-DISP              PIC -ZZZ,ZZZ.99.
+       01  WS-DATE                 PIC X(8).
        01  WS-PAY-TABLE.
            05  WS-PAY-ENTRY        OCCURS 200 TIMES
                                    INDEXED BY WS-IDX.
                10  WS-PC-CLAIM     PIC X(8).
                10  WS-PC-AMOUNT    PIC S9(6)V99.
        01  WS-PAY-CNT              PIC S9(4) COMP VALUE 0.
-       01  WS-CLAIM-FOUND          PIC X VALUE SPACE.
-           88  CLAIM-FOUND         VALUE "Y".
        PROCEDURE DIVISION.
        P0.
            OPEN INPUT GARFILE CHARCUR PAYCUR FILEIN.
@@ -59,7 +56,7 @@
                AT END
                    GO TO R99.
            MOVE 0 TO CLAIM-TOT.
-           MOVE 0 TO WS-CLAIM-CNT.
+           MOVE 0 TO WS-PAY-CNT.
       *    -- CONVERT MM/DD/YYYY TO YYYYMMDD --
            MOVE FI-YYYY TO WS-DATE(1:4).
            MOVE FI-MM   TO WS-DATE(5:2).
@@ -70,55 +67,49 @@
                    DISPLAY "GARNO NOT FOUND: " FI-GARNO
                    GO TO R1
            END-READ.
-      *    -- SUM CHARCUR, BUILD CLAIM TABLE --
-           MOVE G-GARNO TO CC-KEY8.
-           MOVE SPACE TO CC-KEY3.
-           START CHARCUR KEY NOT < CHARCUR-KEY
-               INVALID
-                   GO TO R3.
-       R2.
-           READ CHARCUR NEXT
-               AT END
-                   GO TO R3.
-           IF G-GARNO NOT = CC-KEY8
-               GO TO R3.
-           IF CC-DATE-T NOT = WS-DATE
-               GO TO R2.
-           IF CC-CLAIM NOT = WS-DATE
-               GO TO R2.
-           ADD CC-AMOUNT TO CLAIM-TOT.
-           IF WS-CLAIM-CNT < 200
-               ADD 1 TO WS-CLAIM-CNT
-               MOVE CC-CLAIM TO WS-CLAIM(WS-CLAIM-CNT)
-           ELSE
-               DISPLAY "CLAIM TABLE FULL FOR GARNO " G-GARNO
-           END-IF.
-           GO TO R2.
-       R3.
-      *    -- SUM PAYCUR USING CLAIM TABLE --
-           IF WS-CLAIM-CNT = 0
-               GO TO R5.
+      *    -- LOAD PAYCUR INTO TABLE --
            MOVE G-GARNO TO PC-KEY8.
            MOVE SPACE TO PC-KEY3.
            START PAYCUR KEY NOT < PAYCUR-KEY
                INVALID
-                   GO TO R5.
-       R4.
+                   GO TO R3.
+       R2.
            READ PAYCUR NEXT
                AT END
-                   GO TO R5.
+                   GO TO R3.
            IF G-GARNO NOT = PC-KEY8
+               GO TO R3.
+           IF WS-PAY-CNT < 200
+               ADD 1 TO WS-PAY-CNT
+               MOVE PC-CLAIM  TO WS-PC-CLAIM(WS-PAY-CNT)
+               MOVE PC-AMOUNT TO WS-PC-AMOUNT(WS-PAY-CNT)
+           ELSE
+               DISPLAY "PAY TABLE FULL FOR GARNO " G-GARNO
+           END-IF.
+           GO TO R2.
+       R3.
+      *    -- SUM CHARCUR, MATCH AGAINST PAY TABLE --
+           MOVE G-GARNO TO CC-KEY8.
+           MOVE SPACE TO CC-KEY3.
+           START CHARCUR KEY NOT < CHARCUR-KEY
+               INVALID
+                   GO TO R5.
+       R4.
+           READ CHARCUR NEXT
+               AT END
+                   GO TO R5.
+           IF G-GARNO NOT = CC-KEY8
                GO TO R5.
-           MOVE SPACE TO WS-CLAIM-FOUND.
+           IF CC-DATE-T NOT = WS-DATE
+               GO TO R4.
+           
+           ADD CC-AMOUNT TO CLAIM-TOT.
            PERFORM VARYING WS-IDX FROM 1 BY 1
-               UNTIL WS-IDX > WS-CLAIM-CNT
-               IF PC-CLAIM = WS-CLAIM(WS-IDX)
-                   MOVE "Y" TO WS-CLAIM-FOUND
+               UNTIL WS-IDX > WS-PAY-CNT
+               IF WS-PC-CLAIM(WS-IDX) = CC-CLAIM
+                   ADD WS-PC-AMOUNT(WS-IDX) TO CLAIM-TOT
                END-IF
            END-PERFORM.
-           IF NOT CLAIM-FOUND
-               GO TO R4.
-           ADD PC-AMOUNT TO CLAIM-TOT.
            GO TO R4.
        R5.
            MOVE CLAIM-TOT TO CLAIM-DISP.
@@ -127,4 +118,3 @@
        R99.
            CLOSE GARFILE CHARCUR PAYCUR FILEIN.
            STOP RUN.
-      
