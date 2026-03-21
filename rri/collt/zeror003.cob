@@ -109,11 +109,14 @@
                DISPLAY "CHARCUR KEY BREAK AT " CC-KEY8
                GO TO R5.
            DISPLAY "CHARCUR: CLAIM=" CC-CLAIM " DATE-T=" CC-DATE-T
-               " AMT=" CC-AMOUNT.
-           IF CC-DATE-T NOT = WS-DATE
-               DISPLAY "  DATE-T SKIP: " CC-DATE-T " <> " WS-DATE
+               " PAYCODE=" CC-PAYCODE " AMT=" CC-AMOUNT.
+           IF CC-PAYCODE NOT = "018"
+               DISPLAY "  PAYCODE SKIP: " CC-PAYCODE
                GO TO R4.
-           DISPLAY "  DATE-T MATCH, ADDING " CC-AMOUNT.
+           IF CC-DATE-T > WS-DATE
+               DISPLAY "  DATE-T SKIP: " CC-DATE-T " > " WS-DATE
+               GO TO R4.
+           DISPLAY "  MATCH, ADDING " CC-AMOUNT.
            ADD CC-AMOUNT TO CLAIM-TOT.
            PERFORM VARYING WS-IDX FROM 1 BY 1
                UNTIL WS-IDX > WS-PAY-CNT
