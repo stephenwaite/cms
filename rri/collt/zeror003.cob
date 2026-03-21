@@ -55,37 +55,30 @@
            READ FILEIN
                AT END
                    GO TO R99.
-           DISPLAY FI-GARNO " FI-GARNO"        
-           ACCEPT OMITTED
            MOVE 0 TO CLAIM-TOT.
            MOVE 0 TO WS-PAY-CNT.
       *    -- CONVERT MM/DD/YYYY TO YYYYMMDD --
            MOVE FI-YYYY TO WS-DATE(1:4).
            MOVE FI-MM   TO WS-DATE(5:2).
            MOVE FI-DD   TO WS-DATE(7:2).
-           DISPLAY "FILEIN GARNO: " FI-GARNO " DATE: " WS-DATE.
            MOVE FI-GARNO TO G-GARNO.
            READ GARFILE
                INVALID KEY
                    DISPLAY "GARNO NOT FOUND: " FI-GARNO
                    GO TO R1
            END-READ.
-           DISPLAY "GARFILE READ OK: " G-GARNO.
       *    -- LOAD PAYCUR INTO TABLE --
            MOVE G-GARNO TO PC-KEY8.
            MOVE SPACE TO PC-KEY3.
            START PAYCUR KEY NOT < PAYCUR-KEY
                INVALID
-                   DISPLAY "PAYCUR START INVALID FOR " G-GARNO
                    GO TO R3.
        R2.
            READ PAYCUR NEXT
                AT END
                    GO TO R3.
            IF G-GARNO NOT = PC-KEY8
-               DISPLAY "PAYCUR KEY BREAK AT " PC-KEY8
                GO TO R3.
-           DISPLAY "PAYCUR: CLAIM=" PC-CLAIM " AMT=" PC-AMOUNT.
            IF WS-PAY-CNT < 200
                ADD 1 TO WS-PAY-CNT
                MOVE PC-CLAIM  TO WS-PC-CLAIM(WS-PAY-CNT)
@@ -95,45 +88,33 @@
            END-IF.
            GO TO R2.
        R3.
-           DISPLAY "PAYCUR LOADED " WS-PAY-CNT " ENTRIES FOR " G-GARNO.
       *    -- SUM CHARCUR, MATCH AGAINST PAY TABLE --
            MOVE G-GARNO TO CC-KEY8.
            MOVE SPACE TO CC-KEY3.
            START CHARCUR KEY NOT < CHARCUR-KEY
                INVALID
-                   DISPLAY "CHARCUR START INVALID FOR " G-GARNO
                    GO TO R5.
        R4.
            READ CHARCUR NEXT
                AT END
                    GO TO R5.
            IF G-GARNO NOT = CC-KEY8
-               DISPLAY "CHARCUR KEY BREAK AT " CC-KEY8
                GO TO R5.
-           DISPLAY "CHARCUR: CLAIM=" CC-CLAIM " DATE-T=" CC-DATE-T
-               " PAYCODE=" CC-PAYCODE " AMT=" CC-AMOUNT.
            IF CC-PAYCODE NOT = "018"
-               DISPLAY "  PAYCODE SKIP: " CC-PAYCODE
                GO TO R4.
            IF CC-DATE-T > WS-DATE
-               DISPLAY "  DATE-T SKIP: " CC-DATE-T " > " WS-DATE
                GO TO R4.
-           DISPLAY "  MATCH, ADDING " CC-AMOUNT.
            ADD CC-AMOUNT TO CLAIM-TOT.
            PERFORM VARYING WS-IDX FROM 1 BY 1
                UNTIL WS-IDX > WS-PAY-CNT
                IF WS-PC-CLAIM(WS-IDX) = CC-CLAIM
-                   DISPLAY "  PAY MATCH: CLAIM=" WS-PC-CLAIM(WS-IDX)
-                       " AMT=" WS-PC-AMOUNT(WS-IDX)
                    ADD WS-PC-AMOUNT(WS-IDX) TO CLAIM-TOT
-                   EXIT PERFORM
                END-IF
            END-PERFORM.
            GO TO R4.
        R5.
            MOVE CLAIM-TOT TO CLAIM-DISP.
-           DISPLAY "RESULT: " G-GARNO " " WS-DATE
-               " BALANCE: " CLAIM-DISP.
+           DISPLAY G-GARNO " " WS-DATE " BALANCE: " CLAIM-DISP.
            GO TO R1.
        R99.
            CLOSE GARFILE CHARCUR PAYCUR FILEIN.
