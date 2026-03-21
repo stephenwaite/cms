@@ -636,147 +636,173 @@
       *--- Hybrid 364+405 / Paycode 014 --------------------------------
            IF CD-PAYCODE = "014"
                DISPLAY "=== PAYCODE 014: MEASURES 364 AND 405 ==="
-      *        Prompt for Measure 364 first -> CD-QP1
-               DISPLAY " Measure 364: <Enter> no lesion or 1 or 2"
-                       " or 3 or ? for help or G to grab read"
-               ACCEPT CD-QP1
-               IF CD-QP1 = "G"
-                   PERFORM 10-GR
-                   GO TO P2-0
-               END-IF
-               IF CD-QP1 = "?"
-                   PERFORM HELP-364
-                   GO TO P2-0
-               END-IF
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
-                   GO TO P2-0
-               END-IF
-      *        Now prompt for Measure 405 -> CD-QP2
-               DISPLAY " Measure 405: type ? or 1 or 2 or 3 or <Enter>"
-               ACCEPT CD-QP2
-               IF CD-QP2 = "?"
-                   PERFORM HELP-405
-                   DISPLAY " Measure 405: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP2
-               END-IF
-               IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
-                   DISPLAY "Invalid 405 response, re-enter"
-                   DISPLAY " Measure 405: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP2
-               END-IF
+               GO TO P014-QP1
            END-IF
-
+           GO TO P015-CHECK.
+       P014-QP1.
+           DISPLAY " Measure 364: <Enter> no lesion or 1 or 2"
+                   " or 3 or ? for help or G to grab read"
+           ACCEPT CD-QP1
+           IF CD-QP1 = "G"
+               PERFORM 10-GR
+               GO TO P014-QP1
+           END-IF
+           IF CD-QP1 = "?"
+               PERFORM HELP-364
+               GO TO P014-QP1
+           END-IF
+           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
+               GO TO P014-QP1
+           END-IF.
+       P014-QP2.
+           DISPLAY " Measure 405: type ? or 1 or 2 or 3 or <Enter>"
+                   " or G to grab read"
+           ACCEPT CD-QP2
+           IF CD-QP2 = "G"
+               PERFORM 10-GR
+               GO TO P014-QP2
+           END-IF
+           IF CD-QP2 = "?"
+               PERFORM HELP-405
+               GO TO P014-QP2
+           END-IF
+           IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
+               DISPLAY "Invalid 405 response, re-enter"
+               GO TO P014-QP2
+           END-IF
+           GO TO P2-000.
+       P015-CHECK.
       *--- Hybrid 364+406 / Paycode 015 --------------------------------
            IF CD-PAYCODE = "015"
                DISPLAY "=== PAYCODE 015: MEASURES 364 AND 406 ==="
-      *        Prompt for Measure 364 first -> CD-QP1
-               DISPLAY " Measure 364: <Enter> no lesion or 1 or 2"
-                       " or 3 or ? for help or G to grab read"
-               ACCEPT CD-QP1
-               IF CD-QP1 = "G"
-                   PERFORM 10-GR
-                   GO TO P2-0
-               END-IF
-               IF CD-QP1 = "?"
-                   PERFORM HELP-364
-                   GO TO P2-0
-               END-IF
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
-                   GO TO P2-0
-               END-IF
-      *        Now prompt for Measure 406 -> CD-QP2
-               DISPLAY " Measure 406: <Enter> no lesion or 1 or 2"
-                       " or 3 or ? for help"
-               ACCEPT CD-QP2
-               IF CD-QP2 = "?"
-                   PERFORM HELP-406
-                   DISPLAY " Measure 406: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP2
-               END-IF
-               IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
-                   DISPLAY "Invalid 406 response, re-enter"
-                   DISPLAY " Measure 406: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP2
-               END-IF
+               GO TO P015-QP1
            END-IF
-
+           GO TO P016-CHECK.
+       P015-QP1.
+           DISPLAY " Measure 364: <Enter> no lesion or 1 or 2"
+                   " or 3 or ? for help or G to grab read"
+           ACCEPT CD-QP1
+           IF CD-QP1 = "G"
+               PERFORM 10-GR
+               GO TO P015-QP1
+           END-IF
+           IF CD-QP1 = "?"
+               PERFORM HELP-364
+               GO TO P015-QP1
+           END-IF
+           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
+               GO TO P015-QP1
+           END-IF.
+       P015-QP2.
+           DISPLAY " Measure 406: <Enter> no lesion or 1 or 2"
+                   " or 3 or ? for help or G to grab read"
+           ACCEPT CD-QP2
+           IF CD-QP2 = "G"
+               PERFORM 10-GR
+               GO TO P015-QP2
+           END-IF
+           IF CD-QP2 = "?"
+               PERFORM HELP-406
+               GO TO P015-QP2
+           END-IF
+           IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
+               DISPLAY "Invalid 406 response, re-enter"
+               GO TO P015-QP2
+           END-IF
+           GO TO P2-000.
+       P016-CHECK.
       *--- Hybrid 405+406 / Paycode 016 --------------------------------
            IF CD-PAYCODE = "016"
                DISPLAY "=== PAYCODE 016: MEASURES 405 AND 406 ==="
-      *        Prompt for Measure 405 -> CD-QP1
-               DISPLAY " Measure 405: type ? or 1 or 2 or 3 or <Enter>"
-               ACCEPT CD-QP1
-               IF CD-QP1 = "?"
-                   PERFORM HELP-405
-                   DISPLAY " Measure 405: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP1
-               END-IF
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
-                   GO TO P2-0
-               END-IF
-      *        Now prompt for Measure 406 -> CD-QP2
-               DISPLAY " Measure 406: <Enter> no lesion or 1 or 2"
-                       " or 3 or ? for help"
-               ACCEPT CD-QP2
-               IF CD-QP2 = "?"
-                   PERFORM HELP-406
-                   DISPLAY " Measure 406: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP2
-               END-IF
-               IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
-                   DISPLAY "Invalid 406 response, re-enter"
-                   DISPLAY " Measure 406: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP2
-               END-IF
+               GO TO P016-QP1
            END-IF
-
+           GO TO P017-CHECK.
+       P016-QP1.
+           DISPLAY " Measure 405: type ? or 1 or 2 or 3 or <Enter>"
+                   " or G to grab read"
+           ACCEPT CD-QP1
+           IF CD-QP1 = "G"
+               PERFORM 10-GR
+               GO TO P016-QP1
+           END-IF
+           IF CD-QP1 = "?"
+               PERFORM HELP-405
+               GO TO P016-QP1
+           END-IF
+           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
+               GO TO P016-QP1
+           END-IF.
+       P016-QP2.
+           DISPLAY " Measure 406: <Enter> no lesion or 1 or 2"
+                   " or 3 or ? for help or G to grab read"
+           ACCEPT CD-QP2
+           IF CD-QP2 = "G"
+               PERFORM 10-GR
+               GO TO P016-QP2
+           END-IF
+           IF CD-QP2 = "?"
+               PERFORM HELP-406
+               GO TO P016-QP2
+           END-IF
+           IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
+               DISPLAY "Invalid 406 response, re-enter"
+               GO TO P016-QP2
+           END-IF
+           GO TO P2-000.
+       P017-CHECK.
       *--- Hybrid 364+405+406 / Paycode 017 ---------------------------
            IF CD-PAYCODE = "017"
                DISPLAY "=== PAYCODE 017: MEASURES 364, 405, AND 406 ==="
-      *        Prompt for Measure 364 first -> CD-QP1
-               DISPLAY " Measure 364: <Enter> no lesion or 1 or 2"
-                       " or 3 or ? for help or G to grab read"
-               ACCEPT CD-QP1
-               IF CD-QP1 = "G"
-                   PERFORM 10-GR
-                   GO TO P2-0
-               END-IF
-               IF CD-QP1 = "?"
-                   PERFORM HELP-364
-                   GO TO P2-0
-               END-IF
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
-                   GO TO P2-0
-               END-IF
-      *        Prompt for Measure 405 -> CD-QP2
-               DISPLAY " Measure 405: type ? or 1 or 2 or 3 or <Enter>"
-               ACCEPT CD-QP2
-               IF CD-QP2 = "?"
-                   PERFORM HELP-405
-                   DISPLAY " Measure 405: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP2
-               END-IF
-               IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
-                   DISPLAY "Invalid 405 response, re-enter"
-                   DISPLAY " Measure 405: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP2
-               END-IF
-      *        Prompt for Measure 406 -> CD-QP3
-               DISPLAY " Measure 406: <Enter> no lesion or 1 or 2"
-                       " or 3 or ? for help"
-               ACCEPT CD-QP3
-               IF CD-QP3 = "?"
-                   PERFORM HELP-406
-                   DISPLAY " Measure 406: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP3
-               END-IF
-               IF NOT (CD-QP3 = "1 " OR "2 " OR "3 " OR SPACE)
-                   DISPLAY "Invalid 406 response, re-enter"
-                   DISPLAY " Measure 406: type 1 or 2 or 3 or <Enter>"
-                   ACCEPT CD-QP3
-               END-IF
+               GO TO P017-QP1
+           END-IF
+           GO TO P2-000.
+       P017-QP1.
+           DISPLAY " Measure 364: <Enter> no lesion or 1 or 2"
+                   " or 3 or ? for help or G to grab read"
+           ACCEPT CD-QP1
+           IF CD-QP1 = "G"
+               PERFORM 10-GR
+               GO TO P017-QP1
+           END-IF
+           IF CD-QP1 = "?"
+               PERFORM HELP-364
+               GO TO P017-QP1
+           END-IF
+           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
+               GO TO P017-QP1
            END-IF.
-
+       P017-QP2.
+           DISPLAY " Measure 405: type ? or 1 or 2 or 3 or <Enter>"
+                   " or G to grab read"
+           ACCEPT CD-QP2
+           IF CD-QP2 = "G"
+               PERFORM 10-GR
+               GO TO P017-QP2
+           END-IF
+           IF CD-QP2 = "?"
+               PERFORM HELP-405
+               GO TO P017-QP2
+           END-IF
+           IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
+               DISPLAY "Invalid 405 response, re-enter"
+               GO TO P017-QP2
+           END-IF.
+       P017-QP3.
+           DISPLAY " Measure 406: <Enter> no lesion or 1 or 2"
+                   " or 3 or ? for help or G to grab read"
+           ACCEPT CD-QP3
+           IF CD-QP3 = "G"
+               PERFORM 10-GR
+               GO TO P017-QP3
+           END-IF
+           IF CD-QP3 = "?"
+               PERFORM HELP-406
+               GO TO P017-QP3
+           END-IF
+           IF NOT (CD-QP3 = "1 " OR "2 " OR "3 " OR SPACE)
+               DISPLAY "Invalid 406 response, re-enter"
+               GO TO P017-QP3
+           END-IF.
       *----------------------------------------------------------------
        P2-000.
            IF CD-DOCP = "02"
