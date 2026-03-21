@@ -162,6 +162,11 @@
                                         LOW-VALUES
                                         HIGH-VALUES.
 
+       01  WS-FLAGS.
+           05  WS-NEIC              PIC X(5).
+               88  INS-OA-LOCAL     VALUE "60054" "IHS24" "87871" 
+               "38224" "PAPER".                                        
+       
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT FILE-OUT FILEOUT FILEOUT2 FILEOUT3 ERRORFILE.
@@ -401,14 +406,15 @@
            STRING CHARCUR01 INS-NEIC DELIMITED BY SIZE
              INTO FILEOUT01
 
+           MOVE INS-NEIC TO WS-NEIC
+
            IF (INS-NEIC = "14165")
                WRITE FILEOUT201 FROM FILEOUT01
-           ELSE IF (INS-NEIC = "60054" OR "IHS24" OR "PAPER")
-               OR INS-ACC-TYPE NOT = SPACE
+           ELSE IF INS-OA-LOCAL OR INS-ACC-TYPE NOT = SPACE
                WRITE FILEOUT01 FROM FILEOUT01
            ELSE
                WRITE FILEOUT301 FROM FILEOUT01
-           END-IF
+           END-IF  
 
            GO TO A2.
 
