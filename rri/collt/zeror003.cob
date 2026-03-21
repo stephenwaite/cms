@@ -55,6 +55,8 @@
            READ FILEIN
                AT END
                    GO TO R99.
+           DISPLAY FI-GARNO " FI-GARNO"        
+           ACCEPT OMITTED
            MOVE 0 TO CLAIM-TOT.
            MOVE 0 TO WS-PAY-CNT.
       *    -- CONVERT MM/DD/YYYY TO YYYYMMDD --
