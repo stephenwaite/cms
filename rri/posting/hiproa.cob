@@ -815,7 +815,18 @@
            END-IF
 
            MOVE SPACE TO ALF8
-           MOVE SVC-3PAYAMT TO ALF8
+           IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
+               IF SVC-CNTR = 1
+                   MOVE CLP-4TOTCLMPAY TO ALF8
+               ELSE
+                   IF CLAIM-PAID NOT = 0
+                       PERFORM P1-LOST-SVC
+                       GO TO P5-SVC-LOOP-EXIT
+                   END-IF
+               END-IF
+           ELSE
+               MOVE SVC-3PAYAMT TO ALF8
+           END-IF    
 
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
@@ -1277,18 +1288,7 @@
            MOVE AMOUNT-X TO EF5
            ADD AMOUNT-X TO TOT-CHARGE
            MOVE SPACE TO ALF8
-           IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
-               IF SVC-CNTR = 1
-                   MOVE CLP-4TOTCLMPAY TO ALF8
-               ELSE
-                   IF CLAIM-PAID NOT = 0
-                       PERFORM P1-LOST-SVC
-                       GO TO P5-SVC-LOOP-EXIT
-                   END-IF
-               END-IF
-           ELSE
-               MOVE SVC-3PAYAMT TO ALF8
-           END-IF
+           MOVE SVC-3PAYAMT TO ALF8
 
            IF ALF8-1 = "-"
                MOVE "-" TO EFSIGN
