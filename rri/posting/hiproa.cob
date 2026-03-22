@@ -828,11 +828,28 @@
 
            IF PD-AMOUNT = 0
                IF CLP-2CLMSTAT = "2 "
+                   PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
+                       IF CAS-SVC(Z) = X
+                           MOVE SPACE TO CAS01
+                           MOVE CAS-TAB(Z) TO FILEIN01
+                           UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                               CAS-0 CAS-1 CAS-2 CAS-3 CAS-4 CAS-5
+                               CAS-6 CAS-7 CAS-8 CAS-9 CAS-10 CAS-11
+                               CAS-12 CAS-13 CAS-14 CAS-15 CAS-16
+                               CAS-17 CAS-18 CAS-19
+                           MOVE CAS-2 TO CAS-CODE-CHECK
+                           IF NOT INS-REDUCE-CODE
+                               MOVE CAS-5 TO CAS-CODE-CHECK
+                           END-IF
+                           IF NOT INS-REDUCE-CODE
+                               PERFORM P1-LOST-SVC
+                               GO TO P5-SVC-LOOP-EXIT
+                           END-IF
+                       END-IF
+                   END-PERFORM
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
                MOVE 0 TO FLAG
-      *         DISPLAY "PAID AMOUNT IS ZERO " PD-AMOUNT " DUMP-50 NEXT"
-      *         ACCEPT OMITTED
                PERFORM DUMP50
                IF FLAG = 1
                    PERFORM P1-LOST-SVC
@@ -1279,7 +1296,18 @@
            MOVE AMOUNT-X TO EF5
            ADD AMOUNT-X TO TOT-CHARGE
            MOVE SPACE TO ALF8
-           MOVE SVC-3PAYAMT TO ALF8
+           IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
+               IF SVC-CNTR = 1
+                   MOVE CLP-4TOTCLMPAY TO ALF8
+               ELSE
+                   IF CLAIM-PAID NOT = 0
+                       PERFORM P1-LOST-SVC
+                       GO TO P5-SVC-LOOP-EXIT
+                   END-IF
+               END-IF
+           ELSE
+               MOVE SVC-3PAYAMT TO ALF8
+           END-IF
 
            IF ALF8-1 = "-"
                MOVE "-" TO EFSIGN
