@@ -880,6 +880,9 @@
            MOVE CC-PAYCODE TO PD-PAYCODE
            IF PD-PAYCODE = "001"
                MOVE "076" TO PD-PAYCODE
+           END-IF
+           IF PAYORID = "43700"
+               MOVE "075" TO PD-PAYCODE
            END-IF.
 
        P7-NEXT.
