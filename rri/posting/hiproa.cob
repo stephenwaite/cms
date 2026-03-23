@@ -860,6 +860,7 @@
 
            MOVE CC-PAYCODE TO PD-PAYCODE
            IF PD-PAYCODE = "001" AND G-PRINS = "003"
+               AND CLP-2CLMSTAT = "2 "
                MOVE "076" TO PD-PAYCODE
            END-IF
            IF PAYORID = "43700"
