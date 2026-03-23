@@ -545,18 +545,10 @@
                MOVE 1 TO PROV-FLAG
            END-IF
 
-      *    FOR HEALTHEQUITY EFT 835s
-      *     DISPLAY "EQUITY-ID " EQUITY-ID " PERM-ID " PERM-ID " PF-1 "
-      *              PF-1
-      *              ACCEPT OMITTED
-
            IF ((EQUITY-ID = "411410766")
                AND (PERM-ID = PF-1))
                MOVE 0 TO PROV-FLAG
            END-IF
-
-      *     display FILEIN01
-      *     accept omitted
 
            IF (PROV-FLAG = 1)
                GO TO P00
@@ -757,8 +749,6 @@
                BY 1 UNTIL X > SVC-CNTR
 
            IF FIND-CNTR = SVC-CNTR
-      *         DISPLAY "GOING TO P4-SVC-LOOP"
-      *         ACCEPT OMITTED
                GO TO P4-SVC-LOOP
            END-IF.
 
@@ -782,8 +772,6 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.
-      *     DISPLAY "CLMSTAT=[" CLP-2CLMSTAT "]"
-      *     ACCEPT OMITTED
            IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
                                OR "20" OR "21")
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
@@ -815,9 +803,7 @@
            END-IF
 
            MOVE SPACE TO ALF8
-           DISPLAY "PAYORID=[" PAYORID "] CLMSTAT=[" CLP-2CLMSTAT
-               "] SVC-CNTR=[" SVC-CNTR "] CLAIM-PAID=[" CLAIM-PAID "]"
-           ACCEPT OMITTED
+       
            IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
                IF SVC-CNTR = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
@@ -829,9 +815,6 @@
                END-IF
            ELSE IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
                IF SVC-CNTR = 1
-                   DISPLAY "GOING TO 43700 BRANCH CLP-4=[" 
-                       CLP-4TOTCLMPAY "]"
-                   ACCEPT OMITTED
                    MOVE CLP-4TOTCLMPAY TO ALF8
                ELSE 
                    PERFORM P1-LOST-SVC
@@ -840,8 +823,6 @@
            ELSE
                MOVE SVC-3PAYAMT TO ALF8
            END-IF
-           DISPLAY "ALF8=[" ALF8 "]"
-           ACCEPT OMITTED
 
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
@@ -909,10 +890,6 @@
                END-IF
            END-PERFORM
 
-      *     DISPLAY "CC-PAYCODE=[" CC-PAYCODE "] G-PRINS=[" G-PRINS
-      *         "] G-SEINS=[" G-SEINS "] G-TRINS=[" G-TRINS "]"
-      *     ACCEPT OMITTED
-
            IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS
                     OR "075")
                PERFORM P1-LOST-SVC
@@ -932,10 +909,6 @@
            END-IF
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
-
-      *     DISPLAY CLAIM-TOT " CLAIM-TOT " CC-AMOUNT " CC-AMOUNT "
-      *       PD-AMOUNT " PD-AMOUNT"
-      *     ACCEPT OMITTED
 
            PERFORM S4 THRU S5
 
@@ -1084,9 +1057,6 @@
 
            COMPUTE CLAIM-TOT = CC-AMOUNT - INS-REDUCE
 
-      *     display claim-tot " claim-tot " ins-reduce " ins-reduce"
-      *     accept omitted
-
            IF CLAIM-TOT = 0
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
@@ -1095,9 +1065,6 @@
            IF INS-REDUCE NOT = 0
                COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT - INS-REDUCE
                PERFORM S4 THRU S5
-
-      *         DISPLAY CLAIM-TOT " CLAIM-TOT"
-      *         ACCEPT OMITTED
 
                IF CLAIM-TOT < 0
                    PERFORM P1-LOST-SVC
@@ -1606,8 +1573,6 @@
        LOOK-CHG.
            MOVE SPACE TO SVC01 FILEIN01
            MOVE SVC-TAB(X) TO FILEIN01
-      *    display filein01
-      *    accept omitted
 
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
                SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC
@@ -1700,14 +1665,6 @@
 
            ADD 1 TO FIND-CNTR
            MOVE CHARCUR-KEY TO FOUND-KEY(X).
-
-      *     DISPLAY CHARCUR-KEY
-      *     ACCEPT OMITTED.
-
-      *     MOVE CC-AMOUNT TO TOT-CLAIM
-      *     PERFORM DMP4 THRU DMP5
-      *     MOVE TOT-CLAIM TO BAL-TAB(X)
-      *     ADD TOT-CLAIM TO TOT-TOT.
 
        LOOK-CHG-EXIT.
            EXIT.
