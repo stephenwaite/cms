@@ -828,10 +828,15 @@
                    END-IF
                END-IF
            ELSE IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
-               DISPLAY "GOING TO 43700 BRANCH CLP-4=[" 
-                   CLP-4TOTCLMPAY "]"
-               ACCEPT OMITTED
-               MOVE CLP-4TOTCLMPAY TO ALF8
+               IF SVC-CNTR = 1
+                   DISPLAY "GOING TO 43700 BRANCH CLP-4=[" 
+                       CLP-4TOTCLMPAY "]"
+                   ACCEPT OMITTED
+                   MOVE CLP-4TOTCLMPAY TO ALF8
+               ELSE 
+                   PERFORM P1-LOST-SVC
+                   GO TO P5-SVC-LOOP-EXIT
+               END-IF
            ELSE
                MOVE SVC-3PAYAMT TO ALF8
            END-IF
