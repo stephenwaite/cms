@@ -824,6 +824,8 @@
                        GO TO P5-SVC-LOOP-EXIT
                    END-IF
                END-IF
+           ELSE IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
+               MOVE CLP-4TOTCLMPAY TO ALF8
            ELSE
                MOVE SVC-3PAYAMT TO ALF8
            END-IF    
