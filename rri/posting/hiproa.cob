@@ -859,7 +859,7 @@
            MOVE G-GARNAME TO PD-NAME
 
            MOVE CC-PAYCODE TO PD-PAYCODE
-           IF PD-PAYCODE = "001"
+           IF PD-PAYCODE = "001" AND G-PRINS = "003"
                MOVE "076" TO PD-PAYCODE
            END-IF
            IF PAYORID = "43700"
@@ -891,7 +891,7 @@
            END-PERFORM
 
            IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS
-                    OR "075")
+                    OR "075" OR "076")
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
