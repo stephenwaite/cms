@@ -828,7 +828,8 @@
                    END-IF
                END-IF
            ELSE IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
-               DISPLAY "GOING TO 43700 BRANCH CLP-4=[" CLP-4TOTCLMPAY "]"
+               DISPLAY "GOING TO 43700 BRANCH CLP-4=[" 
+                   CLP-4TOTCLMPAY "]"
                ACCEPT OMITTED
                MOVE CLP-4TOTCLMPAY TO ALF8
            ELSE
