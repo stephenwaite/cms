@@ -865,6 +865,9 @@
            END-IF
            IF PAYORID = "43700"
                MOVE "075" TO PD-PAYCODE
+           END-IF
+           IF PAYORID = "VACCN"
+               MOVE "225" TO PD-PAYCODE
            END-IF.
 
        P7-NEXT.
@@ -892,7 +895,7 @@
            END-PERFORM
 
            IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS
-                    OR "075" OR "076")
+                    OR "075" OR "076" OR "225")
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
