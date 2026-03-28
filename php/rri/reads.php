@@ -100,6 +100,8 @@ $filename = getenv('HOME') . "/W2" . getenv('tid') . $cms_user;
 $file = file_get_contents($filename);
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
+$rri_cpt = substr($file, 34, 5);
+echo $rri_cpt . "\n";
 if (substr($visit_no, 0, 1) == '0') {
     $visit_no = "1" . $visit_no;
 }
