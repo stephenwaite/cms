@@ -170,9 +170,10 @@ if (!empty($jsonObj['entry'])) {
         $interp = $entry['resource']['note'][0]['text'];
         $lung_findings = getQualifyingLungFindings($interp);
         if (str_contains($coding_display, $rri_cpt)) {
-    echo "Send to Claude for ICD-10 suggestions? (y or Y) ";
-    flush();
-    $line = strtoupper(readline());
+    $tty = fopen('/dev/tty', 'r+');
+    fwrite($tty, "Send to Claude for ICD-10 suggestions? (y or Y) ");
+    $line = strtoupper(trim(fgets($tty)));
+    fclose($tty);
     if (str_contains($line, 'Y')) {
         $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
         foreach ($icd10_suggestions as $s) {
