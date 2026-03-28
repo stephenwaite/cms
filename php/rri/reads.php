@@ -169,11 +169,13 @@ if (!empty($jsonObj['entry'])) {
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
         $interp = $entry['resource']['note'][0]['text'];
         $lung_findings = getQualifyingLungFindings($interp);
-        $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
-        foreach ($icd10_suggestions as $s) {
-            echo sprintf("[%s] %s (%s) — %s\n",
-                $s['confidence'], $s['code'], $s['description'], $s['rationale']
-            );
+        if (str_contains($coding_display, $rri_cpt)) {
+            $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
+            foreach ($icd10_suggestions as $s) {
+                echo sprintf("[%s] %s (%s) — %s\n",
+                    $s['confidence'], $s['code'], $s['description'], $s['rationale']
+                );
+            }
         }
         /* if ($cpt = isQualifyingCtCpt($coding_display)) {
             $nodule     = $lung_findings['pulmonary_nodule'];
