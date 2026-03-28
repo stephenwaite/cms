@@ -53,6 +53,49 @@ function getQualifyingLungFindings(string $note): array
     ];
 }
 
+function suggestIcd10Codes(Client $guzzle, string $interp, string $coding_display): array
+{
+    $system = <<<PROMPT
+You are a radiology ICD-10-CM coding assistant. Given a radiology interpretation and the 
+procedure performed, return a JSON array of suggested diagnosis codes.
+
+For each code include:
+- code: ICD-10-CM code
+- description: full code description
+- confidence: high/medium/low
+- rationale: one sentence citing the specific finding
+
+Rules:
+- Rank by clinical significance, most significant first
+- Prefer specific codes over unspecified when the text supports it
+- Do not code clinical indications unless confirmed as findings
+- Return ONLY a valid JSON array. No preamble, no markdown, no backticks.
+PROMPT;
+
+    $user_message = "Procedure: {$coding_display}\n\nInterpretation:\n{$interp}";
+
+    $response = $guzzle->post('https://api.anthropic.com/v1/messages', [
+        'headers' => [
+            'x-api-key'         => getenv('ANTHROPIC_API_KEY'),
+            'anthropic-version' => '2023-06-01',
+            'Content-Type'      => 'application/json',
+        ],
+        'json' => [
+            'model'      => 'claude-sonnet-4-20250514',
+            'max_tokens' => 1024,
+            'system'     => $system,
+            'messages'   => [
+                ['role' => 'user', 'content' => $user_message]
+            ],
+        ],
+    ]);
+
+    $body = json_decode((string) $response->getBody(), true);
+    $raw  = $body['content'][0]['text'] ?? '[]';
+
+    return json_decode($raw, true) ?? [];
+}
+
 $filename = getenv('HOME') . "/W2" . getenv('tid') . $cms_user;
 $file = file_get_contents($filename);
 $mrn = ltrim(substr($file, 0, 8), '0');
@@ -122,6 +165,7 @@ if (!empty($jsonObj['entry'])) {
     foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
+        echo $coding_display . "\n";
         $interp = $entry['resource']['note'][0]['text'];
         $lung_findings = getQualifyingLungFindings($interp);
         /* if ($cpt = isQualifyingCtCpt($coding_display)) {
