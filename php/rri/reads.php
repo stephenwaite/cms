@@ -170,11 +170,14 @@ if (!empty($jsonObj['entry'])) {
         $interp = $entry['resource']['note'][0]['text'];
         $lung_findings = getQualifyingLungFindings($interp);
         if (str_contains($coding_display, $rri_cpt)) {
-            $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
-            foreach ($icd10_suggestions as $s) {
-                echo sprintf("[%s] %s (%s) — %s\n",
-                    $s['confidence'], $s['code'], $s['description'], $s['rationale']
-                );
+            $line = strtoupper(readline("Send to Claude for ICD-10 suggestions? (y or Y) "));
+            if (str_contains($line, 'Y')) {
+                $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
+                foreach ($icd10_suggestions as $s) {
+                    echo sprintf("[%s] %s (%s) — %s\n",
+                        $s['confidence'], $s['code'], $s['description'], $s['rationale']
+                    );
+                }
             }
         }
         /* if ($cpt = isQualifyingCtCpt($coding_display)) {
