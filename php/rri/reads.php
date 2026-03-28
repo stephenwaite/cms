@@ -61,9 +61,8 @@ procedure performed, return a JSON array of suggested diagnosis codes.
 
 For each code include:
 - code: ICD-10-CM code
-- description: full code description
-- confidence: high/medium/low
-- rationale: one sentence citing the specific finding
+- short_description: brief code description (5 words or less)
+- snippet: the exact phrase or sentence from the interpretation that justifies this code
 
 Rules:
 - Rank by clinical significance, most significant first
@@ -177,10 +176,10 @@ if (!empty($jsonObj['entry'])) {
     if (str_contains($line, 'Y')) {
         $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
         foreach ($icd10_suggestions as $s) {
-            echo sprintf("[%s] %s (%s) — %s\n",
-                $s['confidence'], $s['code'], $s['description'], $s['rationale']
-            );
-        }
+    echo sprintf("[%s] %s — \"%s\"\n",
+        $s['code'], $s['short_description'], $s['snippet']
+    );
+}
     }
 }
         /* if ($cpt = isQualifyingCtCpt($coding_display)) {
