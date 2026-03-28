@@ -72,7 +72,7 @@ Rules:
 - Return ONLY a valid JSON array. No preamble, no markdown, no backticks.
 PROMPT;
 
-    $user_message = "Procedure: {$coding_display}\n\nInterpretation:\n{$interp}";
+    $user_message = "Procedure: {$cpt}\n\nInterpretation:\n{$interp}";
 
     $response = $guzzle->post('https://api.anthropic.com/v1/messages', [
         'headers' => [
