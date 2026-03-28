@@ -53,7 +53,7 @@ function getQualifyingLungFindings(string $note): array
     ];
 }
 
-function suggestIcd10Codes(Client $guzzle, string $interp, string $coding_display): array
+function suggestIcd10Codes(Client $guzzle, string $interp, string $cpt): array
 {
     $system = <<<PROMPT
 You are a radiology ICD-10-CM coding assistant. Given a radiology interpretation and the 
@@ -101,7 +101,7 @@ $file = file_get_contents($filename);
 $mrn = ltrim(substr($file, 0, 8), '0');
 $visit_no = substr($file, 8, 7);
 $rri_cpt = substr($file, 34, 5);
-echo $rri_cpt . "\n";
+//echo $rri_cpt . "\n";
 if (substr($visit_no, 0, 1) == '0') {
     $visit_no = "1" . $visit_no;
 }
@@ -169,6 +169,12 @@ if (!empty($jsonObj['entry'])) {
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
         $interp = $entry['resource']['note'][0]['text'];
         $lung_findings = getQualifyingLungFindings($interp);
+        $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
+        foreach ($icd10_suggestions as $s) {
+            echo sprintf("[%s] %s (%s) — %s\n",
+                $s['confidence'], $s['code'], $s['description'], $s['rationale']
+            );
+        }
         /* if ($cpt = isQualifyingCtCpt($coding_display)) {
             $nodule     = $lung_findings['pulmonary_nodule'];
             $guidelines = $lung_findings['includes_guidelines'];
