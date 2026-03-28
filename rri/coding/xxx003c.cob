@@ -1387,7 +1387,7 @@
       *----------------------------------------------------------------
        10-GR.
            MOVE SPACE TO FILEOUT201
-           STRING G-ACCT CD-VISITNO CHARNEW-KEY CD-DATE-T
+           STRING G-ACCT CD-VISITNO CHARNEW-KEY CD-DATE-T CD-CPT
                   DELIMITED BY SIZE INTO FILEOUT201
            WRITE FILEOUT201.
            CLOSE FILEOUT2
