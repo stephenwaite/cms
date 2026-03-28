@@ -165,7 +165,6 @@ if (!empty($jsonObj['entry'])) {
     foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
-        echo $coding_display . "\n";
         $interp = $entry['resource']['note'][0]['text'];
         $lung_findings = getQualifyingLungFindings($interp);
         /* if ($cpt = isQualifyingCtCpt($coding_display)) {
