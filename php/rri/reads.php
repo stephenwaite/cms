@@ -10,6 +10,7 @@ $cms_user = getenv('USER');
 
 // first remove tmp courier cached file in case some other script put it there
 $context = $argv[1] ?? null;
+$ask_claude = strtoupper($argv[1] ?? '') === 'Y';
 if (!empty($context) && $context == 'pdf') {
     // create temp dir for cached courier font
     $tmp_dir = '/tmp/reads' . $cms_user;
@@ -208,11 +209,7 @@ if (!empty($jsonObj['entry'])) {
             }
         } else {
             echo $note . "\n";
-            $tty = fopen('/dev/tty', 'r+');
-            fwrite($tty, "Send to Claude for ICD-10 suggestions? (y or Y) ");
-            $line = strtoupper(trim(fgets($tty)));
-            fclose($tty);
-            if (str_contains($line, 'Y')) {
+            if ($ask_claude) {
                 $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
                 foreach ($icd10_suggestions as $s) {
                     echo sprintf(
