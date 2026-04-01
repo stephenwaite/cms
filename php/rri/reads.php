@@ -58,12 +58,10 @@ function suggestIcd10Codes(Client $guzzle, string $interp, string $cpt): array
     $system = <<<PROMPT
 You are a radiology ICD-10-CM coding assistant. Given a radiology interpretation and the 
 procedure performed, return a JSON array of suggested diagnosis codes.
-
 For each code include:
 - code: ICD-10-CM code
 - short_description: brief code description (5 words or less)
 - snippet: the exact phrase or sentence from the interpretation that justifies this code
-
 Rules:
 - Rank by clinical significance, most significant first
 - Prefer specific codes over unspecified when the text supports it
@@ -71,28 +69,39 @@ Rules:
 - Return ONLY a valid JSON array. No preamble, no markdown, no backticks.
 PROMPT;
 
-    $user_message = "Procedure: {$cpt}\n\nInterpretation:\n{$interp}";
+    $user_message = "CPT: {$cpt}\n\nInterpretation:\n{$interp}";
 
-    $response = $guzzle->post('https://api.anthropic.com/v1/messages', [
-        'headers' => [
-            'x-api-key'         => getenv('ANTHROPIC_API_KEY'),
-            'anthropic-version' => '2023-06-01',
-            'Content-Type'      => 'application/json',
-        ],
-        'json' => [
-            'model'      => 'claude-sonnet-4-20250514',
-            'max_tokens' => 1024,
-            'system'     => $system,
-            'messages'   => [
-                ['role' => 'user', 'content' => $user_message]
+    try {
+        $response = $guzzle->post('https://api.anthropic.com/v1/messages', [
+            'headers' => [
+                'x-api-key'         => getenv('ANTHROPIC_API_KEY'),
+                'anthropic-version' => '2023-06-01',
+                'Content-Type'      => 'application/json',
             ],
-        ],
-    ]);
+            'timeout'         => 30,
+            'connect_timeout' => 10,
+            'json' => [
+                'model'      => 'claude-sonnet-4-20250514',
+                'max_tokens' => 1024,
+                'system'     => $system,
+                'messages'   => [
+                    ['role' => 'user', 'content' => $user_message]
+                ],
+            ],
+        ]);
 
-    $body = json_decode((string) $response->getBody(), true);
-    $raw  = $body['content'][0]['text'] ?? '[]';
+        $body = json_decode((string) $response->getBody(), true);
+        $raw  = $body['content'][0]['text'] ?? '[]';
+        return json_decode($raw, true) ?? [];
+    } catch (\GuzzleHttp\Exception\ConnectException $e) {
+        echo "Claude unavailable (connection timeout) \n";
+    } catch (\GuzzleHttp\Exception\RequestException $e) {
+        echo "Claude request failed: " . $e->getMessage() . " \n";
+    } catch (\Exception $e) {
+        echo "Claude error: " . $e->getMessage() . " \n";
+    }
 
-    return json_decode($raw, true) ?? [];
+    return [];
 }
 
 $filename = getenv('HOME') . "/W2" . getenv('tid') . $cms_user;
@@ -167,41 +176,11 @@ if (!empty($jsonObj['entry'])) {
         $cntr++;
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
         $interp = $entry['resource']['note'][0]['text'];
-        $lung_findings = getQualifyingLungFindings($interp);
-        if (str_contains($coding_display, $rri_cpt)) {
-    $tty = fopen('/dev/tty', 'r+');
-    fwrite($tty, "Send to Claude for ICD-10 suggestions? (y or Y  <Enter>) ");
-    $line = strtoupper(trim(fgets($tty)));
-    fclose($tty);
-    if (str_contains($line, 'Y')) {
-        $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
-        foreach ($icd10_suggestions as $s) {
-    echo sprintf("[%s] %s — \"%s\"\n",
-        $s['code'], $s['short_description'], $s['snippet']
-    );
-}
-    }
-}
-        /* if ($cpt = isQualifyingCtCpt($coding_display)) {
-            $nodule     = $lung_findings['pulmonary_nodule'];
-            $guidelines = $lung_findings['includes_guidelines'];
-
-            if ($nodule && $guidelines) {
-                echo "\n*** Pulmonary nodule and Fleischner guidelines mentioned for {$cpt} ***\n";
-                readline("Press ENTER to continue...");
-            } elseif ($nodule && !$guidelines) {
-                echo "\n*** ALERT: Pulmonary nodule but NO Fleischner guidelines mentioned: {$cpt} ***\n";
-                readline("Press ENTER to continue...");
-            } elseif (!$nodule && $guidelines) {
-                echo "\n*** NOTE: Fleischner guidelines mentioned but no pulmonary nodule: {$cpt} ***\n";
-                readline("Press ENTER to continue...");
-            }
-        } */
         $coding_display_length = strlen($coding_display);
         $pt_name_text_length = strlen($pt_name_text);
         if ($coding_display_length > 15 || $pt_name_text_length > 15) {
             $banner_length = ($coding_display_length > $pt_name_text_length) ?
-                $coding_display_length : $pt_name_text_length;
+            $coding_display_length : $pt_name_text_length;
         } else {
             $banner_length = 15;
         }
@@ -229,6 +208,21 @@ if (!empty($jsonObj['entry'])) {
             }
         } else {
             echo $note . "\n";
+            $tty = fopen('/dev/tty', 'r+');
+            fwrite($tty, "Send to Claude for ICD-10 suggestions? (y or Y) ");
+            $line = strtoupper(trim(fgets($tty)));
+            fclose($tty);
+            if (str_contains($line, 'Y')) {
+                $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
+                foreach ($icd10_suggestions as $s) {
+                    echo sprintf(
+                        "[%s] %s — \"%s\"\n",
+                        $s['code'],
+                        $s['short_description'],
+                        $s['snippet']
+                    );
+                }
+            }
         }
     }
 } else {
