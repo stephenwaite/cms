@@ -70,7 +70,8 @@ Rules:
 - Return ONLY a valid JSON array. No preamble, no markdown, no backticks.
 PROMPT;
 
-    $user_message = "CPT: {$cpt}\n\nInterpretation:\n{$interp}";
+    $clean_interp = preg_replace('/(Please note:|Electronically Signed by:).*$/si', '', $interp);
+    $user_message = "CPT: {$cpt}\n\nInterpretation:\n{$clean_interp}";
 
     try {
         $response = $guzzle->post('https://api.anthropic.com/v1/messages', [
