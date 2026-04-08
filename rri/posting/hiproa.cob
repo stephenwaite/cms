@@ -388,7 +388,7 @@
            88 DUMP50-PI-CODE VALUE "5    " "11   " "96   " "97   "
                "149  " "234  " "P4   ".
            88 DUMP50-PR-CODE VALUE "16   " "26   " "27   " "31   "
-               "35   " "96   " "151  " "243  ".
+               "35   " "96   " "151  " "227  " "243  ".
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE
