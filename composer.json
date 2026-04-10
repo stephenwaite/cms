@@ -4,7 +4,7 @@
         "rospdf/pdf-php": "^0.12.63",
         "smalot/pdfparser": "^2.5",
         "guzzlehttp/guzzle": "7.5.0",
-        "phpseclib/phpseclib": "3.0.50",
+        "phpseclib/phpseclib": "3.0.51",
         "phpoffice/phpspreadsheet": "5.2.0"
     }
 }
