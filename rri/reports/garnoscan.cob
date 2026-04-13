@@ -33,6 +33,7 @@
        WORKING-STORAGE SECTION.
 
        01 WS-FS                PIC XX.
+       01 WS-EOF               PIC 9 VALUE 0.
 
       * Garno key breakdown
        01 WS-GARNO-PARTS.
@@ -150,21 +151,20 @@
            STOP RUN.
 
        READ-ALL-RECORDS.
-           READ GARFILE
-               AT END GO TO READ-ALL-EXIT
+           MOVE 0 TO WS-EOF
+           READ GARFILE NEXT
+               AT END MOVE 1 TO WS-EOF
            END-READ
-           PERFORM UNTIL WS-FS NOT = "00"
+           PERFORM UNTIL WS-EOF = 1
                ADD 1 TO WS-TOTAL-RECS
                MOVE G-GARNO TO WS-GARNO-PARTS
-
       * Only process garnos ending in "G"
                IF WS-SUFFIX = "G"
                    ADD 1 TO WS-GARNO-RECS
                    PERFORM PROCESS-GARNO
                END-IF
-
-               READ GARFILE
-                   AT END EXIT PERFORM
+               READ GARFILE NEXT
+                   AT END MOVE 1 TO WS-EOF
                END-READ
            END-PERFORM.
        READ-ALL-EXIT.
