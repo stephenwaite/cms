@@ -1,4 +1,4 @@
-IDENTIFICATION DIVISION.
+       IDENTIFICATION DIVISION.
        PROGRAM-ID. GARNOSCAN.
       *================================================================
       * GARNO CAPACITY SCANNER - REVISED
