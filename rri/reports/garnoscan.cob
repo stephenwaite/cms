@@ -24,12 +24,8 @@
        DATA DIVISION.
        FILE SECTION.
 
-       FD GARFILE.
-       01 GARFILE-REC.
-           03 G-GARNO          PIC X(8).
-           03 G-GARNAME         PIC X(24).
-           03 FILLER            PIC X(283).
-      * Adjust record size above to match your actual GARFILE layout
+       FD  GARFILE.
+           COPY garfile.CPY.    
 
        FD RPTFILE.
        01 RPT-REC              PIC X(132).
