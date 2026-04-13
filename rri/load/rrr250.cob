@@ -369,13 +369,13 @@
            MOVE SPACE TO CD-MOD2 CD-MOD3 CD-MOD4 CD-QP1 CD-QP2 CD-QP3.
            
            MOVE G-PRINS TO CD-PAYCODE
-           MOVE "0" TO CD-STAT
+           MOVE "0" TO CD-REC-STAT
            MOVE "01" TO CD-WORK
            MOVE "1" TO CD-RESULT
            MOVE "4" TO CD-ACT
            MOVE "2" TO CD-SORCREF
            MOVE "0" TO CD-COLLT
-           MOVE "0" TO CD-AGE
+           MOVE "0" TO CD-AUTH
            MOVE G-GARNAME TO CD-NAME
            MOVE "0" TO CD-EPSDT
            MOVE "00000000" TO CD-DATE-A
