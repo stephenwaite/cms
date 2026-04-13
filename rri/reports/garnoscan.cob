@@ -1,52 +1,38 @@
-       IDENTIFICATION DIVISION.
-       PROGRAM-ID. garnoscan.
+IDENTIFICATION DIVISION.
+       PROGRAM-ID. GARNOSCAN.
       *================================================================
-      * GARNO CAPACITY SCANNER
-      * Reads GARFILE sequentially and reports on garno prefix usage.
-      * For each 3-letter prefix, shows:
-      *   - Count of garnos allocated
-      *   - Highest NUM-3 value seen (positions 4-6 of key)
-      *   - Remaining capacity before overflow
-      *   - Percent consumed (from that prefix's starting day)
+      * GARNO CAPACITY SCANNER - REVISED
+      * Excludes 9999G rename artifacts to show true organic frontier.
+      * Reports real remaining capacity per prefix.
       *================================================================
-
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-           SELECT GARFILE ASSIGN TO "S35" ORGANIZATION IS INDEXED
-             ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
-             ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
-             LOCK MODE MANUAL.
-
+           SELECT GARFILE ASSIGN TO "S35"
+               ORGANIZATION IS INDEXED
+               ACCESS MODE IS DYNAMIC
+               RECORD KEY IS G-GARNO
+               ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES
+               LOCK MODE MANUAL.
            SELECT RPTFILE ASSIGN TO "GARNOSCAN.RPT"
                ORGANIZATION IS LINE SEQUENTIAL.
-
        DATA DIVISION.
        FILE SECTION.
-
        FD  GARFILE.
-           COPY garfile.CPY.    
-
+           COPY garfile.CPY.
        FD RPTFILE.
        01 RPT-REC              PIC X(132).
-
        WORKING-STORAGE SECTION.
-
-       01 WS-FS                PIC XX.
        01 WS-EOF               PIC 9 VALUE 0.
-
       * Garno key breakdown
        01 WS-GARNO-PARTS.
            03 WS-PREFIX         PIC X(3).
            03 WS-NUM3           PIC X(3).
            03 WS-XYZ            PIC X.
            03 WS-SUFFIX         PIC X.
-
       * Table to accumulate stats per prefix
-      * Adjust max entries if you have more than 500 unique prefixes
-       01 WS-MAX-PREFIXES      PIC 9(4) VALUE 2000.
-       01 WS-PREFIX-COUNT       PIC 9(4) VALUE 0.
-
+       01 WS-MAX-PREFIXES      PIC 9(4) VALUE 4000.
+       01 WS-PREFIX-COUNT      PIC 9(4) VALUE 0.
        01 WS-PREFIX-TABLE.
            03 WS-ENTRY OCCURS 4000 TIMES.
                05 WT-PREFIX     PIC X(3).
@@ -54,17 +40,18 @@
                05 WT-MIN-NUM3   PIC 9(3) VALUE 999.
                05 WT-MAX-NUM3   PIC 9(3) VALUE 0.
                05 WT-MAX-XYZ    PIC 9   VALUE 0.
-
+               05 WT-9999-CT    PIC 9(3) VALUE 0.
        01 WS-IDX               PIC 9(4).
        01 WS-FOUND             PIC 9 VALUE 0.
        01 WS-NUM3-NUM          PIC 9(3).
        01 WS-XYZ-NUM           PIC 9.
        01 WS-TOTAL-RECS        PIC 9(7) VALUE 0.
        01 WS-GARNO-RECS        PIC 9(7) VALUE 0.
+       01 WS-9999-RECS         PIC 9(5) VALUE 0.
        01 WS-REMAINING         PIC 9(5).
        01 WS-CAPACITY          PIC 9(5).
        01 WS-PCT               PIC 9(3).
-
+       01 WS-IS-9999           PIC 9 VALUE 0.
       * Sort work fields
        01 WS-I                 PIC 9(4).
        01 WS-J                 PIC 9(4).
@@ -74,28 +61,29 @@
            03 SW-MIN-NUM3       PIC 9(3).
            03 SW-MAX-NUM3       PIC 9(3).
            03 SW-MAX-XYZ        PIC 9.
-
+           03 SW-9999-CT        PIC 9(3).
       * Report lines
        01 RPT-HEADER1.
-           03 FILLER PIC X(50) VALUE
-              "GARNO PREFIX CAPACITY REPORT".
+           03 FILLER PIC X(60) VALUE
+              "GARNO PREFIX CAPACITY REPORT (EXCLUDING 9999G RENAMES)".
        01 RPT-HEADER2.
            03 FILLER PIC X(132) VALUE ALL "-".
        01 RPT-HEADER3.
-           03 FILLER PIC X(8) VALUE "PREFIX".
-           03 FILLER PIC X(3) VALUE SPACES.
-           03 FILLER PIC X(7) VALUE "COUNT".
-           03 FILLER PIC X(3) VALUE SPACES.
-           03 FILLER PIC X(9) VALUE "LOW-DAY".
-           03 FILLER PIC X(3) VALUE SPACES.
+           03 FILLER PIC X(8)  VALUE "PREFIX".
+           03 FILLER PIC X(3)  VALUE SPACES.
+           03 FILLER PIC X(7)  VALUE "COUNT".
+           03 FILLER PIC X(3)  VALUE SPACES.
+           03 FILLER PIC X(9)  VALUE "LOW-DAY".
+           03 FILLER PIC X(3)  VALUE SPACES.
            03 FILLER PIC X(10) VALUE "HIGH-DAY".
-           03 FILLER PIC X(3) VALUE SPACES.
-           03 FILLER PIC X(7) VALUE "HI-XYZ".
-           03 FILLER PIC X(3) VALUE SPACES.
+           03 FILLER PIC X(3)  VALUE SPACES.
+           03 FILLER PIC X(7)  VALUE "HI-XYZ".
+           03 FILLER PIC X(3)  VALUE SPACES.
            03 FILLER PIC X(11) VALUE "REMAINING".
-           03 FILLER PIC X(3) VALUE SPACES.
-           03 FILLER PIC X(7) VALUE "PCT".
-
+           03 FILLER PIC X(3)  VALUE SPACES.
+           03 FILLER PIC X(5)  VALUE "PCT".
+           03 FILLER PIC X(3)  VALUE SPACES.
+           03 FILLER PIC X(6)  VALUE "9999s".
        01 RPT-DETAIL.
            03 RD-PREFIX         PIC X(3).
            03 FILLER            PIC X(8) VALUE SPACES.
@@ -110,8 +98,9 @@
            03 RD-REMAINING      PIC Z(4)9.
            03 FILLER            PIC X(5) VALUE SPACES.
            03 RD-PCT            PIC ZZ9.
-           03 FILLER            PIC X VALUE "%".
-
+           03 FILLER            PIC X    VALUE "%".
+           03 FILLER            PIC X(4) VALUE SPACES.
+           03 RD-9999           PIC ZZ9.
        01 RPT-SUMMARY.
            03 FILLER PIC X(30) VALUE
               "TOTAL RECORDS READ:       ".
@@ -122,34 +111,32 @@
            03 RS-GARNO          PIC Z(6)9.
        01 RPT-SUMMARY3.
            03 FILLER PIC X(30) VALUE
+              "9999G RENAME ARTIFACTS:    ".
+           03 RS-9999           PIC Z(6)9.
+       01 RPT-SUMMARY4.
+           03 FILLER PIC X(30) VALUE
               "UNIQUE PREFIXES:           ".
            03 RS-PREFIXES       PIC Z(6)9.
-
        01 RPT-WARNING.
            03 FILLER PIC X(4) VALUE "*** ".
            03 RW-PREFIX         PIC X(3).
-           03 FILLER PIC X(35) VALUE
-              " - HIGH-DAY ABOVE 900 - NEAR LIMIT".
-
+           03 FILLER PIC X(45) VALUE
+              " - HIGH-DAY ABOVE 900 (ORGANIC) - NEAR LIMIT".
        PROCEDURE DIVISION.
        MAIN-PARA.
            OPEN INPUT GARFILE
-
            OPEN OUTPUT RPTFILE
-
            PERFORM READ-ALL-RECORDS
            PERFORM SORT-BY-REMAINING
            PERFORM WRITE-REPORT
-
            CLOSE GARFILE
            CLOSE RPTFILE
-
            DISPLAY "SCAN COMPLETE. SEE GARNOSCAN.RPT"
            DISPLAY "TOTAL RECORDS: " WS-TOTAL-RECS
            DISPLAY "GARNO RECORDS: " WS-GARNO-RECS
+           DISPLAY "9999G RENAMES: " WS-9999-RECS
            DISPLAY "UNIQUE PREFIXES: " WS-PREFIX-COUNT
            STOP RUN.
-
        READ-ALL-RECORDS.
            MOVE 0 TO WS-EOF
            READ GARFILE NEXT
@@ -169,21 +156,24 @@
            END-PERFORM.
        READ-ALL-EXIT.
            EXIT.
-
        PROCESS-GARNO.
+      * Check if this is a 9999G rename artifact
+           MOVE 0 TO WS-IS-9999
+           IF WS-NUM3 = "999" AND WS-XYZ = "9"
+               MOVE 1 TO WS-IS-9999
+               ADD 1 TO WS-9999-RECS
+           END-IF
       * Validate NUM-3 is numeric
            IF WS-NUM3 IS NUMERIC
                MOVE WS-NUM3 TO WS-NUM3-NUM
            ELSE
                EXIT PARAGRAPH
            END-IF
-
            IF WS-XYZ IS NUMERIC
                MOVE WS-XYZ TO WS-XYZ-NUM
            ELSE
                MOVE 0 TO WS-XYZ-NUM
            END-IF
-
       * Look for existing prefix in table
            MOVE 0 TO WS-FOUND
            PERFORM VARYING WS-IDX FROM 1 BY 1
@@ -193,16 +183,22 @@
                    MOVE 1 TO WS-FOUND
                END-IF
            END-PERFORM
-
            IF WS-FOUND = 1
                SUBTRACT 1 FROM WS-IDX
                ADD 1 TO WT-COUNT(WS-IDX)
-               IF WS-NUM3-NUM > WT-MAX-NUM3(WS-IDX)
-                   MOVE WS-NUM3-NUM TO WT-MAX-NUM3(WS-IDX)
-                   MOVE WS-XYZ-NUM TO WT-MAX-XYZ(WS-IDX)
-               END-IF
-               IF WS-NUM3-NUM < WT-MIN-NUM3(WS-IDX)
-                   MOVE WS-NUM3-NUM TO WT-MIN-NUM3(WS-IDX)
+               IF WS-IS-9999 = 1
+                   ADD 1 TO WT-9999-CT(WS-IDX)
+               ELSE
+                   IF WS-NUM3-NUM > WT-MAX-NUM3(WS-IDX)
+                       MOVE WS-NUM3-NUM
+                           TO WT-MAX-NUM3(WS-IDX)
+                       MOVE WS-XYZ-NUM
+                           TO WT-MAX-XYZ(WS-IDX)
+                   END-IF
+                   IF WS-NUM3-NUM < WT-MIN-NUM3(WS-IDX)
+                       MOVE WS-NUM3-NUM
+                           TO WT-MIN-NUM3(WS-IDX)
+                   END-IF
                END-IF
            ELSE
                IF WS-PREFIX-COUNT < WS-MAX-PREFIXES
@@ -210,15 +206,23 @@
                    MOVE WS-PREFIX TO
                        WT-PREFIX(WS-PREFIX-COUNT)
                    MOVE 1 TO WT-COUNT(WS-PREFIX-COUNT)
-                   MOVE WS-NUM3-NUM TO
-                       WT-MIN-NUM3(WS-PREFIX-COUNT)
-                   MOVE WS-NUM3-NUM TO
-                       WT-MAX-NUM3(WS-PREFIX-COUNT)
-                   MOVE WS-XYZ-NUM TO
-                       WT-MAX-XYZ(WS-PREFIX-COUNT)
+                   IF WS-IS-9999 = 1
+                       MOVE 1 TO
+                           WT-9999-CT(WS-PREFIX-COUNT)
+                       MOVE 999 TO
+                           WT-MIN-NUM3(WS-PREFIX-COUNT)
+                       MOVE 0 TO
+                           WT-MAX-NUM3(WS-PREFIX-COUNT)
+                   ELSE
+                       MOVE WS-NUM3-NUM TO
+                           WT-MIN-NUM3(WS-PREFIX-COUNT)
+                       MOVE WS-NUM3-NUM TO
+                           WT-MAX-NUM3(WS-PREFIX-COUNT)
+                       MOVE WS-XYZ-NUM TO
+                           WT-MAX-XYZ(WS-PREFIX-COUNT)
+                   END-IF
                END-IF
            END-IF.
-
        SORT-BY-REMAINING.
       * Bubble sort by MAX-NUM3 descending (most consumed first)
            PERFORM VARYING WS-I FROM 1 BY 1
@@ -236,33 +240,27 @@
                    END-IF
                END-PERFORM
            END-PERFORM.
-
        WRITE-REPORT.
            WRITE RPT-REC FROM RPT-HEADER1
            WRITE RPT-REC FROM RPT-HEADER2
            WRITE RPT-REC FROM RPT-HEADER3
            WRITE RPT-REC FROM RPT-HEADER2
-
            PERFORM VARYING WS-IDX FROM 1 BY 1
                UNTIL WS-IDX > WS-PREFIX-COUNT
-
                MOVE SPACES TO RPT-DETAIL
                MOVE WT-PREFIX(WS-IDX) TO RD-PREFIX
                MOVE WT-COUNT(WS-IDX) TO RD-COUNT
                MOVE WT-MIN-NUM3(WS-IDX) TO RD-MIN-NUM3
                MOVE WT-MAX-NUM3(WS-IDX) TO RD-MAX-NUM3
                MOVE WT-MAX-XYZ(WS-IDX) TO RD-MAX-XYZ
-
       * Remaining = (999 - MAX-NUM3) * 9
       *           + (9 - MAX-XYZ) if on the max day
                COMPUTE WS-REMAINING =
                    (999 - WT-MAX-NUM3(WS-IDX)) * 9
                    + (9 - WT-MAX-XYZ(WS-IDX))
-
       * Capacity from starting day
                COMPUTE WS-CAPACITY =
                    (999 - WT-MIN-NUM3(WS-IDX) + 1) * 9
-
                IF WS-CAPACITY > 0
                    COMPUTE WS-PCT =
                        ((WS-CAPACITY - WS-REMAINING)
@@ -270,16 +268,13 @@
                ELSE
                    MOVE 100 TO WS-PCT
                END-IF
-
                MOVE WS-REMAINING TO RD-REMAINING
                MOVE WS-PCT TO RD-PCT
-
+               MOVE WT-9999-CT(WS-IDX) TO RD-9999
                WRITE RPT-REC FROM RPT-DETAIL
            END-PERFORM
-
            WRITE RPT-REC FROM RPT-HEADER2
-
-      * Write warnings for any prefix with HIGH-DAY > 900
+      * Write warnings for any prefix with organic HIGH-DAY > 900
            PERFORM VARYING WS-IDX FROM 1 BY 1
                UNTIL WS-IDX > WS-PREFIX-COUNT
                IF WT-MAX-NUM3(WS-IDX) > 900
@@ -288,11 +283,12 @@
                    WRITE RPT-REC FROM RPT-WARNING
                END-IF
            END-PERFORM
-
            WRITE RPT-REC FROM RPT-HEADER2
            MOVE WS-TOTAL-RECS TO RS-TOTAL
            WRITE RPT-REC FROM RPT-SUMMARY
            MOVE WS-GARNO-RECS TO RS-GARNO
            WRITE RPT-REC FROM RPT-SUMMARY2
+           MOVE WS-9999-RECS TO RS-9999
+           WRITE RPT-REC FROM RPT-SUMMARY3
            MOVE WS-PREFIX-COUNT TO RS-PREFIXES
-           WRITE RPT-REC FROM RPT-SUMMARY3.
+           WRITE RPT-REC FROM RPT-SUMMARY4.
