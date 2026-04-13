@@ -48,7 +48,7 @@
        01 WS-PREFIX-COUNT       PIC 9(4) VALUE 0.
 
        01 WS-PREFIX-TABLE.
-           03 WS-ENTRY OCCURS 2000 TIMES.
+           03 WS-ENTRY OCCURS 4000 TIMES.
                05 WT-PREFIX     PIC X(3).
                05 WT-COUNT      PIC 9(5) VALUE 0.
                05 WT-MIN-NUM3   PIC 9(3) VALUE 999.
