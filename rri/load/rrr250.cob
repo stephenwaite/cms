@@ -131,6 +131,8 @@
                04 YD2 PIC X.
              03 DAY3 PIC XXX.
        01 NUM-3 PIC 999.
+       01 WRAP-FLAG             PIC 9 VALUE 0.
+       01 START-NUM3            PIC 9(3) VALUE 0.
        01  XYZ PIC 9.
        01  XXX PIC 999 VALUE 0.
        01  GARBACK.
@@ -262,7 +264,8 @@
            MOVE G-GARNAME(1:3) TO ID1.
            MOVE 0 TO XYZ.
            MOVE "G" TO ID3(2:1).
-
+           MOVE 0 TO WRAP-FLAG.
+           MOVE NUM-3 TO START-NUM3.
        P4.
            ADD 1 TO XYZ.
            MOVE XYZ TO ID3(1:1).
@@ -271,13 +274,24 @@
              INVALID KEY 
                GO TO P5
            END-READ
-
            IF XYZ = 9 
                ADD 1 TO NUM-3
+               IF NUM-3 > 999
+                   MOVE 0 TO NUM-3
+                   MOVE 1 TO WRAP-FLAG
+               END-IF
+               IF WRAP-FLAG = 1 AND NUM-3 = START-NUM3
+                   DISPLAY "*** GARNO EXHAUSTED FOR: "
+                       G-GARNAME(1:3)
+                       " - CONTACT SUPPORT ***"
+                   CLOSE ACTFILE ORDFILE PROCFILE WORK249
+                       FILEIN INSFILE GARFILE CHARNEW
+                       CLAIMFILE ORD-DELETES NEW-GARNOS
+                   STOP RUN 1    
+               END-IF
                MOVE NUM-3 TO ID2
                MOVE 0 TO XYZ
            END-IF
-           
            GO TO P4.
 
        P5.
@@ -527,8 +541,9 @@
            IF CLM-STAT = "61" 
                DISPLAY CLAIM01
                GO TO P11
-           END-IF    
+           END-IF.    
            
+       P12.
            CLOSE ACTFILE ORDFILE PROCFILE WORK249 FILEIN INSFILE
                GARFILE CHARNEW CLAIMFILE ORD-DELETES NEW-GARNOS.
            DISPLAY "POSTING PROGRAM HAS ENDED".
