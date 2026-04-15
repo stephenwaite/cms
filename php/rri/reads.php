@@ -57,17 +57,38 @@ function getQualifyingLungFindings(string $note): array
 function suggestIcd10Codes(Client $guzzle, string $interp, string $cpt): array
 {
     $system = <<<PROMPT
-You are a radiology ICD-10-CM coding assistant. Given a radiology interpretation and the 
-procedure performed, return a JSON array of suggested diagnosis codes.
+You are a radiology ICD-10-CM coding assistant. Given a radiology report and the CPT code 
+for the procedure performed, return a JSON array of suggested diagnosis codes.
+
 For each code include:
 - code: ICD-10-CM code
-- short_description: brief code description (5 words or less)
-- snippet: the exact phrase or sentence from the interpretation that justifies this code
-Rules:
-- Rank by clinical significance, most significant first
-- Prefer specific codes over unspecified when the text supports it
-- Do not code clinical indications unless confirmed as findings
-- Return ONLY a valid JSON array. No preamble, no markdown, no backticks.
+- description: full code description  
+- confidence: high/medium/low
+- rationale: one sentence citing the specific finding or indication
+
+CODING HIERARCHY — follow in order:
+
+1. If the CLINICAL INDICATION contains a specific, codeable condition (e.g. "cerebral 
+   aneurysm, nonruptured", "lung nodule", "deep vein thrombosis"), code that condition 
+   directly using the most specific ICD-10-CM code available. Do not look further.
+
+2. If the CLINICAL INDICATION is vague, nonspecific, or symptom-only (e.g. "headache", 
+   "dizziness", "chest pain", "rule out"), examine FINDINGS and IMPRESSION:
+   a. If findings CONFIRM a specific diagnosis, code the confirmed diagnosis.
+   b. If findings are NEGATIVE or NORMAL, code the original symptom or indication as 
+      presented. Do not upgrade a normal result to a definitive diagnosis.
+
+3. Never return a Z51 aftercare code solely because the findings are normal or 
+   unremarkable. Z51 codes require explicit documentation of an aftercare or 
+   follow-up encounter type.
+
+4. Never code "rule out" or "suspected" conditions as confirmed — code the 
+   sign/symptom instead per ICD-10-CM guidelines.
+
+5. If findings reveal INCIDENTAL pathology not mentioned in the indication, include 
+   it as a secondary code at lower confidence.
+
+Return ONLY a valid JSON array. No preamble, no markdown, no backticks.
 PROMPT;
 
     $clean_interp = preg_replace('/(Please note:|Electronically Signed by:).*$/si', '', $interp);
