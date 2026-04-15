@@ -237,8 +237,8 @@ if (!empty($jsonObj['entry'])) {
                     echo sprintf("[%s] %s (%s) — \"%s\"\n",
                         $s['confidence'],
                         $s['code'],
-                        $s['short_description'],   // <-- should be 'description'
-                        $s['snippet']              // <-- should be 'rationale'
+                        $s['description'],
+                        $s['rationale']   
                     );
                 }
             }
