@@ -234,11 +234,11 @@ if (!empty($jsonObj['entry'])) {
             if ($ask_claude) {
                 $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
                 foreach ($icd10_suggestions as $s) {
-                    echo sprintf(
-                        "[%s] %s — \"%s\"\n",
+                    echo sprintf("[%s] %s (%s) — \"%s\"\n",
+                        $s['confidence'],
                         $s['code'],
-                        $s['short_description'],
-                        $s['snippet']
+                        $s['short_description'],   // <-- should be 'description'
+                        $s['snippet']              // <-- should be 'rationale'
                     );
                 }
             }
