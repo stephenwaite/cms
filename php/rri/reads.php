@@ -212,7 +212,7 @@ if (!empty($jsonObj['entry'])) {
 
         // optionally strip PROCEDURE: header line
         if ($strip_procedure) {
-            $interp = preg_replace('/^PROCEDURE:.*\n?/mi', '', $interp);
+            $interp = preg_replace('/^PROCEDURE:.*\n?(?![A-Z]{2,}:).*\n?/mi', '', $interp);
             $interp = ltrim($interp);
         }
 
