@@ -230,7 +230,9 @@ if (!empty($jsonObj['entry'])) {
         $note  = str_pad('', $banner_length, '#') . "\n";
         $note .= $pt_name_text . "\n";
         $note .= $pt_dob_line . "\n";
-        $note .= $coding_display . "\n";
+        if (!$strip_procedure) {
+            $note .= $coding_display . "\n";
+        }
 
         $date_of_order             = $entry['resource']['effectiveDateTime'] ?? '';
         $date_of_order_utc         = new DateTimeImmutable($date_of_order);
