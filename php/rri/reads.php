@@ -203,6 +203,8 @@ if (!empty($jsonObj['entry'])) {
         $strip_procedure = false;
     }
 
+    $pdf_page_count = 0;
+
     foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
@@ -250,10 +252,11 @@ if (!empty($jsonObj['entry'])) {
                 strtoupper(readline("Add {$coding_display} to PDF? (y or Y) ")), 'Y'
             );
             if ($add_to_pdf) {
-                if ($pdf->PageNo() > 0) {
+                if ($pdf_page_count > 0) {
                     $pdf->ezNewPage();
                 }
                 $pdf->ezText($note, 10);
+                $pdf_page_count++;
             }
         } else {
             echo $note . "\n";
@@ -280,7 +283,7 @@ if (!empty($jsonObj['entry'])) {
 }
 
 if (!empty($context) && $context == 'pdf') {
-    if ($pdf->PageNo() > 0) {
+    if ($pdf_page_count > 0) {
         $pdf_data = $pdf->ezOutput();
         file_put_contents($charcur_key . ".pdf", $pdf_data);
         file_put_contents('wcomp1', $charcur_key);
