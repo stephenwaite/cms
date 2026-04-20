@@ -262,20 +262,15 @@ if (!empty($jsonObj['entry'])) {
             }
         } else {
             echo $note . "\n";
-            if ($ask_claude) {
-                if (str_contains($coding_display, $rri_cpt)) {
-                    $line = strtoupper(readline("Send to Claude for ICD-10 suggestions? (y or Y) "));
-                    if (str_contains($line, 'Y')) {
-                        $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
-                        foreach ($icd10_suggestions as $s) {
-                            echo sprintf("[%s] %s (%s) — \"%s\"\n",
-                                $s['confidence'],
-                                $s['code'],
-                                $s['description'],
-                                $s['rationale']
-                            );
-                        }
-                    }
+            if ($ask_claude && str_contains($coding_display, $rri_cpt)) {
+                $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
+                foreach ($icd10_suggestions as $s) {
+                    echo sprintf("[%s] %s (%s) — \"%s\"\n",
+                        $s['confidence'],
+                        $s['code'],
+                        $s['description'],
+                        $s['rationale']
+                    );
                 }
             }
         }
