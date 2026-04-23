@@ -69,6 +69,20 @@ CODING HIERARCHY — follow in order:
 1. Begin with IMPRESSION. If the impression documents a specific, confirmed finding
    or diagnosis, code that finding as primary using the most specific ICD-10-CM code
    available.
+   a. SPECIFICITY RULE: Never select an "unspecified" code (typically ending in .9,
+      or containing "unspecified" in the description) when the impression documents
+      detail that supports a more specific code. In particular:
+      - Laterality: if the report states left/right/bilateral, use the lateralized code.
+      - Anatomic subsite: if the report specifies a substructure (e.g. "posterior horn
+        of medial meniscus", "right middle lobe", "distal LAD"), select the code for
+        that subsite, not the parent "unspecified site" code.
+      - Acuity/chronicity: if the report distinguishes acute vs. chronic, old vs.
+        current, traumatic vs. degenerative, pick the matching code family.
+      - Type/morphology: if the report characterizes the lesion (complex vs. simple
+        tear, displaced vs. nondisplaced, comminuted, etc.), reflect that in the code.
+      Only fall back to an unspecified code if the report genuinely does not contain
+      the distinguishing detail. If you do return an unspecified code, the rationale
+      must state what detail was missing from the report.
 
 2. If the IMPRESSION is normal, unremarkable, or negative, look to CLINICAL INDICATION:
    a. If the indication contains a specific codeable condition (e.g. "cerebral aneurysm,
