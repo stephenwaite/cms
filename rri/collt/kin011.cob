@@ -34,121 +34,40 @@
 
        DATA DIVISION.
        FILE SECTION.
-       FD  PAYCUR
-      *    BLOCK CONTAINS 3 RECORDS
-           DATA RECORD IS PAYCUR01.
-       01  PAYCUR01.
-           02 PAYCUR-KEY.
-             03 PC-KEY8 PIC X(8).
-             03 PC-KEY3 PIC XXX.
-           02 PC-AMOUNT PIC S9(4)V99.
-           02 PC-PAYCODE PIC XXX.
-           02 PC-DENIAL PIC XX.
-           02 PC-CLAIM PIC X(6).
-           02 PC-DATE-T PIC X(8).
-           02 PC-DATE-E PIC X(8).
-           02 PC-BATCH PIC X(6).
-       FD  CHARCUR
-           BLOCK CONTAINS 5 RECORDS
-           DATA RECORD IS CHARCUR01.
-       01  CHARCUR01.
-           02 CHARCUR-KEY.
-             03 CC-KEY8 PIC X(8).
-             03 CC-KEY3 PIC XXX.
-           02 CC-PATID PIC X(8).
-           02 CC-CLAIM PIC X(6).
-           02 CC-SERVICE PIC X.
-           02 CC-DIAG PIC X(7).
-           02 CC-PROC. 
-              03 CC-PROC0 PIC X(4).
-              03 CC-PROC1 PIC X(5).
-              03 CC-PROC2 PIC XX.
-           02 CC-MOD2 PIC XX.
-           02 CC-MOD3 PIC XX.
-           02 CC-MOD4 PIC XX.
-           02 CC-AMOUNT PIC S9(4)V99.
-           02 CC-DOCR PIC X(3).
-           02 CC-DOCP PIC X(2).
-           02 CC-PAYCODE PIC XXX.
-           02 CC-STUD PIC X.
-           02 CC-WORK PIC XX.
-           02 CC-DAT1 PIC X(8).
-           02 CC-RESULT PIC X.
-           02 CC-ACT PIC X.
-           02 CC-SORCREF PIC X.
-           02 CC-COLLT PIC X.
-           02 CC-AGE PIC X.
-           02 CC-PAPER PIC X.
-           02 CC-PLACE PIC X.
-           02 CC-EPSDT PIC X.
-           02 CC-DATE-T PIC X(8).
-           02 CC-DATE-A PIC X(8).
-           02 CC-DATE-P PIC X(8).
-           02 CC-REC-STAT PIC X.
-           02 CC-DX2 PIC X(7).
-           02 CC-DX3 PIC X(7).
-           02 CC-ACC-TYPE PIC X.
-           02 CC-DATE-M PIC X(8).
-           02 CC-ASSIGN PIC X.
-           02 CC-NEIC-ASSIGN PIC X.
-           02 CC-DX4 PIC X(7).
-           02 CC-DX5 PIC X(7).
-           02 CC-DX6 PIC X(7).
-           02 CC-FUTURE PIC X(6).
-       FD  INSFILE
-     *     BLOCK CONTAINS 6 RECORDS
-           DATA RECORD IS INSFILE01.
-       01  INSFILE01.
-           02 INS-KEY PIC XXX.
-           02 INS-NAME PIC X(22).
-           02 INS-STREET PIC X(24).
-           02 INS-CITY PIC X(15).
-           02 INS-STATE PIC XX.
-           02 INS-ZIP PIC X(9).
-           02 INS-ASSIGN PIC X.
-           02 INS-CLAIMTYPE PIC X.
-           02 INS-NEIC PIC X(5).
-           02 INS-NEICLEVEL PIC X.
-           02 INS-NEIC-ASSIGN PIC X.
-           02 INS-PPO PIC X.
-           02 INS-PRVNUM PIC X(10).
-           02 INS-HMO PIC X(3).
-           02 INS-STATUS PIC X.
-           02 INS-LEVEL PIC X.
-           02 INS-LASTDATE PIC X(8).
-           02 INS-CAID PIC XXX.
-           02 INS-REFWARN PIC X.
-           02 INS-FUTURE PIC X(8).
+       FD  PAYCUR.
+           COPY "paycur.cpy".
+      
+       FD  CHARCUR.
+           COPY "charcur.cpy".
+
+       FD  INSFILE.
+           COPY "insfile.cpy".
+     
        FD  FILEOUT.
        01  FILEOUT01.
            02 FO-ACCT PIC X(8).
-           02 FILLER PIC X VALUE "*".
+           02 FO-TAB1 PIC X.
            02 FO-NAME PIC X(24).
-           02 FILLER PIC X VALUE "*".
+           02 FO-TAB2 PIC X.
            02 FO-PAYCODE PIC XXX.
-           02 FILLER PIC X VALUE "*".
+           02 FO-TAB3 PIC X.
            02 FO-INSNAME PIC X(28).
-           02 FILLER PIC X VALUE "*".
+           02 FO-TAB4 PIC X.
            02 FO-DATE PIC X(10).
-           02 FILLER PIC X VALUE "*".
+           02 FO-TAB5 PIC X.
            02 FO-AMOUNT PIC X(10).
-           02 FILLER PIC X VALUE "*".
+           02 FO-TAB6 PIC X.
+           02 FO-AMTCR PIC XX.
+           02 FO-TAB7 PIC X.
            02 FO-REDUCT PIC X(10).
-           02 FILLER PIC X VALUE "*".
+           02 FO-TAB8 PIC X.
+           02 FO-REDUCTCR PIC XX.
+           02 FO-TAB9 PIC X.
            02 FO-PIF PIC XXX.
+
        FD  KINFILE.
-       01  KINFILE01.
-           02 KINFILE-KEY.
-             03 KIN-KEY8 PIC X(8).
-             03 KIN-KEY3 PIC XXX.
-           02 KIN-NAME PIC X(24).
-           02 KIN-AMOUNT PIC S9(4)V99.
-           02 KIN-PAYCODE PIC XXX.
-           02 KIN-DENIAL PIC XX.
-           02 KIN-DATE-T PIC X(8).
-           02 KIN-DATE-E PIC X(8).
-           02 KIN-STAT PIC X.
-           02 KIN-CHARCUR-KEY PIC X(11).
+           COPY "kinfile.cpy".
+
        WORKING-STORAGE SECTION.
        01  X PIC 99.
        01  Y PIC 99.
@@ -162,9 +81,11 @@
        01  NUM6 PIC 9(6).
        01  KINBACK01 PIC X(73).
        01  ALF1 PIC X.
-       01  NEF-6 PIC Z,ZZ9.99CR.
+       01  NEF-6 PIC Z,ZZ9.99.
+       01  NEF-ABS PIC S9(4)V99.
        01  TOT-CLAIM PIC S9(4)V99.
        01  REDUCT PIC S9(4)V99.
+       01  WS-TAB PIC X VALUE H"09".
 
        PROCEDURE DIVISION.
 
@@ -173,14 +94,18 @@
            OPEN INPUT INSFILE CHARCUR PAYCUR
            OPEN OUTPUT FILEOUT.
 
+           MOVE WS-TAB TO FO-TAB1 FO-TAB2 FO-TAB3 FO-TAB4 FO-TAB5
+                          FO-TAB6 FO-TAB7 FO-TAB8 FO-TAB9.
            MOVE "ACCT" TO FO-ACCT
            MOVE "NAME" TO FO-NAME
-           MOVE SPACE TO FO-PAYCODE
+           MOVE "PAYCODE" TO FO-PAYCODE
            MOVE "PAYOR" TO FO-INSNAME
            MOVE "DATE" TO FO-DATE
            MOVE "PAID" TO FO-AMOUNT
            MOVE "WRITE-OFF" TO FO-REDUCT
            MOVE "BAL" TO FO-PIF
+           MOVE "CR" TO FO-AMTCR.
+           MOVE "CR" TO FO-REDUCTCR.
            WRITE FILEOUT01.
 
            MOVE "0" TO KIN-STAT
@@ -207,14 +132,25 @@
 
            MOVE INS-NAME TO FO-INSNAME
            MOVE KIN-DATE-T TO FO-DATE
-           MOVE KIN-AMOUNT TO NEF-6
+           COMPUTE NEF-ABS = FUNCTION ABS(KIN-AMOUNT)
+           MOVE NEF-ABS TO NEF-6
            MOVE NEF-6 TO FO-AMOUNT
+           IF KIN-AMOUNT < 0
+               MOVE "CR" TO FO-AMTCR
+           ELSE
+               MOVE SPACE TO FO-AMTCR.
            MOVE SPACE TO FO-PIF
 
            PERFORM PAID-1 THRU PAID-1-EXIT
 
            MOVE REDUCT TO NEF-6
+           COMPUTE NEF-ABS = FUNCTION ABS(REDUCT)
+           MOVE NEF-ABS TO NEF-6
            MOVE NEF-6 TO FO-REDUCT
+           IF REDUCT < 0
+               MOVE "CR" TO FO-REDUCTCR
+           ELSE
+               MOVE SPACE TO FO-REDUCTCR.
            WRITE FILEOUT01
 
            MOVE "1" TO KIN-STAT
