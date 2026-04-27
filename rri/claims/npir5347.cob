@@ -1797,6 +1797,7 @@
       *     MOVE INS-NAME TO SBR-GRNAME 
 
            IF G-PRINS = "003" OR "028" OR "200" OR "245" OR "074"
+             OR "488" OR "998"
              MOVE "MB " TO SBR-INSCODE SBR-TYPE.
 
            IF G-PRINS = "006"
