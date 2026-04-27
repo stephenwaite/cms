@@ -441,7 +441,7 @@
            MOVE 0 TO DOCTAB(X).
 
        E1.
-           STRING CHARCUR-KEY " " CC-PROC1 " " CC-AMOUNT " "
+           STRING CHARCUR-KEY " " CC-CPT " " CC-AMOUNT " "
              CC-DATE-T(5:2) "-" CC-DATE-T(7:2) "-" CC-DATE-T(3:2)
              DELIMITED BY SIZE INTO EF1
            WRITE ERRORFILE01.
