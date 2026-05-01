@@ -182,7 +182,7 @@ while ($row = fgets($fh_wcomp_sid)) {
 
     // PCN for OA lookup. Same field CHC uses as the
     // providerAttachmentControlNumber and PDF filename basis.
-    $pcn      = trim(substr($charcur_key, 0, 8);
+    $pcn      = trim(substr($charcur_key, 0, 8));
     $pdfPath  = PDF_DIR . trim($charcur_key) . '.pdf';
 
     try {
