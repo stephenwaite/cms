@@ -263,16 +263,15 @@ if (!empty($jsonObj['entry'])) {
         $note .= $interp . "\n";
 
         if (!empty($context) && $context == 'pdf') {
-            // per-report prompt for PDF inclusion
-            $add_to_pdf = str_contains(
-                strtoupper(readline("Add {$coding_display} to PDF? (y or Y) ")), 'Y'
-            );
-            if ($add_to_pdf) {
-                if ($pdf_page_count > 0) {
-                    $pdf->ezNewPage();
-                }
-                $pdf->ezText($note, 10);
-                $pdf_page_count++;
+        // per-report prompt for PDF inclusion (defaults to Y on Enter)
+        $resp = strtoupper(trim(readline("Add {$coding_display} to PDF? (Y/n) ")));
+        $add_to_pdf = ($resp === '' || $resp === 'Y');
+        if ($add_to_pdf) {
+            if ($pdf_page_count > 0) {
+                $pdf->ezNewPage();
+            }
+            $pdf->ezText($note, 10);
+            $pdf_page_count++;
             }
         } else {
             echo $note . "\n";
