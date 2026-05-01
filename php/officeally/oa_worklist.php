@@ -19,7 +19,7 @@ if (!$jwt) {
     exit(1);
 }
 
-$daysBack = (int) ($argv[1] ?? 30);
+$daysBack = (int) ($argv[1] ?? 30) ?: 30;
 
 $client = new Client([
     'base_uri' => OA_API_BASE,
