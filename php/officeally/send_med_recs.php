@@ -28,6 +28,10 @@ const OA_STATUS_ACCEPTED = 110;
 // PDF directory
 const PDF_DIR = '/home/rri/';
 
+$colorOk   = "\033[32m";   // green
+$colorFail = "\033[31;1m"; // bold red
+$colorEnd  = "\033[0m";
+
 $jwt = getenv('OA_JWT');
 if (!$jwt) {
     fwrite(STDERR, "OA_JWT environment variable not set.\n");
@@ -273,7 +277,7 @@ while ($row = fgets($fh_wcomp_sid)) {
         ];
 
         $succeed++;
-        echo "[{$cntr}] OK   {$pcn} -> claim {$claim['claimId']} ({$claim['payerName']}) "
+        echo "[{$cntr}] {$colorOk}OK{$colorEnd}   {$pcn} -> claim {$claim['claimId']} ({$claim['payerName']}) "
            . "count {$beforeCount}->{$afterCount}\n";
 
     } catch (RequestException $e) {
@@ -291,7 +295,7 @@ while ($row = fgets($fh_wcomp_sid)) {
             'submitted_at'  => date('c'),
         ];
         $failed++;
-        fwrite(STDERR, "[{$cntr}] FAIL {$pcn} HTTP {$status}: {$bodySn}\n");
+        fwrite(STDERR, "[{$cntr}] {$colorFail}FAIL{$colorEnd} {$pcn} HTTP {$status}: {$bodySn}\n");
 
         if ($status === 401) {
             fwrite(STDERR, "JWT rejected (401). Aborting batch — re-scrape OA_JWT.\n");
