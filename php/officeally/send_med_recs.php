@@ -180,10 +180,19 @@ while ($row = fgets($fh_wcomp_sid)) {
     $cc_date_t        = substr($row, 136, 8);
     $cc_date_a        = substr($row, 144, 8);
 
-    // PCN for OA lookup. Same field CHC uses as the
-    // providerAttachmentControlNumber and PDF filename basis.
+    // PCN for OA lookup
     $pcn      = trim(substr($charcur_key, 0, 8));
     $pdfPath  = PDF_DIR . trim($charcur_key) . '.pdf';
+
+    // DOS (YYYYMMDD from COBOL) → YYYY-MM-DD for matching OA's fromDos
+    $dosRaw = trim($cc_date_t);
+    $dos    = strlen($dosRaw) === 8
+        ? substr($dosRaw, 0, 4) . '-' . substr($dosRaw, 4, 2) . '-' . substr($dosRaw, 6, 2)
+        : '';
+    if (strlen($dosRaw) === 8) {
+        // Assuming YYYYMMDD — flip if your COBOL outputs MMDDYYYY
+        $dos = substr($dosRaw, 0, 4) . '-' . substr($dosRaw, 4, 2) . '-' . substr($dosRaw, 6, 2);
+    }
 
     try {
         $matches = oa_search_by_pcn($client, $pcn);
@@ -191,9 +200,39 @@ while ($row = fgets($fh_wcomp_sid)) {
         if (count($matches) === 0) {
             throw new RuntimeException("No OA claim found for PCN '{$pcn}'");
         }
-        if (count($matches) > 1) {
+
+        // Disambiguate by DOS when there are multiple claims for this PCN
+        if (count($matches) > 1 && $dos !== '') {
+            $byDos = array_values(array_filter($matches, function($c) use ($dos) {
+                return substr($c['fromDos'] ?? '', 0, 10) === $dos;
+            }));
+
+            if (count($byDos) === 0) {
+                $availableDos = implode(', ', array_map(
+                    fn($c) => substr($c['fromDos'] ?? '', 0, 10),
+                    $matches
+                ));
+                throw new RuntimeException(
+                    "Multiple claims for PCN '{$pcn}' but none match DOS '{$dos}'. "
+                    . "Available DOS: {$availableDos}"
+                );
+            }
+            if (count($byDos) > 1) {
+                // Same PCN + same DOS + multiple claims = something's actually wrong
+                $ids = implode(', ', array_column($byDos, 'claimId'));
+                throw new RuntimeException(
+                    "Multiple claims for PCN '{$pcn}' on DOS '{$dos}': {$ids}"
+                );
+            }
+
+            $matches = $byDos;
+        } elseif (count($matches) > 1) {
+            // Multiple matches but no DOS available to disambiguate
             $ids = implode(', ', array_column($matches, 'claimId'));
-            throw new RuntimeException("Multiple claims for PCN '{$pcn}': {$ids}");
+            throw new RuntimeException(
+                "Multiple claims for PCN '{$pcn}': {$ids}; "
+                . "DOS not available in input row to disambiguate"
+            );
         }
 
         $claim = $matches[0];
