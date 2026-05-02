@@ -52,9 +52,19 @@ $body = [
     'formType'      => OA_FORM_TYPE_PROFESSIONAL,
 ];
 
-$res = $client->post('formtype/' . OA_FORM_TYPE_PROFESSIONAL . '/claims/search', [
-    'json' => $body,
-]);
+try {
+    $res = $client->post('formtype/' . OA_FORM_TYPE_PROFESSIONAL . '/claims/search', [
+        'json' => $body,
+    ]);
+} catch (\GuzzleHttp\Exception\RequestException $e) {
+    $status = $e->getResponse() ? $e->getResponse()->getStatusCode() : 0;
+    if ($status === 401) {
+        fwrite(STDERR, "OA JWT rejected (401). Re-scrape.\n");
+        exit(1);
+    }
+    fwrite(STDERR, "OA API error HTTP {$status}: " . $e->getMessage() . "\n");
+    exit(1);
+}
 
 $decoded = json_decode((string) $res->getBody(), true);
 $rows = $decoded['results']
