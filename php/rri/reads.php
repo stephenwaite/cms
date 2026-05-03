@@ -209,13 +209,14 @@ if (!empty($jsonObj['entry'])) {
 
     // in pdf context ask once whether to strip PROCEDURE headers
     // in console context always strip — coders don't need it
-    if (!empty($context) && $context == 'pdf') {
+    $strip_procedure = false;
+    /* if (!empty($context) && $context == 'pdf') {
         $strip_procedure = str_contains(
             strtoupper(readline("Strip PROCEDURE headers from reports? (y or Y) ")), 'Y'
         );
     } else {
         $strip_procedure = false;
-    }
+    } */
 
     $pdf_page_count = 0;
 
@@ -263,17 +264,13 @@ if (!empty($jsonObj['entry'])) {
         $note .= $interp . "\n";
 
         if (!empty($context) && $context == 'pdf') {
-            // per-report prompt for PDF inclusion
-            $add_to_pdf = str_contains(
-                strtoupper(readline("Add {$coding_display} to PDF? (y or Y) ")), 'Y'
-            );
-            if ($add_to_pdf) {
-                if ($pdf_page_count > 0) {
-                    $pdf->ezNewPage();
-                }
-                $pdf->ezText($note, 10);
-                $pdf_page_count++;
+            // adding to pdf without prompting
+            echo "Adding {$coding_display} to PDF\n";
+            if ($pdf_page_count > 0) {
+                $pdf->ezNewPage();
             }
+            $pdf->ezText($note, 10);
+            $pdf_page_count++;
         } else {
             echo $note . "\n";
             if ($ask_claude && str_contains($coding_display, $rri_cpt)) {
