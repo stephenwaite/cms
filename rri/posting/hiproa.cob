@@ -793,6 +793,7 @@
                GO TO P9-SVC-LOOP.
 
        P5-SVC-LOOP.
+           DISPLAY "P5 X=[" X "] SVC-TAB=[" SVC-TAB(X)(1:30) "]"
            MOVE SPACE TO FILEIN01
            MOVE SVC-TAB(X) TO FILEIN01
            MOVE SPACE TO SVC01
