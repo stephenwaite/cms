@@ -778,8 +778,9 @@
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.
            DISPLAY "P4 CLMSTAT=[" CLP-2CLMSTAT "]"
-           IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
-                               OR "20" OR "21")
+           IF NOT (CLP-2CLMSTAT = "1 " OR CLP-2CLMSTAT = "2 " 
+                   OR CLP-2CLMSTAT = "3 " OR CLP-2CLMSTAT = "19"
+                   OR CLP-2CLMSTAT = "20" OR CLP-2CLMSTAT = "21")
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
                    VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP
