@@ -733,6 +733,7 @@
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
            MOVE 0 TO GAR-FLAG
+           MOVE 0 TO FIND-CNTR TOT-TOT
            DISPLAY "P2-SVC-LOOP SVC-CNTR=[" SVC-CNTR "] CLP-1=["
                CLP-1 "] FIND-CNTR=[" FIND-CNTR "]"
            ACCEPT OMITTED
@@ -749,7 +750,6 @@
            END-READ
 
            MOVE 1 TO GAR-FLAG
-           MOVE 0 TO FIND-CNTR TOT-TOT
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
                BY 1 UNTIL X > SVC-CNTR
 
