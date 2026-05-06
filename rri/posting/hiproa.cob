@@ -833,6 +833,10 @@
                MOVE SVC-3PAYAMT TO ALF8
            END-IF
 
+           DISPLAY "P5 PAYORID=[" PAYORID "] CLMSTAT=[" CLP-2CLMSTAT
+               "] SVC-CNTR=[" SVC-CNTR "] CLAIM-PAID=[" CLAIM-PAID
+               "] ALF8=[" ALF8 "] PD-AMOUNT=[" PD-AMOUNT "]"
+
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
