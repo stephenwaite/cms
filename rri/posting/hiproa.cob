@@ -606,7 +606,7 @@
        P1-CLP-2.
            MOVE CLP-2CLMSTAT TO EF8
            MOVE SPACE TO NM101 CLMCAS01.
-           MOVE SPACE TO SVC-DATE01
+           MOVE SPACE TO SVC-DATE01 FOUND-TAB01
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR
            move 0 to LQ-CNTR
