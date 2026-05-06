@@ -589,8 +589,6 @@
       *    IF F1 NOT = "CLP" GO TO P1-CLP.
 
        P1-CLP-1.
-           DISPLAY "P1-CLP-1 FILEIN01=[" FILEIN01(1:30) "]"
-           ACCEPT OMITTED
            MOVE 0 TO NOT-FLAG
            MOVE SPACE TO CLP01 DATE-CC
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
@@ -734,9 +732,6 @@
        P2-SVC-LOOP.
            MOVE 0 TO GAR-FLAG
            MOVE 0 TO FIND-CNTR TOT-TOT
-           DISPLAY "P2-SVC-LOOP SVC-CNTR=[" SVC-CNTR "] CLP-1=["
-               CLP-1 "] FIND-CNTR=[" FIND-CNTR "]"
-           ACCEPT OMITTED
 
            IF SVC-CNTR = 0
               PERFORM P1-NO-SVC
@@ -810,8 +805,6 @@
       *    other measures
            IF SVC-1PROCMOD(4:3) = "G95" OR 
               SVC-1PROCMOD(4:3) = "G96"
-                   DISPLAY "G95/G96 CHECK EXIT SVC-1PROCMOD=[" 
-                   SVC-1PROCMOD "]"
                GO TO P5-SVC-LOOP-EXIT
            END-IF
 
@@ -837,10 +830,6 @@
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
            END-IF
-
-           DISPLAY "P5 PAYORID=[" PAYORID "] CLMSTAT=[" CLP-2CLMSTAT
-               "] SVC-CNTR=[" SVC-CNTR "] CLAIM-PAID=[" CLAIM-PAID
-               "] ALF8=[" ALF8 "] PD-AMOUNT=[" PD-AMOUNT "]"
 
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
@@ -1171,8 +1160,6 @@
 
        P9-SVC-LOOP.
            MOVE SAVEFILE01 TO FILEIN01
-           DISPLAY "P9-SVC-LOOP FILEIN01=[" FILEIN01(1:30) "]"
-           ACCEPT OMITTED
            IF F1 = "CLP" GO TO P1-CLP-1.
            GO TO XX.
 
@@ -1297,23 +1284,20 @@
            MOVE AMOUNT-X TO EF5
            ADD AMOUNT-X TO TOT-CHARGE
            MOVE SPACE TO ALF8
-           MOVE SVC-3PAYAMT TO ALF8
-
+           IF PAYORID = "92916" AND CLP-2CLMSTAT = "2 "
+               IF X = 1
+                   MOVE CLP-4TOTCLMPAY TO ALF8
+               END-IF
+           ELSE
+               MOVE SVC-3PAYAMT TO ALF8
+           END-IF
+           
            IF ALF8-1 = "-"
                MOVE "-" TO EFSIGN
            END-IF
 
            PERFORM AMOUNT-1
-      *     IF (PAYORID = "87726")
-      *     AND (CLP-2CLMSTAT = "2 ")
-      *     MOVE SPACE TO ALF8
-      *    MOVE ALLW-TAB(X) TO AMOUNT-X
-      *     MOVE SPACE TO EFSIGN
-      *    IF ALF8-1 = "-"
-      *     MOVE "-" TO EFSIGN
-      *    END-IF
-      *     MOVE 0 TO AMOUNT-X
-      *    END-IF
+     
            MOVE AMOUNT-X TO EF6
            IF ALF8-1 NOT = "-"
             COMPUTE TOT-PAY = TOT-PAY + AMOUNT-X
@@ -1666,8 +1650,6 @@
                    "] CC-PROC1Y=[" CC-PROC1Y "]"
                GO TO LOOK-1
            END-IF
-           DISPLAY "MATCH FOUND KEY=[" CHARCUR-KEY "]"
-           ACCEPT OMITTED
 
            MOVE 0 TO FLAGY DUPFLAG
 
