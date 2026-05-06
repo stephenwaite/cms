@@ -808,7 +808,8 @@
                GO TO P5-SVC-LOOP-EXIT
            END-IF
       *    other measures
-           IF SVC-1PROCMOD(4:3) = "G95" OR "G96"
+           IF SVC-1PROCMOD(4:3) = "G95" OR 
+              SVC-1PROCMOD(4:3) = "G96"
                    DISPLAY "G95/G96 CHECK EXIT SVC-1PROCMOD=[" 
                    SVC-1PROCMOD "]"
                GO TO P5-SVC-LOOP-EXIT
