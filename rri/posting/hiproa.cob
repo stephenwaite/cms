@@ -589,6 +589,8 @@
       *    IF F1 NOT = "CLP" GO TO P1-CLP.
 
        P1-CLP-1.
+           DISPLAY "P1-CLP-1 FILEIN01=[" FILEIN01(1:30) "]"
+           ACCEPT OMITTED
            MOVE 0 TO NOT-FLAG
            MOVE SPACE TO CLP01 DATE-CC
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
@@ -731,6 +733,9 @@
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
            MOVE 0 TO GAR-FLAG
+           DISPLAY "P2-SVC-LOOP SVC-CNTR=[" SVC-CNTR "] CLP-1=["
+               CLP-1 "] FIND-CNTR=[" FIND-CNTR "]"
+           ACCEPT OMITTED
 
            IF SVC-CNTR = 0
               PERFORM P1-NO-SVC
@@ -1153,6 +1158,8 @@
 
        P9-SVC-LOOP.
            MOVE SAVEFILE01 TO FILEIN01
+           DISPLAY "P9-SVC-LOOP FILEIN01=[" FILEIN01(1:30) "]"
+           ACCEPT OMITTED
            IF F1 = "CLP" GO TO P1-CLP-1.
            GO TO XX.
 
