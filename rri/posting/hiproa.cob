@@ -772,7 +772,6 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.
-           DISPLAY "P4 CLMSTAT=[" CLP-2CLMSTAT "]"
            IF NOT (CLP-2CLMSTAT = "1 " OR CLP-2CLMSTAT = "2 " 
                    OR CLP-2CLMSTAT = "3 " OR CLP-2CLMSTAT = "19"
                    OR CLP-2CLMSTAT = "20" OR CLP-2CLMSTAT = "21")
@@ -782,13 +781,11 @@
            END-IF.
 
        P4-UNITED-START.
-           DISPLAY "P4-UNITED-START"
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT
                VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP.
 
        P5-SVC-LOOP.
-           DISPLAY "P5 X=[" X "] SVC-TAB=[" SVC-TAB(X)(1:30) "]"
            MOVE SPACE TO FILEIN01
            MOVE SVC-TAB(X) TO FILEIN01
            MOVE SPACE TO SVC01
@@ -1612,8 +1609,6 @@
            END-READ
 
            IF CC-KEY8 NOT = G-GARNO
-                   DISPLAY "KEY8 MISMATCH CC-KEY8=[" CC-KEY8 
-                   "] G-GARNO=[" G-GARNO "]"
                GO TO LOOK-CHG-EXIT
            END-IF
 
@@ -1646,8 +1641,6 @@
            END-IF
 
            IF CC-PROC1X NOT = CC-PROC1Y
-                   DISPLAY "PROC MISMATCH CC-PROC1X=[" CC-PROC1X
-                   "] CC-PROC1Y=[" CC-PROC1Y "]"
                GO TO LOOK-1
            END-IF
 
