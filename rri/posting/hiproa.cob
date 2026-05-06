@@ -1615,6 +1615,8 @@
            END-READ
 
            IF CC-KEY8 NOT = G-GARNO
+                   DISPLAY "KEY8 MISMATCH CC-KEY8=[" CC-KEY8 
+                   "] G-GARNO=[" G-GARNO "]"
                GO TO LOOK-CHG-EXIT
            END-IF
 
@@ -1647,8 +1649,12 @@
            END-IF
 
            IF CC-PROC1X NOT = CC-PROC1Y
+                   DISPLAY "PROC MISMATCH CC-PROC1X=[" CC-PROC1X
+                   "] CC-PROC1Y=[" CC-PROC1Y "]"
                GO TO LOOK-1
            END-IF
+           DISPLAY "MATCH FOUND KEY=[" CHARCUR-KEY "]"
+           ACCEPT OMITTED
 
            MOVE 0 TO FLAGY DUPFLAG
 
