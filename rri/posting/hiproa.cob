@@ -816,7 +816,8 @@
            END-IF
 
            MOVE SPACE TO ALF8
-       
+           MOVE SVC-3PAYAMT TO ALF8
+
            IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
                IF SVC-CNTR = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
@@ -826,15 +827,15 @@
                        GO TO P5-SVC-LOOP-EXIT
                    END-IF
                END-IF
-           ELSE IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
+           END-IF
+
+           IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
                IF SVC-CNTR = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
-               ELSE 
+               ELSE
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
-           ELSE
-               MOVE SVC-3PAYAMT TO ALF8
            END-IF
 
            DISPLAY "P5 PAYORID=[" PAYORID "] CLMSTAT=[" CLP-2CLMSTAT
