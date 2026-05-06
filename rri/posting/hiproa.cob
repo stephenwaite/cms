@@ -786,6 +786,7 @@
            END-IF.
 
        P4-UNITED-START.
+           DISPLAY "P4-UNITED-START"
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT
                VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP.
