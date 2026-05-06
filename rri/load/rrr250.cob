@@ -275,10 +275,20 @@
                GO TO P5
            END-READ
            IF XYZ = 9 
-               ADD 1 TO NUM-3
-               IF NUM-3 > 999
+               IF NUM-3 = 999
+                   IF WRAP-FLAG = 1
+                       DISPLAY "*** GARNO EXHAUSTED FOR: "
+                           G-GARNAME(1:3)
+                           " - CONTACT SUPPORT ***"
+                       CLOSE ACTFILE ORDFILE PROCFILE WORK249
+                           FILEIN INSFILE GARFILE CHARNEW
+                           CLAIMFILE ORD-DELETES NEW-GARNOS
+                       STOP RUN 1    
+                   END-IF
                    MOVE 0 TO NUM-3
                    MOVE 1 TO WRAP-FLAG
+               ELSE
+                   ADD 1 TO NUM-3
                END-IF
                IF WRAP-FLAG = 1 AND NUM-3 = START-NUM3
                    DISPLAY "*** GARNO EXHAUSTED FOR: "

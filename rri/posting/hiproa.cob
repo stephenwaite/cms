@@ -606,7 +606,7 @@
        P1-CLP-2.
            MOVE CLP-2CLMSTAT TO EF8
            MOVE SPACE TO NM101 CLMCAS01.
-           MOVE SPACE TO SVC-DATE01
+           MOVE SPACE TO SVC-DATE01 FOUND-TAB01
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR
            move 0 to LQ-CNTR
@@ -731,6 +731,7 @@
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
            MOVE 0 TO GAR-FLAG
+           MOVE 0 TO FIND-CNTR TOT-TOT
 
            IF SVC-CNTR = 0
               PERFORM P1-NO-SVC
@@ -744,7 +745,6 @@
            END-READ
 
            MOVE 1 TO GAR-FLAG
-           MOVE 0 TO FIND-CNTR TOT-TOT
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
                BY 1 UNTIL X > SVC-CNTR
 
@@ -772,8 +772,9 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.
-           IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
-                               OR "20" OR "21")
+           IF NOT (CLP-2CLMSTAT = "1 " OR CLP-2CLMSTAT = "2 " 
+                   OR CLP-2CLMSTAT = "3 " OR CLP-2CLMSTAT = "19"
+                   OR CLP-2CLMSTAT = "20" OR CLP-2CLMSTAT = "21")
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
                    VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP
@@ -795,15 +796,18 @@
       *    eliminate qpp codes from printing to error list
       *    mammo measure
            IF SVC-1PROCMOD(8:1) = "F"
+               DISPLAY "F CHECK EXIT SVC-1PROCMOD=[" SVC-1PROCMOD "]"
                GO TO P5-SVC-LOOP-EXIT
            END-IF
       *    other measures
-           IF SVC-1PROCMOD(4:3) = "G95" OR "G96"
+           IF SVC-1PROCMOD(4:3) = "G95" OR 
+              SVC-1PROCMOD(4:3) = "G96"
                GO TO P5-SVC-LOOP-EXIT
            END-IF
 
            MOVE SPACE TO ALF8
-       
+           MOVE SVC-3PAYAMT TO ALF8
+
            IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
                IF SVC-CNTR = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
@@ -813,15 +817,15 @@
                        GO TO P5-SVC-LOOP-EXIT
                    END-IF
                END-IF
-           ELSE IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
+           END-IF
+
+           IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
                IF SVC-CNTR = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
-               ELSE 
+               ELSE
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
-           ELSE
-               MOVE SVC-3PAYAMT TO ALF8
            END-IF
 
            IF ALF8 = "-"
@@ -1277,23 +1281,20 @@
            MOVE AMOUNT-X TO EF5
            ADD AMOUNT-X TO TOT-CHARGE
            MOVE SPACE TO ALF8
-           MOVE SVC-3PAYAMT TO ALF8
-
+           IF PAYORID = "92916" AND CLP-2CLMSTAT = "2 "
+               IF X = 1
+                   MOVE CLP-4TOTCLMPAY TO ALF8
+               END-IF
+           ELSE
+               MOVE SVC-3PAYAMT TO ALF8
+           END-IF
+           
            IF ALF8-1 = "-"
                MOVE "-" TO EFSIGN
            END-IF
 
            PERFORM AMOUNT-1
-      *     IF (PAYORID = "87726")
-      *     AND (CLP-2CLMSTAT = "2 ")
-      *     MOVE SPACE TO ALF8
-      *    MOVE ALLW-TAB(X) TO AMOUNT-X
-      *     MOVE SPACE TO EFSIGN
-      *    IF ALF8-1 = "-"
-      *     MOVE "-" TO EFSIGN
-      *    END-IF
-      *     MOVE 0 TO AMOUNT-X
-      *    END-IF
+     
            MOVE AMOUNT-X TO EF6
            IF ALF8-1 NOT = "-"
             COMPUTE TOT-PAY = TOT-PAY + AMOUNT-X
