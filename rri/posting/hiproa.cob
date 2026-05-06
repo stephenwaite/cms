@@ -804,10 +804,13 @@
       *    eliminate qpp codes from printing to error list
       *    mammo measure
            IF SVC-1PROCMOD(8:1) = "F"
+               DISPLAY "F CHECK EXIT SVC-1PROCMOD=[" SVC-1PROCMOD "]"
                GO TO P5-SVC-LOOP-EXIT
            END-IF
       *    other measures
            IF SVC-1PROCMOD(4:3) = "G95" OR "G96"
+                   DISPLAY "G95/G96 CHECK EXIT SVC-1PROCMOD=[" 
+                   SVC-1PROCMOD "]"
                GO TO P5-SVC-LOOP-EXIT
            END-IF
 
