@@ -886,8 +886,6 @@
                        MOVE SPACE TO ALF8
                    END-IF
                END-IF
-               PERFORM AMOUNT-1
-               MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
            END-IF
 
            IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
@@ -897,10 +895,10 @@
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
-               PERFORM AMOUNT-1
-               MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
            END-IF
 
+           PERFORM AMOUNT-1
+           MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
            MOVE "  " TO PD-DENIAL.
 
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
@@ -1000,16 +998,19 @@
            END-IF
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
-
+           DISPLAY "P7 CC-AMOUNT=[" CC-AMOUNT "] PD-AMOUNT=["
+               PD-AMOUNT "] CLAIM-TOT=[" CLAIM-TOT "]"
+           ACCEPT OMITTED
            PERFORM S4 THRU S5
+           DISPLAY "AFTER S4 CLAIM-TOT=[" CLAIM-TOT "]"
+           ACCEPT OMITTED
            PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
-
            MOVE PAYFILE01 TO PAYBACK
-
            PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
-           PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
-
            MOVE PAYBACK TO PAYFILE01
+           DISPLAY "AFTER S4-PAYFILE CLAIM-TOT=[" CLAIM-TOT "]"
+           ACCEPT OMITTED
+           PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
 
            ACCEPT ORDER-8 FROM TIME
            MOVE ORDER-6 TO PD-ORDER
