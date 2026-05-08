@@ -857,11 +857,17 @@
            PERFORM NO-SURPRISE.
 
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
+           DISPLAY "CHARCUR KEY=[" CHARCUR-KEY "] X=[" X "]"
+           ACCEPT OMITTED
            READ CHARCUR
              INVALID
+               DISPLAY "CHARCUR INVALID"
+               ACCEPT OMITTED
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-READ
+           DISPLAY "CC-CLAIM=[" CC-CLAIM "] G-GARNAME=[" G-GARNAME "]"
+           ACCEPT OMITTED
 
            MOVE CC-CLAIM TO PD-CLAIM
            MOVE DATE-X TO PD-DATE-T
