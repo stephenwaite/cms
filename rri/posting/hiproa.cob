@@ -389,8 +389,8 @@
                "149  " "234  " "P4   ".
            88 DUMP50-PR-CODE VALUE "16   " "26   " "27   " "31   "
                "35   " "96   " "151  " "227  " "243  ".
-           01  OVERPAY-FLAG PIC 9 VALUE 0.
-           01  PAID-FLAG    PIC 9 VALUE 0.
+       01  OVERPAY-FLAG PIC 9 VALUE 0.
+       01  PAID-FLAG    PIC 9 VALUE 0.
 
        PROCEDURE DIVISION.
        0005-START.
