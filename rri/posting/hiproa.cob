@@ -886,6 +886,8 @@
                        MOVE SPACE TO ALF8
                    END-IF
                END-IF
+               PERFORM AMOUNT-1
+               MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
            END-IF
 
            IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
@@ -895,6 +897,8 @@
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
+               PERFORM AMOUNT-1
+               MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
            END-IF
 
            MOVE "  " TO PD-DENIAL.
