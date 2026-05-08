@@ -894,7 +894,44 @@
            END-IF
            IF PAYORID = "VACCN"
                MOVE "225" TO PD-PAYCODE
-           END-IF.
+           END-IF
+
+           GO TO A6.
+
+       
+       A6.
+           MOVE G-GARNO TO PC-KEY8
+           MOVE "000" TO PC-KEY3.
+           START PAYCUR KEY NOT < PAYCUR-KEY
+               INVALID
+                   GO TO P7-NEXT
+           END-START.
+
+       A6-1.
+           READ PAYCUR NEXT
+               AT END
+                   GO TO P7-NEXT
+           END-READ
+           IF PC-KEY8 NOT = G-GARNO
+               GO TO P7-NEXT
+           END-IF
+           IF PC-CLAIM NOT = CC-CLAIM
+               GO TO A6-1
+           END-IF
+           IF PC-PAYCODE NOT = PD-PAYCODE
+               GO TO A6-1
+           END-IF
+           IF PC-AMOUNT NOT = PD-AMOUNT
+               GO TO A6-1
+           END-IF
+           IF PC-DENIAL NOT = PD-DENIAL
+               GO TO A6-1
+           END-IF
+           IF PC-DATE-T NOT = DATE-X
+               GO TO A6-1
+           END-IF
+           PERFORM P1-LOST-SVC
+           GO TO P5-SVC-LOOP-EXIT.
 
        P7-NEXT.
            MOVE "  " TO PD-DENIAL.
