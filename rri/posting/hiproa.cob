@@ -863,6 +863,8 @@
                    IF CLAIM-PAID NOT = 0
                        PERFORM P1-LOST-SVC
                        GO TO P5-SVC-LOOP-EXIT
+                   ELSE
+                       MOVE SPACE TO ALF8
                    END-IF
                END-IF
            END-IF
