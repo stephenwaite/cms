@@ -964,26 +964,16 @@
            END-IF
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
+
            PERFORM S4 THRU S5
+           PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
+
            MOVE PAYFILE01 TO PAYBACK
+
            PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
+           PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
+
            MOVE PAYBACK TO PAYFILE01
-           
-           IF PD-AMOUNT = 0 AND CLAIM-TOT = 0
-               MOVE 1 TO PAID-FLAG
-               PERFORM P1-LOST-SVC
-               GO TO P5-SVC-LOOP-EXIT
-           END-IF
-
-           IF CLAIM-TOT < 0
-               MOVE 1 TO OVERPAY-FLAG
-               PERFORM P1-LOST-SVC
-               GO TO P5-SVC-LOOP-EXIT
-           END-IF
-
-           IF CLAIM-TOT = 0
-               GO TO P5-SVC-LOOP-EXIT
-           END-IF
 
            ACCEPT ORDER-8 FROM TIME
            MOVE ORDER-6 TO PD-ORDER
@@ -1988,3 +1978,18 @@
                end-if
              end-if
            END-PERFORM.
+
+       CHECK-CLAIM-TOT.
+           IF CLAIM-TOT = 0
+               MOVE 1 TO PAID-FLAG
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF
+           IF CLAIM-TOT < 0
+               MOVE 1 TO OVERPAY-FLAG
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF.
+
+       CHECK-CLAIM-TOT-EXIT.
+           EXIT.
