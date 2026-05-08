@@ -919,6 +919,7 @@
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
 
            PERFORM S4 THRU S5
+           PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
 
            IF CLAIM-TOT < 0
                PERFORM P1-LOST-SVC
@@ -1719,6 +1720,31 @@
            GO TO S41.
 
        S5.
+           EXIT.
+           
+       S4-PAYFILE.
+           MOVE G-GARNO TO PD-KEY8
+           MOVE "000" TO PD-KEY3
+           START PAYFILE KEY NOT < PAYFILE-KEY
+               INVALID
+                   GO TO S4-PAYFILE-EXIT
+           END-START.
+
+       S4-PAYFILE-1.
+           READ PAYFILE NEXT
+               AT END
+                   GO TO S4-PAYFILE-EXIT
+           END-READ
+           IF PD-KEY8 NOT = G-GARNO
+               GO TO S4-PAYFILE-EXIT
+           END-IF
+           IF PD-CLAIM NOT = CC-CLAIM
+               GO TO S4-PAYFILE-1
+           END-IF
+           ADD PD-AMOUNT TO CLAIM-TOT.
+           GO TO S4-PAYFILE-1.
+
+       S4-PAYFILE-EXIT.
            EXIT.
 
        DMP4.
