@@ -842,18 +842,6 @@
 
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
 
-           IF PD-AMOUNT = 0
-               IF CLP-2CLMSTAT = "2 "
-                   GO TO P5-SVC-LOOP-EXIT
-               END-IF
-               MOVE 0 TO FLAG
-               PERFORM DUMP50
-               IF FLAG = 1
-                   PERFORM P1-LOST-SVC
-                   GO TO P5-SVC-LOOP-EXIT
-               END-IF
-           END-IF
-
            PERFORM NO-SURPRISE.
 
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
