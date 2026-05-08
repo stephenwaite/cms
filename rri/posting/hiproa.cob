@@ -389,6 +389,8 @@
                "149  " "234  " "P4   ".
            88 DUMP50-PR-CODE VALUE "16   " "26   " "27   " "31   "
                "35   " "96   " "151  " "227  " "243  ".
+           01  OVERPAY-FLAG PIC 9 VALUE 0.
+
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE
@@ -610,6 +612,7 @@
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR
            move 0 to LQ-CNTR
+           move 0 to overpay-flag
            MOVE ALL ZEROES TO ALLW-TAB01.
 
        P1-NM1.
@@ -920,8 +923,14 @@
 
            PERFORM S4 THRU S5
            PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
+           IF CLAIM-TOT < 0
+               MOVE 1 TO OVERPAY-FLAG
+           ELSE
+               MOVE 0 TO OVERPAY-FLAG
+           END-IF
 
            IF CLAIM-TOT < 0
+               
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
@@ -1251,6 +1260,9 @@
            DELIMITED BY "  " INTO EF1
 
            MOVE NM1-CODE0 TO EF2
+           IF OVERPAY-FLAG = 1
+               MOVE "OVERPAY    " TO EF2
+           END-IF
 
            IF NOT-FLAG = 1
             MOVE "?NOT YOURS?" TO EF2
