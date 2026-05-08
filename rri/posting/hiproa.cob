@@ -747,9 +747,7 @@
              INVALID
                GO TO P3-SVC-LOOP
            END-READ
-           DISPLAY "GARFILE G-GARNO=[" G-GARNO "] G-GARNAME=["
-               G-GARNAME "]"
-
+           
            MOVE 1 TO GAR-FLAG
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
                BY 1 UNTIL X > SVC-CNTR
@@ -813,26 +811,6 @@
            MOVE SPACE TO ALF8
            MOVE SVC-3PAYAMT TO ALF8
 
-           IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
-               IF SVC-CNTR = 1
-                   MOVE CLP-4TOTCLMPAY TO ALF8
-               ELSE
-                   IF CLAIM-PAID NOT = 0
-                       PERFORM P1-LOST-SVC
-                       GO TO P5-SVC-LOOP-EXIT
-                   END-IF
-               END-IF
-           END-IF
-
-           IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
-               IF SVC-CNTR = 1
-                   MOVE CLP-4TOTCLMPAY TO ALF8
-               ELSE
-                   PERFORM P1-LOST-SVC
-                   GO TO P5-SVC-LOOP-EXIT
-               END-IF
-           END-IF
-
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
@@ -845,18 +823,12 @@
            PERFORM NO-SURPRISE.
 
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
-           DISPLAY "CHARCUR KEY=[" CHARCUR-KEY "] X=[" X "]"
-           ACCEPT OMITTED
            READ CHARCUR
              INVALID
-               DISPLAY "CHARCUR INVALID"
-               ACCEPT OMITTED
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-READ
-           DISPLAY "CC-CLAIM=[" CC-CLAIM "] G-GARNAME=[" G-GARNAME "]"
-           ACCEPT OMITTED
-
+           
            MOVE CC-CLAIM TO PD-CLAIM
            MOVE DATE-X TO PD-DATE-T
            MOVE G-GARNAME TO PD-NAME
@@ -884,9 +856,28 @@
                MOVE "225" TO PD-PAYCODE
            END-IF
 
+           IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
+               IF SVC-CNTR = 1
+                   MOVE CLP-4TOTCLMPAY TO ALF8
+               ELSE
+                   IF CLAIM-PAID NOT = 0
+                       PERFORM P1-LOST-SVC
+                       GO TO P5-SVC-LOOP-EXIT
+                   END-IF
+               END-IF
+           END-IF
+
+           IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
+               IF SVC-CNTR = 1
+                   MOVE CLP-4TOTCLMPAY TO ALF8
+               ELSE
+                   PERFORM P1-LOST-SVC
+                   GO TO P5-SVC-LOOP-EXIT
+               END-IF
+           END-IF
+
            GO TO A6.
 
-       
        A6.
            MOVE G-GARNO TO PC-KEY8
            MOVE "000" TO PC-KEY3.
@@ -976,10 +967,6 @@
            PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
            MOVE PAYBACK TO PAYFILE01
            
-           DISPLAY "CLAIM-TOT=[" CLAIM-TOT "] CC-AMOUNT=[" CC-AMOUNT
-               "] PD-AMOUNT=[" PD-AMOUNT "] CC-CLAIM=[" CC-CLAIM "]"
-           ACCEPT OMITTED
-
            IF PD-AMOUNT = 0 AND CLAIM-TOT = 0
                MOVE 1 TO PAID-FLAG
                PERFORM P1-LOST-SVC
@@ -1143,9 +1130,6 @@
 
                MOVE "14" TO PD-DENIAL
                MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
-               DISPLAY "PRE-ADJ PD-NAME=[" PD-NAME "] PD-CLAIM=["
-                        PD-CLAIM "] INS-REDUCE=[" INS-REDUCE "]"
-               ACCEPT OMITTED  
                PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
                MOVE CAS-CNTR TO Z
            END-IF
@@ -1786,10 +1770,7 @@
              AND (CLP-2CLMSTAT = "2 ")
              GO TO S41
            END-IF
-           DISPLAY "S4 PC-KEY8=[" PC-KEY8 "] PC-PAYCODE=[" PC-PAYCODE
-               "] PC-AMOUNT=[" PC-AMOUNT "] PC-CLAIM=[" PC-CLAIM
-               "] PC-DENIAL=[" PC-DENIAL "]"
-           ACCEPT OMITTED
+           
            ADD PC-AMOUNT TO CLAIM-TOT.
            GO TO S41.
 
@@ -1815,10 +1796,7 @@
            IF PD-CLAIM NOT = CC-CLAIM
                GO TO S4-PAYFILE-1
            END-IF
-           DISPLAY "S4-PAYFILE PD-KEY8=[" PD-KEY8 "] PD-PAYCODE=["
-               PD-PAYCODE "] PD-AMOUNT=[" PD-AMOUNT "] PD-CLAIM=["
-               PD-CLAIM "]"
-           ACCEPT OMITTED
+           
            ADD PD-AMOUNT TO CLAIM-TOT.
            GO TO S4-PAYFILE-1.
 
