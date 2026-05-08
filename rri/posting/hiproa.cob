@@ -874,6 +874,17 @@
            MOVE G-GARNAME TO PD-NAME
 
            MOVE CC-PAYCODE TO PD-PAYCODE
+           IF CC-PAYCODE = "001"
+               IF CLP-2CLMSTAT = "1 " OR CLP-2CLMSTAT = "19"
+                   MOVE G-PRINS TO PD-PAYCODE
+               END-IF
+               IF CLP-2CLMSTAT = "2 " OR CLP-2CLMSTAT = "20"
+                   MOVE G-SEINS TO PD-PAYCODE
+               END-IF
+               IF CLP-2CLMSTAT = "3 " OR CLP-2CLMSTAT = "21"
+                   MOVE G-TRINS TO PD-PAYCODE
+               END-IF
+           END-IF
            IF PD-PAYCODE = "001" AND G-PRINS = "003"
                AND CLP-2CLMSTAT = "2 "
                MOVE "076" TO PD-PAYCODE
