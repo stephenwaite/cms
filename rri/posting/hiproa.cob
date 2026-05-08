@@ -1804,6 +1804,9 @@
            READ PAYCUR NEXT AT END GO TO S5.
            IF PC-KEY8 NOT = CC-KEY8 GO TO S5.
            IF PC-CLAIM NOT = CC-CLAIM GO TO S41.
+           DISPLAY "S41 PC-PAYCODE=[" PC-PAYCODE "] PC-AMOUNT=["
+               PC-AMOUNT "] PC-DENIAL=[" PC-DENIAL "]"
+           ACCEPT OMITTED
            IF (PC-PAYCODE = G-PRINS)
              AND ((PC-DENIAL = "14") OR (PC-PAYCODE = "014"))
              AND (CLP-2CLMSTAT = "2 ")
