@@ -1010,10 +1010,7 @@
                    IF ALF8 NOT = SPACE
                        MOVE "DI" TO PD-DENIAL
                        PERFORM AMOUNT-1
-                       MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
-                    DISPLAY "PRE-ADJ PD-NAME=[" PD-NAME "] PD-CLAIM=["
-                        PD-CLAIM "] INS-REDUCE=[" INS-REDUCE "]"
-                    ACCEPT OMITTED    
+                       MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT  
                        PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
                        MOVE CAS-CNTR TO Z
                    END-IF
@@ -1104,6 +1101,9 @@
 
                MOVE "14" TO PD-DENIAL
                MULTIPLY INS-REDUCE BY -1 GIVING PD-AMOUNT
+               DISPLAY "PRE-ADJ PD-NAME=[" PD-NAME "] PD-CLAIM=["
+                        PD-CLAIM "] INS-REDUCE=[" INS-REDUCE "]"
+               ACCEPT OMITTED  
                PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
                MOVE CAS-CNTR TO Z
            END-IF
