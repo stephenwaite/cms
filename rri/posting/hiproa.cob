@@ -747,6 +747,8 @@
              INVALID
                GO TO P3-SVC-LOOP
            END-READ
+           DISPLAY "GARFILE G-GARNO=[" G-GARNO "] G-GARNAME=["
+               G-GARNAME "]"
 
            MOVE 1 TO GAR-FLAG
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
@@ -1009,6 +1011,9 @@
                        MOVE "DI" TO PD-DENIAL
                        PERFORM AMOUNT-1
                        MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
+                    DISPLAY "PRE-ADJ PD-NAME=[" PD-NAME "] PD-CLAIM=["
+                        PD-CLAIM "] INS-REDUCE=[" INS-REDUCE "]"
+                    ACCEPT OMITTED    
                        PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
                        MOVE CAS-CNTR TO Z
                    END-IF
