@@ -389,6 +389,11 @@
                "149  " "234  " "P4   ".
            88 DUMP50-PR-CODE VALUE "16   " "26   " "27   " "31   "
                "35   " "96   " "151  " "227  " "243  ".
+       01  OVERPAY-FLAG  PIC 9 VALUE 0.
+       01  PAID-FLAG     PIC 9 VALUE 0.
+       01  MISMATCH-FLAG PIC 9 VALUE 0.
+       01  SVC-TOTAL PIC S9(5)V99 VALUE 0.
+
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT INSFILE FILEIN CHARCUR GARFILE MPLRFILE PARMFILE
@@ -606,10 +611,12 @@
        P1-CLP-2.
            MOVE CLP-2CLMSTAT TO EF8
            MOVE SPACE TO NM101 CLMCAS01.
-           MOVE SPACE TO SVC-DATE01
+           MOVE SPACE TO SVC-DATE01 FOUND-TAB01
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR
-           move 0 to LQ-CNTR
+           MOVE 0 TO LQ-CNTR
+           MOVE 0 TO SVC-TOTAL
+           MOVE 0 TO OVERPAY-FLAG PAID-FLAG MISMATCH-FLAG
            MOVE ALL ZEROES TO ALLW-TAB01.
 
        P1-NM1.
@@ -691,6 +698,14 @@
 
              ADD 1 TO SVC-CNTR
              MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
+             MOVE SPACE TO SVC01
+             UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                 SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC
+                 SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN
+             MOVE SPACE TO ALF8
+             MOVE SVC-2CHRGAMT TO ALF8
+             PERFORM AMOUNT-1
+             COMPUTE SVC-TOTAL = SVC-TOTAL + AMOUNT-X
              GO TO P1-SVC-LOOP
            END-IF
 
@@ -731,10 +746,19 @@
       * VALIDATE INCOMING DATA AGAINST CHARGES
        P2-SVC-LOOP.
            MOVE 0 TO GAR-FLAG
+           MOVE 0 TO FIND-CNTR TOT-TOT
 
            IF SVC-CNTR = 0
               PERFORM P1-NO-SVC
               GO TO P9-SVC-LOOP
+           END-IF
+
+           MOVE CLP-3TOTCLMCHG TO ALF8
+           PERFORM AMOUNT-1
+           IF AMOUNT-X NOT = SVC-TOTAL
+               MOVE 1 TO MISMATCH-FLAG
+               PERFORM P1-NO-SVC
+               GO TO P9-SVC-LOOP
            END-IF
 
            MOVE CLP-1 TO G-GARNO
@@ -742,9 +766,8 @@
              INVALID
                GO TO P3-SVC-LOOP
            END-READ
-
+           
            MOVE 1 TO GAR-FLAG
-           MOVE 0 TO FIND-CNTR TOT-TOT
            PERFORM LOOK-CHG THRU LOOK-CHG-EXIT VARYING X FROM 1
                BY 1 UNTIL X > SVC-CNTR
 
@@ -772,8 +795,9 @@
 
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
        P4-SVC-LOOP.
-           IF NOT (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19"
-                               OR "20" OR "21")
+           IF NOT (CLP-2CLMSTAT = "1 " OR CLP-2CLMSTAT = "2 " 
+                   OR CLP-2CLMSTAT = "3 " OR CLP-2CLMSTAT = "19"
+                   OR CLP-2CLMSTAT = "20" OR CLP-2CLMSTAT = "21")
                PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
                    VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP
@@ -798,31 +822,13 @@
                GO TO P5-SVC-LOOP-EXIT
            END-IF
       *    other measures
-           IF SVC-1PROCMOD(4:3) = "G95" OR "G96"
+           IF SVC-1PROCMOD(4:3) = "G95" OR 
+              SVC-1PROCMOD(4:3) = "G96"
                GO TO P5-SVC-LOOP-EXIT
            END-IF
 
            MOVE SPACE TO ALF8
-       
-           IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
-               IF SVC-CNTR = 1
-                   MOVE CLP-4TOTCLMPAY TO ALF8
-               ELSE
-                   IF CLAIM-PAID NOT = 0
-                       PERFORM P1-LOST-SVC
-                       GO TO P5-SVC-LOOP-EXIT
-                   END-IF
-               END-IF
-           ELSE IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
-               IF SVC-CNTR = 1
-                   MOVE CLP-4TOTCLMPAY TO ALF8
-               ELSE 
-                   PERFORM P1-LOST-SVC
-                   GO TO P5-SVC-LOOP-EXIT
-               END-IF
-           ELSE
-               MOVE SVC-3PAYAMT TO ALF8
-           END-IF
+           MOVE SVC-3PAYAMT TO ALF8
 
            IF ALF8 = "-"
                PERFORM P1-LOST-SVC
@@ -833,18 +839,6 @@
 
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
 
-           IF PD-AMOUNT = 0
-               IF CLP-2CLMSTAT = "2 "
-                   GO TO P5-SVC-LOOP-EXIT
-               END-IF
-               MOVE 0 TO FLAG
-               PERFORM DUMP50
-               IF FLAG = 1
-                   PERFORM P1-LOST-SVC
-                   GO TO P5-SVC-LOOP-EXIT
-               END-IF
-           END-IF
-
            PERFORM NO-SURPRISE.
 
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
@@ -853,12 +847,23 @@
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-READ
-
+           
            MOVE CC-CLAIM TO PD-CLAIM
            MOVE DATE-X TO PD-DATE-T
            MOVE G-GARNAME TO PD-NAME
 
            MOVE CC-PAYCODE TO PD-PAYCODE
+           IF CC-PAYCODE = "001"
+               IF CLP-2CLMSTAT = "1 " OR CLP-2CLMSTAT = "19"
+                   MOVE G-PRINS TO PD-PAYCODE
+               END-IF
+               IF CLP-2CLMSTAT = "2 " OR CLP-2CLMSTAT = "20"
+                   MOVE G-SEINS TO PD-PAYCODE
+               END-IF
+               IF CLP-2CLMSTAT = "3 " OR CLP-2CLMSTAT = "21"
+                   MOVE G-TRINS TO PD-PAYCODE
+               END-IF
+           END-IF
            IF PD-PAYCODE = "001" AND G-PRINS = "003"
                AND CLP-2CLMSTAT = "2 "
                MOVE "076" TO PD-PAYCODE
@@ -868,9 +873,32 @@
            END-IF
            IF PAYORID = "VACCN"
                MOVE "225" TO PD-PAYCODE
-           END-IF.
+           END-IF
 
-       P7-NEXT.
+           IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
+               IF SVC-CNTR = 1
+                   MOVE CLP-4TOTCLMPAY TO ALF8
+               ELSE
+                   IF CLAIM-PAID NOT = 0
+                       PERFORM P1-LOST-SVC
+                       GO TO P5-SVC-LOOP-EXIT
+                   ELSE
+                       MOVE SPACE TO ALF8
+                   END-IF
+               END-IF
+           END-IF
+
+           IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
+               IF SVC-CNTR = 1
+                   MOVE CLP-4TOTCLMPAY TO ALF8
+               ELSE
+                   PERFORM P1-LOST-SVC
+                   GO TO P5-SVC-LOOP-EXIT
+               END-IF
+           END-IF
+
+           PERFORM AMOUNT-1
+           MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
            MOVE "  " TO PD-DENIAL.
 
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
@@ -882,20 +910,77 @@
                        CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14
                        CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-                   IF (CAS-2 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-5 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-8 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-11 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-14 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-17 = "1  " OR "126" OR "25 " OR "37 ")
-                       MOVE "DD" TO PD-DENIAL
-                       MOVE CAS-CNTR TO Z
+                   IF (CAS-2 = "1  " OR CAS-2 = "126"
+                       OR CAS-2 = "25 " OR CAS-2 = "37 ")
+                   OR (CAS-5 = "1  " OR CAS-5 = "126"
+                       OR CAS-5 = "25 " OR CAS-5 = "37 ")
+                   OR (CAS-8 = "1  " OR CAS-8 = "126"
+                       OR CAS-8 = "25 " OR CAS-8 = "37 ")
+                   OR (CAS-11 = "1  " OR CAS-11 = "126"
+                       OR CAS-11 = "25 " OR CAS-11 = "37 ")
+                   OR (CAS-14 = "1  " OR CAS-14 = "126"
+                       OR CAS-14 = "25 " OR CAS-14 = "37 ")
+                   OR (CAS-17 = "1  " OR CAS-17 = "126"
+                       OR CAS-17 = "25 " OR CAS-17 = "37 ")
+                   MOVE "DD" TO PD-DENIAL
+                   MOVE CAS-CNTR TO Z
                    END-IF
                END-IF
            END-PERFORM
 
-           IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS
-                    OR "075" OR "076" OR "225")
+           IF PD-AMOUNT = 0 AND PD-DENIAL = "  "
+               MOVE 0 TO FLAG
+               PERFORM DUMP50
+               IF FLAG = 1
+                   PERFORM P1-LOST-SVC
+                   GO TO P5-SVC-LOOP-EXIT
+               END-IF
+               IF CLP-2CLMSTAT = "2 "
+                   PERFORM P1-LOST-SVC
+                   GO TO P5-SVC-LOOP-EXIT
+               END-IF
+           END-IF
+
+           GO TO A6.
+
+       A6.
+           MOVE G-GARNO TO PC-KEY8
+           MOVE "000" TO PC-KEY3.
+           START PAYCUR KEY NOT < PAYCUR-KEY
+               INVALID
+                   GO TO P7-NEXT
+           END-START.
+
+       A6-1.
+           READ PAYCUR NEXT
+               AT END
+                   GO TO P7-NEXT
+           END-READ
+           IF PC-KEY8 NOT = G-GARNO
+               GO TO P7-NEXT
+           END-IF
+           IF PC-CLAIM NOT = CC-CLAIM
+               GO TO A6-1
+           END-IF
+           IF PC-PAYCODE NOT = PD-PAYCODE
+               GO TO A6-1
+           END-IF
+           IF PC-AMOUNT NOT = PD-AMOUNT
+               GO TO A6-1
+           END-IF
+           IF PC-DATE-T NOT = DATE-X
+               GO TO A6-1
+           END-IF
+           PERFORM P1-LOST-SVC
+           GO TO P5-SVC-LOOP-EXIT.
+
+       P7-NEXT.
+           IF NOT (PD-PAYCODE = G-PRINS 
+                   OR PD-PAYCODE = G-SEINS 
+                   OR PD-PAYCODE = G-TRINS
+                   OR PD-PAYCODE = "075" 
+                   OR PD-PAYCODE = "076" 
+                   OR PD-PAYCODE = "225")
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
@@ -913,21 +998,12 @@
            END-IF
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
-
            PERFORM S4 THRU S5
-
-           IF CLAIM-TOT < 0
-               PERFORM P1-LOST-SVC
-               GO TO P5-SVC-LOOP-EXIT
-           END-IF
-
-           MOVE CC-AMOUNT TO TOT-CLAIM
-
-           PERFORM DMP4 THRU DMP5
-
-           IF TOT-CLAIM = 0
-               GO TO P5-SVC-LOOP-EXIT
-           END-IF
+           PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
+           MOVE PAYFILE01 TO PAYBACK
+           PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
+           MOVE PAYBACK TO PAYFILE01
+           PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
 
            ACCEPT ORDER-8 FROM TIME
            MOVE ORDER-6 TO PD-ORDER
@@ -985,7 +1061,7 @@
                    IF ALF8 NOT = SPACE
                        MOVE "DI" TO PD-DENIAL
                        PERFORM AMOUNT-1
-                       MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
+                       MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT  
                        PERFORM WRITE-ADJ THRU WRITE-ADJ-EXIT
                        MOVE CAS-CNTR TO Z
                    END-IF
@@ -1004,9 +1080,8 @@
                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14
                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-                IF (CAS-1 = "CO" OR "PI" OR "OA")
-                    AND NOT (CLP-2CLMSTAT = "2 " OR "3 ")
-
+                IF (CAS-1 = "CO" OR CAS-1 = "PI" OR CAS-1 = "OA")
+                    AND NOT (CLP-2CLMSTAT = "2 " OR CLP-2CLMSTAT = "3 ")
                     MOVE CAS-2 TO CAS-CODE-CHECK
                     IF NOT INS-REDUCE-CODE
                         MOVE CAS-5 TO CAS-CODE-CHECK
@@ -1208,6 +1283,9 @@
            MOVE CLMCAS-11 TO EF-DENIAL4
            MOVE CLMCAS-14 TO EF-DENIAL5
            MOVE CLMCAS-17 TO EF-DENIAL6
+           IF MISMATCH-FLAG = 1
+               MOVE "MISMATCH   " TO EF2
+           END-IF
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
 
@@ -1246,7 +1324,7 @@
            DELIMITED BY "  " INTO EF1
 
            MOVE NM1-CODE0 TO EF2
-
+           
            IF NOT-FLAG = 1
             MOVE "?NOT YOURS?" TO EF2
            END-IF
@@ -1263,6 +1341,12 @@
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO EF3
            MOVE BPR-16 TO EF-PAYDATE
+           IF OVERPAY-FLAG = 1
+               MOVE "OVERPAY " TO EF-PAYDATE
+           END-IF
+           IF PAID-FLAG = 1
+               MOVE "PAID    " TO EF-PAYDATE
+           END-IF
            MOVE CLP-1 TO EF4
            MOVE SPACE TO ALF8
            MOVE SVC-2CHRGAMT TO ALF8
@@ -1277,23 +1361,20 @@
            MOVE AMOUNT-X TO EF5
            ADD AMOUNT-X TO TOT-CHARGE
            MOVE SPACE TO ALF8
-           MOVE SVC-3PAYAMT TO ALF8
-
+           IF PAYORID = "92916" AND CLP-2CLMSTAT = "2 "
+               IF X = 1
+                   MOVE CLP-4TOTCLMPAY TO ALF8
+               END-IF
+           ELSE
+               MOVE SVC-3PAYAMT TO ALF8
+           END-IF
+           
            IF ALF8-1 = "-"
                MOVE "-" TO EFSIGN
            END-IF
 
            PERFORM AMOUNT-1
-      *     IF (PAYORID = "87726")
-      *     AND (CLP-2CLMSTAT = "2 ")
-      *     MOVE SPACE TO ALF8
-      *    MOVE ALLW-TAB(X) TO AMOUNT-X
-      *     MOVE SPACE TO EFSIGN
-      *    IF ALF8-1 = "-"
-      *     MOVE "-" TO EFSIGN
-      *    END-IF
-      *     MOVE 0 TO AMOUNT-X
-      *    END-IF
+     
            MOVE AMOUNT-X TO EF6
            IF ALF8-1 NOT = "-"
             COMPUTE TOT-PAY = TOT-PAY + AMOUNT-X
@@ -1643,6 +1724,13 @@
                GO TO LOOK-1
            END-IF
 
+           MOVE SPACE TO ALF8
+           MOVE SVC-2CHRGAMT TO ALF8
+           PERFORM AMOUNT-1
+           IF AMOUNT-X NOT = CC-AMOUNT
+               GO TO LOOK-1
+           END-IF
+
            MOVE 0 TO FLAGY DUPFLAG
 
            PERFORM A5 THRU A5-EXIT
@@ -1709,45 +1797,36 @@
            READ PAYCUR NEXT AT END GO TO S5.
            IF PC-KEY8 NOT = CC-KEY8 GO TO S5.
            IF PC-CLAIM NOT = CC-CLAIM GO TO S41.
-           IF (PC-PAYCODE = G-PRINS)
-             AND ((PC-DENIAL = "14") OR (PC-PAYCODE = "014"))
-             AND (CLP-2CLMSTAT = "2")
-             GO TO S41
-           END-IF
            ADD PC-AMOUNT TO CLAIM-TOT.
            GO TO S41.
 
        S5.
            EXIT.
-
-       DMP4.
-           MOVE CC-KEY8 TO PC-KEY8
-           MOVE "000" TO PC-KEY3.
-           START PAYCUR KEY NOT <  PAYCUR-KEY
-             INVALID
-               GO TO DMP5
+           
+       S4-PAYFILE.
+           MOVE G-GARNO TO PD-KEY8
+           MOVE "000" TO PD-KEY3
+           START PAYFILE KEY NOT < PAYFILE-KEY
+               INVALID
+                   GO TO S4-PAYFILE-EXIT
            END-START.
 
-       DMP41.
-           READ PAYCUR NEXT
-             AT END
-               GO TO DMP5
+       S4-PAYFILE-1.
+           READ PAYFILE NEXT
+               AT END
+                   GO TO S4-PAYFILE-EXIT
            END-READ
-
-           IF PC-KEY8 NOT = CC-KEY8 GO TO DMP5.
-
-           IF PC-CLAIM NOT = CC-CLAIM GO TO DMP41.
-
-           IF (PC-PAYCODE = G-PRINS)
-               AND ((PC-DENIAL = "14") OR (PC-PAYCODE = "014"))
-               AND (CLP-2CLMSTAT = "2")
-               GO TO DMP41
+           IF PD-KEY8 NOT = G-GARNO
+               GO TO S4-PAYFILE-EXIT
            END-IF
+           IF PD-CLAIM NOT = CC-CLAIM
+               GO TO S4-PAYFILE-1
+           END-IF
+           
+           ADD PD-AMOUNT TO CLAIM-TOT.
+           GO TO S4-PAYFILE-1.
 
-           ADD PC-AMOUNT TO TOT-CLAIM.
-           GO TO DMP41.
-
-       DMP5.
+       S4-PAYFILE-EXIT.
            EXIT.
 
        AMOUNT-1.
@@ -1933,3 +2012,18 @@
                end-if
              end-if
            END-PERFORM.
+
+       CHECK-CLAIM-TOT.
+           IF CLAIM-TOT = 0
+               MOVE 1 TO PAID-FLAG
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF
+           IF CLAIM-TOT < 0
+               MOVE 1 TO OVERPAY-FLAG
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF.
+
+       CHECK-CLAIM-TOT-EXIT.
+           EXIT.
