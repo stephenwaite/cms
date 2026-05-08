@@ -389,8 +389,10 @@
                "149  " "234  " "P4   ".
            88 DUMP50-PR-CODE VALUE "16   " "26   " "27   " "31   "
                "35   " "96   " "151  " "227  " "243  ".
-       01  OVERPAY-FLAG PIC 9 VALUE 0.
-       01  PAID-FLAG    PIC 9 VALUE 0.
+       01  OVERPAY-FLAG  PIC 9 VALUE 0.
+       01  PAID-FLAG     PIC 9 VALUE 0.
+       01  MISMATCH-FLAG PIC 9 VALUE 0.
+       01  SVC-TOTAL PIC S9(5)V99 VALUE 0.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -612,8 +614,9 @@
            MOVE SPACE TO SVC-DATE01 FOUND-TAB01
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR
-           move 0 to LQ-CNTR
-           move 0 to overpay-flag paid-flag
+           MOVE 0 TO LQ-CNTR
+           MOVE 0 TO SVC-TOTAL
+           MOVE 0 TO OVERPAY-FLAG PAID-FLAG MISMATCH-FLAG
            MOVE ALL ZEROES TO ALLW-TAB01.
 
        P1-NM1.
@@ -695,6 +698,14 @@
 
              ADD 1 TO SVC-CNTR
              MOVE FILEIN01 TO SVC-TAB(SVC-CNTR)
+             MOVE SPACE TO SVC01
+             UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                 SVC-0 SVC-1PROCMOD SVC-2CHRGAMT SVC-3PAYAMT SVC-4NUBC
+                 SVC-5QUAN SVC-6COMPOSITE SVC-7QUAN
+             MOVE SPACE TO ALF8
+             MOVE SVC-2CHRGAMT TO ALF8
+             PERFORM AMOUNT-1
+             COMPUTE SVC-TOTAL = SVC-TOTAL + AMOUNT-X
              GO TO P1-SVC-LOOP
            END-IF
 
@@ -740,6 +751,14 @@
            IF SVC-CNTR = 0
               PERFORM P1-NO-SVC
               GO TO P9-SVC-LOOP
+           END-IF
+
+           MOVE CLP-3TOTCLMCHG TO ALF8
+           PERFORM AMOUNT-1
+           IF AMOUNT-X NOT = SVC-TOTAL
+               MOVE 1 TO MISMATCH-FLAG
+               PERFORM P1-NO-SVC
+               GO TO P9-SVC-LOOP
            END-IF
 
            MOVE CLP-1 TO G-GARNO
@@ -1266,6 +1285,9 @@
            MOVE CLMCAS-11 TO EF-DENIAL4
            MOVE CLMCAS-14 TO EF-DENIAL5
            MOVE CLMCAS-17 TO EF-DENIAL6
+           IF MISMATCH-FLAG = 1
+               MOVE "MISMATCH   " TO EF2
+           END-IF
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
 
