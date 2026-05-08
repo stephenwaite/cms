@@ -1726,6 +1726,13 @@
                GO TO LOOK-1
            END-IF
 
+           MOVE SPACE TO ALF8
+           MOVE SVC-2CHRGAMT TO ALF8
+           PERFORM AMOUNT-1
+           IF AMOUNT-X NOT = CC-AMOUNT
+               GO TO LOOK-1
+           END-IF
+
            MOVE 0 TO FLAGY DUPFLAG
 
            PERFORM A5 THRU A5-EXIT
