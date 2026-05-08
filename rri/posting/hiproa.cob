@@ -998,9 +998,6 @@
            END-IF
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
-           DISPLAY "P7 CC-AMOUNT=[" CC-AMOUNT "] PD-AMOUNT=["
-               PD-AMOUNT "] CLAIM-TOT=[" CLAIM-TOT "]"
-           ACCEPT OMITTED
            PERFORM S4 THRU S5
            DISPLAY "AFTER S4 CLAIM-TOT=[" CLAIM-TOT "]"
            ACCEPT OMITTED
@@ -1804,15 +1801,6 @@
            READ PAYCUR NEXT AT END GO TO S5.
            IF PC-KEY8 NOT = CC-KEY8 GO TO S5.
            IF PC-CLAIM NOT = CC-CLAIM GO TO S41.
-           DISPLAY "S41 PC-PAYCODE=[" PC-PAYCODE "] PC-AMOUNT=["
-               PC-AMOUNT "] PC-DENIAL=[" PC-DENIAL "]"
-           ACCEPT OMITTED
-           IF (PC-PAYCODE = G-PRINS)
-             AND ((PC-DENIAL = "14") OR (PC-PAYCODE = "014"))
-             AND (CLP-2CLMSTAT = "2 ")
-             GO TO S41
-           END-IF
-           
            ADD PC-AMOUNT TO CLAIM-TOT.
            GO TO S41.
 
