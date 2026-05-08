@@ -902,14 +902,18 @@
                        OR CAS-14 = "25 " OR CAS-14 = "37 ")
                    OR (CAS-17 = "1  " OR CAS-17 = "126"
                        OR CAS-17 = "25 " OR CAS-17 = "37 ")
-                       MOVE "DD" TO PD-DENIAL
-                       MOVE CAS-CNTR TO Z
+                   MOVE "DD" TO PD-DENIAL
+                   MOVE CAS-CNTR TO Z
                    END-IF
                END-IF
            END-PERFORM
 
-           IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS OR G-TRINS
-                    OR "075" OR "076" OR "225")
+           IF NOT (PD-PAYCODE = G-PRINS 
+                   OR PD-PAYCODE = G-SEINS 
+                   OR PD-PAYCODE = G-TRINS
+                   OR PD-PAYCODE = "075" 
+                   OR PD-PAYCODE = "076" 
+                   OR PD-PAYCODE = "225")
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
