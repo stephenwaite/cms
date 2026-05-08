@@ -800,7 +800,6 @@
       *    eliminate qpp codes from printing to error list
       *    mammo measure
            IF SVC-1PROCMOD(8:1) = "F"
-               DISPLAY "F CHECK EXIT SVC-1PROCMOD=[" SVC-1PROCMOD "]"
                GO TO P5-SVC-LOOP-EXIT
            END-IF
       *    other measures
@@ -935,6 +934,7 @@
            PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
            DISPLAY "CLAIM-TOT=[" CLAIM-TOT "] CC-AMOUNT=[" CC-AMOUNT
                "] PD-AMOUNT=[" PD-AMOUNT "] CC-CLAIM=[" CC-CLAIM "]"
+           ACCEPT OMITTED
 
            IF PD-AMOUNT = 0 AND CLAIM-TOT = 0
                MOVE 1 TO PAID-FLAG
@@ -1740,6 +1740,9 @@
              AND (CLP-2CLMSTAT = "2")
              GO TO S41
            END-IF
+           DISPLAY "S4 PC-PAYCODE=[" PC-PAYCODE "] PC-AMOUNT=["
+               PC-AMOUNT "] PC-CLAIM=[" PC-CLAIM "] PC-DENIAL=["
+               PC-DENIAL "]"
            ADD PC-AMOUNT TO CLAIM-TOT.
            GO TO S41.
 
@@ -1765,6 +1768,8 @@
            IF PD-CLAIM NOT = CC-CLAIM
                GO TO S4-PAYFILE-1
            END-IF
+           DISPLAY "S4-PAYFILE PD-PAYCODE=[" PD-PAYCODE "] PD-AMOUNT=["
+               PD-AMOUNT "] PD-CLAIM=[" PD-CLAIM "]"
            ADD PD-AMOUNT TO CLAIM-TOT.
            GO TO S4-PAYFILE-1.
 
