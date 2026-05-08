@@ -924,9 +924,6 @@
            IF PC-AMOUNT NOT = PD-AMOUNT
                GO TO A6-1
            END-IF
-           IF PC-DENIAL NOT = PD-DENIAL
-               GO TO A6-1
-           END-IF
            IF PC-DATE-T NOT = DATE-X
                GO TO A6-1
            END-IF
