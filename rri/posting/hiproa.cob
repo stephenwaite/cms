@@ -890,12 +890,18 @@
                        CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14
                        CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-                   IF (CAS-2 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-5 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-8 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-11 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-14 = "1  " OR "126" OR "25 " OR "37 ")
-                       OR (CAS-17 = "1  " OR "126" OR "25 " OR "37 ")
+                   IF (CAS-2 = "1  " OR CAS-2 = "126"
+                       OR CAS-2 = "25 " OR CAS-2 = "37 ")
+                   OR (CAS-5 = "1  " OR CAS-5 = "126"
+                       OR CAS-5 = "25 " OR CAS-5 = "37 ")
+                   OR (CAS-8 = "1  " OR CAS-8 = "126"
+                       OR CAS-8 = "25 " OR CAS-8 = "37 ")
+                   OR (CAS-11 = "1  " OR CAS-11 = "126"
+                       OR CAS-11 = "25 " OR CAS-11 = "37 ")
+                   OR (CAS-14 = "1  " OR CAS-14 = "126"
+                       OR CAS-14 = "25 " OR CAS-14 = "37 ")
+                   OR (CAS-17 = "1  " OR CAS-17 = "126"
+                       OR CAS-17 = "25 " OR CAS-17 = "37 ")
                        MOVE "DD" TO PD-DENIAL
                        MOVE CAS-CNTR TO Z
                    END-IF
