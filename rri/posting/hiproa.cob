@@ -390,6 +390,7 @@
            88 DUMP50-PR-CODE VALUE "16   " "26   " "27   " "31   "
                "35   " "96   " "151  " "227  " "243  ".
            01  OVERPAY-FLAG PIC 9 VALUE 0.
+           01  PAID-FLAG    PIC 9 VALUE 0.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -612,7 +613,7 @@
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR
            move 0 to LQ-CNTR
-           move 0 to overpay-flag
+           move 0 to overpay-flag paid-flag
            MOVE ALL ZEROES TO ALLW-TAB01.
 
        P1-NM1.
@@ -920,26 +921,22 @@
            END-IF
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
-
            PERFORM S4 THRU S5
            PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
-           IF CLAIM-TOT < 0
-               MOVE 1 TO OVERPAY-FLAG
-           ELSE
-               MOVE 0 TO OVERPAY-FLAG
-           END-IF
 
-           IF CLAIM-TOT < 0
-               
+           IF PD-AMOUNT = 0 AND CLAIM-TOT = 0
+               MOVE 1 TO PAID-FLAG
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
 
-           MOVE CC-AMOUNT TO TOT-CLAIM
+           IF CLAIM-TOT < 0
+               MOVE 1 TO OVERPAY-FLAG
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF
 
-           PERFORM DMP4 THRU DMP5
-
-           IF TOT-CLAIM = 0
+           IF CLAIM-TOT = 0
                GO TO P5-SVC-LOOP-EXIT
            END-IF
 
@@ -1260,10 +1257,7 @@
            DELIMITED BY "  " INTO EF1
 
            MOVE NM1-CODE0 TO EF2
-           IF OVERPAY-FLAG = 1
-               MOVE "OVERPAY    " TO EF2
-           END-IF
-
+           
            IF NOT-FLAG = 1
             MOVE "?NOT YOURS?" TO EF2
            END-IF
@@ -1280,6 +1274,12 @@
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO EF3
            MOVE BPR-16 TO EF-PAYDATE
+           IF OVERPAY-FLAG = 1
+               MOVE "OVERPAY " TO EF-PAYDATE
+           END-IF
+           IF PAID-FLAG = 1
+               MOVE "PAID    " TO EF-PAYDATE
+           END-IF
            MOVE CLP-1 TO EF4
            MOVE SPACE TO ALF8
            MOVE SVC-2CHRGAMT TO ALF8
@@ -1757,36 +1757,6 @@
            GO TO S4-PAYFILE-1.
 
        S4-PAYFILE-EXIT.
-           EXIT.
-
-       DMP4.
-           MOVE CC-KEY8 TO PC-KEY8
-           MOVE "000" TO PC-KEY3.
-           START PAYCUR KEY NOT <  PAYCUR-KEY
-             INVALID
-               GO TO DMP5
-           END-START.
-
-       DMP41.
-           READ PAYCUR NEXT
-             AT END
-               GO TO DMP5
-           END-READ
-
-           IF PC-KEY8 NOT = CC-KEY8 GO TO DMP5.
-
-           IF PC-CLAIM NOT = CC-CLAIM GO TO DMP41.
-
-           IF (PC-PAYCODE = G-PRINS)
-               AND ((PC-DENIAL = "14") OR (PC-PAYCODE = "014"))
-               AND (CLP-2CLMSTAT = "2")
-               GO TO DMP41
-           END-IF
-
-           ADD PC-AMOUNT TO TOT-CLAIM.
-           GO TO DMP41.
-
-       DMP5.
            EXIT.
 
        AMOUNT-1.
