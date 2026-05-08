@@ -1027,9 +1027,8 @@
                     CAS-8 CAS-9 CAS-10 CAS-11 CAS-12 CAS-13 CAS-14
                     CAS-15 CAS-16 CAS-17 CAS-18 CAS-19
 
-                IF (CAS-1 = "CO" OR "PI" OR "OA")
-                    AND NOT (CLP-2CLMSTAT = "2 " OR "3 ")
-
+                IF (CAS-1 = "CO" OR CAS-1 = "PI" OR CAS-1 = "OA")
+                    AND NOT (CLP-2CLMSTAT = "2 " OR CLP-2CLMSTAT = "3 ")
                     MOVE CAS-2 TO CAS-CODE-CHECK
                     IF NOT INS-REDUCE-CODE
                         MOVE CAS-5 TO CAS-CODE-CHECK
@@ -1737,7 +1736,7 @@
            IF PC-CLAIM NOT = CC-CLAIM GO TO S41.
            IF (PC-PAYCODE = G-PRINS)
              AND ((PC-DENIAL = "14") OR (PC-PAYCODE = "014"))
-             AND (CLP-2CLMSTAT = "2")
+             AND (CLP-2CLMSTAT = "2 ")
              GO TO S41
            END-IF
            DISPLAY "S4 PC-PAYCODE=[" PC-PAYCODE "] PC-AMOUNT=["
