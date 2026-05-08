@@ -1739,9 +1739,10 @@
              AND (CLP-2CLMSTAT = "2 ")
              GO TO S41
            END-IF
-           DISPLAY "S4 PC-PAYCODE=[" PC-PAYCODE "] PC-AMOUNT=["
-               PC-AMOUNT "] PC-CLAIM=[" PC-CLAIM "] PC-DENIAL=["
-               PC-DENIAL "]"
+           DISPLAY "S4 PC-KEY8=[" PC-KEY8 "] PC-PAYCODE=[" PC-PAYCODE
+               "] PC-AMOUNT=[" PC-AMOUNT "] PC-CLAIM=[" PC-CLAIM
+               "] PC-DENIAL=[" PC-DENIAL "]"
+           ACCEPT OMITTED
            ADD PC-AMOUNT TO CLAIM-TOT.
            GO TO S41.
 
@@ -1767,8 +1768,10 @@
            IF PD-CLAIM NOT = CC-CLAIM
                GO TO S4-PAYFILE-1
            END-IF
-           DISPLAY "S4-PAYFILE PD-PAYCODE=[" PD-PAYCODE "] PD-AMOUNT=["
-               PD-AMOUNT "] PD-CLAIM=[" PD-CLAIM "]"
+           DISPLAY "S4-PAYFILE PD-KEY8=[" PD-KEY8 "] PD-PAYCODE=["
+               PD-PAYCODE "] PD-AMOUNT=[" PD-AMOUNT "] PD-CLAIM=["
+               PD-CLAIM "]"
+           ACCEPT OMITTED
            ADD PD-AMOUNT TO CLAIM-TOT.
            GO TO S4-PAYFILE-1.
 
