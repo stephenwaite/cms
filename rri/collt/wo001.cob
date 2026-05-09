@@ -108,6 +108,7 @@
            END-WRITE.
            DISPLAY "WO " IN-KEY8 " " IN-KEY3
                    " CLM=" CC-CLAIM " AMT=" WO-AMT.
+           ACCEPT OMITTED.        
            GO TO P00.
        P-DONE.
            CLOSE INFILE CHARCUR PAYCUR GARFILE PAYFILE.
