@@ -94,7 +94,7 @@
        P4.
            ACCEPT TIME-NOW FROM TIME.
            MOVE G-GARNAME  TO PD-NAME
-           MOVE WO-AMT     TO PD-AMOUNT
+           COMPUTE PD-AMOUNT = 0 - WO-AMT
            MOVE "013"      TO PD-PAYCODE
            MOVE SPACES     TO PD-DENIAL
            MOVE CC-CLAIM   TO PD-CLAIM
