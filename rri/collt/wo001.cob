@@ -79,7 +79,7 @@
            ADD PC-AMOUNT TO TOTALPAY.
            GO TO P1.
        P-WO.
-           COMPUTE WO-AMT = CC-AMOUNT - TOTALPAY.
+           COMPUTE WO-AMT = CC-AMOUNT + TOTALPAY.
            IF WO-AMT NOT > 0
               DISPLAY "SKIP " IN-KEY8 " " IN-KEY3
                       " CLM=" CC-CLAIM " BAL=" WO-AMT
