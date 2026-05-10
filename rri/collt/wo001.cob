@@ -1,4 +1,4 @@
-      * @package cms
+* @package cms
       * @link    http://www.cmsvt.com
       * @author  s waite <stephen.waite@cmsvt.com>
       * @author  Claude (Anthropic) <https://claude.ai>
@@ -39,17 +39,29 @@
        01  INREC.
            05 IN-KEY8                 PIC X(8).
            05 IN-KEY3                 PIC X(3).
-           05 FILLER                  PIC X(69).
+           05 FILLER                  PIC X(149).
        WORKING-STORAGE SECTION.
        77  TOTALPAY                   PIC S9(7)V99 COMP-3 VALUE ZERO.
        77  WO-AMT                     PIC S9(7)V99 COMP-3.
        77  TODAY                      PIC X(8).
        77  XYZ                        PIC 9(3).
+       77  ADJ-MODE                   PIC X.
+       77  ADJ-PAYCODE                PIC X(3).
        01  TIME-NOW.
            05 TN-HHMMSS               PIC X(6).
            05 FILLER                  PIC X(2).
        PROCEDURE DIVISION.
        MAIN.
+           DISPLAY "Adjust mode (D=debit/owes, C=credit/owed): "
+                   WITH NO ADVANCING.
+           ACCEPT ADJ-MODE.
+           IF ADJ-MODE = "D"
+              MOVE "014" TO ADJ-PAYCODE
+           ELSE IF ADJ-MODE = "C"
+              MOVE "015" TO ADJ-PAYCODE
+           ELSE
+              DISPLAY "Invalid mode."
+              STOP RUN.
            OPEN INPUT  INFILE CHARCUR PAYCUR GARFILE
            OPEN I-O    PAYFILE
            ACCEPT TODAY FROM DATE YYYYMMDD.
@@ -80,7 +92,11 @@
            GO TO P1.
        P-WO.
            COMPUTE WO-AMT = CC-AMOUNT + TOTALPAY.
-           IF WO-AMT NOT > 0
+           IF ADJ-MODE = "D" AND WO-AMT NOT > 0
+              DISPLAY "SKIP " IN-KEY8 " " IN-KEY3
+                      " CLM=" CC-CLAIM " BAL=" WO-AMT
+              GO TO P00.
+           IF ADJ-MODE = "C" AND WO-AMT NOT < 0
               DISPLAY "SKIP " IN-KEY8 " " IN-KEY3
                       " CLM=" CC-CLAIM " BAL=" WO-AMT
               GO TO P00.
@@ -93,22 +109,21 @@
            GO TO P3.
        P4.
            ACCEPT TIME-NOW FROM TIME.
-           MOVE G-GARNAME  TO PD-NAME
+           MOVE G-GARNAME             TO PD-NAME
            COMPUTE PD-AMOUNT = 0 - WO-AMT
-           MOVE "013"      TO PD-PAYCODE
-           MOVE SPACES     TO PD-DENIAL
-           MOVE CC-CLAIM   TO PD-CLAIM
-           MOVE TODAY      TO PD-DATE-T
-           MOVE TODAY      TO PD-DATE-E
-           MOVE TN-HHMMSS  TO PD-ORDER
-           MOVE SPACES     TO PD-BATCH.
+           MOVE ADJ-PAYCODE           TO PD-PAYCODE
+           MOVE "AA"                  TO PD-DENIAL
+           MOVE CC-CLAIM              TO PD-CLAIM
+           MOVE TODAY                 TO PD-DATE-T
+           MOVE TODAY                 TO PD-DATE-E
+           MOVE TN-HHMMSS             TO PD-ORDER
+           MOVE SPACES                TO PD-BATCH.
            WRITE PAYFILE01 INVALID KEY
                 DISPLAY "DUP: " PD-KEY8 " " PD-KEY3
                 GO TO P00
            END-WRITE.
            DISPLAY "WO " IN-KEY8 " " IN-KEY3
                    " CLM=" CC-CLAIM " AMT=" WO-AMT.
-           ACCEPT OMITTED.        
            GO TO P00.
        P-DONE.
            CLOSE INFILE CHARCUR PAYCUR GARFILE PAYFILE.
