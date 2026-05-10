@@ -114,8 +114,8 @@
            MOVE ADJ-PAYCODE           TO PD-PAYCODE
            MOVE "AA"                  TO PD-DENIAL
            MOVE CC-CLAIM              TO PD-CLAIM
-           MOVE TODAY                 TO PD-DATE-T
-           MOVE TODAY                 TO PD-DATE-E
+           MOVE CC-DATE-T             TO PD-DATE-T
+           MOVE CC-DATE-T             TO PD-DATE-E
            MOVE TN-HHMMSS             TO PD-ORDER
            MOVE SPACES                TO PD-BATCH.
            WRITE PAYFILE01 INVALID KEY
