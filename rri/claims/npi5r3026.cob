@@ -1694,7 +1694,7 @@
            MOVE "  " TO SBR-GROUP 
            MOVE G-PRINS TO INS-KEY
            MOVE "  " TO SBR-TYPE 
-           MOVE "CI " TO SBR-INSCODE
+           MOVE "MB " TO SBR-INSCODE
            IF G-PRINS = "003"
             MOVE "MB" TO SBR-INSCODE.
            
