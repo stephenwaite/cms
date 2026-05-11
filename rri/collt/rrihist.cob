@@ -1,4 +1,4 @@
-      * @package cms
+* @package cms
       * @link    http://www.cmsvt.com
       * @author  s waite <stephen.waite@cmsvt.com>
       * @author  Claude (Anthropic) <https://claude.ai>
@@ -35,17 +35,10 @@
            02 PO-DATE-T               PIC 9(8).
            02 PO-DATE-E               PIC 9(8).
            02 PO-BATCH                PIC X(6).
-       FD  HISFILE
-           BLOCK CONTAINS 5 RECORDS
-           DATA RECORD IS HISFILE01.
-       01  HISFILE01.
-           02 HISFILE-KEY.
-              03 HS-KEY8              PIC X(8).
-              03 HS-CLAIM             PIC X(6).
-              03 HS-REC-TYPE          PIC X.
-              03 HS-KEY4              PIC X(4).
-           02 HS-BODY                 PIC X(116).
-       01  PAYHIS01 REDEFINES HISFILE01.
+       FD  HISFILE.
+           COPY HISFILE.CPY.
+       WORKING-STORAGE SECTION.
+       01  PAYHIS01.
            02 PH-KEY.
               03 PH-KEY8              PIC X(8).
               03 PH-CLAIM             PIC X(6).
@@ -69,7 +62,6 @@
               03 PC2-DATE-E           PIC X(8).
               03 PC2-BATCH            PIC X(6).
            02 PH-FUTURE               PIC X(38).
-       WORKING-STORAGE SECTION.
        01  PHR01.
            02 PHR02 OCCURS 999 TIMES INDEXED BY PXR.
               03 PHR-AMOUNT           PIC S9(4)V99.
@@ -103,7 +95,7 @@
               MOVE 0 TO PHR-CNT
               PERFORM LOAD-PHR.
 
-      *>   Reset KEY4 probe for each charge
+      *>   Probe HISFILE for next free KEY4 for this charge
            MOVE 0 TO KEY4.
        P-CHRG-KEY.
            ADD 1 TO KEY4.
@@ -189,7 +181,7 @@
               ADD 1 TO PAYS-CNT
               PERFORM WRITE-PAYHIS.
 
-      *>   ─── Write the payment record, probe for next KEY4 ───
+      *>   ─── Write payment record from PAYHIS01, probe KEY4 ───
        WRITE-PAYHIS.
            MOVE CO-KEY8  TO PH-KEY8
            MOVE CO-CLAIM TO PH-CLAIM
@@ -197,11 +189,15 @@
            MOVE SPACES   TO PH-FUTURE.
        P-PAY-KEY.
            ADD 1 TO KEY4.
-           MOVE KEY4 TO PH-KEY4.
+           MOVE KEY4 TO PH-KEY4
+           MOVE PH-KEY8  TO HS-KEY8
+           MOVE PH-CLAIM TO HS-CLAIM
+           MOVE "2"      TO HS-REC-TYPE
+           MOVE KEY4     TO HS-KEY4.
            READ HISFILE INVALID GO TO P-PAY-WRITE.
            GO TO P-PAY-KEY.
        P-PAY-WRITE.
-           WRITE HISFILE01 INVALID KEY
+           WRITE HISFILE01 FROM PAYHIS01 INVALID KEY
                 DISPLAY "DUP PAY: " PH-KEY8 " " PH-CLAIM
                         " " PH-KEY4
            END-WRITE.

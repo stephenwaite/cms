@@ -1,0 +1,41 @@
+       01  HISFILE01.
+           02 HISFILE-KEY.
+             03 HS-KEY8 PIC X(8).
+             03 HS-CLAIM PIC X(6).
+             03 HS-REC-TYPE PIC X.
+             03 HS-KEY4 PIC XXXX.
+           02 HS-PATID. 
+              03 HS-PATID7 PIC X(7).
+              03 HS-PATID1 PIC X.
+           02 HS-SERVICE PIC X.
+           02 HS-DIAG PIC X(5).
+           02 HS-PROC PIC X(11).
+           02 HS-MOD2 PIC XX.
+           02 HS-MOD3 PIC XX.
+           02 HS-MOD4 PIC XX.
+           02 HS-AMOUNT PIC X(6).
+           02 HS-DOCR PIC X(3).
+           02 HS-DOCP PIC X(2).
+           02 HS-PAYCODE PIC XXX.
+           02 HS-STUD PIC X.
+           02 HS-WORK PIC XX.
+           02 HS-DAT1 PIC X(8).
+           02 HS-RESULT PIC X.
+           02 HS-ACT PIC X.
+           02 HS-SORCREF PIC X.
+           02 HS-COLLT PIC X.
+           02 HS-AGE PIC X.
+           02 HS-PAPER PIC X.
+           02 HS-PLACE PIC X.
+           02 HS-EPSDT PIC X.
+           02 HS-DATE-T PIC X(8).
+           02 HS-DATE-A PIC X(8).
+           02 HS-DATE-E PIC X(8).
+           02 HS-REC-STAT PIC X.
+           02 HS-DX2 PIC X(5).
+           02 HS-DX3 PIC X(5).
+           02 HS-ACC-TYPE PIC X.
+           02 HS-DATE-M PIC X(8).
+           02 HS-ASSIGN PIC X.
+           02 HS-NEIC-ASSIGN PIC X.
+           02 HS-FUTURE PIC X(6).
