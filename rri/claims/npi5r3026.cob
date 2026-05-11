@@ -2252,44 +2252,46 @@
 
        SUBSCRIBER-1.
            MOVE HOLD-KEY8 TO G-GARNO
-           READ GARFILE INVALID DISPLAY "BAD BAD BAD"
-           GO TO P99.
-           IF G-TRINS NOT = "001"
-	    MOVE "0" TO MPLR-TR-RELATE
-	    MOVE G-GARNO TO MPLR-KEY
-           READ MPLRFILE INVALID CONTINUE
-	     END-READ
-           END-IF.
+           READ GARFILE 
+               INVALID DISPLAY "BAD BAD BAD"
+                   GO TO P99.
+               IF G-TRINS NOT = "001"
+	               MOVE "0" TO MPLR-TR-RELATE
+	               MOVE G-GARNO TO MPLR-KEY
+                   READ MPLRFILE 
+                       INVALID CONTINUE
+	               END-READ
+               END-IF.
            MOVE G-RELATE TO SUB-RELATE
            MOVE G-GARNAME TO SUB-NAME
            MOVE G-PRIPOL TO SUB-POLICY
            MOVE SPACE TO SUB-GROUP
            MOVE "P" TO SBR-PST
            IF HOLD-PAYCODE = G-SEINS 
-		MOVE "S" TO SBR-PST
-		MOVE G-SE-RELATE TO SUB-RELATE
-		MOVE G-SENAME TO SUB-NAME
-		MOVE G-SECPOL TO ALF-9
-		MOVE ALF-9 TO SUB-POLICY
-		MOVE G-SE-GROUP TO SUB-GROUP
+                MOVE "S" TO SBR-PST
+                MOVE G-SE-RELATE TO SUB-RELATE
+                MOVE G-SENAME TO SUB-NAME
+                MOVE G-SECPOL TO ALF-9
+                MOVE ALF-9 TO SUB-POLICY
+                MOVE G-SE-GROUP TO SUB-GROUP
            END-IF.
            IF (HOLD-PAYCODE = G-TRINS) AND (MPLR-TR-RELATE NOT = "0")
               MOVE "S" TO SBR-PST
-		MOVE MPLR-TR-RELATE TO SUB-RELATE
-		MOVE MPLR-TR-NAME TO SUB-NAME
-		MOVE MPLR-TRIPOL TO SUB-POLICY
-		MOVE MPLR-TR-GROUP TO SUB-GROUP
+                MOVE MPLR-TR-RELATE TO SUB-RELATE
+                MOVE MPLR-TR-NAME TO SUB-NAME
+                MOVE MPLR-TRIPOL TO SUB-POLICY
+                MOVE MPLR-TR-GROUP TO SUB-GROUP
            END-IF.
            MOVE G-RELATE TO X-RELATE.
            IF HOLD-PATID8 = "P" PERFORM PAT-READ.
            IF X-RELATE = "0"  
-		MOVE G-RELATE TO X-RELATE.
+               MOVE G-RELATE TO X-RELATE.
            IF X-RELATE = SUB-RELATE  
-	      MOVE "18" TO SBR-RELATE
-	      GO TO SUBSCRIBER-2.
+	           MOVE "18" TO SBR-RELATE
+	           GO TO SUBSCRIBER-2.
            IF (X-RELATE = "2" OR "K") 
-	      AND (SUB-RELATE = "2" OR "K")
-           MOVE "01" TO SBR-RELATEHOLD GO TO SUBSCRIBER-2.
+	           AND (SUB-RELATE = "2" OR "K")
+               MOVE "01" TO SBR-RELATEHOLD GO TO SUBSCRIBER-2.
            IF (X-RELATE = "8" OR "Q") MOVE "29" TO SBR-RELATEHOLD
            GO TO SUBSCRIBER-2.
            IF (X-RELATE = "4" OR "M") MOVE "02" TO SBR-RELATEHOLD
@@ -2299,7 +2301,8 @@
        SUBSCRIBER-2.
            MOVE SPACE TO SBR-GROUP
            MOVE "0    " TO HL-CHILD
-           MOVE "CI" TO SBR-INSCODE
+      *    NEED TO USE MC FOR 026
+           MOVE "MC" TO SBR-INSCODE
       *     MOVE "12" TO SBR-TYPE
            IF SBR-PST = "S"
         		 IF G-PRINS = "091"
