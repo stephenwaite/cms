@@ -647,7 +647,7 @@
            02 RECNM1-S1 PIC X VALUE "*".
            02 RECNM1-SOLO PIC X VALUE "2".
            02 RECNM1-S2 PIC X VALUE "*".
-           02 RECNM1-NAMEL PIC X(5) VALUE "NYSDOH".
+           02 RECNM1-NAMEL PIC X(6) VALUE "NYSDOH".
            02 RECNM1-S3 PIC X VALUE "*".
            02 RECNM1-S4 PIC X VALUE "*".
            02 RECNM1-S5 PIC X VALUE "*".
