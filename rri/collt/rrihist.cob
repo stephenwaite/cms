@@ -191,7 +191,7 @@
               VARYING PXR FROM 1 BY 1 UNTIL PXR > PHR-CNT.
 
            IF PC-SLOT = 1
-              PERFORM WRITE-PAYHIS.
+              PERFORM WRITE-PAYHIS THRU P-PAY-WRITE.   
 
            GO TO P00.
 
@@ -240,7 +240,7 @@
                  MOVE PHR-DATE-E(PXR)   TO PC2-DATE-E
                  MOVE PHR-BATCH(PXR)    TO PC2-BATCH
                  ADD 1 TO PAYS-CNT
-                 PERFORM WRITE-PAYHIS
+                 PERFORM WRITE-PAYHIS THRU P-PAY-WRITE
               END-IF
            END-IF.
 
