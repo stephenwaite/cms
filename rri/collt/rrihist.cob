@@ -27,13 +27,13 @@
        FD  PAYOUT.
        01  PAYOUT01.
            02 PO-KEY8                 PIC X(8).
-           02 PO-KEY3                 PIC 999.
+           02 PO-KEY3                 PIC X(3).
            02 PO-AMOUNT               PIC S9(4)V99.
-           02 PO-PAYCODE              PIC 999.
+           02 PO-PAYCODE              PIC X(3).
            02 PO-DENIAL               PIC XX.
-           02 PO-CLAIM                PIC 9(6).
-           02 PO-DATE-T               PIC 9(8).
-           02 PO-DATE-E               PIC 9(8).
+           02 PO-CLAIM                PIC X(6).
+           02 PO-DATE-T               PIC X(8).
+           02 PO-DATE-E               PIC X(8).
            02 PO-BATCH                PIC X(6).
        FD  HISFILE.
            COPY HISFILE.CPY.
@@ -63,18 +63,19 @@
               03 PC2-BATCH            PIC X(6).
            02 PH-FUTURE               PIC X(38).
        01  PHR01.
-           02 PHR02 OCCURS 999 TIMES INDEXED BY PXR.
+           02 PHR02 OCCURS 999 TIMES.
               03 PHR-AMOUNT           PIC S9(4)V99.
-              03 PHR-PAYCODE          PIC 999.
+              03 PHR-PAYCODE          PIC X(3).
               03 PHR-DENIAL           PIC XX.
-              03 PHR-CLAIM            PIC 9(6).
-              03 PHR-DATE-T           PIC 9(8).
-              03 PHR-DATE-E           PIC 9(8).
+              03 PHR-CLAIM            PIC X(6).
+              03 PHR-DATE-T           PIC X(8).
+              03 PHR-DATE-E           PIC X(8).
               03 PHR-BATCH            PIC X(6).
        77  HOLD8                      PIC X(8).
        77  PHR-CNT                    PIC 9(4) VALUE ZERO.
        77  PC-SLOT                    PIC 9    VALUE ZERO.
        77  KEY4                       PIC 9(4) VALUE ZERO.
+       77  PXR                        PIC 9(4).
        77  CHARS-CNT                  PIC 9(7) VALUE ZERO.
        77  PAYS-CNT                   PIC 9(7) VALUE ZERO.
        77  EOF-PAYOUT                 PIC X    VALUE "N".
@@ -89,13 +90,11 @@
            READ CHAROUT AT END GO TO P-DONE END-READ.
            ADD 1 TO CHARS-CNT.
 
-      *>   When KEY8 changes, reload PHR table from PAYOUT
            IF CO-KEY8 NOT = HOLD8
               MOVE CO-KEY8 TO HOLD8
               MOVE 0 TO PHR-CNT
               PERFORM LOAD-PHR.
 
-      *>   Probe HISFILE for next free KEY4 for this charge
            MOVE 0 TO KEY4.
        P-CHRG-KEY.
            ADD 1 TO KEY4.
@@ -117,18 +116,15 @@
                         " " HS-KEY4
            END-WRITE.
 
-      *>   Pack payments for this claim into PC1/PC2 pairs
            MOVE 0 TO PC-SLOT.
            PERFORM PACK-PAYS
               VARYING PXR FROM 1 BY 1 UNTIL PXR > PHR-CNT.
 
-      *>   Flush any partial pair (odd payment count for this claim)
            IF PC-SLOT = 1
               PERFORM WRITE-PAYHIS.
 
            GO TO P00.
 
-      *>   ─── Load all payments for HOLD8 into PHR table ───
        LOAD-PHR.
            IF EOF-PAYOUT = "Y" EXIT PARAGRAPH.
            IF PO-KEY8 NOT = HOLD8 EXIT PARAGRAPH.
@@ -150,7 +146,6 @@
            END-READ.
            GO TO LOAD-PHR.
 
-      *>   ─── Pack a single payment into PC1 or PC2 ───
        PACK-PAYS.
            IF PHR-CLAIM(PXR) NOT = CO-CLAIM EXIT PARAGRAPH.
            IF PC-SLOT = 0
@@ -181,7 +176,6 @@
               ADD 1 TO PAYS-CNT
               PERFORM WRITE-PAYHIS.
 
-      *>   ─── Write payment record from PAYHIS01, probe KEY4 ───
        WRITE-PAYHIS.
            MOVE CO-KEY8  TO PH-KEY8
            MOVE CO-CLAIM TO PH-CLAIM
@@ -206,5 +200,7 @@
        P-DONE.
            DISPLAY "Charges written: " CHARS-CNT.
            DISPLAY "Payments packed: " PAYS-CNT.
+           DISPLAY "Press any key to exit..."
+           ACCEPT OMITTED.
            CLOSE CHAROUT PAYOUT HISFILE.
            STOP RUN.
