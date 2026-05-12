@@ -22,7 +22,7 @@
            ACCESS MODE IS DYNAMIC RECORD KEY IS P-PATNO
            ALTERNATE RECORD KEY IS P-GARNO WITH DUPLICATES
            LOCK MODE MANUAL.
-           SELECT SEGFILE ASSIGN TO "S45" ORGANIZATION 
+           SELECT SEGFILE ASSIGN TO "S45" ORGANIZATION
            LINE SEQUENTIAL.
            SELECT FILEIN ASSIGN TO "S50" ORGANIZATION
            LINE SEQUENTIAL.
@@ -66,7 +66,7 @@
            SELECT PAYCUR ASSIGN TO "S95" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS PAYCUR-KEY
            LOCK MODE MANUAL.
-           SELECT PLACEFILE ASSIGN TO "S100" ORGANIZATION 
+           SELECT PLACEFILE ASSIGN TO "S100" ORGANIZATION
            LINE SEQUENTIAL.
            SELECT PARMFILE2 ASSIGN TO "S105" ORGANIZATION
            LINE SEQUENTIAL.
@@ -102,12 +102,12 @@
            02 DF5 PIC X(15).
            02 DF6 PIC XX.
            02 DF7 PIC X(9).
-       
+
        FD  PARMFILE.
        01  PARMFILE01 PIC X(75).
        FD  PARMFILE2.
        01  PARMFILE201 PIC X(15).
-       
+
        FD  ERRFILE.
        01  ERRFILE01.
            02 EF-1 PIC X(11).
@@ -265,7 +265,7 @@
            02 G-ACCT PIC X(8).
            02 G-PRGRPNAME PIC X(15).
            02 G-SEGRPNAME PIC X(15).
-       
+
 
 
        FD  PAYCUR
@@ -322,7 +322,7 @@
 
        FD  MPLRFILE.
        01  MPLRFILE01.
-           02 MPLR-KEY PIC X(8). 
+           02 MPLR-KEY PIC X(8).
            02 MPLR-NAME PIC X(22).
            02 MPLR-STREET PIC X(24).
            02 MPLR-CITY PIC X(15).
@@ -486,7 +486,7 @@
            02 REF-S0 PIC X VALUE "*".
            02 REF-CODE PIC X(30).
            02 REF-S1 PIC X VALUE "*".
-           02 REF-ID PIC X(30). 
+           02 REF-ID PIC X(30).
            02 REF-S2 PIC X VALUE "*".
            02 REF-3 PIC XX VALUE SPACE.
            02 REF-S3 PIC X VALUE "*".
@@ -498,7 +498,7 @@
            02 SAVE-DOCREF-S0 PIC X VALUE "*".
            02 SAVE-DOCREF-CODE PIC X(30).
            02 SAVE-DOCREF-S1 PIC X VALUE "*".
-           02 SAVE-DOCREF-ID PIC X(30). 
+           02 SAVE-DOCREF-ID PIC X(30).
            02 SAVE-DOCREF-S2 PIC X VALUE "*".
            02 SAVE-DOCREF-3 PIC XX VALUE SPACE.
            02 SAVE-DOCREF-S3 PIC X VALUE "*".
@@ -521,12 +521,12 @@
            02 SUBM-S6 PIC X VALUE "*".
            02 SUBM-8 PIC XX VALUE "46".
            02 SUBM-S7 PIC X VALUE "*".
-           02 SUBM-NUM PIC X(9) VALUE "030353360".
+           02 SUBM-NUM PIC X(9) VALUE "0M4".
            02 SUBM-END PIC X VALUE "~".
        01  SUBPER01.
            02 SUBPER-0 PIC XXX VALUE "PER".
            02 SUBPER-S0 PIC X VALUE "*".
-           02 SUBPER-1 PIC XX VALUE "IC". 
+           02 SUBPER-1 PIC XX VALUE "IC".
            02 SUBPER-S1 PIC X VALUE "*".
            02 SUBPER-2 PIC X(9) VALUE "S WAITE".
            02 SUBPER-S2 PIC X VALUE "*".
@@ -584,7 +584,7 @@
        01  PER01.
            02 PER-0 PIC XXX VALUE "PER".
            02 PER-S0 PIC X VALUE "*".
-           02 PER-1 PIC XX VALUE "IC". 
+           02 PER-1 PIC XX VALUE "IC".
            02 PER-S1 PIC X VALUE "*".
            02 PER-CONTACT PIC X(30).
            02 PER-S2 PIC X VALUE "*".
@@ -761,34 +761,34 @@
            02 CLM-S6 PIC X VALUE "*".
            02 CLM-7 PIC X VALUE "A".
            02 CLM-S7 PIC X VALUE "*".
-           02 CLM-8 PIC X VALUE "Y".             
+           02 CLM-8 PIC X VALUE "Y".
            02 CLM-S8 PIC X VALUE "*".
-           02 CLM-9 PIC X VALUE "Y".             
+           02 CLM-9 PIC X VALUE "Y".
            02 CLM-S9 PIC X VALUE "*".
-           02 CLM-10 PIC X VALUE "P".             
+           02 CLM-10 PIC X VALUE "P".
            02 CLM-S10 PIC X VALUE "*".
-           02 CLM-11 PIC XX.             
-           02 CLM-COLON-ACCIDENT PIC X VALUE SPACE. 
+           02 CLM-11 PIC XX.
+           02 CLM-COLON-ACCIDENT PIC X VALUE SPACE.
            02 CLM-S11 PIC X VALUE "*".
-           02 CLM-12 PIC XXX.             
+           02 CLM-12 PIC XXX.
            02 CLM-S12 PIC X VALUE "*".
-           02 CLM-13 PIC X.             
+           02 CLM-13 PIC X.
            02 CLM-S13 PIC X VALUE "*".
-           02 CLM-14 PIC XXX.             
+           02 CLM-14 PIC XXX.
            02 CLM-S14 PIC X VALUE "*".
-           02 CLM-15 PIC X.             
+           02 CLM-15 PIC X.
            02 CLM-S15 PIC X VALUE "*".
-           02 CLM-16 PIC X.             
+           02 CLM-16 PIC X.
            02 CLM-S16 PIC X VALUE "*".
-           02 CLM-17 PIC XX.             
+           02 CLM-17 PIC XX.
            02 CLM-S17 PIC X VALUE "*".
-           02 CLM-18 PIC X.             
+           02 CLM-18 PIC X.
            02 CLM-S18 PIC X VALUE "*".
-           02 CLM-19 PIC XX.             
+           02 CLM-19 PIC XX.
            02 CLM-S19 PIC X VALUE "*".
-           02 CLM-20 PIC XX.             
+           02 CLM-20 PIC XX.
            02 CLM-END PIC X VALUE "~".
-	   
+
        01 HI901.
            02 HI9-0 PIC XX VALUE "HI".
            02 HI9-S0 PIC X VALUE "*".
@@ -900,7 +900,7 @@
            02 ALF14-9 PIC X(9).
            02 FILLER PIC XX.
        01  DATE-X PIC X(8).
-       01  TIME-X. 
+       01  TIME-X.
            02 TIME-HHMM PIC X(4).
            02 FILLER PIC X(4).
        01  DDFLAG PIC 9.
@@ -964,13 +964,13 @@
        01  ALF9Z PIC ZZZZZZZZZ.
        01  ALF5NUM PIC X(5).
        01  ALF9NUM PIC X(9).
-       01  NUM7 PIC 9(5)V99. 
+       01  NUM7 PIC 9(5)V99.
        01  ALF8 PIC X(8).
        01  ALF8Z PIC ZZZZ9.99.
        01  ALF8NUM PIC X(8).
-       01  NUM5 PIC 9(5). 
+       01  NUM5 PIC 9(5).
        01  NUM9 PIC 9(9).
-       01  NUM2 PIC 99. 
+       01  NUM2 PIC 99.
        01  HL-NUMPARENT PIC 9(5).
        01  HL-NUM PIC 9(5) VALUE 0.
        01  DOC-TAB01.
@@ -1135,14 +1135,14 @@
        01  CLAIM-ADJ-DATE PIC X(8).
 
        PROCEDURE DIVISION.
-       P0. 
+       P0.
            OPEN INPUT FILEIN GARFILE PATFILE INSFILE REFPHY
 	           AUTHFILE MPLRFILE DIAGFILE PLACEFILE GAPFILE PARMFILE
              PARMFILE2 PAYCUR PROCFILE.
            OPEN OUTPUT SEGFILE ERRFILE.
            OPEN I-O HIPCLAIMFILE
            MOVE "A" TO HIP-KEY
-           READ HIPCLAIMFILE WITH LOCK INVALID 
+           READ HIPCLAIMFILE WITH LOCK INVALID
            DISPLAY "BAD HIPCLAIMFILE"
            GO TO P99.
            COMPUTE NUM9 = HIP-NUM
@@ -1159,24 +1159,24 @@
            MOVE TIME-HHMM TO BHT-TIME GS-5.
            ACCEPT BHT-DATE FROM CENTURY-DATE.
            MOVE BHT-DATE TO GS-4.
-	   
+
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM GS01
            MOVE SPACE TO SEGFILE01
-	   
+
            COMPUTE NUM9 = HIP-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO ST-NUM
            MOVE ALF9NUM TO SE-NUM
-	   
+
 
            ADD 1 TO HIP-NUM
            WRITE SEGFILE01 FROM ST01.
-	   
+
            COMPUTE NUM9 = HIP-NUM
            PERFORM NUM-LEFT9
            MOVE ALF9NUM TO BHT-NUM
-	   
+
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM BHT01.
       *    MOVE SPACE TO REF-CODE REF-ID
@@ -1203,13 +1203,13 @@
            MOVE DF7 TO PL-ZIP(PLINDX)
            GO TO P00.
 
-       P000.    
+       P000.
            READ FILEIN AT END GO TO P98.
            MOVE FILEIN01 TO HOLD-FILEIN01
            PERFORM DF-SEARCH
            PERFORM 2000A THRU 2000B
            GO TO P0000-1.
-	   
+
        P0000.
            MOVE SAVE01 TO HOLD-FILEIN01 FILEIN01
            PERFORM DF-SEARCH.
@@ -1218,7 +1218,7 @@
            CLIA-FLAG
            GO TO P1-1.
        P1. READ FILEIN AT END MOVE 1 TO END-FLAG GO TO P2.
-       P1-1. 
+       P1-1.
       *     IF CNTR > 0 GO TO P2.
            IF DIAG-CNTR > 11 GO TO P2.
            IF  FI-PLACE = HOLD-PLACE
@@ -1229,23 +1229,23 @@
            AND FI-DAT1 = HOLD-DAT1
            AND FI-ACC-TYPE = HOLD-ACC-TYPE
            AND CNTR < 50
-           PERFORM DIAG-1 THRU DIAG-EXIT 
+           PERFORM DIAG-1 THRU DIAG-EXIT
            IF DIAG-CNTR > 12 GO TO P2
            END-IF
            IF FI-SERVICE = "4" MOVE 1 TO CLIA-FLAG
-           END-IF   
-           ADD 1 TO CNTR 
+           END-IF
+           ADD 1 TO CNTR
            MOVE FILEIN01 TO FILETAB(CNTR)
            ADD FI-AMOUNT TO TOT-AMOUNT
            GO TO P1.
-       P2.  
+       P2.
       	    MOVE FILEIN01 TO SAVE01
       	    PERFORM 2300CLM
                  PERFORM HI-DIAG THRU HI-DIAG-EXIT
       	    PERFORM 2310D
                   PERFORM 2310E THRU 2310E-EXIT
       	    PERFORM 2320A THRU 2320A-EXIT
-      	    MOVE 0 TO CAS-TOT-REDUCE 
+      	    MOVE 0 TO CAS-TOT-REDUCE
       	    MOVE 0 TO CAS-TOT-CHARGE
       	    MOVE 0 TO CAS-TOT-ALLOWED
       	    MOVE 0 TO CAS-TOT-PAID
@@ -1257,13 +1257,13 @@
       		   VARYING X FROM 1 BY 1 UNTIL X > CNTR
                  IF END-FLAG = 1 GO TO P98.
                  MOVE SAVE01 TO FILEIN01
-                 IF FI-DOCP NOT = HOLD-DOCP 
+                 IF FI-DOCP NOT = HOLD-DOCP
                  MOVE FILEIN01 TO HOLD-FILEIN01
                  PERFORM DOCP-1.
                  MOVE FILEIN01 TO HOLD-FILEIN01
-                 PERFORM 2000B 
+                 PERFORM 2000B
                  GO TO P0000.
-	   
+
        DIAG-1.
            IF FI-DIAG = "0000000"  GO TO DIAG-EXIT.
 
@@ -1307,7 +1307,7 @@
            MOVE 1 TO FLAG.
 
 
-       2000A. 
+       2000A.
            ADD 1 TO HL-NUM
            MOVE HL-NUM TO HL-NUMPRV-SAVE
            COMPUTE NUM5 = HL-NUM
@@ -1362,13 +1362,13 @@
       *     WRITE SEGFILE01 FROM PER01.
 
       *   PAY-TO PROVIDER/ADDRESS
-       2010AB.    
+       2010AB.
            IF EINSS-TYPE = "E"
            MOVE "2" TO NM1-SOLO
            MOVE ORG-NAME TO NM1-NAMEL
            MOVE SPACE TO NM1-NAMEF NM1-NAMEM NM1-NAMES
            MOVE "24" TO NM1-EINSS
-           ELSE 
+           ELSE
            MOVE "1" TO NM1-SOLO
            MOVE PARMLAST TO NM1-NAMEL
            MOVE PARMFIRST TO NM1-NAMEF
@@ -1399,7 +1399,7 @@
            MOVE SPACE TO SEGFILE01.
       *     WRITE SEGFILE01 FROM REF01.
            MOVE SPACE TO REF-CODE REF-ID
-           IF EINSS-TYPE = "E" 
+           IF EINSS-TYPE = "E"
             MOVE "EI" TO REF-CODE
            ELSE
             MOVE "SY" TO REF-CODE.
@@ -1497,7 +1497,7 @@
                MOVE "12144    " TO N4-ZIP
                MOVE SPACE TO SEGFILE01
                WRITE SEGFILE01 FROM N401
-             NOT INVALID  
+             NOT INVALID
                MOVE INS-NAME TO NM1-NAMEL
                MOVE "PI" TO NM1-EINSS
                MOVE INS-NEIC TO NM1-CODE
@@ -1537,7 +1537,7 @@
            MOVE HOLD-DATE-M TO DTP-3
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM DTP01.
-           IF (CLIA-FLAG = 1) 
+           IF (CLIA-FLAG = 1)
            AND (CLIA-NUM NOT = SPACE)
            MOVE SPACE TO REF-CODE
            MOVE "X4" TO REF-CODE
@@ -1594,8 +1594,8 @@
            MOVE "DQ " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
-           UNSTRING REF-NAME DELIMITED BY 
-           "; " OR ";" OR " ; " OR " ," OR ", " OR " , " OR ","  
+           UNSTRING REF-NAME DELIMITED BY
+           "; " OR ";" OR " ; " OR " ," OR ", " OR " , " OR ","
            INTO NM1-NAMEL NM1-NAMEF
            MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
            MOVE "XX" TO NM1-EINSS
@@ -1623,12 +1623,12 @@
            GO TO 2320A-EXIT.
            IF G-SEINS = "001" OR "012" OR "075" OR "076"
            GO TO 2320A-EXIT.
-           IF G-SEINS = "005" PERFORM CMP-1 
+           IF G-SEINS = "005" PERFORM CMP-1
            GO TO 2320A-EXIT.
-           IF G-SEINS = "004" OR "064" PERFORM CAID-1 
+           IF G-SEINS = "004" OR "064" PERFORM CAID-1
            GO TO 2320A-EXIT.
            MOVE 0 TO GAP-FLAG
-           IF G-SEINS = "062" PERFORM GAP-1 THRU GAP-1-EXIT. 
+           IF G-SEINS = "062" PERFORM GAP-1 THRU GAP-1-EXIT.
        2320A-EXIT. EXIT.
        CAS-TOT.
            MOVE FILETAB(X) TO FILEIN01
@@ -1643,7 +1643,7 @@
            MOVE SPACE TO PC-KEY3
            START PAYCUR KEY NOT < PAYCUR-KEY
            INVALID GO TO CAS-TOT-EXIT.
-       CAS-TOT-1. 
+       CAS-TOT-1.
            READ PAYCUR NEXT AT END GO TO CAS-TOT-2.
            IF PC-KEY8 NOT = FI-KEY8 GO TO CAS-TOT-2.
            IF PC-CLAIM NOT = FI-CLAIM GO TO CAS-TOT-1.
@@ -1689,27 +1689,27 @@
            END-IF.
        CAS-TOT-EXIT. EXIT.
        2320S.
-           MOVE "P" TO SBR-PST 
-           MOVE "18" TO SBR-RELATE 
-           MOVE "  " TO SBR-GROUP 
+           MOVE "P" TO SBR-PST
+           MOVE "18" TO SBR-RELATE
+           MOVE "  " TO SBR-GROUP
            MOVE G-PRINS TO INS-KEY
-           MOVE "  " TO SBR-TYPE 
+           MOVE "  " TO SBR-TYPE
            MOVE "MB " TO SBR-INSCODE
            IF G-PRINS = "003"
             MOVE "MB" TO SBR-INSCODE.
-           
-           READ INSFILE INVALID 
+
+           READ INSFILE INVALID
             MOVE "COMMERCIAL INS" TO INS-NAME
            END-READ.
            MOVE SPACE TO SBR-GRNAME
-      *     MOVE INS-NAME TO SBR-GRNAME 
+      *     MOVE INS-NAME TO SBR-GRNAME
       *     IF G-PRINS = "006"
       *      MOVE "OF " TO SBR-INSCODE.
       *     IF G-PRINS = "141"
       *      MOVE "CH " TO SBR-INSCODE.
       *     IF (G-PRINS = "002") OR (INS-CAID = "EE ")
       *      MOVE "BL " TO SBR-INSCODE.
-           MOVE SPACE TO SBR-6 SBR-7 SBR-8 
+           MOVE SPACE TO SBR-6 SBR-7 SBR-8
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SBR01.
            MOVE SPACE TO CAS-1 CAS-2 CAS-3
@@ -1720,8 +1720,8 @@
       *     MOVE ALF8NUM TO CAS-3
       *     MOVE SPACE TO SEGFILE01
       *     WRITE SEGFILE01 FROM CAS01
-	   
-	   
+
+
       *     MOVE SPACE TO AMT-1 AMT-2
       *     MOVE "AAE" TO AMT-1
       *     COMPUTE NUM7 = CAS-TOT-ALLOWED
@@ -1729,7 +1729,7 @@
       *     MOVE ALF8NUM TO AMT-2
       *     MOVE SPACE TO SEGFILE01
       *    WRITE SEGFILE01 FROM AMT01
-	   
+
 
            MOVE SPACE TO AMT-1 AMT-2
            MOVE "D  " TO AMT-1
@@ -1743,8 +1743,8 @@
       *     MOVE SPACE TO SEGFILE01
       *     WRITE SEGFILE01 FROM AMT01
 
-      *  IF PRIMARY INS SUBSCRIBER NOT = 2ND SUBSCRIBER 
-      *  MAKE UP DOB FOR DMG01 SEGMENT    
+      *  IF PRIMARY INS SUBSCRIBER NOT = 2ND SUBSCRIBER
+      *  MAKE UP DOB FOR DMG01 SEGMENT
            IF (G-PR-RELATE NOT = G-SE-RELATE)
              OR (G-GARNAME NOT = G-PRNAME)
                UNSTRING G-PRNAME DELIMITED BY ";" INTO
@@ -1754,14 +1754,14 @@
            MOVE G-SEX TO DMG-GENDER.
            MOVE SPACE TO SEGFILE01
       *     WRITE SEGFILE01 FROM DMG01.
-	   
+
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM OI01.
-	   
+
            MOVE "IL " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
-           
+
            IF (G-PR-RELATE NOT = G-SE-RELATE)
              OR (G-GARNAME NOT = G-PRNAME)
                UNSTRING G-PRNAME DELIMITED BY ";" INTO
@@ -1813,7 +1813,7 @@
 
        2320S-EXIT.
            EXIT.
-           
+
        CMP-1.
            MOVE "S" TO SBR-PST
            MOVE G-SE-GROUP TO SBR-GROUP
@@ -1830,7 +1830,7 @@
            WRITE SEGFILE01 FROM OI01.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM DMG01.
-           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES 
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
            UNSTRING G-SENAME DELIMITED BY ";" INTO
            NM1-NAMEL NM1-NAMEF NM1-NAMEM
            MOVE SPACE TO NAME-1 NAME-2
@@ -1874,7 +1874,7 @@
 
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N401.
-           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES 
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
            MOVE "MEDICOMP" TO NM1-NAMEL
            MOVE "2" TO NM1-SOLO
            MOVE "PR" TO NM1-1
@@ -1883,7 +1883,7 @@
            MOVE "00026" TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
-       
+
        CAID-1.
            MOVE "S" TO SBR-PST
            MOVE G-SE-GROUP TO SBR-GROUP
@@ -1897,7 +1897,7 @@
            WRITE SEGFILE01 FROM OI01.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM DMG01.
-           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES 
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
            UNSTRING G-SENAME DELIMITED BY ";" INTO
            NM1-NAMEL NM1-NAMEF NM1-NAMEM
            MOVE SPACE TO NAME-1 NAME-2
@@ -1942,7 +1942,7 @@
            MOVE G-ZIP TO N4-ZIP
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N401.
-           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES 
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
            MOVE "VT MEDICAID" TO NM1-NAMEL
            MOVE "2" TO NM1-SOLO
            MOVE "PR" TO NM1-1
@@ -1951,7 +1951,7 @@
            MOVE "VTXIX" TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
-       GAP-1. 
+       GAP-1.
            MOVE G-PR-GROUP TO GAPKEY
            READ GAPFILE INVALID MOVE 1 TO GAP-FLAG GO TO GAP-1-EXIT.
            MOVE "S" TO SBR-PST
@@ -1970,7 +1970,7 @@
            WRITE SEGFILE01 FROM OI01.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM DMG01.
-           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES 
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
            UNSTRING G-SENAME DELIMITED BY ";" INTO
            NM1-NAMEL NM1-NAMEF NM1-NAMEM
            MOVE SPACE TO NAME-1 NAME-2
@@ -2013,7 +2013,7 @@
 
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM N401.
-           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES 
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM NM1-NAMES
            MOVE GAP-NAME TO NM1-NAMEL
            MOVE "2" TO NM1-SOLO
            MOVE "PR" TO NM1-1
@@ -2031,7 +2031,7 @@
            IF ((FI-PROC1 = "W9020")
            OR (FI-PROC1 > "99380" AND < "99387")
            OR (FI-PROC1 > "99390" AND < "99397"))
-           MOVE G-DOB TO AGEX  
+           MOVE G-DOB TO AGEX
            MOVE FI-DATE-T TO AGEY
            COMPUTE AGEZ = AGEYYY - AGEXYY
 	    IF AGEZ = 21 AND AGEXMMDD > AGEYMMDD
@@ -2080,7 +2080,7 @@
            IF NOT (FI-DX4 = SPACE OR "0000000")
            MOVE FI-DX4 TO DIAG-X
            PERFORM DIAG-3 VARYING A FROM 1 BY 1 UNTIL A > 12
-           END-IF 
+           END-IF
 
            MOVE SPACE TO DIAG-C(DX-CNTR-PT)
            MOVE DIAG-POINTER01 TO SV1-PT
@@ -2089,7 +2089,7 @@
        DIAG-3.
            IF DIAGTAB(A) = DIAG-X
            ADD 1 TO DX-CNTR-PT
-           MOVE A TO DIAG-PT(DX-CNTR-PT) 
+           MOVE A TO DIAG-PT(DX-CNTR-PT)
            MOVE ":" TO DIAG-C(DX-CNTR-PT)
            MOVE 12 TO A.
 
@@ -2109,7 +2109,7 @@
            IF NOT (sv1-proc(1:1) = "J"  OR  SV1-PROC(1:5) = "Q2039")
             GO TO 2400SRV-1.
              move sv1-proc to proc-key
-             read procfile invalid 
+             read procfile invalid
               go to 2400srv-1
              end-read
            move space to sv1-mod-filler
@@ -2153,16 +2153,16 @@
            COMPUTE NUM7 = CAS-PAID(X)
            PERFORM AMT-LEFT
 
-      *    iEDI wants us to suppress leading zero     
+      *    iEDI wants us to suppress leading zero
            IF ALF8NUM = "0.00"
                MOVE ".00" TO ALF8NUM
-           END-IF    
+           END-IF
 
            MOVE ALF8NUM TO SVD-2
            MOVE SPACE TO SVD-3
            STRING "HC:" SV1-PROC SV1-MOD-FILLER DELIMITED BY SIZE
            INTO SVD-3
-           MOVE SV1-WORK TO SVD-4 
+           MOVE SV1-WORK TO SVD-4
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SVD01
 
@@ -2205,7 +2205,7 @@
            READ CHARCUR WITH LOCK INVALID GO TO 2400SRV-EXIT.
            IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
-           MOVE "E" TO CC-PAPER. 
+           MOVE "E" TO CC-PAPER.
            MOVE BHT-DATE TO CC-DATE-A.
            REWRITE CHARCUR01.
        2400SRV-EXIT.  EXIT.
@@ -2239,26 +2239,26 @@
        REF-1-EXIT. EXIT.
 
        DOCP-1.
-           MOVE DOC-LASTNAME(HOLD-DOCP) TO SAVE-DOCNM1-NAMEL 
-           MOVE DOC-FIRSTNAME(HOLD-DOCP) TO SAVE-DOCNM1-NAMEF 
-           MOVE DOC-MI(HOLD-DOCP) TO SAVE-DOCNM1-NAMES 
+           MOVE DOC-LASTNAME(HOLD-DOCP) TO SAVE-DOCNM1-NAMEL
+           MOVE DOC-FIRSTNAME(HOLD-DOCP) TO SAVE-DOCNM1-NAMEF
+           MOVE DOC-MI(HOLD-DOCP) TO SAVE-DOCNM1-NAMES
            MOVE DOC-NPI(HOLD-DOCP) TO SAVE-DOCNM1-CODE
            MOVE DOC-SS(HOLD-DOCP) TO SAVE-DOCREF-ID
            MOVE "SY" TO SAVE-DOCREF-CODE
            MOVE "82 " TO SAVE-DOCNM1-1
            MOVE "1" TO SAVE-DOCNM1-SOLO
-           MOVE SPACE TO SAVE-DOCNM1-NAMES 
+           MOVE SPACE TO SAVE-DOCNM1-NAMES
            MOVE "XX" TO SAVE-DOCNM1-EINSS.
 
        SUBSCRIBER-1.
            MOVE HOLD-KEY8 TO G-GARNO
-           READ GARFILE 
+           READ GARFILE
                INVALID DISPLAY "BAD BAD BAD"
                    GO TO P99.
                IF G-TRINS NOT = "001"
 	               MOVE "0" TO MPLR-TR-RELATE
 	               MOVE G-GARNO TO MPLR-KEY
-                   READ MPLRFILE 
+                   READ MPLRFILE
                        INVALID CONTINUE
 	               END-READ
                END-IF.
@@ -2267,7 +2267,7 @@
            MOVE G-PRIPOL TO SUB-POLICY
            MOVE SPACE TO SUB-GROUP
            MOVE "P" TO SBR-PST
-           IF HOLD-PAYCODE = G-SEINS 
+           IF HOLD-PAYCODE = G-SEINS
                 MOVE "S" TO SBR-PST
                 MOVE G-SE-RELATE TO SUB-RELATE
                 MOVE G-SENAME TO SUB-NAME
@@ -2284,12 +2284,12 @@
            END-IF.
            MOVE G-RELATE TO X-RELATE.
            IF HOLD-PATID8 = "P" PERFORM PAT-READ.
-           IF X-RELATE = "0"  
+           IF X-RELATE = "0"
                MOVE G-RELATE TO X-RELATE.
-           IF X-RELATE = SUB-RELATE  
+           IF X-RELATE = SUB-RELATE
 	           MOVE "18" TO SBR-RELATE
 	           GO TO SUBSCRIBER-2.
-           IF (X-RELATE = "2" OR "K") 
+           IF (X-RELATE = "2" OR "K")
 	           AND (SUB-RELATE = "2" OR "K")
                MOVE "01" TO SBR-RELATEHOLD GO TO SUBSCRIBER-2.
            IF (X-RELATE = "8" OR "Q") MOVE "29" TO SBR-RELATEHOLD
@@ -2318,19 +2318,19 @@
         		 IF HOLD-ACC-TYPE = "2"
         		   MOVE "14" TO SBR-TYPE
         		 END-IF
-      		 
+
              IF HOLD-ACC-TYPE = "1"
       		     MOVE "15" TO SBR-TYPE
       		   END-IF
       	   END-IF.
 
-       SUBSCRIBER-EXIT. 
+       SUBSCRIBER-EXIT.
            EXIT.
 
        2000B-PAT.
-	   
 
-       PAT-READ. 
+
+       PAT-READ.
            MOVE HOLD-PATID TO P-PATNO
            READ PATFILE INVALID MOVE "0" TO P-RELATE.
            MOVE P-RELATE TO X-RELATE.
@@ -2352,7 +2352,7 @@
 
        2000C.
       * ISA RECORD.
-       ISA-1. 
+       ISA-1.
       *  AUTHORIZATION INFO QUALIFIER
            READ PARMFILE2 AT END GO TO A0-EXIT.
            MOVE PARMFILE201 TO ISA-1.
@@ -2403,7 +2403,7 @@
            READ PARMFILE2 AT END GO TO A0-EXIT.
            MOVE PARMFILE201 TO ISA-16.
        ISA-EXIT. EXIT.
-      * TAX ID NUMBER 
+      * TAX ID NUMBER
        A0.
            READ PARMFILE AT END GO TO A0-EXIT.
            MOVE PARMFILE01 TO EIN-CODE.
@@ -2451,7 +2451,7 @@
            MOVE PARMFILE01 TO GROUP-3.
       *   CLIA-NUMBER
            READ PARMFILE AT END GO TO A0-EXIT.
-           MOVE PARMFILE01 TO mammo-code. 
+           MOVE PARMFILE01 TO mammo-code.
 
       * ACCT-TAXONOMY.
            READ PARMFILE AT END GO TO A0-EXIT.
@@ -2473,13 +2473,13 @@
            GO TO A1.
        A0-EXIT.  EXIT.
 
-       DF-SEARCH. 
+       DF-SEARCH.
            MOVE 0 TO FLAG.
            MOVE "1" TO CC-PL
            MOVE "11" TO CLM-5
            PERFORM DF-SEARCH2 VARYING Y FROM 1 BY 1 UNTIL Y > PLINDX.
-       DF-SEARCH2.  
-           IF HOLD-PLACE = PL-TAB(Y) 
+       DF-SEARCH2.
+           IF HOLD-PLACE = PL-TAB(Y)
            MOVE PL-NUM(Y) TO CC-PL
            MOVE Y TO PLACE-POINTER
            PERFORM PLACE-OF-SERVICE
@@ -2492,7 +2492,7 @@
            IF CC-PL = "6" MOVE "81" TO CLM-5.
            IF CC-PL = "7" MOVE "61" TO CLM-5.
            IF CC-PL = "8" MOVE "99" TO CLM-5.
-           IF CC-PL = "E" MOVE "23" TO CLM-5 
+           IF CC-PL = "E" MOVE "23" TO CLM-5
            IF CC-PL = "K" MOVE "31" TO CLM-5.
            IF HOLD-PROC1 > "99200" AND < "99206" MOVE "11" TO CLM-5.
            IF HOLD-PROC1 > "99210" AND < "99216" MOVE "11" TO CLM-5.
@@ -2553,7 +2553,7 @@
            IF X-MOD1 = SPACE AND X-MOD2 = SPACE
               MOVE X-MOD3 TO X-MOD1
               MOVE SPACE TO X-MOD3.
-           IF X-MOD1 = SPACE 
+           IF X-MOD1 = SPACE
               MOVE X-MOD2 TO X-MOD1
               MOVE X-MOD3 TO X-MOD2
               MOVE SPACE TO X-MOD3.
@@ -2577,7 +2577,7 @@
 
 
 
-       MAKE-IT-UP. 
+       MAKE-IT-UP.
            MOVE G-DOB TO X-DOB.
            ADD 1 TO X-YYYY
            COMPUTE X-MM = 12 + X-DD.
@@ -2588,10 +2588,10 @@
            END-IF
            IF X-MM = 0 MOVE 1 TO X-MM.
            COMPUTE X-DD = X-DD + 32 + (X-YYYY - 1900).
-	   
+
        MAKE-IT-2.
            IF X-DD > DAYS-IN-MONTH(X-MM)
-	    COMPUTE X-DD = X-DD - DAYS-IN-MONTH(X-MM)  
+	    COMPUTE X-DD = X-DD - DAYS-IN-MONTH(X-MM)
 	    GO TO MAKE-IT-2
            END-IF
            IF X-DD < 1 MOVE 1 TO X-DD.
@@ -2604,7 +2604,7 @@
       *     ACCEPT ANS
            MOVE X-DOB TO DMG-DOB
            MOVE "M" TO DMG-GENDER
-           IF G-PR-RELATE NOT NUMERIC 
+           IF G-PR-RELATE NOT NUMERIC
 	    MOVE "F" TO DMG-GENDER.
        MAKE-IT-UP-EXIT.
            EXIT.
@@ -2616,7 +2616,7 @@
            MOVE SPACE TO SEGFILE01.
       *     WRITE SEGFILE01 FROM IEA01.
 
-       P99. 
+       P99.
            REWRITE HIPCLAIMFILE01.
 	    CLOSE GARFILE HIPCLAIMFILE CHARCUR ERRFILE.
 	    STOP RUN.
