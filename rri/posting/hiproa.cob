@@ -902,7 +902,8 @@
                END-IF
            END-IF
 
-           IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
+           IF CLP-2CLMSTAT = "1 " AND 
+               (PAYORID = "43700" OR PAYORID = "58379")
                IF SVC-CNTR = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
                ELSE
