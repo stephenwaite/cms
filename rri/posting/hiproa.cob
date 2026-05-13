@@ -393,6 +393,7 @@
        01  PAID-FLAG     PIC 9 VALUE 0.
        01  MISMATCH-FLAG PIC 9 VALUE 0.
        01  SVC-TOTAL PIC S9(5)V99 VALUE 0.
+       01  PRIOR-TOT PIC S9(7)V99 VALUE 0.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -2022,7 +2023,8 @@
            END-PERFORM.
 
        CHECK-CLAIM-TOT.
-           IF CLAIM-TOT = 0
+           COMPUTE PRIOR-TOT = CLAIM-TOT - PD-AMOUNT
+           IF PRIOR-TOT <= 0
                MOVE 1 TO PAID-FLAG
            END-IF
            IF CLAIM-TOT < 0
