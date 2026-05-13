@@ -398,12 +398,6 @@
        01  SVC-TOTAL PIC S9(5)V99 VALUE 0.
        01  PRIOR-TOT PIC S9(7)V99 VALUE 0.
        01  CLP-AUTH      PIC X(20) VALUE SPACE.
-       01  REF01.
-           02 REF-0      PIC X(3).
-           02 FILLER     PIC X.
-           02 REF-1      PIC X(3).
-           02 FILLER     PIC X.
-           02 REF-2      PIC X(50).
 
        PROCEDURE DIVISION.
        0005-START.
