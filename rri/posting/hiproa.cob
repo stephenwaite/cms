@@ -101,7 +101,7 @@
            02 PF-3 PIC X(27).
 
        FD  ERROR-FILE.
-       01  ERROR-FILE01 PIC X(150).
+       01  ERROR-FILE01 PIC X(175).
 
        FD  FILEIN.
        01  FILEIN01.
@@ -185,6 +185,9 @@
             03 EF-DENIAL5 PIC XXX.
             03 FILLER PIC X VALUE SPACE.
             03 EF-DENIAL6 PIC XXX.
+           02 FILLER PIC X VALUE SPACE.
+           02 EF-AUTH PIC X(20) VALUE SPACE.
+           
         01 ERR201.
            02 EF2-NUM PIC ZZ9.
            02 FILLER PIC XX VALUE SPACE.
@@ -394,6 +397,13 @@
        01  MISMATCH-FLAG PIC 9 VALUE 0.
        01  SVC-TOTAL PIC S9(5)V99 VALUE 0.
        01  PRIOR-TOT PIC S9(7)V99 VALUE 0.
+       01  CLP-AUTH      PIC X(20) VALUE SPACE.
+       01  REF01.
+           02 REF-0      PIC X(3).
+           02 FILLER     PIC X.
+           02 REF-1      PIC X(3).
+           02 FILLER     PIC X.
+           02 REF-2      PIC X(50).
 
        PROCEDURE DIVISION.
        0005-START.
@@ -618,6 +628,7 @@
            MOVE 0 TO LQ-CNTR
            MOVE 0 TO SVC-TOTAL
            MOVE 0 TO OVERPAY-FLAG PAID-FLAG MISMATCH-FLAG
+           MOVE SPACE TO CLP-AUTH
            MOVE ALL ZEROES TO ALLW-TAB01.
 
        P1-NM1.
@@ -665,6 +676,14 @@
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    DTM-0 DTM-1 DTM-2
                MOVE DTM-2 TO DATE-CC
+               GO TO P1-NM1
+           END-IF
+
+           IF F1 = "REF" AND F2 = "*G1*"
+               MOVE SPACE TO REF01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                   REF-0 REF-1 REF-2
+               MOVE REF-2 TO CLP-AUTH
                GO TO P1-NM1
            END-IF
 
@@ -1295,6 +1314,7 @@
            IF MISMATCH-FLAG = 1
                MOVE "MISMATCH   " TO EF2
            END-IF
+           MOVE CLP-AUTH TO EF-AUTH
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
 
