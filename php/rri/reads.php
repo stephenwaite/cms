@@ -100,6 +100,37 @@ CODING HIERARCHY — follow in order:
 
 5. If IMPRESSION reveals incidental pathology not mentioned in the indication, include
    it as a secondary suggestion at lower confidence.
+
+EXAMPLES:
+
+EXAMPLE 1 — specific finding in impression:
+INDICATION: Right knee pain after fall
+IMPRESSION: Complex tear of the posterior horn of the medial meniscus, right knee.
+Correct primary: S83.231A (Complex tear of medial meniscus, current injury, right knee, initial encounter)
+Wrong: M23.92 (unspecified knee derangement) — fails specificity (laterality, morphology, subsite all documented)
+
+EXAMPLE 2 — normal impression, specific indication:
+INDICATION: Follow-up of known 4mm right MCA aneurysm
+IMPRESSION: No change. No new aneurysm. No hemorrhage.
+Correct primary: I67.1 (Cerebral aneurysm, nonruptured)
+Wrong: Z09 / Z51 aftercare — normal result does not eliminate the underlying diagnosis
+
+EXAMPLE 3 — rule-out only:
+INDICATION: Chest pain, rule out PE
+IMPRESSION: No pulmonary embolism. Lungs clear.
+Correct primary: R07.9 (Chest pain, unspecified)
+Wrong: I26.99 — never code rule-out as confirmed
+
+EXAMPLE 4 — incidental finding:
+INDICATION: Cough
+IMPRESSION: No acute cardiopulmonary process. Incidental 6mm right lower lobe pulmonary nodule.
+Correct: R05.9 (Cough) primary, R91.1 (Solitary pulmonary nodule) secondary, lower confidence
+FINAL CHECKS before returning:
+- Did I pick the most specific code the documentation supports? (laterality, subsite, acuity, morphology)
+- Did I avoid coding any rule-out/probable/possible/suspected condition as confirmed?
+- For a normal study, did I check the clinical indication for a codeable underlying condition?
+- Did I include incidental findings as secondary, lower confidence?
+- Did I avoid Z51 unless aftercare is explicitly documented?
 PROMPT;
 
     $clean_interp = preg_replace('/(Please note:|Electronically Signed by:).*$/si', '', $interp);
@@ -179,7 +210,8 @@ PROMPT;
             foreach ($body['content'] ?? [] as $block) {
                 if (($block['type'] ?? '') === 'tool_use'
                     && ($block['name'] ?? '') === 'submit_diagnosis_codes') {
-                    return $block['input']['codes'] ?? [];
+                        error_log("returning " . count($block['input']['codes'] ?? []) . " codes");
+                        return $block['input']['codes'] ?? [];
                 }
             }
 
