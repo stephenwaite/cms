@@ -52,7 +52,7 @@ function getQualifyingLungFindings(string $note): array
     ];
 }
 
-function suggestIcd10Codes(Client $guzzle, string $interp, string $cpt): array
+function suggestIcd10Codes(Client $guzzle, string $interp, string $cpt): ?array
 {
     $system = <<<PROMPT
 You are a radiology ICD-10-CM coding assistant. Given a radiology report and the CPT code
@@ -100,42 +100,122 @@ CODING HIERARCHY — follow in order:
 
 5. If IMPRESSION reveals incidental pathology not mentioned in the indication, include
    it as a secondary suggestion at lower confidence.
-
-Return ONLY a valid JSON array. No preamble, no markdown, no backticks.
 PROMPT;
 
     $clean_interp = preg_replace('/(Please note:|Electronically Signed by:).*$/si', '', $interp);
     $user_message = "CPT: {$cpt}\n\nInterpretation:\n{$clean_interp}";
 
-    try {
-        $response = $guzzle->post('https://api.anthropic.com/v1/messages', [
-            'headers' => [
-                'x-api-key'         => getenv('ANTHROPIC_API_KEY'),
-                'anthropic-version' => '2023-06-01',
-                'Content-Type'      => 'application/json',
-            ],
-            'timeout'         => 30,
-            'connect_timeout' => 10,
-            'json' => [
-                'model'      => 'claude-sonnet-4-6',
-                'max_tokens' => 1024,
-                'system'     => $system,
-                'messages'   => [
-                    ['role' => 'user', 'content' => $user_message]
+    $attempts = 0;
+    $max_attempts = 3;
+
+    while ($attempts < $max_attempts) {
+        try {
+            $response = $guzzle->post('https://api.anthropic.com/v1/messages', [
+                'headers' => [
+                    'x-api-key'         => getenv('ANTHROPIC_API_KEY'),
+                    'anthropic-version' => '2023-06-01',
+                    'Content-Type'      => 'application/json',
                 ],
-            ],
-        ]);
-        $body = json_decode((string) $response->getBody(), true);
-        $raw  = $body['content'][0]['text'] ?? '[]';
-        return json_decode($raw, true) ?? [];
-    } catch (\GuzzleHttp\Exception\ConnectException $e) {
-        echo "Claude unavailable (connection timeout) \n";
-    } catch (\GuzzleHttp\Exception\RequestException $e) {
-        echo "Claude request failed: " . $e->getMessage() . " \n";
-    } catch (\Exception $e) {
-        echo "Claude error: " . $e->getMessage() . " \n";
+                'timeout'         => 30,
+                'connect_timeout' => 10,
+                'json' => [
+                    'model'      => 'claude-sonnet-4-6',
+                    'max_tokens' => 1024,
+                    'system'     => [
+                        [
+                            'type'          => 'text',
+                            'text'          => $system,
+                            'cache_control' => ['type' => 'ephemeral'],
+                        ],
+                    ],
+                    'tools' => [
+                        [
+                            'name'        => 'submit_diagnosis_codes',
+                            'description' => 'Submit suggested ICD-10-CM diagnosis codes for the radiology report.',
+                            'input_schema' => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'codes' => [
+                                        'type'  => 'array',
+                                        'items' => [
+                                            'type'       => 'object',
+                                            'properties' => [
+                                                'code'        => ['type' => 'string', 'description' => 'ICD-10-CM code'],
+                                                'description' => ['type' => 'string', 'description' => 'Full code description'],
+                                                'confidence'  => ['type' => 'string', 'enum' => ['high', 'medium', 'low']],
+                                                'rationale'   => ['type' => 'string', 'description' => 'One sentence citing the specific finding or indication'],
+                                            ],
+                                            'required' => ['code', 'description', 'confidence', 'rationale'],
+                                        ],
+                                    ],
+                                ],
+                                'required' => ['codes'],
+                            ],
+                        ],
+                    ],
+                    'tool_choice' => ['type' => 'tool', 'name' => 'submit_diagnosis_codes'],
+                    'messages'    => [
+                        ['role' => 'user', 'content' => $user_message],
+                    ],
+                ],
+            ]);
+
+            $body = json_decode((string) $response->getBody(), true);
+
+            // Cache verification — keep during rollout, remove later
+            $usage = $body['usage'] ?? [];
+            error_log(sprintf(
+                "Claude usage: input=%d, output=%d, cache_write=%d, cache_read=%d",
+                $usage['input_tokens'] ?? 0,
+                $usage['output_tokens'] ?? 0,
+                $usage['cache_creation_input_tokens'] ?? 0,
+                $usage['cache_read_input_tokens'] ?? 0,
+            ));
+
+            if (($body['stop_reason'] ?? '') === 'max_tokens') {
+                error_log("Claude: response truncated at max_tokens, consider raising limit");
+            }
+
+            foreach ($body['content'] ?? [] as $block) {
+                if (($block['type'] ?? '') === 'tool_use'
+                    && ($block['name'] ?? '') === 'submit_diagnosis_codes') {
+                    return $block['input']['codes'] ?? [];
+                }
+            }
+
+            error_log("Claude: no tool_use block found, stop_reason=" . ($body['stop_reason'] ?? 'null'));
+            return [];
+
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            $attempts++;
+            if ($attempts < $max_attempts) {
+                sleep(2 ** $attempts);
+                continue;
+            }
+            error_log("Claude unavailable (connection timeout): " . $e->getMessage());
+            return null;
+
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $status = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
+            $detail = $e->hasResponse()
+                ? (string) $e->getResponse()->getBody()
+                : $e->getMessage();
+
+            if (in_array($status, [429, 529, 500, 502, 503, 504]) && $attempts < $max_attempts - 1) {
+                $attempts++;
+                sleep(2 ** $attempts);
+                continue;
+            }
+            error_log("Claude request failed ($status): $detail");
+            return null;
+
+        } catch (\Exception $e) {
+            error_log("Claude error: " . $e->getMessage());
+            return null;
+        }
     }
-    return [];
+
+    return null;
 }
 
 $filename = getenv('HOME') . "/W2" . getenv('tid') . $cms_user;
@@ -275,13 +355,16 @@ if (!empty($jsonObj['entry'])) {
             echo $note . "\n";
             if ($ask_claude && str_contains($coding_display, $rri_cpt)) {
                 $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
-                foreach ($icd10_suggestions as $s) {
-                    echo sprintf("[%s] %s (%s) — \"%s\"\n",
-                        $s['confidence'],
-                        $s['code'],
-                        $s['description'],
-                        $s['rationale']
-                    );
+                if ($icd10_suggestions === null) {
+                    echo "(Claude unavailable — code manually)\n";
+                } elseif (empty($icd10_suggestions)) {
+                    echo "(no ICD-10 suggestions returned)\n";
+                } else {
+                    foreach ($icd10_suggestions as $s) {
+                        echo sprintf("[%s] %s (%s) — \"%s\"\n",
+                            $s['confidence'], $s['code'], $s['description'], $s['rationale']
+                        );
+                    }
                 }
             }
         }
