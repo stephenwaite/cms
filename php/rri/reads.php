@@ -210,7 +210,6 @@ PROMPT;
             foreach ($body['content'] ?? [] as $block) {
                 if (($block['type'] ?? '') === 'tool_use'
                     && ($block['name'] ?? '') === 'submit_diagnosis_codes') {
-                        error_log("returning " . count($block['input']['codes'] ?? []) . " codes");
                         return $block['input']['codes'] ?? [];
                 }
             }
