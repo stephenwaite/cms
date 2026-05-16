@@ -1365,11 +1365,12 @@
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO EF3
            MOVE BPR-16 TO EF-PAYDATE
+      *    NOTE THAT THE CLAIM IS ALREADY PAID OR OVER PAID     
            IF OVERPAY-FLAG = 1
-               MOVE "OVERPAY " TO EF-PAYDATE
+               MOVE "OVERPAY " TO EF-AUTH
            END-IF
            IF PAID-FLAG = 1
-               MOVE "PAID    " TO EF-PAYDATE
+               MOVE "PAID    " TO EF-AUTH
            END-IF
            MOVE CLP-1 TO EF4
            MOVE SPACE TO ALF8
