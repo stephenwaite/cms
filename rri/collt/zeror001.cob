@@ -50,6 +50,7 @@
 
        01  CLAIM-TOT PIC S9(6)V99.
        01  GARBACK PIC X(315).              
+       01  GAR-EOF PIC X VALUE "N".
 
        PROCEDURE DIVISION.
 
@@ -58,6 +59,9 @@
            open output fileout.
 
        R1.
+           IF GAR-EOF = "Y"
+               GO TO R99
+           END-IF
            READ GARFILE NEXT
              AT END
                GO TO R99.
@@ -98,17 +102,17 @@
            GO TO R4.
 
        R5.
-            IF CLAIM-TOT NOT = 0
-                IF G-DELETE NOT = SPACE
-                    MOVE SPACE TO G-DELETE
-                    PERFORM R6 THRU R6-EXIT
-                END-IF
-            ELSE
-                IF G-DELETE NOT = "1"
-                    MOVE "1" TO G-DELETE
-                    PERFORM R6 THRU R6-EXIT
-                END-IF
-            END-IF
+           IF CLAIM-TOT NOT = 0
+               IF G-DELETE NOT = SPACE
+                   MOVE SPACE TO G-DELETE
+                   PERFORM R6 THRU R6-EXIT
+               END-IF
+           ELSE
+               IF G-DELETE NOT = "1"
+                   MOVE "1" TO G-DELETE
+                   PERFORM R6 THRU R6-EXIT
+               END-IF
+           END-IF
 
            IF CLAIM-TOT NOT > 0
                PERFORM R7 THRU R7-EXIT
@@ -139,6 +143,7 @@
            START GARFILE KEY > G-GARNO
              INVALID 
                DISPLAY "LAST GARNO? " G-GARNO
+               MOVE "Y" TO GAR-EOF
       *         ACCEPT OMITTED
                GO TO R6-exit.
        
