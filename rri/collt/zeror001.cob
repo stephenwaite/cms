@@ -49,20 +49,16 @@
        WORKING-STORAGE SECTION.    
 
        01  CLAIM-TOT PIC S9(6)V99.
-       01  GARBACK PIC X(315).              
-       01  GAR-EOF PIC X VALUE "N".
 
        PROCEDURE DIVISION.
 
        P0.
-           OPEN INPUT GARFILE CHARCUR PAYCUR.
-           open output fileout.
+           OPEN I-O GARFILE
+           OPEN INPUT CHARCUR PAYCUR.
+           OPEN OUTPUT FILEOUT.
 
        R1.
-           IF GAR-EOF = "Y"
-               GO TO R99
-           END-IF
-           READ GARFILE NEXT
+           READ GARFILE NEXT WITH LOCK
              AT END
                GO TO R99.
 
@@ -105,12 +101,12 @@
            IF CLAIM-TOT NOT = 0
                IF G-DELETE NOT = SPACE
                    MOVE SPACE TO G-DELETE
-                   PERFORM R6 THRU R6-EXIT
+                   REWRITE GARFILE01
                END-IF
            ELSE
                IF G-DELETE NOT = "1"
                    MOVE "1" TO G-DELETE
-                   PERFORM R6 THRU R6-EXIT
+                   REWRITE GARFILE01
                END-IF
            END-IF
 
@@ -122,39 +118,11 @@
            
            GO TO R1.    
 
-       R6.    
-           MOVE GARFILE01 TO GARBACK
-           CLOSE GARFILE           
-           OPEN I-O GARFILE
-           MOVE GARBACK(1:8) TO G-GARNO
-           READ GARFILE WITH LOCK
-             INVALID
-               DISPLAY "COULD NOT READ GARFILE WITH LOCK"
-
-           END-READ
-           MOVE GARBACK TO GARFILE01
-      *     DISPLAY G-GARNO " " G-DELETE " " G-DUNNING 
-      *     DISPLAY " "
-           
-           REWRITE GARFILE01.
-           CLOSE GARFILE
-           OPEN INPUT GARFILE.
-           MOVE GARBACK(1:8) TO G-GARNO
-           START GARFILE KEY > G-GARNO
-             INVALID 
-               DISPLAY "LAST GARNO? " G-GARNO
-               MOVE "Y" TO GAR-EOF
-      *         ACCEPT OMITTED
-               GO TO R6-exit.
-       
-       R6-exit.        
-           exit.
-
        R7.    
            CLOSE CHARCUR           
            OPEN I-O CHARCUR
 
-           MOVE GARBACK(1:8) TO CC-KEY8
+           MOVE G-GARNO TO CC-KEY8
            MOVE SPACE TO CC-KEY3
            START CHARCUR KEY NOT < CHARCUR-KEY
              invalid
@@ -167,7 +135,7 @@
                GO TO R7-EXIT  
            END-READ
 
-           if cc-key8 not = garback(1:8) go to r7-exit.
+           if cc-key8 not = G-GARNO go to r7-exit.
 
            if cc-assign  = "A" go to r7-1.
 
