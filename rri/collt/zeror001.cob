@@ -98,17 +98,17 @@
            GO TO R4.
 
        R5.
-           IF CLAIM-TOT NOT = 0
-             IF G-DELETE NOT = "1"
-               MOVE "1" TO G-DELETE
-               PERFORM R6 thru r6-exit
-             end-if
-           ELSE
-             IF G-DELETE NOT = SPACE
-               MOVE SPACE TO G-DELETE
-               PERFORM R6 thru r6-exit
-             end-if
-           END-IF
+            IF CLAIM-TOT NOT = 0
+                IF G-DELETE NOT = SPACE
+                    MOVE SPACE TO G-DELETE
+                    PERFORM R6 THRU R6-EXIT
+                END-IF
+            ELSE
+                IF G-DELETE NOT = "1"
+                    MOVE "1" TO G-DELETE
+                    PERFORM R6 THRU R6-EXIT
+                END-IF
+            END-IF
 
            IF CLAIM-TOT NOT > 0
                PERFORM R7 THRU R7-EXIT
