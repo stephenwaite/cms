@@ -98,10 +98,6 @@
            GO TO R4.
 
        R5.
-           IF G-GARNO = "BER1334G"
-               DISPLAY G-GARNO " CLAIM-TOT=[" CLAIM-TOT "]"
-           END-IF
-               
            IF CLAIM-TOT > 0
                IF G-DELETE NOT = "1"
                    MOVE "1" TO G-DELETE
