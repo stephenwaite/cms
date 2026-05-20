@@ -53,8 +53,8 @@
        PROCEDURE DIVISION.
 
        P0.
-           OPEN I-O GARFILE
-           OPEN INPUT CHARCUR PAYCUR.
+           OPEN I-O GARFILE CHARCUR
+           OPEN INPUT PAYCUR.
            OPEN OUTPUT FILEOUT.
 
        R1.
@@ -99,29 +99,24 @@
 
        R5.
            IF CLAIM-TOT NOT = 0
-               IF G-DELETE NOT = SPACE
-                   MOVE SPACE TO G-DELETE
+               IF G-DELETE NOT = "1"
+                   MOVE "1" TO G-DELETE
                    REWRITE GARFILE01
                END-IF
            ELSE
-               IF G-DELETE NOT = "1"
-                   MOVE "1" TO G-DELETE
+               IF G-DELETE NOT = SPACE
+                   MOVE SPACE TO G-DELETE
                    REWRITE GARFILE01
                END-IF
            END-IF
 
            IF CLAIM-TOT NOT > 0
                PERFORM R7 THRU R7-EXIT
-               CLOSE charcur
-               OPEN INPUT charcur 
            END-IF  
            
            GO TO R1.    
 
        R7.    
-           CLOSE CHARCUR           
-           OPEN I-O CHARCUR
-
            MOVE G-GARNO TO CC-KEY8
            MOVE SPACE TO CC-KEY3
            START CHARCUR KEY NOT < CHARCUR-KEY
@@ -136,9 +131,7 @@
            END-READ
 
            if cc-key8 not = G-GARNO go to r7-exit.
-
            if cc-assign  = "A" go to r7-1.
-
            IF CC-date-a = "00000000" go to r7-1.
 
            move "00000000" to cc-date-a
