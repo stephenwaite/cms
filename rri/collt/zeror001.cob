@@ -98,7 +98,7 @@
            GO TO R4.
 
        R5.
-           IF CLAIM-TOT NOT = 0
+           IF CLAIM-TOT > 0
                IF G-DELETE NOT = "1"
                    MOVE "1" TO G-DELETE
                    REWRITE GARFILE01
