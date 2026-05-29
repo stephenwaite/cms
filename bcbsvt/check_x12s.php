@@ -16,6 +16,10 @@ if (!$sftp->login($cms_user, $cms_pass)) {
 };
 
 $path = '/Home/cms';
+$files = $sftp->rawlist($path);   
+if (!is_array($files)) {
+    throw new RuntimeException("rawlist failed: " . $sftp->getLastError());
+}
 
 $files = array_filter($files, function ($f, $name) {
     return $name !== '.' && $name !== '..' && $f->type !== NET_SFTP_TYPE_DIRECTORY;
