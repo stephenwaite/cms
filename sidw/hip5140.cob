@@ -97,37 +97,27 @@
            MOVE PARMFILE01 TO PROV-FED.
            READ PARMFILE AT END GO TO P99.
            MOVE PARMFILE01 TO PROV-LEG.
-
-       P000.
-           perform p-read
-
-           IF FI-1 NOT = "ISA" GO TO P000.
-           MOVE SPACE TO   ISA01
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO
-               ISA-0 ISA-1 ISA-2 ISA-3 ISA-4 ISA-5 ISA-6 ISA-7
-               ISA-8 ISA-9 ISA-10 ISA-11 ISA-12 ISA-13 
-           
-           MOVE FILEIN01 TO SAVE-TAB(1).
-
-       P00.
-           perform p-read
-
-           IF FI-1 NOT = "GS*" GO TO P00.
-           MOVE SPACE TO GS01
-           UNSTRING FILEIN01 DELIMITED BY "*" INTO
-               GS-0 GS-1 GS-2 GS-3 GS-4 GS-5 GS-6
-           
-           MOVE FILEIN01 TO SAVE-TAB(2).
-
-
        P0.
-           perform p-read
-
-           IF FI-1 NOT = "ST*" GO TO P0.
-           
-           MOVE FILEIN01 TO SAVE-TAB(3).
-           MOVE 3 TO X.
-           
+            PERFORM P-READ.
+            IF FI-1 = "ISA"
+            MOVE SPACE TO ISA01
+            UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                        ISA-0 ISA-1 ISA-2 ISA-3 ISA-4 ISA-5 ISA-6 ISA-7
+                        ISA-8 ISA-9 ISA-10 ISA-11 ISA-12 ISA-13
+            MOVE FILEIN01 TO SAVE-TAB(1)
+            GO TO P0
+            END-IF.
+            IF FI-1 = "GS*"
+            MOVE SPACE TO GS01
+            UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                        GS-0 GS-1 GS-2 GS-3 GS-4 GS-5 GS-6
+            MOVE FILEIN01 TO SAVE-TAB(2)
+            GO TO P0
+            END-IF.
+            IF FI-1 NOT = "ST*" GO TO P0.
+            MOVE FILEIN01 TO SAVE-TAB(3).
+            MOVE 3 TO X.
+       
        P1-2.
            perform p-read.
            
