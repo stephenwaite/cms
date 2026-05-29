@@ -17,21 +17,15 @@ if (!$sftp->login($cms_user, $cms_pass)) {
 
 $path = '/Home/cms';
 
-$files = $sftp->rawlist($path, true);
-if (!is_array($files)) {
-    throw new RuntimeException("rawlist failed: " . $sftp->getLastError());
-}
+$files = array_filter($files, function ($f, $name) {
+    return $name !== '.' && $name !== '..' && $f->type !== NET_SFTP_TYPE_DIRECTORY;
+}, ARRAY_FILTER_USE_BOTH);
+
 usort($files, fn($a, $b) => $a->mtime <=> $b->mtime);
 
-if (!empty($files)) {
-    foreach ($files as $file) {
-        if (!empty($file)) {
-            $dt_utc = new DateTimeImmutable('@' . $file->mtime);  // unix timestamp directly
-            $date = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
-            echo "file: " . $file->filename . " uploaded to 02 on " .
-                $date->format('Y-m-d h:i:s a') . "\n";
-        }
-    }
-} else {
-    // there's a test directory
+foreach ($files as $file) {
+    $dt_utc = new DateTimeImmutable('@' . $file->mtime);
+    $date = $dt_utc->setTimezone(new DateTimeZone('America/New_York'));
+    echo "file: {$file->filename} uploaded to 02 on "
+       . $date->format('Y-m-d h:i:s a') . "\n";
 }
