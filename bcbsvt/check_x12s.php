@@ -17,6 +17,10 @@ if (!$sftp->login($cms_user, $cms_pass)) {
 
 $path = '/Home/cms';
 $files = $sftp->rawlist($path);   
+foreach ($raw as $name => $entry) {
+    var_dump($name, $entry);
+    break;
+}
 if (!is_array($files)) {
     throw new RuntimeException("rawlist failed: " . $sftp->getLastError());
 }
