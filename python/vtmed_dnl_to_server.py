@@ -1,3 +1,4 @@
+#!/opt/cms-venvs/vtmed/bin/python3
 from playwright.sync_api import sync_playwright
 import sys
 import os
