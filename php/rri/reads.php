@@ -154,6 +154,9 @@ MUCOID DEGENERATION (no discrete tear):
 SYMPTOM CODES:
 - Only code symptoms explicitly documented in the report or indication.
 - Never infer a symptom (e.g. stiffness, swelling) that is not stated.
+- For pain symptoms, use the most anatomically specific pain code available.
+  Prefer site-specific codes (e.g. M25.562 Pain in left knee, M54.50 Low back pain)
+  over generic R52 (Pain, unspecified). Only use R52 if no site-specific pain code exists.
 
 FINAL CHECKS before returning:
 - Did I pick the most specific code the documentation supports? (laterality, subsite, acuity, morphology)
@@ -205,6 +208,7 @@ PROMPT;
                                                 'description' => ['type' => 'string', 'description' => 'Full code description'],
                                                 'confidence'  => ['type' => 'string', 'enum' => ['high', 'medium', 'low']],
                                                 'rationale'   => ['type' => 'string', 'description' => 'One sentence citing the specific finding or indication'],
+                                                'specificity_check' => ['type' => 'string', 'description' => 'Text from report supporting code specificity'],
                                             ],
                                             'required' => ['code', 'description', 'confidence', 'rationale'],
                                         ],
@@ -264,7 +268,9 @@ PROMPT;
 
             if (in_array($status, [429, 529, 500, 502, 503, 504]) && $attempts < $max_attempts - 1) {
                 $attempts++;
-                sleep(2 ** $attempts);
+                if ($attempts < $max_attempts) {
+                    sleep(2 ** $attempts);
+                }
                 continue;
             }
             error_log("Claude request failed ($status): $detail");
