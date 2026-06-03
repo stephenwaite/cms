@@ -369,12 +369,14 @@ if (!empty($jsonObj['entry'])) {
 
     $icd10_valid = [];
     $order_file = '/home/sidw/icd10_valid.txt';
-    if (is_readable($order_file)) {
-        foreach (file($order_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $code) {
-            $icd10_valid[$code] = true;
+    if ($ask_claude) {
+        if (is_readable($order_file)) {
+            foreach (file($order_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $code) {
+                $icd10_valid[$code] = true;
+            }
         }
+        error_log("icd10_valid loaded: " . count($icd10_valid) . " codes from $order_file");
     }
-    error_log("icd10_valid loaded: " . count($icd10_valid) . " codes from $order_file");
 
     foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
