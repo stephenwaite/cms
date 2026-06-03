@@ -441,7 +441,9 @@ if (!empty($jsonObj['entry'])) {
                     echo "(no ICD-10 suggestions returned)\n";
                 } else {
                     foreach ($icd10_suggestions as $s) {
-                        $flag = isValidIcd10Code($s['code'], $icd10_valid) ? '' : ' *** VERIFY — not in current code set ***';
+                        $valid = isValidIcd10Code($s['code'], $icd10_valid);
+                        error_log("checking {$s['code']} -> " . ($valid ? 'valid' : 'INVALID') . " (set size: " . count($icd10_valid) . ")");
+                        $flag = $valid ? '' : ' *** VERIFY — not in current code set ***';
                         echo sprintf("[%s] %s (%s) — \"%s\"\n",
                             $s['confidence'],
                             $s['code'],
