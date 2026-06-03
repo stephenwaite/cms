@@ -375,7 +375,7 @@ if (!empty($jsonObj['entry'])) {
                 $icd10_valid[$code] = true;
             }
         }
-        error_log("icd10_valid loaded: " . count($icd10_valid) . " codes from $order_file");
+        //error_log("icd10_valid loaded: " . count($icd10_valid) . " codes from $order_file");
     }
 
     foreach ($jsonObj['entry'] as $entry) {
@@ -442,9 +442,8 @@ if (!empty($jsonObj['entry'])) {
                 } else {
                     foreach ($icd10_suggestions as $s) {
                         $valid = isValidIcd10Code($s['code'], $icd10_valid);
-                        error_log("checking {$s['code']} -> " . ($valid ? 'valid' : 'INVALID') . " (set size: " . count($icd10_valid) . ")");
                         $flag = $valid ? '' : ' *** VERIFY — not in current code set ***';
-                        echo sprintf("[%s] %s (%s) — \"%s\"\n",
+                        echo sprintf("[%s] %s (%s) — \"%s\"%s\n",
                             $s['confidence'],
                             $s['code'],
                             $s['description'],
