@@ -63,6 +63,8 @@ For each code include:
 - description: full code description
 - confidence: high/medium/low
 - rationale: one sentence citing the specific finding or indication
+- specificity_check: one sentence confirming why a more specific code is not available,
+  or "n/a" if the code is already maximally specific
 
 CODING HIERARCHY — follow in order:
 
@@ -100,6 +102,11 @@ CODING HIERARCHY — follow in order:
 
 5. If IMPRESSION reveals incidental pathology not mentioned in the indication, include
    it as a secondary suggestion at lower confidence.
+
+6. Never suggest an unspecified code (codes ending in 9, or descriptions containing
+   "unspecified") when a more specific code is supportable from the report text.
+   If the text does not support a specific code, omit the finding rather than
+   falling back to unspecified.
 
 EXAMPLES:
 
