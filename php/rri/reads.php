@@ -374,6 +374,7 @@ if (!empty($jsonObj['entry'])) {
             $icd10_valid[$code] = true;
         }
     }
+    error_log("icd10_valid loaded: " . count($icd10_valid) . " codes from $order_file");
 
     foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
