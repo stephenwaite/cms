@@ -134,6 +134,18 @@ EXAMPLE 4 — incidental finding:
 INDICATION: Cough
 IMPRESSION: No acute cardiopulmonary process. Incidental 6mm right lower lobe pulmonary nodule.
 Correct: R05.9 (Cough) primary, R91.1 (Solitary pulmonary nodule) secondary, lower confidence
+
+MENISCUS TEAR SPECIFICITY — ICD-10-CM M23.2xx:
+- Posterior horn of medial meniscus → M23.221 (right) / M23.222 (left)
+- Anterior horn of medial meniscus  → M23.211 (right) / M23.212 (left)
+- Other medial meniscus (body/NOS)  → M23.201 (right) / M23.202 (left) ← last resort only
+- Posterior horn of lateral meniscus → M23.261 (right) / M23.262 (left)
+- Anterior horn of lateral meniscus  → M23.251 (right) / M23.252 (left)
+- Other lateral meniscus (body/NOS) → M23.261 (right) / M23.262 (left)
+When both posterior horn AND body are documented, code posterior horn as primary
+(M23.221/M23.222) and note the body involvement in rationale. Do not use M23.20x
+(unspecified) when a location is explicitly stated in the report.
+
 FINAL CHECKS before returning:
 - Did I pick the most specific code the documentation supports? (laterality, subsite, acuity, morphology)
 - Did I avoid coding any rule-out/probable/possible/suspected condition as confirmed?
