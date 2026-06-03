@@ -63,8 +63,10 @@ For each code include:
 - description: full code description
 - confidence: high/medium/low
 - rationale: one sentence citing the specific finding or indication
-- specificity_check: one sentence confirming why a more specific code is not available,
-  or "n/a" if the code is already maximally specific
+- specificity_check: if the code contains "unspecified" in its description or ends in
+  a 9, you MUST explain here why no specific code is supportable from the report text.
+  If the code is specific, confirm the exact text that supports the specificity (e.g.
+  "posterior horn documented in findings"). "n/a" is not acceptable — always cite text.
 
 CODING HIERARCHY — follow in order:
 
