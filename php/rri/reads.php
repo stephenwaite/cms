@@ -367,6 +367,14 @@ if (!empty($jsonObj['entry'])) {
 
     $pdf_page_count = 0;
 
+    $icd10_valid = [];
+    $order_file = '/home/sidw/icd10_valid.txt';
+    if (is_readable($order_file)) {
+        foreach (file($order_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $code) {
+            $icd10_valid[$code] = true;
+        }
+    }
+
     foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
@@ -430,8 +438,13 @@ if (!empty($jsonObj['entry'])) {
                     echo "(no ICD-10 suggestions returned)\n";
                 } else {
                     foreach ($icd10_suggestions as $s) {
+                        $flag = isValidIcd10Code($s['code'], $icd10_valid) ? '' : ' *** VERIFY — not in current code set ***';
                         echo sprintf("[%s] %s (%s) — \"%s\"\n",
-                            $s['confidence'], $s['code'], $s['description'], $s['rationale']
+                            $s['confidence'],
+                            $s['code'],
+                            $s['description'],
+                            $s['rationale'],
+                            $flag
                         );
                     }
                 }
@@ -461,4 +474,10 @@ if (!empty($context) && $context == 'pdf') {
     } else {
         echo "No reports added to PDF, nothing saved.\n";
     }
+}
+
+function isValidIcd10Code(string $code, array $icd10_valid): bool
+{
+    if (empty($icd10_valid)) return true;  // file missing — don't block
+    return isset($icd10_valid[str_replace('.', '', $code)]);
 }
