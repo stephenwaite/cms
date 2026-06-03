@@ -413,7 +413,9 @@ if (!empty($jsonObj['entry'])) {
             $pdf->ezText($note, 10);
             $pdf_page_count++;
         } else {
-            echo $note . "\n";
+            if (!$ask_claude) {
+                echo $note . "\n";
+            }
             if ($ask_claude && str_contains($coding_display, $rri_cpt)) {
                 $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
                 if ($icd10_suggestions === null) {
