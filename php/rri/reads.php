@@ -146,6 +146,15 @@ When both posterior horn AND body are documented, code posterior horn as primary
 (M23.221/M23.222) and note the body involvement in rationale. Do not use M23.20x
 (unspecified) when a location is explicitly stated in the report.
 
+MUCOID DEGENERATION (no discrete tear):
+- Meniscus mucoid degeneration without tear → M23.892 (left) / M23.891 (right)
+  Do NOT use M23.2xx — that family requires a documented tear.
+- ACL/ligament mucoid degeneration → M67.862 (left) / M67.861 (right)
+
+SYMPTOM CODES:
+- Only code symptoms explicitly documented in the report or indication.
+- Never infer a symptom (e.g. stiffness, swelling) that is not stated.
+
 FINAL CHECKS before returning:
 - Did I pick the most specific code the documentation supports? (laterality, subsite, acuity, morphology)
 - Did I avoid coding any rule-out/probable/possible/suspected condition as confirmed?
