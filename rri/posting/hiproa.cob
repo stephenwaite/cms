@@ -622,6 +622,7 @@
            MOVE 0 TO LQ-CNTR
            MOVE 0 TO SVC-TOTAL
            MOVE 0 TO OVERPAY-FLAG PAID-FLAG MISMATCH-FLAG
+           DISPLAY ">>> CLP-2 RESET"           
            MOVE SPACE TO CLP-AUTH
            MOVE ALL ZEROES TO ALLW-TAB01.
 
@@ -677,9 +678,9 @@
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    REF-0 REF-1 REF-2
-               DISPLAY ">>> REF-2=[" REF-2 "]"     
                ACCEPT OMITTED              
                MOVE REF-2 TO CLP-AUTH
+               DISPLAY ">>> CAPTURED CLP-AUTH=[" CLP-AUTH "]"               
                GO TO P1-NM1
            END-IF
 
@@ -1312,7 +1313,8 @@
                MOVE "MISMATCH   " TO EF2
            END-IF
            MOVE CLP-AUTH TO EF-AUTH
-           DISPLAY ">>> CLP-AUTH=[" CLP-AUTH "] EF-AUTH=[" EF-AUTH "]"
+           DISPLAY ">>> AT WRITE CLP-AUTH=[" CLP-AUTH "] 
+               EF-AUTH=[" EF-AUTH "]"           
            ACCEPT OMITTED
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
