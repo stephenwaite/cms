@@ -677,6 +677,7 @@
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    REF-0 REF-1 REF-2
+               DISPLAY ">>> REF-2=[" REF-2 "]"                   
                MOVE REF-2 TO CLP-AUTH
                GO TO P1-NM1
            END-IF
@@ -1310,6 +1311,7 @@
                MOVE "MISMATCH   " TO EF2
            END-IF
            MOVE CLP-AUTH TO EF-AUTH
+           DISPLAY ">>> CLP-AUTH=[" CLP-AUTH "] EF-AUTH=[" EF-AUTH "]"
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
 
