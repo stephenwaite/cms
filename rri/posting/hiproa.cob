@@ -398,6 +398,7 @@
        01  SVC-TOTAL PIC S9(5)V99 VALUE 0.
        01  PRIOR-TOT PIC S9(7)V99 VALUE 0.
        01  CLP-AUTH      PIC X(20) VALUE SPACE.
+       01  SAVE-AUTH     PIC X(20) VALUE SPACE.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -622,7 +623,6 @@
            MOVE 0 TO LQ-CNTR
            MOVE 0 TO SVC-TOTAL
            MOVE 0 TO OVERPAY-FLAG PAID-FLAG MISMATCH-FLAG
-           DISPLAY ">>> CLP-2 RESET"           
            MOVE SPACE TO CLP-AUTH
            MOVE ALL ZEROES TO ALLW-TAB01.
 
@@ -640,6 +640,7 @@
 
            IF F1 = "SE*"
                MOVE FILEIN01 TO SAVEFILE01
+               MOVE CLP-AUTH TO SAVE-AUTH
                GO TO P2-SVC-LOOP
            END-IF
 
@@ -680,7 +681,6 @@
                    REF-0 REF-1 REF-2
                ACCEPT OMITTED              
                MOVE REF-2 TO CLP-AUTH
-               DISPLAY ">>> CAPTURED CLP-AUTH=[" CLP-AUTH "]"               
                GO TO P1-NM1
            END-IF
 
@@ -696,6 +696,7 @@
 
            IF F1 = "CLP" OR "SE*"
                MOVE FILEIN01 TO SAVEFILE01
+               MOVE CLP-AUTH TO SAVE-AUTH
                GO TO P2-SVC-LOOP
            END-IF.
 
@@ -1312,10 +1313,8 @@
            IF MISMATCH-FLAG = 1
                MOVE "MISMATCH   " TO EF2
            END-IF
-           MOVE CLP-AUTH TO EF-AUTH
-           DISPLAY ">>> AT WRITE CLP-AUTH=[" CLP-AUTH "] "
-               "EF-AUTH=[" EF-AUTH "]"           
            ACCEPT OMITTED
+           MOVE SAVE-AUTH TO EF-AUTH
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
 
