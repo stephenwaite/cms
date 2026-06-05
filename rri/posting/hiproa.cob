@@ -673,6 +673,14 @@
                GO TO P1-NM1
            END-IF
 
+           IF F1 = "REF" AND F2 = "*G1*"
+               MOVE SPACE TO REF01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                   REF-0 REF-1 REF-2
+               MOVE REF-2 TO CLP-AUTH
+               GO TO P1-NM1
+           END-IF
+
            GO TO P1-NM1.
 
        P1-SVC-LOOP.
@@ -745,13 +753,6 @@
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    DTM-0 DTM-1 DTM-2
                MOVE DTM-2 TO SVC-DATE(SVC-CNTR)
-           END-IF
-
-           IF F1 = "REF" AND F2 = "*G1*"
-               MOVE SPACE TO REF01
-               UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                   REF-0 REF-1 REF-2
-               MOVE REF-2 TO CLP-AUTH
            END-IF
 
            GO TO P1-SVC-LOOP.
