@@ -673,14 +673,6 @@
                GO TO P1-NM1
            END-IF
 
-           IF F1 = "REF" AND F2 = "*G1*"
-               MOVE SPACE TO REF01
-               UNSTRING FILEIN01 DELIMITED BY "*" INTO
-                   REF-0 REF-1 REF-2
-               MOVE REF-2 TO CLP-AUTH
-               GO TO P1-NM1
-           END-IF
-
            GO TO P1-NM1.
 
        P1-SVC-LOOP.
@@ -753,6 +745,13 @@
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    DTM-0 DTM-1 DTM-2
                MOVE DTM-2 TO SVC-DATE(SVC-CNTR)
+           END-IF
+
+           IF F1 = "REF" AND F2 = "*G1*"
+               MOVE SPACE TO REF01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                   REF-0 REF-1 REF-2
+               MOVE REF-2 TO CLP-AUTH
            END-IF
 
            GO TO P1-SVC-LOOP.
@@ -1365,7 +1364,8 @@
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO EF3
            MOVE BPR-16 TO EF-PAYDATE
-      *    NOTE THAT THE CLAIM IS ALREADY PAID OR OVER PAID     
+      *    NOTE THAT THE CLAIM IS ALREADY PAID OR OVER PAID 
+      *    err-178 NEEDS DATES IN THE EF-PAYDATE FIELD    
            IF OVERPAY-FLAG = 1
                MOVE "OVERPAY " TO EF-AUTH
            END-IF
