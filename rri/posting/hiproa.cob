@@ -1312,9 +1312,6 @@
            IF MISMATCH-FLAG = 1
                MOVE "MISMATCH   " TO EF2
            END-IF
-           DISPLAY "P1-NO-SVC SAVE-AUTH " SAVE-AUTH
-           ACCEPT OMITTED
-           MOVE SAVE-AUTH TO EF-AUTH
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
 
@@ -1374,9 +1371,10 @@
       *    err-178 NEEDS DATES IN THE EF-PAYDATE FIELD    
            IF OVERPAY-FLAG = 1
                MOVE "OVERPAY " TO EF-AUTH
-           END-IF
-           IF PAID-FLAG = 1
+           ELSE IF PAID-FLAG = 1
                MOVE "PAID    " TO EF-AUTH
+           ELSE
+               MOVE SAVE-AUTH TO EF-AUTH
            END-IF
            MOVE CLP-1 TO EF4
            MOVE SPACE TO ALF8
