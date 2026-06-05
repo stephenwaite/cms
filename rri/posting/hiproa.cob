@@ -679,7 +679,6 @@
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    REF-0 REF-1 REF-2
-               ACCEPT OMITTED              
                MOVE REF-2 TO CLP-AUTH
                GO TO P1-NM1
            END-IF
@@ -1313,7 +1312,6 @@
            IF MISMATCH-FLAG = 1
                MOVE "MISMATCH   " TO EF2
            END-IF
-           ACCEPT OMITTED
            MOVE SAVE-AUTH TO EF-AUTH
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
