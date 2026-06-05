@@ -1312,6 +1312,8 @@
            IF MISMATCH-FLAG = 1
                MOVE "MISMATCH   " TO EF2
            END-IF
+           DISPLAY "P1-NO-SVC SAVE-AUTH " SAVE-AUTH
+           ACCEPT OMITTED
            MOVE SAVE-AUTH TO EF-AUTH
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
