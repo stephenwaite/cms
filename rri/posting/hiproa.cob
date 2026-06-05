@@ -1313,8 +1313,8 @@
                MOVE "MISMATCH   " TO EF2
            END-IF
            MOVE CLP-AUTH TO EF-AUTH
-           DISPLAY ">>> AT WRITE CLP-AUTH=[" CLP-AUTH "] 
-               EF-AUTH=[" EF-AUTH "]"           
+           DISPLAY ">>> AT WRITE CLP-AUTH=[" CLP-AUTH "] "
+               "EF-AUTH=[" EF-AUTH "]"           
            ACCEPT OMITTED
            MOVE SPACE TO ERROR-FILE01
            WRITE ERROR-FILE01 FROM ERR01
