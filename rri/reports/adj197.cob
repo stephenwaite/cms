@@ -7,14 +7,16 @@
        PROGRAM-ID. adj197.
       *
       * Reads CHARCUR charges with CC-PAYCODE = "197" (pending ins).
-      * For each, sums PAYCUR payments for the same account+claim
-      * (payments stored signed-negative), derives the balance due
-      * (CC-AMOUNT + TOTALPAY), looks up the Medicare allowed amount
-      * from MEDFILE2020 keyed by CC-PROC1, and reports the remaining
-      * amount: allowed less what has already been paid.  Because
-      * payments are stored signed-negative:
-      *     ADJ-AMT = MED-AMT - (-TOTALPAY) = MED-AMT + TOTALPAY
-      * Positive = still owed up to the allowed amount; negative = paid
+      * For each, walks PAYCUR for the same account+claim and splits
+      * the (signed-negative) activity into two buckets:
+      *     CASHPAID - everything except PC-DENIAL = "14"
+      *     ADJ14    - the PC-DENIAL = "14" insurance adjustments
+      * Looks up the Medicare allowed amount from MEDFILE2020 keyed by
+      * CC-PROC1.  DUE is the allowed less ALL credits posted - both
+      * cash and the "14" contractual adjustments reduce it:
+      *     DUE-AMT = MED-AMT - (-TOTALPAY) = MED-AMT + TOTALPAY
+      * The INS-ADJ column breaks out the "14" portion for reference.
+      * Positive = still collectable up to allowed; negative = paid
       * past the allowed (nothing to collect / possible refund).
       * Report only.  Posts nothing.
       *
@@ -56,9 +58,12 @@
        WORKING-STORAGE SECTION.
        01  WS-WORK.
            05  TOTALPAY                PIC S9(7)V99 VALUE 0.
+           05  CASHPAID                PIC S9(7)V99 VALUE 0.
+           05  ADJ14                   PIC S9(7)V99 VALUE 0.
            05  BALANCE                 PIC S9(7)V99 VALUE 0.
-           05  ADJ-AMT                 PIC S9(7)V99 VALUE 0.
-           05  TOT-ADJ                 PIC S9(9)V99 VALUE 0.
+           05  DUE-AMT                 PIC S9(7)V99 VALUE 0.
+           05  TOT-ADJ14               PIC S9(9)V99 VALUE 0.
+           05  TOT-DUE                 PIC S9(9)V99 VALUE 0.
            05  WS-NAME                 PIC X(25)    VALUE SPACES.
        01  WS-COUNTS.
            05  CNT-197                 PIC 9(7) VALUE 0.
@@ -75,9 +80,10 @@
            05  FILLER  PIC X(9)  VALUE "PROC".
            05  FILLER  PIC X(11) VALUE "   CHARGE".
            05  FILLER  PIC X(12) VALUE "      PAID".
+           05  FILLER  PIC X(12) VALUE "   INS-ADJ".
            05  FILLER  PIC X(12) VALUE "   BALANCE".
            05  FILLER  PIC X(11) VALUE "  ALLOWED".
-           05  FILLER  PIC X(12) VALUE "      ADJ".
+           05  FILLER  PIC X(12) VALUE "      DUE".
            05  FILLER  PIC X(6)  VALUE "NAME".
        01  DET-LINE.
            05  FILLER                  PIC X(2)  VALUE SPACES.
@@ -91,16 +97,20 @@
            05  FILLER                  PIC X(2)  VALUE SPACES.
            05  DL-PAID                 PIC -ZZ,ZZ9.99.
            05  FILLER                  PIC X(2)  VALUE SPACES.
+           05  DL-ADJ14                PIC -ZZ,ZZ9.99.
+           05  FILLER                  PIC X(2)  VALUE SPACES.
            05  DL-BAL                  PIC -ZZ,ZZ9.99.
            05  FILLER                  PIC X(2)  VALUE SPACES.
            05  DL-ALLOW                PIC ZZ,ZZ9.99.
            05  FILLER                  PIC X(2)  VALUE SPACES.
-           05  DL-ADJ                  PIC -ZZ,ZZ9.99.
+           05  DL-DUE                  PIC -ZZ,ZZ9.99.
            05  FILLER                  PIC X(2)  VALUE SPACES.
            05  DL-NAME                 PIC X(25).
        01  TOT-LINE.
-           05  FILLER     PIC X(20) VALUE "TOTAL ADJUSTMENT:   ".
-           05  TL-ADJ     PIC -Z,ZZZ,ZZ9.99.
+           05  FILLER     PIC X(20) VALUE "TOTAL INS-ADJ/DUE:  ".
+           05  TL-ADJ14   PIC -Z,ZZZ,ZZ9.99.
+           05  FILLER     PIC X(3)  VALUE SPACES.
+           05  TL-DUE     PIC -Z,ZZZ,ZZ9.99.
        PROCEDURE DIVISION.
        MAIN.
            OPEN INPUT GARFILE CHARCUR PAYCUR MEDFILE2020.
@@ -123,6 +133,7 @@
       *    sum payments for this account + claim
       *
            MOVE 0          TO TOTALPAY.
+           MOVE 0          TO ADJ14.
            MOVE CC-KEY8    TO PC-KEY8.
            MOVE LOW-VALUES TO PC-KEY3.
            START PAYCUR KEY NOT < PAYCUR-KEY
@@ -133,9 +144,12 @@
            IF PC-KEY8  NOT = CC-KEY8  GO TO EVAL.
            IF PC-CLAIM NOT = CC-CLAIM GO TO PAY-LOOP.
            ADD PC-AMOUNT TO TOTALPAY.
+           IF PC-DENIAL = "14"
+               ADD PC-AMOUNT TO ADJ14.
            GO TO PAY-LOOP.
        EVAL.
-           COMPUTE BALANCE = CC-AMOUNT + TOTALPAY.
+           COMPUTE BALANCE  = CC-AMOUNT + TOTALPAY.
+           COMPUTE CASHPAID = TOTALPAY - ADJ14.
            IF BALANCE NOT > 0
                ADD 1 TO CNT-NOBAL
                GO TO NEXT-CHG.
@@ -149,9 +163,10 @@
                    PERFORM WRITE-NOFEE
                    GO TO NEXT-CHG
            END-READ.
-           COMPUTE ADJ-AMT = MED-AMT - (0 - TOTALPAY).
-           ADD 1 TO CNT-RPT.
-           ADD ADJ-AMT TO TOT-ADJ.
+           COMPUTE DUE-AMT = MED-AMT - (0 - TOTALPAY).
+           ADD 1       TO CNT-RPT.
+           ADD ADJ14   TO TOT-ADJ14.
+           ADD DUE-AMT TO TOT-DUE.
            PERFORM WRITE-DETAIL.
            GO TO NEXT-CHG.
        WRITE-DETAIL.
@@ -165,10 +180,11 @@
            MOVE CC-CLAIM  TO DL-CLAIM.
            MOVE CC-PROC1  TO DL-PROC.
            MOVE CC-AMOUNT TO DL-CHARGE.
-           MOVE TOTALPAY  TO DL-PAID.
+           MOVE CASHPAID  TO DL-PAID.
+           MOVE ADJ14     TO DL-ADJ14.
            MOVE BALANCE   TO DL-BAL.
            MOVE MED-AMT   TO DL-ALLOW.
-           MOVE ADJ-AMT   TO DL-ADJ.
+           MOVE DUE-AMT   TO DL-DUE.
            MOVE WS-NAME   TO DL-NAME.
            WRITE REPORT-REC FROM DET-LINE.
        WRITE-NOFEE.
@@ -176,16 +192,18 @@
            MOVE CC-CLAIM  TO DL-CLAIM.
            MOVE CC-PROC1  TO DL-PROC.
            MOVE CC-AMOUNT TO DL-CHARGE.
-           MOVE TOTALPAY  TO DL-PAID.
+           MOVE CASHPAID  TO DL-PAID.
+           MOVE ADJ14     TO DL-ADJ14.
            MOVE BALANCE   TO DL-BAL.
            MOVE 0         TO DL-ALLOW.
-           MOVE 0         TO DL-ADJ.
+           MOVE 0         TO DL-DUE.
            MOVE "*** NO FEE SCHEDULE ENTRY" TO DL-NAME.
            WRITE REPORT-REC FROM DET-LINE.
        DONE.
            MOVE SPACES TO REPORT-REC.
            WRITE REPORT-REC.
-           MOVE TOT-ADJ TO TL-ADJ.
+           MOVE TOT-ADJ14 TO TL-ADJ14.
+           MOVE TOT-DUE   TO TL-DUE.
            WRITE REPORT-REC FROM TOT-LINE.
            DISPLAY "197 CHARGES READ:    " CNT-197.
            DISPLAY "REPORTED (ADJ):      " CNT-RPT.
