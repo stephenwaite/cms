@@ -781,6 +781,8 @@
            MOVE CLP-1 TO G-GARNO
            READ GARFILE
              INVALID
+               MOVE SPACE TO G-GARNAME
+               MOVE CLP-1 TO G-GARNO
                GO TO P3-SVC-LOOP
            END-READ
            
