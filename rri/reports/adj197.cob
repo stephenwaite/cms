@@ -12,10 +12,11 @@
       *     CASHPAID - everything except PC-DENIAL = "14"
       *     ADJ14    - the PC-DENIAL = "14" insurance adjustments
       * Looks up the Medicare allowed amount from MEDFILE2020 keyed by
-      * CC-PROC1.  DUE is the allowed less ALL credits posted - both
-      * cash and the "14" contractual adjustments reduce it:
-      *     DUE-AMT = MED-AMT - (-TOTALPAY) = MED-AMT + TOTALPAY
-      * The INS-ADJ column breaks out the "14" portion for reference.
+      * CC-PROC1.  DUE is the allowed plus the cash paid (CASHPAID is
+      * signed-negative).  The "14" contractual adjustments are shown
+      * separately in INS-ADJ and are NOT netted into DUE:
+      *     DUE-AMT = MED-AMT + CASHPAID
+      * where CASHPAID = TOTALPAY - ADJ14.
       * Positive = still collectable up to allowed; negative = paid
       * past the allowed (nothing to collect / possible refund).
       * Report only.  Posts nothing.
@@ -163,7 +164,7 @@
                    PERFORM WRITE-NOFEE
                    GO TO NEXT-CHG
            END-READ.
-           COMPUTE DUE-AMT = MED-AMT - (0 - TOTALPAY).
+           COMPUTE DUE-AMT = MED-AMT + CASHPAID.
            ADD 1       TO CNT-RPT.
            ADD ADJ14   TO TOT-ADJ14.
            ADD DUE-AMT TO TOT-DUE.
