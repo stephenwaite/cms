@@ -378,14 +378,14 @@
        01  CAS-CODE-CHECK PIC X(5).
            88 INS-REDUCE-CODE VALUE "A1   " "A2   " "B6   " "B9   "
                "B10  " "B13  " "24   " "42   "
-               "45   " "59   " "131  " "253  " "P12  " "P23  " "P24  ".
+               "45   " "59   " "253  " "P12  " "P23  " "P24  ".
            88 DUMP50-ANY-CODE VALUE "50   " "109  " "167  " "B13  ".
            88 DUMP50-CO-CODE VALUE "4    " "7    "
                "11   " "16   " "18   "
                "22   " "29   " "31   " "55   " "58   " "95   "
-               "96   " "97   " "146  " "151  " "197  " "222  " "226  "
-               "234  " "242  " "252  " "273  " "284  " "288  " "A1   "
-               "B11  " "B20  " "P12  " "P14  ".
+               "96   " "97   " "131  " "146  " "151  " "197  " "222  "
+               "226  " "234  " "242  " "252  " "273  " "284  " "288  "
+               "A1   " "B11  " "B20  " "P12  " "P14  ".
            88 DUMP50-OA-CODE VALUE "18   " "95   " "226  " "A1   " 
                "B11  " "B13  " "P8   ".
            88 DUMP50-PI-CODE VALUE "5    " "11   " "96   " "97   "
@@ -399,6 +399,7 @@
        01  PRIOR-TOT PIC S9(7)V99 VALUE 0.
        01  CLP-AUTH      PIC X(20) VALUE SPACE.
        01  SAVE-AUTH     PIC X(20) VALUE SPACE.
+       01  NSA-FLAG  PIC 9 VALUE 0.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -859,6 +860,9 @@
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
 
            PERFORM NO-SURPRISE.
+           IF NSA-FLAG = 1
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF    
 
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR
@@ -2025,6 +2029,7 @@
       *     GO TO P1-CLP.
 
        NO-SURPRISE.
+           MOVE 0 TO NSA-FLAG
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
              IF LQ-SVC(Y) = X
                MOVE SPACE TO FILEIN01
@@ -2039,6 +2044,7 @@
                    invalid
                      continue
                  end-read
+                 MOVE 1 TO NSA-FLAG
                  PERFORM P1-LOST-SVC
                end-if
              end-if
