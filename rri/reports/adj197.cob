@@ -66,11 +66,13 @@
            05  TOT-ADJ14               PIC S9(9)V99 VALUE 0.
            05  TOT-DUE                 PIC S9(9)V99 VALUE 0.
            05  WS-NAME                 PIC X(25)    VALUE SPACES.
+           05  MCR-PAID                PIC X        VALUE "N".
        01  WS-COUNTS.
            05  CNT-197                 PIC 9(7) VALUE 0.
            05  CNT-RPT                 PIC 9(7) VALUE 0.
            05  CNT-NOBAL               PIC 9(7) VALUE 0.
            05  CNT-NOFEE               PIC 9(7) VALUE 0.
+           05  CNT-MCRPAID             PIC 9(7) VALUE 0.
        01  HDR-1.
            05  FILLER  PIC X(45) VALUE
                "PENDING INS 197 - ADJUSTMENT TO MED ALLOWED".
@@ -135,6 +137,7 @@
       *
            MOVE 0          TO TOTALPAY.
            MOVE 0          TO ADJ14.
+           MOVE "N"        TO MCR-PAID.
            MOVE CC-KEY8    TO PC-KEY8.
            MOVE LOW-VALUES TO PC-KEY3.
            START PAYCUR KEY NOT < PAYCUR-KEY
@@ -147,8 +150,13 @@
            ADD PC-AMOUNT TO TOTALPAY.
            IF PC-DENIAL = "14"
                ADD PC-AMOUNT TO ADJ14.
+           IF PC-PAYCODE = "003"
+               MOVE "Y" TO MCR-PAID.
            GO TO PAY-LOOP.
        EVAL.
+           IF MCR-PAID = "Y"
+               ADD 1 TO CNT-MCRPAID
+               GO TO NEXT-CHG.
            COMPUTE BALANCE  = CC-AMOUNT + TOTALPAY.
            COMPUTE CASHPAID = TOTALPAY - ADJ14.
            IF BALANCE NOT > 0
@@ -210,5 +218,6 @@
            DISPLAY "REPORTED (ADJ):      " CNT-RPT.
            DISPLAY "NO BALANCE DUE:      " CNT-NOBAL.
            DISPLAY "NO FEE SCHED ENTRY:  " CNT-NOFEE.
+           DISPLAY "MEDICARE PAID (SKIP):" CNT-MCRPAID.
            CLOSE GARFILE CHARCUR PAYCUR MEDFILE2020 REPORTF.
            STOP RUN.
