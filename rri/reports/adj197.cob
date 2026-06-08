@@ -55,7 +55,7 @@
                03  MED-KEY2            PIC XX.
            02  MED-AMT                 PIC 9(4)V99.
        FD  REPORTF.
-       01  REPORT-REC                  PIC X(132).
+       01  REPORT-REC                  PIC X(140).
        WORKING-STORAGE SECTION.
        01  WS-WORK.
            05  TOTALPAY                PIC S9(7)V99 VALUE 0.
@@ -80,6 +80,7 @@
            05  FILLER  PIC X(2)  VALUE SPACES.
            05  FILLER  PIC X(10) VALUE "ACCOUNT".
            05  FILLER  PIC X(8)  VALUE "CLAIM".
+           05  FILLER  PIC X(10) VALUE "DOS".
            05  FILLER  PIC X(9)  VALUE "PROC".
            05  FILLER  PIC X(11) VALUE "   CHARGE".
            05  FILLER  PIC X(12) VALUE "      PAID".
@@ -93,6 +94,8 @@
            05  DL-ACCT                 PIC X(8).
            05  FILLER                  PIC X(2)  VALUE SPACES.
            05  DL-CLAIM                PIC X(6).
+           05  FILLER                  PIC X(2)  VALUE SPACES.
+           05  DL-DOS                  PIC X(8).
            05  FILLER                  PIC X(2)  VALUE SPACES.
            05  DL-PROC                 PIC X(7).
            05  FILLER                  PIC X(2)  VALUE SPACES.
@@ -187,6 +190,7 @@
            END-READ.
            MOVE CC-KEY8   TO DL-ACCT.
            MOVE CC-CLAIM  TO DL-CLAIM.
+           MOVE CC-DATE-T TO DL-DOS.
            MOVE CC-PROC1  TO DL-PROC.
            MOVE CC-AMOUNT TO DL-CHARGE.
            MOVE CASHPAID  TO DL-PAID.
@@ -199,6 +203,7 @@
        WRITE-NOFEE.
            MOVE CC-KEY8   TO DL-ACCT.
            MOVE CC-CLAIM  TO DL-CLAIM.
+           MOVE CC-DATE-T TO DL-DOS.
            MOVE CC-PROC1  TO DL-PROC.
            MOVE CC-AMOUNT TO DL-CHARGE.
            MOVE CASHPAID  TO DL-PAID.
