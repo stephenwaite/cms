@@ -269,6 +269,5 @@
            DISPLAY "Charges written: " CHARS-CNT.
            DISPLAY "Payments packed: " PAYS-CNT.
            DISPLAY "Press any key to exit..."
-           ACCEPT OMITTED.
            CLOSE CHAROUT PAYOUT HISFILE.
            STOP RUN.
