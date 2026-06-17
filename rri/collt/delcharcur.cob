@@ -5,7 +5,7 @@
       * @copyright Copyright (c) 2026 cms 
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. delcc.
+       PROGRAM-ID. delcharcur.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
