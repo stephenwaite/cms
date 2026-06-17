@@ -51,7 +51,7 @@
            02 PF1                     PIC 9(8).
            02 PF2                     PIC 9(8).
        FD  GAROUT.
-       01  GAROUT01                   PIC X(277).
+       01  GAROUT01                   PIC X(315).
        FD  CHAROUT.
        01  CHAROUT01                  PIC X(160).
        FD  PAYOUT.
