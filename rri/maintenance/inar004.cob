@@ -2274,7 +2274,7 @@
 
            GO TO 1000-ACTION.
        2400-SEARCH.
-           IF X = 9 GO TO 2400-SEARCH-EXIT.
+           IF X = 999 GO TO 2400-SEARCH-EXIT.
            READ GARFILE NEXT 
              AT END 
                MOVE 1 TO FLAG
