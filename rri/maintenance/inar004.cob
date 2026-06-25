@@ -2301,10 +2301,23 @@
            IF FLAGX = 1 GO TO 2400-SEARCH.
            PERFORM AQ2 VARYING YIND FROM 1 BY 1 UNTIL YIND > FF.
            IF FLAGX = 1 GO TO 2400-SEARCH.
+
        2400-S.
+
            IF ALF-3 NOT = "000" AND ALF-3 NOT = G-PRINS AND ALF-3 NOT =
-           G-SEINS AND ALF-3 NOT = G-TRINS GO TO 2400-SEARCH.
-           IF G-DELETE = SPACE AND ZERO-FLAG = "1" GO TO 2400-SEARCH.
+           G-SEINS AND ALF-3 NOT = G-TRINS 
+               GO TO 2400-SEARCH.
+
+      * ----- DEBUG  remove after ----------------------------------
+           IF G-GARNO = "BRO5176G"
+               DISPLAY "GARNO=[" G-GARNO "]  DEL=[" G-DELETE
+                   "]  ZFLAG=[" ZERO-FLAG "]"
+               ACCEPT OMITTED
+           END-IF    
+
+           IF G-DELETE = SPACE AND ZERO-FLAG = "1" 
+               GO TO 2400-SEARCH.
+
            ADD 1 TO X
            MOVE 0 TO YYY
            MOVE G-DOB TO TEST-DATE
