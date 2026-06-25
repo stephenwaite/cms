@@ -2235,20 +2235,12 @@
            IF LLTAB24(LL) = "/"
            MOVE " " TO LLTAB24(LL) SET LL TO 24.
            MOVE SPACE TO G-GARNO.
-
+           
            IF ACTION = "SG" MOVE NAME-LAST TO G-GARNO
            ELSE MOVE NL-3 TO G-GARNO.
            IF LLTAB24(1) = "*" MOVE SPACE TO G-GARNO.
-      *    ----- DEBUG -----
-           DISPLAY "SEED G-GARNO=[" G-GARNO "]  NL-3=[" NL-3 "]"
-           ACCEPT OMITTED
-      *    -----------------
            START GARFILE KEY > G-GARNO INVALID
            DISPLAY " END OF FILE" GO TO 2000TI.
-      *    ----- DEBUG -----
-           DISPLAY "AFTER START STAT=[" GARFILE-STAT "]".
-      *    -----------------           
-          
        2400-FIND-20.
            MOVE 0 TO X YYY.
            MOVE 0 TO FLAG SGFLAG.
