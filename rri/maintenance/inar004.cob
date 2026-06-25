@@ -2235,22 +2235,23 @@
            IF LLTAB24(LL) = "/"
            MOVE " " TO LLTAB24(LL) SET LL TO 24.
            MOVE SPACE TO G-GARNO.
+
            IF ACTION = "SG" MOVE NAME-LAST TO G-GARNO
            ELSE MOVE NL-3 TO G-GARNO.
            IF LLTAB24(1) = "*" MOVE SPACE TO G-GARNO.
+      *    ----- DEBUG -----
+           DISPLAY "SEED G-GARNO=[" G-GARNO "]  NL-3=[" NL-3 "]"
+           ACCEPT OMITTED
+      *    -----------------
            START GARFILE KEY > G-GARNO INVALID
            DISPLAY " END OF FILE" GO TO 2000TI.
+      *    ----- DEBUG -----
+           DISPLAY "AFTER START STAT=[" GARFILE-STAT "]".
+      *    -----------------           
+          
        2400-FIND-20.
            MOVE 0 TO X YYY.
            MOVE 0 TO FLAG SGFLAG.
-           
-      *    ----- DEBUG: force position on primary key -----
-           MOVE "BRO5176G" TO G-GARNO
-           START GARFILE KEY NOT < G-GARNO
-             INVALID DISPLAY "START INVALID  STAT=[" GARFILE-STAT "]"
-                     ACCEPT OMITTED
-           END-START
-      *    ------------------------------------------------
            PERFORM 2400-SEARCH THRU 2400-SEARCH-EXIT.
            
            IF SGFLAG = 1 
@@ -2282,20 +2283,11 @@
 
            GO TO 1000-ACTION.
        2400-SEARCH.
-           IF X = 999 GO TO 2400-SEARCH-EXIT.
+           IF X = 9 GO TO 2400-SEARCH-EXIT.
            READ GARFILE NEXT 
              AT END 
                MOVE 1 TO FLAG
                GO TO 2400-SEARCH-EXIT.
-
-      * ----- DEBUG -----
-           DISPLAY "STAT=[" GARFILE-STAT "]  KEY=[" G-GARNO "]"
-           IF G-GARNO(1:3) = "BRO"
-               DISPLAY "READ BRO  X=[" X "]  ACTION=[" ACTION
-                   "]  ALF3=[" ALF-3 "]  DEL=[" G-DELETE "]"
-               ACCEPT OMITTED
-           END-IF
-      * -----------------               
 
            ADD 1 TO YYY.
            IF YYY < 2000 GO TO P456.
@@ -2318,23 +2310,12 @@
            IF FLAGX = 1 GO TO 2400-SEARCH.
            PERFORM AQ2 VARYING YIND FROM 1 BY 1 UNTIL YIND > FF.
            IF FLAGX = 1 GO TO 2400-SEARCH.
-
        2400-S.
-
            IF ALF-3 NOT = "000" AND ALF-3 NOT = G-PRINS AND ALF-3 NOT =
            G-SEINS AND ALF-3 NOT = G-TRINS 
                GO TO 2400-SEARCH.
-
-      * ----- DEBUG  remove after ----------------------------------
-           IF G-GARNO = "BRO5176G"
-               DISPLAY "GARNO=[" G-GARNO "]  DEL=[" G-DELETE
-                   "]  ZFLAG=[" ZERO-FLAG "]"
-               ACCEPT OMITTED
-           END-IF    
-
            IF G-DELETE = SPACE AND ZERO-FLAG = "1" 
                GO TO 2400-SEARCH.
-
            ADD 1 TO X
            MOVE 0 TO YYY
            MOVE G-DOB TO TEST-DATE
