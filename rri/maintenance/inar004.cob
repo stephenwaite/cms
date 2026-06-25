@@ -2243,6 +2243,14 @@
        2400-FIND-20.
            MOVE 0 TO X YYY.
            MOVE 0 TO FLAG SGFLAG.
+           
+      *    ----- DEBUG: force position on primary key -----
+           MOVE "BRO5176G" TO G-GARNO
+           START GARFILE KEY NOT < G-GARNO
+             INVALID DISPLAY "START INVALID  STAT=[" GARFILE-STAT "]"
+                     ACCEPT OMITTED
+           END-START
+      *    ------------------------------------------------
            PERFORM 2400-SEARCH THRU 2400-SEARCH-EXIT.
            
            IF SGFLAG = 1 
@@ -2281,7 +2289,8 @@
                GO TO 2400-SEARCH-EXIT.
 
       * ----- DEBUG -----
-           IF G-GARNO = "BRO5176G"
+           DISPLAY "STAT=[" GARFILE-STAT "]  KEY=[" G-GARNO "]"
+           IF G-GARNO(1:3) = "BRO"
                DISPLAY "READ BRO  X=[" X "]  ACTION=[" ACTION
                    "]  ALF3=[" ALF-3 "]  DEL=[" G-DELETE "]"
                ACCEPT OMITTED
