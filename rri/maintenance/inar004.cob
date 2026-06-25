@@ -2280,6 +2280,14 @@
                MOVE 1 TO FLAG
                GO TO 2400-SEARCH-EXIT.
 
+      * ----- DEBUG -----
+           IF G-GARNO = "BRO5176G"
+               DISPLAY "READ BRO  X=[" X "]  ACTION=[" ACTION
+                   "]  ALF3=[" ALF-3 "]  DEL=[" G-DELETE "]"
+               ACCEPT OMITTED
+           END-IF
+      * -----------------               
+
            ADD 1 TO YYY.
            IF YYY < 2000 GO TO P456.
            MOVE 1 TO SGFLAG
