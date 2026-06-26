@@ -486,6 +486,7 @@
                ACCEPT ANS1
                IF ANS1 = "Y"
                    MOVE "Z136   " TO CD-DIAG
+                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1
                END-IF
            END-IF.
