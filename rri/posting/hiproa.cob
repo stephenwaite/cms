@@ -997,9 +997,6 @@
            IF PC-DATE-T NOT = DATE-X
                GO TO A6-1
            END-IF
-      * line 998 (A6 dup):
-           DISPLAY ">>> A6-DUP LOST X=" X " OVP=" 
-               OVERPAY-FLAG " CLP-1=[" CLP-1 "]"
            PERFORM P1-LOST-SVC
            GO TO P5-SVC-LOOP-EXIT.
 
@@ -1030,9 +1027,6 @@
            PERFORM S4 THRU S5
            PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
            IF PAID-FLAG = 1 OR OVERPAY-FLAG = 1
-      * line 1028 (CHECK-CLAIM-TOT call 1):
-               DISPLAY ">>> CCT1 LOST X=" X " OVP=" 
-                   OVERPAY-FLAG " CLP-1=[" CLP-1 "]"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
@@ -1041,9 +1035,6 @@
            MOVE PAYBACK TO PAYFILE01
            PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
            IF PAID-FLAG = 1 OR OVERPAY-FLAG = 1
-      * line 1036 (CHECK-CLAIM-TOT call 2):
-               DISPLAY ">>> CCT2 LOST X=" X " OVP=" 
-                   OVERPAY-FLAG " CLP-1=[" CLP-1 "]"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
@@ -1386,19 +1377,18 @@
            MOVE INPUT-DATE TO EF3
            MOVE BPR-16 TO EF-PAYDATE
       *    NOTE THAT THE CLAIM IS ALREADY PAID OR OVER PAID 
-      *    err-178 NEEDS DATES IN THE EF-PAYDATE FIELD    
+      *    err-178 NEEDS DATES IN THE EF-PAYDATE FIELD  
            IF OVERPAY-FLAG = 1
                MOVE "OVERPAY " TO EF-AUTH
-           ELSE IF PAID-FLAG = 1
-               MOVE "PAID    " TO EF-AUTH
            ELSE
-               MOVE SAVE-AUTH TO EF-AUTH
+               IF PAID-FLAG = 1
+                   MOVE "PAID    " TO EF-AUTH
+               ELSE
+                   MOVE SAVE-AUTH TO EF-AUTH
+               END-IF
            END-IF
-      * at line 1385, in P1-LOST-SVC:
-           MOVE CLP-1 TO EF4
-           DISPLAY ">>> LOST EF4=[" EF4 "] OVP=" OVERPAY-FLAG
-                   " CC-CLAIM=[" CC-CLAIM "]"
-           ACCEPT OMITTED        
+
+           MOVE CLP-1 TO EF4  
            MOVE SPACE TO ALF8
            MOVE SVC-2CHRGAMT TO ALF8
            MOVE SPACE TO EFSIGN
