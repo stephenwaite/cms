@@ -1352,6 +1352,7 @@
 
        P1-LOST-SVC.
            PERFORM STATUS-1
+           INITIALIZE ERR01
 
            MOVE SPACE TO EF1
            STRING NM1-NAMEL ";" NM1-NAMEF
