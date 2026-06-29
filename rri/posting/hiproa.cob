@@ -998,7 +998,8 @@
                GO TO A6-1
            END-IF
       * line 998 (A6 dup):
-           DISPLAY ">>> A6-DUP LOST X=" X " OVP=" OVERPAY-FLAG " CLP-1=[" CLP-1 "]"
+           DISPLAY ">>> A6-DUP LOST X=" X " OVP=" 
+               OVERPAY-FLAG " CLP-1=[" CLP-1 "]"
            PERFORM P1-LOST-SV
            GO TO P5-SVC-LOOP-EXIT.
 
@@ -1030,7 +1031,8 @@
            PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
            IF PAID-FLAG = 1 OR OVERPAY-FLAG = 1
       * line 1028 (CHECK-CLAIM-TOT call 1):
-               DISPLAY ">>> CCT1 LOST X=" X " OVP=" OVERPAY-FLAG " CLP-1=[" CLP-1 "]"
+               DISPLAY ">>> CCT1 LOST X=" X " OVP=" 
+                   OVERPAY-FLAG " CLP-1=[" CLP-1 "]"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
@@ -1040,7 +1042,8 @@
            PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
            IF PAID-FLAG = 1 OR OVERPAY-FLAG = 1
       * line 1036 (CHECK-CLAIM-TOT call 2):
-               DISPLAY ">>> CCT2 LOST X=" X " OVP=" OVERPAY-FLAG " CLP-1=[" CLP-1 "]"
+               DISPLAY ">>> CCT2 LOST X=" X " OVP=" 
+                   OVERPAY-FLAG " CLP-1=[" CLP-1 "]"
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
