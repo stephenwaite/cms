@@ -609,6 +609,8 @@
                CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN
                CLP-13PERCENT.
 
+           DISPLAY ">>> UNSTRUNG CLP-1=[" CLP-1 "]"
+           ACCEPT OMITTED
            MOVE SPACE TO ALF10
            MOVE CLP-1 TO ALF10.
            MOVE CLP-4TOTCLMPAY TO ALF8
@@ -1382,7 +1384,11 @@
            ELSE
                MOVE SAVE-AUTH TO EF-AUTH
            END-IF
+      * at line 1385, in P1-LOST-SVC:
            MOVE CLP-1 TO EF4
+           DISPLAY ">>> LOST EF4=[" EF4 "] OVP=" OVERPAY-FLAG
+                   " CC-CLAIM=[" CC-CLAIM "]"
+           ACCEPT OMITTED        
            MOVE SPACE TO ALF8
            MOVE SVC-2CHRGAMT TO ALF8
            MOVE SPACE TO EFSIGN
