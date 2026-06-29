@@ -609,8 +609,6 @@
                CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN
                CLP-13PERCENT.
 
-           DISPLAY ">>> UNSTRUNG CLP-1=[" CLP-1 "]"
-           ACCEPT OMITTED
            MOVE SPACE TO ALF10
            MOVE CLP-1 TO ALF10.
            MOVE CLP-4TOTCLMPAY TO ALF8
