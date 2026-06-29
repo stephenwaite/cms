@@ -1000,7 +1000,7 @@
       * line 998 (A6 dup):
            DISPLAY ">>> A6-DUP LOST X=" X " OVP=" 
                OVERPAY-FLAG " CLP-1=[" CLP-1 "]"
-           PERFORM P1-LOST-SV
+           PERFORM P1-LOST-SVC
            GO TO P5-SVC-LOOP-EXIT.
 
        P7-NEXT.
