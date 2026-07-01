@@ -1192,27 +1192,37 @@
            PERFORM DF-SEARCH.
            MOVE 0 TO CNTR DIAG-CNTR TOT-AMOUNT MAMMO-FLAG
            GO TO P1-1.
-       P1. READ FILEIN AT END MOVE 1 TO END-FLAG GO TO P2.
+       P1. 
+           READ FILEIN AT END MOVE 1 TO END-FLAG GO TO P2.
+
        P1-1. 
            IF DIAG-CNTR > 11 GO TO P2.
-           IF  FI-PLACE = HOLD-PLACE
-            AND FI-KEY8 = HOLD-KEY8
-            AND FI-PATID = HOLD-PATID
-            AND FI-DOCP = HOLD-DOCP
-            AND FI-DOCR = HOLD-DOCR
-            AND FI-DAT1 = HOLD-DAT1
-            AND FI-DATE-T = HOLD-DATE-T
-            AND FI-ACC-TYPE = HOLD-ACC-TYPE
-            AND CNTR < 50
-            PERFORM DIAG-1 THRU DIAG-EXIT 
-             IF DIAG-CNTR > 12
-               GO TO P2
-             END-IF
-            ADD 1 TO CNTR 
-            MOVE FILEIN01 TO FILETAB(CNTR)
-            ADD FI-AMOUNT TO TOT-AMOUNT
-            GO TO P1
+
+           IF FI-PLACE = HOLD-PLACE
+               AND FI-KEY8 = HOLD-KEY8
+               AND FI-PATID = HOLD-PATID
+      *         AND FI-DOCP = HOLD-DOCP
+      *         AND FI-DOCR = HOLD-DOCR
+               AND FI-DAT1 = HOLD-DAT1
+               AND FI-DATE-T = HOLD-DATE-T
+               AND FI-ACC-TYPE = HOLD-ACC-TYPE
+               AND CNTR < 50
+               PERFORM DIAG-1 THRU DIAG-EXIT 
+               IF DIAG-CNTR > 12
+                   GO TO P2
+               END-IF
+               ADD 1 TO CNTR 
+
+               IF CNTR = 1
+                   MOVE HOLD-DOCR TO CLM-DOCR
+                   MOVE HOLD-DOCP TO CLM-DOCP
+               END-IF 
+               
+               MOVE FILEIN01 TO FILETAB(CNTR)
+               ADD FI-AMOUNT TO TOT-AMOUNT
+               GO TO P1
            END-IF.
+
        P2.  
             MOVE FILEIN01 TO SAVE01
             PERFORM 2300CLM

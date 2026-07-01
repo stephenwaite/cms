@@ -183,7 +183,7 @@ PROMPT;
                 'timeout'         => 30,
                 'connect_timeout' => 10,
                 'json' => [
-                    'model'      => 'claude-sonnet-4-6',
+                    'model'      => 'claude-sonnet-5',
                     'max_tokens' => 2048,
                     'system'     => [
                         [
