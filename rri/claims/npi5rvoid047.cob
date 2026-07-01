@@ -1166,7 +1166,7 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SUBM01.
            MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM SUBPER01g.
+           WRITE SEGFILE01 FROM SUBPER01.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM RECNM101.
 
@@ -1890,7 +1890,7 @@
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
            REWRITE CHARCUR01.
-           
+
        2400SRV-EXIT.  EXIT.
 
        2410.
@@ -1931,6 +1931,33 @@
            MOVE DOC-TAX(FI-DOCP) TO PRV-TAX
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM PRV01.     
+
+       2420A-EXIT.    
+
+       2420F.
+           IF FI-DOCR = "000" 
+             GO TO REF-2.
+
+           MOVE FI-DOCR TO REF-KEY 
+
+           READ REFPHY 
+             INVALID 
+               GO TO REF-2.
+
+           MOVE "DN " TO NM1-1
+           MOVE "1" TO NM1-SOLO
+           MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
+           UNSTRING REF-NAME DELIMITED BY ", " OR " ,"
+             OR " , " OR "," OR ";" INTO NM1-NAMEL NM1-NAMEF
+
+           MOVE SPACE TO NM1-NAMES NM1-EINSS NM1-CODE
+           MOVE "XX" TO NM1-EINSS
+           MOVE REF-NPI TO NM1-CODE
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM NM101.
+
+       2420F-EXIT.
+           EXIT.     
 
        2310A.
            IF HOLD-DOCR = "000" GO TO REF-2.
