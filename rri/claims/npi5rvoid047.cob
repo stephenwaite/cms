@@ -1110,6 +1110,9 @@
               03 DOC-NPI PIC X(10).
 
        01  ANS PIC X.
+
+       01  CLM-DOCR PIC XXX.
+       01  CLM-DOCP pic 99.
        
        PROCEDURE DIVISION.
        P0. 
@@ -1163,7 +1166,7 @@
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM SUBM01.
            MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM SUBPER01.
+           WRITE SEGFILE01 FROM SUBPER01g.
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM RECNM101.
 
@@ -1869,14 +1872,25 @@
            MOVE FI-DATE-T TO DTP-3
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM DTP01.
-           PERFORM 2410 THRU 2410-EXIT.
-           PERFORM 2420A.
+
+           if FI-DOCP NOT = CLM-DOCP
+             PERFORM 2420A THRU 2420A-EXIT
+           end-if
+
+           IF FI-DOCR NOT = CLM-DOCR
+             PERFORM 2420F THRU 2420F-EXIT
+           end-if  
+
+      *     PERFORM 2410 THRU 2410-EXIT.
+      *     PERFORM 2420A.
+
            MOVE FILEIN-KEY TO CHARCUR-KEY
            READ CHARCUR WITH LOCK INVALID GO TO 2400SRV-EXIT.
            IF CC-REC-STAT = "0" MOVE "2" TO CC-REC-STAT.
            IF CC-REC-STAT = "1" MOVE "3" TO CC-REC-STAT.
            MOVE BHT-DATE TO CC-DATE-A.
            REWRITE CHARCUR01.
+           
        2400SRV-EXIT.  EXIT.
 
        2410.
