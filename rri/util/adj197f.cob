@@ -22,7 +22,11 @@
       * signed-negative); the "14" adjustments are shown in INS-ADJ but
       * are NOT netted into DUE:
       *     DUE-AMT = MED-AMT + CASHPAID  (CASHPAID = TOTALPAY - ADJ14)
-      * Report only.  Posts nothing.
+      *
+      * A write-off adjustment is posted to PAYFILE for each reported
+      * charge so that the resulting balance lands on DUE:
+      *     WRITE-OFF = DUE-AMT - BALANCE   (posted only when < 0)
+      * Positive/zero write-off means nothing to post.
       *
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -45,6 +49,8 @@
                LOCK MODE MANUAL.
            SELECT REPORTF ASSIGN TO "S50"
                ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT PAYFILE ASSIGN TO "S60"
+               ORGANIZATION IS LINE SEQUENTIAL.
        DATA DIVISION.
        FILE SECTION.
        FD  FILEIN.
@@ -65,6 +71,20 @@
            02  MED-AMT                 PIC 9(4)V99.
        FD  REPORTF.
        01  REPORT-REC                  PIC X(140).
+       FD  PAYFILE.
+       01  PAYFILE01.
+           02  PAYFILE-KEY.
+               03  PD-KEY8             PIC X(8).
+               03  PD-KEY3             PIC XXX.
+           02  PD-NAME                 PIC X(24).
+           02  PD-AMOUNT               PIC S9(4)V99.
+           02  PD-PAYCODE              PIC XXX.
+           02  PD-DENIAL               PIC XX.
+           02  PD-CLAIM                PIC X(6).
+           02  PD-DATE-T               PIC X(8).
+           02  PD-DATE-E               PIC X(8).
+           02  PD-ORDER                PIC X(6).
+           02  PD-BATCH                PIC X(6).
        WORKING-STORAGE SECTION.
        01  WS-WORK.
            05  TOTALPAY                PIC S9(7)V99 VALUE 0.
@@ -72,10 +92,18 @@
            05  ADJ14                   PIC S9(7)V99 VALUE 0.
            05  BALANCE                 PIC S9(7)V99 VALUE 0.
            05  DUE-AMT                 PIC S9(7)V99 VALUE 0.
+           05  WRITE-OFF               PIC S9(7)V99 VALUE 0.
            05  TOT-ADJ14               PIC S9(9)V99 VALUE 0.
            05  TOT-DUE                 PIC S9(9)V99 VALUE 0.
+           05  TOT-POST                PIC S9(9)V99 VALUE 0.
            05  WS-NAME                 PIC X(25)    VALUE SPACES.
            05  MCR-PAID                PIC X        VALUE "N".
+       01  WS-POST.
+           05  WS-CURDATE              PIC X(21)    VALUE SPACES.
+           05  WS-RUNDATE              PIC X(8)     VALUE SPACES.
+           05  P-PAYCODE               PIC XXX      VALUE "013".
+           05  P-DENIAL                PIC XX       VALUE SPACES.
+           05  P-BATCH                 PIC X(6)     VALUE "ADJ197".
        01  WS-COUNTS.
            05  CNT-IN                  PIC 9(7) VALUE 0.
            05  CNT-NOTFND              PIC 9(7) VALUE 0.
@@ -85,6 +113,7 @@
            05  CNT-NOBAL               PIC 9(7) VALUE 0.
            05  CNT-NOFEE               PIC 9(7) VALUE 0.
            05  CNT-MCRPAID             PIC 9(7) VALUE 0.
+           05  CNT-POSTED              PIC 9(7) VALUE 0.
        01  HDR-1.
            05  FILLER  PIC X(45) VALUE
                "PENDING INS 197 - ADJUSTMENT TO MED ALLOWED".
@@ -132,7 +161,9 @@
        PROCEDURE DIVISION.
        MAIN.
            OPEN INPUT FILEIN GARFILE CHARCUR PAYCUR MEDFILE2020.
-           OPEN OUTPUT REPORTF.
+           OPEN OUTPUT REPORTF PAYFILE.
+           MOVE FUNCTION CURRENT-DATE TO WS-CURDATE.
+           MOVE WS-CURDATE (1:8) TO WS-RUNDATE.
            WRITE REPORT-REC FROM HDR-1.
            MOVE SPACES TO REPORT-REC.
            WRITE REPORT-REC.
@@ -188,22 +219,28 @@
            READ MEDFILE2020
                INVALID KEY
                    ADD 1 TO CNT-NOFEE
+                   PERFORM GET-NAME
                    PERFORM WRITE-NOFEE
                    GO TO NEXT-KEY
            END-READ.
-           COMPUTE DUE-AMT = MED-AMT + CASHPAID.
+           COMPUTE DUE-AMT   = MED-AMT + CASHPAID.
+           COMPUTE WRITE-OFF = DUE-AMT - BALANCE.
+           PERFORM GET-NAME.
+           IF WRITE-OFF < 0
+               PERFORM WRITE-PAY.
            ADD 1       TO CNT-RPT.
            ADD ADJ14   TO TOT-ADJ14.
            ADD DUE-AMT TO TOT-DUE.
            PERFORM WRITE-DETAIL.
            GO TO NEXT-KEY.
-       WRITE-DETAIL.
+       GET-NAME.
            MOVE SPACES  TO WS-NAME.
            MOVE CC-KEY8 TO G-GARNO.
            READ GARFILE
                INVALID KEY     MOVE SPACES    TO WS-NAME
                NOT INVALID KEY MOVE G-GARNAME TO WS-NAME
            END-READ.
+       WRITE-DETAIL.
            MOVE CC-KEY8   TO DL-ACCT.
            MOVE CC-CLAIM  TO DL-CLAIM.
            MOVE CC-DATE-T TO DL-DOS.
@@ -229,6 +266,22 @@
            MOVE 0         TO DL-DUE.
            MOVE "*** NO FEE SCHEDULE ENTRY" TO DL-NAME.
            WRITE REPORT-REC FROM DET-LINE.
+       WRITE-PAY.
+           MOVE SPACES     TO PAYFILE01.
+           MOVE CC-KEY8    TO PD-KEY8.
+           MOVE CC-KEY3    TO PD-KEY3.
+           MOVE WS-NAME    TO PD-NAME.
+           MOVE WRITE-OFF  TO PD-AMOUNT.
+           MOVE P-PAYCODE  TO PD-PAYCODE.
+           MOVE P-DENIAL   TO PD-DENIAL.
+           MOVE CC-CLAIM   TO PD-CLAIM.
+           MOVE WS-RUNDATE TO PD-DATE-T.
+           MOVE WS-RUNDATE TO PD-DATE-E.
+           MOVE SPACES     TO PD-ORDER.
+           MOVE P-BATCH    TO PD-BATCH.
+           WRITE PAYFILE01.
+           ADD 1         TO CNT-POSTED.
+           ADD WRITE-OFF TO TOT-POST.
        DONE.
            MOVE SPACES TO REPORT-REC.
            WRITE REPORT-REC.
@@ -243,5 +296,7 @@
            DISPLAY "NO BALANCE DUE:      " CNT-NOBAL.
            DISPLAY "NO FEE SCHED ENTRY:  " CNT-NOFEE.
            DISPLAY "MEDICARE PAID (SKIP):" CNT-MCRPAID.
-           CLOSE FILEIN GARFILE CHARCUR PAYCUR MEDFILE2020 REPORTF.
+           DISPLAY "PAYMENTS POSTED:     " CNT-POSTED.
+           CLOSE FILEIN GARFILE CHARCUR PAYCUR MEDFILE2020 REPORTF
+                 PAYFILE.
            STOP RUN.
