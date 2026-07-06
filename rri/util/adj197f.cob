@@ -103,7 +103,7 @@
            05  WS-CURDATE              PIC X(21)    VALUE SPACES.
            05  WS-RUNDATE              PIC X(8)     VALUE SPACES.
            05  P-PAYCODE               PIC XXX      VALUE "197".
-           05  P-DENIAL                PIC XX       VALUE SPACES.
+           05  P-DENIAL                PIC XX       VALUE "14".
            05  P-BATCH                 PIC X(6)     VALUE "ADJ197".
        01  WS-COUNTS.
            05  CNT-IN                  PIC 9(7) VALUE 0.
