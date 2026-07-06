@@ -824,9 +824,47 @@
            END-IF.
 
        P4-UNITED-START.
+           IF PAYORID = "HUMAN" AND CLP-2CLMSTAT = "2 "
+              AND CLAIM-PAID = 0
+               PERFORM P1-HUMAN-SEC
+               GO TO P9-SVC-LOOP
+           END-IF
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT
                VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP.
+
+      * HUMAN SECONDARY, $0 PAID: COLLAPSE MULTI-SVC RECONSIDERATION
+      * INTO A SINGLE $0 / DD ERROR-LIST ROW INSTEAD OF ONE PER SVC.
+       P1-HUMAN-SEC.
+           PERFORM STATUS-1
+           MOVE SPACE TO EF1
+           STRING NM1-NAMEL ";" NM1-NAMEF
+               DELIMITED BY "  " INTO EF1
+           MOVE NM1-CODE0 TO EF2
+           MOVE DATE-CC TO TEST-DATE
+           MOVE CORR TEST-DATE TO INPUT-DATE
+           MOVE INPUT-DATE TO EF3
+           MOVE BPR-16 TO EF-PAYDATE
+           MOVE SAVE-AUTH TO EF-AUTH
+           MOVE CLP-1 TO EF4
+           MOVE SPACE TO ALF8
+           MOVE CLP-3TOTCLMCHG TO ALF8
+           MOVE SPACE TO EFSIGN
+           IF ALF8-1 = "-"
+               MOVE "-" TO EFSIGN
+           END-IF
+           PERFORM AMOUNT-1
+           MOVE AMOUNT-X TO EF5
+           ADD AMOUNT-X TO TOT-CHARGE
+           MOVE 0 TO AMOUNT-X
+           MOVE AMOUNT-X TO EF6
+           MOVE CLP-7ICN TO EF7
+           MOVE CLP-2CLMSTAT TO EF8
+           MOVE SPACE TO EF-PROC
+           MOVE SPACE TO EF-DENIAL02
+           MOVE "DD " TO EF-DENIAL1
+           MOVE SPACE TO ERROR-FILE01
+           WRITE ERROR-FILE01 FROM ERR01.
 
        P5-SVC-LOOP.
            MOVE SPACE TO FILEIN01
