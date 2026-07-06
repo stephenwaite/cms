@@ -1219,9 +1219,8 @@
            PERFORM 2310A THRU 2310A-EXIT
            IF EINSS-TYPE = "E" PERFORM 2310B.
 
-           IF NOT ( CLM-5 = "11" AND HOLD-NEIC = "SX065")
-             PERFORM 2310D THRU 2310D-EXIT
-           END-IF
+      *     PERFORM 2310D THRU 2310D-EXIT
+
 
            PERFORM 2310E THRU 2310E-EXIT
       *      PERFORM 2320A THRU 2320A-EXIT
@@ -2042,8 +2041,8 @@
 
        2310B.
            MOVE hold-docp to CLM-DOCP
-           display "hold-docp" HOLD-DOCP
-           accept OMITTED
+      *     display "hold-docp" HOLD-DOCP
+      *     accept OMITTED
            
            MOVE "82 " TO NM1-1
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
