@@ -158,6 +158,13 @@ SYMPTOM CODES:
   Prefer site-specific codes (e.g. M25.562 Pain in left knee, M54.50 Low back pain)
   over generic R52 (Pain, unspecified). Only use R52 if no site-specific pain code exists.
 
+INDETERMINATE / UNCHARACTERIZED MASSES:
+- If a mass or lesion is described as "indeterminate," "uncharacterized," "cannot be
+  further characterized," or explicitly does NOT meet criteria for benign or malignant,
+  code it as uncertain behavior (D37-D48 family), NOT as benign (D10-D36) or malignant.
+- Never assign a "benign neoplasm" code when the report states the lesion does not meet
+  benign criteria or remains indeterminate.
+
 FINAL CHECKS before returning:
 - Did I pick the most specific code the documentation supports? (laterality, subsite, acuity, morphology)
 - Did I avoid coding any rule-out/probable/possible/suspected condition as confirmed?
