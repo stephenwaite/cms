@@ -825,7 +825,6 @@
 
        P4-UNITED-START.
            IF PAYORID = "HUMAN" AND CLP-2CLMSTAT = "2 "
-              AND CLAIM-PAID = 0
                PERFORM P1-HUMAN-SEC
                GO TO P9-SVC-LOOP
            END-IF
