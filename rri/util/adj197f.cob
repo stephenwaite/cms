@@ -47,10 +47,11 @@
            SELECT MEDFILE2020 ASSIGN TO "S45" ORGANIZATION IS INDEXED
                ACCESS MODE IS DYNAMIC RECORD KEY IS MED-KEY
                LOCK MODE MANUAL.
-           SELECT REPORTF ASSIGN TO "S50"
+           SELECT REPORTF ASSIGN TO "S60"
                ORGANIZATION IS LINE SEQUENTIAL.
-           SELECT PAYFILE ASSIGN TO "S60"
-               ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT PAYFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
+               ACCESS IS DYNAMIC RECORD KEY IS PAYFILE-KEY
+               LOCK MODE MANUAL.
        DATA DIVISION.
        FILE SECTION.
        FD  FILEIN.
@@ -101,7 +102,7 @@
        01  WS-POST.
            05  WS-CURDATE              PIC X(21)    VALUE SPACES.
            05  WS-RUNDATE              PIC X(8)     VALUE SPACES.
-           05  P-PAYCODE               PIC XXX      VALUE "013".
+           05  P-PAYCODE               PIC XXX      VALUE "197".
            05  P-DENIAL                PIC XX       VALUE SPACES.
            05  P-BATCH                 PIC X(6)     VALUE "ADJ197".
        01  WS-COUNTS.
@@ -114,6 +115,7 @@
            05  CNT-NOFEE               PIC 9(7) VALUE 0.
            05  CNT-MCRPAID             PIC 9(7) VALUE 0.
            05  CNT-POSTED              PIC 9(7) VALUE 0.
+           05  CNT-DUP                 PIC 9(7) VALUE 0.
        01  HDR-1.
            05  FILLER  PIC X(45) VALUE
                "PENDING INS 197 - ADJUSTMENT TO MED ALLOWED".
@@ -279,9 +281,13 @@
            MOVE WS-RUNDATE TO PD-DATE-E.
            MOVE SPACES     TO PD-ORDER.
            MOVE P-BATCH    TO PD-BATCH.
-           WRITE PAYFILE01.
-           ADD 1         TO CNT-POSTED.
-           ADD WRITE-OFF TO TOT-POST.
+           WRITE PAYFILE01
+               INVALID KEY
+                   ADD 1 TO CNT-DUP
+               NOT INVALID KEY
+                   ADD 1         TO CNT-POSTED
+                   ADD WRITE-OFF TO TOT-POST
+           END-WRITE.
        DONE.
            MOVE SPACES TO REPORT-REC.
            WRITE REPORT-REC.
@@ -297,6 +303,7 @@
            DISPLAY "NO FEE SCHED ENTRY:  " CNT-NOFEE.
            DISPLAY "MEDICARE PAID (SKIP):" CNT-MCRPAID.
            DISPLAY "PAYMENTS POSTED:     " CNT-POSTED.
+           DISPLAY "DUP PAY KEY (SKIP):  " CNT-DUP.
            CLOSE FILEIN GARFILE CHARCUR PAYCUR MEDFILE2020 REPORTF
                  PAYFILE.
            STOP RUN.
