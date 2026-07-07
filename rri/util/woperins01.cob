@@ -76,7 +76,6 @@
       *
        77  CNT-IN                     PIC 9(7) VALUE 0.
        77  CNT-NOTFND                 PIC 9(7) VALUE 0.
-       77  CNT-NOT197                 PIC 9(7) VALUE 0.
        77  CNT-NOBAL                  PIC 9(7) VALUE 0.
        77  CNT-POSTED                 PIC 9(7) VALUE 0.
        77  CNT-DUP                    PIC 9(7) VALUE 0.
@@ -140,9 +139,6 @@
                 ADD 1 TO CNT-NOTFND
                 GO TO P00
            END-READ.
-           IF CC-PAYCODE NOT = "197"
-              ADD 1 TO CNT-NOT197
-              GO TO P00.
       *
            MOVE ZERO       TO TOTALPAY
            MOVE CC-KEY8    TO PC-KEY8
@@ -218,7 +214,6 @@
            WRITE REPORT-REC FROM TOT-LINE.
            DISPLAY "KEYS READ:           " CNT-IN.
            DISPLAY "CHARGE NOT FOUND:    " CNT-NOTFND.
-           DISPLAY "NOT PAYCODE 197:     " CNT-NOT197.
            DISPLAY "NO BALANCE (SKIP):   " CNT-NOBAL.
            DISPLAY "WRITE-OFFS POSTED:   " CNT-POSTED.
            DISPLAY "DUP PAY KEY (SKIP):  " CNT-DUP.
