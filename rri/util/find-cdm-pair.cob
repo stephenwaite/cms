@@ -5,8 +5,10 @@
       * @copyright Copyright (c) 2026 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
       *
-      * derived from find-cdm.  S45 holds TWO 11-byte proc codes:
+      * derived from find-cdm.  S45 holds TWO proc codes:
       *   line 1 = target proc, line 2 = companion proc.
+      * codes are 11 bytes - 4 byte facility cdm, 5 byte cpt, 2 byte mod
+      *
       * pass 1 tables (patid,dos) for every companion charge in the
       * date window.  pass 2 rescans for the target proc and reports
       * only those with a companion charge on the same date of service.
@@ -101,7 +103,7 @@
       *    companion charges found in the date window
        01  CO-TAB01.
            02 CO-ENT OCCURS 20000 TIMES.
-              03 CO-PATID PIC X(6).
+              03 CO-PATID PIC X(8).
               03 CO-DATE PIC X(8).
        01  CO-CNT PIC 9(5) VALUE 0.
        01  CO-MAX PIC 9(5) VALUE 20000.
@@ -128,11 +130,13 @@
            OPEN INPUT DOCFILE GARFILE CHARDATE PAYDATE CHARCUR PAYCUR
                   CCPROCIN.
            OPEN OUTPUT FILEOUT.
+           MOVE SPACES TO CCPROCIN01.
            READ CCPROCIN
              AT END
                DISPLAY "S45 EMPTY - NEED TARGET PROC" UPON SYSERR
                GO TO P98.
            MOVE CCPROCIN01 TO TARGET-PROC.
+           MOVE SPACES TO CCPROCIN01.
            READ CCPROCIN
              AT END
                DISPLAY "S45 NEEDS 2ND LINE - COMPANION" UPON SYSERR
@@ -143,8 +147,8 @@
            IF TARGET-PROC = COMPAN-PROC
               MOVE 2 TO NEED-CNT
            END-IF.
-           DISPLAY "TARGET    " TARGET-PROC UPON SYSERR.
-           DISPLAY "COMPANION " COMPAN-PROC UPON SYSERR.
+           DISPLAY "TARGET    [" TARGET-PROC "]" UPON SYSERR.
+           DISPLAY "COMPANION [" COMPAN-PROC "]" UPON SYSERR.
            DISPLAY "ONLY MEDICARE? Y/N"
            ACCEPT ALF4.
            DISPLAY "ONLY PAIRS? Y/N"
