@@ -5,7 +5,7 @@
       * @copyright Copyright (c) 2026 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
       *
-      * derived from find-cdm.  S45 now holds TWO 11-byte proc codes:
+      * derived from find-cdm.  S45 holds TWO 11-byte proc codes:
       *   line 1 = target proc, line 2 = companion proc.
       * pass 1 tables (patid,dos) for every companion charge in the
       * date window.  pass 2 rescans for the target proc and reports
@@ -67,7 +67,7 @@
            02 FO-IO PIC X.
            02 FO-NAME PIC X(24).
            02 FO-MRN PIC X(8).
-           02 FO-DATE PIC X(8).
+           02 FO-DATE PIC X(10).
            02 FO-CKEY PIC X(12).
            02 FO-FILLER PIC X VALUE SPACE.
            02 FO-INS PIC X(3).
@@ -108,9 +108,21 @@
        01  OVFL-SW PIC X VALUE "N".
        01  SI PIC 9(5) VALUE 0.
        01  HIT-CNT PIC 9(5) VALUE 0.
+       01  HIT-SW PIC X VALUE "N".
        01  NEED-CNT PIC 9 VALUE 1.
        01  READ-CNT PIC 9(7) VALUE 0.
        01  WRIT-CNT PIC 9(7) VALUE 0.
+      *    CCYYMMDD in, MM/DD/CCYY out
+       01  WS-DATE.
+           02 WD-CCYY PIC X(4).
+           02 WD-MM PIC XX.
+           02 WD-DD PIC XX.
+       01  FMT-DATE.
+           02 FD-MM PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 FD-DD PIC XX.
+           02 FILLER PIC X VALUE "/".
+           02 FD-CCYY PIC X(4).
        PROCEDURE DIVISION.
         P0.
            OPEN INPUT DOCFILE GARFILE CHARDATE PAYDATE CHARCUR PAYCUR
@@ -123,15 +135,13 @@
            MOVE CCPROCIN01 TO TARGET-PROC.
            READ CCPROCIN
              AT END
-               DISPLAY "S45 NEEDS 2ND LINE - COMPANION PROC" UPON SYSERR
+               DISPLAY "S45 NEEDS 2ND LINE - COMPANION" UPON SYSERR
                GO TO P98.
            MOVE CCPROCIN01 TO COMPAN-PROC.
            READ CHARDATE.
-      *    if both codes are the same we need two charges on the DOS
+      *    same code both lines means we need two charges on the DOS
            IF TARGET-PROC = COMPAN-PROC
               MOVE 2 TO NEED-CNT
-           ELSE
-              MOVE 1 TO NEED-CNT
            END-IF.
            DISPLAY "TARGET    " TARGET-PROC UPON SYSERR.
            DISPLAY "COMPANION " COMPAN-PROC UPON SYSERR.
@@ -177,20 +187,24 @@
            IF CC-DATE-T < LOW-CHARDATE OR > HIGH-CHARDATE
               GO TO P2.
            ADD 1 TO READ-CNT.
+           MOVE "N" TO HIT-SW.
            MOVE 0 TO HIT-CNT.
            MOVE 0 TO SI.
         P3.
            IF SI = CO-CNT
-              GO TO P4.
+              GO TO P3X.
            ADD 1 TO SI.
-           IF CO-PATID(SI) = CC-PATID AND CO-DATE(SI) = CC-DATE-T
-              ADD 1 TO HIT-CNT
-           END-IF.
+           IF CO-PATID(SI) NOT = CC-PATID
+              GO TO P3.
+           IF CO-DATE(SI) NOT = CC-DATE-T
+              GO TO P3.
+           ADD 1 TO HIT-CNT.
            IF HIT-CNT = NEED-CNT
-              GO TO P4.
+              MOVE "Y" TO HIT-SW
+              GO TO P3X.
            GO TO P3.
-        P4.
-           IF HIT-CNT < NEED-CNT AND ALF5 = "Y"
+        P3X.
+           IF HIT-SW = "N" AND ALF5 = "Y"
               GO TO P2.
         WRITE-FO.
            MOVE SPACE TO FILEOUT01.
@@ -209,18 +223,22 @@
            MOVE "1" TO FO-IO.
            MOVE CC-DOCP TO FO-DOCP
            MOVE CC-PROC TO FO-PROC
-           MOVE CC-DATE-T TO FO-DATE
+           MOVE CC-DATE-T TO WS-DATE
+           MOVE WD-MM TO FD-MM
+           MOVE WD-DD TO FD-DD
+           MOVE WD-CCYY TO FD-CCYY
+           MOVE FMT-DATE TO FO-DATE
            MOVE CC-DIAG TO FO-DIAG
            MOVE G-GARNAME TO FO-NAME
            STRING " " CHARCUR-KEY DELIMITED SIZE INTO FO-CKEY
+           IF HIT-SW = "Y"
+              STRING "W/ " COMPAN-PROC DELIMITED SIZE INTO FO-MSG
+           END-IF
+           IF HIT-SW = "N"
+              STRING "NO PAIR" DELIMITED SIZE INTO FO-MSG
+           END-IF
            IF CC-AMOUNT = 0
-              STRING " CHARGE ZEROED " DELIMITED SIZE INTO FO-MSG
-           ELSE
-              IF HIT-CNT NOT < NEED-CNT
-                 STRING "W/ " COMPAN-PROC DELIMITED SIZE INTO FO-MSG
-              ELSE
-                 STRING "NO PAIR " DELIMITED SIZE INTO FO-MSG
-              END-IF
+              STRING "CHARGE ZEROED" DELIMITED SIZE INTO FO-MSG
            END-IF
            WRITE FILEOUT01.
            ADD 1 TO WRIT-CNT.
