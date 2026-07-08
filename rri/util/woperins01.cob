@@ -14,8 +14,9 @@
       * charges (e.g. aged 197s) is done upstream when the list is built.
       *
       *   - Skips keys that don't resolve to a CHARCUR record.
-      *   - Skips charges that aren't pending insurance (CC-PAYCODE
-      *     NOT = "197") as a guard on the fed list.
+      *   - The paycode is taken from the charge itself
+      *     (PD-PAYCODE = CC-PAYCODE); no paycode filter is applied,
+      *     so the fed list decides what gets written off.
       *   - Sums PAYCUR activity for the same account+claim
       *     (PC-AMOUNT is signed-negative) to derive the balance:
       *         BALANCE = CC-AMOUNT + TOTALPAY
@@ -46,6 +47,7 @@
                LOCK MODE MANUAL.
            SELECT PAYFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
                ACCESS IS DYNAMIC RECORD KEY IS PAYFILE-KEY
+               FILE STATUS IS PF-STAT
                LOCK MODE MANUAL.
            SELECT REPORTF ASSIGN TO "S60"
                ORGANIZATION IS LINE SEQUENTIAL.
@@ -79,6 +81,16 @@
        77  CNT-NOBAL                  PIC 9(7) VALUE 0.
        77  CNT-POSTED                 PIC 9(7) VALUE 0.
        77  CNT-DUP                    PIC 9(7) VALUE 0.
+       77  CNT-NOSLOT                 PIC 9(7) VALUE 0.
+      *
+      * ---- debug scaffolding ----
+       77  PF-STAT                    PIC XX    VALUE "00".
+       77  DBG-SW                     PIC X     VALUE "N".
+           88  DEBUG-ON                         VALUE "Y".
+       77  DBG-ANS                    PIC X     VALUE SPACE.
+       77  MAX-SLOT                   PIC 9(3)  VALUE 999.
+       77  POST-OK-SW                 PIC X     VALUE "N".
+           88  POST-OK                          VALUE "Y".
       *
       * ---- posting defaults (flagged in the reply; change here) ----
        01  WS-POST.
@@ -122,6 +134,10 @@
       *
        PROCEDURE DIVISION.
        MAIN.
+           DISPLAY "Debug payfile writes (Y/N)? "
+                   WITH NO ADVANCING.
+           ACCEPT DBG-SW.
+           IF DBG-SW = "y" MOVE "Y" TO DBG-SW.
            OPEN INPUT  FILEIN CHARCUR PAYCUR GARFILE
            OPEN I-O    PAYFILE
            OPEN OUTPUT REPORTF.
@@ -159,8 +175,10 @@
               GO TO P00.
            COMPUTE WRITE-OFF = 0 - BALANCE.
            PERFORM GET-NAME.
-      *     PERFORM POST-WO.
-           PERFORM WRITE-DETAIL.
+           MOVE "N" TO POST-OK-SW.
+           PERFORM POST-WO THRU POST-EXIT.
+           IF POST-OK
+              PERFORM WRITE-DETAIL.
            GO TO P00.
       *
        GET-NAME.
@@ -170,12 +188,26 @@
            END-READ.
       *
        POST-WO.
+      * clear the record area first - a failed READ in P3 leaves a
+      * stale PAYFILE01 behind, and the MOVEs below don't cover
+      * every field in the copybook.  INITIALIZE (not MOVE SPACES):
+      * spaces in a COMP-3 field is invalid packed data.
+           INITIALIZE PAYFILE01.
            MOVE CC-KEY8 TO PD-KEY8.
            MOVE ZERO    TO XYZ.
+      * find the first free PD-KEY3 slot for this account
        P3.
+           IF XYZ NOT < MAX-SLOT
+              DISPLAY "NO FREE SLOT: " CC-KEY8 " (KEY3 hit " MAX-SLOT
+                      ") - SKIPPED"
+              ADD 1 TO CNT-NOSLOT
+              GO TO POST-EXIT.
            ADD 1 TO XYZ.
            MOVE XYZ TO PD-KEY3.
-           READ PAYFILE INVALID KEY GO TO P4.
+           READ PAYFILE
+               INVALID KEY
+                   GO TO P4
+           END-READ.
            GO TO P3.
        P4.
            MOVE G-GARNAME  TO PD-NAME.
@@ -187,13 +219,52 @@
            MOVE WS-RUNDATE TO PD-DATE-E.
            MOVE SPACES     TO PD-ORDER.
            MOVE P-BATCH    TO PD-BATCH.
+      *
+           IF DEBUG-ON PERFORM DBG-BEFORE.
+      *
+           MOVE "00" TO PF-STAT.
            WRITE PAYFILE01
                INVALID KEY
+                   DISPLAY "WRITE FAIL stat=[" PF-STAT "] key=["
+                           PD-KEY8 "/" PD-KEY3 "] amt=[" PD-AMOUNT "]"
                    ADD 1 TO CNT-DUP
                NOT INVALID KEY
+                   MOVE "Y"      TO POST-OK-SW
                    ADD 1         TO CNT-POSTED
                    ADD WRITE-OFF TO TOT-WO
            END-WRITE.
+           IF DEBUG-ON PERFORM DBG-AFTER.
+       POST-EXIT.
+           EXIT.
+      *
+       DBG-BEFORE.
+           DISPLAY " ".
+           DISPLAY "--- PAYFILE record to write ---".
+           DISPLAY "  CHARCUR key  [" CC-KEY8 "/" CC-KEY3 "]".
+           DISPLAY "  slot XYZ     [" XYZ "]  (reads to find free)".
+           DISPLAY "  PD-KEY8      [" PD-KEY8 "]".
+           DISPLAY "  PD-KEY3      [" PD-KEY3 "]".
+           DISPLAY "  PD-NAME      [" PD-NAME "]".
+           DISPLAY "  PD-AMOUNT    [" PD-AMOUNT "]".
+           DISPLAY "  PD-PAYCODE   [" PD-PAYCODE "]".
+           DISPLAY "  PD-DENIAL    [" PD-DENIAL "]".
+           DISPLAY "  PD-CLAIM     [" PD-CLAIM "]".
+           DISPLAY "  PD-DATE-T    [" PD-DATE-T "] (charge date)".
+           DISPLAY "  PD-DATE-E    [" PD-DATE-E "] (run date)".
+           DISPLAY "  PD-ORDER     [" PD-ORDER "]".
+           DISPLAY "  PD-BATCH     [" PD-BATCH "]".
+           DISPLAY "  CHARGE " CC-AMOUNT "  PAID " TOTALPAY
+                   "  BAL " BALANCE "  WO " WRITE-OFF.
+           DISPLAY "enter=write  q=quit: " WITH NO ADVANCING.
+           ACCEPT DBG-ANS.
+           IF DBG-ANS = "q" OR DBG-ANS = "Q"
+              DISPLAY "aborted by operator"
+              CLOSE FILEIN GARFILE CHARCUR PAYCUR PAYFILE REPORTF
+              STOP RUN 1.
+      *
+       DBG-AFTER.
+           DISPLAY "  WRITE stat=[" PF-STAT "]  posted=" CNT-POSTED
+                   "  failed=" CNT-DUP.
       *
        WRITE-DETAIL.
            MOVE CC-KEY8    TO DL-ACCT.
@@ -216,6 +287,7 @@
            DISPLAY "CHARGE NOT FOUND:    " CNT-NOTFND.
            DISPLAY "NO BALANCE (SKIP):   " CNT-NOBAL.
            DISPLAY "WRITE-OFFS POSTED:   " CNT-POSTED.
-           DISPLAY "DUP PAY KEY (SKIP):  " CNT-DUP.
+           DISPLAY "WRITE FAILED (SKIP): " CNT-DUP.
+           DISPLAY "NO FREE SLOT (SKIP): " CNT-NOSLOT.
            CLOSE FILEIN GARFILE CHARCUR PAYCUR PAYFILE REPORTF.
            STOP RUN.
