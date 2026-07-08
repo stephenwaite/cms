@@ -159,7 +159,7 @@
               GO TO P00.
            COMPUTE WRITE-OFF = 0 - BALANCE.
            PERFORM GET-NAME.
-           PERFORM POST-WO.
+      *     PERFORM POST-WO.
            PERFORM WRITE-DETAIL.
            GO TO P00.
       *
