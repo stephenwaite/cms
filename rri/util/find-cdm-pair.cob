@@ -9,9 +9,13 @@
       *   line 1 = target proc, line 2 = companion proc.
       * codes are 11 bytes - 4 byte facility cdm, 5 byte cpt, 2 byte mod
       *
-      * pass 1 tables (patid,dos) for every companion charge in the
-      * date window.  pass 2 rescans for the target proc and reports
-      * only those with a companion charge on the same date of service.
+      * pass 1 tables (patid,dos,visitno) for every companion charge in
+      * the date window.  pass 2 rescans for the target proc and flags:
+      *   S  companion same patid, same dos, SAME visitno
+      *   D  companion same patid, same dos, DIFFERENT visitno
+      *   N  no companion on that dos
+      * cpt parenthetical bars the pair in the same SESSION - S rows are
+      * the exposure, D rows are the ones you defend.
       *
        IDENTIFICATION DIVISION.
        PROGRAM-ID. find-cdm-pair.
@@ -74,6 +78,13 @@
            02 FO-FILLER PIC X VALUE SPACE.
            02 FO-INS PIC X(3).
            02 FO-MSG PIC X(20).
+      *    visit level flag - S same visit, D diff visit, N no pair
+           02 FO-FIL2 PIC X VALUE SPACE.
+           02 FO-FLAG PIC X.
+           02 FO-FIL3 PIC X VALUE SPACE.
+           02 FO-VISIT PIC X(7).
+           02 FO-FIL4 PIC X VALUE SPACE.
+           02 FO-CVIS PIC X(7).
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.
            02 PLACE-TAB OCCURS 26 TIMES.
@@ -105,15 +116,22 @@
            02 CO-ENT OCCURS 20000 TIMES.
               03 CO-PATID PIC X(8).
               03 CO-DATE PIC X(8).
+              03 CO-VISIT PIC X(7).
        01  CO-CNT PIC 9(5) VALUE 0.
        01  CO-MAX PIC 9(5) VALUE 20000.
        01  OVFL-SW PIC X VALUE "N".
        01  SI PIC 9(5) VALUE 0.
-       01  HIT-CNT PIC 9(5) VALUE 0.
+      *    DHIT - companion same dos.  VHIT - companion same visit.
+       01  DHIT-CNT PIC 9(5) VALUE 0.
+       01  VHIT-CNT PIC 9(5) VALUE 0.
        01  HIT-SW PIC X VALUE "N".
+       01  WS-CVIS PIC X(7).
        01  NEED-CNT PIC 9 VALUE 1.
        01  READ-CNT PIC 9(7) VALUE 0.
        01  WRIT-CNT PIC 9(7) VALUE 0.
+       01  SAME-CNT PIC 9(7) VALUE 0.
+       01  DIFF-CNT PIC 9(7) VALUE 0.
+       01  NONE-CNT PIC 9(7) VALUE 0.
       *    CCYYMMDD in, MM/DD/CCYY out
        01  WS-DATE.
            02 WD-CCYY PIC X(4).
@@ -170,6 +188,7 @@
            ADD 1 TO CO-CNT.
            MOVE CC-PATID TO CO-PATID(CO-CNT).
            MOVE CC-DATE-T TO CO-DATE(CO-CNT).
+           MOVE CC-VISITNO TO CO-VISIT(CO-CNT).
            GO TO P1.
         P1X.
            DISPLAY "COMPANION CHARGES TABLED " CO-CNT UPON SYSERR.
@@ -180,7 +199,7 @@
            CLOSE CHARCUR.
            OPEN INPUT CHARCUR.
       *
-      *    PASS 2 - target charges, test for companion on same DOS
+      *    PASS 2 - target charges, test dos then visitno
       *
         P2.
            READ CHARCUR
@@ -191,8 +210,9 @@
            IF CC-DATE-T < LOW-CHARDATE OR > HIGH-CHARDATE
               GO TO P2.
            ADD 1 TO READ-CNT.
-           MOVE "N" TO HIT-SW.
-           MOVE 0 TO HIT-CNT.
+           MOVE 0 TO DHIT-CNT.
+           MOVE 0 TO VHIT-CNT.
+           MOVE SPACES TO WS-CVIS.
            MOVE 0 TO SI.
         P3.
            IF SI = CO-CNT
@@ -202,12 +222,23 @@
               GO TO P3.
            IF CO-DATE(SI) NOT = CC-DATE-T
               GO TO P3.
-           ADD 1 TO HIT-CNT.
-           IF HIT-CNT = NEED-CNT
-              MOVE "Y" TO HIT-SW
-              GO TO P3X.
+           ADD 1 TO DHIT-CNT.
+           IF WS-CVIS = SPACES
+              MOVE CO-VISIT(SI) TO WS-CVIS
+           END-IF.
+           IF CO-VISIT(SI) NOT = CC-VISITNO
+              GO TO P3.
+           ADD 1 TO VHIT-CNT.
+           MOVE CO-VISIT(SI) TO WS-CVIS.
            GO TO P3.
         P3X.
+           MOVE "N" TO HIT-SW.
+           IF DHIT-CNT NOT < NEED-CNT
+              MOVE "D" TO HIT-SW
+           END-IF.
+           IF VHIT-CNT NOT < NEED-CNT
+              MOVE "S" TO HIT-SW
+           END-IF.
            IF HIT-SW = "N" AND ALF5 = "Y"
               GO TO P2.
         WRITE-FO.
@@ -234,12 +265,21 @@
            MOVE FMT-DATE TO FO-DATE
            MOVE CC-DIAG TO FO-DIAG
            MOVE G-GARNAME TO FO-NAME
+           MOVE HIT-SW TO FO-FLAG
+           MOVE CC-VISITNO TO FO-VISIT
+           MOVE WS-CVIS TO FO-CVIS
            STRING " " CHARCUR-KEY DELIMITED SIZE INTO FO-CKEY
-           IF HIT-SW = "Y"
-              STRING "W/ " COMPAN-PROC DELIMITED SIZE INTO FO-MSG
+           IF HIT-SW = "S"
+              STRING "SAME VISIT" DELIMITED SIZE INTO FO-MSG
+              ADD 1 TO SAME-CNT
+           END-IF
+           IF HIT-SW = "D"
+              STRING "DIFF VISIT" DELIMITED SIZE INTO FO-MSG
+              ADD 1 TO DIFF-CNT
            END-IF
            IF HIT-SW = "N"
               STRING "NO PAIR" DELIMITED SIZE INTO FO-MSG
+              ADD 1 TO NONE-CNT
            END-IF
            IF CC-AMOUNT = 0
               STRING "CHARGE ZEROED" DELIMITED SIZE INTO FO-MSG
@@ -250,6 +290,9 @@
         P99.
            DISPLAY "TARGET CHARGES IN WINDOW " READ-CNT UPON SYSERR.
            DISPLAY "ROWS WRITTEN             " WRIT-CNT UPON SYSERR.
+           DISPLAY "S SAME VISIT             " SAME-CNT UPON SYSERR.
+           DISPLAY "D DIFF VISIT             " DIFF-CNT UPON SYSERR.
+           DISPLAY "N NO PAIR                " NONE-CNT UPON SYSERR.
         P98.
            CLOSE DOCFILE GARFILE CHARDATE PAYDATE CHARCUR
                   PAYCUR CCPROCIN FILEOUT.
