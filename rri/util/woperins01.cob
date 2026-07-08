@@ -87,7 +87,8 @@
        77  PF-STAT                    PIC XX    VALUE "00".
        77  DBG-SW                     PIC X     VALUE "N".
            88  DEBUG-ON                         VALUE "Y".
-       77  DBG-ANS                    PIC X     VALUE SPACE.
+       77  CNT-DBG                    PIC 9(3)  VALUE 0.
+       77  DBG-MAX                    PIC 9(3)  VALUE 5.
        77  MAX-SLOT                   PIC 9(3)  VALUE 999.
        77  POST-OK-SW                 PIC X     VALUE "N".
            88  POST-OK                          VALUE "Y".
@@ -134,10 +135,14 @@
       *
        PROCEDURE DIVISION.
        MAIN.
-           DISPLAY "Debug payfile writes (Y/N)? "
-                   WITH NO ADVANCING.
-           ACCEPT DBG-SW.
+      * debug is driven by the environment, not a prompt - an ACCEPT
+      * into a data field pulls in the screen manager, which garbles
+      * DISPLAY output and hangs waiting for a field terminator.
+           ACCEPT DBG-SW FROM ENVIRONMENT "WOPERINS_DEBUG".
            IF DBG-SW = "y" MOVE "Y" TO DBG-SW.
+           IF DEBUG-ON
+              DISPLAY "DEBUG ON - first " DBG-MAX
+                      " writes detailed" UPON SYSERR.
            OPEN INPUT  FILEIN CHARCUR PAYCUR GARFILE
            OPEN I-O    PAYFILE
            OPEN OUTPUT REPORTF.
@@ -151,7 +156,8 @@
            MOVE FI-KEY8 TO CC-KEY8.
            MOVE FI-KEY3 TO CC-KEY3.
            READ CHARCUR INVALID KEY
-                DISPLAY "NO CHARGE: " FI-KEY8 " " FI-KEY3
+                DISPLAY "NO CHARGE: [" FI-KEY8 "][" FI-KEY3 "]"
+                        UPON SYSERR
                 ADD 1 TO CNT-NOTFND
                 GO TO P00
            END-READ.
@@ -199,7 +205,7 @@
        P3.
            IF XYZ NOT < MAX-SLOT
               DISPLAY "NO FREE SLOT: " CC-KEY8 " (KEY3 hit " MAX-SLOT
-                      ") - SKIPPED"
+                      ") - SKIPPED" UPON SYSERR
               ADD 1 TO CNT-NOSLOT
               GO TO POST-EXIT.
            ADD 1 TO XYZ.
@@ -220,51 +226,57 @@
            MOVE SPACES     TO PD-ORDER.
            MOVE P-BATCH    TO PD-BATCH.
       *
-           IF DEBUG-ON PERFORM DBG-BEFORE.
+           IF DEBUG-ON PERFORM DBG-BEFORE THRU DBG-BEFORE-X.
       *
            MOVE "00" TO PF-STAT.
            WRITE PAYFILE01
                INVALID KEY
                    DISPLAY "WRITE FAIL stat=[" PF-STAT "] key=["
                            PD-KEY8 "/" PD-KEY3 "] amt=[" PD-AMOUNT "]"
+                           UPON SYSERR
                    ADD 1 TO CNT-DUP
                NOT INVALID KEY
                    MOVE "Y"      TO POST-OK-SW
                    ADD 1         TO CNT-POSTED
                    ADD WRITE-OFF TO TOT-WO
            END-WRITE.
-           IF DEBUG-ON PERFORM DBG-AFTER.
+           IF DEBUG-ON PERFORM DBG-AFTER THRU DBG-AFTER-X.
        POST-EXIT.
            EXIT.
       *
        DBG-BEFORE.
-           DISPLAY " ".
-           DISPLAY "--- PAYFILE record to write ---".
-           DISPLAY "  CHARCUR key  [" CC-KEY8 "/" CC-KEY3 "]".
-           DISPLAY "  slot XYZ     [" XYZ "]  (reads to find free)".
-           DISPLAY "  PD-KEY8      [" PD-KEY8 "]".
-           DISPLAY "  PD-KEY3      [" PD-KEY3 "]".
-           DISPLAY "  PD-NAME      [" PD-NAME "]".
-           DISPLAY "  PD-AMOUNT    [" PD-AMOUNT "]".
-           DISPLAY "  PD-PAYCODE   [" PD-PAYCODE "]".
-           DISPLAY "  PD-DENIAL    [" PD-DENIAL "]".
-           DISPLAY "  PD-CLAIM     [" PD-CLAIM "]".
-           DISPLAY "  PD-DATE-T    [" PD-DATE-T "] (charge date)".
-           DISPLAY "  PD-DATE-E    [" PD-DATE-E "] (run date)".
-           DISPLAY "  PD-ORDER     [" PD-ORDER "]".
-           DISPLAY "  PD-BATCH     [" PD-BATCH "]".
+           IF CNT-DBG NOT < DBG-MAX GO TO DBG-BEFORE-X.
+           ADD 1 TO CNT-DBG.
+           DISPLAY " " UPON SYSERR.
+           DISPLAY "--- PAYFILE record to write (" CNT-DBG " of "
+                   DBG-MAX ") ---" UPON SYSERR.
+           DISPLAY "  CHARCUR key  [" CC-KEY8 "/" CC-KEY3 "]"
+                   UPON SYSERR.
+           DISPLAY "  slot XYZ     [" XYZ "]" UPON SYSERR.
+           DISPLAY "  PD-KEY8      [" PD-KEY8 "]" UPON SYSERR.
+           DISPLAY "  PD-KEY3      [" PD-KEY3 "]" UPON SYSERR.
+           DISPLAY "  PD-NAME      [" PD-NAME "]" UPON SYSERR.
+           DISPLAY "  PD-AMOUNT    [" PD-AMOUNT "]" UPON SYSERR.
+           DISPLAY "  PD-PAYCODE   [" PD-PAYCODE "]" UPON SYSERR.
+           DISPLAY "  PD-DENIAL    [" PD-DENIAL "]" UPON SYSERR.
+           DISPLAY "  PD-CLAIM     [" PD-CLAIM "]" UPON SYSERR.
+           DISPLAY "  PD-DATE-T    [" PD-DATE-T "] chg date"
+                   UPON SYSERR.
+           DISPLAY "  PD-DATE-E    [" PD-DATE-E "] run date"
+                   UPON SYSERR.
+           DISPLAY "  PD-ORDER     [" PD-ORDER "]" UPON SYSERR.
+           DISPLAY "  PD-BATCH     [" PD-BATCH "]" UPON SYSERR.
            DISPLAY "  CHARGE " CC-AMOUNT "  PAID " TOTALPAY
-                   "  BAL " BALANCE "  WO " WRITE-OFF.
-           DISPLAY "enter=write  q=quit: " WITH NO ADVANCING.
-           ACCEPT DBG-ANS.
-           IF DBG-ANS = "q" OR DBG-ANS = "Q"
-              DISPLAY "aborted by operator"
-              CLOSE FILEIN GARFILE CHARCUR PAYCUR PAYFILE REPORTF
-              STOP RUN 1.
+                   "  BAL " BALANCE "  WO " WRITE-OFF UPON SYSERR.
+       DBG-BEFORE-X.
+           EXIT.
       *
        DBG-AFTER.
+           IF CNT-DBG NOT < DBG-MAX GO TO DBG-AFTER-X.
            DISPLAY "  WRITE stat=[" PF-STAT "]  posted=" CNT-POSTED
-                   "  failed=" CNT-DUP.
+                   "  failed=" CNT-DUP UPON SYSERR.
+       DBG-AFTER-X.
+           EXIT.
       *
        WRITE-DETAIL.
            MOVE CC-KEY8    TO DL-ACCT.
@@ -283,11 +295,11 @@
            WRITE REPORT-REC.
            MOVE TOT-WO TO TL-WO.
            WRITE REPORT-REC FROM TOT-LINE.
-           DISPLAY "KEYS READ:           " CNT-IN.
-           DISPLAY "CHARGE NOT FOUND:    " CNT-NOTFND.
-           DISPLAY "NO BALANCE (SKIP):   " CNT-NOBAL.
-           DISPLAY "WRITE-OFFS POSTED:   " CNT-POSTED.
-           DISPLAY "WRITE FAILED (SKIP): " CNT-DUP.
-           DISPLAY "NO FREE SLOT (SKIP): " CNT-NOSLOT.
+           DISPLAY "KEYS READ:           " CNT-IN UPON SYSERR.
+           DISPLAY "CHARGE NOT FOUND:    " CNT-NOTFND UPON SYSERR.
+           DISPLAY "NO BALANCE (SKIP):   " CNT-NOBAL UPON SYSERR.
+           DISPLAY "WRITE-OFFS POSTED:   " CNT-POSTED UPON SYSERR.
+           DISPLAY "WRITE FAILED (SKIP): " CNT-DUP UPON SYSERR.
+           DISPLAY "NO FREE SLOT (SKIP): " CNT-NOSLOT UPON SYSERR.
            CLOSE FILEIN GARFILE CHARCUR PAYCUR PAYFILE REPORTF.
            STOP RUN.
