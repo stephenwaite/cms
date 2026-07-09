@@ -14,8 +14,7 @@
       *   S  companion same patid, same dos, SAME visitno
       *   D  companion same patid, same dos, DIFFERENT visitno
       *   N  no companion on that dos
-      * cpt parenthetical bars the pair in the same SESSION - S rows are
-      * the exposure, D rows are the ones you defend.
+      * output is TAB delimited - one target charge per line.
       *
        IDENTIFICATION DIVISION.
        PROGRAM-ID. find-cdm-pair.
@@ -63,28 +62,7 @@
        FD  CCPROCIN.
        01  CCPROCIN01 PIC X(11).
        FD  FILEOUT.
-       01  FILEOUT01.
-           02 FO-DOCP PIC XX.
-           02 FO-DUM PIC X.
-           02 FO-SERVICE PIC X.
-           02 FO-PROC PIC X(11).
-           02 FO-DIAG PIC X(7).
-           02 FO-AMOUNT PIC S9(7)V99.
-           02 FO-IO PIC X.
-           02 FO-NAME PIC X(24).
-           02 FO-MRN PIC X(8).
-           02 FO-DATE PIC X(10).
-           02 FO-CKEY PIC X(12).
-           02 FO-FILLER PIC X VALUE SPACE.
-           02 FO-INS PIC X(3).
-           02 FO-MSG PIC X(20).
-      *    visit level flag - S same visit, D diff visit, N no pair
-           02 FO-FIL2 PIC X VALUE SPACE.
-           02 FO-FLAG PIC X.
-           02 FO-FIL3 PIC X VALUE SPACE.
-           02 FO-VISIT PIC X(7).
-           02 FO-FIL4 PIC X VALUE SPACE.
-           02 FO-CVIS PIC X(7).
+       01  FILEOUT01 PIC X(160).
        WORKING-STORAGE SECTION.
        01  PLACE-TAB01.
            02 PLACE-TAB OCCURS 26 TIMES.
@@ -108,6 +86,7 @@
        01  TOT-AMOUNT PIC S9(7)V99.
        01  ALF4 PIC X.
        01  ALF5 PIC X.
+       01  TAB-CH PIC X VALUE X"09".
       *    the two proc codes fed in on S45
        01  TARGET-PROC PIC X(11).
        01  COMPAN-PROC PIC X(11).
@@ -121,7 +100,6 @@
        01  CO-MAX PIC 9(5) VALUE 20000.
        01  OVFL-SW PIC X VALUE "N".
        01  SI PIC 9(5) VALUE 0.
-      *    DHIT - companion same dos.  VHIT - companion same visit.
        01  DHIT-CNT PIC 9(5) VALUE 0.
        01  VHIT-CNT PIC 9(5) VALUE 0.
        01  HIT-SW PIC X VALUE "N".
@@ -132,6 +110,8 @@
        01  SAME-CNT PIC 9(7) VALUE 0.
        01  DIFF-CNT PIC 9(7) VALUE 0.
        01  NONE-CNT PIC 9(7) VALUE 0.
+      *    edited amount for output
+       01  ED-AMOUNT PIC -Z(6)9.99.
       *    CCYYMMDD in, MM/DD/CCYY out
        01  WS-DATE.
            02 WD-CCYY PIC X(4).
@@ -143,6 +123,10 @@
            02 FD-DD PIC XX.
            02 FILLER PIC X VALUE "/".
            02 FD-CCYY PIC X(4).
+       01  MSG-W PIC X(14).
+      *    tab delimited output line assembled here
+       01  OUTLINE PIC X(200).
+       01  OUTLEN PIC 9(4).
        PROCEDURE DIVISION.
         P0.
            OPEN INPUT DOCFILE GARFILE CHARDATE PAYDATE CHARCUR PAYCUR
@@ -161,7 +145,6 @@
                GO TO P98.
            MOVE CCPROCIN01 TO COMPAN-PROC.
            READ CHARDATE.
-      *    same code both lines means we need two charges on the DOS
            IF TARGET-PROC = COMPAN-PROC
               MOVE 2 TO NEED-CNT
            END-IF.
@@ -171,6 +154,15 @@
            ACCEPT ALF4.
            DISPLAY "ONLY PAIRS? Y/N"
            ACCEPT ALF5.
+      *    header row
+           MOVE SPACES TO OUTLINE.
+           STRING "MRN" TAB-CH "NAME" TAB-CH "INS" TAB-CH "PROC"
+             TAB-CH "DOS" TAB-CH "DIAG" TAB-CH "DOCP" TAB-CH "FLAG"
+             TAB-CH "VISIT" TAB-CH "CO-VISIT" TAB-CH "AMOUNT"
+             TAB-CH "NOTE" TAB-CH "CKEY"
+             DELIMITED SIZE INTO OUTLINE.
+           MOVE OUTLINE TO FILEOUT01.
+           WRITE FILEOUT01.
       *
       *    PASS 1 - table the companion charges
       *
@@ -242,7 +234,6 @@
            IF HIT-SW = "N" AND ALF5 = "Y"
               GO TO P2.
         WRITE-FO.
-           MOVE SPACE TO FILEOUT01.
            MOVE CC-PATID TO G-GARNO
            READ GARFILE
            INVALID
@@ -250,40 +241,37 @@
       *    ONLY REPORT MEDICARE ON ACCOUNT
            IF G-PRINS NOT = "003" AND ALF4 = "Y"
               GO TO P2.
-           MOVE G-PRINS TO FO-INS
-           MOVE G-GARNAME TO FO-NAME
-           MOVE G-ACCT TO FO-MRN
-           MOVE "1" TO FO-SERVICE.
-           MOVE "1" TO FO-DUM.
-           MOVE "1" TO FO-IO.
-           MOVE CC-DOCP TO FO-DOCP
-           MOVE CC-PROC TO FO-PROC
+      *    format date and amount
            MOVE CC-DATE-T TO WS-DATE
            MOVE WD-MM TO FD-MM
            MOVE WD-DD TO FD-DD
            MOVE WD-CCYY TO FD-CCYY
-           MOVE FMT-DATE TO FO-DATE
-           MOVE CC-DIAG TO FO-DIAG
-           MOVE G-GARNAME TO FO-NAME
-           MOVE HIT-SW TO FO-FLAG
-           MOVE CC-VISITNO TO FO-VISIT
-           MOVE WS-CVIS TO FO-CVIS
-           STRING " " CHARCUR-KEY DELIMITED SIZE INTO FO-CKEY
+           MOVE CC-AMOUNT TO ED-AMOUNT
+      *    note text and counters
            IF HIT-SW = "S"
-              STRING "SAME VISIT" DELIMITED SIZE INTO FO-MSG
+              MOVE "SAME VISIT" TO MSG-W
               ADD 1 TO SAME-CNT
            END-IF
            IF HIT-SW = "D"
-              STRING "DIFF VISIT" DELIMITED SIZE INTO FO-MSG
+              MOVE "DIFF VISIT" TO MSG-W
               ADD 1 TO DIFF-CNT
            END-IF
            IF HIT-SW = "N"
-              STRING "NO PAIR" DELIMITED SIZE INTO FO-MSG
+              MOVE "NO PAIR" TO MSG-W
               ADD 1 TO NONE-CNT
            END-IF
            IF CC-AMOUNT = 0
-              STRING "CHARGE ZEROED" DELIMITED SIZE INTO FO-MSG
+              MOVE "CHARGE ZEROED" TO MSG-W
            END-IF
+      *    assemble tab delimited line
+           MOVE SPACES TO OUTLINE
+           STRING G-ACCT TAB-CH G-GARNAME TAB-CH G-PRINS TAB-CH
+             CC-PROC TAB-CH FMT-DATE TAB-CH CC-DIAG TAB-CH
+             CC-DOCP TAB-CH HIT-SW TAB-CH CC-VISITNO TAB-CH
+             WS-CVIS TAB-CH ED-AMOUNT TAB-CH MSG-W TAB-CH
+             CHARCUR-KEY
+             DELIMITED SIZE INTO OUTLINE
+           MOVE OUTLINE TO FILEOUT01
            WRITE FILEOUT01.
            ADD 1 TO WRIT-CNT.
            GO TO P2.
