@@ -26,6 +26,9 @@
       * A write-off adjustment is posted to PAYFILE for each reported
       * charge so that the resulting balance lands on DUE:
       *     WRITE-OFF = DUE-AMT - BALANCE   (posted only when < 0)
+      * The write-off is capped at the open balance, so a charge is
+      * never driven into a credit balance (if DUE is negative the
+      * charge is written down to zero, no further).
       * Positive/zero write-off means nothing to post.
       *
        ENVIRONMENT DIVISION.
@@ -225,8 +228,17 @@
                    PERFORM WRITE-NOFEE
                    GO TO NEXT-KEY
            END-READ.
-           COMPUTE DUE-AMT   = MED-AMT + CASHPAID.
-           COMPUTE WRITE-OFF = DUE-AMT - BALANCE.
+           COMPUTE DUE-AMT = MED-AMT + CASHPAID.
+      *
+      *    cap the write-off at the open balance so we never drive
+      *    a charge into a credit balance
+      *
+           IF DUE-AMT < 0
+               COMPUTE WRITE-OFF = 0 - BALANCE
+               MOVE 0 TO DUE-AMT
+           ELSE
+               COMPUTE WRITE-OFF = DUE-AMT - BALANCE
+           END-IF.
            PERFORM GET-NAME.
            IF WRITE-OFF < 0
                PERFORM WRITE-PAY.
