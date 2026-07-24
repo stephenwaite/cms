@@ -388,8 +388,8 @@
                "288  " "A1   " "B11  " "B20  " "P12  " "P14  ".
            88 DUMP50-OA-CODE VALUE "18   " "95   " "226  " "A1   " 
                "B11  " "B13  " "P8   ".
-           88 DUMP50-PI-CODE VALUE "5    " "11   " "96   " "97   "
-               "149  " "234  " "P4   ".
+           88 DUMP50-PI-CODE VALUE "5    " "11   " "16   " "96   "
+               "97   " "149  " "234  " "P4   ".
            88 DUMP50-PR-CODE VALUE "16   " "26   " "27   " "31   "
                "35   " "96   " "151  " "227  " "243  ".
        01  OVERPAY-FLAG  PIC 9 VALUE 0.
