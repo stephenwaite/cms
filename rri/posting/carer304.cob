@@ -46,6 +46,7 @@
            02 DT-DENIAL4 PIC X(4).
            02 DT-PAYDENIAL PIC X(4).
            02 DT-INSNAME PIC X(30).
+           02 DT-TB PIC X.
        FD  PARMFILE.
        01  PARMFILE01 PIC X(40).
        FD  FILEIN.
@@ -101,6 +102,7 @@
            02 HD-DENIAL4 PIC X(4).
            02 HD-PAYDENIAL PIC X(4).
            02 HD-INSNAME PIC X(30).
+           02 HD-TB PIC X.
        01  AMT01.
            02 AMT-0 PIC XXX.
            02 AMT-1 PIC XX.
@@ -526,7 +528,9 @@
            MOVE CR-DENIAL3 TO DT-DENIAL3
            MOVE CR-DENIAL4 TO DT-DENIAL4
            MOVE CR-PAYDENIAL TO DT-PAYDENIAL
-           MOVE CR-INSNAME TO DT-INSNAME.
+           MOVE CR-INSNAME TO DT-INSNAME
+           MOVE SPACE TO DT-TB
+           IF TAKEBACK = 1 MOVE "T" TO DT-TB.
        D-DETL-W.
            WRITE CAREDETL01 INVALID GO TO D-DETL-DUP.
            ADD 1 TO WS-WROTE
@@ -539,6 +543,7 @@
                    " " HD-KEY UPON SYSERR
                GO TO D-DETL-EXIT.
            IF DT-PAYED = HD-PAYED AND DT-BILLED = HD-BILLED
+               AND DT-TB = HD-TB
       * same remit re-run, already posted
                ADD 1 TO WS-DUPES
                GO TO D-DETL-EXIT.

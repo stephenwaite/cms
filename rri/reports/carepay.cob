@@ -44,6 +44,7 @@
            02 DT-DENIAL4 PIC X(4).
            02 DT-PAYDENIAL PIC X(4).
            02 DT-INSNAME PIC X(30).
+           02 DT-TB PIC X.
        FD  PRTFILE.
        01  PRT-REC PIC X(132).
        WORKING-STORAGE SECTION.
@@ -72,6 +73,7 @@
            02 FILLER PIC X(9)  VALUE " allowed".
            02 FILLER PIC X(9)  VALUE "  deduct".
            02 FILLER PIC X(10) VALUE "   payed".
+           02 FILLER PIC X(3)  VALUE "tb".
            02 FILLER PIC X(10) VALUE "ck-eft".
            02 FILLER PIC X(14) VALUE "icn".
            02 FILLER PIC X(9)  VALUE "denial".
@@ -89,6 +91,8 @@
            02 D-DEDUCT  PIC Z(4)9.99.
            02 FILLER    PIC X VALUE SPACE.
            02 D-PAYED   PIC Z(4)9.99-.
+           02 FILLER    PIC X VALUE SPACE.
+           02 D-TB      PIC XX.
            02 FILLER    PIC X VALUE SPACE.
            02 D-CK-EFT  PIC X(9).
            02 FILLER    PIC X VALUE SPACE.
@@ -162,6 +166,9 @@
            MOVE DT-ALLOWED TO D-ALLOWED.
            MOVE DT-DEDUCT  TO D-DEDUCT.
            MOVE DT-PAYED   TO D-PAYED.
+           MOVE SPACE TO D-TB.
+           IF DT-TB = "T" OR DT-PAYED < 0
+               MOVE "TB" TO D-TB.
            MOVE DT-CK-EFT  TO D-CK-EFT.
            MOVE DT-ICN     TO D-ICN.
            MOVE DT-PAYDENIAL TO D-DENIAL.
