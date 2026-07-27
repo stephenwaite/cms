@@ -34,9 +34,9 @@
               03 DT-SEQ PIC 9.
            02 DT-DOCP    PIC X(6).
            02 DT-POS     PIC XX.
-           02 DT-BILLED PIC 9(4)V99.
-           02 DT-ALLOWED PIC 9(4)V99.
-           02 DT-DEDUCT  PIC 9(4)V99.
+           02 DT-BILLED PIC S9(4)V99.
+           02 DT-ALLOWED PIC S9(4)V99.
+           02 DT-DEDUCT  PIC S9(4)V99.
            02 DT-PAYED   PIC S9(4)V99.
            02 DT-DENIAL1 PIC X(4).
            02 DT-DENIAL2 PIC X(4).
@@ -54,9 +54,9 @@
        01  WS-DOS        PIC X(8) VALUE SPACES.
        01  WS-CPT        PIC X(5) VALUE SPACES.
        01  WS-CNT        PIC 9(4) VALUE ZERO.
-       01  WS-TOT-BILLED PIC 9(6)V99 VALUE ZERO.
-       01  WS-TOT-ALLOW  PIC 9(6)V99 VALUE ZERO.
-       01  WS-TOT-DEDUCT PIC 9(6)V99 VALUE ZERO.
+       01  WS-TOT-BILLED PIC S9(6)V99 VALUE ZERO.
+       01  WS-TOT-ALLOW  PIC S9(6)V99 VALUE ZERO.
+       01  WS-TOT-DEDUCT PIC S9(6)V99 VALUE ZERO.
        01  WS-TOT-PAYED  PIC S9(6)V99 VALUE ZERO.
        01  HDR1.
            02 FILLER PIC X(18) VALUE "payments for garno".
@@ -69,9 +69,9 @@
        01  HDR2.
            02 FILLER PIC X(9)  VALUE "paydate".
            02 FILLER PIC X(5)  VALUE "mods".
-           02 FILLER PIC X(9)  VALUE "  billed".
-           02 FILLER PIC X(9)  VALUE " allowed".
-           02 FILLER PIC X(9)  VALUE "  deduct".
+           02 FILLER PIC X(10) VALUE "  billed".
+           02 FILLER PIC X(10) VALUE " allowed".
+           02 FILLER PIC X(10) VALUE "  deduct".
            02 FILLER PIC X(10) VALUE "   payed".
            02 FILLER PIC X(3)  VALUE "tb".
            02 FILLER PIC X(10) VALUE "ck-eft".
@@ -84,11 +84,11 @@
            02 D-MOD1    PIC XX.
            02 D-MOD2    PIC XX.
            02 FILLER    PIC X VALUE SPACE.
-           02 D-BILLED  PIC Z(4)9.99.
+           02 D-BILLED  PIC Z(4)9.99-.
            02 FILLER    PIC X VALUE SPACE.
-           02 D-ALLOWED PIC Z(4)9.99.
+           02 D-ALLOWED PIC Z(4)9.99-.
            02 FILLER    PIC X VALUE SPACE.
-           02 D-DEDUCT  PIC Z(4)9.99.
+           02 D-DEDUCT  PIC Z(4)9.99-.
            02 FILLER    PIC X VALUE SPACE.
            02 D-PAYED   PIC Z(4)9.99-.
            02 FILLER    PIC X VALUE SPACE.
@@ -104,11 +104,11 @@
        01  SUM1.
            02 FILLER PIC X(9) VALUE "totals".
            02 FILLER PIC X(5) VALUE SPACES.
-           02 S-BILLED  PIC Z(5)9.99.
+           02 S-BILLED  PIC Z(5)9.99-.
            02 FILLER    PIC X VALUE SPACE.
-           02 S-ALLOWED PIC Z(5)9.99.
+           02 S-ALLOWED PIC Z(5)9.99-.
            02 FILLER    PIC X VALUE SPACE.
-           02 S-DEDUCT  PIC Z(5)9.99.
+           02 S-DEDUCT  PIC Z(5)9.99-.
            02 FILLER    PIC X VALUE SPACE.
            02 S-PAYED   PIC Z(5)9.99-.
        01  SUM2.

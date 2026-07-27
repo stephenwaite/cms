@@ -36,9 +36,9 @@
               03 DT-SEQ PIC 9.
            02 DT-DOCP    PIC X(6).
            02 DT-POS     PIC XX.
-           02 DT-BILLED PIC 9(4)V99.
-           02 DT-ALLOWED PIC 9(4)V99.
-           02 DT-DEDUCT  PIC 9(4)V99.
+           02 DT-BILLED PIC S9(4)V99.
+           02 DT-ALLOWED PIC S9(4)V99.
+           02 DT-DEDUCT  PIC S9(4)V99.
            02 DT-PAYED   PIC S9(4)V99.
            02 DT-DENIAL1 PIC X(4).
            02 DT-DENIAL2 PIC X(4).
@@ -92,9 +92,9 @@
               03 HD-SEQ PIC 9.
            02 HD-DOCP    PIC X(6).
            02 HD-POS     PIC XX.
-           02 HD-BILLED PIC 9(4)V99.
-           02 HD-ALLOWED PIC 9(4)V99.
-           02 HD-DEDUCT  PIC 9(4)V99.
+           02 HD-BILLED PIC S9(4)V99.
+           02 HD-ALLOWED PIC S9(4)V99.
+           02 HD-DEDUCT  PIC S9(4)V99.
            02 HD-PAYED   PIC S9(4)V99.
            02 HD-DENIAL1 PIC X(4).
            02 HD-DENIAL2 PIC X(4).
@@ -251,6 +251,7 @@
        01  WS-DFS PIC XX VALUE SPACES.
        01  WS-PAYED-S PIC S9(4)V99 VALUE ZERO.
        01  TAKEBACK PIC 9 VALUE 0.
+       01  REVCLM PIC 9 VALUE 0.
        01  WS-WROTE PIC 9(6) VALUE ZERO.
        01  WS-DUPES PIC 9(6) VALUE ZERO.
        01  WS-TAKEBACKS PIC 9(6) VALUE ZERO.
@@ -326,6 +327,8 @@
                 CLP-8FACILITY CLP-9FREQ CLP-10PATSTAT CLP-11DRG
                 CLP-12QUAN CLP-13PERCENT.
            MOVE CLP-1 TO CR-KEY8
+           MOVE 0 TO REVCLM
+           IF CLP-2CLMSTAT = "22" MOVE 1 TO REVCLM.
            MOVE CLP-7ICN TO CR-ICN
            MOVE SPACE TO NM101 CLMCAS01
            MOVE SPACE TO SVC-DATE01
@@ -420,6 +423,7 @@
            MOVE SVC-3PAYAMT TO ALF8
            MOVE 0 TO TAKEBACK
            IF ALF8-1 = "-" MOVE 1 TO TAKEBACK.
+           IF REVCLM = 1 MOVE 1 TO TAKEBACK.
            PERFORM AMOUNT-1
            MOVE AMOUNT-X TO WS-PAYED-S
            MULTIPLY AMOUNT-X BY -1 GIVING CR-PAYED
@@ -529,6 +533,10 @@
            MOVE CR-DENIAL4 TO DT-DENIAL4
            MOVE CR-PAYDENIAL TO DT-PAYDENIAL
            MOVE CR-INSNAME TO DT-INSNAME
+           IF REVCLM = 1
+               COMPUTE DT-BILLED = -1 * DT-BILLED
+               COMPUTE DT-ALLOWED = -1 * DT-ALLOWED
+               COMPUTE DT-DEDUCT = -1 * DT-DEDUCT.
            MOVE SPACE TO DT-TB
            IF TAKEBACK = 1 MOVE "T" TO DT-TB.
        D-DETL-W.
