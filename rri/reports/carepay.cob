@@ -45,6 +45,11 @@
            02 DT-PAYDENIAL PIC X(4).
            02 DT-INSNAME PIC X(30).
            02 DT-TB PIC X.
+           02 DT-ADJ01.
+              03 DT-ADJ OCCURS 6 TIMES.
+                 04 DT-GRP PIC XX.
+                 04 DT-RC PIC X(5).
+                 04 DT-AMT PIC S9(4)V99.
        FD  PRTFILE.
        01  PRT-REC PIC X(132).
        WORKING-STORAGE SECTION.
@@ -54,6 +59,10 @@
        01  WS-DOS        PIC X(8) VALUE SPACES.
        01  WS-CPT        PIC X(5) VALUE SPACES.
        01  WS-CNT        PIC 9(4) VALUE ZERO.
+       01  ADJ-LINE      PIC X(132).
+       01  PTR           PIC 999.
+       01  A             PIC 9.
+       01  WS-AMT-E      PIC Z(4)9.99-.
        01  WS-TOT-BILLED PIC S9(6)V99 VALUE ZERO.
        01  WS-TOT-ALLOW  PIC S9(6)V99 VALUE ZERO.
        01  WS-TOT-DEDUCT PIC S9(6)V99 VALUE ZERO.
@@ -176,6 +185,18 @@
                MOVE DT-DENIAL1 TO D-DENIAL.
            MOVE DT-INSNAME TO D-INSNAME.
            WRITE PRT-REC FROM DTL.
+           MOVE SPACES TO ADJ-LINE
+           MOVE 10 TO PTR
+           PERFORM VARYING A FROM 1 BY 1 UNTIL A > 6
+               IF DT-RC(A) NOT = SPACES
+                   MOVE DT-AMT(A) TO WS-AMT-E
+                   STRING DT-GRP(A) DT-RC(A) " " WS-AMT-E "  "
+                       DELIMITED BY SIZE INTO ADJ-LINE
+                       WITH POINTER PTR
+               END-IF
+           END-PERFORM
+           IF PTR > 10
+               WRITE PRT-REC FROM ADJ-LINE.
            ADD DT-BILLED  TO WS-TOT-BILLED.
            ADD DT-ALLOWED TO WS-TOT-ALLOW.
            ADD DT-DEDUCT  TO WS-TOT-DEDUCT.

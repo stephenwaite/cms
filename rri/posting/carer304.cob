@@ -47,6 +47,11 @@
            02 DT-PAYDENIAL PIC X(4).
            02 DT-INSNAME PIC X(30).
            02 DT-TB PIC X.
+           02 DT-ADJ01.
+              03 DT-ADJ OCCURS 6 TIMES.
+                 04 DT-GRP PIC XX.
+                 04 DT-RC PIC X(5).
+                 04 DT-AMT PIC S9(4)V99.
        FD  PARMFILE.
        01  PARMFILE01 PIC X(40).
        FD  FILEIN.
@@ -103,6 +108,7 @@
            02 HD-PAYDENIAL PIC X(4).
            02 HD-INSNAME PIC X(30).
            02 HD-TB PIC X.
+           02 HD-ADJ01 PIC X(78).
        01  AMT01.
            02 AMT-0 PIC XXX.
            02 AMT-1 PIC XX.
@@ -252,6 +258,14 @@
        01  WS-PAYED-S PIC S9(4)V99 VALUE ZERO.
        01  TAKEBACK PIC 9 VALUE 0.
        01  REVCLM PIC 9 VALUE 0.
+       01  WS-LASTKEY PIC X(55) VALUE SPACES.
+       01  ADJ-CNT PIC 9 VALUE 0.
+       01  WS-RC-X PIC X(5).
+       01  WS-ADJ01.
+           02 WS-ADJ OCCURS 6 TIMES.
+              03 WA-GRP PIC XX.
+              03 WA-RC PIC X(5).
+              03 WA-AMT PIC S9(4)V99.
        01  WS-WROTE PIC 9(6) VALUE ZERO.
        01  WS-DUPES PIC 9(6) VALUE ZERO.
        01  WS-TAKEBACKS PIC 9(6) VALUE ZERO.
@@ -338,7 +352,8 @@
                MOVE 0 TO ALLW-TAB(X)
            END-PERFORM
            MOVE 0 TO CAS-CNTR
-           MOVE 0 TO SVC-CNTR.
+           MOVE 0 TO SVC-CNTR
+           MOVE SPACE TO WS-LASTKEY.
        P1-MOA.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P99.
@@ -439,6 +454,8 @@
            MOVE AMOUNT-X TO CR-BILLED
            MOVE 0 TO CR-DEDUCT
            MOVE SPACE TO CR-PAYDENIAL
+           MOVE 0 TO ADJ-CNT
+           INITIALIZE WS-ADJ01
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
            IF CAS-SVC(Z) = X
            MOVE SPACE TO CAS01
@@ -451,53 +468,41 @@
            IF CR-PAYDENIAL = SPACE
            MOVE CAS-2 TO CR-PAYDENIAL
            END-IF
-           IF (CAS-2 = "1  " OR "126" OR "25 " OR "37 ")
-           IF CAS-3 NOT = SPACE
+           IF CAS-2 NOT = SPACE AND CAS-3 NOT = SPACE
            MOVE SPACE TO ALF8
            MOVE CAS-3 TO ALF8
-           PERFORM AMOUNT-1
-           COMPUTE CR-DEDUCT = CR-DEDUCT + AMOUNT-X
+           MOVE CAS-2 TO WS-RC-X
+           PERFORM ADJ-1
            END-IF
-           END-IF
-           IF (CAS-5 = "1  " OR "126" OR "25 " OR "37 ")
-           IF CAS-6 NOT = SPACE
+           IF CAS-5 NOT = SPACE AND CAS-6 NOT = SPACE
            MOVE SPACE TO ALF8
            MOVE CAS-6 TO ALF8
-           PERFORM AMOUNT-1
-           COMPUTE CR-DEDUCT = CR-DEDUCT + AMOUNT-X
+           MOVE CAS-5 TO WS-RC-X
+           PERFORM ADJ-1
            END-IF
-           END-IF
-           IF (CAS-8 = "1  " OR "126" OR "25 " OR "37 ")
-           IF CAS-9 NOT = SPACE
+           IF CAS-8 NOT = SPACE AND CAS-9 NOT = SPACE
            MOVE SPACE TO ALF8
            MOVE CAS-9 TO ALF8
-           PERFORM AMOUNT-1
-           COMPUTE CR-DEDUCT = CR-DEDUCT + AMOUNT-X
+           MOVE CAS-8 TO WS-RC-X
+           PERFORM ADJ-1
            END-IF
-           END-IF
-           IF (CAS-11 = "1  " OR "126" OR "25 " OR "37 ")
-           IF CAS-12 NOT = SPACE
+           IF CAS-11 NOT = SPACE AND CAS-12 NOT = SPACE
            MOVE SPACE TO ALF8
            MOVE CAS-12 TO ALF8
-           PERFORM AMOUNT-1
-           COMPUTE CR-DEDUCT = CR-DEDUCT + AMOUNT-X
+           MOVE CAS-11 TO WS-RC-X
+           PERFORM ADJ-1
            END-IF
-           END-IF
-           IF (CAS-14 = "1  " OR "126" OR "25 " OR "37 ")
-           IF CAS-15 NOT = SPACE
+           IF CAS-14 NOT = SPACE AND CAS-15 NOT = SPACE
            MOVE SPACE TO ALF8
            MOVE CAS-15 TO ALF8
-           PERFORM AMOUNT-1
-           COMPUTE CR-DEDUCT = CR-DEDUCT + AMOUNT-X
+           MOVE CAS-14 TO WS-RC-X
+           PERFORM ADJ-1
            END-IF
-           END-IF
-           IF (CAS-17 = "1  " OR "126" OR "25 " OR "37 ")
-           IF CAS-18 NOT = SPACE
+           IF CAS-17 NOT = SPACE AND CAS-18 NOT = SPACE
            MOVE SPACE TO ALF8
            MOVE CAS-18 TO ALF8
-           PERFORM AMOUNT-1
-           COMPUTE CR-DEDUCT = CR-DEDUCT + AMOUNT-X
-           END-IF
+           MOVE CAS-17 TO WS-RC-X
+           PERFORM ADJ-1
            END-IF
            END-IF
            END-PERFORM.
@@ -509,6 +514,16 @@
            PERFORM D-DETL THRU D-DETL-EXIT.
        P5-SVC-LOOP-EXIT.
            EXIT.
+      * parse one CAS triplet: deduct accumulation + adj slot
+       ADJ-1.
+           PERFORM AMOUNT-1
+           IF (WS-RC-X = "1  " OR "126" OR "25 " OR "37 ")
+               COMPUTE CR-DEDUCT = CR-DEDUCT + AMOUNT-X.
+           IF ADJ-CNT < 6
+               ADD 1 TO ADJ-CNT
+               MOVE CAS-1 TO WA-GRP(ADJ-CNT)
+               MOVE WS-RC-X TO WA-RC(ADJ-CNT)
+               MOVE AMOUNT-X TO WA-AMT(ADJ-CNT).
       * append payment detail to caredetl
        D-DETL.
            INITIALIZE CAREDETL01
@@ -537,11 +552,13 @@
                COMPUTE DT-BILLED = -1 * DT-BILLED
                COMPUTE DT-ALLOWED = -1 * DT-ALLOWED
                COMPUTE DT-DEDUCT = -1 * DT-DEDUCT.
+           MOVE WS-ADJ01 TO DT-ADJ01
            MOVE SPACE TO DT-TB
            IF TAKEBACK = 1 MOVE "T" TO DT-TB.
        D-DETL-W.
            WRITE CAREDETL01 INVALID GO TO D-DETL-DUP.
            ADD 1 TO WS-WROTE
+           MOVE DT-KEY(1:55) TO WS-LASTKEY
            GO TO D-DETL-EXIT.
        D-DETL-DUP.
            MOVE CAREDETL01 TO HOLDDETL01
@@ -550,11 +567,15 @@
                DISPLAY "carer304: caredetl dup read fs " WS-DFS
                    " " HD-KEY UPON SYSERR
                GO TO D-DETL-EXIT.
+           IF HD-KEY(1:55) = WS-LASTKEY
+      * twin SVC line in same claim this run, not a re-run
+               GO TO D-DETL-BUMP.
            IF DT-PAYED = HD-PAYED AND DT-BILLED = HD-BILLED
                AND DT-TB = HD-TB
       * same remit re-run, already posted
                ADD 1 TO WS-DUPES
                GO TO D-DETL-EXIT.
+       D-DETL-BUMP.
            MOVE HOLDDETL01 TO CAREDETL01
            ADD 1 TO DT-SEQ
            IF DT-SEQ > 8
