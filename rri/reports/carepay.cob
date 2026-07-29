@@ -5,7 +5,9 @@
       * @author Claude
       * line by line payment report for a garno / dos / cpt
       * reads caredetl (payment history), not carefile
-      * params via environment: GARNO, DOS, CPT
+      * params via environment: GARNO, DOS, CPT (optional -
+      * blank CPT reports every charge code on the dos with
+      * per-cpt subtotals)
       * S1 caredetl, S2 report out
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -63,6 +65,12 @@
        01  PTR           PIC 999.
        01  A             PIC 9.
        01  WS-AMT-E      PIC Z(4)9.99-.
+       01  WS-CURPROC    PIC X(5) VALUE SPACES.
+       01  WS-SUB-CNT    PIC 9(4) VALUE ZERO.
+       01  WS-SUB-BILLED PIC S9(6)V99 VALUE ZERO.
+       01  WS-SUB-ALLOW  PIC S9(6)V99 VALUE ZERO.
+       01  WS-SUB-DEDUCT PIC S9(6)V99 VALUE ZERO.
+       01  WS-SUB-PAYED  PIC S9(6)V99 VALUE ZERO.
        01  WS-TOT-BILLED PIC S9(6)V99 VALUE ZERO.
        01  WS-TOT-ALLOW  PIC S9(6)V99 VALUE ZERO.
        01  WS-TOT-DEDUCT PIC S9(6)V99 VALUE ZERO.
@@ -75,8 +83,21 @@
            02 H1-DOS PIC X(8).
            02 FILLER PIC X(5) VALUE " cpt ".
            02 H1-CPT PIC X(5).
+       01  SUBL.
+           02 FILLER PIC X(4) VALUE "sub ".
+           02 SB-PROC PIC X(5).
+           02 SB-CNT  PIC Z(3)9.
+           02 FILLER  PIC X VALUE SPACE.
+           02 SB-BILLED  PIC Z(5)9.99-.
+           02 FILLER    PIC X VALUE SPACE.
+           02 SB-ALLOWED PIC Z(5)9.99-.
+           02 FILLER    PIC X VALUE SPACE.
+           02 SB-DEDUCT  PIC Z(5)9.99-.
+           02 FILLER    PIC X VALUE SPACE.
+           02 SB-PAYED   PIC Z(5)9.99-.
        01  HDR2.
            02 FILLER PIC X(9)  VALUE "paydate".
+           02 FILLER PIC X(6)  VALUE "cpt".
            02 FILLER PIC X(5)  VALUE "mods".
            02 FILLER PIC X(10) VALUE "  billed".
            02 FILLER PIC X(10) VALUE " allowed".
@@ -89,6 +110,8 @@
            02 FILLER PIC X(30) VALUE "insname".
        01  DTL.
            02 D-PAYDATE PIC X(8).
+           02 FILLER    PIC X VALUE SPACE.
+           02 D-PROC    PIC X(5).
            02 FILLER    PIC X VALUE SPACE.
            02 D-MOD1    PIC XX.
            02 D-MOD2    PIC XX.
@@ -129,8 +152,7 @@
            ACCEPT WS-DOS FROM ENVIRONMENT "DOS".
            ACCEPT WS-CPT FROM ENVIRONMENT "CPT".
            IF WS-GARNO = SPACES OR WS-DOS = SPACES
-               OR WS-CPT = SPACES
-               DISPLAY "carepay: need GARNO DOS CPT in environment"
+               DISPLAY "carepay: need GARNO DOS in environment"
                    UPON SYSERR
                STOP RUN.
            OPEN INPUT CAREDETL.
@@ -145,12 +167,14 @@
            MOVE WS-GARNO TO H1-GARNO.
            MOVE WS-DOS   TO H1-DOS.
            MOVE WS-CPT   TO H1-CPT.
+           IF WS-CPT = SPACES MOVE "ALL" TO H1-CPT.
            WRITE PRT-REC FROM HDR1.
            WRITE PRT-REC FROM HDR2.
            INITIALIZE CAREDETL01.
            MOVE WS-GARNO TO DT-KEY8.
            MOVE WS-DOS   TO DT-DATE.
            MOVE WS-CPT   TO DT-PROC.
+           IF WS-CPT = SPACES MOVE LOW-VALUES TO DT-PROC.
            MOVE LOW-VALUES TO DT-MOD1 DT-MOD2 DT-PAYDATE
                DT-CK-EFT DT-ICN.
            MOVE 0 TO DT-SEQ.
@@ -166,8 +190,13 @@
                GO TO P9.
            IF DT-KEY8 NOT = WS-GARNO
                OR DT-DATE NOT = WS-DOS
-               OR DT-PROC NOT = WS-CPT
                GO TO P9.
+           IF WS-CPT NOT = SPACES AND DT-PROC NOT = WS-CPT
+               GO TO P9.
+           IF WS-CPT = SPACES AND DT-PROC NOT = WS-CURPROC
+               PERFORM SUBTOT THRU SUBTOT-EXIT
+               MOVE DT-PROC TO WS-CURPROC.
+           MOVE DT-PROC    TO D-PROC.
            MOVE DT-PAYDATE TO D-PAYDATE.
            MOVE DT-MOD1    TO D-MOD1.
            MOVE DT-MOD2    TO D-MOD2.
@@ -197,13 +226,15 @@
            END-PERFORM
            IF PTR > 10
                WRITE PRT-REC FROM ADJ-LINE.
-           ADD DT-BILLED  TO WS-TOT-BILLED.
-           ADD DT-ALLOWED TO WS-TOT-ALLOW.
-           ADD DT-DEDUCT  TO WS-TOT-DEDUCT.
-           ADD DT-PAYED   TO WS-TOT-PAYED.
-           ADD 1 TO WS-CNT.
+           ADD DT-BILLED  TO WS-TOT-BILLED WS-SUB-BILLED.
+           ADD DT-ALLOWED TO WS-TOT-ALLOW WS-SUB-ALLOW.
+           ADD DT-DEDUCT  TO WS-TOT-DEDUCT WS-SUB-DEDUCT.
+           ADD DT-PAYED   TO WS-TOT-PAYED WS-SUB-PAYED.
+           ADD 1 TO WS-CNT WS-SUB-CNT.
            GO TO P1.
        P9.
+           IF WS-CPT = SPACES
+               PERFORM SUBTOT THRU SUBTOT-EXIT.
            MOVE SPACES TO PRT-REC.
            WRITE PRT-REC.
            MOVE WS-TOT-BILLED TO S-BILLED.
@@ -217,3 +248,20 @@
            DISPLAY "carepay: " WS-CNT " payment(s) written"
                UPON SYSERR.
            STOP RUN.
+      * per-cpt subtotal, all-cpt mode only
+       SUBTOT.
+           IF WS-SUB-CNT = 0
+               GO TO SUBTOT-EXIT.
+           MOVE WS-CURPROC TO SB-PROC
+           MOVE WS-SUB-CNT TO SB-CNT
+           MOVE WS-SUB-BILLED TO SB-BILLED
+           MOVE WS-SUB-ALLOW  TO SB-ALLOWED
+           MOVE WS-SUB-DEDUCT TO SB-DEDUCT
+           MOVE WS-SUB-PAYED  TO SB-PAYED
+           WRITE PRT-REC FROM SUBL
+           MOVE SPACES TO PRT-REC
+           WRITE PRT-REC
+           MOVE ZERO TO WS-SUB-CNT WS-SUB-BILLED WS-SUB-ALLOW
+               WS-SUB-DEDUCT WS-SUB-PAYED.
+       SUBTOT-EXIT.
+           EXIT.
