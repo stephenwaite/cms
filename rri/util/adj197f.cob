@@ -54,6 +54,7 @@
                ORGANIZATION IS LINE SEQUENTIAL.
            SELECT PAYFILE ASSIGN TO "S50" ORGANIZATION IS INDEXED
                ACCESS IS DYNAMIC RECORD KEY IS PAYFILE-KEY
+               FILE STATUS IS WS-PF-FS
                LOCK MODE MANUAL.
        DATA DIVISION.
        FILE SECTION.
@@ -102,6 +103,7 @@
            05  TOT-POST                PIC S9(9)V99 VALUE 0.
            05  WS-NAME                 PIC X(25)    VALUE SPACES.
            05  MCR-PAID                PIC X        VALUE "N".
+           05  WS-PF-FS                PIC XX       VALUE "00".
        01  WS-POST.
            05  WS-CURDATE              PIC X(21)    VALUE SPACES.
            05  WS-RUNDATE              PIC X(8)     VALUE SPACES.
@@ -167,6 +169,10 @@
        MAIN.
            OPEN INPUT FILEIN GARFILE CHARCUR PAYCUR MEDFILE2020.
            OPEN OUTPUT REPORTF PAYFILE.
+           DISPLAY "PF OPEN FS=" WS-PF-FS UPON SYSERR.
+           IF WS-PF-FS NOT = "00"
+               DISPLAY "PAYFILE OPEN FAILED - ABORTING" UPON SYSERR
+               STOP RUN.
            MOVE FUNCTION CURRENT-DATE TO WS-CURDATE.
            MOVE WS-CURDATE (1:8) TO WS-RUNDATE.
            WRITE REPORT-REC FROM HDR-1.
@@ -300,6 +306,9 @@
                    ADD 1         TO CNT-POSTED
                    ADD WRITE-OFF TO TOT-POST
            END-WRITE.
+           IF WS-PF-FS NOT = "00" AND WS-PF-FS NOT = "02"
+               DISPLAY "PF WRITE FS=" WS-PF-FS " KEY=" PD-KEY8 PD-KEY3
+                   UPON SYSERR.
        DONE.
            MOVE SPACES TO REPORT-REC.
            WRITE REPORT-REC.
