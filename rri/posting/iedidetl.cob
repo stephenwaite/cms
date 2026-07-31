@@ -348,7 +348,6 @@
                GO TO P000.
            IF F1 = "REF"
                DISPLAY "P000 REF F2=[" F2 "]" UPON SYSERR
-               ACCEPT OMITTED 
            END-IF
            IF F1 = "REF" AND F2 = "*2U*"               
            IF F1 = "REF" AND F2 = "*2U*"
