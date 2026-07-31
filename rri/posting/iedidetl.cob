@@ -346,6 +346,11 @@
                     N1-0 N1-1 N1-2 N1-3 N1-4
                MOVE N1-2 TO WS-PRNAME
                GO TO P000.
+           IF F1 = "REF"
+               DISPLAY "P000 REF F2=[" F2 "]" UPON SYSERR
+               ACCEPT OMITTED 
+           END-IF
+           IF F1 = "REF" AND F2 = "*2U*"               
            IF F1 = "REF" AND F2 = "*2U*"
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
