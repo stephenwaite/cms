@@ -3,13 +3,15 @@
       * @author  Claude
       * healthspring pc underpayment: pluck payerid 63092 lines
       * from iedidetl, expected = medfile x .98 (contract seq).
-      * every line reported with end-of-line tag for sorting:
+      * tsv output with header row for calc import.
+      * end-of-line tag for sorting:
       *   (blank) underpaid, in TOTAL DUE
       *   OK      within +/- 1.00 of expected, excluded
       *   OVER    paid above expected, excluded
       *   TB      takeback, excluded
       *   NO26    mod1 not 26, excluded, EXP approximate
-      * S1 iedidetl  S31 medfile  S35 report
+      *   NOFEE   proc/mod not in medfile, excluded
+      * S1 iedidetl  S31 medfile  S35 report (tsv)
       * DOSYEAR env: "2026" (default) or "all"
        IDENTIFICATION DIVISION.
        PROGRAM-ID. hspay.
@@ -68,10 +70,11 @@
        FD FILEOUT.
        01 FILEOUT01 PIC X(132).
        WORKING-STORAGE SECTION.
+       01 TB           PIC X VALUE X"09".
        01 WS-FS        PIC XX.
        01 WS-FS2       PIC XX.
        01 WS-YEAR      PIC X(4).
-       01 WS-TAG       PIC X(4).
+       01 WS-TAG       PIC X(5).
        01 WS-EXPECT    PIC 9(5)V99.
        01 WS-DELTA     PIC S9(5)V99.
        01 WS-TOT-DELTA PIC S9(8)V99 VALUE 0.
@@ -81,10 +84,10 @@
        01 CT-TB        PIC 9(5) VALUE 0.
        01 CT-OK        PIC 9(5) VALUE 0.
        01 CT-OVER      PIC 9(5) VALUE 0.
-       01 D-PAID       PIC ZZZ9.99-.
-       01 D-EXPECT     PIC ZZZ9.99.
-       01 D-DELTA      PIC ZZZZ9.99-.
-       01 D-TOT        PIC Z(6)9.99-.
+       01 D-PAID       PIC -ZZZ9.99.
+       01 D-EXPECT     PIC -ZZZ9.99.
+       01 D-DELTA      PIC -ZZZZ9.99.
+       01 D-TOT        PIC -Z(6)9.99.
        01 D-CT         PIC ZZZZ9.
       *
        PROCEDURE DIVISION.
@@ -95,6 +98,11 @@
            END-IF
            OPEN INPUT CAREDETL MEDFILE2020
                 OUTPUT FILEOUT.
+           MOVE SPACE TO FILEOUT01
+           STRING "KEY8" TB "ICN" TB "PROC" TB "MOD" TB
+               "DOS" TB "PAYDATE" TB "PAID" TB "EXP" TB
+               "DUE" TB "TAG" DELIMITED BY SIZE INTO FILEOUT01
+           WRITE FILEOUT01
            MOVE SPACE TO DT-KEY.
            START CAREDETL KEY NOT < DT-KEY INVALID
                GO TO P99
@@ -124,9 +132,10 @@
            MOVE DT-MOD1 TO MED-KEY2
            READ MEDFILE2020 INVALID
                ADD 1 TO CT-NOFEE
+               MOVE "NOFEE" TO WS-TAG
                MOVE SPACE TO FILEOUT01
-               STRING DT-KEY8 " " DT-ICN " " DT-PROC " " DT-MOD1
-                   " DOS " DT-DATE " NOFEE " WS-TAG
+               STRING DT-KEY8 TB DT-ICN TB DT-PROC TB DT-MOD1
+                   TB DT-DATE TB DT-PAYDATE TB TB TB TB WS-TAG
                    DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
                GO TO P1
@@ -151,9 +160,9 @@
            MOVE WS-EXPECT TO D-EXPECT
            MOVE WS-DELTA  TO D-DELTA
            MOVE SPACE TO FILEOUT01
-           STRING DT-KEY8 " " DT-ICN " " DT-PROC " " DT-MOD1
-               " DOS " DT-DATE " PAID " D-PAID
-               " EXP " D-EXPECT " DUE " D-DELTA " " WS-TAG
+           STRING DT-KEY8 TB DT-ICN TB DT-PROC TB DT-MOD1
+               TB DT-DATE TB DT-PAYDATE TB D-PAID TB D-EXPECT
+               TB D-DELTA TB WS-TAG
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            GO TO P1.
@@ -161,32 +170,32 @@
            MOVE CT-LINES TO D-CT
            MOVE WS-TOT-DELTA TO D-TOT
            MOVE SPACE TO FILEOUT01
-           STRING "LINES: " D-CT "  TOTAL DUE: " D-TOT
+           STRING "LINES" TB D-CT TB "TOTAL DUE" TB D-TOT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-OK TO D-CT
            MOVE SPACE TO FILEOUT01
-           STRING "AT-RATE LINES: " D-CT
+           STRING "AT-RATE" TB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-OVER TO D-CT
            MOVE SPACE TO FILEOUT01
-           STRING "OVERPAID LINES: " D-CT
+           STRING "OVERPAID" TB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-TB TO D-CT
            MOVE SPACE TO FILEOUT01
-           STRING "TAKEBACK LINES: " D-CT
+           STRING "TAKEBACK" TB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-NOMOD TO D-CT
            MOVE SPACE TO FILEOUT01
-           STRING "NO-26 LINES: " D-CT
+           STRING "NO-26" TB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-NOFEE TO D-CT
            MOVE SPACE TO FILEOUT01
-           STRING "NO-FEE LINES: " D-CT
+           STRING "NO-FEE" TB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            CLOSE CAREDETL MEDFILE2020 FILEOUT.
