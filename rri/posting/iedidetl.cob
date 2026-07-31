@@ -349,7 +349,6 @@
            IF F1 = "REF"
                DISPLAY "P000 REF F2=[" F2 "]" UPON SYSERR
            END-IF
-           IF F1 = "REF" AND F2 = "*2U*"               
            IF F1 = "REF" AND F2 = "*2U*"
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
