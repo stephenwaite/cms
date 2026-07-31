@@ -572,6 +572,8 @@
       * append payment detail to caredetl
        D-DETL.
            INITIALIZE CAREDETL01
+           DISPLAY "D-DETL PID=[" WS-PAYERID "] " CR-KEY8
+               UPON SYSERR
            MOVE CR-KEY8    TO DT-KEY8
            MOVE CR-DATE    TO DT-DATE
            MOVE CR-PROC    TO DT-PROC
@@ -604,6 +606,10 @@
            IF TAKEBACK = 1 MOVE "T" TO DT-TB.
        D-DETL-W.
            WRITE CAREDETL01 INVALID GO TO D-DETL-DUP.
+           IF WS-DFS NOT = "00"
+               DISPLAY "iedidetl: write fs " WS-DFS " " DT-KEY
+                   UPON SYSERR
+           GO TO D-DETL-EXIT.
            ADD 1 TO WS-WROTE
            MOVE DT-KEY(1:55) TO WS-LASTKEY
            GO TO D-DETL-EXIT.
