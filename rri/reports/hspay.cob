@@ -77,6 +77,7 @@
        01 D-DELTA      PIC ZZZZ9.99-.
        01 D-TOT        PIC Z(6)9.99-.
        01 D-CT         PIC ZZZZ9.
+       01 WS-TAG PIC X(4).
       *
        PROCEDURE DIVISION.
         P0.
