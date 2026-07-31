@@ -101,46 +101,50 @@
              AND DT-DATE(1:4) NOT = WS-YEAR
                GO TO P1
            END-IF
+           MOVE SPACE TO WS-TAG
            IF DT-TB = "T"
+               MOVE "TB"   TO WS-TAG
                ADD 1 TO CT-TB
-               MOVE SPACE TO FILEOUT01
-               STRING "TAKEBACK SKIP " DT-KEY8 " " DT-PROC
-                   " DOS " DT-DATE " ICN " DT-ICN
-                   DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01
-               GO TO P1
-           END-IF
-           IF DT-MOD1 NOT = "26"
-               ADD 1 TO CT-NOMOD
-               MOVE SPACE TO FILEOUT01
-               STRING "NO-26 SKIP " DT-KEY8 " " DT-PROC " "
-                   DT-MOD1 " DOS " DT-DATE " ICN " DT-ICN
-                   DELIMITED BY SIZE INTO FILEOUT01
-               WRITE FILEOUT01
-               GO TO P1
+           ELSE
+               IF DT-MOD1 NOT = "26"
+                   MOVE "NO26" TO WS-TAG
+                   ADD 1 TO CT-NOMOD
+               END-IF
            END-IF
            MOVE DT-PROC TO MED-KEY1
            MOVE DT-MOD1 TO MED-KEY2
            READ MEDFILE2020 INVALID
                ADD 1 TO CT-NOFEE
                MOVE SPACE TO FILEOUT01
-               STRING "NO FEE " DT-PROC " " DT-MOD1
-                   " ICN " DT-ICN " DOS " DT-DATE
+               STRING DT-KEY8 " " DT-ICN " " DT-PROC " " DT-MOD1
+                   " DOS " DT-DATE " NOFEE " WS-TAG
                    DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
                GO TO P1
            END-READ
            COMPUTE WS-EXPECT ROUNDED = MED-AMT * .98
            COMPUTE WS-DELTA = WS-EXPECT - DT-PAYED
-           ADD WS-DELTA TO WS-TOT-DELTA
-           ADD 1 TO CT-LINES
+           IF WS-TAG = SPACE
+               IF WS-DELTA < 1.00 AND WS-DELTA > -1.00
+                   MOVE "OK"   TO WS-TAG
+                   ADD 1 TO CT-OK
+               ELSE
+                   IF WS-DELTA < 0
+                       MOVE "OVER" TO WS-TAG
+                       ADD 1 TO CT-OVER
+                   ELSE
+                       ADD WS-DELTA TO WS-TOT-DELTA
+                       ADD 1 TO CT-LINES
+                   END-IF
+               END-IF
+           END-IF
            MOVE DT-PAYED  TO D-PAID
            MOVE WS-EXPECT TO D-EXPECT
            MOVE WS-DELTA  TO D-DELTA
            MOVE SPACE TO FILEOUT01
            STRING DT-KEY8 " " DT-ICN " " DT-PROC " " DT-MOD1
                " DOS " DT-DATE " PAID " D-PAID
-               " EXP " D-EXPECT " DUE " D-DELTA
+               " EXP " D-EXPECT " DUE " D-DELTA " " WS-TAG
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            GO TO P1.
