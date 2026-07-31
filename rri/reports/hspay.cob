@@ -2,9 +2,14 @@
       * @author  s waite <cmswest@sover.net>
       * @author  Claude
       * healthspring pc underpayment: pluck payerid 63092 lines
-      * from iedidetl, expected = medfile x .98 (contract seq).
+      * from iedidetl. expected payment = (medfile - PR) x .98;
+      * PR summed from PR-group adj slots. SEQ column (rc 253,
+      * actual sequestration taken per remit) is informational
+      * only and does not enter EXP -- do not reintroduce it.
+      * lines short only because of patient cost-share are not
+      * counted. RATIO = allowed / medfile: ~1.00 ok, ~0.70 cut.
       * tsv output with header row for calc import.
-      * end-of-line tag for sorting:
+      * end-of-line tag:
       *   (blank) underpaid, in TOTAL DUE
       *   OK      within +/- 1.00 of expected, excluded
       *   OVER    paid above expected, excluded
@@ -68,15 +73,18 @@
                03  MED-KEY2 PIC XX.
            02  MED-AMT      PIC 9(4)V99.
        FD FILEOUT.
-       01 FILEOUT01 PIC X(132).
+       01 FILEOUT01 PIC X(160).
        WORKING-STORAGE SECTION.
-       01 TB           PIC X VALUE X"09".
+       01 WS-TAB       PIC X VALUE X"09".
        01 WS-FS        PIC XX.
        01 WS-FS2       PIC XX.
        01 WS-YEAR      PIC X(4).
        01 WS-TAG       PIC X(5).
-       01 WS-EXPECT    PIC 9(5)V99.
+       01 WS-PR        PIC S9(5)V99.
+       01 WS-SEQ       PIC S9(5)V99.
+       01 WS-EXPECT    PIC S9(5)V99.
        01 WS-DELTA     PIC S9(5)V99.
+       01 WS-RATIO     PIC S9V99.
        01 WS-TOT-DELTA PIC S9(8)V99 VALUE 0.
        01 CT-LINES     PIC 9(5) VALUE 0.
        01 CT-NOFEE     PIC 9(5) VALUE 0.
@@ -84,9 +92,14 @@
        01 CT-TB        PIC 9(5) VALUE 0.
        01 CT-OK        PIC 9(5) VALUE 0.
        01 CT-OVER      PIC 9(5) VALUE 0.
+       01 J            PIC 9.
+       01 D-ALLOW      PIC -ZZZ9.99.
        01 D-PAID       PIC -ZZZ9.99.
+       01 D-PR         PIC -ZZZ9.99.
+       01 D-SEQ        PIC -ZZZ9.99.
        01 D-EXPECT     PIC -ZZZ9.99.
        01 D-DELTA      PIC -ZZZZ9.99.
+       01 D-RATIO      PIC -9.99.
        01 D-TOT        PIC -Z(6)9.99.
        01 D-CT         PIC ZZZZ9.
       *
@@ -99,9 +112,12 @@
            OPEN INPUT CAREDETL MEDFILE2020
                 OUTPUT FILEOUT.
            MOVE SPACE TO FILEOUT01
-           STRING "KEY8" TB "ICN" TB "PROC" TB "MOD" TB
-               "DOS" TB "PAYDATE" TB "PAID" TB "EXP" TB
-               "DUE" TB "TAG" DELIMITED BY SIZE INTO FILEOUT01
+           STRING "KEY8" WS-TAB "ICN" WS-TAB "PROC" WS-TAB
+               "MOD" WS-TAB "DOS" WS-TAB "PAYDATE" WS-TAB
+               "ALLOWED" WS-TAB "PAID" WS-TAB "PR" WS-TAB
+               "SEQ" WS-TAB "EXP" WS-TAB "DUE" WS-TAB
+               "RATIO" WS-TAB "TAG"
+               DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE SPACE TO DT-KEY.
            START CAREDETL KEY NOT < DT-KEY INVALID
@@ -133,15 +149,31 @@
            READ MEDFILE2020 INVALID
                ADD 1 TO CT-NOFEE
                MOVE "NOFEE" TO WS-TAG
+               MOVE DT-ALLOWED TO D-ALLOW
+               MOVE DT-PAYED   TO D-PAID
                MOVE SPACE TO FILEOUT01
-               STRING DT-KEY8 TB DT-ICN TB DT-PROC TB DT-MOD1
-                   TB DT-DATE TB DT-PAYDATE TB TB TB TB WS-TAG
-                   DELIMITED BY SIZE INTO FILEOUT01
+               STRING DT-KEY8 WS-TAB DT-ICN WS-TAB DT-PROC
+                   WS-TAB DT-MOD1 WS-TAB DT-DATE WS-TAB
+                   DT-PAYDATE WS-TAB D-ALLOW WS-TAB D-PAID
+                   WS-TAB WS-TAB WS-TAB WS-TAB WS-TAB WS-TAB
+                   WS-TAG DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
                GO TO P1
            END-READ
-           COMPUTE WS-EXPECT ROUNDED = MED-AMT * .98
+      * patient responsibility from PR-group adj slots;
+      * SEQ (rc 253) captured for the report only
+           MOVE 0 TO WS-PR WS-SEQ
+           PERFORM VARYING J FROM 1 BY 1 UNTIL J > 6
+               IF DT-GRP(J) = "PR"
+                   ADD DT-AMT(J) TO WS-PR
+               END-IF
+               IF DT-RC(J) = "253"
+                   ADD DT-AMT(J) TO WS-SEQ
+               END-IF
+           END-PERFORM
+           COMPUTE WS-EXPECT ROUNDED = (MED-AMT - WS-PR) * .98
            COMPUTE WS-DELTA = WS-EXPECT - DT-PAYED
+           COMPUTE WS-RATIO ROUNDED = DT-ALLOWED / MED-AMT
            IF WS-TAG = SPACE
                IF WS-DELTA < 1.00 AND WS-DELTA > -1.00
                    MOVE "OK"   TO WS-TAG
@@ -156,13 +188,19 @@
                    END-IF
                END-IF
            END-IF
-           MOVE DT-PAYED  TO D-PAID
-           MOVE WS-EXPECT TO D-EXPECT
-           MOVE WS-DELTA  TO D-DELTA
+           MOVE DT-ALLOWED TO D-ALLOW
+           MOVE DT-PAYED   TO D-PAID
+           MOVE WS-PR      TO D-PR
+           MOVE WS-SEQ     TO D-SEQ
+           MOVE WS-EXPECT  TO D-EXPECT
+           MOVE WS-DELTA   TO D-DELTA
+           MOVE WS-RATIO   TO D-RATIO
            MOVE SPACE TO FILEOUT01
-           STRING DT-KEY8 TB DT-ICN TB DT-PROC TB DT-MOD1
-               TB DT-DATE TB DT-PAYDATE TB D-PAID TB D-EXPECT
-               TB D-DELTA TB WS-TAG
+           STRING DT-KEY8 WS-TAB DT-ICN WS-TAB DT-PROC WS-TAB
+               DT-MOD1 WS-TAB DT-DATE WS-TAB DT-PAYDATE WS-TAB
+               D-ALLOW WS-TAB D-PAID WS-TAB D-PR WS-TAB
+               D-SEQ WS-TAB D-EXPECT WS-TAB D-DELTA WS-TAB
+               D-RATIO WS-TAB WS-TAG
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            GO TO P1.
@@ -170,32 +208,32 @@
            MOVE CT-LINES TO D-CT
            MOVE WS-TOT-DELTA TO D-TOT
            MOVE SPACE TO FILEOUT01
-           STRING "LINES" TB D-CT TB "TOTAL DUE" TB D-TOT
-               DELIMITED BY SIZE INTO FILEOUT01
+           STRING "LINES" WS-TAB D-CT WS-TAB "TOTAL DUE"
+               WS-TAB D-TOT DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-OK TO D-CT
            MOVE SPACE TO FILEOUT01
-           STRING "AT-RATE" TB D-CT
+           STRING "AT-RATE" WS-TAB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-OVER TO D-CT
            MOVE SPACE TO FILEOUT01
-           STRING "OVERPAID" TB D-CT
+           STRING "OVERPAID" WS-TAB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-TB TO D-CT
            MOVE SPACE TO FILEOUT01
-           STRING "TAKEBACK" TB D-CT
+           STRING "TAKEBACK" WS-TAB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-NOMOD TO D-CT
            MOVE SPACE TO FILEOUT01
-           STRING "NO-26" TB D-CT
+           STRING "NO-26" WS-TAB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-NOFEE TO D-CT
            MOVE SPACE TO FILEOUT01
-           STRING "NO-FEE" TB D-CT
+           STRING "NO-FEE" WS-TAB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            CLOSE CAREDETL MEDFILE2020 FILEOUT.
