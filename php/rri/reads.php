@@ -324,7 +324,7 @@ $response = $guzzle->post($base_uri, [
 
 $bearer = json_decode((string) $response->getBody(), true)['access_token'];
 
-$client = new Client(['verify' => false]);
+$client = new Client();
 
 $headers = [
     'Authorization' => 'Bearer ' . $bearer,
