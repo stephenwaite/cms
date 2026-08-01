@@ -1078,6 +1078,8 @@
        01  MAMMO-NUM PIC X(6).
        01  CLM-DOCR PIC XXX.
        01  CLM-DOCP pic 99.
+       01  SAVE-DOCFILE01 PIC X(176).
+       01  DOC-ERR-FLAG PIC 9 VALUE 0.
 
        PROCEDURE DIVISION.
        P0. 
@@ -1883,7 +1885,7 @@
            MOVE ":" TO DIAG-C(DX-CNTR-PT)
            MOVE 12 TO A.
 
-       SV1-0..
+       SV1-0.
            MOVE " " TO SV1-EMER
            IF CLM-5 = "23" MOVE "Y" TO SV1-EMER.
            COMPUTE NUM5 = X
@@ -1950,36 +1952,39 @@
            EXIT.
 
        2420A.
+           MOVE DOCFILE01 TO SAVE-DOCFILE01
+           MOVE FI-PAYCODE TO DOC-INS
            MOVE FI-DOCP TO DOC-NUM
-           MOVE "000" TO DOC-INS
            READ DOCFILENEW
              INVALID
-               MOVE "000" TO DOC-INS              
+               MOVE "000" TO DOC-INS
                READ DOCFILENEW
                  INVALID
-                   GO TO START-BEGIN
+                   MOVE 1 TO DOC-ERR-FLAG
                END-READ
            END-READ
+           IF DOC-ERR-FLAG = 1 GO TO 2420A-RESTORE.
+       2420A-1.
            MOVE "82 " TO NM1-1
            MOVE "1" TO NM1-SOLO
            MOVE "XX" TO NM1-EINSS
            MOVE SPACE TO NM1-NAMEL NM1-NAMEF NM1-NAMEM
            UNSTRING DOC-NAME DELIMITED BY ";"
-                INTO NM1-NAMEL NM1-NAMEF 
+                INTO NM1-NAMEL NM1-NAMEF
            MOVE DOC-NPI TO NM1-CODE
            MOVE SPACE TO SEGFILE01
-           WRITE SEGFILE01 FROM NM101.
+           WRITE SEGFILE01 FROM NM101
            MOVE "PE" TO PRV-1
            MOVE "PXC" TO PRV-2
            MOVE DOC-TAXONOMY TO PRV-TAX
-           
            IF DOC-NUM = "08"
              MOVE "2085R0204X" TO PRV-TAX
            END-IF
-
            MOVE SPACE TO SEGFILE01.
       *     WRITE SEGFILE01 FROM PRV01.
-
+       2420A-RESTORE.
+           MOVE SAVE-DOCFILE01 TO DOCFILE01
+           MOVE 0 TO DOC-ERR-FLAG.
        2420A-EXIT.
            EXIT.
 
