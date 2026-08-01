@@ -73,6 +73,7 @@
            02 FO-PLACE PIC X.
            02 FO-KEY PIC X(11).
            02 CR-DATE PIC X(8).
+           02 FO-DOCR PIC X(3).
 
        WORKING-STORAGE SECTION.
        01  LINE-1.
@@ -143,6 +144,8 @@
            02 L3F16 PIC XX.
            02 F315 PIC X VALUE SPACE.
            02 L3F17 PIC X(8).
+           02 F316 PIC X VALUE SPACE.
+           02 L3F18 PIC X(3).
 
        01  LINE-4.
            02 F41 PIC X(11) VALUE "TOTALS FOR ".
@@ -239,6 +242,7 @@
            MOVE FO-CLAIM TO L3F10.
            MOVE FO-AMOUNT TO L3F11.
            MOVE CR-DATE TO L3F17.
+           MOVE FO-DOCR TO L3F18.
            IF LINE-X > 55 ADD 1 TO PAGE-X
            MOVE 0 TO LINE-X
            MOVE PAGE-X TO L1F4

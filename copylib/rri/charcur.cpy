@@ -4,7 +4,6 @@
              03 CC-KEY3 PIC XXX.
            02 CC-PATID PIC X(8).
            02 CC-CLAIM PIC X(6).
-      * 25     
            02 CC-SERVICE PIC X.
            02 CC-DIAG PIC X(7).
            02 CC-PROC.
@@ -15,13 +14,11 @@
            02 CC-MOD2 PIC XX.
            02 CC-MOD3 PIC XX.
            02 CC-MOD4 PIC XX.
-      * 50     
            02 CC-AMOUNT PIC S9(4)V99.
            02 CC-DOCR PIC X(3).
            02 CC-DOCP PIC X(2).
            02 CC-PAYCODE PIC 999.
            02 CC-STUD PIC X.
-      * 65     
            02 CC-WORK PIC XX.
            02 CC-DAT1 PIC X(8).
            02 CC-RESULT PIC X.
@@ -30,24 +27,19 @@
            02 CC-COLLT PIC X.
            02 CC-AUTH PIC X.
            02 CC-PAPER PIC X.
-      * 81     
            02 CC-PLACE PIC X.
            02 CC-EPSDT PIC X.
            02 CC-DATE-T PIC X(8).
-      *    claim age date     
            02 CC-DATE-A PIC X(8).
            02 CC-DATE-P PIC X(8).
            02 CC-REC-STAT PIC X.
-      * 108     
            02 CC-DX2 PIC X(7).
            02 CC-DX3 PIC X(7).
-      * 122     
            02 CC-ACC-TYPE PIC X.
            02 CC-DATE-M PIC X(8).
            02 CC-ASSIGN PIC X.
            02 CC-NEIC-ASSIGN PIC X.
            02 CC-DX4 PIC X(7).
-      * 140     
            02 CC-QP1 PIC XX.
            02 CC-QP2 PIC XX.
            02 CC-VISITNO PIC X(7).

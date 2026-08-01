@@ -101,7 +101,7 @@
            02 PF-3 PIC X(27).
 
        FD  ERROR-FILE.
-       01  ERROR-FILE01 PIC X(150).
+       01  ERROR-FILE01 PIC X(175).
 
        FD  FILEIN.
        01  FILEIN01.
@@ -185,6 +185,9 @@
             03 EF-DENIAL5 PIC XXX.
             03 FILLER PIC X VALUE SPACE.
             03 EF-DENIAL6 PIC XXX.
+           02 FILLER PIC X VALUE SPACE.
+           02 EF-AUTH PIC X(20) VALUE SPACE.
+           
         01 ERR201.
            02 EF2-NUM PIC ZZ9.
            02 FILLER PIC XX VALUE SPACE.
@@ -375,24 +378,28 @@
        01  CAS-CODE-CHECK PIC X(5).
            88 INS-REDUCE-CODE VALUE "A1   " "A2   " "B6   " "B9   "
                "B10  " "B13  " "24   " "42   "
-               "45   " "59   " "131  " "253  " "P12  " "P23  " "P24  ".
+               "45   " "59   " "253  " "P12  " "P23  " "P24  ".
            88 DUMP50-ANY-CODE VALUE "50   " "109  " "167  " "B13  ".
            88 DUMP50-CO-CODE VALUE "4    " "7    "
                "11   " "16   " "18   "
                "22   " "29   " "31   " "55   " "58   " "95   "
-               "96   " "97   " "146  " "151  " "197  " "222  " "226  "
-               "234  " "242  " "252  " "273  " "284  " "288  " "A1   "
-               "B11  " "B20  " "P12  " "P14  ".
+               "96   " "97   " "131  " "146  " "151  " "193  " "197  "
+               "222  " "226  " "234  " "242  " "252  " "273  " "284  " 
+               "288  " "A1   " "B11  " "B20  " "P12  " "P14  ".
            88 DUMP50-OA-CODE VALUE "18   " "95   " "226  " "A1   " 
                "B11  " "B13  " "P8   ".
-           88 DUMP50-PI-CODE VALUE "5    " "11   " "96   " "97   "
-               "149  " "234  " "P4   ".
+           88 DUMP50-PI-CODE VALUE "5    " "11   " "16   " "96   "
+               "97   " "149  " "234  " "P4   ".
            88 DUMP50-PR-CODE VALUE "16   " "26   " "27   " "31   "
                "35   " "96   " "151  " "227  " "243  ".
        01  OVERPAY-FLAG  PIC 9 VALUE 0.
        01  PAID-FLAG     PIC 9 VALUE 0.
        01  MISMATCH-FLAG PIC 9 VALUE 0.
        01  SVC-TOTAL PIC S9(5)V99 VALUE 0.
+       01  PRIOR-TOT PIC S9(7)V99 VALUE 0.
+       01  CLP-AUTH      PIC X(20) VALUE SPACE.
+       01  SAVE-AUTH     PIC X(20) VALUE SPACE.
+       01  NSA-FLAG  PIC 9 VALUE 0.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -617,6 +624,7 @@
            MOVE 0 TO LQ-CNTR
            MOVE 0 TO SVC-TOTAL
            MOVE 0 TO OVERPAY-FLAG PAID-FLAG MISMATCH-FLAG
+           MOVE SPACE TO CLP-AUTH
            MOVE ALL ZEROES TO ALLW-TAB01.
 
        P1-NM1.
@@ -633,6 +641,7 @@
 
            IF F1 = "SE*"
                MOVE FILEIN01 TO SAVEFILE01
+               MOVE CLP-AUTH TO SAVE-AUTH
                GO TO P2-SVC-LOOP
            END-IF
 
@@ -667,6 +676,14 @@
                GO TO P1-NM1
            END-IF
 
+           IF F1 = "REF" AND F2 = "*G1*"
+               MOVE SPACE TO REF01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                   REF-0 REF-1 REF-2
+               MOVE REF-2 TO CLP-AUTH
+               GO TO P1-NM1
+           END-IF
+
            GO TO P1-NM1.
 
        P1-SVC-LOOP.
@@ -679,6 +696,7 @@
 
            IF F1 = "CLP" OR "SE*"
                MOVE FILEIN01 TO SAVEFILE01
+               MOVE CLP-AUTH TO SAVE-AUTH
                GO TO P2-SVC-LOOP
            END-IF.
 
@@ -764,6 +782,8 @@
            MOVE CLP-1 TO G-GARNO
            READ GARFILE
              INVALID
+               MOVE SPACE TO G-GARNAME
+               MOVE CLP-1 TO G-GARNO
                GO TO P3-SVC-LOOP
            END-READ
            
@@ -804,9 +824,46 @@
            END-IF.
 
        P4-UNITED-START.
+           IF PAYORID = "HUMAN" AND CLP-2CLMSTAT = "2 "
+               PERFORM P1-HUMAN-SEC
+               GO TO P9-SVC-LOOP
+           END-IF
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT
                VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
                GO TO P9-SVC-LOOP.
+
+      * HUMAN SECONDARY, $0 PAID: COLLAPSE MULTI-SVC RECONSIDERATION
+      * INTO A SINGLE $0 / DD ERROR-LIST ROW INSTEAD OF ONE PER SVC.
+       P1-HUMAN-SEC.
+           PERFORM STATUS-1
+           MOVE SPACE TO EF1
+           STRING NM1-NAMEL ";" NM1-NAMEF
+               DELIMITED BY "  " INTO EF1
+           MOVE NM1-CODE0 TO EF2
+           MOVE DATE-CC TO TEST-DATE
+           MOVE CORR TEST-DATE TO INPUT-DATE
+           MOVE INPUT-DATE TO EF3
+           MOVE BPR-16 TO EF-PAYDATE
+           MOVE SAVE-AUTH TO EF-AUTH
+           MOVE CLP-1 TO EF4
+           MOVE SPACE TO ALF8
+           MOVE CLP-3TOTCLMCHG TO ALF8
+           MOVE SPACE TO EFSIGN
+           IF ALF8-1 = "-"
+               MOVE "-" TO EFSIGN
+           END-IF
+           PERFORM AMOUNT-1
+           MOVE AMOUNT-X TO EF5
+           ADD AMOUNT-X TO TOT-CHARGE
+           MOVE 0 TO AMOUNT-X
+           MOVE AMOUNT-X TO EF6
+           MOVE CLP-7ICN TO EF7
+           MOVE CLP-2CLMSTAT TO EF8
+           MOVE SPACE TO EF-PROC
+           MOVE SPACE TO EF-DENIAL02
+           MOVE "DD " TO EF-DENIAL1
+           MOVE SPACE TO ERROR-FILE01
+           WRITE ERROR-FILE01 FROM ERR01.
 
        P5-SVC-LOOP.
            MOVE SPACE TO FILEIN01
@@ -840,6 +897,9 @@
            MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT.
 
            PERFORM NO-SURPRISE.
+           IF NSA-FLAG = 1
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF    
 
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR
@@ -888,7 +948,8 @@
                END-IF
            END-IF
 
-           IF CLP-2CLMSTAT = "1 " AND PAYORID = "43700"
+           IF CLP-2CLMSTAT = "1 " AND 
+               (PAYORID = "43700" OR PAYORID = "58379")
                IF SVC-CNTR = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
                ELSE
@@ -1000,10 +1061,18 @@
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
            PERFORM S4 THRU S5
            PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
+           IF PAID-FLAG = 1 OR OVERPAY-FLAG = 1
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF
            MOVE PAYFILE01 TO PAYBACK
            PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
            MOVE PAYBACK TO PAYFILE01
            PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
+           IF PAID-FLAG = 1 OR OVERPAY-FLAG = 1
+               PERFORM P1-LOST-SVC
+               GO TO P5-SVC-LOOP-EXIT
+           END-IF
 
            ACCEPT ORDER-8 FROM TIME
            MOVE ORDER-6 TO PD-ORDER
@@ -1318,6 +1387,7 @@
 
        P1-LOST-SVC.
            PERFORM STATUS-1
+           INITIALIZE ERR01
 
            MOVE SPACE TO EF1
            STRING NM1-NAMEL ";" NM1-NAMEF
@@ -1341,13 +1411,19 @@
            MOVE CORR TEST-DATE TO INPUT-DATE
            MOVE INPUT-DATE TO EF3
            MOVE BPR-16 TO EF-PAYDATE
+      *    NOTE THAT THE CLAIM IS ALREADY PAID OR OVER PAID 
+      *    err-178 NEEDS DATES IN THE EF-PAYDATE FIELD  
            IF OVERPAY-FLAG = 1
-               MOVE "OVERPAY " TO EF-PAYDATE
+               MOVE "OVERPAY " TO EF-AUTH
+           ELSE
+               IF PAID-FLAG = 1
+                   MOVE "PAID    " TO EF-AUTH
+               ELSE
+                   MOVE SAVE-AUTH TO EF-AUTH
+               END-IF
            END-IF
-           IF PAID-FLAG = 1
-               MOVE "PAID    " TO EF-PAYDATE
-           END-IF
-           MOVE CLP-1 TO EF4
+
+           MOVE CLP-1 TO EF4  
            MOVE SPACE TO ALF8
            MOVE SVC-2CHRGAMT TO ALF8
            MOVE SPACE TO EFSIGN
@@ -1994,6 +2070,7 @@
       *     GO TO P1-CLP.
 
        NO-SURPRISE.
+           MOVE 0 TO NSA-FLAG
            PERFORM VARYING Y FROM 1 BY 1 UNTIL Y > LQ-CNTR
              IF LQ-SVC(Y) = X
                MOVE SPACE TO FILEIN01
@@ -2008,21 +2085,19 @@
                    invalid
                      continue
                  end-read
+                 MOVE 1 TO NSA-FLAG
                  PERFORM P1-LOST-SVC
                end-if
              end-if
            END-PERFORM.
 
        CHECK-CLAIM-TOT.
-           IF CLAIM-TOT = 0
+           COMPUTE PRIOR-TOT = CLAIM-TOT - PD-AMOUNT
+           IF PRIOR-TOT <= 0
                MOVE 1 TO PAID-FLAG
-               PERFORM P1-LOST-SVC
-               GO TO P5-SVC-LOOP-EXIT
            END-IF
            IF CLAIM-TOT < 0
                MOVE 1 TO OVERPAY-FLAG
-               PERFORM P1-LOST-SVC
-               GO TO P5-SVC-LOOP-EXIT
            END-IF.
 
        CHECK-CLAIM-TOT-EXIT.

@@ -52,7 +52,7 @@ function getQualifyingLungFindings(string $note): array
     ];
 }
 
-function suggestIcd10Codes(Client $guzzle, string $interp, string $cpt): array
+function suggestIcd10Codes(Client $guzzle, string $interp, string $cpt): ?array
 {
     $system = <<<PROMPT
 You are a radiology ICD-10-CM coding assistant. Given a radiology report and the CPT code
@@ -63,6 +63,10 @@ For each code include:
 - description: full code description
 - confidence: high/medium/low
 - rationale: one sentence citing the specific finding or indication
+- specificity_check: if the code contains "unspecified" in its description or ends in
+  a 9, you MUST explain here why no specific code is supportable from the report text.
+  If the code is specific, confirm the exact text that supports the specificity (e.g.
+  "posterior horn documented in findings"). "n/a" is not acceptable — always cite text.
 
 CODING HIERARCHY — follow in order:
 
@@ -101,41 +105,191 @@ CODING HIERARCHY — follow in order:
 5. If IMPRESSION reveals incidental pathology not mentioned in the indication, include
    it as a secondary suggestion at lower confidence.
 
-Return ONLY a valid JSON array. No preamble, no markdown, no backticks.
+6. Never suggest an unspecified code (codes ending in 9, or descriptions containing
+   "unspecified") when a more specific code is supportable from the report text.
+   If the text does not support a specific code, omit the finding rather than
+   falling back to unspecified.
+
+EXAMPLES:
+
+EXAMPLE 1 — specific finding in impression:
+INDICATION: Right knee pain after fall
+IMPRESSION: Complex tear of the posterior horn of the medial meniscus, right knee.
+Correct primary: S83.231A (Complex tear of medial meniscus, current injury, right knee, initial encounter)
+Wrong: M23.92 (unspecified knee derangement) — fails specificity (laterality, morphology, subsite all documented)
+
+EXAMPLE 2 — normal impression, specific indication:
+INDICATION: Follow-up of known 4mm right MCA aneurysm
+IMPRESSION: No change. No new aneurysm. No hemorrhage.
+Correct primary: I67.1 (Cerebral aneurysm, nonruptured)
+Wrong: Z09 / Z51 aftercare — normal result does not eliminate the underlying diagnosis
+
+EXAMPLE 3 — rule-out only:
+INDICATION: Chest pain, rule out PE
+IMPRESSION: No pulmonary embolism. Lungs clear.
+Correct primary: R07.9 (Chest pain, unspecified)
+Wrong: I26.99 — never code rule-out as confirmed
+
+EXAMPLE 4 — incidental finding:
+INDICATION: Cough
+IMPRESSION: No acute cardiopulmonary process. Incidental 6mm right lower lobe pulmonary nodule.
+Correct: R05.9 (Cough) primary, R91.1 (Solitary pulmonary nodule) secondary, lower confidence
+
+MENISCUS TEAR SPECIFICITY — ICD-10-CM M23.2xx:
+- Posterior horn of medial meniscus → M23.221 (right) / M23.222 (left)
+- Anterior horn of medial meniscus  → M23.211 (right) / M23.212 (left)
+- Other medial meniscus (body/NOS)  → M23.201 (right) / M23.202 (left) ← last resort only
+- Posterior horn of lateral meniscus → M23.261 (right) / M23.262 (left)
+- Anterior horn of lateral meniscus  → M23.251 (right) / M23.252 (left)
+- Other lateral meniscus (body/NOS) → M23.261 (right) / M23.262 (left)
+When both posterior horn AND body are documented, code posterior horn as primary
+(M23.221/M23.222) and note the body involvement in rationale. Do not use M23.20x
+(unspecified) when a location is explicitly stated in the report.
+
+MUCOID DEGENERATION (no discrete tear):
+- Meniscus mucoid degeneration without tear → M23.892 (left) / M23.891 (right)
+  Do NOT use M23.2xx — that family requires a documented tear.
+- ACL/ligament mucoid degeneration → M67.862 (left) / M67.861 (right)
+
+SYMPTOM CODES:
+- Only code symptoms explicitly documented in the report or indication.
+- Never infer a symptom (e.g. stiffness, swelling) that is not stated.
+- For pain symptoms, use the most anatomically specific pain code available.
+  Prefer site-specific codes (e.g. M25.562 Pain in left knee, M54.50 Low back pain)
+  over generic R52 (Pain, unspecified). Only use R52 if no site-specific pain code exists.
+
+INDETERMINATE / UNCHARACTERIZED MASSES:
+- If a mass or lesion is described as "indeterminate," "uncharacterized," "cannot be
+  further characterized," or explicitly does NOT meet criteria for benign or malignant,
+  code it as uncertain behavior (D37-D48 family), NOT as benign (D10-D36) or malignant.
+- Never assign a "benign neoplasm" code when the report states the lesion does not meet
+  benign criteria or remains indeterminate.
+
+FINAL CHECKS before returning:
+- Did I pick the most specific code the documentation supports? (laterality, subsite, acuity, morphology)
+- Did I avoid coding any rule-out/probable/possible/suspected condition as confirmed?
+- For a normal study, did I check the clinical indication for a codeable underlying condition?
+- Did I include incidental findings as secondary, lower confidence?
+- Did I avoid Z51 unless aftercare is explicitly documented?
 PROMPT;
 
     $clean_interp = preg_replace('/(Please note:|Electronically Signed by:).*$/si', '', $interp);
     $user_message = "CPT: {$cpt}\n\nInterpretation:\n{$clean_interp}";
 
-    try {
-        $response = $guzzle->post('https://api.anthropic.com/v1/messages', [
-            'headers' => [
-                'x-api-key'         => getenv('ANTHROPIC_API_KEY'),
-                'anthropic-version' => '2023-06-01',
-                'Content-Type'      => 'application/json',
-            ],
-            'timeout'         => 30,
-            'connect_timeout' => 10,
-            'json' => [
-                'model'      => 'claude-sonnet-4-20250514',
-                'max_tokens' => 1024,
-                'system'     => $system,
-                'messages'   => [
-                    ['role' => 'user', 'content' => $user_message]
+    $attempts = 0;
+    $max_attempts = 3;
+
+    while ($attempts < $max_attempts) {
+        try {
+            $response = $guzzle->post('https://api.anthropic.com/v1/messages', [
+                'headers' => [
+                    'x-api-key'         => getenv('ANTHROPIC_API_KEY'),
+                    'anthropic-version' => '2023-06-01',
+                    'Content-Type'      => 'application/json',
                 ],
-            ],
-        ]);
-        $body = json_decode((string) $response->getBody(), true);
-        $raw  = $body['content'][0]['text'] ?? '[]';
-        return json_decode($raw, true) ?? [];
-    } catch (\GuzzleHttp\Exception\ConnectException $e) {
-        echo "Claude unavailable (connection timeout) \n";
-    } catch (\GuzzleHttp\Exception\RequestException $e) {
-        echo "Claude request failed: " . $e->getMessage() . " \n";
-    } catch (\Exception $e) {
-        echo "Claude error: " . $e->getMessage() . " \n";
+                'timeout'         => 30,
+                'connect_timeout' => 10,
+                'json' => [
+                    'model'      => 'claude-sonnet-5',
+                    'max_tokens' => 2048,
+                    'system'     => [
+                        [
+                            'type'          => 'text',
+                            'text'          => $system,
+                            'cache_control' => ['type' => 'ephemeral'],
+                        ],
+                    ],
+                    'tools' => [
+                        [
+                            'name'        => 'submit_diagnosis_codes',
+                            'description' => 'Submit suggested ICD-10-CM diagnosis codes for the radiology report.',
+                            'input_schema' => [
+                                'type'       => 'object',
+                                'properties' => [
+                                    'codes' => [
+                                        'type'  => 'array',
+                                        'items' => [
+                                            'type'       => 'object',
+                                            'properties' => [
+                                                'code'        => ['type' => 'string', 'description' => 'ICD-10-CM code'],
+                                                'description' => ['type' => 'string', 'description' => 'Full code description'],
+                                                'confidence'  => ['type' => 'string', 'enum' => ['high', 'medium', 'low']],
+                                                'rationale'   => ['type' => 'string', 'description' => 'One sentence citing the specific finding or indication'],
+                                                'specificity_check' => ['type' => 'string', 'description' => 'Text from report supporting code specificity'],
+                                            ],
+                                            'required' => ['code', 'description', 'confidence', 'rationale'],
+                                        ],
+                                    ],
+                                ],
+                                'required' => ['codes'],
+                            ],
+                        ],
+                    ],
+                    'tool_choice' => ['type' => 'tool', 'name' => 'submit_diagnosis_codes'],
+                    'messages'    => [
+                        ['role' => 'user', 'content' => $user_message],
+                    ],
+                ],
+            ]);
+
+            $body = json_decode((string) $response->getBody(), true);
+
+            // Cache verification — keep during rollout, remove later
+            $usage = $body['usage'] ?? [];
+            error_log(sprintf(
+                "Claude usage: input=%d, output=%d, cache_write=%d, cache_read=%d",
+                $usage['input_tokens'] ?? 0,
+                $usage['output_tokens'] ?? 0,
+                $usage['cache_creation_input_tokens'] ?? 0,
+                $usage['cache_read_input_tokens'] ?? 0,
+            ));
+
+            if (($body['stop_reason'] ?? '') === 'max_tokens') {
+                error_log("Claude: response truncated at max_tokens, consider raising limit");
+            }
+
+            foreach ($body['content'] ?? [] as $block) {
+                if (($block['type'] ?? '') === 'tool_use'
+                    && ($block['name'] ?? '') === 'submit_diagnosis_codes') {
+                        return $block['input']['codes'] ?? [];
+                }
+            }
+
+            error_log("Claude: no tool_use block found, stop_reason=" . ($body['stop_reason'] ?? 'null'));
+            return [];
+
+        } catch (\GuzzleHttp\Exception\ConnectException $e) {
+            $attempts++;
+            if ($attempts < $max_attempts) {
+                sleep(2 ** $attempts);
+                continue;
+            }
+            error_log("Claude unavailable (connection timeout): " . $e->getMessage());
+            return null;
+
+        } catch (\GuzzleHttp\Exception\RequestException $e) {
+            $status = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
+            $detail = $e->hasResponse()
+                ? (string) $e->getResponse()->getBody()
+                : $e->getMessage();
+
+            if (in_array($status, [429, 529, 500, 502, 503, 504]) && $attempts < $max_attempts - 1) {
+                $attempts++;
+                if ($attempts < $max_attempts) {
+                    sleep(2 ** $attempts);
+                }
+                continue;
+            }
+            error_log("Claude request failed ($status): $detail");
+            return null;
+
+        } catch (\Exception $e) {
+            error_log("Claude error: " . $e->getMessage());
+            return null;
+        }
     }
-    return [];
+
+    return null;
 }
 
 $filename = getenv('HOME') . "/W2" . getenv('tid') . $cms_user;
@@ -220,6 +374,17 @@ if (!empty($jsonObj['entry'])) {
 
     $pdf_page_count = 0;
 
+    $icd10_valid = [];
+    $order_file = '/home/sidw/icd10_valid.txt';
+    if ($ask_claude) {
+        if (is_readable($order_file)) {
+            foreach (file($order_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $code) {
+                $icd10_valid[$code] = true;
+            }
+        }
+        //error_log("icd10_valid loaded: " . count($icd10_valid) . " codes from $order_file");
+    }
+
     foreach ($jsonObj['entry'] as $entry) {
         $cntr++;
         $coding_display = $entry['resource']['code']['coding'][0]['display'];
@@ -272,16 +437,27 @@ if (!empty($jsonObj['entry'])) {
             $pdf->ezText($note, 10);
             $pdf_page_count++;
         } else {
-            echo $note . "\n";
+            if (!$ask_claude) {
+                echo $note . "\n";
+            }
             if ($ask_claude && str_contains($coding_display, $rri_cpt)) {
                 $icd10_suggestions = suggestIcd10Codes($guzzle, $interp, $rri_cpt);
-                foreach ($icd10_suggestions as $s) {
-                    echo sprintf("[%s] %s (%s) — \"%s\"\n",
-                        $s['confidence'],
-                        $s['code'],
-                        $s['description'],
-                        $s['rationale']
-                    );
+                if ($icd10_suggestions === null) {
+                    echo "(Claude unavailable — code manually)\n";
+                } elseif (empty($icd10_suggestions)) {
+                    echo "(no ICD-10 suggestions returned)\n";
+                } else {
+                    foreach ($icd10_suggestions as $s) {
+                        $valid = isValidIcd10Code($s['code'], $icd10_valid);
+                        $flag = $valid ? '' : ' *** VERIFY — not in current code set ***';
+                        echo sprintf("[%s] %s (%s) — \"%s\"%s\n",
+                            $s['confidence'],
+                            $s['code'],
+                            $s['description'],
+                            $s['rationale'],
+                            $flag
+                        );
+                    }
                 }
             }
         }
@@ -309,4 +485,10 @@ if (!empty($context) && $context == 'pdf') {
     } else {
         echo "No reports added to PDF, nothing saved.\n";
     }
+}
+
+function isValidIcd10Code(string $code, array $icd10_valid): bool
+{
+    if (empty($icd10_valid)) return true;  // file missing — don't block
+    return isset($icd10_valid[str_replace('.', '', $code)]);
 }

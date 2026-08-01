@@ -306,7 +306,8 @@
                MOVE "R928   " TO CD-DIAG
                IF (CD-PAYCODE = "003" OR "028" OR "074" OR "079"
                    OR "141" OR "200" OR "225" OR "245" OR "270"
-                   OR "409" OR "663" OR "697" OR "868" OR "912")
+                   OR "409" OR "663" OR "697" OR "868" OR "912"
+                   OR "998")
                    IF (CD-PROC0 = "1446")
                        MOVE "LT" TO CD-MOD2
                        MOVE "10937706526" TO CD-PROC
@@ -356,12 +357,14 @@
                GO TO P1
            END-IF
 
-      *    unilateral screening mammo - needs assessment, falls through
+      *    unilateral screening mammo - 
            IF (CD-PROC0 = "1099" OR "1442")
                DISPLAY "unilateral screening mammogram -> added mod 52"
                DISPLAY " "
                MOVE "Z1231  " TO CD-DIAG
                MOVE "52"      TO CD-MOD2
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
+               GO TO P1
            END-IF
 
       *    same day screen with diag exam
@@ -369,6 +372,8 @@
                DISPLAY "adding GG mod to same day screen with dx exam"
                DISPLAY " "
                MOVE "GG" TO CD-MOD2
+               PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
+               GO TO P1
            END-IF
 
       *    quick code diag mammos
@@ -474,7 +479,6 @@
                    OR "200" OR "245" OR "270" OR "409" OR "663"
                    OR "697" OR "868" OR "912")
                    MOVE "GY" TO CD-MOD2
-                   PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                END-IF
                DISPLAY "Autocode calcium screen?"
                DISPLAY "Hit Y for Z136"

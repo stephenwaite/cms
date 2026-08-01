@@ -16,14 +16,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD FILEIN.
-       01  FILEIN01.
-           02 FI-1 PIC X.
-           02 FILLER PIC X(5).
-           02 FI-2 PIC X(5).
-           02 FILLER PIC X(15).
-           02 FI-3 PIC XX.
-           02 FILLER PIC X(17).
-           02 FI-4 PIC X(7).
+       01  FILEIN01 PIC X(80).
        FD MEDFILE2020.
        01 MEDFILE202001.
            02 MED-KEY.
@@ -43,6 +36,11 @@
        01  CENTX PIC XX.
        01  RIGHT-4 pic X(4) JUST RIGHT.
        01  X-AMT PIC 9(4)V99.
+       01  WS-FILEIN.
+           05  FI-1            PIC X.
+           05  FI-2            PIC X(5).
+           05  FI-3            PIC XX.
+           05  FI-4            PIC X(7).
        PROCEDURE DIVISION.
        P0.
            OPEN OUTPUT MEDFILE2020
@@ -54,6 +52,13 @@
            READ FILEIN AT END
                GO TO P99
            END-READ
+           INITIALIZE WS-FILEIN
+           UNSTRING FILEIN01 DELIMITED BY ","
+               INTO FI-1
+                    FI-2
+                    FI-3
+                    FI-4
+           END-UNSTRING.
 
            MOVE FI-4 TO FI-AMT
            MOVE FI-3 TO FI-MOD

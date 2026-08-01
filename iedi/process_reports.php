@@ -1,5 +1,4 @@
 <?php
-
 $user = getenv('USER');
 $batch_file = '/tmp/w22' . $user;
 $remit_file = '/tmp/w33' . $user;
@@ -30,21 +29,12 @@ foreach (new DirectoryIterator('.') as $file) {
     $za = new ZipArchive();
     switch ($ext) {
         case 'TXT':
-            print $fileName . "\n";
-            $flag = false;
-            foreach (file($fileName) as $line) {
-                if ((stripos($line, 'R') != false) || (stripos($line, 'E') != false)) {
-                    $flag = true;
-                    if ((stripos($line, 'SE') != false) || (stripos($line, 'GE') != false) || (stripos($line, 'IEA') != false)) {
-                        $flag = false;
-                    }
-                }
-            }
-            if (!empty($flag)) {
-                echo "uh oh, have to check out 999 error or reject $fileName\n";
-            }
-            readline('enter to continue');
-            break;
+        print $fileName . "\n";
+        if (preg_match('/(IK5|AK9)\*[RE]/', file_get_contents($fileName))) {
+            echo "uh oh, have to check out 999 error or reject $fileName\n";
+        }
+        readline('enter to continue');
+        break;
         case 'txt':
             print $fileName . "\n";
             $contents = file_get_contents($fileName);
@@ -58,12 +48,13 @@ foreach (new DirectoryIterator('.') as $file) {
             file_put_contents($remit_file, '/home/sidw/iedi/' . $fileName . "\n", FILE_APPEND);
             break;
         case 'zip':
-            $za->open($fileName);
+            if ($za->open($fileName) !== true) { echo "bad zip: $fileName\n"; break; }
             for ($i = 0; $i < $za->numFiles; $i++) {
-                $stat = $za->statIndex($i);
-                $fileName277 = basename($stat['name']) . PHP_EOL;
-                $za->extractTo('/tmp');
-                file_put_contents($batch_file, '/tmp/' . $fileName277, FILE_APPEND);
+                $name = $za->statIndex($i)['name'];
+                if (pathinfo($name, PATHINFO_EXTENSION) !== '277') continue;
+                $dest = '/tmp/' . basename($name);
+                copy("zip://$fileName#$name", $dest);
+                file_put_contents($batch_file, $dest . "\n", FILE_APPEND);
             }
             $za->close();
             break;

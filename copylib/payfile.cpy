@@ -8,7 +8,6 @@
 	       02 PD-DENIAL PIC XX.
 	       02 PD-CLAIM PIC X(6).
 	       02 PD-DATE-T PIC X(8).
-      * 61   
 	       02 PD-DATE-E PIC X(8).
 	       02 PD-ORDER PIC X(6).
 	       02 PD-BATCH PIC X(6).

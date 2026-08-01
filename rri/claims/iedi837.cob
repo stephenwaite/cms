@@ -617,7 +617,7 @@
            IF EINSS-TYPE = "E" 
              PERFORM 2310B.
 
-           PERFORM 2310D THRU 2310D-EXIT
+      *     PERFORM 2310D THRU 2310D-EXIT
 
       *     PERFORM 2310E THRU 2310E-EXIT
            
@@ -712,9 +712,11 @@
            MOVE "1" TO HL-CHILD
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM HL01
+           MOVE "BI" TO PRV-1
            MOVE GROUP-TAX TO PRV-TAX
-           MOVE SPACE TO SEGFILE01.
-      *     WRITE SEGFILE01 FROM PRV01
+           MOVE SPACE TO SEGFILE01
+           WRITE SEGFILE01 FROM PRV01.
+           
       *     PERFORM DOCP-1.
 
       *   PAY-TO PROVIDER/ADDRESS

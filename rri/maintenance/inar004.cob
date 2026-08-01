@@ -2235,6 +2235,7 @@
            IF LLTAB24(LL) = "/"
            MOVE " " TO LLTAB24(LL) SET LL TO 24.
            MOVE SPACE TO G-GARNO.
+           
            IF ACTION = "SG" MOVE NAME-LAST TO G-GARNO
            ELSE MOVE NL-3 TO G-GARNO.
            IF LLTAB24(1) = "*" MOVE SPACE TO G-GARNO.
@@ -2303,8 +2304,10 @@
            IF FLAGX = 1 GO TO 2400-SEARCH.
        2400-S.
            IF ALF-3 NOT = "000" AND ALF-3 NOT = G-PRINS AND ALF-3 NOT =
-           G-SEINS AND ALF-3 NOT = G-TRINS GO TO 2400-SEARCH.
-           IF G-DELETE = SPACE AND ZERO-FLAG = "1" GO TO 2400-SEARCH.
+           G-SEINS AND ALF-3 NOT = G-TRINS 
+               GO TO 2400-SEARCH.
+           IF G-DELETE = SPACE AND ZERO-FLAG = "1" 
+               GO TO 2400-SEARCH.
            ADD 1 TO X
            MOVE 0 TO YYY
            MOVE G-DOB TO TEST-DATE

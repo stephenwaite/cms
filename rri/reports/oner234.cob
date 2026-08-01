@@ -78,6 +78,7 @@
            02 FO-PLACE PIC X.
            02 FO-KEY PIC X(11).
            02 CR-DATE PIC X(8).
+           02 FO-DOCR PIC X(3).
 
        FD  PAYCUR.
            COPY PAYCUR.CPY.    
@@ -195,6 +196,7 @@
            MOVE 001 TO FO-PAYCODE.
       *    GOING TO USE MEDICARE DATE TO SORT FOR 2NDARY 04     
            MOVE HOLD-CR-DATE TO CR-DATE
+           MOVE CC-DOCR TO FO-DOCR.
            WRITE FILEOUT01.
 
            WRITE FILEOUT301 FROM CHARCUR01
