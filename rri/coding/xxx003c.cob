@@ -228,6 +228,7 @@
            END-READ
 
            MOVE FO-KEY TO CHARNEW-KEY
+           MOVE SPACE TO ANS1
            READ CHARNEW INVALID
                DISPLAY "CHARGE RECORD NOT AVAILABLE FOR SOME UNKNOWN "
                        "REASON " FO-KEY
@@ -475,10 +476,8 @@
 
       *    auto-code calcium screen
            IF CD-PROC0 = "5270"
-               IF (CD-PAYCODE = "003" OR "028" OR "074" OR "141"
-                   OR "200" OR "245" OR "270" OR "409" OR "663"
-                   OR "697" OR "868" OR "912")
-                   MOVE "GY" TO CD-MOD2
+               IF (CD-PAYCODE = "010" OR "028")
+                   MOVE "GA" TO CD-MOD2
                END-IF
                DISPLAY "Autocode calcium screen?"
                DISPLAY "Hit Y for Z136"
@@ -486,6 +485,10 @@
                ACCEPT ANS1
                IF ANS1 = "Y"
                    MOVE "Z136   " TO CD-DIAG
+                   IF (CD-PAYCODE = "010" OR "028")
+                       MOVE "GY" TO CD-MOD2
+                       MOVE "GX" TO CD-MOD3
+                   END-IF
                    PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1
                END-IF

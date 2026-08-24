@@ -4,8 +4,10 @@
       * @copyright Copyright (c) 2026 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE
       *          GNU General Public License 3
-      * add GA modifier to unmodified 75571 (cdm 5270) medicare lines
-      * in charfile prior to posting; report 75571s for other payers
+      * report 75571 (cdm 5270) lines in charfile for coding
+      * review prior to posting. medicare paycodes 003/028
+      * show mods with MISSING-G flag if no GA/GY present;
+      * other payers listed separately. read-only.
        IDENTIFICATION DIVISION.
        PROGRAM-ID. rrr75571.
        AUTHOR. S WAITE.
@@ -67,14 +69,15 @@
            02 CD-DX6 PIC X(7).
            02 CD-FUTURE PIC X(6).
        WORKING-STORAGE SECTION.
-       01 CT-CHANGED PIC 9(5) VALUE 0.
-       01 CT-NOSLOT  PIC 9(5) VALUE 0.
+       01 CT-MCR     PIC 9(5) VALUE 0.
+       01 CT-MISSG   PIC 9(5) VALUE 0.
        01 CT-OTHER   PIC 9(5) VALUE 0.
        01 CT-DISP    PIC ZZZZ9.
+       01 WS-FLAG    PIC X(9).
       *
        PROCEDURE DIVISION.
         P0.
-           OPEN I-O CHARFILE
+           OPEN INPUT CHARFILE
                 OUTPUT FILEOUT.
            MOVE SPACE TO CHARFILE-KEY.
            START CHARFILE KEY NOT < CHARFILE-KEY INVALID
@@ -87,7 +90,7 @@
            IF CD-PROC0 NOT = "5270"
                GO TO P1
            END-IF
-           IF CD-PAYCODE NOT = "003"
+           IF NOT (CD-PAYCODE = "003" OR "028")
                ADD 1 TO CT-OTHER
                MOVE SPACE TO FILEOUT01
                STRING "OTHER PAYER " CD-PAYCODE " 75571 FOR "
@@ -97,46 +100,30 @@
                WRITE FILEOUT01
                GO TO P1
            END-IF
-           IF CD-MOD2 = "GA" OR CD-MOD3 = "GA" OR CD-MOD4 = "GA"
-               GO TO P1
+           ADD 1 TO CT-MCR
+           MOVE SPACE TO WS-FLAG
+           IF NOT (CD-MOD2 = "GA" OR "GY"
+                OR CD-MOD3 = "GA" OR "GY"
+                OR CD-MOD4 = "GA" OR "GY")
+               MOVE "MISSING-G" TO WS-FLAG
+               ADD 1 TO CT-MISSG
            END-IF
-           READ CHARFILE WITH LOCK INVALID
-               DISPLAY "WEIRD " CD-KEY8
-               GO TO P1
-           END-READ
-           EVALUATE TRUE
-               WHEN CD-MOD2 = SPACES
-                   MOVE "GA" TO CD-MOD2
-               WHEN CD-MOD3 = SPACES
-                   MOVE "GA" TO CD-MOD3
-               WHEN CD-MOD4 = SPACES
-                   MOVE "GA" TO CD-MOD4
-               WHEN OTHER
-                   ADD 1 TO CT-NOSLOT
-                   MOVE SPACE TO FILEOUT01
-                   STRING "NO FREE MOD SLOT 75571 FOR " CD-KEY8
-                       " DOS " CD-DATE-T DELIMITED BY SIZE
-                       INTO FILEOUT01
-                   WRITE FILEOUT01
-                   UNLOCK CHARFILE
-                   GO TO P1
-           END-EVALUATE
-           REWRITE CHARFILE01
-           ADD 1 TO CT-CHANGED
            MOVE SPACE TO FILEOUT01
-           STRING "ADDED GA MOD TO " CD-PROC " FOR " CD-KEY8
-               " DOS " CD-DATE-T DELIMITED BY SIZE INTO FILEOUT01
+           STRING "MEDICARE " CD-PAYCODE " 75571 FOR " CD-KEY8
+               " DOS " CD-DATE-T " MODS "
+               CD-MOD2 " " CD-MOD3 " " CD-MOD4 " " WS-FLAG
+               DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            GO TO P1.
         P99.
-           MOVE CT-CHANGED TO CT-DISP
+           MOVE CT-MCR TO CT-DISP
            MOVE SPACE TO FILEOUT01
-           STRING "GA MODS ADDED: " CT-DISP
+           STRING "MEDICARE 75571S: " CT-DISP
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
-           MOVE CT-NOSLOT TO CT-DISP
+           MOVE CT-MISSG TO CT-DISP
            MOVE SPACE TO FILEOUT01
-           STRING "NO-SLOT SKIPS: " CT-DISP
+           STRING "MISSING GA/GY: " CT-DISP
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE CT-OTHER TO CT-DISP
