@@ -3,7 +3,7 @@
         "league/csv": "^9.6",
         "rospdf/pdf-php": "^0.12.63",
         "smalot/pdfparser": "^2.5",
-        "guzzlehttp/guzzle": "7.15.1",
+        "guzzlehttp/guzzle": "7.15.2",
         "phpseclib/phpseclib": "3.0.54",
         "phpoffice/phpspreadsheet": "5.8.1"
     }
