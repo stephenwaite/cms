@@ -228,6 +228,7 @@
            END-READ
 
            MOVE FO-KEY TO CHARNEW-KEY
+           MOVE SPACE TO ANS1
            READ CHARNEW INVALID
                DISPLAY "CHARGE RECORD NOT AVAILABLE FOR SOME UNKNOWN "
                        "REASON " FO-KEY
@@ -486,6 +487,7 @@
                    MOVE "Z136   " TO CD-DIAG
                    IF (CD-PAYCODE = "010" OR "028")
                        MOVE "GY" TO CD-MOD2
+                       MOVE "GX" TO CD-MOD3
                    END-IF
                    PERFORM RE-WRITE-CHARNEW THRU RE-WRITE-CHARNEW-EXIT
                    GO TO P1
