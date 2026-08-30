@@ -309,7 +309,7 @@ $base_url = getenv('BASE_OEMR_URL');
 $site_id  = getenv('OEMR_RRI_SITE_ID');
 $base_uri = $base_url . '/oauth2/' . $site_id . '/token';
 
-$guzzle = new Client();
+$guzzle = new Client(['verify' => false]);
 
 $response = $guzzle->post($base_uri, [
     'form_params' => [
@@ -324,7 +324,7 @@ $response = $guzzle->post($base_uri, [
 
 $bearer = json_decode((string) $response->getBody(), true)['access_token'];
 
-$client = new Client();
+$client = new Client(['verify' => false]);
 
 $headers = [
     'Authorization' => 'Bearer ' . $bearer,
