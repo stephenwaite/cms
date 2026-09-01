@@ -1239,30 +1239,30 @@
            ADD FI-AMOUNT TO TOT-AMOUNT
            GO TO P1.
        P2.  
-      	    MOVE FILEIN01 TO SAVE01
-      	    PERFORM 2300CLM
-                 PERFORM HI-DIAG THRU HI-DIAG-EXIT
-      	    PERFORM 2310D
-                  PERFORM 2310E THRU 2310E-EXIT
-      	    PERFORM 2320A THRU 2320A-EXIT
-      	    MOVE 0 TO CAS-TOT-REDUCE 
-      	    MOVE 0 TO CAS-TOT-CHARGE
-      	    MOVE 0 TO CAS-TOT-ALLOWED
-      	    MOVE 0 TO CAS-TOT-PAID
-                 MOVE "0" TO DDFLAG
-      	    PERFORM CAS-TOT THRU CAS-TOT-EXIT
-      	       VARYING X FROM 1 BY 1 UNTIL X > CNTR
-      	    PERFORM 2320S THRU 2320S-EXIT
-      	    PERFORM 2400SRV THRU 2400SRV-EXIT
-      		   VARYING X FROM 1 BY 1 UNTIL X > CNTR
-                 IF END-FLAG = 1 GO TO P98.
-                 MOVE SAVE01 TO FILEIN01
-                 IF FI-DOCP NOT = HOLD-DOCP 
-                 MOVE FILEIN01 TO HOLD-FILEIN01
-                 PERFORM DOCP-1.
-                 MOVE FILEIN01 TO HOLD-FILEIN01
-                 PERFORM 2000B 
-                 GO TO P0000.
+           MOVE FILEIN01 TO SAVE01
+           PERFORM 2300CLM
+           PERFORM HI-DIAG THRU HI-DIAG-EXIT
+      *	    PERFORM 2310D
+           PERFORM 2310E THRU 2310E-EXIT
+           PERFORM 2320A THRU 2320A-EXIT
+           MOVE 0 TO CAS-TOT-REDUCE 
+           MOVE 0 TO CAS-TOT-CHARGE
+           MOVE 0 TO CAS-TOT-ALLOWED
+           MOVE 0 TO CAS-TOT-PAID
+           MOVE "0" TO DDFLAG
+           PERFORM CAS-TOT THRU CAS-TOT-EXIT
+             VARYING X FROM 1 BY 1 UNTIL X > CNTR
+      	   PERFORM 2320S THRU 2320S-EXIT
+      	   PERFORM 2400SRV THRU 2400SRV-EXIT
+      	     VARYING X FROM 1 BY 1 UNTIL X > CNTR
+           IF END-FLAG = 1 GO TO P98.
+           MOVE SAVE01 TO FILEIN01
+           IF FI-DOCP NOT = HOLD-DOCP 
+             MOVE FILEIN01 TO HOLD-FILEIN01
+             PERFORM DOCP-1.
+           MOVE FILEIN01 TO HOLD-FILEIN01
+           PERFORM 2000B 
+           GO TO P0000.
 	   
        DIAG-1.
            IF FI-DIAG = "0000000"  GO TO DIAG-EXIT.
@@ -1562,9 +1562,9 @@
        2310D.
            IF HOLD-PLACE NOT = "2"
            MOVE "77 " TO NM1-1
-	    IF HOLD-PLACE = "4"
-	     MOVE "IL " TO NM1-1
-	    END-IF
+    	   IF HOLD-PLACE = "4"
+    	     MOVE "IL " TO NM1-1
+    	   END-IF
            MOVE "2" TO NM1-SOLO
            MOVE PL-NAME(PLACE-POINTER) TO NM1-NAMEL
            MOVE SPACE TO NM1-NAMEF NM1-NAMEM NM1-NAMES
