@@ -3,7 +3,16 @@
       * @author  s waite <cmswest@sover.net>
       * @copyright Copyright (c) 2020 cms <cmswest@sover.net>
       * @license https://github.com/openemr/openemr/blob/master/LICENSE GNU General Public License 3
-
+      *
+      * checkcolltbal -- reconcile a kin018 collections export that was
+      * never sent.  for each guarantor in the export, rebuild the
+      * placement figures from CHARCUR/PAYCUR using kin018's own
+      * arithmetic, then split off anything that has posted since, so
+      * accounts that have paid can be pulled before the file goes out.
+      *
+      * placement population is CC-PAYCODE "018" with CC-DATE-A equal
+      * to the run date of the kin018 job -- set PLACEDATE to that.
+      *
        IDENTIFICATION DIVISION.
        PROGRAM-ID. checkcolltbal.
        AUTHOR. SID WAITE.
@@ -42,31 +51,33 @@
            COPY PAYCUR.CPY.
 
       *----------------------------------------------------------------
-      *    input record
-      *      1-8     account key
-      *      173-182 date of service, MM/DD/CCYY
-      *      503-514 expected balance, e.g. "1026.90"
-      *    narrow FI-BAL if a different field starts before 515.
-      *    over-declaring the record is safe on LINE SEQUENTIAL --
-      *    short lines get space padded -- but under-declaring
-      *    truncates, which is what hid col 173 the first time round.
+      *    the kin018 export.  offsets counted straight off FILEOUT01
+      *    in kin018, commas included:
+      *      1-8     FO-GARNO
+      *      173-182 FO-DISCHR   max CC-DATE-T, MM/DD/CCYY
+      *      477-483 FO-CHG      ZZZZ.99
+      *      485-491 FO-PAY      ZZZZ.99
+      *      493-499 FO-ADJ      ZZZZ.99
+      *      503-509 FO-BAL      ZZZZ.99
+      *    record ends at 509; FILEOUT101 was X(520).
       *----------------------------------------------------------------
        FD  FILEIN.
        01  FILEIN-REC.
-           05  FI-KEY8             PIC X(8).
+           05  FI-GARNO            PIC X(8).
            05  FILLER              PIC X(164).
-           05  FI-DOS.
-               10  FI-DOS-MM       PIC XX.
-               10  FI-DOS-SL1      PIC X.
-               10  FI-DOS-DD       PIC XX.
-               10  FI-DOS-SL2      PIC X.
-               10  FI-DOS-CCYY     PIC X(4).
-           05  FILLER              PIC X(320).
-           05  FI-BAL              PIC X(12).
-           05  FILLER              PIC X(86).
+           05  FI-DISCHR           PIC X(10).
+           05  FILLER              PIC X(294).
+           05  FI-CHG              PIC X(7).
+           05  FILLER              PIC X.
+           05  FI-PAY              PIC X(7).
+           05  FILLER              PIC X.
+           05  FI-ADJ              PIC X(7).
+           05  FILLER              PIC X(3).
+           05  FI-BAL              PIC X(7).
+           05  FILLER              PIC X(11).
 
        FD  FILEOUT.
-       01  FILEOUT01               PIC X(132).
+       01  FILEOUT01               PIC X(160).
 
        WORKING-STORAGE SECTION.
 
@@ -75,118 +86,132 @@
        01  WS-CC-STAT              PIC XX VALUE "00".
        01  WS-PC-STAT              PIC XX VALUE "00".
 
-      *    set to "Y" for a one-time run that dumps the first 20 charge
-      *    records so you can eyeball the CC-DATE-T layout
-       01  WS-DEBUG                PIC X VALUE "N".
-           88  DEBUG-ON                  VALUE "Y".
-       01  WS-DEBUG-CNT            PIC 9(4) VALUE 0.
+      *    kin018 run date, CCYYMMDD, from the PLACEDATE variable
+       01  WS-PLACED               PIC X(8) VALUE SPACES.
+       01  WS-PLACED-EDIT          PIC X(10).
 
-      *    held in WS -- the FD record areas are overwritten by every
-      *    READ NEXT on CHARCUR / PAYCUR
-       01  WS-KEY8                 PIC X(8).
-       01  WS-DOS-EDIT             PIC X(10).
+       01  WS-GARNO                PIC X(8).
 
-      *    the date of service in CHARCUR's stored layout.  CC-DATE-T
-      *    is X(8); pick the branch in P-EDIT-DOS that matches.
-       01  WS-CHG-DATE             PIC X(8).
-
-       01  WS-DOS-OK               PIC X VALUE "N".
-           88  DOS-VALID                 VALUE "Y".
-
-      *    col 503 parse
-       01  WS-FILE-BAL             PIC S9(6)V99 VALUE 0.
-       01  WS-VARIANCE             PIC S9(6)V99 VALUE 0.
+      *    expected figures parsed out of the export line
+       01  EXP-CHG                 PIC S9(6)V99 VALUE 0.
+       01  EXP-PAY                 PIC S9(6)V99 VALUE 0.
+       01  EXP-ADJ                 PIC S9(6)V99 VALUE 0.
+       01  EXP-BAL                 PIC S9(6)V99 VALUE 0.
        01  WS-BAL-OK               PIC X VALUE "N".
            88  BAL-VALID                 VALUE "Y".
-       01  WS-BAL-BAD              PIC X VALUE "N".
+
+      *    rebuilt as of the placement date
+       01  THEN-CHG                PIC S9(6)V99 VALUE 0.
+       01  THEN-PAY                PIC S9(6)V99 VALUE 0.
+       01  THEN-ADJ                PIC S9(6)V99 VALUE 0.
+       01  THEN-BAL                PIC S9(6)V99 VALUE 0.
+
+      *    and as of right now
+       01  NOW-BAL                 PIC S9(6)V99 VALUE 0.
+       01  PAID-SINCE              PIC S9(6)V99 VALUE 0.
+       01  WS-DRIFT                PIC S9(6)V99 VALUE 0.
+
+      *    per charge line
+       01  L-TOT-NOW               PIC S9(6)V99 VALUE 0.
+       01  L-TOT-THEN              PIC S9(6)V99 VALUE 0.
+       01  L-PAY                   PIC S9(6)V99 VALUE 0.
+       01  L-ADJ                   PIC S9(6)V99 VALUE 0.
+       01  L-SINCE                 PIC S9(6)V99 VALUE 0.
+
+       01  WS-LINES                PIC 9(4) VALUE 0.
+       01  WS-MAXDOS               PIC X(8) VALUE SPACES.
+       01  WS-DISCHR-CMP           PIC X(8) VALUE SPACES.
+
+      *    NUMVAL guard
+       01  WS-BAD                  PIC X VALUE "N".
        01  WS-BI                   PIC 9(4) VALUE 0.
-       01  WS-DIG-CNT              PIC 9(4) VALUE 0.
+       01  WS-DIG                  PIC 9(4) VALUE 0.
        01  WS-CH                   PIC X.
+       01  WS-PARSE                PIC X(7).
+       01  WS-VALUE                PIC S9(6)V99 VALUE 0.
 
-      *----------------------------------------------------------------
-      *    claim numbers found on the 018 charges for this key + DOS.
-      *    payments are counted only when PC-CLAIM is in this table.
-      *----------------------------------------------------------------
-       01  WS-CLAIM-TAB.
-           05  WS-CLAIM-CNT        PIC 9(4) VALUE 0.
-           05  WS-CLAIM-ENT        OCCURS 200 TIMES PIC X(6).
-       01  WS-CT-IX                PIC 9(4) VALUE 0.
-       01  WS-CLAIM-HIT            PIC X VALUE "N".
-           88  CLAIM-HIT                 VALUE "Y".
-       01  WS-CLAIM-OVF            PIC X VALUE "N".
-           88  CLAIM-OVERFLOW            VALUE "Y".
-
-       01  CHARGE-TOT              PIC S9(6)V99 VALUE 0.
-       01  PAYMENT-TOT             PIC S9(6)V99 VALUE 0.
-       01  UNAPPLIED-TOT           PIC S9(6)V99 VALUE 0.
-       01  CLAIM-TOT               PIC S9(6)V99 VALUE 0.
+       01  WS-ACTION               PIC X(24).
 
        01  WS-GRAND.
-           05  GT-CHARGES          PIC S9(9)V99 VALUE 0.
-           05  GT-PAYMENTS         PIC S9(9)V99 VALUE 0.
-           05  GT-COMPUTED         PIC S9(9)V99 VALUE 0.
-           05  GT-EXPECTED         PIC S9(9)V99 VALUE 0.
-           05  GT-UNAPPLIED        PIC S9(9)V99 VALUE 0.
+           05  GT-EXP-BAL          PIC S9(9)V99 VALUE 0.
+           05  GT-THEN-BAL         PIC S9(9)V99 VALUE 0.
+           05  GT-NOW-BAL          PIC S9(9)V99 VALUE 0.
+           05  GT-SINCE            PIC S9(9)V99 VALUE 0.
+           05  GT-SENDABLE         PIC S9(9)V99 VALUE 0.
 
        01  WS-COUNTS.
            05  WS-READ-CNT         PIC 9(6) VALUE 0.
-           05  WS-SKIP-CNT         PIC 9(6) VALUE 0.
            05  WS-BADBAL-CNT       PIC 9(6) VALUE 0.
-           05  WS-NOCHG-CNT        PIC 9(6) VALUE 0.
-           05  WS-MATCH-CNT        PIC 9(6) VALUE 0.
-           05  WS-DIFF-CNT         PIC 9(6) VALUE 0.
-           05  WS-OPEN-CNT         PIC 9(6) VALUE 0.
-           05  WS-ZERO-CNT         PIC 9(6) VALUE 0.
-           05  WS-CRED-CNT         PIC 9(6) VALUE 0.
-           05  WS-OVF-CNT          PIC 9(6) VALUE 0.
+           05  WS-NOTFND-CNT       PIC 9(6) VALUE 0.
+           05  WS-RECON-CNT        PIC 9(6) VALUE 0.
+           05  WS-UNRECON-CNT      PIC 9(6) VALUE 0.
+           05  WS-SEND-CNT         PIC 9(6) VALUE 0.
+           05  WS-REDUCE-CNT       PIC 9(6) VALUE 0.
+           05  WS-PULL-CNT         PIC 9(6) VALUE 0.
+           05  WS-DOSDIFF-CNT      PIC 9(6) VALUE 0.
 
        01  HEAD-LINE.
-           05  FILLER              PIC X(8)  VALUE "KEY".
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  FILLER              PIC X(10) VALUE "DOS".
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  FILLER              PIC X(3)  VALUE "CLM".
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  FILLER              PIC X(13) VALUE "      CHARGES".
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  FILLER              PIC X(13) VALUE "     PAYMENTS".
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  FILLER              PIC X(13) VALUE "     COMPUTED".
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  FILLER              PIC X(13) VALUE "     EXPECTED".
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  FILLER              PIC X(13) VALUE "     VARIANCE".
+           05  FILLER  PIC X(8)  VALUE "GARNO".
+           05  FILLER  PIC XX    VALUE SPACE.
+           05  FILLER  PIC X(4)  VALUE " LNS".
+           05  FILLER  PIC XX    VALUE SPACE.
+           05  FILLER  PIC X(11) VALUE "   FILE BAL".
+           05  FILLER  PIC XX    VALUE SPACE.
+           05  FILLER  PIC X(11) VALUE "  REBUILT@P".
+           05  FILLER  PIC XX    VALUE SPACE.
+           05  FILLER  PIC X(11) VALUE "  PAID SNCE".
+           05  FILLER  PIC XX    VALUE SPACE.
+           05  FILLER  PIC X(11) VALUE "    BAL NOW".
+           05  FILLER  PIC XX    VALUE SPACE.
+           05  FILLER  PIC X(11) VALUE "      DRIFT".
+           05  FILLER  PIC XX    VALUE SPACE.
+           05  FILLER  PIC X(24) VALUE "ACTION".
 
        01  DETAIL-LINE.
-           05  DL-KEY8             PIC X(8).
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  DL-DOS              PIC X(10).
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  DL-CLAIMS           PIC ZZ9.
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  DL-CHARGES          PIC -Z,ZZZ,ZZ9.99.
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  DL-PAYMENTS         PIC -Z,ZZZ,ZZ9.99.
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  DL-COMPUTED         PIC -Z,ZZZ,ZZ9.99.
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  DL-EXPECTED         PIC -Z,ZZZ,ZZ9.99.
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  DL-VARIANCE         PIC -Z,ZZZ,ZZ9.99.
+           05  DL-GARNO    PIC X(8).
+           05  FILLER      PIC XX VALUE SPACE.
+           05  DL-LINES    PIC ZZZ9.
+           05  FILLER      PIC XX VALUE SPACE.
+           05  DL-EXP      PIC -Z,ZZZ,ZZ9.99.
+           05  FILLER      PIC XX VALUE SPACE.
+           05  DL-THEN     PIC -Z,ZZZ,ZZ9.99.
+           05  FILLER      PIC XX VALUE SPACE.
+           05  DL-SINCE    PIC -Z,ZZZ,ZZ9.99.
+           05  FILLER      PIC XX VALUE SPACE.
+           05  DL-NOW      PIC -Z,ZZZ,ZZ9.99.
+           05  FILLER      PIC XX VALUE SPACE.
+           05  DL-DRIFT    PIC -Z,ZZZ,ZZ9.99.
+           05  FILLER      PIC XX VALUE SPACE.
+           05  DL-ACTION   PIC X(24).
 
        01  TOTAL-LINE.
-           05  FILLER              PIC X(25) VALUE "TOTALS".
-           05  TL-CHARGES          PIC -ZZ,ZZZ,ZZ9.99.
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  TL-PAYMENTS         PIC -ZZ,ZZZ,ZZ9.99.
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  TL-COMPUTED         PIC -ZZ,ZZZ,ZZ9.99.
-           05  FILLER              PIC XX    VALUE SPACE.
-           05  TL-EXPECTED         PIC -ZZ,ZZZ,ZZ9.99.
+           05  FILLER      PIC X(14) VALUE "TOTALS".
+           05  TL-EXP      PIC -Z,ZZZ,ZZ9.99.
+           05  FILLER      PIC XX VALUE SPACE.
+           05  TL-THEN     PIC -Z,ZZZ,ZZ9.99.
+           05  FILLER      PIC XX VALUE SPACE.
+           05  TL-SINCE    PIC -Z,ZZZ,ZZ9.99.
+           05  FILLER      PIC XX VALUE SPACE.
+           05  TL-NOW      PIC -Z,ZZZ,ZZ9.99.
 
        PROCEDURE DIVISION.
 
        P0.
+           DISPLAY "PLACEDATE" UPON ENVIRONMENT-NAME.
+           ACCEPT WS-PLACED FROM ENVIRONMENT-VALUE.
+
+           IF WS-PLACED = SPACES OR WS-PLACED NOT NUMERIC
+               DISPLAY "PLACEDATE must be set to the kin018 run date"
+               DISPLAY "as CCYYMMDD, e.g. PLACEDATE=20250815"
+               STOP RUN
+           END-IF.
+
+           MOVE SPACES TO WS-PLACED-EDIT.
+           STRING WS-PLACED(5:2) "/" WS-PLACED(7:2) "/"
+                  WS-PLACED(1:4) DELIMITED BY SIZE
+             INTO WS-PLACED-EDIT
+           END-STRING.
+
            OPEN INPUT CHARCUR PAYCUR FILEIN.
            OPEN OUTPUT FILEOUT.
 
@@ -203,307 +228,271 @@
                STOP RUN
            END-IF.
 
+           DISPLAY "PLACEMENT DATE " WS-PLACED-EDIT
+                   "  (CC-DATE-A = " WS-PLACED ")".
+           DISPLAY " ".
            MOVE HEAD-LINE TO FILEOUT01.
            WRITE FILEOUT01.
            DISPLAY HEAD-LINE.
 
+      *----------------------------------------------------------------
        R1.
            READ FILEIN
              AT END
                GO TO R90
            END-READ.
 
-           ADD 1 TO WS-READ-CNT.
-           MOVE FI-KEY8 TO WS-KEY8.
-           PERFORM P-EDIT-DOS.
-           PERFORM P-EDIT-BAL.
-
-           IF NOT DOS-VALID
-               ADD 1 TO WS-SKIP-CNT
-               DISPLAY "BAD DOS, LINE " WS-READ-CNT
-                       " KEY " WS-KEY8 " DOS [" FI-DOS "]"
+           IF FI-GARNO = SPACES
                GO TO R1
            END-IF.
 
+           ADD 1 TO WS-READ-CNT.
+           MOVE FI-GARNO TO WS-GARNO.
+
+           MOVE "Y" TO WS-BAL-OK.
+           MOVE FI-CHG TO WS-PARSE. PERFORM P-PARSE.
+             MOVE WS-VALUE TO EXP-CHG.
+           MOVE FI-PAY TO WS-PARSE. PERFORM P-PARSE.
+             MOVE WS-VALUE TO EXP-PAY.
+           MOVE FI-ADJ TO WS-PARSE. PERFORM P-PARSE.
+             MOVE WS-VALUE TO EXP-ADJ.
+           MOVE FI-BAL TO WS-PARSE. PERFORM P-PARSE.
+             MOVE WS-VALUE TO EXP-BAL.
+
            IF NOT BAL-VALID
                ADD 1 TO WS-BADBAL-CNT
-               DISPLAY "BAD BALANCE, LINE " WS-READ-CNT
-                       " KEY " WS-KEY8 " COL503 [" FI-BAL "]"
+               DISPLAY "UNPARSABLE AMOUNTS, LINE " WS-READ-CNT
+                       " GARNO " WS-GARNO
+                       " BAL [" FI-BAL "]"
            END-IF.
 
-           MOVE 0 TO CHARGE-TOT PAYMENT-TOT UNAPPLIED-TOT CLAIM-TOT.
-           MOVE 0 TO WS-CLAIM-CNT.
-           MOVE "N" TO WS-CLAIM-OVF.
+           MOVE 0 TO THEN-CHG THEN-PAY THEN-ADJ THEN-BAL.
+           MOVE 0 TO NOW-BAL PAID-SINCE WS-LINES.
+           MOVE SPACES TO WS-MAXDOS.
 
       *----------------------------------------------------------------
-      *    pass 1 -- 018 charges for this key on this date of service.
-      *    collect the distinct claim numbers as we go.
+      *    every 018 charge line this guarantor got placed with on the
+      *    kin018 run date
       *----------------------------------------------------------------
        R2.
-           MOVE WS-KEY8 TO CC-KEY8.
+           MOVE WS-GARNO TO CC-KEY8.
            MOVE LOW-VALUES TO CC-KEY3.
            START CHARCUR KEY NOT < CHARCUR-KEY
              INVALID KEY
-               GO TO R4
+               GO TO R6
            END-START.
 
        R3.
            READ CHARCUR NEXT
              AT END
-               GO TO R4
+               GO TO R6
            END-READ.
 
-           IF CC-KEY8 NOT = WS-KEY8
-               GO TO R4
+           IF CC-KEY8 NOT = WS-GARNO
+               GO TO R6
            END-IF.
 
-           IF DEBUG-ON AND WS-DEBUG-CNT < 20
-               ADD 1 TO WS-DEBUG-CNT
-               DISPLAY "DBG KEY " CC-KEY8 "/" CC-KEY3
-                       " CLAIM [" CC-CLAIM "]"
-                       " PAYCODE [" CC-PAYCODE "]"
-                       " DATE-T [" CC-DATE-T "]"
-                       " DAT1 [" CC-DAT1 "]"
-                       " AMT " CC-AMOUNT
-           END-IF.
-
-      *    alphanumeric compare on purpose -- CC-PAYCODE is PIC 999 but
-      *    a numeric compare aborts under -fnumeric-check if any legacy
-      *    record has spaces in it
+      *    alphanumeric compare on purpose -- CC-PAYCODE is PIC 999 and
+      *    a numeric compare trips on any legacy record holding spaces
            IF CC-PAYCODE NOT = "018"
                GO TO R3
            END-IF.
 
-           IF CC-DATE-T NOT = WS-CHG-DATE
+           IF CC-DATE-A NOT = WS-PLACED
                GO TO R3
            END-IF.
 
-           ADD CC-AMOUNT TO CHARGE-TOT.
-           PERFORM P-ADD-CLAIM.
+           PERFORM P-SCAN-PAY.
+
+      *    kin018 only counted a line whose balance was positive at the
+      *    time, so judge inclusion on the rebuilt figure, not today's
+           IF L-TOT-THEN NOT > 0
+               GO TO R3
+           END-IF.
+
+           ADD 1 TO WS-LINES.
+           ADD CC-AMOUNT TO THEN-CHG.
+           ADD L-PAY     TO THEN-PAY.
+           ADD L-ADJ     TO THEN-ADJ.
+           ADD L-TOT-THEN TO THEN-BAL.
+           ADD L-TOT-NOW  TO NOW-BAL.
+           ADD L-SINCE    TO PAID-SINCE.
+
+           IF CC-DATE-T > WS-MAXDOS
+               MOVE CC-DATE-T TO WS-MAXDOS
+           END-IF.
+
            GO TO R3.
 
       *----------------------------------------------------------------
-      *    pass 2 -- payments for this key whose PC-CLAIM matches one of
-      *    the claims collected above.  PAYCUR carries no service date,
-      *    so the claim number is the only link back to the DOS.
-      *----------------------------------------------------------------
-       R4.
-           IF WS-CLAIM-CNT = 0
-               ADD 1 TO WS-NOCHG-CNT
-               GO TO R6
-           END-IF.
-
-           IF CLAIM-OVERFLOW
-               ADD 1 TO WS-OVF-CNT
-               DISPLAY "CLAIM TABLE FULL, KEY " WS-KEY8
-                       " DOS " WS-DOS-EDIT " -- TOTALS INCOMPLETE"
-           END-IF.
-
-           MOVE WS-KEY8 TO PC-KEY8.
-           MOVE LOW-VALUES TO PC-KEY3.
-           START PAYCUR KEY NOT < PAYCUR-KEY
-             INVALID KEY
-               GO TO R6
-           END-START.
-
-       R5.
-           READ PAYCUR NEXT
-             AT END
-               GO TO R6
-           END-READ.
-
-           IF PC-KEY8 NOT = WS-KEY8
-               GO TO R6
-           END-IF.
-
-      *    unapplied money -- reported separately, not netted
-           IF PC-CLAIM = SPACES OR PC-CLAIM = ZEROS
-               ADD PC-AMOUNT TO UNAPPLIED-TOT
-               GO TO R5
-           END-IF.
-
-           PERFORM P-FIND-CLAIM.
-           IF NOT CLAIM-HIT
-               GO TO R5
-           END-IF.
-
-           ADD PC-AMOUNT TO PAYMENT-TOT.
-           GO TO R5.
-
-      *----------------------------------------------------------------
-      *    reconcile computed balance against col 503
-      *----------------------------------------------------------------
        R6.
-      *    >>> if PAYCUR stores payments as negative, change this to
-      *    >>> COMPUTE CLAIM-TOT = CHARGE-TOT + PAYMENT-TOT
-           COMPUTE CLAIM-TOT = CHARGE-TOT - PAYMENT-TOT.
-           COMPUTE WS-VARIANCE = CLAIM-TOT - WS-FILE-BAL.
+           COMPUTE WS-DRIFT = THEN-BAL - EXP-BAL.
 
-           ADD CHARGE-TOT    TO GT-CHARGES.
-           ADD PAYMENT-TOT   TO GT-PAYMENTS.
-           ADD CLAIM-TOT     TO GT-COMPUTED.
-           ADD WS-FILE-BAL   TO GT-EXPECTED.
-           ADD UNAPPLIED-TOT TO GT-UNAPPLIED.
-
-           MOVE SPACES TO DETAIL-LINE.
-           MOVE WS-KEY8      TO DL-KEY8.
-           MOVE WS-DOS-EDIT  TO DL-DOS.
-           MOVE WS-CLAIM-CNT TO DL-CLAIMS.
-           MOVE CHARGE-TOT   TO DL-CHARGES.
-           MOVE PAYMENT-TOT  TO DL-PAYMENTS.
-           MOVE CLAIM-TOT    TO DL-COMPUTED.
-           MOVE WS-FILE-BAL  TO DL-EXPECTED.
-           MOVE WS-VARIANCE  TO DL-VARIANCE.
+           ADD EXP-BAL    TO GT-EXP-BAL.
+           ADD THEN-BAL   TO GT-THEN-BAL.
+           ADD NOW-BAL    TO GT-NOW-BAL.
+           ADD PAID-SINCE TO GT-SINCE.
 
            EVALUATE TRUE
-             WHEN CLAIM-TOT > 0
-               ADD 1 TO WS-OPEN-CNT
-             WHEN CLAIM-TOT < 0
-               ADD 1 TO WS-CRED-CNT
+             WHEN WS-LINES = 0
+               MOVE "PULL - NOT IN CHARCUR"  TO WS-ACTION
+               ADD 1 TO WS-PULL-CNT
+               ADD 1 TO WS-NOTFND-CNT
+             WHEN NOW-BAL < 0
+               MOVE "PULL - CREDIT BALANCE"  TO WS-ACTION
+               ADD 1 TO WS-PULL-CNT
+             WHEN NOW-BAL = 0
+               MOVE "PULL - PAID IN FULL"    TO WS-ACTION
+               ADD 1 TO WS-PULL-CNT
+             WHEN PAID-SINCE NOT = 0
+               MOVE "SEND - REDUCED"         TO WS-ACTION
+               ADD 1 TO WS-REDUCE-CNT
+               ADD NOW-BAL TO GT-SENDABLE
              WHEN OTHER
-               ADD 1 TO WS-ZERO-CNT
+               MOVE "SEND"                   TO WS-ACTION
+               ADD 1 TO WS-SEND-CNT
+               ADD NOW-BAL TO GT-SENDABLE
            END-EVALUATE.
+
+      *    the rebuild is only trustworthy if it reproduces what the
+      *    file said at placement time
+           IF WS-LINES > 0 AND BAL-VALID
+               IF WS-DRIFT = 0
+                   ADD 1 TO WS-RECON-CNT
+               ELSE
+                   ADD 1 TO WS-UNRECON-CNT
+                   MOVE "CHECK - NO REBUILD"  TO WS-ACTION
+               END-IF
+           END-IF.
+
+           MOVE SPACES TO DETAIL-LINE.
+           MOVE WS-GARNO    TO DL-GARNO.
+           MOVE WS-LINES    TO DL-LINES.
+           MOVE EXP-BAL     TO DL-EXP.
+           MOVE THEN-BAL    TO DL-THEN.
+           MOVE PAID-SINCE  TO DL-SINCE.
+           MOVE NOW-BAL     TO DL-NOW.
+           MOVE WS-DRIFT    TO DL-DRIFT.
+           MOVE WS-ACTION   TO DL-ACTION.
 
            MOVE DETAIL-LINE TO FILEOUT01.
            WRITE FILEOUT01.
 
-           EVALUATE TRUE
-             WHEN NOT BAL-VALID
-               DISPLAY DETAIL-LINE " NO EXPECTED BALANCE"
-             WHEN WS-CLAIM-CNT = 0
-               ADD 1 TO WS-DIFF-CNT
-               DISPLAY DETAIL-LINE " NO 018 CHARGES ON THIS DOS"
-             WHEN WS-VARIANCE = 0
-               ADD 1 TO WS-MATCH-CNT
-             WHEN OTHER
-               ADD 1 TO WS-DIFF-CNT
-               DISPLAY DETAIL-LINE " *** VARIANCE ***"
-           END-EVALUATE.
+           IF WS-ACTION NOT = "SEND"
+               DISPLAY DETAIL-LINE
+           END-IF.
 
-           IF UNAPPLIED-TOT NOT = 0
-               DISPLAY "  UNAPPLIED ON KEY " WS-KEY8
-                       " " UNAPPLIED-TOT
+      *    cross-check col 173 against the latest placed service date
+           IF WS-LINES > 0
+               MOVE SPACES TO WS-DISCHR-CMP
+               STRING FI-DISCHR(7:4) FI-DISCHR(1:2) FI-DISCHR(4:2)
+                 DELIMITED BY SIZE INTO WS-DISCHR-CMP
+               END-STRING
+               IF WS-DISCHR-CMP NOT = WS-MAXDOS
+                   ADD 1 TO WS-DOSDIFF-CNT
+                   DISPLAY "  DISCHR MISMATCH " WS-GARNO
+                           " FILE [" FI-DISCHR "]"
+                           " CHARCUR [" WS-MAXDOS "]"
+               END-IF
            END-IF.
 
            GO TO R1.
 
       *----------------------------------------------------------------
-      *    validate MM/DD/CCYY and build the CHARCUR comparison date
+      *    kin018's P3 -- payments matched on claim number.  PC-AMOUNT
+      *    is negative, hence the adds.  PC-DENIAL "14" is an
+      *    adjustment rather than a payment.  anything posted after the
+      *    placement date is drift, split out separately.
       *----------------------------------------------------------------
-       P-EDIT-DOS.
-           MOVE "N" TO WS-DOS-OK.
-           MOVE SPACES TO WS-DOS-EDIT WS-CHG-DATE.
+       P-SCAN-PAY.
+           MOVE CC-AMOUNT TO L-TOT-NOW.
+           MOVE 0 TO L-PAY L-ADJ L-SINCE.
 
-           IF FI-DOS = SPACES
-               GO TO P-EDIT-DOS-X
-           END-IF.
-           IF FI-DOS-SL1 NOT = "/" OR FI-DOS-SL2 NOT = "/"
-               GO TO P-EDIT-DOS-X
-           END-IF.
-           IF FI-DOS-MM   NOT NUMERIC
-             OR FI-DOS-DD   NOT NUMERIC
-             OR FI-DOS-CCYY NOT NUMERIC
-               GO TO P-EDIT-DOS-X
-           END-IF.
+           MOVE CC-KEY8 TO PC-KEY8.
+           MOVE LOW-VALUES TO PC-KEY3.
+           START PAYCUR KEY NOT < PAYCUR-KEY
+             INVALID KEY
+               GO TO P-SCAN-X
+           END-START.
 
-           MOVE FI-DOS TO WS-DOS-EDIT.
+       P-SCAN-1.
+           READ PAYCUR NEXT
+             AT END
+               GO TO P-SCAN-X
+           END-READ.
 
-      *    ---- pick ONE of the three, delete the rest ----
-
-      *    CCYYMMDD
-           STRING FI-DOS-CCYY FI-DOS-MM FI-DOS-DD
-             DELIMITED BY SIZE INTO WS-CHG-DATE
-           END-STRING.
-
-      *    MMDDCCYY
-      *    STRING FI-DOS-MM FI-DOS-DD FI-DOS-CCYY
-      *      DELIMITED BY SIZE INTO WS-CHG-DATE
-      *    END-STRING.
-
-      *    MM/DD/YY
-      *    STRING FI-DOS-MM "/" FI-DOS-DD "/" FI-DOS-CCYY(3:2)
-      *      DELIMITED BY SIZE INTO WS-CHG-DATE
-      *    END-STRING.
-
-           MOVE "Y" TO WS-DOS-OK.
-
-       P-EDIT-DOS-X.
-           EXIT.
-
-      *----------------------------------------------------------------
-      *    parse the expected balance out of col 503.  tolerant of
-      *    leading spaces, a currency sign, commas and a trailing or
-      *    leading minus; anything else marks the line unusable rather
-      *    than letting NUMVAL return garbage.
-      *----------------------------------------------------------------
-       P-EDIT-BAL.
-           MOVE "N" TO WS-BAL-OK.
-           MOVE "N" TO WS-BAL-BAD.
-           MOVE 0 TO WS-FILE-BAL.
-           MOVE 0 TO WS-DIG-CNT.
-
-           IF FI-BAL NOT = SPACES
-               PERFORM VARYING WS-BI FROM 1 BY 1
-                 UNTIL WS-BI > LENGTH OF FI-BAL
-                   MOVE FI-BAL(WS-BI:1) TO WS-CH
-                   EVALUATE WS-CH
-                     WHEN SPACE
-                     WHEN ","
-                     WHEN "."
-                     WHEN "-"
-                     WHEN "+"
-                     WHEN "$"
-                       CONTINUE
-                     WHEN "0" THRU "9"
-                       ADD 1 TO WS-DIG-CNT
-                     WHEN OTHER
-                       MOVE "Y" TO WS-BAL-BAD
-                   END-EVALUATE
-               END-PERFORM
-
-               IF WS-BAL-BAD = "N" AND WS-DIG-CNT > 0
-                   COMPUTE WS-FILE-BAL = FUNCTION NUMVAL (FI-BAL)
-                   MOVE "Y" TO WS-BAL-OK
-               END-IF
+           IF PC-KEY8 NOT = CC-KEY8
+               GO TO P-SCAN-X
            END-IF.
 
-      *----------------------------------------------------------------
-       P-ADD-CLAIM.
-           MOVE "N" TO WS-CLAIM-HIT.
-           PERFORM VARYING WS-CT-IX FROM 1 BY 1
-             UNTIL WS-CT-IX > WS-CLAIM-CNT OR CLAIM-HIT
-               IF WS-CLAIM-ENT(WS-CT-IX) = CC-CLAIM
-                   MOVE "Y" TO WS-CLAIM-HIT
-               END-IF
-           END-PERFORM.
+           IF PC-CLAIM NOT = CC-CLAIM
+               GO TO P-SCAN-1
+           END-IF.
 
-           IF NOT CLAIM-HIT
-               IF WS-CLAIM-CNT < 200
-                   ADD 1 TO WS-CLAIM-CNT
-                   MOVE CC-CLAIM TO WS-CLAIM-ENT(WS-CLAIM-CNT)
+           COMPUTE L-TOT-NOW = L-TOT-NOW + PC-AMOUNT.
+
+           IF PC-DATE-T > WS-PLACED
+               COMPUTE L-SINCE = L-SINCE - PC-AMOUNT
+           ELSE
+               IF PC-DENIAL = "14"
+                   COMPUTE L-ADJ = L-ADJ - PC-AMOUNT
                ELSE
-                   MOVE "Y" TO WS-CLAIM-OVF
+                   COMPUTE L-PAY = L-PAY - PC-AMOUNT
                END-IF
            END-IF.
 
+           GO TO P-SCAN-1.
+
+       P-SCAN-X.
+           COMPUTE L-TOT-THEN = L-TOT-NOW + L-SINCE.
+
       *----------------------------------------------------------------
-       P-FIND-CLAIM.
-           MOVE "N" TO WS-CLAIM-HIT.
-           PERFORM VARYING WS-CT-IX FROM 1 BY 1
-             UNTIL WS-CT-IX > WS-CLAIM-CNT OR CLAIM-HIT
-               IF WS-CLAIM-ENT(WS-CT-IX) = PC-CLAIM
-                   MOVE "Y" TO WS-CLAIM-HIT
-               END-IF
+      *    ZZZZ.99 out of kin018, so digits, spaces and one point.
+      *    validate before NUMVAL -- NUMVAL returns a number for junk
+      *    rather than failing, and a silently wrong expected balance
+      *    is worse than a loud one.
+      *----------------------------------------------------------------
+       P-PARSE.
+           MOVE 0 TO WS-VALUE WS-DIG.
+           MOVE "N" TO WS-BAD.
+
+           IF WS-PARSE = SPACES
+               MOVE "N" TO WS-BAL-OK
+               GO TO P-PARSE-X
+           END-IF.
+
+           PERFORM VARYING WS-BI FROM 1 BY 1 UNTIL WS-BI > 7
+               MOVE WS-PARSE(WS-BI:1) TO WS-CH
+               EVALUATE WS-CH
+                 WHEN SPACE
+                 WHEN "."
+                 WHEN ","
+                 WHEN "-"
+                   CONTINUE
+                 WHEN "0" THRU "9"
+                   ADD 1 TO WS-DIG
+                 WHEN OTHER
+                   MOVE "Y" TO WS-BAD
+               END-EVALUATE
            END-PERFORM.
+
+           IF WS-BAD = "N" AND WS-DIG > 0
+               COMPUTE WS-VALUE = FUNCTION NUMVAL (WS-PARSE)
+           ELSE
+               MOVE "N" TO WS-BAL-OK
+           END-IF.
+
+       P-PARSE-X.
+           EXIT.
 
       *----------------------------------------------------------------
        R90.
            MOVE SPACES TO TOTAL-LINE.
-           MOVE "TOTALS"      TO TOTAL-LINE(1:25).
-           MOVE GT-CHARGES    TO TL-CHARGES.
-           MOVE GT-PAYMENTS   TO TL-PAYMENTS.
-           MOVE GT-COMPUTED   TO TL-COMPUTED.
-           MOVE GT-EXPECTED   TO TL-EXPECTED.
+           MOVE "TOTALS"    TO TOTAL-LINE(1:14).
+           MOVE GT-EXP-BAL  TO TL-EXP.
+           MOVE GT-THEN-BAL TO TL-THEN.
+           MOVE GT-SINCE    TO TL-SINCE.
+           MOVE GT-NOW-BAL  TO TL-NOW.
            MOVE TOTAL-LINE TO FILEOUT01.
            WRITE FILEOUT01.
            DISPLAY " ".
@@ -511,16 +500,16 @@
 
        R99.
            DISPLAY " ".
-           DISPLAY "LINES READ:        " WS-READ-CNT.
-           DISPLAY "BAD DOS SKIPPED:   " WS-SKIP-CNT.
-           DISPLAY "BAD COL 503:       " WS-BADBAL-CNT.
-           DISPLAY "NO 018 CHARGES:    " WS-NOCHG-CNT.
-           DISPLAY "BALANCES MATCHED:  " WS-MATCH-CNT.
-           DISPLAY "BALANCES DIFFERED: " WS-DIFF-CNT.
-           DISPLAY "OPEN BALANCES:     " WS-OPEN-CNT.
-           DISPLAY "CREDIT BALANCES:   " WS-CRED-CNT.
-           DISPLAY "ZERO BALANCES:     " WS-ZERO-CNT.
-           DISPLAY "CLAIM TAB OVERFL:  " WS-OVF-CNT.
-           DISPLAY "UNAPPLIED TOTAL:   " GT-UNAPPLIED.
+           DISPLAY "GUARANTORS IN FILE : " WS-READ-CNT.
+           DISPLAY "REBUILD AGREED     : " WS-RECON-CNT.
+           DISPLAY "REBUILD DISAGREED  : " WS-UNRECON-CNT.
+           DISPLAY "NOT FOUND IN CHARCUR: " WS-NOTFND-CNT.
+           DISPLAY "UNPARSABLE AMOUNTS : " WS-BADBAL-CNT.
+           DISPLAY "DISCHR MISMATCHES  : " WS-DOSDIFF-CNT.
+           DISPLAY " ".
+           DISPLAY "SEND AS IS         : " WS-SEND-CNT.
+           DISPLAY "SEND REDUCED       : " WS-REDUCE-CNT.
+           DISPLAY "PULL FROM FILE     : " WS-PULL-CNT.
+           DISPLAY "AMT TO AGENCY      : " GT-SENDABLE.
            CLOSE CHARCUR PAYCUR FILEIN FILEOUT.
            STOP RUN.
