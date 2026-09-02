@@ -105,6 +105,29 @@
        01  WS-GARDEBUG             PIC X(8) VALUE SPACES.
        01  WS-DBG-CNT              PIC 9(6) VALUE 0.
 
+      *    CENSUS=Y walks the CC-PAYCODE alternate key across every 018
+      *    charge in the file and tallies the distinct CC-DATE-A values.
+      *    if the run date you expect is not in that list, the stamps
+      *    are not there and nothing downstream will match.
+       01  WS-CENSUS               PIC X VALUE "N".
+       01  CEN-TAB.
+           05  CEN-CNT             PIC 9(4) VALUE 0.
+           05  CEN-ENT             OCCURS 60 TIMES.
+               10  CEN-DATE        PIC X(8).
+               10  CEN-RECS        PIC 9(7).
+               10  CEN-AMT         PIC S9(9)V99.
+       01  CEN-IX                  PIC 9(4) VALUE 0.
+       01  CEN-HIT                 PIC X VALUE "N".
+       01  CEN-TOTAL               PIC 9(7) VALUE 0.
+       01  CEN-OVF                 PIC 9(7) VALUE 0.
+       01  CEN-LINE.
+           05  FILLER              PIC X(4) VALUE SPACE.
+           05  CL-DATE             PIC X(10).
+           05  FILLER              PIC XX   VALUE SPACE.
+           05  CL-RECS             PIC ZZZ,ZZ9.
+           05  FILLER              PIC XX   VALUE SPACE.
+           05  CL-AMT              PIC -ZZ,ZZZ,ZZ9.99.
+
       *    expected figures parsed out of the export line
        01  EXP-CHG                 PIC S9(6)V99 VALUE 0.
        01  EXP-PAY                 PIC S9(6)V99 VALUE 0.
@@ -238,6 +261,9 @@
            DISPLAY "GARDEBUG" UPON ENVIRONMENT-NAME.
            ACCEPT WS-GARDEBUG FROM ENVIRONMENT-VALUE.
 
+           DISPLAY "CENSUS" UPON ENVIRONMENT-NAME.
+           ACCEPT WS-CENSUS FROM ENVIRONMENT-VALUE.
+
            OPEN INPUT CHARCUR PAYCUR FILEIN.
            OPEN OUTPUT FILEOUT.
 
@@ -258,6 +284,10 @@
                    "  (CC-DATE-A = " WS-PLACED ")".
            DISPLAY "SELECTOR      " WS-SELMODE.
            DISPLAY " ".
+           IF WS-CENSUS = "Y"
+               PERFORM P-CENSUS THRU P-CENSUS-X
+           END-IF.
+
            MOVE HEAD-LINE TO FILEOUT01.
            WRITE FILEOUT01.
            DISPLAY HEAD-LINE.
@@ -444,6 +474,87 @@
            END-IF.
 
            GO TO R1.
+
+      *----------------------------------------------------------------
+      *    census of every 018 charge by CC-DATE-A, via the alternate
+      *    key.  answers "were these ever stamped, and on what date".
+      *----------------------------------------------------------------
+       P-CENSUS.
+           DISPLAY "--- CC-DATE-A census over all 018 charges ---".
+           MOVE 0 TO CEN-CNT CEN-TOTAL CEN-OVF.
+           MOVE 018 TO CC-PAYCODE.
+           START CHARCUR KEY NOT < CC-PAYCODE
+             INVALID KEY
+               DISPLAY "  no 018 charges in CHARCUR at all"
+               GO TO P-CENSUS-X
+           END-START.
+
+       P-CENSUS-1.
+           READ CHARCUR NEXT
+             AT END
+               GO TO P-CENSUS-RPT
+           END-READ.
+
+           IF CC-PAYCODE NOT = "018"
+               GO TO P-CENSUS-RPT
+           END-IF.
+
+           ADD 1 TO CEN-TOTAL.
+           MOVE "N" TO CEN-HIT.
+           PERFORM VARYING CEN-IX FROM 1 BY 1
+             UNTIL CEN-IX > CEN-CNT OR CEN-HIT = "Y"
+               IF CEN-DATE(CEN-IX) = CC-DATE-A
+                   MOVE "Y" TO CEN-HIT
+                   ADD 1 TO CEN-RECS(CEN-IX)
+                   ADD CC-AMOUNT TO CEN-AMT(CEN-IX)
+               END-IF
+           END-PERFORM.
+
+           IF CEN-HIT = "N"
+               IF CEN-CNT < 60
+                   ADD 1 TO CEN-CNT
+                   MOVE CC-DATE-A TO CEN-DATE(CEN-CNT)
+                   MOVE 1 TO CEN-RECS(CEN-CNT)
+                   MOVE CC-AMOUNT TO CEN-AMT(CEN-CNT)
+               ELSE
+                   ADD 1 TO CEN-OVF
+               END-IF
+           END-IF.
+
+           GO TO P-CENSUS-1.
+
+       P-CENSUS-RPT.
+           IF CEN-TOTAL = 0
+               DISPLAY "  no 018 charges in CHARCUR at all"
+               GO TO P-CENSUS-X
+           END-IF.
+
+           PERFORM VARYING CEN-IX FROM 1 BY 1 UNTIL CEN-IX > CEN-CNT
+               MOVE SPACES TO CEN-LINE
+               IF CEN-DATE(CEN-IX) NUMERIC
+                   STRING CEN-DATE(CEN-IX)(5:2) "/"
+                          CEN-DATE(CEN-IX)(7:2) "/"
+                          CEN-DATE(CEN-IX)(1:4)
+                     DELIMITED BY SIZE INTO CL-DATE
+                   END-STRING
+               ELSE
+                   MOVE "[NOT A DATE]" TO CL-DATE
+               END-IF
+               MOVE CEN-RECS(CEN-IX) TO CL-RECS
+               MOVE CEN-AMT(CEN-IX)  TO CL-AMT
+               DISPLAY CEN-LINE
+           END-PERFORM.
+
+           DISPLAY "  total 018 charge records: " CEN-TOTAL.
+           IF CEN-OVF > 0
+               DISPLAY "  distinct dates over 60, " CEN-OVF
+                       " records not tallied"
+           END-IF.
+           DISPLAY "---".
+           DISPLAY " ".
+
+       P-CENSUS-X.
+           EXIT.
 
       *----------------------------------------------------------------
       *    kin018's P3 -- payments matched on claim number.  PC-AMOUNT
