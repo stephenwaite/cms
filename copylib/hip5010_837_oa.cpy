@@ -464,14 +464,14 @@
            02 CAS-S3 PIC X VALUE "*".
            02 CAS-4 PIC X.
            02 CAS-END PIC X VALUE "~".
-           
+
        01  AMT01.
            02 AMT-0 PIC XXX VALUE "AMT".
            02 AMT-S0 PIC X VALUE "*".
            02 AMT-1 PIC XXX.
            02 AMT-S1 PIC X VALUE "*".
            02 AMT-2 PIC X(8).
-           02 AMT-END PIC X VALUE "~"
+           02 AMT-END PIC X VALUE "~".
 
        01  LX01.
            02 LX-0 PIC XX VALUE "LX".
