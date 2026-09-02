@@ -92,6 +92,19 @@
 
        01  WS-GARNO                PIC X(8).
 
+      *    which charges count as "placed".  DATEA is exact but relies
+      *    on CC-DATE-A not having been restamped by a later kin018 run
+      *    or anything else that touches that field.
+       01  WS-SELMODE              PIC X(8) VALUE "DATEA".
+           88  SEL-DATEA                 VALUE "DATEA".
+           88  SEL-COLLT                 VALUE "COLLT".
+           88  SEL-ANY                   VALUE "ANY018".
+
+      *    set GARDEBUG to a guarantor number, or ALL, to dump every
+      *    CHARCUR record for it before any filtering
+       01  WS-GARDEBUG             PIC X(8) VALUE SPACES.
+       01  WS-DBG-CNT              PIC 9(6) VALUE 0.
+
       *    expected figures parsed out of the export line
        01  EXP-CHG                 PIC S9(6)V99 VALUE 0.
        01  EXP-PAY                 PIC S9(6)V99 VALUE 0.
@@ -212,6 +225,19 @@
              INTO WS-PLACED-EDIT
            END-STRING.
 
+           DISPLAY "SELMODE" UPON ENVIRONMENT-NAME.
+           ACCEPT WS-SELMODE FROM ENVIRONMENT-VALUE.
+           IF WS-SELMODE = SPACES
+               MOVE "DATEA" TO WS-SELMODE
+           END-IF.
+           IF NOT SEL-DATEA AND NOT SEL-COLLT AND NOT SEL-ANY
+               DISPLAY "SELMODE must be DATEA, COLLT or ANY018"
+               STOP RUN
+           END-IF.
+
+           DISPLAY "GARDEBUG" UPON ENVIRONMENT-NAME.
+           ACCEPT WS-GARDEBUG FROM ENVIRONMENT-VALUE.
+
            OPEN INPUT CHARCUR PAYCUR FILEIN.
            OPEN OUTPUT FILEOUT.
 
@@ -230,6 +256,7 @@
 
            DISPLAY "PLACEMENT DATE " WS-PLACED-EDIT
                    "  (CC-DATE-A = " WS-PLACED ")".
+           DISPLAY "SELECTOR      " WS-SELMODE.
            DISPLAY " ".
            MOVE HEAD-LINE TO FILEOUT01.
            WRITE FILEOUT01.
@@ -250,13 +277,13 @@
            MOVE FI-GARNO TO WS-GARNO.
 
            MOVE "Y" TO WS-BAL-OK.
-           MOVE FI-CHG TO WS-PARSE. PERFORM P-PARSE.
+           MOVE FI-CHG TO WS-PARSE. PERFORM P-PARSE THRU P-PARSE-X.
              MOVE WS-VALUE TO EXP-CHG.
-           MOVE FI-PAY TO WS-PARSE. PERFORM P-PARSE.
+           MOVE FI-PAY TO WS-PARSE. PERFORM P-PARSE THRU P-PARSE-X.
              MOVE WS-VALUE TO EXP-PAY.
-           MOVE FI-ADJ TO WS-PARSE. PERFORM P-PARSE.
+           MOVE FI-ADJ TO WS-PARSE. PERFORM P-PARSE THRU P-PARSE-X.
              MOVE WS-VALUE TO EXP-ADJ.
-           MOVE FI-BAL TO WS-PARSE. PERFORM P-PARSE.
+           MOVE FI-BAL TO WS-PARSE. PERFORM P-PARSE THRU P-PARSE-X.
              MOVE WS-VALUE TO EXP-BAL.
 
            IF NOT BAL-VALID
@@ -292,17 +319,38 @@
                GO TO R6
            END-IF.
 
+           IF WS-GARDEBUG = WS-GARNO OR WS-GARDEBUG = "ALL"
+               ADD 1 TO WS-DBG-CNT
+               DISPLAY "DBG " CC-KEY8 "/" CC-KEY3
+                       " CLM [" CC-CLAIM "]"
+                       " PCODE [" CC-PAYCODE "]"
+                       " DATE-A [" CC-DATE-A "]"
+                       " DATE-T [" CC-DATE-T "]"
+                       " COLLT [" CC-COLLT "]"
+                       " STAT [" CC-REC-STAT "]"
+                       " AMT " CC-AMOUNT
+           END-IF.
+
       *    alphanumeric compare on purpose -- CC-PAYCODE is PIC 999 and
       *    a numeric compare trips on any legacy record holding spaces
            IF CC-PAYCODE NOT = "018"
                GO TO R3
            END-IF.
 
-           IF CC-DATE-A NOT = WS-PLACED
-               GO TO R3
-           END-IF.
+           EVALUATE TRUE
+             WHEN SEL-DATEA
+               IF CC-DATE-A NOT = WS-PLACED
+                   GO TO R3
+               END-IF
+             WHEN SEL-COLLT
+               IF CC-COLLT NOT = "1"
+                   GO TO R3
+               END-IF
+             WHEN SEL-ANY
+               CONTINUE
+           END-EVALUATE.
 
-           PERFORM P-SCAN-PAY.
+           PERFORM P-SCAN-PAY THRU P-SCAN-X.
 
       *    kin018 only counted a line whose balance was positive at the
       *    time, so judge inclusion on the rebuilt figure, not today's
@@ -335,8 +383,7 @@
 
            EVALUATE TRUE
              WHEN WS-LINES = 0
-               MOVE "PULL - NOT IN CHARCUR"  TO WS-ACTION
-               ADD 1 TO WS-PULL-CNT
+               MOVE "CHECK - NO 018 MATCH"   TO WS-ACTION
                ADD 1 TO WS-NOTFND-CNT
              WHEN NOW-BAL < 0
                MOVE "PULL - CREDIT BALANCE"  TO WS-ACTION
