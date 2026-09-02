@@ -400,7 +400,7 @@
            02 CLM-4 PIC X VALUE SPACE.
            02 CLM-S4 PIC X VALUE "*".
            02 CLM-5 PIC XX.
-           02 CLM-52 PIC X VALUE ":".
+           02 CLM-S52 PIC X VALUE ":".
            02 CLM-5-2 PIC X VALUE "B".
            02 CLM-COLON-PLACE PIC X VALUE ":".
            02 CLM-FREQ PIC X VALUE "1".
@@ -416,19 +416,7 @@
            02 CLM-10 PIC X VALUE "P".             
            02 CLM-S10 PIC X VALUE "*".
            02 CLM-11 PIC XX.             
-      *     02 CLM-11-1-COLON PIC X VALUE SPACE.
-      *    RELATED CAUSES CODE 2 CURRENTLY UNUSED
-      *     02 CLM-11-2 PIC XX VALUE SPACE.
-      *     02 CLM-11-2-COLON PIC X VALUE SPACE.
-      *    CLM-11-3 CURRENTLY UNUSED     
-      *     02 CLM-11-3 PIC XX VALUE SPACE.
-      *     02 CLM-11-3-COLON PIC X VALUE SPACE.
-      *    CLM-11-4 STATE CODE have to cobmine colons here
-           02 CLM-11-4 PIC XXXXX VALUE SPACE.
-      *     02 CLM-11-4-COLON PIC X VALUE SPACE.
-      *    CLM-11-5 COUNTRY CODE UNUSED     
-      *     02 CLM-11-5 PIC XX VALUE SPACE.
-      *     02 CLM-11-5-COLON PIC X VALUE SPACE.
+           02 CLM-COLON-ACCIDENT PIC X VALUE SPACE. 
            02 CLM-S11 PIC X VALUE "*".
            02 CLM-12 PIC XXX.             
            02 CLM-S12 PIC X VALUE "*".
@@ -464,6 +452,26 @@
            02 HI10-DX1 PIC X(7).
            02 HI10-DIAG-FILLER PIC X(144).
            02 HI10-END PIC X VALUE "~".
+      
+       01  CAS01.
+           02 CAS-0 PIC XXX VALUE "CAS".
+           02 CAS-S0 PIC X VALUE "*".
+           02 CAS-1 PIC XX.
+           02 CAS-S1 PIC X VALUE "*".
+           02 CAS-2 PIC XXX.
+           02 CAS-S2 PIC X VALUE "*".
+           02 CAS-3 PIC X(8).
+           02 CAS-S3 PIC X VALUE "*".
+           02 CAS-4 PIC X.
+           02 CAS-END PIC X VALUE "~".
+           
+       01  AMT01.
+           02 AMT-0 PIC XXX VALUE "AMT".
+           02 AMT-S0 PIC X VALUE "*".
+           02 AMT-1 PIC XXX.
+           02 AMT-S1 PIC X VALUE "*".
+           02 AMT-2 PIC X(8).
+           02 AMT-END PIC X VALUE "~"
 
        01  LX01.
            02 LX-0 PIC XX VALUE "LX".
@@ -493,6 +501,10 @@
            02 SV1-S16 PIC X VALUE "*".
            02 SV1-EMER PIC X.
            02 SV1-S115 PIC X VALUE "*".
+           02 SV1-EPSDT PIC XX.
+           02 SV1-S116 PIC X VALUE "*".
+           02 SV1-FAMILY PIC X.
+           02 SV1-S117 PIC XXX VALUE "***".
            02 SV1-COPAY PIC X.
            02 SV1-END PIC X VALUE "~".
 
@@ -525,6 +537,18 @@
            02 OI-S56 PIC XX VALUE "**".
            02 OI-6 PIC X VALUE "Y".
            02 OI-END PIC X VALUE "~".
+
+       01  SVD01.
+           02 SVD-0 PIC XXX VALUE "SVD".
+           02 SVD-S1 PIC X VALUE "*".
+           02 SVD-1 PIC X(5).
+           02 SVD-S3 PIC X VALUE "*".
+           02 SVD-2 PIC X(8).
+           02 SVD-S2 PIC X VALUE "*".
+           02 SVD-3 PIC X(20).
+           02 SVD-S34 PIC XX VALUE "**".
+           02 SVD-4 PIC XX.
+           02 SVD-END PIC X VALUE "~".    
 
        01  PWK01.
            02 PWK-1 PIC XXX VALUE "PWK".
