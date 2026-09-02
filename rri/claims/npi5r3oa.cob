@@ -1500,6 +1500,10 @@
              NOT INVALID  
                MOVE INS-NAME TO NM1-NAMEL
                MOVE "PI" TO NM1-EINSS
+               IF INS-NEIC = "SMVT0"
+                   MOVE "14512" TO INS-NEIC
+               END-IF
+               MOVE INS-NEIC TO SVD-1
                MOVE INS-NEIC TO NM1-CODE
                MOVE SPACE TO SEGFILE01
                WRITE SEGFILE01 FROM NM101
@@ -1802,6 +1806,9 @@
            MOVE INS-NAME TO NM1-NAMEL
            MOVE "PI" TO NM1-EINSS
            MOVE SPACE TO NM1-CODE
+           IF INS-NEIC = "SMVT0"
+               MOVE "14512" TO INS-NEIC
+           END-IF
            MOVE ins-neic TO NM1-CODE
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
@@ -2149,6 +2156,9 @@
       *     MOVE SPACE TO SEGFILE01
       *     WRITE SEGFILE01 FROM AMT01
 
+           IF INS-NEIC = "SMVT0"
+               MOVE "14512" TO INS-NEIC
+           END-IF
            MOVE INS-NEIC TO SVD-1
            COMPUTE NUM7 = CAS-PAID(X)
            PERFORM AMT-LEFT
