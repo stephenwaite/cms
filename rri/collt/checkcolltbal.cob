@@ -324,12 +324,15 @@
            MOVE SPACES TO MSG-LINE.
            MOVE "PLACEMENT DATE" TO ML-TEXT.
            MOVE WS-PLACED-EDIT TO ML-VAL.
-           MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+           MOVE MSG-LINE TO OUT-LINE
+           PERFORM P-WRITE.
            MOVE SPACES TO MSG-LINE.
            MOVE "SELECTOR" TO ML-TEXT.
            MOVE WS-SELMODE TO ML-VAL.
-           MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
-           MOVE SPACES TO OUT-LINE. PERFORM P-WRITE.
+           MOVE MSG-LINE TO OUT-LINE
+           PERFORM P-WRITE.
+           MOVE SPACES TO OUT-LINE
+           PERFORM P-WRITE.
 
            IF WS-CENSUS = "Y"
                PERFORM P-CENSUS THRU P-CENSUS-X
@@ -343,7 +346,8 @@
                GO TO R99
            END-IF.
 
-           MOVE HEAD-LINE TO OUT-LINE. PERFORM P-WRITE.
+           MOVE HEAD-LINE TO OUT-LINE
+           PERFORM P-WRITE.
            MOVE 0 TO WS-IX.
 
       *================================================================
@@ -394,13 +398,17 @@
            ADD 1 TO WS-FILELINE-CNT.
 
            MOVE "Y" TO WS-BAL-OK.
-           MOVE FI-CHG TO WS-PARSE. PERFORM P-PARSE THRU P-PARSE-X.
+           MOVE FI-CHG TO WS-PARSE
+           PERFORM P-PARSE THRU P-PARSE-X.
              MOVE WS-VALUE TO EXP-CHG.
-           MOVE FI-PAY TO WS-PARSE. PERFORM P-PARSE THRU P-PARSE-X.
+           MOVE FI-PAY TO WS-PARSE
+           PERFORM P-PARSE THRU P-PARSE-X.
              MOVE WS-VALUE TO EXP-PAY.
-           MOVE FI-ADJ TO WS-PARSE. PERFORM P-PARSE THRU P-PARSE-X.
+           MOVE FI-ADJ TO WS-PARSE
+           PERFORM P-PARSE THRU P-PARSE-X.
              MOVE WS-VALUE TO EXP-ADJ.
-           MOVE FI-BAL TO WS-PARSE. PERFORM P-PARSE THRU P-PARSE-X.
+           MOVE FI-BAL TO WS-PARSE
+           PERFORM P-PARSE THRU P-PARSE-X.
              MOVE WS-VALUE TO EXP-BAL.
 
            MOVE SPACES TO WS-DISCHR-CMP.
@@ -456,22 +464,27 @@
            MOVE SPACES TO MSG-LINE.
            MOVE "EXPORT LINES READ" TO ML-TEXT.
            MOVE WS-FILELINE-CNT TO ML-VAL.
-           MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+           MOVE MSG-LINE TO OUT-LINE
+           PERFORM P-WRITE.
            MOVE SPACES TO MSG-LINE.
            MOVE "DISTINCT GUARANTORS" TO ML-TEXT.
            MOVE EXP-CNT TO ML-VAL.
-           MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+           MOVE MSG-LINE TO OUT-LINE
+           PERFORM P-WRITE.
            MOVE SPACES TO MSG-LINE.
            MOVE "EXTRA LINES MERGED" TO ML-TEXT.
            MOVE WS-SPLIT-CNT TO ML-VAL.
-           MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+           MOVE MSG-LINE TO OUT-LINE
+           PERFORM P-WRITE.
            IF EXP-OVF > 0
                MOVE SPACES TO MSG-LINE
                MOVE "*** TABLE FULL, DROPPED" TO ML-TEXT
                MOVE EXP-OVF TO ML-VAL
-               MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE
+               MOVE MSG-LINE TO OUT-LINE
+               PERFORM P-WRITE
            END-IF.
-           MOVE SPACES TO OUT-LINE. PERFORM P-WRITE.
+           MOVE SPACES TO OUT-LINE
+           PERFORM P-WRITE.
 
        P-LOAD-X.
            EXIT.
@@ -614,7 +627,8 @@
            MOVE NOW-BAL            TO DL-NOW.
            MOVE WS-DRIFT           TO DL-DRIFT.
            MOVE WS-ACTION          TO DL-ACTION.
-           MOVE DETAIL-LINE TO OUT-LINE. PERFORM P-WRITE.
+           MOVE DETAIL-LINE TO OUT-LINE
+           PERFORM P-WRITE.
 
       *    a no-match is far more useful with the dates it does carry
            IF WS-LINES = 0
@@ -826,27 +840,34 @@
            MOVE SPACES TO MSG-LINE.
            MOVE "  total 018 records" TO ML-TEXT.
            MOVE CEN-TOTAL TO ML-VAL.
-           MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+           MOVE MSG-LINE TO OUT-LINE
+           PERFORM P-WRITE.
            MOVE SPACES TO MSG-LINE.
            MOVE "  collt-flagged" TO ML-TEXT.
            MOVE CEN-COLLT-RECS TO ML-VAL.
-           MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+           MOVE MSG-LINE TO OUT-LINE
+           PERFORM P-WRITE.
            MOVE SPACES TO MSG-LINE.
            MOVE "  ON TARGET DATE" TO ML-TEXT.
            MOVE CEN-TGT-RECS TO ML-VAL.
-           MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+           MOVE MSG-LINE TO OUT-LINE
+           PERFORM P-WRITE.
            MOVE SPACES TO CEN-LINE.
            MOVE "  target charge total" TO CL-DATE.
            MOVE CEN-TGT-AMT TO CL-AMT.
-           MOVE CEN-LINE TO OUT-LINE. PERFORM P-WRITE.
+           MOVE CEN-LINE TO OUT-LINE
+           PERFORM P-WRITE.
            IF CEN-DROP > 0
                MOVE SPACES TO MSG-LINE
                MOVE "  older dates not shown" TO ML-TEXT
                MOVE CEN-DROP TO ML-VAL
-               MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE
+               MOVE MSG-LINE TO OUT-LINE
+               PERFORM P-WRITE
            END-IF.
-           MOVE "---" TO OUT-LINE. PERFORM P-WRITE.
-           MOVE SPACES TO OUT-LINE. PERFORM P-WRITE.
+           MOVE "---" TO OUT-LINE
+           PERFORM P-WRITE.
+           MOVE SPACES TO OUT-LINE
+           PERFORM P-WRITE.
 
        P-CENSUS-X.
            EXIT.
@@ -889,48 +910,62 @@
 
       *================================================================
        R90.
-           MOVE SPACES TO OUT-LINE. PERFORM P-WRITE.
+           MOVE SPACES TO OUT-LINE
+           PERFORM P-WRITE.
            MOVE SPACES TO TOTAL-LINE.
            MOVE "TOTALS"     TO TOTAL-LINE(1:22).
            MOVE GT-EXP-BAL   TO TL-EXP.
            MOVE GT-THEN-BAL  TO TL-THEN.
            MOVE GT-SINCE     TO TL-SINCE.
            MOVE GT-NOW-BAL   TO TL-NOW.
-           MOVE TOTAL-LINE TO OUT-LINE. PERFORM P-WRITE.
-           MOVE SPACES TO OUT-LINE. PERFORM P-WRITE.
+           MOVE TOTAL-LINE TO OUT-LINE
+           PERFORM P-WRITE.
+           MOVE SPACES TO OUT-LINE
+           PERFORM P-WRITE.
 
            MOVE "GUARANTORS         " TO ML-TEXT.
              MOVE WS-GAR-CNT TO ML-VAL.
-             MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+             MOVE MSG-LINE TO OUT-LINE
+             PERFORM P-WRITE.
            MOVE "REBUILD AGREED     " TO ML-TEXT.
              MOVE WS-RECON-CNT TO ML-VAL.
-             MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+             MOVE MSG-LINE TO OUT-LINE
+             PERFORM P-WRITE.
            MOVE "REBUILD DISAGREED  " TO ML-TEXT.
              MOVE WS-UNRECON-CNT TO ML-VAL.
-             MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+             MOVE MSG-LINE TO OUT-LINE
+             PERFORM P-WRITE.
            MOVE "NO 018 MATCH       " TO ML-TEXT.
              MOVE WS-NOTFND-CNT TO ML-VAL.
-             MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+             MOVE MSG-LINE TO OUT-LINE
+             PERFORM P-WRITE.
            MOVE "UNPARSABLE AMOUNTS " TO ML-TEXT.
              MOVE WS-BADBAL-CNT TO ML-VAL.
-             MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+             MOVE MSG-LINE TO OUT-LINE
+             PERFORM P-WRITE.
            MOVE "DISCHR MISMATCHES  " TO ML-TEXT.
              MOVE WS-DOSDIFF-CNT TO ML-VAL.
-             MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
-           MOVE SPACES TO OUT-LINE. PERFORM P-WRITE.
+             MOVE MSG-LINE TO OUT-LINE
+             PERFORM P-WRITE.
+           MOVE SPACES TO OUT-LINE
+           PERFORM P-WRITE.
            MOVE "SEND AS IS         " TO ML-TEXT.
              MOVE WS-SEND-CNT TO ML-VAL.
-             MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+             MOVE MSG-LINE TO OUT-LINE
+             PERFORM P-WRITE.
            MOVE "SEND REDUCED       " TO ML-TEXT.
              MOVE WS-REDUCE-CNT TO ML-VAL.
-             MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+             MOVE MSG-LINE TO OUT-LINE
+             PERFORM P-WRITE.
            MOVE "PULL FROM FILE     " TO ML-TEXT.
              MOVE WS-PULL-CNT TO ML-VAL.
-             MOVE MSG-LINE TO OUT-LINE. PERFORM P-WRITE.
+             MOVE MSG-LINE TO OUT-LINE
+             PERFORM P-WRITE.
            MOVE SPACES TO CEN-LINE.
              MOVE "AMT TO AGENCY" TO CL-DATE.
              MOVE GT-SENDABLE TO CL-AMT.
-             MOVE CEN-LINE TO OUT-LINE. PERFORM P-WRITE.
+             MOVE CEN-LINE TO OUT-LINE
+             PERFORM P-WRITE.
 
        R99.
            CLOSE CHARCUR PAYCUR FILEIN FILEOUT.
