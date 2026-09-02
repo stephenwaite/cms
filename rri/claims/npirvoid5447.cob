@@ -518,6 +518,8 @@
            02 X-MM PIC 99.
            02 X-DD PIC 99.
        01  CAS-INS PIC X(3).
+       01  ANS PIC X.
+
        PROCEDURE DIVISION.
 
        P0. 
