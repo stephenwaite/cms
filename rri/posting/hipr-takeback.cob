@@ -1100,10 +1100,13 @@
            MOVE PAYBACK TO PAYFILE01
            PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
 
-      *TB* a takeback posts TO a satisfied claim by definition, so the
-      *TB* paid/overpaid guard cannot apply to it.
+      *TB* neither half of a pair can be judged by this guard. the
+      *TB* takeback posts to a satisfied claim by definition, and the
+      *TB* repay posts to one the takeback restored earlier in this
+      *TB* same run. the pair is self-balancing by construction -
+      *TB* the census at P9 and the sandbox diff are the control.
            IF (PAID-FLAG = 1 OR OVERPAY-FLAG = 1)
-               AND TAKEBACK-FLAG = 0
+               AND TAKEBACK-FLAG = 0 AND REPAY-FLAG = 0
                PERFORM P1-LOST-SVC
                GO TO P5-SVC-LOOP-EXIT
            END-IF
@@ -1469,13 +1472,18 @@
                END-IF
            END-IF
 
-      *TB* takeback/repay rows carry the paired ICN instead
-           IF TAKEBACK-FLAG = 1
-               MOVE "TAKEBACK" TO EF-AUTH
-           END-IF
-           IF REPAY-FLAG = 1
-               MOVE SPACE TO EF-AUTH
-               STRING "REPAY " CLP-F8 DELIMITED BY SIZE INTO EF-AUTH
+      *TB* pair label, but never at the cost of the OVERPAY/PAID
+      *TB* diagnostic - that is what identifies which guard rejected
+      *TB* the row.
+           IF OVERPAY-FLAG = 0 AND PAID-FLAG = 0
+               IF TAKEBACK-FLAG = 1
+                   MOVE "TAKEBACK" TO EF-AUTH
+               END-IF
+               IF REPAY-FLAG = 1
+                   MOVE SPACE TO EF-AUTH
+                   STRING "REPAY " CLP-F8 DELIMITED BY SIZE
+                       INTO EF-AUTH
+               END-IF
            END-IF
 
            MOVE CLP-1 TO EF4
