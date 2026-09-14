@@ -24,6 +24,8 @@
       *  11. P5-SVC-LOOP - PD-DENIAL 08 on the takeback payment record
       *  12. P4          - PD-DENIAL 15 on the takeback contractual
       *                    reversal; repay half keeps 14
+      *  13. P0000       - remit dupe check logs instead of skipping;
+      *                    this 835 already ran through hiproa
       *
        IDENTIFICATION DIVISION.
        PROGRAM-ID. hipr-takeback.
@@ -602,19 +604,22 @@
                GO TO P00
            END-IF
 
+      *TB* this 835 was already run through hiproa before the takeback
+      *TB* pairs were noticed, so its remit key is already on file and
+      *TB* the normal dupe skip would abandon the transaction set.
+      *TB* log the re-read and carry on. protection against a double
+      *TB* post is a fresh payfile each run plus the sandbox diff -
+      *TB* do NOT run this twice against the same payfile.
            READ REMITFILE
                INVALID
                    ACCEPT REMIT-DATE-E FROM CENTURY-DATE
                    WRITE REMITFILE01
                    END-WRITE
                NOT INVALID
-                   IF TRN-2 NOT = "0000000000"
-                       MOVE SPACE TO ERROR-FILE01
-                       STRING REMITFILE01 " DUPE CHECK"
-                           DELIMITED BY SIZE INTO ERROR-FILE01
-                       WRITE ERROR-FILE01
-                       GO TO P00
-                   END-IF
+                   MOVE SPACE TO ERROR-FILE01
+                   STRING "REMIT ALREADY ON FILE - TAKEBACK RERUN "
+                       REMIT-KEY DELIMITED BY SIZE INTO ERROR-FILE01
+                   WRITE ERROR-FILE01
            END-READ
 
            IF PAYORID = SPACE
