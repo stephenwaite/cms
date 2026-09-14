@@ -11,7 +11,12 @@
       *
       * Differences from hiproa are marked with *TB* comments:
       *   1. P0000       - hard gate, non-63092 transaction sets skipped
-      *   2. P1-CLP-1    - TAKEBACK-FLAG / REPAY-FLAG set per claim
+      *   2. P1-CLP-1    - TAKEBACK-FLAG / REPAY-FLAG set per claim.
+      *                    repay is identified by CLP01 matching the
+      *                    immediately preceding status-22 claim, NOT
+      *                    by CLP09 frequency - this payer sets 1 on
+      *                    some replacements and 7 on others.
+      *                    REF*F8 in P1-NM1 is the backstop.
       *   3. P1-CLP-2    - CLP-F8 cleared per claim
       *   4. P1-NM1      - REF*F8 captured (links replacement to reversal)
       *   5. LOOK-CHG    - charge compare on absolute value when takeback
@@ -435,6 +440,12 @@
        01  TAKEBACK-FLAG  PIC 9 VALUE 0.
        01  REPAY-FLAG     PIC 9 VALUE 0.
        01  CLP-F8         PIC X(20) VALUE SPACE.
+      *TB* CLP01 / ICN of the most recent unpaired status-22 claim.
+      *TB* the replacement always follows its reversal carrying the
+      *TB* same CLP01 - frequency code 7 is NOT dependable, this
+      *TB* payer sets 1 on some replacements.
+       01  PREV-TB-CLP1   PIC X(20) VALUE SPACE.
+       01  PREV-TB-ICN    PIC X(20) VALUE SPACE.
        01  TB-CNTR        PIC 9(4) VALUE 0.
        01  RP-CNTR        PIC 9(4) VALUE 0.
        01  NEF-4          PIC ZZZ9.
@@ -674,10 +685,18 @@
                IF CLP-2CLMSTAT = "22"
                    MOVE 1 TO TAKEBACK-FLAG
                    ADD 1 TO TB-CNTR
-               END-IF
-               IF CLP-2CLMSTAT = "1 " AND CLP-9FREQ(1:1) = "7"
-                   MOVE 1 TO REPAY-FLAG
-                   ADD 1 TO RP-CNTR
+                   MOVE CLP-1 TO PREV-TB-CLP1
+                   MOVE CLP-7ICN TO PREV-TB-ICN
+               ELSE
+                   IF (CLP-1 = PREV-TB-CLP1)
+                       AND (PREV-TB-CLP1 NOT = SPACE)
+                       AND (CLP-2CLMSTAT = "1 " OR CLP-2CLMSTAT = "2 "
+                            OR CLP-2CLMSTAT = "3 "
+                            OR CLP-2CLMSTAT = "19")
+                       MOVE 1 TO REPAY-FLAG
+                       ADD 1 TO RP-CNTR
+                       MOVE SPACE TO PREV-TB-CLP1
+                   END-IF
                END-IF
            END-IF
 
@@ -772,6 +791,16 @@
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
                    REF-0 REF-1 REF-2
                MOVE REF-2 TO CLP-F8
+      *TB* backstop pairing - if the replacement did not immediately
+      *TB* follow its reversal, F8 still names the reversed ICN.
+      *TB* this runs before P2-SVC-LOOP so the flag is set in time.
+               IF PAYORID = TAKEBACK-PAYOR AND REPAY-FLAG = 0
+                   AND CLP-F8 = PREV-TB-ICN
+                   AND PREV-TB-ICN NOT = SPACE
+                   MOVE 1 TO REPAY-FLAG
+                   ADD 1 TO RP-CNTR
+                   MOVE SPACE TO PREV-TB-CLP1
+               END-IF
                GO TO P1-NM1
            END-IF
 
