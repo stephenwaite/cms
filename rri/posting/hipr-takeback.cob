@@ -710,6 +710,7 @@
                DISPLAY "CLP " CLP-1 " STAT[" CLP-2CLMSTAT
                    "] FREQ[" CLP-9FREQ "] ICN " CLP-7ICN
                    " TB=" TAKEBACK-FLAG " RP=" REPAY-FLAG
+                   " PREV=[" PREV-TB-CLP1 "]"
                    UPON SYSERR
            END-IF.
 
