@@ -439,7 +439,7 @@
        01  RP-CNTR        PIC 9(4) VALUE 0.
        01  NEF-4          PIC ZZZ9.
       *TB* set to 1 to trace claim routing to stderr. 0 for a live run.
-       01  TB-DEBUG       PIC 9 VALUE 0.
+       01  TB-DEBUG       PIC 9 VALUE 1.
        01  TB-WHERE       PIC X(12).
        01  TB-NUM         PIC -ZZZ9.99.
 
