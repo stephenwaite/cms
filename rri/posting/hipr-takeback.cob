@@ -1270,10 +1270,20 @@
                PERFORM S4 THRU S5
       *TB* same reasoning as P7-NEXT: without this run's takeback
       *TB* records the repay's contractual reversal reads as negative.
+      *TB* PD-AMOUNT is subtracted back out because the payment
+      *TB* record is already written by this point, so S4-PAYFILE
+      *TB* counts it - leaving both terms double counts it.
                IF TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1
                    MOVE PAYFILE01 TO PAYBACK2
                    PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
                    MOVE PAYBACK2 TO PAYFILE01
+                   COMPUTE CLAIM-TOT = CLAIM-TOT - PD-AMOUNT
+               END-IF
+
+               IF TB-DEBUG = 1
+                   MOVE CLAIM-TOT TO TB-NUM
+                   DISPLAY "  ADJ BAL CLAIM-TOT=" TB-NUM
+                       " INS-REDUCE=" INS-REDUCE UPON SYSERR
                END-IF
 
                IF CLAIM-TOT < 0
