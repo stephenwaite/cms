@@ -438,6 +438,10 @@
        01  TB-CNTR        PIC 9(4) VALUE 0.
        01  RP-CNTR        PIC 9(4) VALUE 0.
        01  NEF-4          PIC ZZZ9.
+      *TB* set to 1 to trace claim routing to stderr. 0 for a live run.
+       01  TB-DEBUG       PIC 9 VALUE 1.
+       01  TB-WHERE       PIC X(12).
+       01  TB-NUM         PIC -ZZZ9.99.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -683,6 +687,13 @@
            PERFORM AMOUNT-1
            MOVE AMOUNT-X TO CLAIM-PAID.
 
+           IF TB-DEBUG = 1
+               DISPLAY "CLP " CLP-1 " STAT[" CLP-2CLMSTAT
+                   "] FREQ[" CLP-9FREQ "] ICN " CLP-7ICN
+                   " TB=" TAKEBACK-FLAG " RP=" REPAY-FLAG
+                   UPON SYSERR
+           END-IF.
+
        P1-CLP-2.
            MOVE CLP-2CLMSTAT TO EF8
            MOVE SPACE TO NM101 CLMCAS01.
@@ -878,6 +889,11 @@
            END-IF.
 
        P3-SVC-LOOP.
+           IF TB-DEBUG = 1
+               DISPLAY "  MATCH PASS1 FIND=" FIND-CNTR
+                   " SVC=" SVC-CNTR " GARFLAG=" GAR-FLAG
+                   " FLAGY=" FLAGY UPON SYSERR
+           END-IF.
       * VACCN WENT TO 17 DIGIT POLICY # SO CAN'T USE THIS.
       *     PERFORM FIND-GARNO THRU FIND-GARNO-EXIT
 
@@ -1099,6 +1115,13 @@
            PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
            MOVE PAYBACK TO PAYFILE01
            PERFORM CHECK-CLAIM-TOT THRU CHECK-CLAIM-TOT-EXIT
+
+           IF TB-DEBUG = 1
+               MOVE CLAIM-TOT TO TB-NUM
+               DISPLAY "  BAL CLAIM-TOT=" TB-NUM
+                   " PAID=" PAID-FLAG " OVER=" OVERPAY-FLAG
+                   " PAYCODE=" PD-PAYCODE "/" G-PRINS UPON SYSERR
+           END-IF
 
       *TB* neither half of a pair can be judged by this guard. the
       *TB* takeback posts to a satisfied claim by definition, and the
@@ -1786,6 +1809,13 @@
            IF TAKEBACK-FLAG = 1
                COMPUTE AMOUNT-X = -1 * AMOUNT-X
            END-IF
+           IF TB-DEBUG = 1
+               MOVE AMOUNT-X TO TB-NUM
+               DISPLAY "  CHG CMP SVC=" TB-NUM
+                   " CC-AMT=" CC-AMOUNT " CPT=" CC-PROC1X
+                   "/" CC-PROC1Y " DT=" CC-DATE-T "/" SVC-DATE(X)
+                   UPON SYSERR
+           END-IF
            IF AMOUNT-X NOT = CC-AMOUNT
                GO TO LOOK-1
            END-IF
@@ -1798,6 +1828,10 @@
       *TB* the repay. the guard cannot apply here.
            IF TAKEBACK-FLAG = 0 AND REPAY-FLAG = 0
                PERFORM A5 THRU A5-EXIT
+               IF TB-DEBUG = 1 AND FLAGY = 1
+                   DISPLAY "  A5 REJECT - PAYFILE HAS CLAIM "
+                       CC-CLAIM UPON SYSERR
+               END-IF
            END-IF
 
            IF FLAGY = 1
