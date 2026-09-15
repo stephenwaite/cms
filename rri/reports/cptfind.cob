@@ -84,9 +84,12 @@
        01  WS-ENV.
            02 ENV-CPT   PIC X(10) VALUE SPACE.
            02 ENV-DEBUG PIC X(10) VALUE SPACE.
+           02 ENV-WIDTH PIC X(10) VALUE SPACE.
+           02 ENV-W2    PIC XX VALUE SPACE.
 
        01  WS-PARM.
-           02 CPT-WANT PIC X(5) VALUE "70450".
+           02 CPT-WANT  PIC X(5) VALUE "70450".
+           02 MRN-WIDTH PIC 99 VALUE 8.
 
        01  WS-IN.
            02 F-MRN  PIC X(20).
@@ -102,6 +105,21 @@
            02 WS-NAME3    PIC XXX.
            02 WS-NAMCHK   PIC X.
            02 WS-DATE-T   PIC X(8).
+
+      *  g-acct is stored zero filled on the left, so the worklist mrn
+      *  is stripped of leading zeros and padded back out to
+      *  MRN-WIDTH before the start.  442973 and 00442973 both land
+      *  on 00442973.
+
+       01  WS-MRN-WORK.
+           02 WS-BARE     PIC X(20).
+           02 WS-PAD      PIC X(20).
+           02 WS-LEN      PIC 99 VALUE 0.
+           02 BARE-LEN    PIC 99 VALUE 0.
+           02 PAD-OFF     PIC 99 VALUE 0.
+           02 WS-I        PIC 99 VALUE 0.
+           02 WS-J        PIC 99 VALUE 0.
+           02 ZFLAG       PIC 9 VALUE 0.
 
        01  WS-DATE-PARTS.
            02 DP-M PIC X(4).
@@ -181,6 +199,26 @@
                MOVE 1 TO DEBUG-FLAG
            END-IF
 
+           ACCEPT ENV-WIDTH FROM ENVIRONMENT "MRNWIDTH"
+             ON EXCEPTION
+               CONTINUE
+           END-ACCEPT
+           MOVE SPACE TO ENV-W2
+           IF ENV-WIDTH NOT = SPACE
+               IF ENV-WIDTH(2:1) = SPACE
+                   MOVE "0" TO ENV-W2(1:1)
+                   MOVE ENV-WIDTH(1:1) TO ENV-W2(2:1)
+               ELSE
+                   MOVE ENV-WIDTH(1:2) TO ENV-W2
+               END-IF
+               IF ENV-W2 NUMERIC
+                   MOVE ENV-W2 TO MRN-WIDTH
+               END-IF
+           END-IF
+           IF MRN-WIDTH < 1 OR MRN-WIDTH > 20
+               MOVE 8 TO MRN-WIDTH
+           END-IF
+
            OPEN INPUT GARFILE
            IF GAR-STAT NOT = "00"
                DISPLAY "cptfind: garfile open " GAR-STAT UPON SYSERR
@@ -227,6 +265,8 @@
                GO TO P9
            END-IF
 
+           INSPECT FILEIN01 REPLACING ALL X"0D" BY " "
+
            IF FILEIN01 = SPACE
                GO TO P1
            END-IF
@@ -254,10 +294,10 @@
                GO TO P1
            END-IF
 
-           MOVE SPACE TO WS-ACCT
-           MOVE F-MRN TO WS-ACCT
            MOVE SPACE TO WS-NAME3
            MOVE F-NAME(1:3) TO WS-NAME3
+
+           PERFORM NORM-MRN THRU NORM-MRN-EXIT
 
            MOVE 0 TO ACCT-HIT HIT-FLAG GAR-EOF.
 
@@ -267,6 +307,13 @@
            MOVE SPACE TO G-ACCT
            MOVE WS-ACCT TO G-ACCT
            MOVE G-ACCT TO SAVE-ACCT
+
+           IF DEBUG-FLAG = 1
+               MOVE SPACE TO WS-TRACE
+               STRING "ACCT [" SAVE-ACCT "]" DELIMITED BY SIZE
+                   INTO WS-TRACE
+               DISPLAY WS-TRACE UPON SYSERR
+           END-IF
 
            START GARFILE KEY NOT < G-ACCT
              INVALID
@@ -439,6 +486,53 @@
 
            CLOSE GARFILE CHARCUR FILEIN REPORT-FILE
            STOP RUN.
+
+      *  ---- mrn to zero filled g-acct -----------------------------
+      *
+      *  strip leading zeros, then pad back to MRN-WIDTH.
+
+       NORM-MRN.
+           MOVE SPACE TO WS-ACCT WS-BARE WS-PAD
+           MOVE 0 TO WS-LEN BARE-LEN ZFLAG WS-J
+
+           PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > 20
+               IF F-MRN(WS-I:1) NOT = SPACE
+                   MOVE WS-I TO WS-LEN
+               END-IF
+           END-PERFORM
+
+           IF WS-LEN = 0
+               GO TO NORM-MRN-EXIT
+           END-IF
+
+           PERFORM VARYING WS-I FROM 1 BY 1 UNTIL WS-I > WS-LEN
+               IF ZFLAG = 0 AND F-MRN(WS-I:1) = "0"
+                   CONTINUE
+               ELSE
+                   MOVE 1 TO ZFLAG
+                   ADD 1 TO WS-J
+                   MOVE F-MRN(WS-I:1) TO WS-BARE(WS-J:1)
+               END-IF
+           END-PERFORM
+
+           IF WS-J = 0
+               MOVE "0" TO WS-BARE(1:1)
+               MOVE 1 TO WS-J
+           END-IF
+
+           MOVE WS-J TO BARE-LEN
+
+           IF BARE-LEN NOT < MRN-WIDTH
+               MOVE WS-BARE TO WS-ACCT
+           ELSE
+               MOVE ALL "0" TO WS-PAD(1:MRN-WIDTH)
+               COMPUTE PAD-OFF = MRN-WIDTH - BARE-LEN + 1
+               MOVE WS-BARE(1:BARE-LEN) TO WS-PAD(PAD-OFF:BARE-LEN)
+               MOVE WS-PAD TO WS-ACCT
+           END-IF.
+
+       NORM-MRN-EXIT.
+           EXIT.
 
       *  ---- mm/dd/yyyy to ccyymmdd --------------------------------
 
