@@ -103,6 +103,8 @@
            02 SAVE-ACCT   PIC X(20).
            02 SAVE-GARNO  PIC X(11).
            02 SAVE-PRINS  PIC X(4).
+           02 SAVE-DOB    PIC X(10).
+           02 SAVE-POL    PIC X(20).
            02 WS-NAME3    PIC XXX.
            02 WS-NAMCHK   PIC X.
            02 WS-DATE-T   PIC X(8).
@@ -145,6 +147,8 @@
            02 FILLER PIC X(11) VALUE "DOS".
            02 FILLER PIC X(12) VALUE "GARNO".
            02 FILLER PIC X(5)  VALUE "INS".
+           02 FILLER PIC X(11) VALUE "DOB".
+           02 FILLER PIC X(21) VALUE "PRIPOL".
            02 FILLER PIC X(14) VALUE "CHARCUR-KEY".
            02 FILLER PIC X(7)  VALUE "CPT".
            02 FILLER PIC X(11) VALUE "MODS".
@@ -163,6 +167,10 @@
            02 DL-GARNO PIC X(11).
            02 FILLER PIC X VALUE SPACE.
            02 DL-PRINS PIC X(4).
+           02 FILLER PIC X VALUE SPACE.
+           02 DL-DOB PIC X(10).
+           02 FILLER PIC X VALUE SPACE.
+           02 DL-POL PIC X(20).
            02 FILLER PIC X VALUE SPACE.
            02 DL-CCKEY PIC X(13).
            02 FILLER PIC X VALUE SPACE.
@@ -347,6 +355,10 @@
            MOVE G-GARNO TO SAVE-GARNO
            MOVE SPACE TO SAVE-PRINS
            MOVE G-PRINS TO SAVE-PRINS
+           MOVE SPACE TO SAVE-DOB
+           MOVE G-DOB TO SAVE-DOB
+           MOVE SPACE TO SAVE-POL
+           MOVE G-PRIPOL TO SAVE-POL
 
            IF DEBUG-FLAG = 1
                MOVE SPACE TO WS-TRACE
@@ -420,6 +432,8 @@
            MOVE F-DOS TO DL-DOS
            MOVE SAVE-GARNO TO DL-GARNO
            MOVE SAVE-PRINS TO DL-PRINS
+           MOVE SAVE-DOB TO DL-DOB
+           MOVE SAVE-POL TO DL-POL
            MOVE CHARCUR-KEY TO DL-CCKEY
            MOVE CC-CPT TO DL-CPT
            MOVE SPACE TO DL-MODS
@@ -453,6 +467,8 @@
                MOVE F-DOS TO DL-DOS
                MOVE SAVE-GARNO TO DL-GARNO
                MOVE SAVE-PRINS TO DL-PRINS
+               MOVE SAVE-DOB TO DL-DOB
+               MOVE SAVE-POL TO DL-POL
                MOVE "*NO CHARGE" TO DL-CCKEY
                MOVE CPT-WANT TO DL-CPT
                PERFORM WRITE-LINE
