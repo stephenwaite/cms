@@ -41,7 +41,7 @@
            LOCK MODE MANUAL.
 
            SELECT CAREFILE ASSIGN TO "S40"   ORGANIZATION IS INDEXED
-           ACCESS IS DYNAMIC        RECORD KEY IS CAREFILE-KEY
+           ACCESS IS DYNAMIC        RECORD KEY IS CARE-KEY
            FILE STATUS IS CAR-STAT
            LOCK MODE MANUAL.
 
@@ -115,7 +115,13 @@
            02 SAVE-PRINS  PIC X(4).
            02 SAVE-DOB    PIC X(10).
            02 SAVE-POL    PIC X(20).
-           02 SAVE-ICN    PIC X(20).
+           02 SAVE-ICN    PIC X(13).
+
+       01  WS-ICN-WORK.
+           02 FB-ICN      PIC X(13) VALUE SPACE.
+           02 EXACT-FLAG  PIC 9 VALUE 0.
+           02 WS-MODX     PIC XX.
+           02 WS-MODY     PIC XX.
            02 WS-NAME3    PIC XXX.
            02 WS-NAMCHK   PIC X.
            02 WS-DATE-T   PIC X(8).
@@ -167,7 +173,7 @@
            02 FILLER PIC X(11) VALUE "AMOUNT".
            02 FILLER PIC X(8)  VALUE "CLAIM".
            02 FILLER PIC X(5)  VALUE "PAY".
-           02 FILLER PIC X(21) VALUE "MEDICARE ICN".
+           02 FILLER PIC X(14) VALUE "MEDICARE ICN".
            02 FILLER PIC X(4)  VALUE "NCK".
 
        01  HDR-2 PIC X(160) VALUE ALL "-".
@@ -197,7 +203,7 @@
            02 FILLER PIC X VALUE SPACE.
            02 DL-PAY PIC X(4).
            02 FILLER PIC X VALUE SPACE.
-           02 DL-ICN PIC X(20).
+           02 DL-ICN PIC X(13).
            02 FILLER PIC X VALUE SPACE.
            02 DL-NCK PIC X.
 
@@ -541,28 +547,28 @@
 
       *  ---- medicare icn from carefile ----------------------------
       *
-      *  only for ins 003.  carefile is scanned on the garno prefix
-      *  the same way charcur is, and the entry is tied back to the
-      *  charge through the claim number so a garno carrying several
-      *  medicare claims returns the icn for this one.
-      *
-      *  ASSUMED NAMES - check against carefile.CPY and rename:
-      *      CAREFILE-KEY / CD-KEY8 / CD-KEY3   garno prefix key
-      *      CD-CLAIM                           claim number
-      *      CD-ICN                             payer control number
+      *  only for ins 003.  CARE-KEY is garno + dos + proc + mod1 +
+      *  mod2, so the start lands straight on the line - no scan of
+      *  the whole account.  mods are left low on the start and the
+      *  prefix is walked, because the mods carefile holds need not
+      *  match what charcur holds (26 vs blank).  an exact mod match
+      *  wins; otherwise the first entry carrying an icn is taken.
 
        LOOK-ICN.
-           MOVE SPACE TO SAVE-ICN
-           MOVE 0 TO CAR-EOF
+           MOVE SPACE TO SAVE-ICN FB-ICN
+           MOVE 0 TO CAR-EOF EXACT-FLAG
 
            IF SAVE-PRINS NOT = "003"
                GO TO LOOK-ICN-EXIT
            END-IF
 
-           MOVE SAVE-GARNO TO CD-KEY8
-           MOVE "000" TO CD-KEY3
+           MOVE SPACE TO CARE-KEY
+           MOVE SAVE-GARNO TO CR-KEY8
+           MOVE WS-DATE-T TO CR-DATE
+           MOVE CPT-WANT TO CR-PROC
+           MOVE SPACE TO CR-MOD1 CR-MOD2
 
-           START CAREFILE KEY NOT < CAREFILE-KEY
+           START CAREFILE KEY NOT < CARE-KEY
              INVALID
                MOVE 1 TO CAR-EOF
            END-START
@@ -578,33 +584,59 @@
            END-READ
 
            IF CAR-EOF = 1
-               GO TO LOOK-ICN-EXIT
+               GO TO LOOK-ICN-DONE
            END-IF
 
-           IF CD-KEY8 NOT = SAVE-GARNO
-               GO TO LOOK-ICN-EXIT
+           IF CR-KEY8 NOT = SAVE-GARNO
+               GO TO LOOK-ICN-DONE
+           END-IF
+
+           IF CR-DATE NOT = WS-DATE-T
+               GO TO LOOK-ICN-DONE
+           END-IF
+
+           IF CR-PROC NOT = CPT-WANT
+               GO TO LOOK-ICN-DONE
            END-IF
 
            IF DEBUG-FLAG = 1
                MOVE SPACE TO WS-TRACE
-               STRING "CAR key=" CAREFILE-KEY
-                      " clm=" CD-CLAIM
-                      " icn=" CD-ICN
-                      " want=" CC-CLAIM DELIMITED BY SIZE
+               STRING "CAR " CR-KEY8 " " CR-DATE " " CR-PROC
+                      " mod=" CR-MOD1 CR-MOD2
+                      " icn=" CR-ICN
+                      " ins=" CR-INSNAME DELIMITED BY SIZE
                    INTO WS-TRACE
                DISPLAY WS-TRACE UPON SYSERR
            END-IF
 
-           IF CD-CLAIM NOT = CC-CLAIM
+           IF CR-ICN = SPACE
                GO TO LOOK-ICN-1
            END-IF
 
-           IF CD-ICN = SPACE
-               GO TO LOOK-ICN-1
+           IF FB-ICN = SPACE
+               MOVE CR-ICN TO FB-ICN
            END-IF
 
-           MOVE CD-ICN TO SAVE-ICN
-           ADD 1 TO C-ICN.
+           MOVE SPACE TO WS-MODX WS-MODY
+           MOVE CC-MOD TO WS-MODX
+           MOVE CC-MOD2 TO WS-MODY
+
+           IF CR-MOD1 = WS-MODX AND CR-MOD2 = WS-MODY
+               MOVE CR-ICN TO SAVE-ICN
+               MOVE 1 TO EXACT-FLAG
+               GO TO LOOK-ICN-DONE
+           END-IF
+
+           GO TO LOOK-ICN-1.
+
+       LOOK-ICN-DONE.
+           IF EXACT-FLAG = 0
+               MOVE FB-ICN TO SAVE-ICN
+           END-IF
+
+           IF SAVE-ICN NOT = SPACE
+               ADD 1 TO C-ICN
+           END-IF.
 
        LOOK-ICN-EXIT.
            EXIT.
