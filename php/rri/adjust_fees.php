@@ -1,6 +1,6 @@
 <?php
 
-$handle = fopen("/home/stee/Downloads/fee2024", "r");
+$handle = fopen("/home/stee/Downloads/fee2026", "r");
 $cmsCptArray = array();
 while ($line = fgetcsv($handle)) {
     if ($line[0] == 'C') {
@@ -60,9 +60,9 @@ foreach ($fees as $key => $value) {
     }
 }
 
-$fileout = fopen('2025_fees', 'w');
+$fileout = fopen('2027_fees', 'w');
 foreach ($fees as $key => $value) {
-    $string = $key . "," . ($value['mod'] ?? '') . "," . $value['desc'] . "," . round($value['fee'] * 1.03) . "," .
+    $string = $key . "," . ($value['mod'] ?? '') . "," . $value['desc'] . "," . round($value['fee'] * 1.025) . "," .
         ($value['allow'] ?? '') . "," . ($value['ratio'] ?? '') . "\n";
     fwrite($fileout, $string);
 }
