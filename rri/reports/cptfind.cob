@@ -40,6 +40,11 @@
            FILE STATUS IS CHR-STAT
            LOCK MODE MANUAL.
 
+           SELECT CAREFILE ASSIGN TO "S40"   ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC        RECORD KEY IS CAREFILE-KEY
+           FILE STATUS IS CAR-STAT
+           LOCK MODE MANUAL.
+
            SELECT FILEIN ASSIGN TO "S55" ORGANIZATION
            LINE SEQUENTIAL
            FILE STATUS IS FIN-STAT.
@@ -57,17 +62,21 @@
        FD  CHARCUR.
            COPY CHARCUR.CPY.
 
+       FD  CAREFILE.
+           COPY carefile.CPY.
+
        FD  FILEIN.
        01  FILEIN01 PIC X(256).
 
        FD  REPORT-FILE.
-       01  REPORT-FILE01 PIC X(132).
+       01  REPORT-FILE01 PIC X(160).
 
        WORKING-STORAGE SECTION.
 
        01  STATUS-FLAGS.
            02 GAR-STAT PIC XX VALUE SPACE.
            02 CHR-STAT PIC XX VALUE SPACE.
+           02 CAR-STAT PIC XX VALUE SPACE.
            02 FIN-STAT PIC XX VALUE SPACE.
            02 RPT-STAT PIC XX VALUE SPACE.
 
@@ -77,6 +86,7 @@
            02 EOF-FLAG      PIC 9 VALUE 0.
            02 GAR-EOF       PIC 9 VALUE 0.
            02 CHR-EOF       PIC 9 VALUE 0.
+           02 CAR-EOF       PIC 9 VALUE 0.
            02 HIT-FLAG      PIC 9 VALUE 0.
            02 ACCT-HIT      PIC 9 VALUE 0.
            02 DEBUG-FLAG    PIC 9 VALUE 0.
@@ -105,6 +115,7 @@
            02 SAVE-PRINS  PIC X(4).
            02 SAVE-DOB    PIC X(10).
            02 SAVE-POL    PIC X(20).
+           02 SAVE-ICN    PIC X(20).
            02 WS-NAME3    PIC XXX.
            02 WS-NAMCHK   PIC X.
            02 WS-DATE-T   PIC X(8).
@@ -139,6 +150,7 @@
            02 C-NOCHG  PIC 9(7) VALUE 0.
            02 C-HIT    PIC 9(7) VALUE 0.
            02 C-GAR    PIC 9(7) VALUE 0.
+           02 C-ICN    PIC 9(7) VALUE 0.
 
        01  WS-TRACE PIC X(132).
 
@@ -155,9 +167,10 @@
            02 FILLER PIC X(11) VALUE "AMOUNT".
            02 FILLER PIC X(8)  VALUE "CLAIM".
            02 FILLER PIC X(5)  VALUE "PAY".
+           02 FILLER PIC X(21) VALUE "MEDICARE ICN".
            02 FILLER PIC X(4)  VALUE "NCK".
 
-       01  HDR-2 PIC X(132) VALUE ALL "-".
+       01  HDR-2 PIC X(160) VALUE ALL "-".
 
        01  DL1.
            02 DL-MRN PIC X(9).
@@ -183,6 +196,8 @@
            02 DL-CLAIM PIC X(7).
            02 FILLER PIC X VALUE SPACE.
            02 DL-PAY PIC X(4).
+           02 FILLER PIC X VALUE SPACE.
+           02 DL-ICN PIC X(20).
            02 FILLER PIC X VALUE SPACE.
            02 DL-NCK PIC X.
 
@@ -240,6 +255,12 @@
            OPEN INPUT CHARCUR
            IF CHR-STAT NOT = "00"
                DISPLAY "cptfind: charcur open " CHR-STAT UPON SYSERR
+               STOP RUN
+           END-IF
+
+           OPEN INPUT CAREFILE
+           IF CAR-STAT NOT = "00"
+               DISPLAY "cptfind: carefile open " CAR-STAT UPON SYSERR
                STOP RUN
            END-IF
 
@@ -427,6 +448,8 @@
                END-IF
            END-IF
 
+           PERFORM LOOK-ICN THRU LOOK-ICN-EXIT
+
            MOVE SPACE TO DL1
            MOVE F-MRN TO DL-MRN
            MOVE F-DOS TO DL-DOS
@@ -442,6 +465,7 @@
            MOVE CC-AMOUNT TO DL-AMT
            MOVE CC-CLAIM TO DL-CLAIM
            MOVE CC-PAYCODE TO DL-PAY
+           MOVE SAVE-ICN TO DL-ICN
            MOVE WS-NAMCHK TO DL-NCK
            PERFORM WRITE-LINE
 
@@ -508,8 +532,82 @@
            MOVE C-SKIP TO TL-CNT
            WRITE REPORT-FILE01 FROM TL1
 
-           CLOSE GARFILE CHARCUR FILEIN REPORT-FILE
+           MOVE "MEDICARE ICNS FOUND" TO TL-LIT
+           MOVE C-ICN TO TL-CNT
+           WRITE REPORT-FILE01 FROM TL1
+
+           CLOSE GARFILE CHARCUR CAREFILE FILEIN REPORT-FILE
            STOP RUN.
+
+      *  ---- medicare icn from carefile ----------------------------
+      *
+      *  only for ins 003.  carefile is scanned on the garno prefix
+      *  the same way charcur is, and the entry is tied back to the
+      *  charge through the claim number so a garno carrying several
+      *  medicare claims returns the icn for this one.
+      *
+      *  ASSUMED NAMES - check against carefile.CPY and rename:
+      *      CAREFILE-KEY / CD-KEY8 / CD-KEY3   garno prefix key
+      *      CD-CLAIM                           claim number
+      *      CD-ICN                             payer control number
+
+       LOOK-ICN.
+           MOVE SPACE TO SAVE-ICN
+           MOVE 0 TO CAR-EOF
+
+           IF SAVE-PRINS NOT = "003"
+               GO TO LOOK-ICN-EXIT
+           END-IF
+
+           MOVE SAVE-GARNO TO CD-KEY8
+           MOVE "000" TO CD-KEY3
+
+           START CAREFILE KEY NOT < CAREFILE-KEY
+             INVALID
+               MOVE 1 TO CAR-EOF
+           END-START
+
+           IF CAR-EOF = 1
+               GO TO LOOK-ICN-EXIT
+           END-IF.
+
+       LOOK-ICN-1.
+           READ CAREFILE NEXT
+             AT END
+               MOVE 1 TO CAR-EOF
+           END-READ
+
+           IF CAR-EOF = 1
+               GO TO LOOK-ICN-EXIT
+           END-IF
+
+           IF CD-KEY8 NOT = SAVE-GARNO
+               GO TO LOOK-ICN-EXIT
+           END-IF
+
+           IF DEBUG-FLAG = 1
+               MOVE SPACE TO WS-TRACE
+               STRING "CAR key=" CAREFILE-KEY
+                      " clm=" CD-CLAIM
+                      " icn=" CD-ICN
+                      " want=" CC-CLAIM DELIMITED BY SIZE
+                   INTO WS-TRACE
+               DISPLAY WS-TRACE UPON SYSERR
+           END-IF
+
+           IF CD-CLAIM NOT = CC-CLAIM
+               GO TO LOOK-ICN-1
+           END-IF
+
+           IF CD-ICN = SPACE
+               GO TO LOOK-ICN-1
+           END-IF
+
+           MOVE CD-ICN TO SAVE-ICN
+           ADD 1 TO C-ICN.
+
+       LOOK-ICN-EXIT.
+           EXIT.
 
       *  ---- mrn to zero filled g-acct -----------------------------
       *
