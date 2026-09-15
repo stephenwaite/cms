@@ -102,6 +102,7 @@
            02 WS-ACCT     PIC X(20).
            02 SAVE-ACCT   PIC X(20).
            02 SAVE-GARNO  PIC X(11).
+           02 SAVE-PRINS  PIC X(4).
            02 WS-NAME3    PIC XXX.
            02 WS-NAMCHK   PIC X.
            02 WS-DATE-T   PIC X(8).
@@ -143,6 +144,7 @@
            02 FILLER PIC X(10) VALUE "MRN".
            02 FILLER PIC X(11) VALUE "DOS".
            02 FILLER PIC X(12) VALUE "GARNO".
+           02 FILLER PIC X(5)  VALUE "INS".
            02 FILLER PIC X(14) VALUE "CHARCUR-KEY".
            02 FILLER PIC X(7)  VALUE "CPT".
            02 FILLER PIC X(11) VALUE "MODS".
@@ -159,6 +161,8 @@
            02 DL-DOS PIC X(10).
            02 FILLER PIC X VALUE SPACE.
            02 DL-GARNO PIC X(11).
+           02 FILLER PIC X VALUE SPACE.
+           02 DL-PRINS PIC X(4).
            02 FILLER PIC X VALUE SPACE.
            02 DL-CCKEY PIC X(13).
            02 FILLER PIC X VALUE SPACE.
@@ -341,6 +345,8 @@
            MOVE 1 TO ACCT-HIT
            ADD 1 TO C-GAR
            MOVE G-GARNO TO SAVE-GARNO
+           MOVE SPACE TO SAVE-PRINS
+           MOVE G-PRINS TO SAVE-PRINS
 
            IF DEBUG-FLAG = 1
                MOVE SPACE TO WS-TRACE
@@ -413,6 +419,7 @@
            MOVE F-MRN TO DL-MRN
            MOVE F-DOS TO DL-DOS
            MOVE SAVE-GARNO TO DL-GARNO
+           MOVE SAVE-PRINS TO DL-PRINS
            MOVE CHARCUR-KEY TO DL-CCKEY
            MOVE CC-CPT TO DL-CPT
            MOVE SPACE TO DL-MODS
@@ -445,6 +452,7 @@
                MOVE F-MRN TO DL-MRN
                MOVE F-DOS TO DL-DOS
                MOVE SAVE-GARNO TO DL-GARNO
+               MOVE SAVE-PRINS TO DL-PRINS
                MOVE "*NO CHARGE" TO DL-CCKEY
                MOVE CPT-WANT TO DL-CPT
                PERFORM WRITE-LINE
