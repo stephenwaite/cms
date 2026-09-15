@@ -259,7 +259,7 @@
            MOVE SPACE TO WS-NAME3
            MOVE F-NAME(1:3) TO WS-NAME3
 
-           MOVE 0 TO ACCT-HIT HIT-FLAG GAR-EOF
+           MOVE 0 TO ACCT-HIT HIT-FLAG GAR-EOF.
 
       *  ---- mrn to garno through the g-acct alternate key ----------
 
