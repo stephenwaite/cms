@@ -1866,7 +1866,9 @@
                MOVE SPACE TO CC-MOD2X
            END-IF
 
+      *    HSA SOMETIMES SENDS A GENERIC 99199, MATCH ON DATE AND DOLLAR
            IF CC-PROC1X NOT = CC-PROC1Y
+               AND NOT (CC-PROC1X = "99199" AND PAYORID = "43700")
                GO TO LOOK-1
            END-IF
 
