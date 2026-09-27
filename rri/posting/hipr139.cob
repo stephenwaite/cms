@@ -753,7 +753,9 @@
              VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
              GO TO P9-SVC-LOOP.
 
+      *TB* medicare takes it back even when it is no longer primary
            IF G-PRINS NOT = "003"
+             AND TAKEBACK-FLAG = 0 AND REPAY-FLAG = 0
              PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
              VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
              GO TO P9-SVC-LOOP.
@@ -795,6 +797,10 @@
            MOVE DATE-X TO PD-DATE-T
            MOVE G-GARNAME TO PD-NAME.
            MOVE CC-PAYCODE TO PD-PAYCODE.
+      *TB* the charge has usually moved off 003 since medicare paid it
+           IF TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1
+               MOVE "003" TO PD-PAYCODE
+           END-IF
            MOVE "  " TO PD-DENIAL.
            MOVE 0 TO DDFLAG
 
@@ -824,6 +830,8 @@
            PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
 
            IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS)
+             AND NOT ((TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1)
+                      AND PD-PAYCODE = G-TRINS)
            PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
@@ -1420,7 +1428,10 @@
        LOOK-1. 
            READ CHARCUR NEXT AT END GO TO LOOK-CHG-EXIT.
            IF CC-KEY8 NOT = G-GARNO GO TO LOOK-CHG-EXIT.
-           IF CC-PAYCODE NOT = "003" GO TO LOOK-1.
+      *TB* a pair's charge has usually moved off 003 since medicare paid
+           IF CC-PAYCODE NOT = "003"
+             AND TAKEBACK-FLAG = 0 AND REPAY-FLAG = 0
+             GO TO LOOK-1.
            IF CC-PROC(5:5) NOT = CC-PROC1X GO TO LOOK-1.
            
            IF (CC-PROC(10:2) = SPACE) AND (CC-MOD2 NOT = SPACE)
