@@ -400,6 +400,11 @@
        01  CLP-AUTH      PIC X(20) VALUE SPACE.
        01  SAVE-AUTH     PIC X(20) VALUE SPACE.
        01  NSA-FLAG  PIC 9 VALUE 0.
+      * WIND DOWN CLP04 ACROSS MULTI-SVC SECONDARY CLAIMS
+       01  CLP-LEFT    PIC S9(4)V99 VALUE 0.
+       01  WIND-PAY    PIC S9(4)V99 VALUE 0.
+       01  WIND-FLAG   PIC 9 VALUE 0.
+       01  WIND-CLAIM  PIC 9 VALUE 0.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -568,7 +573,7 @@
 
            READ REMITFILE
                INVALID
-                   ACCEPT REMIT-DATE-E FROM CENTURY-DATE
+                   ACCEPT REMIT-DATE-E FROM DATE YYYYMMDD
                    WRITE REMITFILE01
                    END-WRITE
                NOT INVALID
@@ -613,7 +618,9 @@
            MOVE CLP-1 TO ALF10.
            MOVE CLP-4TOTCLMPAY TO ALF8
            PERFORM AMOUNT-1
-           MOVE AMOUNT-X TO CLAIM-PAID.
+           MOVE AMOUNT-X TO CLAIM-PAID
+           MOVE CLAIM-PAID TO CLP-LEFT
+           MOVE 0 TO WIND-CLAIM WIND-FLAG.
 
        P1-CLP-2.
            MOVE CLP-2CLMSTAT TO EF8
@@ -830,7 +837,16 @@
            END-IF
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT
                VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
-               GO TO P9-SVC-LOOP.
+
+      *    LAST SVC NEVER REACHED WIND-DOWN, SO FLAG WHAT IS LEFT OF CLP04
+           IF WIND-CLAIM = 1 AND CLP-LEFT NOT = 0
+               MOVE CLP-LEFT TO NEF-6
+               MOVE SPACE TO ERROR-FILE01
+               STRING CLP-1 " UNAPPLIED CLP BALANCE " NEF-6
+                   DELIMITED BY SIZE INTO ERROR-FILE01
+               WRITE ERROR-FILE01
+           END-IF
+           GO TO P9-SVC-LOOP.
 
       * HUMAN SECONDARY, $0 PAID: COLLAPSE MULTI-SVC RECONSIDERATION
       * INTO A SINGLE $0 / DD ERROR-LIST ROW INSTEAD OF ONE PER SVC.
@@ -866,6 +882,7 @@
            WRITE ERROR-FILE01 FROM ERR01.
 
        P5-SVC-LOOP.
+           MOVE 0 TO WIND-FLAG
            MOVE SPACE TO FILEIN01
            MOVE SVC-TAB(X) TO FILEIN01
            MOVE SPACE TO SVC01
@@ -935,15 +952,20 @@
                MOVE "225" TO PD-PAYCODE
            END-IF
 
-           IF CLP-2CLMSTAT = "2 " AND PAYORID = "92916"
+           IF CLP-2CLMSTAT = "2 "
+               AND (PAYORID = "92916" OR PAYORID = "91472")
                IF SVC-CNTR = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
                ELSE
-                   IF CLAIM-PAID NOT = 0
-                       PERFORM P1-LOST-SVC
-                       GO TO P5-SVC-LOOP-EXIT
+                   IF CLAIM-PAID > 0
+                       PERFORM WIND-DOWN THRU WIND-DOWN-EXIT
                    ELSE
-                       MOVE SPACE TO ALF8
+                       IF CLAIM-PAID < 0
+                           PERFORM P1-LOST-SVC
+                           GO TO P5-SVC-LOOP-EXIT
+                       ELSE
+                           MOVE SPACE TO ALF8
+                       END-IF
                    END-IF
                END-IF
            END-IF
@@ -958,8 +980,10 @@
                END-IF
            END-IF
 
-           PERFORM AMOUNT-1
-           MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
+           IF WIND-FLAG = 0
+               PERFORM AMOUNT-1
+               MULTIPLY AMOUNT-X BY -1 GIVING PD-AMOUNT
+           END-IF
            MOVE "  " TO PD-DENIAL.
 
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
@@ -1255,6 +1279,33 @@
        P5-SVC-LOOP-EXIT.
            EXIT.
 
+      * SECONDARY PAYS CLP04 BUT SVC03 CARRIES THE PRIMARY ALLOWED.
+      * PAY EACH CHARGE WHAT REMAINS ON IT, WINDING CLP04 DOWN, AND
+      * PUT WHATEVER IS LEFT ON THE LAST SVC SO AN OVERPAY SHOWS UP.
+       WIND-DOWN.
+           MOVE 1 TO WIND-FLAG WIND-CLAIM
+           MOVE CC-AMOUNT TO CLAIM-TOT
+           PERFORM S4 THRU S5
+           MOVE PAYFILE01 TO PAYBACK
+           PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
+           MOVE PAYBACK TO PAYFILE01
+
+           IF CLAIM-TOT < 0
+               MOVE 0 TO CLAIM-TOT
+           END-IF
+
+           IF X = SVC-CNTR OR CLAIM-TOT > CLP-LEFT
+               MOVE CLP-LEFT TO WIND-PAY
+           ELSE
+               MOVE CLAIM-TOT TO WIND-PAY
+           END-IF
+
+           SUBTRACT WIND-PAY FROM CLP-LEFT
+           MULTIPLY WIND-PAY BY -1 GIVING PD-AMOUNT.
+
+       WIND-DOWN-EXIT.
+           EXIT.
+
        DUMP50.
            IF CAS-CNTR = 0
                MOVE 1 TO FLAG
@@ -1437,20 +1488,25 @@
            MOVE AMOUNT-X TO EF5
            ADD AMOUNT-X TO TOT-CHARGE
            MOVE SPACE TO ALF8
-           IF PAYORID = "92916" AND CLP-2CLMSTAT = "2 "
+           IF (PAYORID = "92916" OR PAYORID = "91472")
+               AND CLP-2CLMSTAT = "2 "
                IF X = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
                END-IF
            ELSE
                MOVE SVC-3PAYAMT TO ALF8
            END-IF
-           
+
            IF ALF8-1 = "-"
                MOVE "-" TO EFSIGN
            END-IF
 
            PERFORM AMOUNT-1
-     
+
+           IF WIND-FLAG = 1
+               MOVE WIND-PAY TO AMOUNT-X
+           END-IF
+
            MOVE AMOUNT-X TO EF6
            IF ALF8-1 NOT = "-"
             COMPUTE TOT-PAY = TOT-PAY + AMOUNT-X
