@@ -357,6 +357,9 @@
        01  ALF25 PIC X(25).
        01  NEF-2 PIC Z9.
        01  PAYORID PIC X(5).
+      *    PAYORS WHOSE REAL PAYMENT IS ONLY IN CLP04
+           88 CLP04-SEC-PAYOR VALUE "92916" "91472".
+           88 HSA-PAYOR VALUE "43700" "58379".
        01  ANS PIC X.
        01  NOT-FLAG PIC 9.
        01  STATUSCODES01.
@@ -954,8 +957,7 @@
                MOVE "225" TO PD-PAYCODE
            END-IF
 
-           IF CLP-2CLMSTAT = "2 "
-               AND (PAYORID = "92916" OR PAYORID = "91472")
+           IF CLP-2CLMSTAT = "2 " AND CLP04-SEC-PAYOR
                IF SVC-CNTR = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
                ELSE
@@ -972,13 +974,16 @@
                END-IF
            END-IF
 
-           IF CLP-2CLMSTAT = "1 " AND 
-               (PAYORID = "43700" OR PAYORID = "58379")
+           IF CLP-2CLMSTAT = "1 " AND HSA-PAYOR
                IF SVC-CNTR = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
                ELSE
-                   PERFORM P1-LOST-SVC
-                   GO TO P5-SVC-LOOP-EXIT
+                   IF CLAIM-PAID > 0
+                       PERFORM WIND-DOWN THRU WIND-DOWN-EXIT
+                   ELSE
+                       PERFORM P1-LOST-SVC
+                       GO TO P5-SVC-LOOP-EXIT
+                   END-IF
                END-IF
            END-IF
 
@@ -1289,7 +1294,7 @@
        P5-SVC-LOOP-EXIT.
            EXIT.
 
-      * SECONDARY PAYS CLP04 BUT SVC03 CARRIES THE PRIMARY ALLOWED.
+      * CLP04 PAYORS: SVC03 IS NOT THE REAL PAYMENT, ONLY CLP04 IS.
       * PAY EACH CHARGE WHAT REMAINS ON IT, WINDING CLP04 DOWN, AND
       * PUT WHATEVER IS LEFT ON THE LAST SVC SO AN OVERPAY SHOWS UP.
        WIND-DOWN.
@@ -1502,8 +1507,8 @@
            MOVE AMOUNT-X TO EF5
            ADD AMOUNT-X TO TOT-CHARGE
            MOVE SPACE TO ALF8
-           IF (PAYORID = "92916" OR PAYORID = "91472")
-               AND CLP-2CLMSTAT = "2 "
+           IF (CLP04-SEC-PAYOR AND CLP-2CLMSTAT = "2 ")
+               OR (HSA-PAYOR AND CLP-2CLMSTAT = "1 ")
                IF X = 1
                    MOVE CLP-4TOTCLMPAY TO ALF8
                END-IF
@@ -1866,9 +1871,11 @@
                MOVE SPACE TO CC-MOD2X
            END-IF
 
-      *    HSA SOMETIMES SENDS A GENERIC 99199, MATCH ON DATE AND DOLLAR
+      *    43700 SOMETIMES SENDS A GENERIC 99199, MATCH ON DATE AND DOLLAR
+      *    58379 CAN ONLY BE MATCHED ON GARNO AND DATE
            IF CC-PROC1X NOT = CC-PROC1Y
                AND NOT (CC-PROC1X = "99199" AND PAYORID = "43700")
+               AND PAYORID NOT = "58379"
                GO TO LOOK-1
            END-IF
 
@@ -1876,6 +1883,7 @@
            MOVE SVC-2CHRGAMT TO ALF8
            PERFORM AMOUNT-1
            IF AMOUNT-X NOT = CC-AMOUNT
+               AND PAYORID NOT = "58379"
                GO TO LOOK-1
            END-IF
 
