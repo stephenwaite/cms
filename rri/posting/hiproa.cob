@@ -375,6 +375,8 @@
        01  INS-NAME-HOLD PIC X(5).
        01  ID-EIN PIC X(9).
        01  DUPFLAG PIC 9.
+       01  SCREEN-CPT PIC X(5).
+           88 SCREEN-CODE VALUE "77063" "77067" "77080".
        01  CAS-CODE-CHECK PIC X(5).
            88 INS-REDUCE-CODE VALUE "A1   " "A2   " "B6   " "B9   "
                "B10  " "B13  " "24   " "42   "
@@ -1014,6 +1016,14 @@
            END-PERFORM
 
            IF PD-AMOUNT = 0 AND PD-DENIAL = "  "
+      *        SCREENING PAID IN FULL BY PRIMARY, 2NDARY HAS NOTHING TO DO
+               MOVE CC-CPT TO SCREEN-CPT
+               IF CLP-2CLMSTAT = "2 " AND SCREEN-CODE
+                   PERFORM CHARGE-BAL
+                   IF CLAIM-TOT <= 0
+                       GO TO P5-SVC-LOOP-EXIT
+                   END-IF
+               END-IF
                MOVE 0 TO FLAG
                PERFORM DUMP50
                IF FLAG = 1
@@ -1284,11 +1294,7 @@
       * PUT WHATEVER IS LEFT ON THE LAST SVC SO AN OVERPAY SHOWS UP.
        WIND-DOWN.
            MOVE 1 TO WIND-FLAG WIND-CLAIM
-           MOVE CC-AMOUNT TO CLAIM-TOT
-           PERFORM S4 THRU S5
-           MOVE PAYFILE01 TO PAYBACK
-           PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
-           MOVE PAYBACK TO PAYFILE01
+           PERFORM CHARGE-BAL
 
            IF CLAIM-TOT < 0
                MOVE 0 TO CLAIM-TOT
@@ -1305,6 +1311,14 @@
 
        WIND-DOWN-EXIT.
            EXIT.
+
+      * WHAT REMAINS ON THE CURRENT CHARGE INTO CLAIM-TOT
+       CHARGE-BAL.
+           MOVE CC-AMOUNT TO CLAIM-TOT
+           PERFORM S4 THRU S5
+           MOVE PAYFILE01 TO PAYBACK
+           PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
+           MOVE PAYBACK TO PAYFILE01.
 
        DUMP50.
            IF CAS-CNTR = 0
