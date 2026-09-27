@@ -354,10 +354,11 @@
        PROCEDURE DIVISION.
 
        0005-START.
-           OPEN INPUT FILEIN CHARCUR GARFILE MPLRFILE PARMFILE PAYCUR
+           OPEN INPUT FILEIN GARFILE MPLRFILE PARMFILE PAYCUR
                       cascodefile rarcfile.
-           
-           OPEN I-O PAYFILE. 
+
+      *TB* I-O so a takeback / repay can put the charge back on 003
+           OPEN I-O PAYFILE CHARCUR.
            
            OPEN OUTPUT ERROR-FILE ERRORCOR-FILE.
            
@@ -861,6 +862,11 @@
            MOVE PAYBACK TO PAYFILE01
            MOVE XYZ TO PD-KEY3
            WRITE PAYFILE01.
+
+      *TB* put the charge back on 003 so billing restarts, as tbr139 does
+           IF TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1
+               PERFORM RESET-003
+           END-IF
 
            move 0 to pat-resp
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
@@ -1491,6 +1497,23 @@
            ADD PD-AMOUNT TO CLAIM-TOT.
            GO TO S4-PAYFILE-1.
        S4-PAYFILE-EXIT. EXIT.
+      *TB* re-read the current charge locked and put it back on 003
+       RESET-003.
+           MOVE FOUND-KEY(X) TO CHARCUR-KEY
+           READ CHARCUR WITH LOCK
+             INVALID
+               MOVE SPACE TO ERROR-FILE01
+               STRING FOUND-KEY(X) " BAD LOCK, NOT RESET TO 003"
+                   DELIMITED BY SIZE INTO ERROR-FILE01
+               WRITE ERROR-FILE01
+               END-WRITE
+             NOT INVALID
+               MOVE "003" TO CC-PAYCODE
+               MOVE "A" TO CC-ASSIGN CC-NEIC-ASSIGN
+               MOVE "2" TO CC-REC-STAT
+               REWRITE CHARCUR01
+               UNLOCK CHARCUR
+           END-READ.
        AMOUNT-1.
            MOVE SPACES TO SIGN-DOLLAR CENTS.
            IF ALF8-1 = "-"
