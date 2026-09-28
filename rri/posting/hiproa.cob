@@ -996,7 +996,9 @@
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
+      *        92916 PAYING NOTHING ON THE CLAIM IS A VALID 2NDARY, POST IT
                IF CLP-2CLMSTAT = "2 "
+                   AND NOT (PAYORID = "92916" AND CLAIM-PAID = 0)
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
