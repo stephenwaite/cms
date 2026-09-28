@@ -379,7 +379,7 @@
        01  ID-EIN PIC X(9).
        01  DUPFLAG PIC 9.
        01  SCREEN-CPT PIC X(5).
-           88 SCREEN-CODE VALUE "77063" "77067" "77080".
+           88 SCREEN-CODE VALUE "77063" "77067" "77080" "71271".
        01  CAS-CODE-CHECK PIC X(5).
            88 INS-REDUCE-CODE VALUE "A1   " "A2   " "B6   " "B9   "
                "B10  " "B13  " "24   " "42   "
