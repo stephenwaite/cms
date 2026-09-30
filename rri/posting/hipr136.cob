@@ -641,6 +641,8 @@
        01  TB-CNTR        PIC 9(4) VALUE 0.
        01  RP-CNTR        PIC 9(4) VALUE 0.
        01  NEF-4          PIC ZZZ9.
+       01  ON-FILE-FLAG   PIC 9 VALUE 0.
+       01  TB-PAYCODE     PIC XXX VALUE SPACE.
 
        PROCEDURE DIVISION.
        0005-START.
@@ -966,6 +968,15 @@
                PERFORM ORIG-PAY THRU ORIG-PAY-EXIT
                IF ORIG-PAYCODE NOT = SPACE
                    MOVE ORIG-PAYCODE TO PD-PAYCODE
+               END-IF
+           END-IF
+      *TB* a takeback can only reverse what was posted. a denial that
+      *TB* went to the unposted list left nothing on file to take back.
+           IF TAKEBACK-FLAG = 1
+               PERFORM TB-ON-FILE THRU TB-ON-FILE-EXIT
+               IF ON-FILE-FLAG = 0
+                   PERFORM TB-SKIP-NOTE
+                   GO TO P5-SVC-LOOP-EXIT
                END-IF
            END-IF
            MOVE "  " TO PD-DENIAL.
@@ -1694,6 +1705,35 @@
                MOVE PC-PAYCODE TO ORIG-PAYCODE.
            GO TO ORIG-PAY-1.
        ORIG-PAY-EXIT. EXIT.
+      *TB* anything from this payor already on file for the claim?
+       TB-ON-FILE. MOVE 0 TO ON-FILE-FLAG
+           MOVE PD-PAYCODE TO TB-PAYCODE
+           MOVE CC-KEY8 TO PC-KEY8 MOVE "000" TO PC-KEY3.
+           START PAYCUR KEY NOT < PAYCUR-KEY
+             INVALID GO TO TB-ON-FILE-2.
+       TB-ON-FILE-1. READ PAYCUR NEXT AT END GO TO TB-ON-FILE-2.
+           IF PC-KEY8 NOT = CC-KEY8 GO TO TB-ON-FILE-2.
+           IF PC-CLAIM = CC-CLAIM AND PC-PAYCODE = TB-PAYCODE
+               MOVE 1 TO ON-FILE-FLAG GO TO TB-ON-FILE-EXIT.
+           GO TO TB-ON-FILE-1.
+       TB-ON-FILE-2. MOVE PAYFILE01 TO PAYBACK
+           MOVE CC-KEY8 TO PD-KEY8 MOVE "000" TO PD-KEY3.
+           START PAYFILE KEY NOT < PAYFILE-KEY
+             INVALID GO TO TB-ON-FILE-3.
+       TB-ON-FILE-4. READ PAYFILE NEXT AT END GO TO TB-ON-FILE-3.
+           IF PD-KEY8 NOT = CC-KEY8 GO TO TB-ON-FILE-3.
+           IF PD-CLAIM = CC-CLAIM AND PD-PAYCODE = TB-PAYCODE
+               MOVE 1 TO ON-FILE-FLAG GO TO TB-ON-FILE-3.
+           GO TO TB-ON-FILE-4.
+       TB-ON-FILE-3. MOVE PAYBACK TO PAYFILE01.
+       TB-ON-FILE-EXIT. EXIT.
+      *TB* note on the list that the takeback had nothing to reverse
+       TB-SKIP-NOTE.
+           MOVE SPACE TO ERROR-FILE01
+           STRING CLP-1 " TAKEBACK " CLP-7ICN(1:20)
+               " NOTHING POSTED ON CLAIM - SKIPPED"
+               DELIMITED BY SIZE INTO ERROR-FILE01
+           WRITE ERROR-FILE01.
        AMOUNT-1.
            MOVE SPACES TO SIGN-DOLLAR CENTS.
            IF ALF8-1 = "-"
