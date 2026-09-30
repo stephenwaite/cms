@@ -1084,9 +1084,9 @@
            MOVE XYZ TO PD-KEY3
            WRITE PAYFILE01.
 
-      *TB* put the charge back on the paycode the original payment used
-           IF (TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1)
-             AND ORIG-PAYCODE NOT = SPACE
+      *TB* put the charge on the paycode this payment posted under -
+      *TB* the original payment's, or the primary / secondary fallback
+           IF TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1
                PERFORM RESET-PAYCODE
            END-IF
            
@@ -1744,7 +1744,7 @@
            GO TO TB-ON-FILE-4.
        TB-ON-FILE-3. MOVE PAYBACK TO PAYFILE01.
        TB-ON-FILE-EXIT. EXIT.
-      *TB* re-read the current charge locked, back to the original paycode
+      *TB* re-read the current charge locked, onto the posted paycode
        RESET-PAYCODE.
            MOVE FOUND-KEY(X) TO CHARCUR-KEY
            READ CHARCUR WITH LOCK
@@ -1755,7 +1755,7 @@
                WRITE ERROR-FILE01
                END-WRITE
              NOT INVALID
-               MOVE ORIG-PAYCODE TO CC-PAYCODE
+               MOVE PD-PAYCODE TO CC-PAYCODE
                REWRITE CHARCUR01
                UNLOCK CHARCUR
            END-READ.
