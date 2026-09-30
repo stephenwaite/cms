@@ -5,7 +5,9 @@
       *
       * nsaonn - No Surprises Act open negotiation notices from an 835.
       * picks service lines flagged LQ*HE*N860 / N877 (the same NSA
-      * test hiproa uses), skips reversals (CLP02 22), and writes one
+      * test hiproa uses) or on a claim whose REF*CE text says QPA
+      * (some payers only say "PAID WITH QPA"), skips reversals
+      * (CLP02 22), and writes one
       * notice per ST/SE as markdown, from nsaonn-template.md, for
       * review and print to pdf. the offer is a percent of the line's
       * billed charge (parmfile line 11, 90 when blank).
@@ -98,10 +100,14 @@
        01  CL-NPI         PIC X(10).
        01  CL-RNAME       PIC X(50).
        01  CL-DOS         PIC X(8).
+       01  CL-QPA         PIC 9 VALUE 0.
+       01  QPA-TXT        PIC X(80).
+       01  QPA-CNT        PIC 99.
 
       * service line being collected
        01  IN-SVC         PIC 9 VALUE 0.
        01  SV-NSA         PIC 9 VALUE 0.
+       01  SV-WHY         PIC X(5).
        01  SV-CPT         PIC X(5).
        01  SV-M1          PIC XX.
        01  SV-CODE        PIC X(17).
@@ -130,6 +136,7 @@
               03 R-ACCT   PIC X(20).
               03 R-PAT    PIC X(40).
               03 R-CAS    PIC X(60).
+              03 R-WHY    PIC X(5).
       * procfile is keyed cdm + cpt + mod, the 835 only has the cpt,
       * so it is read once into a table
        01  PT-CNT         PIC 9(4) VALUE 0.
@@ -275,12 +282,16 @@
                    IF E(2) = "2U"
                        MOVE E(3) TO TS-PAYERID
                    END-IF
+                   IF E(2) = "CE" AND CL-ACCT NOT = SPACE
+                       PERFORM P-REF-CE
+                   END-IF
                WHEN "CLP"
                    PERFORM FLUSH-SVC
                    MOVE E(2) TO CL-ACCT
                    MOVE E(3) TO CL-STAT
                    MOVE E(8) TO CL-ICN
                    MOVE SPACE TO CL-PAT CL-NPI CL-RNAME CL-DOS
+                   MOVE 0 TO CL-QPA
                WHEN "NM1"
                    PERFORM P-NM1
                WHEN "DTM"
@@ -315,6 +326,7 @@
                    IF IN-SVC = 1 AND E(2) = "HE"
                        AND (E(3) = "N860" OR E(3) = "N877")
                        MOVE 1 TO SV-NSA
+                       MOVE E(3) TO SV-WHY
                    END-IF
                WHEN "AMT"
                    IF IN-SVC = 1 AND E(2) = "B6"
@@ -392,7 +404,24 @@
            MOVE SPACE TO TS-PAYER TS-PAYERID TS-PAYDATE TS-CHECK
                TS-PE-NPI CL-ACCT CL-STAT CL-ICN CL-PAT CL-NPI
                CL-RNAME CL-DOS
-           MOVE 0 TO ROW-CNT ROW-OVER IN-SVC SV-NSA.
+           MOVE 0 TO ROW-CNT ROW-OVER IN-SVC SV-NSA CL-QPA.
+
+      * REF*CE (class of contract) text naming the QPA marks the claim,
+      * or just the line when it comes after an SVC
+       P-REF-CE.
+           MOVE E(3) TO QPA-TXT
+           INSPECT QPA-TXT CONVERTING "abcdefghijklmnopqrstuvwxyz"
+               TO "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+           MOVE 0 TO QPA-CNT
+           INSPECT QPA-TXT TALLYING QPA-CNT FOR ALL "QPA"
+           IF QPA-CNT > 0
+               IF IN-SVC = 1
+                   MOVE 1 TO SV-NSA
+                   MOVE "QPA" TO SV-WHY
+               ELSE
+                   MOVE 1 TO CL-QPA
+               END-IF
+           END-IF.
 
        P-NM1.
            IF E(2) = "QC"
@@ -422,6 +451,11 @@
        P-SVC.
            MOVE 1 TO IN-SVC
            MOVE 0 TO SV-NSA SV-ALLOW
+           MOVE SPACE TO SV-WHY
+           IF CL-QPA = 1
+               MOVE 1 TO SV-NSA
+               MOVE "QPA" TO SV-WHY
+           END-IF
            MOVE SPACE TO SV-DOS SV-CAS SV-CODE COMPS
            UNSTRING E(2) DELIMITED BY COMP-SEP INTO
                C(1) C(2) C(3) C(4) C(5) C(6)
@@ -510,7 +544,8 @@
            MOVE SV-ALLOW TO R-ALLOW(R)
            MOVE CL-ACCT TO R-ACCT(R)
            MOVE CL-PAT TO R-PAT(R)
-           MOVE SV-CAS TO R-CAS(R).
+           MOVE SV-CAS TO R-CAS(R)
+           MOVE SV-WHY TO R-WHY(R).
 
       * one notice: dates, then the template with tokens filled in
        WRITE-NOTICE.
@@ -678,7 +713,9 @@
            MOVE SPACE TO NOTICE01
            MOVE 1 TO S-PTR
            STRING NUM-TXT DELIMITED BY SPACE
-               ". " DELIMITED BY SIZE
+               ". [" DELIMITED BY SIZE
+               R-WHY(R) DELIMITED BY SPACE
+               "] " DELIMITED BY SIZE
                R-ACCT(R) DELIMITED BY SPACE
                "  " DELIMITED BY SIZE
                R-PAT(R) DELIMITED BY "  "
