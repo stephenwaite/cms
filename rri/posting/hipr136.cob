@@ -646,9 +646,11 @@
 
        PROCEDURE DIVISION.
        0005-START.
-           OPEN INPUT FILEIN CHARCUR GARFILE CAIDFILE
+           OPEN INPUT FILEIN GARFILE CAIDFILE
              MPLRFILE PARMFILE PAYCUR INSFILE RARCFILE.
-           OPEN I-O PAYFILE 
+      *TB* I-O so a takeback / repay can put the charge back on the
+      *TB* original payment's paycode
+           OPEN I-O PAYFILE CHARCUR
            OPEN OUTPUT ERROR-FILE.
            MOVE SPACE TO NAR-KEY01 
            MOVE ALL ZEROES TO NAR-CNTR01
@@ -1072,6 +1074,12 @@
            MOVE PAYBACK TO PAYFILE01
            MOVE XYZ TO PD-KEY3
            WRITE PAYFILE01.
+
+      *TB* put the charge back on the paycode the original payment used
+           IF (TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1)
+             AND ORIG-PAYCODE NOT = SPACE
+               PERFORM RESET-PAYCODE
+           END-IF
            
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
              IF CAS-SVC(Z) = X
@@ -1727,6 +1735,21 @@
            GO TO TB-ON-FILE-4.
        TB-ON-FILE-3. MOVE PAYBACK TO PAYFILE01.
        TB-ON-FILE-EXIT. EXIT.
+      *TB* re-read the current charge locked, back to the original paycode
+       RESET-PAYCODE.
+           MOVE FOUND-KEY(X) TO CHARCUR-KEY
+           READ CHARCUR WITH LOCK
+             INVALID
+               MOVE SPACE TO ERROR-FILE01
+               STRING FOUND-KEY(X) " BAD LOCK, PAYCODE NOT RESET"
+                   DELIMITED BY SIZE INTO ERROR-FILE01
+               WRITE ERROR-FILE01
+               END-WRITE
+             NOT INVALID
+               MOVE ORIG-PAYCODE TO CC-PAYCODE
+               REWRITE CHARCUR01
+               UNLOCK CHARCUR
+           END-READ.
       *TB* note on the list that the takeback had nothing to reverse
        TB-SKIP-NOTE.
            MOVE SPACE TO ERROR-FILE01
