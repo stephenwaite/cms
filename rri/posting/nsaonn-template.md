@@ -64,7 +64,7 @@ address or telephone number below:
 
 | | |
 |---|---|
-| Signature: ______________________________ | Date: ______________________ |
+| Signature: *{SIGNER}* | Date: {NOTICE_DATE} |
 | Print Name: {SIGNER} | Relationship to person(s) or entity listed above: {RELATIONSHIP} |
 | Mailing Address: {ADDRESS} | Telephone number: {PHONE} |
 | Email Address: {EMAIL} | |
