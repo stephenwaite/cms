@@ -7,7 +7,8 @@
       * picks service lines flagged LQ*HE*N860 / N877 (the same NSA
       * test hiproa uses), skips reversals (CLP02 22), and writes one
       * notice per ST/SE as markdown, from nsaonn-template.md, for
-      * review and print to pdf. the offer is left as [ENTER OFFER].
+      * review and print to pdf. the offer is a percent of the line's
+      * billed charge (parmfile line 11, 90 when blank).
       * a review block in an html comment (hidden when printed) holds
       * the payer, check, 835 payment date, the send-by deadline and
       * the per-line amounts.
@@ -17,7 +18,8 @@
       * parmfile lines: 1 party name, 2 party type, 3 services
       * descriptor, 4 group npi, 5 signer, 6 relationship,
       * 7 mailing address, 8 telephone, 9 email,
-      * 10 notice date yyyymmdd (blank = today)
+      * 10 notice date yyyymmdd (blank = today),
+      * 11 offer percent of billed charge (blank = 90)
        IDENTIFICATION DIVISION.
        PROGRAM-ID. nsaonn.
        ENVIRONMENT DIVISION.
@@ -77,6 +79,8 @@
        01  P-EMAIL        PIC X(60) VALUE SPACE.
        01  P-DATE         PIC X(8)  VALUE SPACE.
        01  P-DATE-N REDEFINES P-DATE PIC 9(8).
+       01  P-PCT-X        PIC X(3)  VALUE SPACE.
+       01  P-PCT          PIC 999   VALUE 90.
 
       * transaction set
        01  TS-PAYER       PIC X(60).
@@ -202,6 +206,8 @@
 
       * money and text helpers
        01  MONEY-IN       PIC S9(7)V99.
+       01  OFFER-AMT      PIC S9(7)V99.
+       01  PCT-ED         PIC ZZ9.
        01  MONEY-ED       PIC $$,$$$,$$9.99.
        01  MONEY-TXT      PIC X(14).
        01  LEAD           PIC 99.
@@ -363,6 +369,10 @@
            PERFORM READ-PARM MOVE PARMFILE01 TO P-PHONE
            PERFORM READ-PARM MOVE PARMFILE01 TO P-EMAIL
            PERFORM READ-PARM MOVE PARMFILE01 TO P-DATE
+           PERFORM READ-PARM MOVE PARMFILE01 TO P-PCT-X
+           IF P-PCT-X NOT = SPACE
+               MOVE FUNCTION NUMVAL(P-PCT-X) TO P-PCT
+           END-IF
            IF P-DATE NOT NUMERIC
                MOVE FUNCTION CURRENT-DATE TO CUR-DATE21
                MOVE CUR-DATE21(1:8) TO P-DATE
@@ -605,8 +615,16 @@
            MOVE "<!-- REVIEW: not part of the notice, hidden when"
                TO NOTICE01
            WRITE NOTICE01
-           MOVE "rendered or printed. Fill in the Offer column first."
+           MOVE "rendered or printed. Check the offers before sending."
                TO NOTICE01
+           WRITE NOTICE01
+           MOVE P-PCT TO PCT-ED
+           MOVE 0 TO LEAD
+           INSPECT PCT-ED TALLYING LEAD FOR LEADING SPACE
+           MOVE SPACE TO NOTICE01
+           STRING "Offer = " PCT-ED(LEAD + 1:)
+               "% of billed charge (parmfile line 11)"
+               DELIMITED BY SIZE INTO NOTICE01
            WRITE NOTICE01
            MOVE SPACE TO NOTICE01
            MOVE 1 TO S-PTR
@@ -683,10 +701,24 @@
            PERFORM MONEY-OF
            STRING "  paid " DELIMITED BY SIZE
                MONEY-TXT DELIMITED BY SPACE
+               INTO NOTICE01 WITH POINTER S-PTR
+           PERFORM OFFER-OF
+           MOVE OFFER-AMT TO MONEY-IN
+           PERFORM MONEY-OF
+           STRING "  offer " DELIMITED BY SIZE
+               MONEY-TXT DELIMITED BY SPACE
                "  CAS" DELIMITED BY SIZE
                R-CAS(R) DELIMITED BY "  "
                INTO NOTICE01 WITH POINTER S-PTR
+           IF OFFER-AMT NOT > R-PAID(R)
+               STRING "  *** OFFER NOT ABOVE PAYMENT" DELIMITED BY SIZE
+                   INTO NOTICE01 WITH POINTER S-PTR
+           END-IF
            WRITE NOTICE01.
+
+      * offer = P-PCT percent of the line's billed charge
+       OFFER-OF.
+           COMPUTE OFFER-AMT ROUNDED = R-CHG(R) * P-PCT / 100.
 
       * R to NUM-TXT with no leading space
        ROW-NUM-OF.
@@ -721,7 +753,13 @@
                R-CODE(R) DELIMITED BY SPACE
                " | " DELIMITED BY SIZE
                MONEY-TXT DELIMITED BY SPACE
-               " | [ENTER OFFER] |" DELIMITED BY SIZE
+               " | " DELIMITED BY SIZE
+               INTO NOTICE01 WITH POINTER S-PTR
+           PERFORM OFFER-OF
+           MOVE OFFER-AMT TO MONEY-IN
+           PERFORM MONEY-OF
+           STRING MONEY-TXT DELIMITED BY SPACE
+               " |" DELIMITED BY SIZE
                INTO NOTICE01 WITH POINTER S-PTR
            WRITE NOTICE01.
 
