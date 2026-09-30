@@ -970,6 +970,15 @@
                PERFORM ORIG-PAY THRU ORIG-PAY-EXIT
                IF ORIG-PAYCODE NOT = SPACE
                    MOVE ORIG-PAYCODE TO PD-PAYCODE
+               ELSE
+      *TB*         no original payment (e.g. the original was a denial),
+      *TB*         so post by the adjudication: primary or secondary
+                   IF CLP-2CLMSTAT = "1" OR "22"
+                       MOVE G-PRINS TO PD-PAYCODE
+                   END-IF
+                   IF CLP-2CLMSTAT = "2"
+                       MOVE G-SEINS TO PD-PAYCODE
+                   END-IF
                END-IF
            END-IF
       *TB* a takeback can only reverse what was posted. a denial that
