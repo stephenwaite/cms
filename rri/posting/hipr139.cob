@@ -339,13 +339,28 @@
        01  ANS PIC X.
        01  MIPS-ONLY PIC 9.
 
+      *TB* takeback (CLP02=22) / repay pairs, ported from hipr-takeback.
+      *TB* the repay follows its reversal carrying the same CLP01, with
+      *TB* REF*F8 naming the reversed ICN as a backstop.
+       01  TAKEBACK-FLAG  PIC 9 VALUE 0.
+       01  REPAY-FLAG     PIC 9 VALUE 0.
+       01  CLP-F8         PIC X(30) VALUE SPACE.
+       01  PREV-TB-CLP1   PIC X(14) VALUE SPACE.
+       01  PREV-TB-ICN    PIC X(30) VALUE SPACE.
+       01  TB-CNTR        PIC 9(4) VALUE 0.
+       01  RP-CNTR        PIC 9(4) VALUE 0.
+       01  NEF-4          PIC ZZZ9.
+       01  ON-FILE-FLAG   PIC 9 VALUE 0.
+       01  TB-PAYCODE     PIC XXX VALUE SPACE.
+
        PROCEDURE DIVISION.
 
        0005-START.
-           OPEN INPUT FILEIN CHARCUR GARFILE MPLRFILE PARMFILE PAYCUR
+           OPEN INPUT FILEIN GARFILE MPLRFILE PARMFILE PAYCUR
                       cascodefile rarcfile.
-           
-           OPEN I-O PAYFILE. 
+
+      *TB* I-O so a takeback / repay can put the charge back on 003
+           OPEN I-O PAYFILE CHARCUR.
            
            OPEN OUTPUT ERROR-FILE ERRORCOR-FILE.
            
@@ -496,6 +511,24 @@
              CLP-5PATRESP CLP-6PLANCODE CLP-7ICN CLP-8FACILITY 
              CLP-9FREQ CLP-10PATSTAT CLP-11DRG CLP-12QUAN CLP-13PERCENT.
 
+      *TB* 22 = takeback of the prior adjudication. the repay is the
+      *TB* next claim with the same CLP01 - frequency 7 is not dependable.
+           MOVE 0 TO TAKEBACK-FLAG REPAY-FLAG
+           MOVE SPACE TO CLP-F8
+           IF CLP-2CLMSTAT = "22"
+               MOVE 1 TO TAKEBACK-FLAG
+               ADD 1 TO TB-CNTR
+               MOVE CLP-1 TO PREV-TB-CLP1
+               MOVE CLP-7ICN TO PREV-TB-ICN
+           ELSE
+               IF CLP-1 = PREV-TB-CLP1 AND PREV-TB-CLP1 NOT = SPACE
+                   AND (CLP-2CLMSTAT = "1 " OR "2 " OR "3 " OR "19")
+                   MOVE 1 TO REPAY-FLAG
+                   ADD 1 TO RP-CNTR
+                   MOVE SPACE TO PREV-TB-CLP1
+               END-IF
+           END-IF
+
            MOVE CLP-2CLMSTAT TO EF8
            MOVE SPACE TO NM101 NM1COR01 CLMCAS01.
            MOVE SPACE TO SVC-DATE01
@@ -585,6 +618,22 @@
            IF F1 = "PLB"
                UNSTRING FILEIN01 DELIMITED BY "*" INTO ERRORCOR-FILE01
                WRITE ERRORCOR-FILE01
+           END-IF
+
+      *TB* REF*F8 on the repay names the reversed ICN. backstop pairing
+      *TB* for a repay that did not immediately follow its reversal.
+           IF F1 = "REF" AND F2 = "*F8*"
+               MOVE SPACE TO REF01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+               REF-0 REF-1 REF-2
+               MOVE REF-2 TO CLP-F8
+               IF REPAY-FLAG = 0 AND TAKEBACK-FLAG = 0
+                   AND CLP-F8 = PREV-TB-ICN AND PREV-TB-ICN NOT = SPACE
+                   MOVE 1 TO REPAY-FLAG
+                   ADD 1 TO RP-CNTR
+                   MOVE SPACE TO PREV-TB-CLP1
+               END-IF
+               GO TO P1-NM1
            END-IF
 
            GO TO P1-NM1.
@@ -699,13 +748,17 @@
       * RECORD ARE GOOD! START MAKING PAYMENT RECORDS.
 
        P4-SVC-LOOP.
-           IF NOT 
+      *TB* status 22 admitted as a takeback
+           IF NOT
            (CLP-2CLMSTAT = "1" OR "2" OR "3" OR "19" OR "20" OR "21")
+             AND TAKEBACK-FLAG = 0
              PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
              VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
              GO TO P9-SVC-LOOP.
 
+      *TB* medicare takes it back even when it is no longer primary
            IF G-PRINS NOT = "003"
+             AND TAKEBACK-FLAG = 0 AND REPAY-FLAG = 0
              PERFORM P1-DENIED-SVC THRU P1-LOST-SVC
              VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
              GO TO P9-SVC-LOOP.
@@ -725,7 +778,8 @@
            MOVE SPACE TO ALF8
            MOVE SVC-3PAYAMT TO ALF8
            
-           IF ALF8-1 = "-" 
+      *TB* a takeback pays negative, that is the point of it
+           IF ALF8-1 = "-" AND TAKEBACK-FLAG = 0
              PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
            
            PERFORM AMOUNT-1
@@ -746,6 +800,19 @@
            MOVE DATE-X TO PD-DATE-T
            MOVE G-GARNAME TO PD-NAME.
            MOVE CC-PAYCODE TO PD-PAYCODE.
+      *TB* the charge has usually moved off 003 since medicare paid it
+           IF TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1
+               MOVE "003" TO PD-PAYCODE
+           END-IF
+      *TB* a takeback can only reverse what was posted. a denial that
+      *TB* went to the unposted list left nothing on file to take back.
+           IF TAKEBACK-FLAG = 1
+               PERFORM TB-ON-FILE THRU TB-ON-FILE-EXIT
+               IF ON-FILE-FLAG = 0
+                   PERFORM TB-SKIP-NOTE
+                   GO TO P5-SVC-LOOP-EXIT
+               END-IF
+           END-IF
            MOVE "  " TO PD-DENIAL.
            MOVE 0 TO DDFLAG
 
@@ -765,14 +832,29 @@
              END-IF
             END-PERFORM.
 
+      *TB* house denial code for a payment takeback
+           IF TAKEBACK-FLAG = 1
+               MOVE "08" TO PD-DENIAL
+           END-IF
+
            IF PD-AMOUNT = 0 AND PD-DENIAL NOT = "DD"
+             AND TAKEBACK-FLAG = 0
            PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
 
            IF NOT (PD-PAYCODE = G-PRINS OR G-SEINS)
+             AND NOT ((TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1)
+                      AND PD-PAYCODE = G-TRINS)
            PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
 
            COMPUTE CLAIM-TOT = CC-AMOUNT + PD-AMOUNT
            PERFORM S4 THRU S5
+      *TB* the repay is only in balance once this run's takeback records
+      *TB* are counted, they are in payfile not paycur yet
+           IF TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1
+               MOVE PAYFILE01 TO PAYBACK
+               PERFORM S4-PAYFILE THRU S4-PAYFILE-EXIT
+               MOVE PAYBACK TO PAYFILE01
+           END-IF
            IF CLAIM-TOT < 0
            PERFORM P1-LOST-SVC GO TO P5-SVC-LOOP-EXIT.
 
@@ -791,6 +873,11 @@
            MOVE PAYBACK TO PAYFILE01
            MOVE XYZ TO PD-KEY3
            WRITE PAYFILE01.
+
+      *TB* put the charge back on 003 so billing restarts, as tbr139 does
+           IF TAKEBACK-FLAG = 1 OR REPAY-FLAG = 1
+               PERFORM RESET-003
+           END-IF
 
            move 0 to pat-resp
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
@@ -866,6 +953,13 @@
 
            MOVE "14" TO PD-DENIAL
            COMPUTE PD-AMOUNTX = CC-AMOUNT + PD-AMOUNT - PAT-RESP
+      *TB* 15 = reversal of the contractual. the takeback's pd-amount is
+      *TB* the positive payment reversed and pat-resp comes back positive,
+      *TB* so this is the original 14 with the sign flipped.
+           IF TAKEBACK-FLAG = 1
+               MOVE "15" TO PD-DENIAL
+               COMPUTE PD-AMOUNTX = PD-AMOUNT + PAT-RESP - CC-AMOUNT
+           END-IF
            move pd-amountx to nefx
 
            compute PD-AMOUNT = -1 * pd-amountx
@@ -1351,7 +1445,10 @@
        LOOK-1. 
            READ CHARCUR NEXT AT END GO TO LOOK-CHG-EXIT.
            IF CC-KEY8 NOT = G-GARNO GO TO LOOK-CHG-EXIT.
-           IF CC-PAYCODE NOT = "003" GO TO LOOK-1.
+      *TB* a pair's charge has usually moved off 003 since medicare paid
+           IF CC-PAYCODE NOT = "003"
+             AND TAKEBACK-FLAG = 0 AND REPAY-FLAG = 0
+             GO TO LOOK-1.
            IF CC-PROC(5:5) NOT = CC-PROC1X GO TO LOOK-1.
            
            IF (CC-PROC(10:2) = SPACE) AND (CC-MOD2 NOT = SPACE)
@@ -1367,8 +1464,12 @@
            IF NOT ((CC-DATE-T = SVC-DATE(X)) OR (CC-DATE-T = DATE-CC)) 
              GO TO LOOK-1.
 
-           MOVE 0 TO FLAGY 
-           PERFORM A5 THRU A5-EXIT
+           MOVE 0 TO FLAGY
+      *TB* both halves of a pair post to the same claim in this run, so
+      *TB* the takeback's own payfile records would reject the repay
+           IF TAKEBACK-FLAG = 0 AND REPAY-FLAG = 0
+               PERFORM A5 THRU A5-EXIT
+           END-IF
            IF FLAGY = 1 GO TO LOOK-1.
            PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > FIND-CNTR
             IF CHARCUR-KEY = FOUND-KEY(Z)
@@ -1397,6 +1498,62 @@
            ADD PC-AMOUNT TO CLAIM-TOT.
            GO TO S41.
        S5. EXIT.
+      *TB* add this run's payfile records for the claim to CLAIM-TOT
+       S4-PAYFILE. MOVE CC-KEY8 TO PD-KEY8 MOVE "000" TO PD-KEY3.
+           START PAYFILE KEY NOT < PAYFILE-KEY
+             INVALID GO TO S4-PAYFILE-EXIT.
+       S4-PAYFILE-1. READ PAYFILE NEXT AT END GO TO S4-PAYFILE-EXIT.
+           IF PD-KEY8 NOT = CC-KEY8 GO TO S4-PAYFILE-EXIT.
+           IF PD-CLAIM NOT = CC-CLAIM GO TO S4-PAYFILE-1.
+           ADD PD-AMOUNT TO CLAIM-TOT.
+           GO TO S4-PAYFILE-1.
+       S4-PAYFILE-EXIT. EXIT.
+      *TB* anything from this payor already on file for the claim?
+       TB-ON-FILE. MOVE 0 TO ON-FILE-FLAG
+           MOVE PD-PAYCODE TO TB-PAYCODE
+           MOVE CC-KEY8 TO PC-KEY8 MOVE "000" TO PC-KEY3.
+           START PAYCUR KEY NOT < PAYCUR-KEY
+             INVALID GO TO TB-ON-FILE-2.
+       TB-ON-FILE-1. READ PAYCUR NEXT AT END GO TO TB-ON-FILE-2.
+           IF PC-KEY8 NOT = CC-KEY8 GO TO TB-ON-FILE-2.
+           IF PC-CLAIM = CC-CLAIM AND PC-PAYCODE = TB-PAYCODE
+               MOVE 1 TO ON-FILE-FLAG GO TO TB-ON-FILE-EXIT.
+           GO TO TB-ON-FILE-1.
+       TB-ON-FILE-2. MOVE PAYFILE01 TO PAYBACK
+           MOVE CC-KEY8 TO PD-KEY8 MOVE "000" TO PD-KEY3.
+           START PAYFILE KEY NOT < PAYFILE-KEY
+             INVALID GO TO TB-ON-FILE-3.
+       TB-ON-FILE-4. READ PAYFILE NEXT AT END GO TO TB-ON-FILE-3.
+           IF PD-KEY8 NOT = CC-KEY8 GO TO TB-ON-FILE-3.
+           IF PD-CLAIM = CC-CLAIM AND PD-PAYCODE = TB-PAYCODE
+               MOVE 1 TO ON-FILE-FLAG GO TO TB-ON-FILE-3.
+           GO TO TB-ON-FILE-4.
+       TB-ON-FILE-3. MOVE PAYBACK TO PAYFILE01.
+       TB-ON-FILE-EXIT. EXIT.
+      *TB* note on the list that the takeback had nothing to reverse
+       TB-SKIP-NOTE.
+           MOVE SPACE TO ERROR-FILE01
+           STRING CLP-1 " TAKEBACK " CLP-7ICN(1:20)
+               " NOTHING POSTED ON CLAIM - SKIPPED"
+               DELIMITED BY SIZE INTO ERROR-FILE01
+           WRITE ERROR-FILE01.
+      *TB* re-read the current charge locked and put it back on 003
+       RESET-003.
+           MOVE FOUND-KEY(X) TO CHARCUR-KEY
+           READ CHARCUR WITH LOCK
+             INVALID
+               MOVE SPACE TO ERROR-FILE01
+               STRING FOUND-KEY(X) " BAD LOCK, NOT RESET TO 003"
+                   DELIMITED BY SIZE INTO ERROR-FILE01
+               WRITE ERROR-FILE01
+               END-WRITE
+             NOT INVALID
+               MOVE "003" TO CC-PAYCODE
+               MOVE "A" TO CC-ASSIGN CC-NEIC-ASSIGN
+               MOVE "2" TO CC-REC-STAT
+               REWRITE CHARCUR01
+               UNLOCK CHARCUR
+           END-READ.
        AMOUNT-1.
            MOVE SPACES TO SIGN-DOLLAR CENTS.
            IF ALF8-1 = "-"
@@ -1423,7 +1580,30 @@
            MOVE SPACE TO  EF7 EF8 EF-PROC EF-DENIAL02
            MOVE SPACE TO ERROR-FILE01 WRITE ERROR-FILE01
            MOVE ERR01 TO ERROR-FILE01
-           WRITE ERROR-FILE01. 
+           WRITE ERROR-FILE01.
+
+      *TB* pair census - the two counts should match
+           IF TB-CNTR > 0 OR RP-CNTR > 0
+               MOVE SPACE TO ERROR-FILE01
+               WRITE ERROR-FILE01
+               MOVE TB-CNTR TO NEF-4
+               MOVE SPACE TO ERROR-FILE01
+               STRING "TAKEBACK CLAIMS (CLP02=22)  " NEF-4
+                   DELIMITED BY SIZE INTO ERROR-FILE01
+               WRITE ERROR-FILE01
+               MOVE RP-CNTR TO NEF-4
+               MOVE SPACE TO ERROR-FILE01
+               STRING "REPAY CLAIMS                " NEF-4
+                   DELIMITED BY SIZE INTO ERROR-FILE01
+               WRITE ERROR-FILE01
+               IF TB-CNTR NOT = RP-CNTR
+                   MOVE SPACE TO ERROR-FILE01
+                   MOVE "*** PAIR COUNT MISMATCH - REVIEW BEFORE POST"
+                       TO ERROR-FILE01
+                   WRITE ERROR-FILE01
+               END-IF
+           END-IF
+
            MOVE SPACE TO ERROR-FILE01
            MOVE "DENIAL REASONS SUMMARY" TO ERROR-FILE01
            WRITE ERROR-FILE01 AFTER 2
