@@ -281,6 +281,9 @@
        A1. IF PD-PAYCODE = "001"
 	   OR PD-PAYCODE > "009" AND < "021"
 	   GO TO A1-EXIT.
+      *TB* a takeback (08) and its contractual reversal (15) post, but
+      *TB* the repay after them decides where the charge goes next
+           IF PD-DENIAL = "08" OR PD-DENIAL = "15" GO TO A1-EXIT.
 
 *******         FIND CHARGE RECORD THIS PAYMENT WILL BE POSTED AGAINST.
 
@@ -343,6 +346,20 @@
 	   IF PC-KEY8 NOT = G-GARNO GO TO A6.
 	   IF PC-CLAIM NOT = CC-CLAIM GO TO A5.
 	   ADD PC-AMOUNT TO PAYCUR-TOT.
+      *TB* a takeback restarts the payer sequence for the claim. what
+      *TB* the later payers paid on the old adjudication no longer
+      *TB* counts, so the repay sends the charge on to be rebilled.
+           IF PC-DENIAL = "08" AND PC-PAYCODE = G-PRINS
+               MOVE 0 TO S-FLAG T-FLAG
+               IF G-SEINS = "001" MOVE 1 TO S-FLAG END-IF
+               IF G-TRINS = "001" MOVE 1 TO T-FLAG END-IF
+               GO TO A5
+           END-IF
+           IF PC-DENIAL = "08" AND PC-PAYCODE = G-SEINS
+               MOVE 0 TO T-FLAG
+               IF G-TRINS = "001" MOVE 1 TO T-FLAG END-IF
+               GO TO A5
+           END-IF.
 	   IF PC-PAYCODE = G-PRINS
 	   MOVE 1 TO P-FLAG GO TO A5.
 	   IF PC-PAYCODE = G-SEINS
