@@ -1,7 +1,7 @@
 #!/bin/bash
 # x-ca: process the wellpoint (fka ngs) medicare 277s listed in /home/sidw/w22
 #   care-276  in /home/sidw  caid835 each download into /home/sidw/carein276
-#   care-277  in /home/rri   npir277 for rri claims    -> /home/rri/fileout3
+#   care-277  /home/rri/care-277, npir277 for rri claims -> /home/rri/fileout3
 #   pet-277   in /home/sidw  npi277oe per openemr site -> /home/sidw/fileout3oe
 # both reports are combined in /home/sidw/fileout3, started fresh each run;
 # the fileout3-MMDDYY-HHMMSS copies keep the history
@@ -15,9 +15,11 @@ if [[ ! -s $SIDW/w22 ]]; then
   exit 0
 fi
 
-# run a step in its own directory, stop the whole run if it fails
+# run a step in its own directory, stop the whole run if it fails.
+# full paths: PATH has "." ahead of /home/sidw, and /home/sidw/care-277
+# is a different (legacy qual277) script from /home/rri/care-277
 run() {
-  ( cd "$1" && "$2" ) || { echo "x-ca: $2 failed in $1, stopping" >&2; exit 1; }
+  ( cd "$1" && "$1/$2" ) || { echo "x-ca: $2 failed in $1, stopping" >&2; exit 1; }
 }
 
 run "$SIDW" care-276
