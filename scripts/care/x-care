@@ -1,0 +1,82 @@
+#!/bin/bash   
+
+# grab the files from ngs
+cd /home/sidw
+
+# comment out when hand rolled, prob should prompt here to d/l
+# this script in sidw uses php script in /home/stee
+ngs-dnl
+
+if [ ! -f ngs.zip ]
+then
+  echo "nothing was downloaded, exiting..."
+  exit
+fi  
+
+if [[ ! -s ngs.zip ]]
+then
+    echo
+    echo "empty cortex zip, aborting"
+    exit
+fi    
+
+unzip -o ngs.zip
+
+rm w22
+touch w22
+var_cntr=0
+rm cat835
+touch cat835
+
+zipcontent=( $(unzip -l ngs.zip | awk '{print $4}') )
+
+#echo $zipcontent
+
+#exit
+
+for t in "${zipcontent[@]}"
+do
+    if [[ $t == "277"* ]]; then 
+        echo "adding $t to 277 file"
+        $(echo $t >> w22)
+    elif [[ $t == "999"* ]]; then
+        echo
+        echo "the 999 will show if any Rs or Es"
+        echo $t
+        cat $t | grep --text "R"
+        cat $t | grep --text "*E" 
+        echo "enter to continue"
+        read var0
+    elif [[ $t == "TRN"* ]]; then
+        echo "here's a TRN"
+        cat $t
+        echo
+        echo "enter to continue"
+        read var0    
+    elif [[ $t == "5010"* ]]; then
+        echo "here's an 835"
+        var1=$t
+        echo $var1
+        cat $var1 >> cat835
+        
+        var_cntr=$((var_cntr+1))
+        echo "here are the check dates in file $t"
+        cat $var1 | grep -oP "BPR.{0,120}"
+        echo "hit enter to proceed, 835 counter is " $var_cntr
+        read var0    
+    fi
+
+
+done
+
+#echo "x-ca"
+
+#    if [[ $var_cntr gt 1 ]]; then 
+#        echo "more than 1"
+#        $(echo $t >> w22)
+
+
+cd /home/sidw
+mv ngs.zip "/tmp/ngs-$USER.zip"
+
+exit
