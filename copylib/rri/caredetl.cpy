@@ -1,4 +1,4 @@
-      *    835 service line detail, written by iedidetl (272)
+      *    835 service line detail, written by iedidetl (278)
       *    dt-prname = remitting payer (n1*pr), dt-insname = crossover
       *    payer the claim was forwarded to (nm1*tt), as in carer304
        01  CAREDETL01.
@@ -9,7 +9,8 @@
               03 DT-MOD1 PIC XX.
               03 DT-MOD2 PIC XX.
               03 DT-PAYDATE PIC X(8).
-              03 DT-CK-EFT PIC X(9).
+      *       trn02 check / eft trace, optum sends 10+
+              03 DT-CK-EFT PIC X(15).
               03 DT-ICN PIC X(13).
               03 DT-SEQ PIC 9.
            02 DT-DOCP    PIC X(6).

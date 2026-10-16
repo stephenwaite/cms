@@ -66,16 +66,16 @@
        01  RW-CNT PIC 999 VALUE 0.
        01  RW-TAB01.
            02 RW-TAB OCCURS 300 TIMES.
-             03 RW-SORT PIC X(48).
-             03 RW-REC PIC X(272).
+             03 RW-SORT PIC X(54).
+             03 RW-REC PIC X(278).
        01  RW-HOLD.
-           02 RH-SORT PIC X(48).
-           02 RH-REC PIC X(272).
+           02 RH-SORT PIC X(54).
+           02 RH-REC PIC X(278).
        01  RW-OVER PIC 9 VALUE 0.
 
-       01  CUR-REMIT PIC X(17).
+       01  CUR-REMIT PIC X(23).
        01  CUR-ICN PIC X(13).
-       01  THIS-REMIT PIC X(17).
+       01  THIS-REMIT PIC X(23).
 
        01  VT-NAME PIC X(24).
        01  VT-LAST PIC X(24).
@@ -121,7 +121,7 @@
        01  LINE-H3.
            02 FILLER PIC XX VALUE SPACE.
            02 FILLER PIC X(17) VALUE "CHECK/EFT TRACE: ".
-           02 H3-CK-EFT PIC X(12).
+           02 H3-CK-EFT PIC X(16).
            02 FILLER PIC X(14) VALUE "PAYMENT DATE: ".
            02 H3-PAYDATE PIC X(10).
        01  LINE-H4.

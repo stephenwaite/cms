@@ -4,13 +4,13 @@
       * @author s waite
       * @author Claude
       * aggregate loader: parse 835 like carer304 but record is
-      * 272 bytes: adds DT-SENDER (isa06), DT-PAYERID (ref*2u) and
+      * 278 bytes: adds DT-SENDER (isa06), DT-PAYERID (ref*2u) and
       * DT-PRNAME (n1*pr payer name) for downstream payer plucks.
       * dt-insname is the nm1*tt crossover name only, as in
       * carer304, blank when not forwarded. no carefile I-O. takebacks
       * (negative pay) are recorded with sign. idempotent per
       * remit.
-      * S30 835 filein, S35 parmfile, S41 iedidetl (272)
+      * S30 835 filein, S35 parmfile, S41 iedidetl (278)
       * S42 mbrxfile, payer member id per garno + payer
       * (nm1*qc over nm1*74 over nm1*il, latest remit wins,
       * optum va ccn returns the 17 char icn in nm1*qc)
@@ -69,7 +69,7 @@
            02 CR-DENIAL4 PIC X(4).
            02 CR-PAYDENIAL PIC X(4).
            02 CR-ICN PIC X(13).
-           02 CR-CK-EFT PIC X(9).
+           02 CR-CK-EFT PIC X(15).
            02 CR-INSNAME PIC X(30).
        01  HOLDDETL01.
            02 HD-KEY.
@@ -79,7 +79,7 @@
               03 HD-MOD1 PIC XX.
               03 HD-MOD2 PIC XX.
               03 HD-PAYDATE PIC X(8).
-              03 HD-CK-EFT PIC X(9).
+              03 HD-CK-EFT PIC X(15).
               03 HD-ICN PIC X(13).
               03 HD-SEQ PIC 9.
            02 HD-DOCP    PIC X(6).
@@ -170,7 +170,7 @@
        01  TRN01.
            02 TRN-0 PIC XXX.
            02 TRN-1 PIC X.
-           02 TRN-2 PIC X(9).
+           02 TRN-2 PIC X(15).
            02 TRN-3 PIC X(9).
        01  DTM01.
            02 DTM-0 PIC XXX.
@@ -256,7 +256,7 @@
        01  WS-PAYED-S PIC S9(4)V99 VALUE ZERO.
        01  TAKEBACK PIC 9 VALUE 0.
        01  REVCLM PIC 9 VALUE 0.
-       01  WS-LASTKEY PIC X(55) VALUE SPACES.
+       01  WS-LASTKEY PIC X(61) VALUE SPACES.
        01  ADJ-CNT PIC 9 VALUE 0.
        01  WS-RC-X PIC X(5).
        01  WS-ADJ01.
@@ -668,7 +668,7 @@
                    UPON SYSERR
            GO TO D-DETL-EXIT.
            ADD 1 TO WS-WROTE
-           MOVE DT-KEY(1:55) TO WS-LASTKEY
+           MOVE DT-KEY(1:61) TO WS-LASTKEY
            GO TO D-DETL-EXIT.
        D-DETL-DUP.
            MOVE CAREDETL01 TO HOLDDETL01
@@ -681,7 +681,7 @@
                DISPLAY "carer305: caredetl dup read fs " WS-DFS
                    " " HD-KEY UPON SYSERR
                GO TO D-DETL-EXIT.
-           IF HD-KEY(1:55) = WS-LASTKEY
+           IF HD-KEY(1:61) = WS-LASTKEY
       * twin SVC line in same claim this run, not a re-run
                GO TO D-DETL-BUMP.
            IF DT-PAYED = HD-PAYED AND DT-BILLED = HD-BILLED
