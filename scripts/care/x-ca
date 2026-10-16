@@ -1,0 +1,32 @@
+#!/bin/bash
+# x-ca: process the wellpoint (fka ngs) medicare 277s listed in /home/sidw/w22
+#   care-276  in /home/sidw  caid835 each download into /home/sidw/carein276
+#   care-277  in /home/rri   npir277 for rri claims    -> /home/rri/fileout3
+#   pet-277   in /home/sidw  npi277oe per openemr site -> /home/sidw/fileout3oe
+# both reports are combined in /home/sidw/fileout3, started fresh each run;
+# the fileout3-MMDDYY-HHMMSS copies keep the history
+
+SIDW=/home/sidw
+RRI=/home/rri
+STAMP=$(date +%m%d%y-%H%M%S)
+
+if [[ ! -s $SIDW/w22 ]]; then
+  echo "exiting since no 277s"
+  exit 0
+fi
+
+# run a step in its own directory, stop the whole run if it fails
+run() {
+  ( cd "$1" && "$2" ) || { echo "x-ca: $2 failed in $1, stopping" >&2; exit 1; }
+}
+
+run "$SIDW" care-276
+run "$RRI"  care-277
+cp "$RRI/fileout3" "$SIDW/fileout3"
+run "$SIDW" pet-277
+cat "$SIDW/fileout3oe" >> "$SIDW/fileout3"
+
+cp -p "$SIDW/fileout3"   "$SIDW/fileout3-$STAMP"
+cp -p "$SIDW/fileout3oe" "$SIDW/fileout3oe-$STAMP"
+
+joe "$SIDW/fileout3"

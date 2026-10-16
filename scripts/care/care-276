@@ -1,0 +1,31 @@
+#!/bin/bash
+# care-276: run each downloaded 277 listed in /home/sidw/w22 through caid835
+# (one segment per line) and collect them in /home/sidw/carein276, keeping a
+# timestamped copy (h277load backfills from those)
+cd /home/sidw || exit 1
+exec 2>> /home/sidw/log276
+set -x
+date
+
+list=/home/sidw/w22
+: > carein276
+
+while read -r line || [[ -n $line ]]; do
+  [[ -z $line ]] && continue
+  rm -f w1
+  S30=$line; S35=w1; S40=w3
+  export S30 S35 S40
+  $RUNCBL /home/sidw/caid835.a
+  unset S30 S35 S40
+  if [[ -s w1 ]]; then
+    cat w1 >> carein276
+  else
+    echo "WARNING: no 276 generated for: $line" | tee /dev/stderr
+  fi
+done < "$list"
+
+if [[ ! -s carein276 ]]; then
+  echo "care-276: nothing converted from $list" | tee /dev/stderr
+  exit 1
+fi
+cp -p carein276 "carein276-$(date +%m%d%y-%H%M%S)"
