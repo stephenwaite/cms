@@ -636,7 +636,11 @@
            GO TO D-DETL-EXIT.
        D-DETL-DUP.
            MOVE CAREDETL01 TO HOLDDETL01
+      * acu stops on a not-found read with no invalid clause, even
+      * with a file status - the status check below handles it
            READ CAREDETL
+             INVALID CONTINUE
+           END-READ
            IF WS-DFS NOT = "00"
                DISPLAY "carer305: caredetl dup read fs " WS-DFS
                    " " HD-KEY UPON SYSERR
@@ -687,6 +691,8 @@
            MOVE CLP-1 TO MX-KEY8
            MOVE WS-MB-PAYER TO MX-PAYERID
            READ MBRXFILE
+             INVALID CONTINUE
+           END-READ
            IF WS-MFS = "00"
                IF BPR-16 < MX-DATE
                   OR (BPR-16 = MX-DATE AND WS-MB-ID = MX-MEMBID)
@@ -705,8 +711,13 @@
            MOVE CLP-7ICN TO MX-ICN
            IF WS-MFS = "00"
                REWRITE MBRXFILE01
+                 INVALID CONTINUE
+               END-REWRITE
            ELSE
-               WRITE MBRXFILE01.
+               WRITE MBRXFILE01
+                 INVALID CONTINUE
+               END-WRITE
+           END-IF
            IF WS-MFS NOT = "00"
                DISPLAY "iedidetl: mbrxfile write fs " WS-MFS
                    " " MX-KEY UPON SYSERR
