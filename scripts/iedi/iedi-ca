@@ -1,7 +1,7 @@
 #!/bin/bash
 # iedi-ca: process the 277s downloaded to /tmp/w22$USER
 #   iedi-276      in /home/sidw  caid835 each download into /home/sidw/iediin276
-#   iedi-277      in /home/rri   neicoe277 for rri claims   -> /home/rri/iediout3
+#   iedi-277      /home/rri/iedi-277, neicoe277 for rri    -> /home/rri/iediout3
 #   iedi-pet-277  in /home/sidw  npi277oe per openemr site  -> /home/sidw/iediout3oe
 # rejections from both are combined in /home/sidw/iediout3, started fresh each
 # run; the iediout3-MMDDYY-HHMM copies keep the history
@@ -16,9 +16,11 @@ if [ ! -s "/tmp/w22$USER" ]; then
   exit 0
 fi
 
-# run a step in its own directory, stop the whole run if it fails
+# run a step in its own directory, stop the whole run if it fails.
+# full paths: PATH has "." ahead of /home/sidw, and /home/sidw/iedi-277
+# is a different script from /home/rri/iedi-277
 run() {
-  ( cd "$1" && "$2" ) || { echo "iedi-ca: $2 failed in $1, stopping" >&2; exit 1; }
+  ( cd "$1" && "$1/$2" ) || { echo "iedi-ca: $2 failed in $1, stopping" >&2; exit 1; }
 }
 
 run "$SIDW" iedi-276
