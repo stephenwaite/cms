@@ -263,14 +263,9 @@
              AT END
                GO TO P99.
 
+      *    parm139 (shared with hipr139): both npis on line 2
            MOVE SPACE TO PROV-1 PROV-2
-           MOVE PARMFILE01 TO PROV-1
-
-           READ PARMFILE 
-             AT END
-               GO TO P99.
-
-           MOVE PARMFILE01 TO PROV-2
+           UNSTRING PARMFILE01 DELIMITED BY " " INTO PROV-1 PROV-2.
 
        P00.
            MOVE SPACE TO FILEIN01
