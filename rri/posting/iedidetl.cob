@@ -21,13 +21,13 @@
                LINE SEQUENTIAL.
            SELECT PARMFILE ASSIGN TO "S35" ORGANIZATION
                LINE SEQUENTIAL.
-           SELECT CAREDETL ASSIGN TO "S41"
+           SELECT OPTIONAL CAREDETL ASSIGN TO "S41"
                ORGANIZATION IS INDEXED
                ACCESS IS DYNAMIC
                RECORD KEY IS DT-KEY
                LOCK MODE MANUAL
                FILE STATUS IS WS-DFS.
-           SELECT MBRXFILE ASSIGN TO "S42"
+           SELECT OPTIONAL MBRXFILE ASSIGN TO "S42"
                ORGANIZATION IS INDEXED
                ACCESS IS DYNAMIC
                RECORD KEY IS MX-KEY
@@ -305,7 +305,8 @@
                OPEN OUTPUT CAREDETL
                CLOSE CAREDETL
                OPEN I-O CAREDETL.
-           IF WS-DFS NOT = "00"
+      * 05 = optional file was not there and has been created
+           IF WS-DFS NOT = "00" AND NOT = "05"
                DISPLAY "carer305: caredetl open fs " WS-DFS
                    UPON SYSERR
                STOP RUN.
@@ -314,7 +315,7 @@
                OPEN OUTPUT MBRXFILE
                CLOSE MBRXFILE
                OPEN I-O MBRXFILE.
-           IF WS-MFS NOT = "00"
+           IF WS-MFS NOT = "00" AND NOT = "05"
                DISPLAY "iedidetl: mbrxfile open fs " WS-MFS
                    UPON SYSERR
                STOP RUN.
