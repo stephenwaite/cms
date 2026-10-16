@@ -396,7 +396,8 @@
              END-READ
            END-IF.
 
-      *    earliest accepted 277CA (a1/a2, wq) for this dos
+      *    earliest accepted 277CA (a1/a2, wq) for this dos from va ccn
+      *    optum only - h277file also holds the medicare (ngs) 277s
        H277-1.
            MOVE LOW-VALUES TO H277-KEY
            MOVE REQ-GARNO TO H277-KEY8
@@ -406,6 +407,7 @@
            READ H277FILE NEXT AT END GO TO H277-1-EXIT.
            IF H277-KEY8 NOT = REQ-GARNO GO TO H277-1-EXIT.
            IF H277-DOS NOT = CL-DOS GO TO H277-1-1.
+           IF H277-PAYID NOT = "VACCN" GO TO H277-1-1.
            IF NOT (H277-STAT(1:3) = "A1:" OR "A2:") GO TO H277-1-1.
            IF H277-ACTION NOT = "WQ" GO TO H277-1-1.
            IF CL-RCV NOT = SPACE AND H277-RECDATE NOT < CL-RCV
