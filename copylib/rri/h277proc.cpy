@@ -19,6 +19,9 @@
              WHEN H-F(1) = "ST"
                PERFORM H277-FLUSH
                MOVE H-F(2) TO H-STTYPE
+      *        nothing carries over from the last transaction
+               MOVE SPACE TO H-PAYID H-PAYNAME H-TRACE H-NPI
+                 H-RPTDATE H-HLCODE
              WHEN H-F(1) = "SE" OR "GE" OR "IEA"
                PERFORM H277-FLUSH
                MOVE SPACE TO H-HLCODE H-STTYPE
@@ -27,7 +30,9 @@
              WHEN H-F(1) = "HL"
                PERFORM H277-FLUSH
                MOVE H-F(4) TO H-HLCODE
-             WHEN H-F(1) = "NM1" AND H-F(2) = "PR"
+      *      info source: the payer (pr), or the clearinghouse (ay)
+      *      when it is the clearinghouse's own acknowledgment
+             WHEN H-F(1) = "NM1" AND (H-F(2) = "PR" OR "AY")
                MOVE H-F(4) TO H-PAYNAME
                MOVE H-F(10) TO H-PAYID
              WHEN H-F(1) = "NM1" AND H-F(2) = "85"
