@@ -1,5 +1,10 @@
       *    working storage for h277proc.cpy
        01  H-SEG PIC X(256).
+      *    rri billing npis (parm139 line 2) and fed tax id (line 3),
+      *    only claims whose nm1*85 id matches one of them are kept
+       01  H-PROV1 PIC X(10) VALUE SPACE.
+       01  H-PROV2 PIC X(10) VALUE SPACE.
+       01  H-PROVTIN PIC X(10) VALUE SPACE.
        01  H277-WORK.
            02 H-STTYPE PIC X(3).
            02 H-ISACTL PIC X(9).

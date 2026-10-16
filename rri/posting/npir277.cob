@@ -266,6 +266,14 @@
       *    parm139 (shared with hipr139): both npis on line 2
            MOVE SPACE TO PROV-1 PROV-2
            UNSTRING PARMFILE01 DELIMITED BY " " INTO PROV-1 PROV-2.
+           MOVE PROV-1 TO H-PROV1
+           MOVE PROV-2 TO H-PROV2.
+      *    line 3: rri fed tax id, for 277s that send nm1*85 as FI
+           MOVE SPACE TO H-PROVTIN
+           READ PARMFILE
+             AT END CONTINUE
+             NOT AT END MOVE PARMFILE01 TO H-PROVTIN
+           END-READ.
 
        P00.
            MOVE SPACE TO FILEIN01

@@ -1,5 +1,8 @@
       *    277 history paragraphs. needs h277ws.cpy in working storage
       *    and H277FILE (h277file.cpy) open i-o.
+      *    set H-PROV1 / H-PROV2 to the rri npis and H-PROVTIN to the
+      *    rri tax id - claims whose billing provider (nm1*85, XX npi
+      *    or FI tax id) matches none of them are not kept.
       *    move each segment to H-SEG and PERFORM H277-SEG,
       *    PERFORM H277-FLUSH at end of file.
        H277-SEG.
@@ -58,6 +61,9 @@
 
        H277-FLUSH.
            IF H-INCLM = "Y"
+              AND H-NPI NOT = SPACE
+              AND (H-NPI = H-PROV1 OR H-NPI = H-PROV2
+                   OR H-NPI = H-PROVTIN)
              PERFORM H277-PUT
                VARYING H-X FROM 1 BY 1 UNTIL H-X > H-STC-CNT
            END-IF
