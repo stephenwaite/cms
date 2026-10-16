@@ -4,12 +4,16 @@
       * @author s waite
       * @author Claude
       * aggregate loader: parse 835 like carer304 but record is
-      * 242 bytes: adds DT-SENDER (isa06) and DT-PAYERID (ref*2u)
-      * for downstream payer plucks. n1*pr name seeds dt-insname,
-      * nm1*tt overrides per claim. no carefile I-O. takebacks
+      * 272 bytes: adds DT-SENDER (isa06), DT-PAYERID (ref*2u) and
+      * DT-PRNAME (n1*pr payer name) for downstream payer plucks.
+      * dt-insname is the nm1*tt crossover name only, as in
+      * carer304, blank when not forwarded. no carefile I-O. takebacks
       * (negative pay) are recorded with sign. idempotent per
       * remit.
-      * S30 835 filein, S35 parmfile, S41 iedidetl (242)
+      * S30 835 filein, S35 parmfile, S41 iedidetl (272)
+      * S42 mbrxfile, payer member id per garno + payer
+      * (nm1*qc over nm1*74 over nm1*il, latest remit wins,
+      * optum va ccn returns the 17 char icn in nm1*qc)
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
@@ -23,40 +27,18 @@
                RECORD KEY IS DT-KEY
                LOCK MODE MANUAL
                FILE STATUS IS WS-DFS.
+           SELECT MBRXFILE ASSIGN TO "S42"
+               ORGANIZATION IS INDEXED
+               ACCESS IS DYNAMIC
+               RECORD KEY IS MX-KEY
+               LOCK MODE MANUAL
+               FILE STATUS IS WS-MFS.
        DATA DIVISION.
        FILE SECTION.
+       FD  MBRXFILE.
+           COPY mbrxfile.cpy.
        FD  CAREDETL.
-       01  CAREDETL01.
-           02 DT-KEY.
-              03 DT-KEY8 PIC X(8).
-              03 DT-DATE PIC X(8).
-              03 DT-PROC PIC X(5).
-              03 DT-MOD1 PIC XX.
-              03 DT-MOD2 PIC XX.
-              03 DT-PAYDATE PIC X(8).
-              03 DT-CK-EFT PIC X(9).
-              03 DT-ICN PIC X(13).
-              03 DT-SEQ PIC 9.
-           02 DT-DOCP    PIC X(6).
-           02 DT-POS     PIC XX.
-           02 DT-BILLED PIC S9(4)V99.
-           02 DT-ALLOWED PIC S9(4)V99.
-           02 DT-DEDUCT  PIC S9(4)V99.
-           02 DT-PAYED   PIC S9(4)V99.
-           02 DT-DENIAL1 PIC X(4).
-           02 DT-DENIAL2 PIC X(4).
-           02 DT-DENIAL3 PIC X(4).
-           02 DT-DENIAL4 PIC X(4).
-           02 DT-PAYDENIAL PIC X(4).
-           02 DT-INSNAME PIC X(30).
-           02 DT-TB PIC X.
-           02 DT-ADJ01.
-              03 DT-ADJ OCCURS 6 TIMES.
-                 04 DT-GRP PIC XX.
-                 04 DT-RC PIC X(5).
-                 04 DT-AMT PIC S9(4)V99.
-           02 DT-SENDER  PIC X(15).
-           02 DT-PAYERID PIC X(10).
+           COPY caredetl.cpy.
        FD  PARMFILE.
        01  PARMFILE01 PIC X(40).
        FD  FILEIN.
@@ -116,6 +98,7 @@
            02 HD-ADJ01 PIC X(78).
            02 HD-SENDER  PIC X(15).
            02 HD-PAYERID PIC X(10).
+           02 HD-PRNAME  PIC X(30).
        01  AMT01.
            02 AMT-0 PIC XXX.
            02 AMT-1 PIC XX.
@@ -287,6 +270,25 @@
        01  WS-WROTE PIC 9(6) VALUE ZERO.
        01  WS-DUPES PIC 9(6) VALUE ZERO.
        01  WS-TAKEBACKS PIC 9(6) VALUE ZERO.
+       01  WS-MFS PIC XX VALUE SPACES.
+       01  MB-NM01.
+           02 MB-NM-0 PIC XXX.
+           02 MB-NM-ENT PIC XXX.
+           02 MB-NM-TYPE PIC X.
+           02 MB-NM-NAMEL PIC X(35).
+           02 MB-NM-NAMEF PIC X(25).
+           02 MB-NM-NAMEM PIC X(25).
+           02 MB-NM-PREFIX PIC X(10).
+           02 MB-NM-SUFX PIC X(10).
+           02 MB-NM-QUAL PIC XX.
+           02 MB-NM-ID PIC X(80).
+       01  MB-PRI PIC 9.
+       01  WS-MB-PRI PIC 9 VALUE 0.
+       01  WS-MB-ID PIC X(20) VALUE SPACES.
+       01  WS-MB-QUAL PIC XX VALUE SPACES.
+       01  WS-MB-ENT PIC XX VALUE SPACES.
+       01  WS-MB-PAYER PIC X(10) VALUE SPACES.
+       01  WS-MB-WROTE PIC 9(6) VALUE ZERO.
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT FILEIN PARMFILE.
@@ -305,6 +307,15 @@
                OPEN I-O CAREDETL.
            IF WS-DFS NOT = "00"
                DISPLAY "carer305: caredetl open fs " WS-DFS
+                   UPON SYSERR
+               STOP RUN.
+           OPEN I-O MBRXFILE.
+           IF WS-MFS = "35"
+               OPEN OUTPUT MBRXFILE
+               CLOSE MBRXFILE
+               OPEN I-O MBRXFILE.
+           IF WS-MFS NOT = "00"
+               DISPLAY "iedidetl: mbrxfile open fs " WS-MFS
                    UPON SYSERR
                STOP RUN.
        P00.
@@ -387,10 +398,12 @@
            MOVE 0 TO REVCLM
            IF CLP-2CLMSTAT = "22" MOVE 1 TO REVCLM.
            MOVE CLP-7ICN TO CR-ICN
-      * payer name as default insname, nm1*tt overrides below
-           MOVE WS-PRNAME TO CR-INSNAME
+      * insname stays blank unless nm1*tt (crossover) below
            MOVE SPACE TO NM101 CLMCAS01
            MOVE SPACE TO SVC-DATE01
+      * pos / rendering per svc line, clear so a line without
+      * ref*lu or ref*1c does not inherit the last claim's
+           MOVE SPACE TO REF-TAB01 REF-PL01
            MOVE SPACE TO CR-DENIAL1 CR-DENIAL2
                CR-DENIAL3 CR-DENIAL4
            PERFORM VARYING X FROM 1 BY 1 UNTIL X > 64
@@ -398,6 +411,8 @@
            END-PERFORM
            MOVE 0 TO CAS-CNTR
            MOVE 0 TO SVC-CNTR
+           MOVE 0 TO WS-MB-PRI
+           MOVE SPACE TO WS-MB-ID WS-MB-QUAL WS-MB-ENT
            MOVE SPACE TO WS-LASTKEY.
        P1-MOA.
            MOVE SPACE TO FILEIN01
@@ -412,6 +427,9 @@
                MOVE MOA-DN2 TO CR-DENIAL2
                MOVE MOA-DN3 TO CR-DENIAL3
                MOVE MOA-DN4 TO CR-DENIAL4
+               GO TO P1-MOA.
+           IF F1 = "NM1" AND (F2 = "*QC*" OR "*IL*" OR "*74*")
+               PERFORM MBRX-NM1
                GO TO P1-MOA.
            IF F1 = "NM1" AND F2 = "*TT*"
                MOVE SPACE TO NM101 CR-INSNAME
@@ -467,6 +485,7 @@
            GO TO P1-SVC-LOOP.
       * WRITE THE CAREDETL RECORDS
        P2-SVC-LOOP.
+           PERFORM MBRX-PUT THRU MBRX-PUT-EXIT
            PERFORM P5-SVC-LOOP THRU P5-SVC-LOOP-EXIT
                VARYING X FROM 1 BY 1 UNTIL X > SVC-CNTR
            MOVE SAVEFILE01 TO FILEIN01
@@ -597,6 +616,7 @@
            MOVE CR-INSNAME TO DT-INSNAME
            MOVE WS-SENDER  TO DT-SENDER
            MOVE WS-PAYERID TO DT-PAYERID
+           MOVE WS-PRNAME  TO DT-PRNAME
            IF REVCLM = 1
                COMPUTE DT-BILLED = -1 * DT-BILLED
                COMPUTE DT-ALLOWED = -1 * DT-ALLOWED
@@ -638,6 +658,61 @@
            GO TO D-DETL-W.
        D-DETL-EXIT.
            EXIT.
+      * member id from nm1*qc/il/74, keep the best one per claim
+       MBRX-NM1.
+           MOVE SPACE TO MB-NM01
+           UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                MB-NM-0 MB-NM-ENT MB-NM-TYPE MB-NM-NAMEL
+                MB-NM-NAMEF MB-NM-NAMEM MB-NM-PREFIX MB-NM-SUFX
+                MB-NM-QUAL MB-NM-ID
+           INSPECT MB-NM-ID REPLACING ALL "~" BY SPACE
+           IF MB-NM-ID = SPACE GO TO MBRX-NM1-EXIT.
+           MOVE 1 TO MB-PRI
+           IF MB-NM-ENT = "74 " MOVE 2 TO MB-PRI.
+           IF MB-NM-ENT = "QC " MOVE 3 TO MB-PRI.
+           IF MB-PRI > WS-MB-PRI
+               MOVE MB-PRI TO WS-MB-PRI
+               MOVE MB-NM-ID TO WS-MB-ID
+               MOVE MB-NM-QUAL TO WS-MB-QUAL
+               MOVE MB-NM-ENT TO WS-MB-ENT.
+       MBRX-NM1-EXIT.
+           EXIT.
+      * one row per garno + payer, latest remit wins
+       MBRX-PUT.
+           IF WS-MB-ID = SPACE GO TO MBRX-PUT-EXIT.
+           MOVE WS-PAYERID TO WS-MB-PAYER
+           IF WS-MB-PAYER = SPACE MOVE WS-SENDER TO WS-MB-PAYER.
+           MOVE SPACE TO MBRXFILE01
+           MOVE CLP-1 TO MX-KEY8
+           MOVE WS-MB-PAYER TO MX-PAYERID
+           READ MBRXFILE
+           IF WS-MFS = "00"
+               IF BPR-16 < MX-DATE
+                  OR (BPR-16 = MX-DATE AND WS-MB-ID = MX-MEMBID)
+                   GO TO MBRX-PUT-EXIT
+               END-IF
+           ELSE
+               MOVE SPACE TO MBRXFILE01
+               MOVE CLP-1 TO MX-KEY8
+               MOVE WS-MB-PAYER TO MX-PAYERID
+           END-IF
+           MOVE WS-MB-ID TO MX-MEMBID
+           MOVE WS-MB-QUAL TO MX-QUAL
+           MOVE WS-MB-ENT TO MX-ENTITY
+           MOVE "835" TO MX-SRC
+           MOVE BPR-16 TO MX-DATE
+           MOVE CLP-7ICN TO MX-ICN
+           IF WS-MFS = "00"
+               REWRITE MBRXFILE01
+           ELSE
+               WRITE MBRXFILE01.
+           IF WS-MFS NOT = "00"
+               DISPLAY "iedidetl: mbrxfile write fs " WS-MFS
+                   " " MX-KEY UPON SYSERR
+               GO TO MBRX-PUT-EXIT.
+           ADD 1 TO WS-MB-WROTE.
+       MBRX-PUT-EXIT.
+           EXIT.
        AMOUNT-1.
            MOVE SPACES TO SIGN-DOLLAR CENTS.
            IF ALF8-1 = "-"
@@ -657,8 +732,9 @@
            IF ALF8-1 = "-"
                COMPUTE AMOUNT-X = -1 * AMOUNT-X.
        P99.
-           CLOSE CAREDETL FILEIN PARMFILE
+           CLOSE CAREDETL FILEIN PARMFILE MBRXFILE
            DISPLAY "carer305: wrote " WS-WROTE
                " dupes " WS-DUPES
                " takebacks " WS-TAKEBACKS UPON SYSERR
+           DISPLAY "iedidetl: member ids " WS-MB-WROTE UPON SYSERR
            STOP RUN.
