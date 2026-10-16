@@ -288,6 +288,7 @@
        01  WS-MB-QUAL PIC XX VALUE SPACES.
        01  WS-MB-ENT PIC XX VALUE SPACES.
        01  WS-MB-PAYER PIC X(10) VALUE SPACES.
+       01  WS-CLM-DATE PIC X(8) VALUE SPACES.
        01  WS-MB-WROTE PIC 9(6) VALUE ZERO.
        PROCEDURE DIVISION.
        0005-START.
@@ -414,11 +415,31 @@
            MOVE 0 TO SVC-CNTR
            MOVE 0 TO WS-MB-PRI
            MOVE SPACE TO WS-MB-ID WS-MB-QUAL WS-MB-ENT
+           MOVE SPACE TO WS-CLM-DATE
            MOVE SPACE TO WS-LASTKEY.
        P1-MOA.
            MOVE SPACE TO FILEIN01
-           READ FILEIN AT END GO TO P99.
+           READ FILEIN AT END
+               MOVE SPACE TO SAVEFILE01
+               GO TO P1-NOSVC.
            IF F1 = "SVC" GO TO P1-SVC-LOOP-0.
+      * next claim / end of transaction before any svc: this claim
+      * has no service lines (claim level denial)
+           IF F1 = "CLP" OR "SE*"
+               MOVE FILEIN01 TO SAVEFILE01
+               GO TO P1-NOSVC.
+      * claim level cas, only used for a claim with no svc lines
+           IF F1 = "CAS"
+               ADD 1 TO CAS-CNTR
+               MOVE FILEIN01 TO CAS-TAB(CAS-CNTR)
+               MOVE 0 TO CAS-SVC(CAS-CNTR)
+               GO TO P1-MOA.
+           IF F1 = "DTM" AND F2 = "*232"
+               MOVE SPACE TO DTM01
+               UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                    DTM-0 DTM-1 DTM-2
+               MOVE DTM-2 TO WS-CLM-DATE
+               GO TO P1-MOA.
            IF F1 = "MOA"
                MOVE SPACE TO MOA01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
@@ -484,6 +505,21 @@
                MOVE AMOUNT-X TO ALLW-TAB(SVC-CNTR)
                GO TO P1-SVC-LOOP.
            GO TO P1-SVC-LOOP.
+      * one claim level row from the clp totals and claim level cas,
+      * dos from dtm*232 when there is one, blank proc
+       P1-NOSVC.
+           MOVE 1 TO SVC-CNTR
+           MOVE SPACE TO SVC-TAB(1)
+           STRING "SVC*HC:*" DELIMITED BY SIZE
+                CLP-3TOTCLMCHG DELIMITED BY " "
+                "*" DELIMITED BY SIZE
+                CLP-4TOTCLMPAY DELIMITED BY " "
+                INTO SVC-TAB(1)
+           MOVE WS-CLM-DATE TO SVC-DATE(1)
+           PERFORM VARYING Z FROM 1 BY 1 UNTIL Z > CAS-CNTR
+               IF CAS-SVC(Z) = 0 MOVE 1 TO CAS-SVC(Z) END-IF
+           END-PERFORM
+           GO TO P2-SVC-LOOP.
       * WRITE THE CAREDETL RECORDS
        P2-SVC-LOOP.
            PERFORM MBRX-PUT THRU MBRX-PUT-EXIT
