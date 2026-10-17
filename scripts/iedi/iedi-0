@@ -1,0 +1,54 @@
+#!/bin/bash
+cd /home/sidw || exit 1
+rm -f iedix      
+
+while read -r eraName; do
+    [[ -s $eraName ]] || { echo "MISSING 835: $eraName" >&2; continue; }
+    cat "$eraName" >> iedix
+done < /tmp/w33$USER
+
+# replace > with :
+sed -i 's/>/:/g' iedix
+rm -f w1 w2 w11 iediwk
+S30=iedix; S35=w1; S40=w2
+export S30 S35 S40
+$RUNCBL /home/sidw/caid835.b
+unset S30 S35 S40
+
+S30=w1; S35=w11
+export S30 S35
+$RUNCBL /home/sidw/up1070.a
+unset S30 S35
+
+[[ -s w11 ]] || { echo "ERA processing failed - no w11 produced"; exit 1; }
+cp w1 remitiedi$(date +%m%d%y)
+cp w11 iediwk
+
+# this is where you put the date at the top for sid's posting progs
+joe iediwk
+# this is where we copy it to today's date in case you need it later
+TODAY=iedi$(date +%m%d%y)
+cp iediwk $TODAY
+# also copy it with hour, min and secs in case it gets overwritten
+cp iediwk iediwk-$(date +%m%d%y-%H%M%S)
+
+# load the 835 detail (caredetl + payer member ids) for appeals and
+# reports, then list any optum va ccn CO-29 timely denials, checked.
+# a problem here doesn't stop the posting side.
+ERR=$(mktemp)
+S30=/home/sidw/$TODAY S35=/home/rri/parm139 S41=/home/rri/iedidetl S42=/home/rri/mbrxfile \
+    $RUNCBL /home/sidw/iedidetl.acu 2> "$ERR" \
+    || echo "*** iedidetl failed on $TODAY - see /home/sidw/log-iedidetl ***"
+{ echo "== $(date) $TODAY"; grep -v 'D-DETL' "$ERR"; } >> /home/sidw/log-iedidetl
+grep -e 'carer305: wrote' -e 'transactions' "$ERR" | sed 's/^carer305: /iedidetl: /'
+rm -f "$ERR"
+echo "va ccn CO-29 denials in $TODAY:"
+/home/sidw/vaccn-29list /home/sidw/$TODAY | sed 's/^/  /' || echo "*** vaccn-29list failed ***"
+
+if grep -q N860 iediwk; then
+    echo "*** QPAs found in iediwk - joe iediwk and look for N860 ***"
+    grep -n N860 iediwk
+else
+    echo "no QPAs in iediwk"
+fi
+exit
