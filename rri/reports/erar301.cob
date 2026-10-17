@@ -209,12 +209,14 @@
            MOVE SPACE TO PV-NAME PV-NPI
            MOVE 0 TO X.
        P-PARM.
+           MOVE SPACE TO PARMFILE01
            READ PARMFILE AT END GO TO P0.
            ADD 1 TO X
            IF X = 6 UNSTRING PARMFILE01 DELIMITED BY " " INTO PV-NPI.
            IF X = 8 MOVE PARMFILE01 TO PV-NAME.
            IF X < 8 GO TO P-PARM.
        P0.
+           MOVE SPACE TO REQFILE01
            READ REQFILE AT END
              DISPLAY "erar301: no garno in request file"
              GO TO P99.
@@ -223,6 +225,7 @@
              DISPLAY "erar301: " REQ-GARNO " BAD GARNO"
              GO TO P99.
        P00.
+           MOVE SPACE TO REQFILE01
            READ REQFILE AT END GO TO P00-X.
            IF REQFILE01(1:8) = SPACE GO TO P00.
            IF DOS-CNT < 40
