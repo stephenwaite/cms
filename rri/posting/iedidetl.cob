@@ -289,6 +289,8 @@
        01  WS-MB-ENT PIC XX VALUE SPACES.
        01  WS-MB-PAYER PIC X(10) VALUE SPACES.
        01  WS-CLM-DATE PIC X(8) VALUE SPACES.
+       01  WS-TXCNT PIC 9(5) VALUE ZERO.
+       01  WS-TXKEPT PIC 9(5) VALUE ZERO.
        01  WS-MB-WROTE PIC 9(6) VALUE ZERO.
        PROCEDURE DIVISION.
        0005-START.
@@ -359,9 +361,6 @@
                     N1-0 N1-1 N1-2 N1-3 N1-4
                MOVE N1-2 TO WS-PRNAME
                GO TO P000.
-           IF F1 = "REF"
-               DISPLAY "P000 REF F2=[" F2 "]" UPON SYSERR
-           END-IF
            IF F1 = "REF" AND F2 = "*2U*"
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
@@ -390,10 +389,18 @@
            IF REF-1 = "TJ" MOVE REF-2 TO IN-FEDID.
            GO TO P0000.
        P0000-X.
+           ADD 1 TO WS-TXCNT
            IF NOT ((IN-NPI NOT = SPACE AND
                     (IN-NPI = PROV-1 OR IN-NPI = PROV-2))
                 OR (IN-FEDID NOT = SPACE AND IN-FEDID = PROV-FED))
+               DISPLAY "iedidetl: tx " WS-TXCNT " trn " CR-CK-EFT
+                   " npi " IN-NPI " tin " IN-FEDID " skip "
+                   WS-PRNAME UPON SYSERR
                GO TO P00.
+           ADD 1 TO WS-TXKEPT
+           DISPLAY "iedidetl: tx " WS-TXCNT " trn " CR-CK-EFT
+               " npi " IN-NPI " tin " IN-FEDID " keep "
+               WS-PRNAME UPON SYSERR
            IF F1 = "CLP" GO TO P1-CLP-1.
        P1-CLP.
            MOVE SPACE TO FILEIN01
@@ -796,4 +803,6 @@
                " dupes " WS-DUPES
                " takebacks " WS-TAKEBACKS UPON SYSERR
            DISPLAY "iedidetl: member ids " WS-MB-WROTE UPON SYSERR
+           DISPLAY "iedidetl: transactions " WS-TXCNT " kept "
+               WS-TXKEPT UPON SYSERR
            STOP RUN.
