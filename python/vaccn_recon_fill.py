@@ -70,6 +70,9 @@ def read_fields(path):
                 warns.append(val)
             else:
                 single[key] = val
+    phone = single.get("CONTACT_PHONE", "")
+    if len(phone) == 10 and phone.isdigit():
+        single["CONTACT_PHONE"] = f"{phone[:3]}-{phone[3:6]}-{phone[6:]}"
     zipc = single.get("BILL_ZIP", "")
     if len(zipc) == 9 and zipc.isdigit():
         single["BILL_ZIP"] = zipc[:5] + "-" + zipc[5:]

@@ -8,8 +8,8 @@
       *    is the 835's own - nothing is calculated - and the heading
       *    says it is a provider print of the era, not a payer notice.
       *    for appeal attachments.
-      * S30 parmfile  line 1 provider name, line 2 npi (the same
-      *               parmfile vaccnrecon uses)
+      * S30 parm39    the 837 parm: line 6 npi (+ legacy), line 8 name
+      *               (the same parm vaccnrecon uses)
       * S35 reqfile   garno, then dos ccyymmdd lines (none = all)
       * S40 caredetl S45 garfile S50 mbrxfile S55 print out
        IDENTIFICATION DIVISION.
@@ -207,10 +207,13 @@
            MOVE ALL "_" TO UL-1
            MOVE FUNCTION CURRENT-DATE(1:8) TO WS-TODAY
            MOVE SPACE TO PV-NAME PV-NPI
+           MOVE 0 TO X.
+       P-PARM.
            READ PARMFILE AT END GO TO P0.
-           MOVE PARMFILE01 TO PV-NAME
-           READ PARMFILE AT END GO TO P0.
-           MOVE PARMFILE01 TO PV-NPI.
+           ADD 1 TO X
+           IF X = 6 UNSTRING PARMFILE01 DELIMITED BY " " INTO PV-NPI.
+           IF X = 8 MOVE PARMFILE01 TO PV-NAME.
+           IF X < 8 GO TO P-PARM.
        P0.
            READ REQFILE AT END
              DISPLAY "erar301: no garno in request file"

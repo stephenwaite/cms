@@ -8,9 +8,8 @@
       *    python/vaccn_recon_fill.py lays onto the optum form.
       *    claim nbr + carc 29 from caredetl, proof of filing from
       *    the 277 history, va id from mbrxfile, referral from authfile
-      * S30 parmfile  provider: name npi tin street city state zip
-      *               contact-name contact-phone contact-email
-      *               timely-limit-days (blank = 180)
+      * S30 parm39    the 837 parm: 1 tin, 3 contact name, 4 phone,
+      *               6 npi (+ legacy), 8 name, 9-12 street city st zip
       * S35 reqfile   garno, then dos ccyymmdd lines (none = every
       *               dos with a carc 29 denial in caredetl)
       * S40 garfile S45 charcur S50 authfile S55 caredetl
@@ -145,7 +144,7 @@
              CAREDETL H277FILE MBRXFILE.
            OPEN OUTPUT FILEOUT.
            MOVE FUNCTION CURRENT-DATE(1:8) TO WS-TODAY
-           PERFORM PARM-1.
+           PERFORM PARM-1 THRU PARM-1-EXIT.
 
            READ REQFILE AT END
              DISPLAY "vaccnrecon: no garno in request file"
@@ -187,30 +186,22 @@
        PARM-1.
            MOVE SPACE TO PV-NAME PV-NPI PV-TIN PV-STREET PV-CITY
              PV-STATE PV-ZIP PV-CNAME PV-CPHONE PV-CEMAIL PV-LIMIT
+           MOVE 0 TO X.
+       PARM-1-1.
            READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-NAME
-           READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-NPI
-           READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-TIN
-           READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-STREET
-           READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-CITY
-           READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-STATE
-           READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-ZIP
-           READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-CNAME
-           READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-CPHONE
-           READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-CEMAIL
-           READ PARMFILE AT END GO TO PARM-1-EXIT.
-           MOVE PARMFILE01 TO PV-LIMIT
-           IF PV-LIMIT NOT = SPACE
-             COMPUTE LIMIT-DAYS = FUNCTION NUMVAL(PV-LIMIT).
+           ADD 1 TO X
+           EVALUATE X
+             WHEN 1 MOVE PARMFILE01 TO PV-TIN
+             WHEN 3 MOVE PARMFILE01 TO PV-CNAME
+             WHEN 4 MOVE PARMFILE01 TO PV-CPHONE
+             WHEN 6 UNSTRING PARMFILE01 DELIMITED BY " " INTO PV-NPI
+             WHEN 8 MOVE PARMFILE01 TO PV-NAME
+             WHEN 9 MOVE PARMFILE01 TO PV-STREET
+             WHEN 10 MOVE PARMFILE01 TO PV-CITY
+             WHEN 11 MOVE PARMFILE01 TO PV-STATE
+             WHEN 12 MOVE PARMFILE01 TO PV-ZIP
+           END-EVALUATE
+           IF X < 12 GO TO PARM-1-1.
        PARM-1-EXIT.
            EXIT.
 
