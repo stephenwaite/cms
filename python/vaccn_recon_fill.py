@@ -41,6 +41,10 @@ SINGLE = {
     "CONTACT_NAME": (134, 298.5),
     "CONTACT_PHONE": (136, 319),
     "CONTACT_EMAIL": (370, 319),
+    "CONTACT_STREET": (71, 359),
+    "CONTACT_CITY": (333, 359),
+    "CONTACT_STATE": (444, 359),
+    "CONTACT_ZIP": (528, 359),
     "VET_LAST": (114, 394),
     "VET_FIRST": (395, 394),
     "VET_ID": (230, 413.5),
@@ -73,9 +77,10 @@ def read_fields(path):
     phone = single.get("CONTACT_PHONE", "")
     if len(phone) == 10 and phone.isdigit():
         single["CONTACT_PHONE"] = f"{phone[:3]}-{phone[3:6]}-{phone[6:]}"
-    zipc = single.get("BILL_ZIP", "")
-    if len(zipc) == 9 and zipc.isdigit():
-        single["BILL_ZIP"] = zipc[:5] + "-" + zipc[5:]
+    for key in ("BILL_ZIP", "CONTACT_ZIP"):
+        zipc = single.get(key, "")
+        if len(zipc) == 9 and zipc.isdigit():
+            single[key] = zipc[:5] + "-" + zipc[5:]
     return single, claims, comments, warns
 
 

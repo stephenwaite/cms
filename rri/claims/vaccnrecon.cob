@@ -14,6 +14,9 @@
       *               dos with a carc 29 denial in caredetl)
       * S40 garfile S45 charcur S50 authfile S55 caredetl
       * S60 h277file S65 mbrxfile S70 field sheet out
+      * S75 contact (optional): email, street, city, state, zip -
+      *     filled in as the contact address instead of "same as
+      *     billing"
        IDENTIFICATION DIVISION.
        PROGRAM-ID. vaccnrecon.
        ENVIRONMENT DIVISION.
@@ -48,6 +51,8 @@
            LOCK MODE MANUAL.
            SELECT FILEOUT ASSIGN TO "S70" ORGANIZATION
            LINE SEQUENTIAL.
+           SELECT OPTIONAL CONTFILE ASSIGN TO "S75" ORGANIZATION
+           LINE SEQUENTIAL.
 
        DATA DIVISION.
        FILE SECTION.
@@ -69,6 +74,8 @@
            COPY mbrxfile.cpy.
        FD  FILEOUT.
        01  FILEOUT01 PIC X(700).
+       FD  CONTFILE.
+       01  CONTFILE01 PIC X(80).
 
        WORKING-STORAGE SECTION.
        01  PV-NAME PIC X(40).
@@ -82,6 +89,10 @@
        01  PV-CPHONE PIC X(20).
        01  PV-CEMAIL PIC X(60).
        01  PV-LIMIT PIC X(4).
+       01  PV-CSTREET PIC X(40).
+       01  PV-CCITY PIC X(30).
+       01  PV-CSTATE PIC XX.
+       01  PV-CZIP PIC X(10).
        01  LIMIT-DAYS PIC 9(4) VALUE 180.
 
        01  REQ-GARNO PIC X(8).
@@ -145,6 +156,7 @@
            OPEN OUTPUT FILEOUT.
            MOVE FUNCTION CURRENT-DATE(1:8) TO WS-TODAY
            PERFORM PARM-1 THRU PARM-1-EXIT.
+           PERFORM CONT-1 THRU CONT-1-EXIT.
 
            READ REQFILE AT END
              DISPLAY "vaccnrecon: no garno in request file"
@@ -203,6 +215,25 @@
            END-EVALUATE
            IF X < 12 GO TO PARM-1-1.
        PARM-1-EXIT.
+           EXIT.
+
+      *    optional contact email / mailing address
+       CONT-1.
+           MOVE SPACE TO PV-CSTREET PV-CCITY PV-CSTATE PV-CZIP
+           OPEN INPUT CONTFILE
+           READ CONTFILE AT END GO TO CONT-1-X.
+           MOVE CONTFILE01 TO PV-CEMAIL
+           READ CONTFILE AT END GO TO CONT-1-X.
+           MOVE CONTFILE01 TO PV-CSTREET
+           READ CONTFILE AT END GO TO CONT-1-X.
+           MOVE CONTFILE01 TO PV-CCITY
+           READ CONTFILE AT END GO TO CONT-1-X.
+           MOVE CONTFILE01 TO PV-CSTATE
+           READ CONTFILE AT END GO TO CONT-1-X.
+           MOVE CONTFILE01 TO PV-CZIP.
+       CONT-1-X.
+           CLOSE CONTFILE.
+       CONT-1-EXIT.
            EXIT.
 
       *    no dos given: every dos on caredetl with a carc 29
@@ -283,8 +314,29 @@
            STRING "CONTACT_EMAIL=" PV-CEMAIL DELIMITED BY SIZE
              INTO FILEOUT01
            WRITE FILEOUT01
-           MOVE "CONTACT_SAME=Y" TO FILEOUT01
-           WRITE FILEOUT01
+           IF PV-CSTREET = SPACE
+             MOVE "CONTACT_SAME=Y" TO FILEOUT01
+             WRITE FILEOUT01
+           ELSE
+             MOVE "CONTACT_SAME=N" TO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             STRING "CONTACT_STREET=" PV-CSTREET DELIMITED BY SIZE
+               INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             STRING "CONTACT_CITY=" PV-CCITY DELIMITED BY SIZE
+               INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             STRING "CONTACT_STATE=" PV-CSTATE DELIMITED BY SIZE
+               INTO FILEOUT01
+             WRITE FILEOUT01
+             MOVE SPACE TO FILEOUT01
+             STRING "CONTACT_ZIP=" PV-CZIP DELIMITED BY SIZE
+               INTO FILEOUT01
+             WRITE FILEOUT01
+           END-IF
            MOVE "REASON=TIMELY" TO FILEOUT01
            WRITE FILEOUT01.
 
