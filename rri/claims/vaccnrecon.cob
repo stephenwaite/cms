@@ -117,6 +117,9 @@
        01  CL-RCV PIC X(8).
        01  CL-TRACE PIC X(30).
        01  CL-STAT PIC X(12).
+       01  CL-RCVPAY PIC X(10).
+       01  CL-RCVNAME PIC X(24).
+       01  CL-RCVCCN PIC X(8).
        01  CL-DAYS PIC S9(5).
        01  ROW-29 PIC X.
 
@@ -353,6 +356,7 @@
            MOVE DOS-TAB(Y) TO CL-DOS
            MOVE SPACE TO CL-ICN CL-PAYDATE CL-PAYERID CL-CLAIM
              CL-PAYCODE CL-REF CL-RCV CL-TRACE CL-STAT
+             CL-RCVPAY CL-RCVNAME CL-RCVCCN
            MOVE "N" TO CL-29
            MOVE 0 TO CL-AMT CL-DAYS
            PERFORM DETL-1 THRU DETL-1-EXIT
@@ -447,8 +451,10 @@
              END-READ
            END-IF.
 
-      *    earliest accepted 277CA (a1/a2, wq) for this dos from va ccn
-      *    optum only - h277file also holds the medicare (ngs) 277s
+      *    earliest accepted 277CA (a1/a2, wq) for this dos from a va
+      *    payer: VACCN (optum va ccn) or 12115 (va, where claims go
+      *    for the auth). h277file also holds medicare and other
+      *    payers' 277s, which don't count.
        H277-1.
            MOVE LOW-VALUES TO H277-KEY
            MOVE REQ-GARNO TO H277-KEY8
@@ -458,14 +464,21 @@
            READ H277FILE NEXT AT END GO TO H277-1-EXIT.
            IF H277-KEY8 NOT = REQ-GARNO GO TO H277-1-EXIT.
            IF H277-DOS NOT = CL-DOS GO TO H277-1-1.
-           IF H277-PAYID NOT = "VACCN" GO TO H277-1-1.
+           IF NOT (H277-PAYID = "VACCN" OR "12115") GO TO H277-1-1.
            IF NOT (H277-STAT(1:3) = "A1:" OR "A2:") GO TO H277-1-1.
            IF H277-ACTION NOT = "WQ" GO TO H277-1-1.
+      *    earliest optum va ccn acceptance, for the comment
+           IF H277-PAYID = "VACCN" AND
+              (CL-RCVCCN = SPACE OR H277-RECDATE < CL-RCVCCN)
+             MOVE H277-RECDATE TO CL-RCVCCN
+           END-IF
            IF CL-RCV NOT = SPACE AND H277-RECDATE NOT < CL-RCV
              GO TO H277-1-1.
            MOVE H277-RECDATE TO CL-RCV
            MOVE H277-TRACE TO CL-TRACE
            MOVE H277-STAT TO CL-STAT
+           MOVE H277-PAYID TO CL-RCVPAY
+           MOVE H277-PAYNAME TO CL-RCVNAME
            GO TO H277-1-1.
        H277-1-EXIT.
            EXIT.
@@ -543,13 +556,25 @@
            IF CL-RCV = SPACE GO TO CMT-1-EXIT.
            MOVE CL-RCV TO WS-YMD
            PERFORM FMT-DATE
-           STRING "VA CCN Optum received this claim " WS-MDY
-             " and accepted it for adjudication (277CA "
+           IF CL-RCVPAY = "VACCN"
+             STRING "VA CCN Optum received this claim "
+               DELIMITED BY SIZE INTO WS-CMT WITH POINTER CPTR
+           ELSE
+             STRING "The VA (payer ID " DELIMITED BY SIZE
+               CL-RCVPAY DELIMITED BY " "
+               ") received this claim " DELIMITED BY SIZE
+               INTO WS-CMT WITH POINTER CPTR
+           END-IF
+           STRING WS-MDY " and accepted it for adjudication (277CA "
              DELIMITED BY SIZE INTO WS-CMT WITH POINTER CPTR
            STRING CL-STAT DELIMITED BY " "
-             ", trace " DELIMITED BY SIZE
-             CL-TRACE DELIMITED BY " "
-             "), " DELIMITED BY SIZE
+             INTO WS-CMT WITH POINTER CPTR
+           IF CL-TRACE NOT = SPACE
+             STRING ", trace " DELIMITED BY SIZE
+               CL-TRACE DELIMITED BY " "
+               INTO WS-CMT WITH POINTER CPTR
+           END-IF
+           STRING "), " DELIMITED BY SIZE
              INTO WS-CMT WITH POINTER CPTR
            MOVE CL-DAYS TO DAYS-ED
            MOVE DAYS-ED TO WS-ED
@@ -566,6 +591,13 @@
                "-day timely filing limit" DELIMITED BY SIZE
                INTO WS-CMT WITH POINTER CPTR.
            STRING "." DELIMITED BY SIZE INTO WS-CMT WITH POINTER CPTR.
+           IF CL-RCVPAY NOT = "VACCN" AND CL-RCVCCN NOT = SPACE
+             MOVE CL-RCVCCN TO WS-YMD
+             PERFORM FMT-DATE
+             STRING " It was filed with the VA on time and reached"
+               " VA CCN Optum on " WS-MDY "."
+               DELIMITED BY SIZE INTO WS-CMT WITH POINTER CPTR
+           END-IF.
        CMT-1-EXIT.
            EXIT.
 
