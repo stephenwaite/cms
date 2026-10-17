@@ -3,6 +3,7 @@
 # packet for one veteran - the filled form plus the 835 remit detail.
 #
 #   vaccn-recon [--force] GARNO [DOS ...]      DOS as CCYYMMDD
+#   vaccn-recon --check GARNO [DOS ...]        one status line, no pdf
 #
 # no DOS = every dos with a carc 29 timely denial in caredetl.
 # vaccnrecon builds the field sheet, erar301 the remit detail, and
@@ -20,7 +21,9 @@ PY=${PY:-/opt/cms-venvs/vaccn/bin/python3}
 OUTDIR=${OUTDIR:-$HOME/vaccn}
 
 FORCE=
+CHECK=
 if [ "$1" = "--force" ]; then FORCE=--force; shift; fi
+if [ "$1" = "--check" ]; then CHECK=1; shift; fi
 GARNO=$1; shift
 if [ -z "$GARNO" ]; then
   echo "usage: vaccn-recon [--force] GARNO [DOS ...]   (DOS as CCYYMMDD)" >&2
@@ -41,12 +44,26 @@ trap 'rm -rf "$TMP"' EXIT
 
 cd "$SIDW" || exit 1
 
+# --check keeps vaccnrecon's own messages off the screen
+exec 3>&1
+[ -n "$CHECK" ] && exec 3>/dev/null
+
 env S30="$RRI/parm39" S35="$TMP/req" S40="$RRI/garfile" S45="$RRI/charcur" \
     S50="$RRI/authfile" S55="$RRI/iedidetl" S60="$RRI/h277hist" \
     S65="$RRI/mbrxfile" S70="$TMP/recon.txt" S75="$RRI/vaccn-contact" \
-    $RUNCBL "$SIDW/vaccnrecon.acu" || { echo "vaccn-recon: vaccnrecon failed" >&2; exit 1; }
-[ -s "$TMP/recon.txt" ] || { echo "vaccn-recon: vaccnrecon wrote nothing" >&2; exit 1; }
+    $RUNCBL "$SIDW/vaccnrecon.acu" >&3 || { echo "vaccn-recon: vaccnrecon failed" >&2; exit 1; }
+if [ ! -s "$TMP/recon.txt" ]; then
+  [ -n "$CHECK" ] && { echo "$GARNO $*: NOT - nothing from vaccnrecon (garno not on garfile?)"; exit 2; }
+  echo "vaccn-recon: vaccnrecon wrote nothing (garno not on garfile?)" >&2; exit 1
+fi
 grep -q '^CLAIM=' "$TMP/recon.txt" || { echo "vaccn-recon: no claims for $GARNO" >&2; exit 1; }
+
+# --check: one line - appealable, or the warnings - and stop
+if [ -n "$CHECK" ]; then
+  W=$(grep '^WARN=' "$TMP/recon.txt" | sed 's/^WARN=[0-9]* //; s/ *$//' | sort -u | paste -sd';' -)
+  if [ -z "$W" ]; then echo "$GARNO $*: appealable"; exit 0; fi
+  echo "$GARNO $*: NOT - $W"; exit 2
+fi
 
 env S30="$RRI/parm39" S35="$TMP/req" S40="$RRI/iedidetl" S45="$RRI/garfile" \
     S50="$RRI/mbrxfile" S55="$TMP/remit.txt" \
