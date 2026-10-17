@@ -321,7 +321,7 @@
                    UPON SYSERR
                STOP RUN.
        P00.
-           MOVE SPACE TO FILEIN01 IN-LEG IN-NPI
+           MOVE SPACE TO FILEIN01 IN-LEG IN-NPI IN-FEDID
            READ FILEIN AT END GO TO P99.
       * isa sender id, refreshed per interchange
            IF F1 = "ISA"
@@ -374,16 +374,27 @@
                 N1-0 N1-1 N1-2 N1-3 N1-4
            IF N1-3 = "FI" MOVE N1-4 TO IN-FEDID.
            IF N1-3 = "XX" MOVE N1-4 TO IN-NPI.
+      * rest of the payee loop up to the first claim: ref*tj is the
+      * payee tax id, ref*1c the legacy id. keep the transaction if
+      * the payee npi is on parm line 2 or its tax id is on line 3
        P0000.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P99.
+           IF F1 = "SE*" GO TO P00.
+           IF F1 = "LX*" OR "CLP" GO TO P0000-X.
            IF F1 NOT = "REF" GO TO P0000.
            MOVE SPACE TO REF01
            UNSTRING FILEIN01 DELIMITED BY "*" INTO
                 REF-0 REF-1 REF-2
            IF REF-1 = "1C" MOVE REF-2 TO IN-LEG.
-           IF NOT ((PROV-1 = IN-NPI) OR (PROV-2 = IN-NPI))
+           IF REF-1 = "TJ" MOVE REF-2 TO IN-FEDID.
+           GO TO P0000.
+       P0000-X.
+           IF NOT ((IN-NPI NOT = SPACE AND
+                    (IN-NPI = PROV-1 OR IN-NPI = PROV-2))
+                OR (IN-FEDID NOT = SPACE AND IN-FEDID = PROV-FED))
                GO TO P00.
+           IF F1 = "CLP" GO TO P1-CLP-1.
        P1-CLP.
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P99.
