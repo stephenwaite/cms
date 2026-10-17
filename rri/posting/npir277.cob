@@ -32,6 +32,11 @@
            LINE SEQUENTIAL.
            SELECT FILEOUT3 ASSIGN TO "S75" ORGANIZATION
            LINE SEQUENTIAL.
+           SELECT OPTIONAL H277FILE ASSIGN TO "S80"
+           ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC RECORD KEY IS H277-KEY
+           ALTERNATE RECORD KEY IS H277-PAYID WITH DUPLICATES
+           LOCK MODE MANUAL.
 
        DATA DIVISION.
        FILE SECTION.
@@ -80,6 +85,8 @@
            02 CC-DX5 PIC X(7).
            02 CC-DX6 PIC X(7).
            02 CC-FUTURE PIC X(6).
+       FD  H277FILE.
+           COPY h277file.cpy.
        FD  CSCCFILE.
        01  CSCCFILE01.
            02 CSCC-KEY PIC XXX.
@@ -158,6 +165,7 @@
            02 G-SEGRPNAME PIC X(15).
 
        WORKING-STORAGE SECTION.
+           COPY h277ws.cpy.
        01  DTP01.
            02 DTP-0 PIC XXX.
            02 DTP-1 PIC XXX.
@@ -243,6 +251,7 @@
            OPEN INPUT FILEIN CSCFILE CSCCFILE GARFILE
              CHARCUR PARMFILE.
            OPEN OUTPUT FILEOUT1 FILEOUT2 FILEOUT3.
+           OPEN I-O H277FILE.
 
            READ PARMFILE 
              AT
@@ -254,20 +263,25 @@
              AT END
                GO TO P99.
 
+      *    parm139 (shared with hipr139): both npis on line 2
            MOVE SPACE TO PROV-1 PROV-2
-           MOVE PARMFILE01 TO PROV-1
-
-           READ PARMFILE 
-             AT END
-               GO TO P99.
-
-           MOVE PARMFILE01 TO PROV-2
+           UNSTRING PARMFILE01 DELIMITED BY " " INTO PROV-1 PROV-2.
+           MOVE PROV-1 TO H-PROV1
+           MOVE PROV-2 TO H-PROV2.
+      *    line 3: rri fed tax id, for 277s that send nm1*85 as FI
+           MOVE SPACE TO H-PROVTIN
+           READ PARMFILE
+             AT END CONTINUE
+             NOT AT END MOVE PARMFILE01 TO H-PROVTIN
+           END-READ.
 
        P00.
            MOVE SPACE TO FILEIN01
            READ FILEIN
              AT END
                GO TO P99.
+           MOVE FILEIN01 TO H-SEG
+           PERFORM H277-SEG.
 
        XX.
            IF FILEIN01(1:6) NOT = "NM1*85" GO TO P00.
@@ -285,6 +299,8 @@
            READ FILEIN
              AT END
                GO TO P99.
+           MOVE FILEIN01 TO H-SEG
+           PERFORM H277-SEG.
 
            IF FILEIN01(1:3) = "GE" OR "GS" GO TO XX.
 
@@ -294,6 +310,8 @@
            UNSTRING FILEIN01 DELIMITED BY "*" INTO TRN-0 TRN-1 TRN-2
            MOVE SPACE TO FILEIN01
            READ FILEIN AT END GO TO P99.
+           MOVE FILEIN01 TO H-SEG
+           PERFORM H277-SEG.
 
            IF FILEIN01(1:3) NOT = "STC"
              DISPLAY G-GARNO " " F1 " RECORD SHOULD HAVE BEEN STC"
@@ -307,6 +325,8 @@
        XXX0.
            MOVE SPACE TO FILEIN01.
            READ FILEIN AT END GO TO P99.
+           MOVE FILEIN01 TO H-SEG
+           PERFORM H277-SEG.
 
        XXX0-1.
            IF FILEIN01(1:2) = "HL" OR "SE" OR "GS" OR "GE"
@@ -426,6 +446,9 @@
            END-READ.
 
        P99.
+           PERFORM H277-FLUSH
            CLOSE CSCFILE CSCCFILE GARFILE CHARCUR
-                 FILEOUT1 FILEOUT2 FILEOUT3
+                 FILEOUT1 FILEOUT2 FILEOUT3 H277FILE
            STOP RUN.
+
+           COPY h277proc.cpy.

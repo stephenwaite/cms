@@ -1,0 +1,49 @@
+#!/bin/bash
+# vaccn-29list: every optum va ccn claim paid to rri with a CO-29
+# (timely filing) adjustment in one or more iedi 835 aggregates, and
+# whether it can be appealed (vaccn-recon --check: on-time va / va ccn
+# 277CA in the history, claim nbr and referral on file).
+#
+#   vaccn-29list FILE ...          e.g. vaccn-29list /home/sidw/iedi0831*26
+#
+# prints account, dates, claim nbrs and amounts only - no patient data.
+# needs the 835s loaded with iedidetl for the appeal check to find them.
+
+NPI=${NPI:-1700935780}
+TIN=${TIN:-030238095}
+HERE=$(dirname "$(readlink -f "$0")")
+RECON=${RECON:-$HERE/vaccn-recon}
+
+[ $# -gt 0 ] || { echo "usage: vaccn-29list FILE ..." >&2; exit 1; }
+
+awk -F'*' -v NPI="$NPI" -v TIN="$TIN" '
+  function trim(x) { gsub(/^[ \t\r]+|[ \t\r~]+$/, "", x); return x }
+  function endclaim() {
+    if (dos == "") dos = d232
+    if (inclm && co29 && va && (pe == NPI || pt == TIN))
+      printf "%s|%s|%s|%s|%s|%s|%s\n", FILENAME, paid, eft, garno, dos, icn, billed
+    inclm = 0
+  }
+  { for (i = 1; i <= NF; i++) $i = trim($i) }
+  $1 == "ST"  { endclaim(); va = 0; pe = pt = paid = eft = "" }
+  $1 == "SE"  { endclaim() }
+  $1 == "BPR" { paid = $17 }
+  $1 == "TRN" && $2 == "1" { eft = $3 }
+  $1 == "REF" && $2 == "2U" && $3 == "VACCN" { va = 1 }
+  $1 == "N1"  && $2 == "PE" { pe = ($4 == "XX") ? $5 : ""; if ($4 == "FI") pt = $5 }
+  $1 == "REF" && $2 == "TJ" && !inclm { pt = $3 }
+  $1 == "CLP" { endclaim(); inclm = 1; co29 = 0; garno = substr($2, 1, 8); billed = $4; icn = $8; dos = ""; d232 = "" }
+  $1 == "DTM" && $2 == "232" && inclm { d232 = $3 }
+  $1 == "DTM" && $2 == "472" && inclm { if (index(" " dos " ", " " substr($3,1,8) " ") == 0) dos = (dos == "" ? "" : dos " ") substr($3,1,8) }
+  $1 == "CAS" && inclm && $2 == "CO" { for (i = 3; i <= NF; i += 3) if ($i == "29") co29 = 1 }
+  END { endclaim() }
+' "$@" | while IFS='|' read -r file paid eft garno dos icn billed; do
+  printf '%-18s paid %s eft %-12s %-8s dos %-26s claim %-14s $%s\n' \
+    "$(basename "$file")" "$paid" "$eft" "$garno" "$dos" "$icn" "$billed"
+  if [ -z "$dos" ]; then
+    echo "    no date of service on the 835 (claim level denial) - check by hand"
+    continue
+  fi
+  # shellcheck disable=SC2086
+  printf '    %s\n' "$("$RECON" --check "$garno" $dos 2>&1 | tail -1)"
+done

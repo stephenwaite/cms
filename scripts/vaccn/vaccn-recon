@@ -1,0 +1,86 @@
+#!/bin/bash
+# vaccn-recon: build a va ccn (optum) medical claim reconsideration
+# packet for one veteran - the filled form plus the 835 remit detail.
+#
+#   vaccn-recon [--force] GARNO [DOS ...]      DOS as CCYYMMDD
+#   vaccn-recon --check GARNO [DOS ...]        one status line, no pdf
+#
+# no DOS = every dos with a carc 29 timely denial in caredetl.
+# vaccnrecon builds the field sheet, erar301 the remit detail, and
+# vaccn_recon_fill.py lays them onto the optum form. working files
+# (they hold phi) go in a private temp dir that is removed at the end;
+# the pdf lands in ~/vaccn/, readable only by you.
+# stops if vaccnrecon warns (missing claim nbr, referral, 277CA, or
+# filed past the limit) unless --force.
+
+SIDW=${SIDW:-/home/sidw}
+RRI=${RRI:-/home/rri}
+FORM=${FORM:-$HOME/vaccn-recon-form.pdf}
+FILL=${FILL:-$HOME/vaccn_recon_fill.py}
+PY=${PY:-/opt/cms-venvs/vaccn/bin/python3}
+OUTDIR=${OUTDIR:-$HOME/vaccn}
+
+FORCE=
+CHECK=
+if [ "$1" = "--force" ]; then FORCE=--force; shift; fi
+if [ "$1" = "--check" ]; then CHECK=1; shift; fi
+GARNO=$1; shift
+if [ -z "$GARNO" ]; then
+  echo "usage: vaccn-recon [--force] GARNO [DOS ...]   (DOS as CCYYMMDD)" >&2
+  exit 1
+fi
+for d in "$@"; do
+  [[ $d =~ ^[0-9]{8}$ ]] || { echo "vaccn-recon: DOS must be CCYYMMDD: $d" >&2; exit 1; }
+done
+for f in "$FORM" "$FILL" "$PY" "$SIDW/vaccnrecon.acu" "$SIDW/erar301.acu" "$RRI/parm39"; do
+  [ -e "$f" ] || { echo "vaccn-recon: missing $f" >&2; exit 1; }
+done
+
+umask 077
+TMP=$(mktemp -d) || exit 1
+trap 'rm -rf "$TMP"' EXIT
+
+{ echo "$GARNO"; for d in "$@"; do echo "$d"; done; } > "$TMP/req"
+
+cd "$SIDW" || exit 1
+
+# --check keeps vaccnrecon's own messages off the screen
+exec 3>&1
+[ -n "$CHECK" ] && exec 3>/dev/null
+
+env S30="$RRI/parm39" S35="$TMP/req" S40="$RRI/garfile" S45="$RRI/charcur" \
+    S50="$RRI/authfile" S55="$RRI/iedidetl" S60="$RRI/h277hist" \
+    S65="$RRI/mbrxfile" S70="$TMP/recon.txt" S75="$RRI/vaccn-contact" \
+    $RUNCBL "$SIDW/vaccnrecon.acu" >&3 || { echo "vaccn-recon: vaccnrecon failed" >&2; exit 1; }
+if [ ! -s "$TMP/recon.txt" ]; then
+  [ -n "$CHECK" ] && { echo "$GARNO $*: NOT - nothing from vaccnrecon (garno not on garfile?)"; exit 2; }
+  echo "vaccn-recon: vaccnrecon wrote nothing (garno not on garfile?)" >&2; exit 1
+fi
+grep -q '^CLAIM=' "$TMP/recon.txt" || { echo "vaccn-recon: no claims for $GARNO" >&2; exit 1; }
+
+# --check: one line - appealable, or the warnings - and stop
+if [ -n "$CHECK" ]; then
+  W=$(grep '^WARN=' "$TMP/recon.txt" | sed 's/^WARN=[0-9]* //; s/ *$//' | sort -u | paste -sd';' -)
+  if [ -z "$W" ]; then echo "$GARNO $*: appealable"; exit 0; fi
+  echo "$GARNO $*: NOT - $W"; exit 2
+fi
+
+env S30="$RRI/parm39" S35="$TMP/req" S40="$RRI/iedidetl" S45="$RRI/garfile" \
+    S50="$RRI/mbrxfile" S55="$TMP/remit.txt" \
+    $RUNCBL "$SIDW/erar301.acu" || { echo "vaccn-recon: erar301 failed" >&2; exit 1; }
+
+# summary without patient data: claims, warnings, contact block
+echo "claims:   $(grep -c '^CLAIM=' "$TMP/recon.txt")"
+echo "warnings: $(grep -c '^WARN=' "$TMP/recon.txt")"
+grep '^WARN=' "$TMP/recon.txt" | sed 's/ *$//'
+grep -e '^CONTACT_SAME' -e '^CONTACT_EMAIL' "$TMP/recon.txt" | sed 's/ *$//'
+echo "remits:   $(grep -c 'CHECK/EFT' "$TMP/remit.txt")"
+
+mkdir -p "$OUTDIR"
+NAME=$GARNO
+if [ $# -gt 0 ]; then NAME="$NAME-$(IFS=-; echo "$*")"; fi
+OUT="$OUTDIR/$NAME-recon-$(date +%Y%m%d).pdf"
+
+"$PY" "$FILL" "$TMP/recon.txt" "$FORM" "$OUT" --attach "$TMP/remit.txt" $FORCE || exit 1
+chmod 600 "$OUT"
+echo "packet:   $OUT"
