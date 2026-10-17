@@ -469,7 +469,7 @@
                MOVE MOA-DN4 TO CR-DENIAL4
                GO TO P1-MOA.
            IF F1 = "NM1" AND (F2 = "*QC*" OR "*IL*" OR "*74*")
-               PERFORM MBRX-NM1
+               PERFORM MBRX-NM1 THRU MBRX-NM1-EXIT
                GO TO P1-MOA.
            IF F1 = "NM1" AND F2 = "*TT*"
                MOVE SPACE TO NM101 CR-INSNAME
