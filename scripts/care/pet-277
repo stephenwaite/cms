@@ -1,0 +1,30 @@
+#!/bin/bash
+# pet-277: npi277oe on /home/sidw/carein276 for each openemr site listed
+# in /home/sidw/qual277oe; rejections are collected in /home/sidw/fileout3oe
+SIDW=/home/sidw
+OUT=$SIDW/fileout3oe
+
+exec 2>> "$SIDW/log277"
+set -x
+: > "$OUT"
+
+while read -r site; do
+  [ -z "$site" ] && continue
+  (
+    if ! cd "$SIDW" || ! cd "$site"; then
+      echo "SITE $site MISSING - 277s NOT CHECKED" >> "$OUT"
+      exit 0
+    fi
+    echo "$PWD"
+    S30=parm139; S35=$SIDW/carein276; S40=garfile; S45=fileout1oe; S50=$SIDW/cscfile
+    S55=$SIDW/csccfile; S60=charcur; S70=fileout2oe; S75=fileout3oe
+    export S30 S35 S40 S45 S50 S55 S60 S70 S75
+    $RUNCBL "$SIDW/npi277oe.acu"
+    if [ "$(wc -l < fileout3oe)" -gt 1 ]; then
+      cat fileout3oe >> "$OUT"
+    fi
+    rm -f fileout1oe fileout2oe fileout3oe
+  )
+done < "$SIDW/qual277oe"
+
+date

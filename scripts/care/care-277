@@ -1,0 +1,16 @@
+#!/bin/bash
+# care-277: npir277 on /home/sidw/carein276 for rri -> /home/rri/fileout3,
+# also feeds the 277 history (S80)
+cd /home/rri || exit 1
+rm -f fileout3
+
+S30=parm139; S35=/home/sidw/carein276; S40=garfile; S45=fileout1; S50=/home/sidw/cscfile
+S55=/home/sidw/csccfile; S60=charcur; S65=charfile; S70=fileout2
+S75=fileout3; S80=/home/rri/h277hist
+export S30 S35 S40 S45 S50 S55 S60 S65 S70 S75 S80
+$RUNCBL /home/sidw/npir277.acu
+rc=$?
+unset S30 S35 S40 S45 S50 S55 S60 S65 S70 S75 S80
+
+#lpr -C /home/rri/fileout3 fileout3
+exit $rc
