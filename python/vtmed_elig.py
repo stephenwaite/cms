@@ -296,6 +296,28 @@ def tsv_field(value):
     # portal text can carry tabs/newlines, which would split columns or rows in a spreadsheet
     return ' '.join(value.split())
 
+# TPL medical coverage labels, in the order a carrier code is taken from them --
+# the code is the first word after the label, e.g. "PHYSICIAN INPATIENT / OUTPATIENT SERVICES 16 - AETNA" -> 16.
+# Part C before Part B: a Medicare Advantage member still shows Part B.
+CARRIER_LABELS = [
+    'PHYSICIAN INPATIENT / OUTPATIENT SERVICES ',
+    'MAJOR MEDICAL/PHYSICIAN (IV-D) NO DRUG COVERAGE FO ',
+    'MEDICARE C - COMPREHENSIVE COVERAGE & DRUG ',
+    'MEDICARE B ',
+]
+
+def carrier_code(result):
+    if result is None or result.get('error'):
+        return ''
+    coverages = [' '.join(r['coverage'].split()) + ' ' for r in result['tpl_records']]
+    for label in CARRIER_LABELS:
+        for coverage in coverages:
+            if coverage.startswith(label):
+                rest = coverage[len(label):].split()
+                if rest:
+                    return rest[0]
+    return ''
+
 def carrier_summary(result):
     if result is None:
         return ['', '', '', '', 'FAILED']
@@ -318,7 +340,7 @@ def check_eligibility_file(logon_id, password, input_file, output_file):
         lines = f.read().splitlines()
     
     with sync_playwright() as p, open(output_file, 'w') as out:
-        out.write('\t'.join(['charcur_key', 'member_id', 'dos', 'status', 'benefit_plan',
+        out.write('\t'.join(['charcur_key', 'carrier_code', 'member_id', 'dos', 'status', 'benefit_plan',
                              'tpl_coverage', 'tpl_description', 'result']) + '\n')
         browser, page = launch_browser(p)
         try:
@@ -340,7 +362,7 @@ def check_eligibility_file(logon_id, password, input_file, output_file):
                     except Exception as e:
                         logging.error(f"Line {n}: retry failed: {e}")
                         result = None
-                row = [charcur_key, member_id, dos] + carrier_summary(result)
+                row = [charcur_key, carrier_code(result), member_id, dos] + carrier_summary(result)
                 out.write('\t'.join(tsv_field(v) for v in row) + '\n')
                 out.flush()
                 logging.info(f"Line {n} of {len(lines)} done")
