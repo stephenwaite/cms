@@ -284,12 +284,17 @@ def query_member(page, member_id, date_of_service, verbose=True):
     return result
 
 def parse_input_line(line):
-    # member id starts col 59, DOS (mmddyyyy) starts col 108 -- 1-based columns
+    # charcur key cols 1-11, member id starts col 59, DOS (mmddyyyy) starts col 108 -- 1-based columns
+    charcur_key = line[0:11].strip()
     member_id = line[58:].split()[0] if line[58:].strip() else ''
     dos = line[107:115]
     if not member_id or len(dos) != 8 or not dos.isdigit():
         return None
-    return member_id, f"{dos[0:2]}/{dos[2:4]}/{dos[4:8]}"
+    return charcur_key, member_id, f"{dos[0:2]}/{dos[2:4]}/{dos[4:8]}"
+
+def tsv_field(value):
+    # portal text can carry tabs/newlines, which would split columns or rows in a spreadsheet
+    return ' '.join(value.split())
 
 def carrier_summary(result):
     if result is None:
@@ -313,7 +318,7 @@ def check_eligibility_file(logon_id, password, input_file, output_file):
         lines = f.read().splitlines()
     
     with sync_playwright() as p, open(output_file, 'w') as out:
-        out.write('\t'.join(['member_id', 'dos', 'status', 'benefit_plan',
+        out.write('\t'.join(['charcur_key', 'member_id', 'dos', 'status', 'benefit_plan',
                              'tpl_coverage', 'tpl_description', 'result']) + '\n')
         browser, page = launch_browser(p)
         try:
@@ -323,7 +328,7 @@ def check_eligibility_file(logon_id, password, input_file, output_file):
                 if parsed is None:
                     logging.warning(f"Line {n}: no member id/DOS found, skipped")
                     continue
-                member_id, dos = parsed
+                charcur_key, member_id, dos = parsed
                 try:
                     result = query_member(page, member_id, dos, verbose=False)
                 except Exception as e:
@@ -335,7 +340,8 @@ def check_eligibility_file(logon_id, password, input_file, output_file):
                     except Exception as e:
                         logging.error(f"Line {n}: retry failed: {e}")
                         result = None
-                out.write('\t'.join([member_id, dos] + carrier_summary(result)) + '\n')
+                row = [charcur_key, member_id, dos] + carrier_summary(result)
+                out.write('\t'.join(tsv_field(v) for v in row) + '\n')
                 out.flush()
                 logging.info(f"Line {n} of {len(lines)} done")
         finally:
