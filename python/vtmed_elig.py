@@ -27,6 +27,27 @@ logger.addHandler(console_handler)
 logon_id = os.getenv('VT_MEDICAID_USER')
 password = os.getenv('VT_MEDICAID_PASS')
 
+def login(page, logon_id, password):
+    logging.info("Navigating to VT Medicaid portal")
+    page.goto("https://www.vtmedicaid.com/secure/logon.do", timeout=30000)
+    
+    logging.info("Filling login credentials")
+    page.fill('input[name="logon_id"]', logon_id)
+    page.fill('input[name="password"]', password)
+    page.click('input[type="submit"]')
+    page.wait_for_load_state('networkidle')
+    logging.info("Login successful")
+
+def launch_browser(p):
+    logging.info("Launching browser")
+    browser = p.chromium.launch(
+        headless=True,
+        args=['--no-sandbox', '--disable-setuid-sandbox']
+    )
+    page = browser.new_page()
+    page.set_default_timeout(60000)
+    return browser, page
+
 def check_eligibility(logon_id, password, member_id, date_of_service):
     logging.info(f"Starting eligibility check for Member ID: {member_id}, DOS: {date_of_service}")
     
@@ -36,222 +57,11 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
         return None
     
     with sync_playwright() as p:
+        browser = None
         try:
-            logging.info("Launching browser")
-            browser = p.chromium.launch(
-                headless=True,
-                args=['--no-sandbox', '--disable-setuid-sandbox']
-            )
-            
-            page = browser.new_page()
-            page.set_default_timeout(60000)
-            
-            # Login
-            logging.info("Navigating to VT Medicaid portal")
-            page.goto("https://www.vtmedicaid.com/secure/logon.do", timeout=30000)
-            
-            logging.info("Filling login credentials")
-            page.fill('input[name="logon_id"]', logon_id)
-            page.fill('input[name="password"]', password)
-            page.click('input[type="submit"]')
-            page.wait_for_load_state('networkidle')
-            logging.info("Login successful")
-            
-            # Navigate to eligibility status page
-            logging.info("Navigating to eligibility status page")
-            page.goto("https://www.vtmedicaid.com/secure/eligibilityStatus.do", timeout=30000)
-            page.wait_for_load_state('networkidle')
-            
-            # Fill in eligibility form
-            logging.info(f"Filling eligibility form - Member ID: {member_id}, DOS: {date_of_service}")
-            
-            page.fill('input[name="memberId"]', member_id)
-            page.fill('input[name="beginDate"]', date_of_service)
-            
-            logging.info("Form fields filled successfully")
-            
-            # Submit the form
-            logging.info("Submitting eligibility check")
-            page.click('input[type="submit"]')
-            page.wait_for_load_state('networkidle')
-            
-            # Wait a moment for results to load
-            time.sleep(1)
-            
-            # Check for errors first
-            if page.locator('div.errors').count() > 0:
-                error_messages = []
-                error_items = page.locator('div.errors li').all()
-                for item in error_items:
-                    error_messages.append(item.text_content().strip())
-                
-                logging.error(f"Eligibility check error: {'; '.join(error_messages)}")
-                
-                print(f"\n{'='*80}")
-                print(f"ELIGIBILITY CHECK ERROR")
-                print(f"{'='*80}")
-                print(f"Member ID: {member_id}")
-                print(f"Date of Service: {date_of_service}")
-                print(f"\nERROR:")
-                for msg in error_messages:
-                    print(f"  - {msg}")
-                print(f"{'='*80}\n")
-                
-                return {
-                    'member_id': member_id,
-                    'date_of_service': date_of_service,
-                    'error': True,
-                    'error_messages': error_messages
-                }
-            
-            # Parse the member information fieldset
-            member_info = {}
-            
-            # Check if results are present
-            if page.locator('fieldset.scheduler-border').count() == 0:
-                # No results found
-                error_text = page.locator('body').text_content()
-                logging.error("No results found on page")
-                print(f"\n{'='*80}")
-                print(f"ELIGIBILITY CHECK - NO RESULTS FOUND")
-                print(f"{'='*80}")
-                print(error_text[:500])  # Print first 500 chars
-                print(f"{'='*80}\n")
-                return None
-            
-            # Extract all label-value pairs
-            labels = page.locator('div.elig-member-info').all()
-            values = page.locator('div.elig-member-info-res').all()
-            
-            for i in range(min(len(labels), len(values))):
-                label = labels[i].text_content().strip().rstrip(':')
-                value = values[i].text_content().strip()
-                member_info[label] = value
-            
-            # Parse eligibility table — scoped to the "Eligibility" fieldset
-            eligibility_records = []
-            elig_fieldset = page.locator('fieldset.scheduler-border:has(legend:text("Eligibility"))')
-            if elig_fieldset.count() > 0:
-                for row in elig_fieldset.locator('tr:has(td.elig-info)').all():
-                    cells = row.locator('td.elig-info').all()
-                    if len(cells) >= 7:
-                        eligibility_records.append({
-                            'start_date':   cells[0].text_content().strip(),
-                            'end_date':     cells[1].text_content().strip(),
-                            'status':       cells[2].text_content().strip(),
-                            'benefit_plan': cells[3].text_content().strip(),
-                            'service_type': cells[4].inner_text().strip(),
-                            'max_copay':    cells[5].text_content().strip(),
-                            'aco':          cells[6].text_content().strip(),
-                        })
-                    elif len(cells) == 1:
-                        message = cells[0].text_content().strip()
-                        if message:
-                            eligibility_records.append({'message': message})
-            
-            # Parse Third Party Liability table — scoped to the "Third Party Liability" fieldset
-            tpl_records = []
-            tpl_fieldset = page.locator('fieldset.scheduler-border:has(legend:text("Third Party Liability"))')
-            if tpl_fieldset.count() > 0:
-                for row in tpl_fieldset.locator('tr:has(td.elig-info)').all():
-                    cells = row.locator('td.elig-info').all()
-                    if len(cells) >= 3:
-                        tpl_records.append({
-                            'start_date':  cells[0].text_content().strip(),
-                            'end_date':    cells[1].text_content().strip(),
-                            'coverage':    cells[2].text_content().strip(),
-                            'description': cells[3].text_content().strip() if len(cells) >= 4 else '',
-                        })
-            
-            # Check for any important messages
-            important_messages = page.locator('div.elig-member-info-important').all()
-            important_text = []
-            for msg in important_messages:
-                text = msg.text_content().strip()
-                if text:
-                    important_text.append(text)
-            
-            # Check for disclaimer
-            disclaimer = ""
-            if page.locator('p.elig-member-info-disclaimer').count() > 0:
-                disclaimer = page.locator('p.elig-member-info-disclaimer').text_content().strip()
-            
-            result = {
-                'member_id': member_id,
-                'date_of_service': date_of_service,
-                'member_info': member_info,
-                'eligibility_records': eligibility_records,
-                'tpl_records': tpl_records,
-                'important_messages': important_text,
-                'disclaimer': disclaimer,
-                'error': False
-            }
-            
-            # Print results in a formatted way
-            print(f"\n{'='*80}")
-            print(f"ELIGIBILITY CHECK RESULTS")
-            print(f"{'='*80}")
-            print(f"Query - Member ID: {member_id}, Date of Service: {date_of_service}")
-            print(f"{'='*80}")
-            
-            if disclaimer:
-                print(f"\nNOTE: {disclaimer}")
-                print("-" * 80)
-            
-            print(f"\nMEMBER INFORMATION:")
-            print("-" * 80)
-            for label, value in member_info.items():
-                # Format multi-line values (like address)
-                if '\n' in value:
-                    lines = [line.strip() for line in value.split('\n') if line.strip()]
-                    print(f"{label}:")
-                    for line in lines:
-                        print(f"  {line}")
-                else:
-                    print(f"{label}: {value}")
-            
-            # Print eligibility records
-            if eligibility_records:
-                print("\n" + "-" * 80)
-                print("ELIGIBILITY RECORDS:")
-                print("-" * 80)
-                for record in eligibility_records:
-                    if 'status' in record:
-                        print(f"Start Date:   {record['start_date']}")
-                        print(f"End Date:     {record['end_date']}")
-                        print(f"Status:       {record['status']}")
-                        print(f"Benefit Plan: {record['benefit_plan']}")
-                        print(f"Service Type: {record['service_type']}")
-                        print(f"Max Co-Pay:   {record['max_copay']}")
-                        print(f"ACO:          {record['aco']}")
-                        print("-" * 40)
-                    elif 'message' in record:
-                        print(f"Note: {record['message']}")
-                        print("-" * 40)
-            
-            if important_text:
-                print("\n" + "-" * 80)
-                print("IMPORTANT MESSAGES:")
-                for msg in important_text:
-                    print(f"  {msg}")
-            
-            # Print Third Party Liability records
-            if tpl_records:
-                print("\n" + "-" * 80)
-                print("THIRD PARTY LIABILITY:")
-                print("-" * 80)
-                for record in tpl_records:
-                    print(f"Start Date:   {record['start_date']}")
-                    print(f"End Date:     {record['end_date']}")
-                    print(f"Coverage:     {record['coverage']}")
-                    print(f"Description:  {record['description']}")
-                    print("-" * 40)
-            
-            print("=" * 80 + "\n")
-            
-            logging.info(f"Eligibility check completed for {member_id}")
-            
-            return result
+            browser, page = launch_browser(p)
+            login(page, logon_id, password)
+            return query_member(page, member_id, date_of_service)
             
         except Exception as e:
             logging.error(f"Eligibility check failed: {str(e)}", exc_info=True)
@@ -260,15 +70,320 @@ def check_eligibility(logon_id, password, member_id, date_of_service):
             
         finally:
             logging.info("Closing browser")
+            if browser:
+                browser.close()
+
+def print_result(result):
+    member_id = result['member_id']
+    date_of_service = result['date_of_service']
+    member_info = result['member_info']
+    eligibility_records = result['eligibility_records']
+    tpl_records = result['tpl_records']
+    important_text = result['important_messages']
+    disclaimer = result['disclaimer']
+    
+    print(f"\n{'='*80}")
+    print(f"ELIGIBILITY CHECK RESULTS")
+    print(f"{'='*80}")
+    print(f"Query - Member ID: {member_id}, Date of Service: {date_of_service}")
+    print(f"{'='*80}")
+    
+    if disclaimer:
+        print(f"\nNOTE: {disclaimer}")
+        print("-" * 80)
+    
+    print(f"\nMEMBER INFORMATION:")
+    print("-" * 80)
+    for label, value in member_info.items():
+        # Format multi-line values (like address)
+        if '\n' in value:
+            lines = [line.strip() for line in value.split('\n') if line.strip()]
+            print(f"{label}:")
+            for line in lines:
+                print(f"  {line}")
+        else:
+            print(f"{label}: {value}")
+    
+    # Print eligibility records
+    if eligibility_records:
+        print("\n" + "-" * 80)
+        print("ELIGIBILITY RECORDS:")
+        print("-" * 80)
+        for record in eligibility_records:
+            if 'status' in record:
+                print(f"Start Date:   {record['start_date']}")
+                print(f"End Date:     {record['end_date']}")
+                print(f"Status:       {record['status']}")
+                print(f"Benefit Plan: {record['benefit_plan']}")
+                print(f"Service Type: {record['service_type']}")
+                print(f"Max Co-Pay:   {record['max_copay']}")
+                print(f"ACO:          {record['aco']}")
+                print("-" * 40)
+            elif 'message' in record:
+                print(f"Note: {record['message']}")
+                print("-" * 40)
+    
+    if important_text:
+        print("\n" + "-" * 80)
+        print("IMPORTANT MESSAGES:")
+        for msg in important_text:
+            print(f"  {msg}")
+    
+    # Print Third Party Liability records
+    if tpl_records:
+        print("\n" + "-" * 80)
+        print("THIRD PARTY LIABILITY:")
+        print("-" * 80)
+        for record in tpl_records:
+            print(f"Start Date:   {record['start_date']}")
+            print(f"End Date:     {record['end_date']}")
+            print(f"Coverage:     {record['coverage']}")
+            print(f"Description:  {record['description']}")
+            print("-" * 40)
+    
+    print("=" * 80 + "\n")
+
+def query_member(page, member_id, date_of_service, verbose=True):
+    # Navigate to eligibility status page
+    logging.info("Navigating to eligibility status page")
+    page.goto("https://www.vtmedicaid.com/secure/eligibilityStatus.do", timeout=30000)
+    page.wait_for_load_state('networkidle')
+    
+    # Fill in eligibility form
+    logging.info(f"Filling eligibility form - Member ID: {member_id}, DOS: {date_of_service}")
+    
+    page.fill('input[name="memberId"]', member_id)
+    page.fill('input[name="beginDate"]', date_of_service)
+    
+    logging.info("Form fields filled successfully")
+    
+    # Submit the form
+    logging.info("Submitting eligibility check")
+    page.click('input[type="submit"]')
+    page.wait_for_load_state('networkidle')
+    
+    # Wait a moment for results to load
+    time.sleep(1)
+    
+    # Check for errors first
+    if page.locator('div.errors').count() > 0:
+        error_messages = []
+        error_items = page.locator('div.errors li').all()
+        for item in error_items:
+            error_messages.append(item.text_content().strip())
+        
+        logging.error(f"Eligibility check error: {'; '.join(error_messages)}")
+        
+        if verbose:
+            print(f"\n{'='*80}")
+            print(f"ELIGIBILITY CHECK ERROR")
+            print(f"{'='*80}")
+            print(f"Member ID: {member_id}")
+            print(f"Date of Service: {date_of_service}")
+            print(f"\nERROR:")
+            for msg in error_messages:
+                print(f"  - {msg}")
+            print(f"{'='*80}\n")
+        
+        return {
+            'member_id': member_id,
+            'date_of_service': date_of_service,
+            'error': True,
+            'error_messages': error_messages
+        }
+    
+    # Parse the member information fieldset
+    member_info = {}
+    
+    # Check if results are present
+    if page.locator('fieldset.scheduler-border').count() == 0:
+        # No results found
+        error_text = page.locator('body').text_content()
+        logging.error("No results found on page")
+        if verbose:
+            print(f"\n{'='*80}")
+            print(f"ELIGIBILITY CHECK - NO RESULTS FOUND")
+            print(f"{'='*80}")
+            print(error_text[:500])  # Print first 500 chars
+            print(f"{'='*80}\n")
+        return None
+    
+    # Extract all label-value pairs
+    labels = page.locator('div.elig-member-info').all()
+    values = page.locator('div.elig-member-info-res').all()
+    
+    for i in range(min(len(labels), len(values))):
+        label = labels[i].text_content().strip().rstrip(':')
+        value = values[i].text_content().strip()
+        member_info[label] = value
+    
+    # Parse eligibility table — scoped to the "Eligibility" fieldset
+    eligibility_records = []
+    elig_fieldset = page.locator('fieldset.scheduler-border:has(legend:text("Eligibility"))')
+    if elig_fieldset.count() > 0:
+        for row in elig_fieldset.locator('tr:has(td.elig-info)').all():
+            cells = row.locator('td.elig-info').all()
+            if len(cells) >= 7:
+                eligibility_records.append({
+                    'start_date':   cells[0].text_content().strip(),
+                    'end_date':     cells[1].text_content().strip(),
+                    'status':       cells[2].text_content().strip(),
+                    'benefit_plan': cells[3].text_content().strip(),
+                    'service_type': cells[4].inner_text().strip(),
+                    'max_copay':    cells[5].text_content().strip(),
+                    'aco':          cells[6].text_content().strip(),
+                })
+            elif len(cells) == 1:
+                message = cells[0].text_content().strip()
+                if message:
+                    eligibility_records.append({'message': message})
+    
+    # Parse Third Party Liability table — scoped to the "Third Party Liability" fieldset
+    tpl_records = []
+    tpl_fieldset = page.locator('fieldset.scheduler-border:has(legend:text("Third Party Liability"))')
+    if tpl_fieldset.count() > 0:
+        for row in tpl_fieldset.locator('tr:has(td.elig-info)').all():
+            cells = row.locator('td.elig-info').all()
+            if len(cells) >= 3:
+                tpl_records.append({
+                    'start_date':  cells[0].text_content().strip(),
+                    'end_date':    cells[1].text_content().strip(),
+                    'coverage':    cells[2].text_content().strip(),
+                    'description': cells[3].text_content().strip() if len(cells) >= 4 else '',
+                })
+    
+    # Check for any important messages
+    important_messages = page.locator('div.elig-member-info-important').all()
+    important_text = []
+    for msg in important_messages:
+        text = msg.text_content().strip()
+        if text:
+            important_text.append(text)
+    
+    # Check for disclaimer
+    disclaimer = ""
+    if page.locator('p.elig-member-info-disclaimer').count() > 0:
+        disclaimer = page.locator('p.elig-member-info-disclaimer').text_content().strip()
+    
+    result = {
+        'member_id': member_id,
+        'date_of_service': date_of_service,
+        'member_info': member_info,
+        'eligibility_records': eligibility_records,
+        'tpl_records': tpl_records,
+        'important_messages': important_text,
+        'disclaimer': disclaimer,
+        'error': False
+    }
+    
+    if verbose:
+        print_result(result)
+    
+    logging.info(f"Eligibility check completed for {member_id}")
+    
+    return result
+
+def parse_input_line(line):
+    # charcur key cols 1-11, member id starts col 59, DOS (mmddyyyy) starts col 108 -- 1-based columns
+    charcur_key = line[0:11].strip()
+    member_id = line[58:].split()[0] if line[58:].strip() else ''
+    dos = line[107:115]
+    if not member_id or len(dos) != 8 or not dos.isdigit():
+        return None
+    return charcur_key, member_id, f"{dos[0:2]}/{dos[2:4]}/{dos[4:8]}"
+
+def tsv_field(value):
+    # portal text can carry tabs/newlines, which would split columns or rows in a spreadsheet
+    return ' '.join(value.split())
+
+# TPL medical coverage labels, in the order a carrier code is taken from them --
+# the code is the first word after the label, e.g. "PHYSICIAN INPATIENT / OUTPATIENT SERVICES 16 - AETNA" -> 16.
+# Part C before Part B: a Medicare Advantage member still shows Part B.
+CARRIER_LABELS = [
+    'PHYSICIAN INPATIENT / OUTPATIENT SERVICES ',
+    'MAJOR MEDICAL/PHYSICIAN (IV-D) NO DRUG COVERAGE FO ',
+    'MEDICARE C - COMPREHENSIVE COVERAGE & DRUG ',
+    'MEDICARE B ',
+]
+
+def carrier_code(result):
+    if result is None or result.get('error'):
+        return ''
+    coverages = [' '.join(r['coverage'].split()) + ' ' for r in result['tpl_records']]
+    for label in CARRIER_LABELS:
+        for coverage in coverages:
+            if coverage.startswith(label):
+                rest = coverage[len(label):].split()
+                if rest:
+                    return rest[0]
+    return ''
+
+def carrier_summary(result):
+    if result is None:
+        return ['', '', '', '', 'FAILED']
+    if result.get('error'):
+        return ['', '', '', '', 'ERROR: ' + '; '.join(result['error_messages'])]
+    elig = [r for r in result['eligibility_records'] if 'status' in r]
+    status = ';'.join(r['status'] for r in elig)
+    plans = ';'.join(r['benefit_plan'] for r in elig)
+    coverage = ';'.join(r['coverage'] for r in result['tpl_records'])
+    description = ';'.join(r['description'] for r in result['tpl_records'])
+    return [status, plans, coverage, description, 'OK']
+
+def check_eligibility_file(logon_id, password, input_file, output_file):
+    if not logon_id or not password:
+        logging.error("Missing credentials. Set VT_MEDICAID_USER and VT_MEDICAID_PASS environment variables.")
+        print("ERROR: Missing credentials. Set VT_MEDICAID_USER and VT_MEDICAID_PASS")
+        return False
+    
+    with open(input_file) as f:
+        lines = f.read().splitlines()
+    
+    with sync_playwright() as p, open(output_file, 'w') as out:
+        out.write('\t'.join(['charcur_key', 'carrier_code', 'member_id', 'dos', 'status', 'benefit_plan',
+                             'tpl_coverage', 'tpl_description', 'result']) + '\n')
+        browser, page = launch_browser(p)
+        try:
+            login(page, logon_id, password)
+            for n, line in enumerate(lines, 1):
+                parsed = parse_input_line(line)
+                if parsed is None:
+                    logging.warning(f"Line {n}: no member id/DOS found, skipped")
+                    continue
+                charcur_key, member_id, dos = parsed
+                try:
+                    result = query_member(page, member_id, dos, verbose=False)
+                except Exception as e:
+                    # session may have timed out -- log back in and retry once
+                    logging.warning(f"Line {n}: {e}; logging in again and retrying")
+                    try:
+                        login(page, logon_id, password)
+                        result = query_member(page, member_id, dos, verbose=False)
+                    except Exception as e:
+                        logging.error(f"Line {n}: retry failed: {e}")
+                        result = None
+                row = [charcur_key, carrier_code(result), member_id, dos] + carrier_summary(result)
+                out.write('\t'.join(tsv_field(v) for v in row) + '\n')
+                out.flush()
+                logging.info(f"Line {n} of {len(lines)} done")
+        finally:
+            logging.info("Closing browser")
             browser.close()
+    return True
 
 if __name__ == "__main__":
     print(f"Script started with {len(sys.argv)} arguments")
     print(f"Arguments: {sys.argv}")
     
+    if len(sys.argv) == 4 and sys.argv[1] == '-f':
+        ok = check_eligibility_file(logon_id, password, sys.argv[2], sys.argv[3])
+        sys.exit(0 if ok else 1)
+    
     if len(sys.argv) != 3:
         print("Usage: python vtmedicaid_eligibility.py <member_id> <date_of_service>")
+        print("       python vtmedicaid_eligibility.py -f <input_file> <output_file>")
         print("Example: python vtmedicaid_eligibility.py 1310414 01/15/2026")
+        print("Input file: member id at col 59, DOS mmddyyyy at col 108; output is tab-delimited")
         sys.exit(1)
     
     member_id = sys.argv[1]
