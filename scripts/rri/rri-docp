@@ -15,7 +15,7 @@ stamp=$(date +%Y%m%d%H%M%S)
 
 S30=charnew; S35=garfile; S40=docp-extract
 export S30 S35 S40
-$RUNCBL rrr255.acu || exit 1
+$RUNCBL /home/sidw/rrr255.acu || exit 1
 unset S30 S35 S40
 
 if [ ! -s docp-extract ]; then
@@ -32,7 +32,7 @@ fi
 
 S30=docp-answers; S35=charnew; S40=docp-report; S45=docp-bak-$stamp
 export S30 S35 S40 S45
-$RUNCBL rrr256.acu
+$RUNCBL /home/sidw/rrr256.acu
 rc=$?
 unset S30 S35 S40 S45
 cat docp-report >> docp-report.log
