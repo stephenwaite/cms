@@ -172,6 +172,14 @@ foreach (file($in_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line)
     }
     if (!array_key_exists($pt_uuid, $dr_cache)) {
         $dr_cache[$pt_uuid] = fhirSearch($client, $headers, $fhir_url . 'DiagnosticReport?patient=' . $pt_uuid);
+        // openemr still hands out a token without a scope the client isn't
+        // registered for, it just refuses the calls, so a first failure
+        // here means no charge can get a feed - stop with no answers file
+        if (count($dr_cache) === 1 && $dr_cache[$pt_uuid] === null) {
+            echo "DiagnosticReport search refused, check the client has " .
+                 "user/DiagnosticReport.read - nothing done\n";
+            exit(1);
+        }
     }
     $all_obs = $obs_cache[$obs_key];
     $reports = $dr_cache[$pt_uuid];
