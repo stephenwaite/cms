@@ -3,11 +3,11 @@
 # that came in from the facility as 00, using the read in openemr.
 # run after rrr250 loads charnew and before coding (xxx003c).
 #   rrr255       charnew 00s -> docp-extract
-#   rri_docp.php docp-extract -> docp-answers (openemr fhir)
+#   rri_docp.php docp-extract -> docp-answers (openemr database, read-only)
 #   rrr256       docp-answers -> charnew, report docp-report,
 #                changed records backed up whole to docp-bak-<timestamp>
-# needs BASE_OEMR_URL, OEMR_RRI_SITE_ID, OEMR_TEST_CLIENT_ID,
-# OEMR_RRI_USERNAME, OEMR_RRI_PASSWORD set, same as reads.php.
+# the database settings (OEMR_RRI_DB_*) come from /etc/cms/rri-docp.env.
+# exits non-zero when it stops early; charnew is only touched by rrr256.
 cd /home/rri || exit 1
 
 PHP_DIR=/home/stee/src/cms/php/rri
@@ -22,6 +22,8 @@ if [ ! -s docp-extract ]; then
     echo "no 00 charges in charnew, nothing to do"
     exit 0
 fi
+
+set -a; . /etc/cms/rri-docp.env || { echo "can't read /etc/cms/rri-docp.env"; exit 1; }; set +a
 
 rm -f docp-answers
 php "$PHP_DIR/rri_docp.php" docp-extract docp-answers || exit 1
