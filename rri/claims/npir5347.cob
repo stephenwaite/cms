@@ -101,6 +101,10 @@
            ALTERNATE RECORD KEY IS PROV-TAX WITH DUPLICATES
            ALTERNATE RECORD KEY IS PROV-NAME WITH DUPLICATES
            LOCK MODE MANUAL.
+      *    VT MEDICAID TPL CARRIER CODES FROM VTMED_ELIG.PY -F (TAB
+      *    DELIMITED, CHARCUR KEY THEN CARRIER CODE). NOT REQUIRED.
+           SELECT OPTIONAL TPLFILE ASSIGN TO "S125" ORGANIZATION
+           LINE SEQUENTIAL.
 
        DATA DIVISION.
        FILE SECTION.
@@ -160,6 +164,9 @@
        FD  PARMFILE2.
        01  PARMFILE201 PIC X(15).
     
+       FD  TPLFILE.
+       01  TPLFILE01 PIC X(500).
+
        FD  ERRFILE.
        01  ERRFILE01.
            02 EF-1 PIC X(11).
@@ -1023,6 +1030,17 @@
        01  FILETAB01.
            02 FILETAB PIC X(160) OCCURS 50 TIMES.
 
+       01  TPL-TAB01.
+           02 TPL-ENTRY OCCURS 3000 TIMES.
+             03 TPL-KEY PIC X(11).
+             03 TPL-CODE PIC X(5).
+       01  TPL-CNT PIC 9(4) VALUE 0.
+       01  TPL-I PIC 9(4).
+       01  TPL-L PIC 99.
+       01  TPL-IN-KEY PIC X(11).
+       01  TPL-IN-CODE PIC X(5).
+       01  TPL-CODE-CLM PIC X(5).
+
        01  TAB11601.
            02 TAB116 PIC X OCCURS 116 TIMES.
 
@@ -1228,6 +1246,7 @@
            OPEN OUTPUT SEGFILE ERRFILE.
            OPEN I-O HIPCLAIMFILE
            OPEN I-O CHARCUR
+           PERFORM TPL-LOAD THRU TPL-LOAD-EXIT
 
            MOVE "A" TO HIP-KEY
            READ HIPCLAIMFILE WITH LOCK
@@ -1928,10 +1947,80 @@
            IF G-SE-GROUP(4:1) NOT = SPACE
              MOVE INS-CAID TO NM1-CODE.  
 
+      *    TPL CARRIER CODE FROM VT MEDICAID WINS, SVD01 USES IT TOO
+           PERFORM TPL-LOOKUP THRU TPL-LOOKUP-EXIT
+           IF TPL-CODE-CLM NOT = SPACE
+             IF TPL-CODE-CLM NOT = NM1-CODE
+               MOVE SPACE TO ERRFILE01
+               MOVE FILETAB(1)(1:11) TO EF-1
+               MOVE NM1-CODE TO EF-2
+               MOVE "TPL CARRIER CODE" TO EF-3
+               MOVE TPL-CODE-CLM TO EF-4
+               WRITE ERRFILE01
+             END-IF
+             MOVE TPL-CODE-CLM TO NM1-CODE
+           END-IF
+
            MOVE SPACE TO SEGFILE01
            WRITE SEGFILE01 FROM NM101.
 
        2320S-EXIT.  EXIT.
+
+      *    LOAD CHARCUR KEY / CARRIER CODE PAIRS, SKIP HEADER AND BLANKS
+       TPL-LOAD.
+           OPEN INPUT TPLFILE.
+
+       TPL-LOAD-1.
+           MOVE SPACE TO TPLFILE01
+           READ TPLFILE
+             AT END
+               GO TO TPL-LOAD-2
+           END-READ
+
+           MOVE SPACE TO TPL-IN-KEY TPL-IN-CODE
+           UNSTRING TPLFILE01 DELIMITED BY X"09"
+               INTO TPL-IN-KEY TPL-IN-CODE
+
+           IF TPL-IN-KEY = "charcur_key" OR TPL-IN-KEY = SPACE
+             OR TPL-IN-CODE = SPACE
+               GO TO TPL-LOAD-1
+           END-IF
+
+           IF TPL-CNT = 3000
+               DISPLAY "TPLFILE OVER 3000 CODES, REST IGNORED"
+               GO TO TPL-LOAD-2
+           END-IF
+
+           ADD 1 TO TPL-CNT
+           MOVE TPL-IN-KEY TO TPL-KEY(TPL-CNT)
+           MOVE TPL-IN-CODE TO TPL-CODE(TPL-CNT)
+           GO TO TPL-LOAD-1.
+
+       TPL-LOAD-2.
+           CLOSE TPLFILE.
+
+       TPL-LOAD-EXIT.
+           EXIT.
+
+      *    FIRST LINE OF THE CLAIM WITH A CODE IN TPLFILE
+       TPL-LOOKUP.
+           MOVE SPACE TO TPL-CODE-CLM
+           IF TPL-CNT = 0
+               GO TO TPL-LOOKUP-EXIT
+           END-IF
+
+           PERFORM VARYING TPL-L FROM 1 BY 1
+               UNTIL TPL-L > CNTR OR TPL-CODE-CLM NOT = SPACE
+             PERFORM VARYING TPL-I FROM 1 BY 1
+                 UNTIL TPL-I > TPL-CNT OR TPL-CODE-CLM NOT = SPACE
+               IF TPL-KEY(TPL-I) = FILETAB(TPL-L)(1:11)
+                 MOVE TPL-CODE(TPL-I) TO TPL-CODE-CLM
+               END-IF
+             END-PERFORM
+           END-PERFORM.
+
+       TPL-LOOKUP-EXIT.
+           EXIT.
 
        CMP-1.
            MOVE "S" TO SBR-PST
@@ -2250,6 +2339,10 @@
 
            IF G-SE-GROUP NOT = SPACE
              MOVE G-SE-GROUP TO SVD-1.
+
+           IF TPL-CODE-CLM NOT = SPACE
+             MOVE TPL-CODE-CLM TO SVD-1
+           END-IF
 
            COMPUTE NUM7 = CAS-PAID(X)
            PERFORM AMT-LEFT
