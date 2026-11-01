@@ -10,7 +10,7 @@
 # OEMR_RRI_USERNAME, OEMR_RRI_PASSWORD set, same as reads.php.
 cd /home/rri || exit 1
 
-PHP_DIR=/home/stee/cms/php/rri
+PHP_DIR=/home/stee/src/cms/php/rri
 stamp=$(date +%Y%m%d%H%M%S)
 
 S30=charnew; S35=garfile; S40=docp-extract
