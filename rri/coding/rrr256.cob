@@ -62,6 +62,7 @@
        01  REC-CNT PIC 9(6) VALUE 0.
        01  UPD-CNT PIC 9(6) VALUE 0.
        01  LEFT-CNT PIC 9(6) VALUE 0.
+       01  API-CNT PIC 9(6) VALUE 0.
       *
        PROCEDURE DIVISION.
        P0.
@@ -84,6 +85,9 @@
 
            IF NOT (FI-DOCP = "06" OR "08" OR "09" OR "10")
                ADD 1 TO LEFT-CNT
+               IF FI-NOTE = "OPENEMR API ERROR"
+                   ADD 1 TO API-CNT
+               END-IF
                MOVE SPACE TO FILEOUT01
                STRING FI-KEY " LEFT AT 00 " FI-NOTE
                    DELIMITED BY SIZE INTO FILEOUT01
@@ -135,7 +139,7 @@
        P4.
            MOVE SPACE TO FILEOUT01
            STRING "RRR256 READ " REC-CNT " SET " UPD-CNT
-               " LEFT AT 00 " LEFT-CNT
+               " LEFT AT 00 " LEFT-CNT " OF THOSE API ERRORS " API-CNT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            DISPLAY FILEOUT01

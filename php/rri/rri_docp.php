@@ -119,7 +119,10 @@ function feedDocp(array $reports, string $obs_id): ?string
 $pt_cache  = [];
 $dr_cache  = [];
 $obs_cache = [];
-$counts    = ['FEED' => 0, 'NONE' => 0];
+// api errors are counted apart from not found so a missing scope or an
+// openemr outage stands out (openemr still issues the token without a
+// scope the client isn't registered for, it just refuses those calls)
+$counts    = ['FEED' => 0, 'NONE' => 0, 'ERROR' => 0];
 $out       = [];
 
 foreach (file($in_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
@@ -135,7 +138,7 @@ foreach (file($in_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line)
 
     $answer = function (string $docp, string $src, string $note) use (&$out, &$counts, $key) {
         $out[] = $key . $docp . ' ' . $src . ' ' . $note;
-        $counts[$src]++;
+        $counts[$note === 'OPENEMR API ERROR' ? 'ERROR' : $src]++;
     };
 
     if (!array_key_exists($mrn, $pt_cache)) {
@@ -172,14 +175,6 @@ foreach (file($in_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line)
     }
     if (!array_key_exists($pt_uuid, $dr_cache)) {
         $dr_cache[$pt_uuid] = fhirSearch($client, $headers, $fhir_url . 'DiagnosticReport?patient=' . $pt_uuid);
-        // openemr still hands out a token without a scope the client isn't
-        // registered for, it just refuses the calls, so a first failure
-        // here means no charge can get a feed - stop with no answers file
-        if (count($dr_cache) === 1 && $dr_cache[$pt_uuid] === null) {
-            echo "DiagnosticReport search refused, check the client has " .
-                 "user/DiagnosticReport.read - nothing done\n";
-            exit(1);
-        }
     }
     $all_obs = $obs_cache[$obs_key];
     $reports = $dr_cache[$pt_uuid];
@@ -233,5 +228,5 @@ $tmp = $out_file . '.tmp';
 file_put_contents($tmp, implode("\n", $out) . (empty($out) ? '' : "\n"));
 rename($tmp, $out_file);
 
-echo "rri_docp: " . count($out) . " charges, set from feed " . $counts['FEED'] .
-     ", not found " . $counts['NONE'] . "\n";
+echo "rri_docp: " . count($out) . " charges, feed " . $counts['FEED'] .
+     ", not found " . $counts['NONE'] . ", api errors " . $counts['ERROR'] . "\n";
