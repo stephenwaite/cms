@@ -9,12 +9,10 @@
       *    PER CHARGE RRR255 LISTED:
       *      1-11  CHARNEW-KEY
       *     12-13  DOCP (00 = NOT FOUND)
-      *     15-18  SOURCE  SIGN / FEED / OVER / NONE
+      *     15-18  SOURCE  FEED / NONE
       *     20-    NOTE
       *    ONLY A CHARGE STILL AT 00 IS CHANGED, AND ONLY TO ONE OF
-      *    OUR FOUR RADIOLOGISTS. OVER MEANS ANOTHER OF THE FOUR
-      *    SIGNED THAN THE FEED IT CAME IN ON, THE SIGNER IS USED BUT
-      *    IT IS ON THE REPORT FOR A CODER TO LOOK AT.
+      *    OUR FOUR RADIOLOGISTS.
       *    EVERY CHANGED RECORD IS WRITTEN WHOLE TO BAKFILE (S45)
       *    BEFORE THE REWRITE SO IT CAN BE PUT BACK.
        IDENTIFICATION DIVISION.
@@ -63,7 +61,6 @@
 
        01  REC-CNT PIC 9(6) VALUE 0.
        01  UPD-CNT PIC 9(6) VALUE 0.
-       01  OVER-CNT PIC 9(6) VALUE 0.
        01  LEFT-CNT PIC 9(6) VALUE 0.
       *
        PROCEDURE DIVISION.
@@ -129,25 +126,16 @@
 
            ADD 1 TO UPD-CNT
            MOVE SPACE TO FILEOUT01
-           IF FI-SRC = "OVER"
-               ADD 1 TO OVER-CNT
-               STRING FI-KEY " DOCP " FI-DOCP " CPT " CD-CPT
-                   " DOS " CD-DATE-T
-                   " SIGNED BY OTHER THAN FEED, CHECK " FI-NOTE
-                   DELIMITED BY SIZE INTO FILEOUT01
-           ELSE
-               STRING FI-KEY " DOCP " FI-DOCP " CPT " CD-CPT
-                   " DOS " CD-DATE-T " " FI-SRC " " FI-NOTE
-                   DELIMITED BY SIZE INTO FILEOUT01
-           END-IF
+           STRING FI-KEY " DOCP " FI-DOCP " CPT " CD-CPT
+               " DOS " CD-DATE-T " " FI-SRC " " FI-NOTE
+               DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            GO TO P1.
 
        P4.
            MOVE SPACE TO FILEOUT01
            STRING "RRR256 READ " REC-CNT " SET " UPD-CNT
-               " OF THOSE OTHER SIGNER " OVER-CNT " LEFT AT 00 "
-               LEFT-CNT
+               " LEFT AT 00 " LEFT-CNT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            DISPLAY FILEOUT01
