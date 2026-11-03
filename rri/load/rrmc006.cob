@@ -68,6 +68,9 @@
            SELECT ERRFILE ASSIGN TO       "S95" ORGANIZATION
                LINE SEQUENTIAL.
 
+           SELECT SUBCHK ASSIGN TO        "S105" ORGANIZATION
+               LINE SEQUENTIAL.
+
            SELECT GARFILE ASSIGN TO "S100" ORGANIZATION IS INDEXED
              ACCESS MODE IS DYNAMIC RECORD KEY IS G-GARNO
              ALTERNATE RECORD KEY IS G-ACCT WITH DUPLICATES.
@@ -76,6 +79,12 @@
        FILE SECTION.
        FD  ERRFILE.
        01  ERRFILE01 PIC X(120).
+
+      *    SUBSCRIBERS SENT AS SELF THAT AREN'T, RRR257 ADDS TO CMNTFILE
+       FD  SUBCHK.
+       01  SUBCHK01.
+           02 SC-MEDREC PIC X(8).
+           02 SC-CMNT PIC X(80).
 
        FD  EMAILAUTHFILE.
            copy emailauthfile.cpy.           
@@ -422,6 +431,11 @@
        01  X-GENDER PIC X.
        01  Y-RELATE PIC XX.
        01  RELATECODE PIC X.
+       01  SC-N PIC X.
+       01  SC-IP PIC X(5).
+       01  SC-NAME PIC X(35).
+       01  SC-REL PIC XX.
+       01  SC-DOB PIC X(10).
        01  GARRELATE PIC X.
        01  POLTEST.
            02 POLTEST1.
@@ -508,7 +522,7 @@
        0005-START.
            OPEN I-O ACTFILE EMAILAUTHFILE ORDFILE COMPFILE.
            OPEN INPUT HOSPFILE REFPHY INSFILE FILEIN MOBLFILE GARFILE.
-           OPEN OUTPUT FILEOUT ERRFILE.
+           OPEN OUTPUT FILEOUT ERRFILE SUBCHK.
 
        10-ACTION.
            DISPLAY "REPORT DATE, MMDDYYYY".
@@ -851,6 +865,8 @@
                DISPLAY R2-PATDOB " " R1-PATNAME 
                MOVE "000000" TO R2-PATDOB
            END-IF
+
+           PERFORM SUB-CHECK THRU SUB-CHECK-EXIT
 
            MOVE 20 TO A-CC
            MOVE R2-DOBYY TO A-YY
@@ -1248,6 +1264,84 @@
              GO TO RELATE-1-EXIT.
 
        RELATE-1-EXIT.
+           EXIT.
+
+      *    RRMC SENDS SELF OR NO SUBSCRIBER NAME WHEN THE POLICY IS A
+      *    SPOUSE'S OR PARENT'S. THE RELATIONSHIP (18 = SELF) AND THE
+      *    SUBSCRIBER DOB STILL SHOW IT, SO FLAG THOSE FOR SOMEONE TO
+      *    GET THE SUBSCRIBER'S NAME.
+       SUB-CHECK.
+           MOVE "1" TO SC-N
+           MOVE R1-IP1 TO SC-IP
+           MOVE R1-SUBNAME11 TO SC-NAME
+           MOVE R1-RELATE1 TO SC-REL
+           MOVE R1-DOB11 TO SC-DOB
+           PERFORM SUB-CHECK-1 THRU SUB-CHECK-1-EXIT
+
+           MOVE "2" TO SC-N
+           MOVE R1-IP2 TO SC-IP
+           MOVE R1-SUBNAME22 TO SC-NAME
+           MOVE R1-RELATE2 TO SC-REL
+           MOVE R1-DOB22 TO SC-DOB
+           PERFORM SUB-CHECK-1 THRU SUB-CHECK-1-EXIT
+
+           MOVE "3" TO SC-N
+           MOVE R2-IP3 TO SC-IP
+           MOVE R2-SUBNAME33 TO SC-NAME
+           MOVE R2-RELATE3 TO SC-REL
+           MOVE R2-DOB33 TO SC-DOB
+           PERFORM SUB-CHECK-1 THRU SUB-CHECK-1-EXIT
+
+           MOVE "4" TO SC-N
+           MOVE R2-IP4 TO SC-IP
+           MOVE R2-SUBNAME44 TO SC-NAME
+           MOVE R2-RELATE4 TO SC-REL
+           MOVE R2-DOB44 TO SC-DOB
+           PERFORM SUB-CHECK-1 THRU SUB-CHECK-1-EXIT.
+
+       SUB-CHECK-EXIT.
+           EXIT.
+
+       SUB-CHECK-1.
+           IF SC-IP = SPACE
+               GO TO SUB-CHECK-1-EXIT
+           END-IF
+
+           IF NOT (SC-NAME = "SELF" OR "UNK" OR SPACE OR "X" OR "XX"
+               OR "UNKNOWN")
+               GO TO SUB-CHECK-1-EXIT
+           END-IF
+
+           IF SC-REL = "18"
+               GO TO SUB-CHECK-1-EXIT
+           END-IF
+
+      *    NO RELATIONSHIP, ONLY FLAG IT IF THE DOB IS SOMEONE ELSE'S
+      *    (SUBSCRIBER MM/DD/YYYY, PATIENT MMDDYY)
+           IF SC-REL = SPACE
+             IF SC-DOB = SPACE
+               OR (SC-DOB(1:2) = R2-DOBMM AND SC-DOB(4:2) = R2-DOBDD
+                 AND SC-DOB(9:2) = R2-DOBYY)
+               GO TO SUB-CHECK-1-EXIT
+             END-IF
+           END-IF
+
+           MOVE SPACE TO SUBCHK01
+           MOVE R2-MEDREC TO SC-MEDREC
+           STRING "RRMC INS" SC-N " " SC-IP
+               " SUBSCRIBER SELF/BLANK BUT REL " SC-REL
+               " DOB " SC-DOB ", NEED SUB NAME"
+               DELIMITED BY SIZE INTO SC-CMNT
+           WRITE SUBCHK01
+
+           MOVE SPACE TO ERRFILE01
+           STRING A-GARNAME DELIMITED BY "  "
+               " MEDREC # " R2-MEDREC " " SC-CMNT
+               DELIMITED BY SIZE INTO ERRFILE01
+           DISPLAY ERRFILE01
+           WRITE ERRFILE01.
+
+       SUB-CHECK-1-EXIT.
            EXIT.
 
        REPLACE-2.
@@ -1836,7 +1930,7 @@
 
        9100CMF.
            CLOSE ACTFILE EMAILAUTHFILE ORDFILE COMPFILE
-                 REFPHY HOSPFILE INSFILE FILEOUT ERRFILE
+                 REFPHY HOSPFILE INSFILE FILEOUT ERRFILE SUBCHK
                  FILEIN MOBLFILE GARFILE.
            DISPLAY "RRMC DATA FILE LOAD HAS ENDED".
            STOP RUN.

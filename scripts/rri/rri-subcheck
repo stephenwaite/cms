@@ -1,0 +1,34 @@
+#!/bin/bash
+# rri-subcheck: add rrmc006's subscriber flags (rrmc sent the subscriber
+# as self but the relationship or dob says it's someone else) to cmntfile,
+# so they show on the account in inar004.
+# run after rrr250, so new accounts have a garno.
+#   rrmc006 writes subcheck; the load script appends it to subcheck-pending
+#   rrr257  subcheck-pending -> cmntfile, report subcheck-report,
+#           flags with no garno yet are kept in subcheck-pending
+# cmntfile is copied to cmntfile-subcheck-bak first.
+cd /home/rri || exit 1
+
+if [ ! -s subcheck-pending ]; then
+    echo "no subscriber flags, nothing to do"
+    exit 0
+fi
+
+cp -p cmntfile cmntfile-subcheck-bak || { echo "can't back up cmntfile"; exit 1; }
+mv subcheck-pending subcheck-work
+
+S30=subcheck-work; S35=actfile; S40=cmntfile; S45=subcheck-carry; S50=subcheck-report
+export S30 S35 S40 S45 S50
+$RUNCBL /home/sidw/rrr257.acu
+rc=$?
+unset S30 S35 S40 S45 S50
+
+if [ $rc -ne 0 ]; then
+    # put the flags back for the next run
+    cat subcheck-work >> subcheck-pending
+else
+    cat subcheck-carry >> subcheck-pending 2>/dev/null
+fi
+rm -f subcheck-work subcheck-carry
+cat subcheck-report >> subcheck-report.log 2>/dev/null
+exit $rc
