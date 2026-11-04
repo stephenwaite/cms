@@ -6,7 +6,9 @@
 #   rrmc006 writes subcheck; the load script appends it to subcheck-pending
 #   rrr257  subcheck-pending -> cmntfile, report subcheck-report,
 #           flags with no garno yet are kept in subcheck-pending
-# cmntfile is copied to cmntfile-subcheck-bak first.
+# cmntfile is copied to cmntfile-subcheck-bak first. the old backup is
+# removed rather than copied over: it may belong to whoever ran this last
+# (the nightly or by hand), and cp -p can't set times on someone else's file.
 cd /home/rri || exit 1
 
 if [ ! -s subcheck-pending ]; then
@@ -14,7 +16,8 @@ if [ ! -s subcheck-pending ]; then
     exit 0
 fi
 
-cp -p cmntfile cmntfile-subcheck-bak || { echo "can't back up cmntfile"; exit 1; }
+rm -f cmntfile-subcheck-bak
+cp cmntfile cmntfile-subcheck-bak || { echo "can't back up cmntfile"; exit 1; }
 mv subcheck-pending subcheck-work
 
 S30=subcheck-work; S35=actfile; S40=cmntfile; S45=subcheck-carry; S50=subcheck-report
