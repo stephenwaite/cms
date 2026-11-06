@@ -95,6 +95,10 @@
        01  WS-LOOKUP-KEY         PIC X(2).
        01  WS-NPI-RESULT         PIC X(10).
        01  WS-FOUND-FLAG         PIC X VALUE 'N'.
+      *    measure 364: Y when a dx on the charge excludes the patient
+      *    (M1018), whatever the coder answered
+       01  WS-364-EXCL           PIC X VALUE 'N'.
+       01  WS-364-DX             PIC X(7).
 
        PROCEDURE DIVISION.
 
@@ -630,7 +634,35 @@
       *  Always uses CD-QP1 (even in hybrid paycodes, 364 owns QP1)
       *----------------------------------------------------------------
        A1-364-CSV.
-           IF CD-QP1 = "1 "
+      *    An exclusion dx (cancer, cancer history, nicotine, lung
+      *    cancer screening) wins over answers 1 2 3: write M1018.
+           MOVE "N" TO WS-364-EXCL
+           IF CD-QP1 = "1 " OR "2 " OR "3 "
+               MOVE CD-DIAG TO WS-364-DX
+               PERFORM A1-364-DX
+               MOVE CD-DX2 TO WS-364-DX
+               PERFORM A1-364-DX
+               MOVE CD-DX3 TO WS-364-DX
+               PERFORM A1-364-DX
+               MOVE CD-DX4 TO WS-364-DX
+               PERFORM A1-364-DX
+           END-IF
+           IF WS-364-EXCL = "Y"
+               MOVE SPACE TO FILEOUT201
+               STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
+                      G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
+                      CD-DIAG ",M1018," CD-QP1 "," CD-QP2 ","
+                      WS-NPI-RESULT "," CD-VISITNO
+                      DELIMITED BY SIZE INTO FILEOUT201
+               WRITE FILEOUT201
+               MOVE SPACE TO FILEOUT01
+               STRING "364 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                      " DENOMINATOR EXCLUSION M1018 BY DX, ANSWER "
+                      CD-QP1
+                      DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+           END-IF
+           IF CD-QP1 = "1 " AND WS-364-EXCL = "N"
                MOVE SPACE TO FILEOUT201
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
@@ -644,7 +676,7 @@
                       DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
-           IF CD-QP1 = "2 "
+           IF CD-QP1 = "2 " AND WS-364-EXCL = "N"
                MOVE SPACE TO FILEOUT201
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
@@ -658,7 +690,7 @@
                       DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
-           IF CD-QP1 = "3 "
+           IF CD-QP1 = "3 " AND WS-364-EXCL = "N"
                MOVE SPACE TO FILEOUT201
                STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
                       G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
@@ -687,6 +719,24 @@
                       " DENOMINATOR EXCLUSION M1018"
                       DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
+           END-IF.
+
+      *----------------------------------------------------------------
+      *  A1-364-DX: set WS-364-EXCL when WS-364-DX (no dot) is a
+      *  measure 364 denominator exclusion: C malignant neoplasm,
+      *  D0 in situ, Z08 cancer follow-up, Z85 cancer history,
+      *  Z87891 nicotine history, F17 nicotine dependence,
+      *  Z122 lung cancer screening
+      *----------------------------------------------------------------
+       A1-364-DX.
+           IF WS-364-DX(1:1) = "C"
+            OR WS-364-DX(1:2) = "D0"
+            OR WS-364-DX(1:3) = "Z08"
+            OR WS-364-DX(1:3) = "Z85"
+            OR WS-364-DX(1:6) = "Z87891"
+            OR WS-364-DX(1:3) = "F17"
+            OR WS-364-DX(1:4) = "Z122"
+               MOVE "Y" TO WS-364-EXCL
            END-IF.
 
       *----------------------------------------------------------------
