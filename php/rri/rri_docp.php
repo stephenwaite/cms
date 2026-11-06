@@ -45,9 +45,15 @@ const DOCP_BY_LAB_ID = [
 $in_file  = $argv[1] ?? '';
 $out_file = $argv[2] ?? '';
 $acc_file = $argv[3] ?? '';
-if (!is_readable($in_file) || empty($out_file) || ($acc_file !== '' && !is_readable($acc_file))) {
+if (!is_readable($in_file) || empty($out_file)) {
     echo "usage: php rri_docp.php <rrr255 extract> <answers out> [<accession file>]\n";
     exit(1);
+}
+// a missing or unreadable accession file is not a reason to stop the nightly:
+// the visit + DOS rules still give an answer
+if ($acc_file !== '' && !is_readable($acc_file)) {
+    echo "can't read $acc_file, matching by visit and DOS only\n";
+    $acc_file = '';
 }
 
 $db = [];
