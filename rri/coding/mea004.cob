@@ -654,7 +654,7 @@
                WRITE FILEOUT201
                MOVE SPACE TO FILEOUT01
                STRING "364 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
-                      " DENOMINATOR EXCLUSION M1018"
+                      " DENOMINATOR EXCEPTION G9755"
                       DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF
@@ -669,6 +669,22 @@
                MOVE SPACE TO FILEOUT01
                STRING "364 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
                       " PERFORMANCE NOT MET"
+                      DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+           END-IF
+      *    4 = nodule, but cancer history, heavy smoker or lung
+      *    cancer screening: denominator exclusion M1018
+           IF CD-QP1 = "4 "
+               MOVE SPACE TO FILEOUT201
+               STRING CD-DATE-T "," G-ACCT "," G-DOB "," G-SEX ","
+                      G-PRINS "," G-PRIPOL ",364," CD-PROC1 ","
+                      CD-DIAG ",M1018," CD-QP1 "," CD-QP2 ","
+                      WS-NPI-RESULT "," CD-VISITNO
+                      DELIMITED BY SIZE INTO FILEOUT201
+               WRITE FILEOUT201
+               MOVE SPACE TO FILEOUT01
+               STRING "364 " CD-PROC1 " " CD-DATE-T " " CD-KEY8
+                      " DENOMINATOR EXCLUSION M1018"
                       DELIMITED BY SIZE INTO FILEOUT01
                WRITE FILEOUT01
            END-IF.
