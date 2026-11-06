@@ -1,0 +1,53 @@
+#!/bin/bash
+# rri-docp-file: fill in the reading radiologist (CD-DOCP) on charnew charges
+# still at 00 from a corrected RRMC charge file, one re-sent with the
+# radiologist filled in. For a day already loaded, when the nightly loaded the
+# version without radiologists; do not reload the day.
+#   rrr255            charnew 00s -> docp-file-extract
+#   rri_docp_file.php docp-file-extract + the charge file -> docp-file-answers
+#   rrr256            docp-file-answers -> charnew, report docp-report,
+#                     changed records backed up whole to docp-bak-<timestamp>
+# the charge file is only read. charnew is only touched by rrr256, which
+# leaves alone any charge a coder has set since rrr255 ran.
+#   rri-docp-file <rrmc charge file>          runs all three steps
+#   DRY=1 rri-docp-file <rrmc charge file>    rrr255 and the match only: prints
+#                                             the counts and stops before rrr256
+[ -r "$1" ] || { echo "usage: [DRY=1] rri-docp-file <rrmc charge file>"; exit 1; }
+rrmc_file=$(readlink -f "$1")
+cd /home/rri || exit 1
+
+PHP_DIR=/home/stee/src/cms/php/rri
+stamp=$(date +%Y%m%d%H%M%S)
+
+S30=charnew; S35=garfile; S40=docp-file-extract
+export S30 S35 S40
+$RUNCBL /home/sidw/rrr255.acu || exit 1
+unset S30 S35 S40
+
+if [ ! -s docp-file-extract ]; then
+    echo "no 00 charges in charnew, nothing to do"
+    exit 0
+fi
+
+rm -f docp-file-answers
+php "$PHP_DIR/rri_docp_file.php" docp-file-extract "$rrmc_file" docp-file-answers || exit 1
+if [ ! -s docp-file-answers ]; then
+    echo "none of the 00 charges are in that file, charnew not touched"
+    exit 0
+fi
+if [ "${DRY:-}" = 1 ]; then
+    echo "dry run: charnew not touched. answers by radiologist and source (00 = left at 00):"
+    cut -c12-18 docp-file-answers | sort | uniq -c
+    echo "left at 00, by reason:"
+    grep ' NONE ' docp-file-answers | cut -c19- | sort | uniq -c
+    exit 0
+fi
+
+S30=docp-file-answers; S35=charnew; S40=docp-report; S45=docp-bak-$stamp
+export S30 S35 S40 S45
+$RUNCBL /home/sidw/rrr256.acu
+rc=$?
+unset S30 S35 S40 S45
+echo "rri-docp-file $(basename "$rrmc_file") $stamp" >> docp-report.log
+cat docp-report >> docp-report.log
+exit $rc
