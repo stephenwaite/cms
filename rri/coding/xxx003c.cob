@@ -588,8 +588,8 @@
 
       *--- Measure 364 / Paycode 010 -----------------------------------
            IF CD-PAYCODE = "010"
-               DISPLAY " Measure 364: <Enter> no lesion or 1 or 2"
-                       " or 3 or ? for help or G to grab read"
+               DISPLAY " Measure 364: <Enter> no nodule or 1 2 3 4"
+                       " or ? for help or G to grab read"
                ACCEPT CD-QP1
                IF CD-QP1 = "G"
                    PERFORM 10-GR
@@ -599,7 +599,7 @@
                    PERFORM HELP-364
                    GO TO P2-0
                END-IF
-               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
+               IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR "4 " OR SPACE)
                    GO TO P2-0
                END-IF
            END-IF
@@ -647,8 +647,8 @@
            END-IF
            GO TO P015-CHECK.
        P014-QP1.
-           DISPLAY " Measure 364: <Enter> no lesion or 1 or 2"
-                   " or 3 or ? for help or G to grab read"
+           DISPLAY " Measure 364: <Enter> no nodule or 1 2 3 4"
+                   " or ? for help or G to grab read"
            ACCEPT CD-QP1
            IF CD-QP1 = "G"
                PERFORM 10-GR
@@ -658,7 +658,7 @@
                PERFORM HELP-364
                GO TO P014-QP1
            END-IF
-           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
+           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR "4 " OR SPACE)
                GO TO P014-QP1
            END-IF.
        P014-QP2.
@@ -686,8 +686,8 @@
            END-IF
            GO TO P016-CHECK.
        P015-QP1.
-           DISPLAY " Measure 364: <Enter> no lesion or 1 or 2"
-                   " or 3 or ? for help or G to grab read"
+           DISPLAY " Measure 364: <Enter> no nodule or 1 2 3 4"
+                   " or ? for help or G to grab read"
            ACCEPT CD-QP1
            IF CD-QP1 = "G"
                PERFORM 10-GR
@@ -697,7 +697,7 @@
                PERFORM HELP-364
                GO TO P015-QP1
            END-IF
-           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
+           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR "4 " OR SPACE)
                GO TO P015-QP1
            END-IF.
        P015-QP2.
@@ -764,8 +764,8 @@
            END-IF
            GO TO P2-000.
        P017-QP1.
-           DISPLAY " Measure 364: <Enter> no lesion or 1 or 2"
-                   " or 3 or ? for help or G to grab read"
+           DISPLAY " Measure 364: <Enter> no nodule or 1 2 3 4"
+                   " or ? for help or G to grab read"
            ACCEPT CD-QP1
            IF CD-QP1 = "G"
                PERFORM 10-GR
@@ -775,7 +775,7 @@
                PERFORM HELP-364
                GO TO P017-QP1
            END-IF
-           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
+           IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR "4 " OR SPACE)
                GO TO P017-QP1
            END-IF.
        P017-QP2.
@@ -942,14 +942,18 @@
       *  HELP paragraphs - one per measure to keep P2-0 clean
       *----------------------------------------------------------------
        HELP-364.
-           DISPLAY "CT studies for patients 35 and older with "
-           DISPLAY "incidental pulmonary nodule and not active"
-           DISPLAY "cancer dx, or heavy smoker or lung cx scr"
-           DISPLAY " 1 = follow up rec documented, perf met"
-           DISPLAY " 2 = medical reasons for no f/u, "
-                   "denom exception"
-           DISPLAY " 3 = perf not met, no f/u and reason"
-           DISPLAY " <Enter> = no lesion".
+           DISPLAY "CT studies, patients 35 and older, with an"
+           DISPLAY "incidental pulmonary nodule (granuloma,"
+           DISPLAY "hamartoma, other benign findings don't count)"
+           DISPLAY " 1 = f/u or no f/u rec per guideline, with"
+           DISPLAY "     interval, modality and source: met G9345"
+           DISPLAY " 2 = medical reason for no rec (unexplained"
+           DISPLAY "     fever, immunocompromised): exception G9755"
+           DISPLAY " 3 = rec missing or not per guideline, no"
+           DISPLAY "     reason given: not met G9347"
+           DISPLAY " 4 = cancer dx or hx, heavy smoker or lung"
+           DISPLAY "     cancer screening: excluded M1018"
+           DISPLAY " <Enter> = no nodule, not in the measure".
 
        HELP-405.
            DISPLAY "Cystic renal lesion that is simple appearing"
