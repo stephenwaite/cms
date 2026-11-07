@@ -77,7 +77,7 @@
 
        WORKING-STORAGE SECTION.
 
-           COPY "charback.cpy" IN "C:\Users\sid\cms\copylib\rri".
+           COPY "charback.cpy".
            
        01  XYZ                   PIC 999.
        01  HOLD8                 PIC X(8).
