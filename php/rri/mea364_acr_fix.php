@@ -9,7 +9,8 @@
  *
  *   1. a row answered 1, 2 or 3 (G9345, G9755, G9347) whose charge carries an
  *      exclusion diagnosis gets numerator M1018, the same rule mea004 applies
- *      since #371 (C, D0, Z08, Z85, Z87891, F17, Z122 on any of the four dx);
+ *      since #371 (C, D0, Z08, Z85, Z122 on any of the four dx; smoking codes
+ *      are left to the coder, the exclusion needs a heavy smoker);
  *      dx 2-4 come from the charcur unload when one is given, else dx 1 only;
  *   2. a row listed in the review file with an answer gets that answer's code
  *      (2 = G9755, 3 = G9347, 4 = M1018), which wins over rule 1.
@@ -24,7 +25,7 @@
  * with the coder's answer (2, 3 or 4) added at the end of each line.
  */
 
-const EXCLUSION_DX = '/^(C|D0|Z08|Z85|Z87891|F17|Z122)/';
+const EXCLUSION_DX = '/^(C|D0|Z08|Z85|Z122)/';
 const ANSWER_CODE = ['2' => 'G9755', '3' => 'G9347', '4' => 'M1018'];
 const FIXABLE = ['G9345', 'G9755', 'G9347'];
 
