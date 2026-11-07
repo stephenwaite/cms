@@ -634,8 +634,8 @@
       *  Always uses CD-QP1 (even in hybrid paycodes, 364 owns QP1)
       *----------------------------------------------------------------
        A1-364-CSV.
-      *    An exclusion dx (cancer, cancer history, nicotine, lung
-      *    cancer screening) wins over answers 1 2 3: write M1018.
+      *    An exclusion dx (cancer, cancer history, lung cancer
+      *    screening) wins over answers 1 2 3: write M1018.
            MOVE "N" TO WS-364-EXCL
            IF CD-QP1 = "1 " OR "2 " OR "3 "
                MOVE CD-DIAG TO WS-364-DX
@@ -723,18 +723,18 @@
 
       *----------------------------------------------------------------
       *  A1-364-DX: set WS-364-EXCL when WS-364-DX (no dot) is a
-      *  measure 364 denominator exclusion: C malignant neoplasm,
-      *  D0 in situ, Z08 cancer follow-up, Z85 cancer history,
-      *  Z87891 nicotine history, F17 nicotine dependence,
-      *  Z122 lung cancer screening
+      *  measure 364 denominator exclusion the dx alone proves:
+      *  C malignant neoplasm, D0 in situ, Z08 cancer follow-up,
+      *  Z85 cancer history, Z122 lung cancer screening.
+      *  Smoking codes (F17, Z87891) are not here: the exclusion
+      *  needs a heavy smoker (30 pack-years, current or quit
+      *  within 15 years), which only the coder can see: answer 4.
       *----------------------------------------------------------------
        A1-364-DX.
            IF WS-364-DX(1:1) = "C"
             OR WS-364-DX(1:2) = "D0"
             OR WS-364-DX(1:3) = "Z08"
             OR WS-364-DX(1:3) = "Z85"
-            OR WS-364-DX(1:6) = "Z87891"
-            OR WS-364-DX(1:3) = "F17"
             OR WS-364-DX(1:4) = "Z122"
                MOVE "Y" TO WS-364-EXCL
            END-IF.
