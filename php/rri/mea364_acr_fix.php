@@ -21,12 +21,14 @@
  * usage: php mea364_acr_fix.php <cut MMDDYY> <out csv> [charcur unload|-] [review file]
  *        [MEA004_DIR=/home/rri] [YEAR=26]
  *
- * review file: the lines of answer2-to-review.txt (date acct proc dx visit)
- * with the coder's answer (2, 3 or 4) added at the end of each line.
+ * review file: one charge per line, date (YYYYMMDD) acct proc first, anything
+ * after (dx, visit, a comment), and the coder's answer (1, 2, 3 or 4) as the
+ * last word. answer2-to-review.txt and mea364_notes_to_review.php both give
+ * that shape. A line whose last word isn't an answer is counted and skipped.
  */
 
 const EXCLUSION_DX = '/^(C|D0|Z08|Z85|Z122)/';
-const ANSWER_CODE = ['2' => 'G9755', '3' => 'G9347', '4' => 'M1018'];
+const ANSWER_CODE = ['1' => 'G9345', '2' => 'G9755', '3' => 'G9347', '4' => 'M1018'];
 const FIXABLE = ['G9345', 'G9755', 'G9347'];
 
 if ($argc < 3) {
@@ -67,11 +69,12 @@ $reviewUnanswered = 0;
 if ($reviewPath !== '') {
     foreach (file($reviewPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
         $f = preg_split('/\s+/', trim($line));
-        if (count($f) < 6 || !isset(ANSWER_CODE[$f[5]])) {
+        $answer = $f[count($f) - 1];
+        if (count($f) < 4 || !isset(ANSWER_CODE[$answer]) || !preg_match('/^\d{8}$/', $f[0])) {
             $reviewUnanswered++;
             continue;
         }
-        $review[$f[1] . '|' . substr($f[2], 0, 5) . '|' . $f[0]] = ANSWER_CODE[$f[5]];
+        $review[$f[1] . '|' . substr($f[2], 0, 5) . '|' . $f[0]] = ANSWER_CODE[$answer];
     }
 }
 
