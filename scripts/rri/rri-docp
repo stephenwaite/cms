@@ -3,9 +3,7 @@
 # that came in from the facility as 00, using the read in openemr.
 # run after rrr250 loads charnew and before coding (xxx003c).
 #   rrr255       charnew 00s -> docp-extract
-#   rri_docp.php docp-extract (+ docp-accessions, the accessions RRMC sent
-#                with the charges, kept by accession-load.php in the load
-#                script) -> docp-answers (openemr database, read-only)
+#   rri_docp.php docp-extract -> docp-answers (openemr database, read-only)
 #   rrr256       docp-answers -> charnew, report docp-report,
 #                changed records backed up whole to docp-bak-<timestamp>
 # the database settings (OEMR_RRI_DB_*) come from /etc/cms/rri-docp.env.
@@ -28,12 +26,7 @@ fi
 set -a; . /etc/cms/rri-docp.env || { echo "can't read /etc/cms/rri-docp.env"; exit 1; }; set +a
 
 rm -f docp-answers
-if [ -s docp-accessions ]; then
-    php "$PHP_DIR/rri_docp.php" docp-extract docp-answers docp-accessions || exit 1
-else
-    echo "no docp-accessions file, matching by visit and DOS only"
-    php "$PHP_DIR/rri_docp.php" docp-extract docp-answers || exit 1
-fi
+php "$PHP_DIR/rri_docp.php" docp-extract docp-answers || exit 1
 if [ ! -s docp-answers ]; then
     echo "rri_docp.php wrote no answers, charnew not touched"
     exit 1
