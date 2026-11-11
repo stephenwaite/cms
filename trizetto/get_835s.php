@@ -25,18 +25,48 @@ $sftp->enableDatePreservation();
 $path = '/remits';
 //print_r($sftp->rawlist($path, true));
 
-$rawlist = $sftp->rawlist($path, true);
-if (!empty($rawlist)) {
-    foreach ($rawlist as $file) {
-        //var_dump($file);
-        $fileName = $file->filename;
-        $destination = $fileName;
-        echo "downloading " . $fileName . " to " . $destination . "\n";
-        $sftp->get($path . "/" . $fileName, $destination);
-        if ($sftp->rename($path . "/" . $file->filename, '/WorkedTrans/' . $file->filename)) {
-            echo "move file to trizetto's worked transactions dir " . $file->filename . "\n";
-        } else {
-            echo "huh, file already exists in the worked transactions dir\n";
+// Only move a remit to WorkedTrans once it's here in full. A remit that didn't come down
+// stays in /remits, so the next run tries it again.
+$rawlist = $sftp->rawlist($path);
+if ($rawlist === false) {
+    echo "couldn't list " . $path . "\n";
+    exit;
+}
+foreach ($rawlist as $fileName => $file) {
+    // skip . and .. and anything else that isn't a plain file
+    if (($file['type'] ?? null) !== NET_SFTP_TYPE_REGULAR) {
+        continue;
+    }
+    $destination = $fileName;
+    // download under a hidden temporary name, so a partial file never sits under the remit's name
+    $partial = '.' . $fileName . '.part';
+    echo "downloading " . $fileName . " to " . $destination . "\n";
+    try {
+        $downloaded = $sftp->get($path . "/" . $fileName, $partial);
+    } catch (\RuntimeException $e) {
+        echo "download error for " . $fileName . ": " . get_class($e) . "\n";
+        $downloaded = false;
+    }
+    // get() can return true for a transfer the server cut short, so compare sizes too
+    clearstatcache();
+    $localSize = is_file($partial) ? filesize($partial) : false;
+    $remoteSize = $file['size'] ?? null;
+    if ($downloaded === false || $localSize === false || ($remoteSize !== null && $localSize !== $remoteSize)) {
+        echo "NOT archived, didn't download in full: " . $fileName
+            . " (got " . var_export($localSize, true) . " of " . var_export($remoteSize, true) . " bytes)\n";
+        if (is_file($partial)) {
+            unlink($partial);
         }
+        continue;
+    }
+    if (!rename($partial, $destination)) {
+        echo "NOT archived, couldn't save " . $fileName . " as " . $destination . "\n";
+        unlink($partial);
+        continue;
+    }
+    if ($sftp->rename($path . "/" . $fileName, '/WorkedTrans/' . $fileName)) {
+        echo "move file to trizetto's worked transactions dir " . $fileName . "\n";
+    } else {
+        echo "huh, file already exists in the worked transactions dir\n";
     }
 }
