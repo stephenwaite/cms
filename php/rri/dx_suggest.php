@@ -13,6 +13,9 @@ declare(strict_types=1);
 
 const DX_API_VERSION = '2023-06-01';
 
+/** A claim line points to at most four diagnoses, so the coders' prompt asks for no more. */
+const DX_MAX_CODES = 4;
+
 /** The columns of Gifford's charge file when it has no header line, before the three report columns. */
 const DX_SAMPLE_COLUMNS = [
         'encounter_num', 'pat_mrn', 'pat_last', 'pat_first', 'pat_addr1', 'pat_addr2', 'pat_city', 'pat_state',
@@ -203,6 +206,13 @@ studies: hardware or implant placement, arthroplasty, fixation, stent or line ch
 CODERS' NOTES FOR THE EXAM:
 - A request may give "Coders' notes for this exam". Follow them.
 
+THE ANSWER:
+- Return at most four codes, in the order they belong on the claim: a claim line can point
+  to four diagnoses. When more than four apply, keep the four that matter most for the claim
+  and leave out the lesser incidental findings.
+- The answer has no description field. For each code give the code, the confidence, the
+  rationale and the specificity check; the description is looked up from the code.
+
 PREFERRED CODES (the coders' quick-pick list):
 When the condition you are coding is one of these, use the listed code. A trailing "-" means
 the code still needs its last character or characters (side, encounter) from the report:
@@ -215,11 +225,27 @@ TEXT;
 }
 
 /**
- * The JSON the answer must be: a list of codes, each with its description, confidence and reasons.
+ * The JSON the answer must be: a list of codes, each with its confidence and reasons, and its
+ * description too when asked as reads.php asks (the coders' prompt leaves the description to
+ * be looked up from the code).
  *
  * @return array<string, mixed>
  */
-function icd10AnswerSchema(): array
+function icd10AnswerSchema(bool $withDescription = true): array
+{
+    $schema = icd10FullAnswerSchema();
+    if (!$withDescription) {
+        unset($schema['properties']['codes']['items']['properties']['description']);
+        $schema['properties']['codes']['items']['required'] = ['code', 'confidence', 'rationale', 'specificity_check'];
+    }
+
+    return $schema;
+}
+
+/**
+ * @return array<string, mixed>
+ */
+function icd10FullAnswerSchema(): array
 {
     return [
         'type' => 'object',
@@ -280,7 +306,7 @@ function icd10Request(
         'max_tokens' => 16000,
         'output_config' => [
             'effort' => $effort,
-            'format' => ['type' => 'json_schema', 'schema' => icd10AnswerSchema()],
+            'format' => ['type' => 'json_schema', 'schema' => icd10AnswerSchema($additions === null)],
         ],
         'system' => [
             [
@@ -326,9 +352,10 @@ function icd10NeedsIndication(array $codes): bool
  * What a Messages API response says, as the plain record kept for each request.
  *
  * @param array<string, mixed> $body the decoded response
+ * @param int $maxCodes keep only this many codes (0: all); the number returned goes in over_cap when cut
  * @return array<string, mixed> outcome, usage, and codes when it succeeded
  */
-function icd10ParseResponse(array $body): array
+function icd10ParseResponse(array $body, int $maxCodes = 0): array
 {
     $usage = [];
     foreach (['input_tokens', 'output_tokens', 'cache_creation_input_tokens', 'cache_read_input_tokens'] as $key) {
@@ -360,6 +387,10 @@ function icd10ParseResponse(array $body): array
             'confidence' => (string) ($c['confidence'] ?? ''),
             'rationale' => (string) ($c['rationale'] ?? ''),
         ];
+    }
+
+    if ($maxCodes > 0 && count($codes) > $maxCodes) {
+        return ['outcome' => 'succeeded', 'usage' => $usage, 'codes' => array_slice($codes, 0, $maxCodes), 'over_cap' => count($codes)];
     }
 
     return ['outcome' => 'succeeded', 'usage' => $usage, 'codes' => $codes];

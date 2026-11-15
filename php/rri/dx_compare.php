@@ -28,7 +28,8 @@
  *                  and CPT alone, as reads.php asks; then, only when that answer shows the report
  *                  gave no codeable reason (no code, or a first code that is an examination or
  *                  status Z code), once more with the facility's clinical indication
- *                  (chg_clinical). The second answer is the one kept. reads: reads.php's prompt alone, report
+ *                  (chg_clinical). The second answer is the one kept. The answer is at most four
+ *                  codes (a claim line points to four) and carries no description. reads: reads.php's prompt alone, report
  *                  and CPT only, as the first runs were made.
  *   --dry-run      read and count, send nothing
  * Each answer is saved as it arrives, so a run that stops can be finished with --resume (same
@@ -378,6 +379,14 @@ function dxSummarize(array &$rows, array $usage, array $meta, ?array $valid, ?ar
             $again
         )), ' x');
         $out[] = '  by location: ' . dxJoin(dxCount(array_map(static fn (array $r): string => (string) $r['location'], $again)));
+        $over = array_values(array_filter(array_column($rows, 'over_cap')));
+        $out[] = sprintf(
+            'Answers with more than %d codes, cut to %d: %d%s',
+            DX_MAX_CODES,
+            DX_MAX_CODES,
+            count($over),
+            $over === [] ? '' : ' (the longest had ' . max($over) . ')'
+        );
     }
     $out[] = '';
     $out[] = 'Tokens: ' . implode(', ', array_map(
@@ -474,6 +483,7 @@ function dxWriteOutputs(string $runPath, ?string $validPath, ?string $listsPath,
             'outcome' => (string) $r['outcome'], 'note' => (string) ($r['note'] ?? ''),
             'suggested' => [], 'raw_codes' => [], 'details' => [],
             'asked_again' => (string) ($r['asked_again'] ?? ''),
+            'over_cap' => (int) ($r['over_cap'] ?? 0),
             'first_answer' => array_values(array_filter(array_map(
                 static fn (array $c): string => dxNorm((string) $c['code']),
                 $r['first_codes'] ?? []
@@ -487,7 +497,8 @@ function dxWriteOutputs(string $runPath, ?string $validPath, ?string $listsPath,
             $code = dxNorm((string) $c['code']);
             if ($code !== '') {
                 $row['suggested'][] = [$code, (string) $c['confidence']];
-                $row['details'][] = "[{$c['confidence']}] $code {$c['description']}: {$c['rationale']}";
+                $description = (string) ($c['description'] ?? '');
+                $row['details'][] = "[{$c['confidence']}] $code" . ($description === '' ? '' : " $description") . ": {$c['rationale']}";
             }
         }
         $row['class'] = dxClassify($row['gifford'], array_column($row['suggested'], 0));
@@ -569,20 +580,20 @@ function dxSample(array $accessions, int $size, int $seed): array
  *
  * @param array<string, mixed> $request
  */
-function dxAsk(Client $client, string $apiKey, array $request, int $attempt = 0, int $delayMs = 0): PromiseInterface
+function dxAsk(Client $client, string $apiKey, array $request, int $attempt = 0, int $delayMs = 0, int $maxCodes = 0): PromiseInterface
 {
-    $retry = static fn (int $seconds): PromiseInterface => dxAsk($client, $apiKey, $request, $attempt + 1, $seconds * 1000);
+    $retry = static fn (int $seconds): PromiseInterface => dxAsk($client, $apiKey, $request, $attempt + 1, $seconds * 1000, $maxCodes);
 
     return $client->postAsync('/v1/messages', [
         'headers' => ['x-api-key' => $apiKey, 'anthropic-version' => DX_API_VERSION, 'content-type' => 'application/json'],
         'json' => $request,
         'delay' => $delayMs,
     ])->then(
-        static function (ResponseInterface $response) use ($retry, $attempt) {
+        static function (ResponseInterface $response) use ($retry, $attempt, $maxCodes) {
             $status = $response->getStatusCode();
             $body = json_decode((string) $response->getBody(), true);
             if ($status === 200) {
-                return is_array($body) ? icd10ParseResponse($body) : ['outcome' => 'errored', 'note' => 'the response was not JSON'];
+                return is_array($body) ? icd10ParseResponse($body, $maxCodes) : ['outcome' => 'errored', 'note' => 'the response was not JSON'];
             }
             if (in_array($status, DX_RETRY_STATUS, true)) {
                 if ($attempt < DX_MAX_RETRIES) {
@@ -616,16 +627,17 @@ function dxAsk(Client $client, string $apiKey, array $request, int $attempt = 0,
  *
  * @param array<string, mixed> $request
  * @param ?array<string, mixed> $withIndication null when the facility sent no indication
+ * @param int $maxCodes the most codes kept from an answer (0: all)
  */
-function dxAskTwoSteps(Client $client, string $apiKey, array $request, ?array $withIndication): PromiseInterface
+function dxAskTwoSteps(Client $client, string $apiKey, array $request, ?array $withIndication, int $maxCodes = 0): PromiseInterface
 {
-    return dxAsk($client, $apiKey, $request)->then(
-        static function (array $first) use ($client, $apiKey, $withIndication) {
+    return dxAsk($client, $apiKey, $request, 0, 0, $maxCodes)->then(
+        static function (array $first) use ($client, $apiKey, $withIndication, $maxCodes) {
             if ($withIndication === null || $first['outcome'] !== 'succeeded' || !icd10NeedsIndication($first['codes'])) {
                 return $first;
             }
 
-            return dxAsk($client, $apiKey, $withIndication)->then(static function (array $second) use ($first): array {
+            return dxAsk($client, $apiKey, $withIndication, 0, 0, $maxCodes)->then(static function (array $second) use ($first): array {
                 $usage = $first['usage'];
                 foreach ($second['usage'] ?? [] as $name => $n) {
                     $usage[$name] = ($usage[$name] ?? 0) + $n;
@@ -785,7 +797,8 @@ function dxRun(string $file, array $options): void
 
     if ($todo !== []) {
         // The first request alone: a refused key, model or setting stops here, not 1,300 times.
-        $first = dxAskTwoSteps($client, $apiKey, $requests[$todo[0]], $second[$todo[0]])->wait();
+        $cap = $prompt === 'reads' ? 0 : DX_MAX_CODES;
+        $first = dxAskTwoSteps($client, $apiKey, $requests[$todo[0]], $second[$todo[0]], $cap)->wait();
         $record($todo[0], $first);
         if ($first['fatal'] ?? false) {
             fclose($results);
@@ -793,9 +806,9 @@ function dxRun(string $file, array $options): void
         }
         $rest = array_slice($todo, 1);
         $asked = 1;
-        $pool = new Pool($client, (static function () use ($client, $apiKey, $requests, $second, $rest) {
+        $pool = new Pool($client, (static function () use ($client, $apiKey, $requests, $second, $rest, $cap) {
             foreach ($rest as $id) {
-                yield $id => static fn (): PromiseInterface => dxAskTwoSteps($client, $apiKey, $requests[$id], $second[$id]);
+                yield $id => static fn (): PromiseInterface => dxAskTwoSteps($client, $apiKey, $requests[$id], $second[$id], $cap);
             }
         })(), [
             'concurrency' => max(1, (int) ($options['workers'] ?? 4)),
