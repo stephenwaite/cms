@@ -170,9 +170,10 @@ PROMPT;
 }
 
 /**
- * What the practice's coders add to the instructions: how to use the facility's clinical
- * indication, what to code on films taken during surgery, and their quick-pick list of
- * preferred codes. Fixed text for a given list, so it caches with the rest of the prompt.
+ * What the practice's coders add to the instructions: when the facility's clinical
+ * indication may be used (only where reads.php's hierarchy already calls for an indication,
+ * and on films taken during surgery), what to code on those films, and their quick-pick list
+ * of preferred codes. The hierarchy itself is reads.php's and is not changed. Fixed text for a given list, so it caches with the rest of the prompt.
  *
  * @param list<array{string, string}> $quickPick [code as the coders write it, what it is for]
  */
@@ -181,11 +182,18 @@ function icd10CoderAdditions(array $quickPick): string
     $picks = implode("\n", array_map(static fn (array $p): string => sprintf('%-9s %s', $p[0], $p[1]), $quickPick));
 
     return <<<TEXT
-ADDITIONS FROM THE PRACTICE'S CODERS. Where these differ from the rules above, these win.
+ADDITIONS FROM THE PRACTICE'S CODERS. The coding hierarchy above stands as written; these
+add to it.
 
 CLINICAL INDICATION FROM THE FACILITY:
-- A request may give a "Clinical indication from the facility". Treat it as the clinical
-  indication, together with any indication the report itself states.
+A request may give a "Clinical indication from the facility". Use it only where the
+hierarchy above already calls for the clinical indication:
+- Step 2, when the impression is normal, unremarkable or negative and the report states no
+  indication of its own, or a vaguer one than the facility's.
+- Films taken during or right after surgery (below).
+Otherwise leave it out of the coding. It never displaces a confirmed finding in the
+impression as the primary code, it does not change the order the hierarchy gives the codes,
+and it does not add a code for a condition the report does not support.
 
 FILMS TAKEN DURING OR RIGHT AFTER SURGERY (intraoperative and immediate postoperative
 studies: hardware or implant placement, arthroplasty, fixation, stent or line checks):
@@ -194,6 +202,8 @@ studies: hardware or implant placement, arthroplasty, fixation, stent or line ch
   because the report describes hardware in place. It may follow as a secondary code.
 - If neither the report nor the facility's indication says why the surgery was done, return
   an empty list. Do not return a status code alone.
+- This is only for films during or right after surgery. A study done before surgery
+  (pre-operative planning or clearance) is coded by the hierarchy above like any other.
 
 CODERS' NOTES FOR THE EXAM:
 - A request may give "Coders' notes for this exam". Follow them.

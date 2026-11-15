@@ -22,9 +22,10 @@
  *                  to another --model (also the way to repeat a sample the Python script drew)
  *   --exams        only the accessions on an exam the coders' workbook has a Medicare LCD list
  *                  for (needs --lists)
- *   --prompt P     coders (the default; needs --lists): reads.php's prompt plus the coders'
- *                  additions (what to code on films taken during surgery, their quick-pick list),
- *                  and each request also carries the facility's clinical indication (chg_clinical)
+ *   --prompt P     coders (the default; needs --lists): reads.php's prompt and hierarchy plus the
+ *                  coders' additions (what to code on films taken during surgery, their quick-pick
+ *                  list). Each request also carries the facility's clinical indication
+ *                  (chg_clinical), to be used only where the hierarchy calls for an indication,
  *                  and the coders' notes for the exam. reads: reads.php's prompt alone, report
  *                  and CPT only, as the first runs were made.
  *   --dry-run      read and count, send nothing
