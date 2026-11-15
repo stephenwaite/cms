@@ -83,7 +83,8 @@ function dxArgs(array $argv, array $flags): array
             $options[$name] = '1';
             continue;
         }
-        if (!isset($argv[$i + 1])) {
+        if (!isset($argv[$i + 1]) || str_starts_with($argv[$i + 1], '--')) {
+            // An unset shell variable (--file $F) leaves the option with nothing after it.
             dxFail("--$name needs a value");
         }
         $options[$name] = $argv[++$i];
