@@ -170,10 +170,10 @@ PROMPT;
 }
 
 /**
- * What the practice's coders add to the instructions: when the facility's clinical
- * indication may be used (only where reads.php's hierarchy already calls for an indication,
- * and on films taken during surgery), what to code on those films, and their quick-pick list
- * of preferred codes. The hierarchy itself is reads.php's and is not changed. Fixed text for a given list, so it caches with the rest of the prompt.
+ * What the practice's coders add to the instructions: what the facility's clinical indication
+ * is for when a request carries one (it does only on the second of two steps, see
+ * icd10NeedsIndication()), what to code on films taken during surgery, and their quick-pick
+ * list of preferred codes. The hierarchy itself is reads.php's and is not changed. Fixed text for a given list, so it caches with the rest of the prompt.
  *
  * @param list<array{string, string}> $quickPick [code as the coders write it, what it is for]
  */
@@ -186,14 +186,9 @@ ADDITIONS FROM THE PRACTICE'S CODERS. The coding hierarchy above stands as writt
 add to it.
 
 CLINICAL INDICATION FROM THE FACILITY:
-A request may give a "Clinical indication from the facility". Use it only where the
-hierarchy above already calls for the clinical indication:
-- Step 2, when the impression is normal, unremarkable or negative and the report states no
-  indication of its own, or a vaguer one than the facility's.
-- Films taken during or right after surgery (below).
-Otherwise leave it out of the coding. It never displaces a confirmed finding in the
-impression as the primary code, it does not change the order the hierarchy gives the codes,
-and it does not add a code for a condition the report does not support.
+Most requests do not have one. A request carries a "Clinical indication from the facility"
+only after the report alone gave no codeable reason for the exam. When it is there, it is
+the CLINICAL INDICATION for step 2 of the hierarchy and for the films below.
 
 FILMS TAKEN DURING OR RIGHT AFTER SURGERY (intraoperative and immediate postoperative
 studies: hardware or implant placement, arthroplasty, fixation, stent or line checks):
@@ -298,6 +293,33 @@ function icd10Request(
             ['role' => 'user', 'content' => 'CPT: ' . implode(', ', $cpts) . "\n\n" . $extra . "Interpretation:\n" . $clean],
         ],
     ];
+}
+
+/**
+ * Whether an answer shows the report alone gave no codeable reason for the exam, so the
+ * study is worth asking about once more with the facility's clinical indication: no code at
+ * all, or a first code that only says an examination was done or a device or status is
+ * present (Z00-Z09, Z40-Z99). Screening (Z11-Z13) and pregnancy codes are reasons in
+ * themselves and do not count.
+ *
+ * @param list<array{code: string}> $codes the answer's codes, in order
+ */
+function icd10NeedsIndication(array $codes): bool
+{
+    foreach ($codes as $c) {
+        $code = dxNorm((string) ($c['code'] ?? ''));
+        if ($code === '') {
+            continue;
+        }
+        if ($code[0] !== 'Z') {
+            return false;
+        }
+        $category = (int) substr($code, 1, 2);
+
+        return $category <= 9 || $category >= 40;
+    }
+
+    return true;
 }
 
 /**

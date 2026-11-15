@@ -24,9 +24,11 @@
  *                  for (needs --lists)
  *   --prompt P     coders (the default; needs --lists): reads.php's prompt and hierarchy plus the
  *                  coders' additions (what to code on films taken during surgery, their quick-pick
- *                  list). Each request also carries the facility's clinical indication
- *                  (chg_clinical), to be used only where the hierarchy calls for an indication,
- *                  and the coders' notes for the exam. reads: reads.php's prompt alone, report
+ *                  list) and the coders' notes for the exam. Asked in two steps: first the report
+ *                  and CPT alone, as reads.php asks; then, only when that answer shows the report
+ *                  gave no codeable reason (no code, or a first code that is an examination or
+ *                  status Z code), once more with the facility's clinical indication
+ *                  (chg_clinical). The second answer is the one kept. reads: reads.php's prompt alone, report
  *                  and CPT only, as the first runs were made.
  *   --dry-run      read and count, send nothing
  * Each answer is saved as it arrives, so a run that stops can be finished with --resume (same
@@ -361,6 +363,22 @@ function dxSummarize(array &$rows, array $usage, array $meta, ?array $valid, ?ar
             $rows[$k] = $done[$i];
         }
     }
+    if (($meta['prompt'] ?? '') === 'coders-2step') {
+        $again = array_values(array_filter($rows, static fn (array $r): bool => $r['asked_again'] !== ''));
+        $first = static fn (array $codes): string => $codes[0] ?? '-';
+        $out[] = '';
+        $out[] = sprintf(
+            "Asked again with the facility's indication: %d of %d (second answer kept on %d)",
+            count($again),
+            count($rows),
+            count(array_filter($again, static fn (array $r): bool => $r['asked_again'] === 'succeeded'))
+        );
+        $out[] = '  first code, first answer -> second: ' . dxJoin(dxCount(array_map(
+            static fn (array $r): string => $first($r['first_answer']) . ' -> ' . $first(array_column($r['suggested'], 0)),
+            $again
+        )), ' x');
+        $out[] = '  by location: ' . dxJoin(dxCount(array_map(static fn (array $r): string => (string) $r['location'], $again)));
+    }
     $out[] = '';
     $out[] = 'Tokens: ' . implode(', ', array_map(
         static fn (string $k, int $v): string => $k . ' ' . number_format($v),
@@ -455,6 +473,11 @@ function dxWriteOutputs(string $runPath, ?string $validPath, ?string $listsPath,
         $row = $meta['accessions'][$key] + [
             'outcome' => (string) $r['outcome'], 'note' => (string) ($r['note'] ?? ''),
             'suggested' => [], 'raw_codes' => [], 'details' => [],
+            'asked_again' => (string) ($r['asked_again'] ?? ''),
+            'first_answer' => array_values(array_filter(array_map(
+                static fn (array $c): string => dxNorm((string) $c['code']),
+                $r['first_codes'] ?? []
+            ))),
         ];
         foreach ($r['usage'] ?? [] as $name => $n) {
             $usage[$name] = ($usage[$name] ?? 0) + (int) $n;
@@ -474,12 +497,13 @@ function dxWriteOutputs(string $runPath, ?string $validPath, ?string $listsPath,
     $summary = dxSummarize($rows, $usage, $meta, $valid, $lists);
     $detail = dxOpenPrivate($base . '.detail.csv', 'w');
     fputcsv($detail, ['accession', 'file_lines', 'cpt', 'location', 'pos', 'payer', 'report_status', 'gifford_dx',
-        'suggested_dx', 'class', 'outcome', 'workbook_flags', 'suggestions'], ',', '"', '');
+        'suggested_dx', 'class', 'outcome', 'workbook_flags', 'suggestions', 'asked_again', 'first_answer_dx'], ',', '"', '');
     foreach ($rows as $r) {
         fputcsv($detail, [
             $r['accession'], implode(' ', $r['lines']), implode(' ', $r['cpts']), $r['location'], $r['pos'], $r['payer'] ?? '',
             $r['status'], implode(' ', $r['gifford']), implode(' ', array_column($r['suggested'], 0)), $r['class'],
             $r['outcome'] . ($r['note'] !== '' ? ' ' . $r['note'] : ''), implode('; ', $r['flags'] ?? []), implode(' | ', $r['details']),
+            $r['asked_again'], implode(' ', $r['first_answer']),
         ], ',', '"', '');
     }
     fclose($detail);
@@ -586,6 +610,35 @@ function dxAsk(Client $client, string $apiKey, array $request, int $attempt = 0,
 }
 
 /**
+ * The coders' two steps: the request without the facility's indication, and, when that answer
+ * shows the report gave no codeable reason, the one with it. The second answer is kept (the
+ * first one's codes go along as first_codes); a second request that fails keeps the first.
+ *
+ * @param array<string, mixed> $request
+ * @param ?array<string, mixed> $withIndication null when the facility sent no indication
+ */
+function dxAskTwoSteps(Client $client, string $apiKey, array $request, ?array $withIndication): PromiseInterface
+{
+    return dxAsk($client, $apiKey, $request)->then(
+        static function (array $first) use ($client, $apiKey, $withIndication) {
+            if ($withIndication === null || $first['outcome'] !== 'succeeded' || !icd10NeedsIndication($first['codes'])) {
+                return $first;
+            }
+
+            return dxAsk($client, $apiKey, $withIndication)->then(static function (array $second) use ($first): array {
+                $usage = $first['usage'];
+                foreach ($second['usage'] ?? [] as $name => $n) {
+                    $usage[$name] = ($usage[$name] ?? 0) + $n;
+                }
+                $kept = $second['outcome'] === 'succeeded' ? $second : $first;
+
+                return ['usage' => $usage, 'asked_again' => $second['outcome'], 'first_codes' => $first['codes']] + $kept;
+            });
+        }
+    );
+}
+
+/**
  * @param array<string, string> $options
  */
 function dxRun(string $file, array $options): void
@@ -607,14 +660,19 @@ function dxRun(string $file, array $options): void
     }
     // A run made before there was a choice used reads.php's prompt alone.
     $prompt = $meta !== null ? (string) ($meta['prompt'] ?? 'reads') : ($options['prompt'] ?? 'coders');
-    if (!in_array($prompt, ['coders', 'reads'], true)) {
+    if ($meta !== null && $prompt === 'coders') {
+        dxFail("that run was made with an earlier version of the coders' prompt and cannot be resumed");
+    }
+    // The run file names the two-step version, so its runs are not mistaken for the earlier ones.
+    $prompt = $prompt === 'coders' ? 'coders-2step' : $prompt;
+    if (!in_array($prompt, ['coders-2step', 'reads'], true)) {
         dxFail('--prompt is coders or reads');
     }
     $lists = isset($options['lists']) ? dxLoadLists($options['lists']) : null;
-    if ($lists === null && ($prompt === 'coders' || isset($options['exams']))) {
+    if ($lists === null && ($prompt !== 'reads' || isset($options['exams']))) {
         dxFail("--lists gifford-dx-lists.json is needed for the coders' prompt and for --exams");
     }
-    if ($prompt === 'coders' && $lists['quick_pick'] === []) {
+    if ($prompt !== 'reads' && $lists['quick_pick'] === []) {
         dxFail('that lists file has no quick-pick list: make it again with gifford-dx-lists.py');
     }
     if (isset($options['limit'])) {
@@ -657,10 +715,15 @@ function dxRun(string $file, array $options): void
         dxFail('--effort is low, medium, high, xhigh or max');
     }
     $requests = [];
-    $additions = $prompt === 'coders' ? icd10CoderAdditions($lists['quick_pick']) : null;
+    $second = [];
+    $additions = $prompt === 'reads' ? null : icd10CoderAdditions($lists['quick_pick']);
     foreach ($usable as $i => $a) {
         $exam = $additions === null ? null : dxExamFor($lists, $a['cpts']);
-        $requests[$ids[$i]] = icd10Request($model, $effort, $a['cpts'], $a['report'], $additions, $a['clinical'], $exam['notes'] ?? []);
+        $requests[$ids[$i]] = icd10Request($model, $effort, $a['cpts'], $a['report'], $additions, '', $exam['notes'] ?? []);
+        // The second step's request, sent only if the first answer calls for it.
+        $second[$ids[$i]] = $additions === null || trim($a['clinical']) === ''
+            ? null
+            : icd10Request($model, $effort, $a['cpts'], $a['report'], $additions, $a['clinical'], $exam['notes'] ?? []);
     }
     if (isset($options['dry-run'])) {
         $chars = array_sum(array_map(static fn (array $r): int => mb_strlen($r['messages'][0]['content']), $requests));
@@ -722,7 +785,7 @@ function dxRun(string $file, array $options): void
 
     if ($todo !== []) {
         // The first request alone: a refused key, model or setting stops here, not 1,300 times.
-        $first = dxAsk($client, $apiKey, $requests[$todo[0]])->wait();
+        $first = dxAskTwoSteps($client, $apiKey, $requests[$todo[0]], $second[$todo[0]])->wait();
         $record($todo[0], $first);
         if ($first['fatal'] ?? false) {
             fclose($results);
@@ -730,9 +793,9 @@ function dxRun(string $file, array $options): void
         }
         $rest = array_slice($todo, 1);
         $asked = 1;
-        $pool = new Pool($client, (static function () use ($client, $apiKey, $requests, $rest) {
+        $pool = new Pool($client, (static function () use ($client, $apiKey, $requests, $second, $rest) {
             foreach ($rest as $id) {
-                yield $id => static fn (): PromiseInterface => dxAsk($client, $apiKey, $requests[$id]);
+                yield $id => static fn (): PromiseInterface => dxAskTwoSteps($client, $apiKey, $requests[$id], $second[$id]);
             }
         })(), [
             'concurrency' => max(1, (int) ($options['workers'] ?? 4)),
