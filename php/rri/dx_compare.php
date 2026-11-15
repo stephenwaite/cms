@@ -6,9 +6,9 @@
  * Runs where the live charge file is (it reads patient data); only the summary it writes is free
  * of identifiers.
  *
- *   php dx_compare.php run FILE [--limit 25 | --sample 150 | --from-run RUN.json] [--model M]
- *                               [--effort E] [--workers 4] [--valid icd10_valid.txt]
- *                               [--lists gifford-dx-lists.json] [--dry-run]
+ *   php dx_compare.php run FILE [--limit 25 | --sample 150 | --from-run RUN.json | --exams]
+ *                               [--prompt coders|reads] [--model M] [--effort E] [--workers 4]
+ *                               [--valid icd10_valid.txt] [--lists gifford-dx-lists.json] [--dry-run]
  *   php dx_compare.php run FILE [same selection] --resume gifford-dx-run-<time>.json
  *   php dx_compare.php summary gifford-dx-run-<time>.json [--valid F] [--lists F [--file FILE]]
  *
@@ -20,6 +20,13 @@
  *                  across the locations (--seed picks which)
  *   --from-run R   the accessions of an earlier run file, in its order: to put the same sample
  *                  to another --model (also the way to repeat a sample the Python script drew)
+ *   --exams        only the accessions on an exam the coders' workbook has a Medicare LCD list
+ *                  for (needs --lists)
+ *   --prompt P     coders (the default; needs --lists): reads.php's prompt plus the coders'
+ *                  additions (what to code on films taken during surgery, their quick-pick list),
+ *                  and each request also carries the facility's clinical indication (chg_clinical)
+ *                  and the coders' notes for the exam. reads: reads.php's prompt alone, report
+ *                  and CPT only, as the first runs were made.
  *   --dry-run      read and count, send nothing
  * Each answer is saved as it arrives, so a run that stops can be finished with --resume (same
  * file and selection). The first request is sent alone: a refused key, model or setting stops
@@ -250,7 +257,8 @@ function dxWorkbookChecks(array &$done, array $lists): array
 function dxSummarize(array &$rows, array $usage, array $meta, ?array $valid, ?array $lists): string
 {
     $out = [];
-    $out[] = "Gifford dx comparison, {$meta['created']}; model {$meta['model']}, effort {$meta['effort']}";
+    $out[] = "Gifford dx comparison, {$meta['created']}; model {$meta['model']}, effort {$meta['effort']}"
+        . (isset($meta['prompt']) ? ", prompt {$meta['prompt']}" : '');
     $outcomes = [];
     foreach ($rows as $r) {
         $outcomes[$r['outcome']] = ($outcomes[$r['outcome']] ?? 0) + 1;
@@ -592,14 +600,28 @@ function dxRun(string $file, array $options): void
     $all = dxReadAccessions($file);
     $usable = array_values(array_filter($all, static fn (array $a): bool => trim($a['report']) !== '' && $a['cpts'] !== []));
     $skipped = count($all) - count($usable);
-    $selections = array_intersect(['limit', 'sample', 'from-run'], array_keys($options));
+    $selections = array_intersect(['limit', 'sample', 'from-run', 'exams'], array_keys($options));
     if (count($selections) > 1) {
-        dxFail('use one of --limit, --sample and --from-run');
+        dxFail('use one of --limit, --sample, --from-run and --exams');
+    }
+    // A run made before there was a choice used reads.php's prompt alone.
+    $prompt = $meta !== null ? (string) ($meta['prompt'] ?? 'reads') : ($options['prompt'] ?? 'coders');
+    if (!in_array($prompt, ['coders', 'reads'], true)) {
+        dxFail('--prompt is coders or reads');
+    }
+    $lists = isset($options['lists']) ? dxLoadLists($options['lists']) : null;
+    if ($lists === null && ($prompt === 'coders' || isset($options['exams']))) {
+        dxFail("--lists gifford-dx-lists.json is needed for the coders' prompt and for --exams");
+    }
+    if ($prompt === 'coders' && $lists['quick_pick'] === []) {
+        dxFail('that lists file has no quick-pick list: make it again with gifford-dx-lists.py');
     }
     if (isset($options['limit'])) {
         $usable = array_slice($usable, 0, (int) $options['limit']);
     } elseif (isset($options['sample'])) {
         $usable = dxSample($usable, (int) $options['sample'], (int) ($options['seed'] ?? 20261114));
+    } elseif (isset($options['exams'])) {
+        $usable = array_values(array_filter($usable, static fn (array $a): bool => dxExamFor($lists, $a['cpts']) !== null));
     } elseif (isset($options['from-run'])) {
         $earlier = json_decode((string) file_get_contents($options['from-run']), true);
         if (!is_array($earlier) || !is_array($earlier['accessions'] ?? null)) {
@@ -634,16 +656,20 @@ function dxRun(string $file, array $options): void
         dxFail('--effort is low, medium, high, xhigh or max');
     }
     $requests = [];
+    $additions = $prompt === 'coders' ? icd10CoderAdditions($lists['quick_pick']) : null;
     foreach ($usable as $i => $a) {
-        $requests[$ids[$i]] = icd10Request($model, $effort, $a['cpts'], $a['report']);
+        $exam = $additions === null ? null : dxExamFor($lists, $a['cpts']);
+        $requests[$ids[$i]] = icd10Request($model, $effort, $a['cpts'], $a['report'], $additions, $a['clinical'], $exam['notes'] ?? []);
     }
     if (isset($options['dry-run'])) {
         $chars = array_sum(array_map(static fn (array $r): int => mb_strlen($r['messages'][0]['content']), $requests));
+        $first = reset($requests);
         fwrite(STDERR, sprintf(
-            "dry run, nothing sent: %d requests, %s characters of reports, system prompt %s characters\n",
+            "dry run, nothing sent: %d requests, %s characters of reports, system prompt %s characters (prompt %s)\n",
             count($requests),
             number_format($chars),
-            number_format(mb_strlen(icd10SystemPrompt()) + 1)
+            number_format($first === false ? 0 : mb_strlen($first['system'][0]['text'])),
+            $prompt
         ));
 
         return;
@@ -663,7 +689,10 @@ function dxRun(string $file, array $options): void
         if (file_exists($runPath)) {
             dxFail("$runPath exists already: wait a second and run again");
         }
-        $meta = ['created' => $created, 'model' => $model, 'effort' => $effort, 'file' => basename($file), 'accessions' => []];
+        $meta = [
+            'created' => $created, 'model' => $model, 'effort' => $effort, 'prompt' => $prompt,
+            'file' => basename($file), 'accessions' => [],
+        ];
         foreach ($usable as $i => $a) {
             $meta['accessions'][$ids[$i]] = array_intersect_key($a, array_flip($kept));
         }
@@ -722,7 +751,7 @@ function dxRun(string $file, array $options): void
 
 $command = $argv[1] ?? '';
 if ($command === 'run') {
-    [$positional, $options] = dxArgs(array_slice($argv, 2), ['dry-run']);
+    [$positional, $options] = dxArgs(array_slice($argv, 2), ['dry-run', 'exams']);
     if (count($positional) !== 1) {
         dxFail('run takes the charge file; see the top of this script');
     }

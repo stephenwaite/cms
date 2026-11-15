@@ -170,6 +170,46 @@ PROMPT;
 }
 
 /**
+ * What the practice's coders add to the instructions: how to use the facility's clinical
+ * indication, what to code on films taken during surgery, and their quick-pick list of
+ * preferred codes. Fixed text for a given list, so it caches with the rest of the prompt.
+ *
+ * @param list<array{string, string}> $quickPick [code as the coders write it, what it is for]
+ */
+function icd10CoderAdditions(array $quickPick): string
+{
+    $picks = implode("\n", array_map(static fn (array $p): string => sprintf('%-9s %s', $p[0], $p[1]), $quickPick));
+
+    return <<<TEXT
+ADDITIONS FROM THE PRACTICE'S CODERS. Where these differ from the rules above, these win.
+
+CLINICAL INDICATION FROM THE FACILITY:
+- A request may give a "Clinical indication from the facility". Treat it as the clinical
+  indication, together with any indication the report itself states.
+
+FILMS TAKEN DURING OR RIGHT AFTER SURGERY (intraoperative and immediate postoperative
+studies: hardware or implant placement, arthroplasty, fixation, stent or line checks):
+- Code the surgical diagnosis, or the clinical indication the facility sent, as primary.
+- Do not make an implant, device or postprocedural status code (Z96-Z98) the primary code
+  because the report describes hardware in place. It may follow as a secondary code.
+- If neither the report nor the facility's indication says why the surgery was done, return
+  an empty list. Do not return a status code alone.
+
+CODERS' NOTES FOR THE EXAM:
+- A request may give "Coders' notes for this exam". Follow them.
+
+PREFERRED CODES (the coders' quick-pick list):
+When the condition you are coding is one of these, use the listed code. A trailing "-" means
+the code still needs its last character or characters (side, encounter) from the report:
+never return a code with "-" in it. The specificity rules still apply: when the report
+supports a more specific code than the one listed, use the more specific code. The list is the
+coders' memory aid and some entries are old: when a listed code is not a current ICD-10-CM
+code, or is not the code for the condition named beside it, use the correct current code.
+{$picks}
+TEXT;
+}
+
+/**
  * The JSON the answer must be: a list of codes, each with its description, confidence and reasons.
  *
  * @return array<string, mixed>
@@ -201,15 +241,34 @@ function icd10AnswerSchema(): array
 }
 
 /**
- * The Messages API request for one study: the report and its CPT codes, nothing else of the patient's.
+ * The Messages API request for one study: the report and its CPT codes and, with the coders'
+ * additions, the facility's clinical indication and the coders' notes for the exam. Nothing
+ * else of the patient's.
  *
  * @param list<string> $cpts
+ * @param ?string $additions icd10CoderAdditions()'s text, or null for reads.php's prompt alone
+ * @param string $indication the clinical indication the facility sent, when there is one
+ * @param list<string> $notes the coders' notes for this exam
  * @return array<string, mixed>
  */
-function icd10Request(string $model, string $effort, array $cpts, string $report): array
-{
+function icd10Request(
+    string $model,
+    string $effort,
+    array $cpts,
+    string $report,
+    ?string $additions = null,
+    string $indication = '',
+    array $notes = []
+): array {
     // As reads.php sends it: the signature block and what follows it are left off.
     $clean = preg_replace('/(Please note:|Electronically Signed by:).*$/si', '', $report) ?? $report;
+    $extra = '';
+    if ($additions !== null && trim($indication) !== '') {
+        $extra .= 'Clinical indication from the facility: ' . trim($indication) . "\n\n";
+    }
+    if ($additions !== null && $notes !== []) {
+        $extra .= "Coders' notes for this exam:\n- " . implode("\n- ", $notes) . "\n\n";
+    }
 
     return [
         'model' => $model,
@@ -219,10 +278,14 @@ function icd10Request(string $model, string $effort, array $cpts, string $report
             'format' => ['type' => 'json_schema', 'schema' => icd10AnswerSchema()],
         ],
         'system' => [
-            ['type' => 'text', 'text' => icd10SystemPrompt() . "\n", 'cache_control' => ['type' => 'ephemeral']],
+            [
+                'type' => 'text',
+                'text' => icd10SystemPrompt() . "\n" . ($additions === null ? '' : "\n" . $additions . "\n"),
+                'cache_control' => ['type' => 'ephemeral'],
+            ],
         ],
         'messages' => [
-            ['role' => 'user', 'content' => 'CPT: ' . implode(', ', $cpts) . "\n\nInterpretation:\n" . $clean],
+            ['role' => 'user', 'content' => 'CPT: ' . implode(', ', $cpts) . "\n\n" . $extra . "Interpretation:\n" . $clean],
         ],
     ];
 }
@@ -377,7 +440,11 @@ function dxReadAccessions(string $path): array
             'accession' => $key, 'lines' => [], 'cpts' => [], 'gifford' => [], 'report' => '',
             'location' => $get($row, 'chg_location'), 'pos' => $get($row, 'chg_pos'),
             'status' => $get($row, 'report_status'), 'payer' => strtoupper($get($row, 'ins1_mnemonic')),
+            'clinical' => '',
         ];
+        if ($accessions[$k]['clinical'] === '') {
+            $accessions[$k]['clinical'] = $get($row, 'chg_clinical');
+        }
         $accessions[$k]['lines'][] = $n + 1;
         $code = strtoupper($get($row, 'chg_cpt') !== '' ? $get($row, 'chg_cpt') : $get($row, 'chg_hcpcs'));
         if ($code !== '' && !in_array($code, $accessions[$k]['cpts'], true)) {
@@ -450,7 +517,7 @@ function dxPayerClass(string $mnemonic): string
  * The coders' workbook as gifford-dx-lists.py wrote it: VT Medicaid's cannot-be-primary and
  * unspecified codes, and the Medicare LCD diagnoses for each exam it covers.
  *
- * @return array{made: string, not_primary: array<string, true>, unspecified: array<string, true>, by_cpt: array<string, array<string, mixed>>}
+ * @return array{made: string, not_primary: array<string, true>, unspecified: array<string, true>, quick_pick: list<array{string, string}>, by_cpt: array<string, array<string, mixed>>}
  */
 function dxLoadLists(string $path): array
 {
@@ -471,6 +538,7 @@ function dxLoadLists(string $path): array
         'made' => (string) ($data['made'] ?? ''),
         'not_primary' => array_fill_keys(array_map('strval', $data['not_primary']), true),
         'unspecified' => array_fill_keys(array_map('strval', $data['unspecified']), true),
+        'quick_pick' => array_values(array_filter($data['quick_pick'] ?? [], static fn ($p): bool => is_array($p) && count($p) === 2)),
         'by_cpt' => $byCpt,
     ];
 }
