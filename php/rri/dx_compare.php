@@ -250,6 +250,46 @@ function dxWorkbookChecks(array &$done, array $lists): array
 }
 
 /**
+ * The summary's section on who confirms the diagnoses; adds coder_reasons to each row.
+ *
+ * @param list<array<string, mixed>> $done by reference; dxWorkbookChecks() has added payer_class
+ * @param ?array<string, true> $valid
+ * @param array<string, mixed> $lists
+ * @return list<string>
+ */
+function dxCoderStep(array &$done, ?array $valid, array $lists): array
+{
+    foreach ($done as &$r) {
+        $r['coder_reasons'] = dxCoderReasons($r['suggested'], $r['gifford'], $r['cpts'], $r['payer_class'], $valid, $lists);
+    }
+    unset($r);
+    $posts = array_values(array_filter($done, static fn (array $r): bool => $r['coder_reasons'] === []));
+    $pct = static fn (int $n): string => count($done) > 0 ? sprintf('%d (%.1f%%)', $n, 100 * $n / count($done)) : (string) $n;
+    $out = ['Who confirms the diagnoses (first code high confidence, valid, passes the checks, among Gifford\'s codes)', ''];
+    $out[] = sprintf('  of %d accessions: posts without a coder %s, coder confirms %s', count($done), $pct(count($posts)), $pct(count($done) - count($posts)));
+    if ($valid === null) {
+        $out[] = '  (no valid-code list given: that check was skipped)';
+    }
+    $out[] = '  posting without a coder, by location: ' . dxJoin(dxCount(array_map(static fn (array $r): string => (string) $r['location'], $posts)));
+    $out[] = '  why a coder confirms (an accession can have several reasons):';
+    foreach (dxCount(array_merge(...array_column($done, 'coder_reasons'), ...[[]])) as [$reason, $n]) {
+        $out[] = sprintf('    %-46s %4d', $reason, $n);
+    }
+    $only = array_filter($done, static fn (array $r): bool => $r['coder_reasons'] === ["first code is not among Gifford's"]);
+    $out[] = sprintf("  held only because the first code is not among Gifford's: %d", count($only));
+    $out[] = '    of those, the first code shares a category with one of Gifford\'s: ' . count(array_filter(
+        $only,
+        static fn (array $r): bool => in_array(
+            substr($r['suggested'][0][0], 0, 3),
+            array_map(static fn (string $g): string => substr($g, 0, 3), $r['gifford']),
+            true
+        )
+    ));
+
+    return $out;
+}
+
+/**
  * The counts-only summary. Its text is the Python script's, line for line.
  *
  * @param list<array<string, mixed>> $rows by reference: the workbook's flags are added to the rows
@@ -360,6 +400,8 @@ function dxSummarize(array &$rows, array $usage, array $meta, ?array $valid, ?ar
     if ($lists !== null) {
         $out[] = '';
         array_push($out, ...dxWorkbookChecks($done, $lists));
+        $out[] = '';
+        array_push($out, ...dxCoderStep($done, $valid, $lists));
         foreach ($doneKeys as $i => $k) {
             $rows[$k] = $done[$i];
         }
@@ -508,13 +550,14 @@ function dxWriteOutputs(string $runPath, ?string $validPath, ?string $listsPath,
     $summary = dxSummarize($rows, $usage, $meta, $valid, $lists);
     $detail = dxOpenPrivate($base . '.detail.csv', 'w');
     fputcsv($detail, ['accession', 'file_lines', 'cpt', 'location', 'pos', 'payer', 'report_status', 'gifford_dx',
-        'suggested_dx', 'class', 'outcome', 'workbook_flags', 'suggestions', 'asked_again', 'first_answer_dx'], ',', '"', '');
+        'suggested_dx', 'class', 'outcome', 'workbook_flags', 'suggestions', 'asked_again', 'first_answer_dx', 'coder_step'], ',', '"', '');
     foreach ($rows as $r) {
         fputcsv($detail, [
             $r['accession'], implode(' ', $r['lines']), implode(' ', $r['cpts']), $r['location'], $r['pos'], $r['payer'] ?? '',
             $r['status'], implode(' ', $r['gifford']), implode(' ', array_column($r['suggested'], 0)), $r['class'],
             $r['outcome'] . ($r['note'] !== '' ? ' ' . $r['note'] : ''), implode('; ', $r['flags'] ?? []), implode(' | ', $r['details']),
             $r['asked_again'], implode(' ', $r['first_answer']),
+            isset($r['coder_reasons']) ? ($r['coder_reasons'] === [] ? 'posts' : implode('; ', $r['coder_reasons'])) : '',
         ], ',', '"', '');
     }
     fclose($detail);

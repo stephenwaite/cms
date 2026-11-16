@@ -644,3 +644,53 @@ function dxSupports(array $exam, string $code): bool
 
     return false;
 }
+
+/**
+ * Why a coder has to confirm this accession's diagnoses; [] when the suggestion posts as it is.
+ *
+ * Stephen's rule of 2026-11-16: the suggestion posts without a coder only when its first code is
+ * high confidence, every code is valid, it passes the workbook's checks, and its first code is
+ * among the codes Gifford sent for the visit.
+ *
+ * @param list<array{string, string}> $suggested [code, confidence], in claim order
+ * @param list<string> $gifford
+ * @param list<string> $cpts
+ * @param ?array<string, true> $valid codes without the dot; null skips the check
+ * @param array<string, mixed> $lists
+ * @return list<string>
+ */
+function dxCoderReasons(array $suggested, array $gifford, array $cpts, string $payerClass, ?array $valid, array $lists): array
+{
+    if ($suggested === []) {
+        return ['no suggestion'];
+    }
+    $plain = static fn (string $c): string => str_replace('.', '', $c);
+    $codes = array_column($suggested, 0);
+    $why = [];
+    if ($gifford === []) {
+        $why[] = 'Gifford sent no diagnosis';
+    } elseif (!in_array($codes[0], $gifford, true)) {
+        $why[] = "first code is not among Gifford's";
+    }
+    if ($suggested[0][1] !== 'high') {
+        $why[] = 'first code is not high confidence';
+    }
+    if ($valid !== null && array_filter($codes, static fn (string $c): bool => !isset($valid[$plain($c)])) !== []) {
+        $why[] = 'a code is not in the valid-code list';
+    }
+    if (isset($lists['not_primary'][$plain($codes[0])])) {
+        $why[] = 'first code cannot be primary';
+    }
+    if ($payerClass === 'medicaid' && isset($lists['unspecified'][$plain($codes[0])])) {
+        $why[] = 'first code is unspecified (Medicaid primary)';
+    }
+    $exam = dxExamFor($lists, $cpts);
+    if (
+        $exam !== null && str_starts_with($payerClass, 'medicare')
+        && array_filter($codes, static fn (string $c): bool => dxSupports($exam, $c)) === []
+    ) {
+        $why[] = 'no code on the Medicare exam list';
+    }
+
+    return $why;
+}
