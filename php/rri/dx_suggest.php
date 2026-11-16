@@ -208,7 +208,9 @@ studies: hardware or implant placement, arthroplasty, fixation, stent or line ch
 - This is only for films during or right after surgery. A study done before surgery
   (pre-operative planning or clearance) is coded by the hierarchy above like any other.
 
-THE CODERS' RULINGS (asked 2026-11-16). Where one applies, it decides:
+THE CODERS' RULINGS (asked 2026-11-16). Where one applies, it decides.
+The coders' own short form of the hierarchy: code from the impression; if nothing there, use
+the indication; if nothing there, use pain.
 - Abnormal finding with no definite diagnosis: when the report describes an abnormality but
   names no condition, the sign or symptom that prompted the study is the first code, and
   the abnormal-finding code (R90-R93) follows it. Example: postmenopausal bleeding with an
@@ -236,8 +238,8 @@ THE CODERS' RULINGS (asked 2026-11-16). Where one applies, it decides:
 - Sepsis: use A41.9 only when the report says sepsis is present, not when it is suspected or
   is only the reason the study was ordered.
 - A pre-operative study: code the condition alone, with no pre-procedural examination code
-  (Z01.81-). For a pre-operative chest x-ray with no condition from the report or from the
-  facility's indication line, use the chest pain code.
+  (Z01.81-) beside it. For a pre-operative chest x-ray with no condition from the report or
+  from the facility's indication line, use Z01.810.
 - Bone density with osteopenia at more than one site: M85.89. Do not add a screening code
   (Z13.820).
 
