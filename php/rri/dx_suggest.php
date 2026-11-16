@@ -16,6 +16,9 @@ const DX_API_VERSION = '2023-06-01';
 /** A claim line points to at most four diagnoses, so the coders' prompt asks for no more. */
 const DX_MAX_CODES = 4;
 
+/** What the second step's request gives as the facility's indication when it sent none. */
+const DX_NO_INDICATION = 'none sent';
+
 /** The columns of Gifford's charge file when it has no header line, before the three report columns. */
 const DX_SAMPLE_COLUMNS = [
         'encounter_num', 'pat_mrn', 'pat_last', 'pat_first', 'pat_addr1', 'pat_addr2', 'pat_city', 'pat_state',
@@ -191,17 +194,52 @@ add to it.
 CLINICAL INDICATION FROM THE FACILITY:
 Most requests do not have one. A request carries a "Clinical indication from the facility"
 only after the report alone gave no codeable reason for the exam. When it is there, it is
-the CLINICAL INDICATION for step 2 of the hierarchy and for the films below.
+the CLINICAL INDICATION for step 2 of the hierarchy and for the films below. It reads
+"none sent" when the facility gave none.
 
 FILMS TAKEN DURING OR RIGHT AFTER SURGERY (intraoperative and immediate postoperative
 studies: hardware or implant placement, arthroplasty, fixation, stent or line checks):
 - Code the surgical diagnosis, or the clinical indication the facility sent, as primary.
 - Do not make an implant, device or postprocedural status code (Z96-Z98) the primary code
   because the report describes hardware in place. It may follow as a secondary code.
-- If neither the report nor the facility's indication says why the surgery was done, return
-  an empty list. Do not return a status code alone.
+- If neither the report nor the facility's indication says why the surgery was done, code
+  any applicable findings the report describes. If it describes none, return an empty list.
+  Do not return a status code alone.
 - This is only for films during or right after surgery. A study done before surgery
   (pre-operative planning or clearance) is coded by the hierarchy above like any other.
+
+THE CODERS' RULINGS (asked 2026-11-16). Where one applies, it decides:
+- Abnormal finding with no definite diagnosis: when the report describes an abnormality but
+  names no condition, the sign or symptom that prompted the study is the first code, and
+  the abnormal-finding code (R90-R93) follows it. Example: postmenopausal bleeding with an
+  abnormal pelvic ultrasound is N95.0 then R93.89; toe pain with an abnormal film is the
+  pain code then R93.7.
+- A mass or lesion: code the diagnosis the report gives. When the report gives nothing
+  definitive for it, use the neoplasm of uncertain behavior code for the site.
+- A new finding in a patient with a known cancer: the new finding (enlarged nodes, a mass)
+  is first; the known cancer follows.
+- Injury with a negative study (no fracture, dislocation or other injury seen): code the
+  unspecified injury of the body part examined, with the correct side, not Z04.3 and not a
+  pain code.
+- A vertebral compression fracture when no trauma is mentioned: do not use a traumatic
+  fracture code (S12, S22, S32); use the non-traumatic code (collapsed vertebra, or the
+  osteoporotic or pathological fracture code when the report says so). "Age indeterminate"
+  does not change this.
+- Seventh character: a study on the date of the injury is the initial encounter (A), also
+  when it follows a reduction or other treatment that day.
+- A fracture from a crush injury: the fracture is first. Do not lead with a crushing injury
+  code; add the external cause code for the crush when the report gives the cause.
+- A negative study with no symptom from either source (the request has the facility's
+  indication line, and neither it nor the report gives a symptom): use the pain code for
+  the body part examined, not Z03.89. On a request without that line, answer from the
+  report as the hierarchy says.
+- Sepsis: use A41.9 only when the report says sepsis is present, not when it is suspected or
+  is only the reason the study was ordered.
+- A pre-operative study: code the condition alone, with no pre-procedural examination code
+  (Z01.81-). For a pre-operative chest x-ray with no condition from the report or from the
+  facility's indication line, use the chest pain code.
+- Bone density with osteopenia at more than one site: M85.89. Do not add a screening code
+  (Z13.820).
 
 CODERS' NOTES FOR THE EXAM:
 - A request may give "Coders' notes for this exam". Follow them.
@@ -220,6 +258,7 @@ never return a code with "-" in it. The specificity rules still apply: when the 
 supports a more specific code than the one listed, use the more specific code. The list is the
 coders' memory aid and some entries are old: when a listed code is not a current ICD-10-CM
 code, or is not the code for the condition named beside it, use the correct current code.
+One entry is as the coders mean it: R06.02 for a pre-operative cardiac exam.
 {$picks}
 TEXT;
 }

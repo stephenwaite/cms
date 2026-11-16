@@ -28,7 +28,7 @@
  *                  and CPT alone, as reads.php asks; then, only when that answer shows the report
  *                  gave no codeable reason (no code, or a first code that is an examination or
  *                  status Z code), once more with the facility's clinical indication
- *                  (chg_clinical). The second answer is the one kept. The answer is at most four
+ *                  (chg_clinical, or "none sent"). The second answer is the one kept. The answer is at most four
  *                  codes (a claim line points to four) and carries no description. reads: reads.php's prompt alone, report
  *                  and CPT only, as the first runs were made.
  *   --dry-run      read and count, send nothing
@@ -669,7 +669,7 @@ function dxAsk(Client $client, string $apiKey, array $request, int $attempt = 0,
  * first one's codes go along as first_codes); a second request that fails keeps the first.
  *
  * @param array<string, mixed> $request
- * @param ?array<string, mixed> $withIndication null when the facility sent no indication
+ * @param ?array<string, mixed> $withIndication null under reads.php's prompt, which has one step
  * @param int $maxCodes the most codes kept from an answer (0: all)
  */
 function dxAskTwoSteps(Client $client, string $apiKey, array $request, ?array $withIndication, int $maxCodes = 0): PromiseInterface
@@ -776,9 +776,11 @@ function dxRun(string $file, array $options): void
         $exam = $additions === null ? null : dxExamFor($lists, $a['cpts']);
         $requests[$ids[$i]] = icd10Request($model, $effort, $a['cpts'], $a['report'], $additions, '', $exam['notes'] ?? []);
         // The second step's request, sent only if the first answer calls for it.
-        $second[$ids[$i]] = $additions === null || trim($a['clinical']) === ''
+        // It says so when the facility sent no indication: the coders' ruling for a study
+        // with no symptom from either source applies only once both have been looked at.
+        $second[$ids[$i]] = $additions === null
             ? null
-            : icd10Request($model, $effort, $a['cpts'], $a['report'], $additions, $a['clinical'], $exam['notes'] ?? []);
+            : icd10Request($model, $effort, $a['cpts'], $a['report'], $additions, trim($a['clinical']) === '' ? DX_NO_INDICATION : $a['clinical'], $exam['notes'] ?? []);
     }
     if (isset($options['dry-run'])) {
         $chars = array_sum(array_map(static fn (array $r): int => mb_strlen($r['messages'][0]['content']), $requests));
