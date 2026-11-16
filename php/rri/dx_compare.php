@@ -28,8 +28,8 @@
  *                  and CPT alone, as reads.php asks; then, only when that answer shows the report
  *                  gave no codeable reason (no code, or a first code that is an examination or
  *                  status Z code), once more with the facility's clinical indication
- *                  (chg_clinical, or "none sent"). The second answer is the one kept. The answer is at most four
- *                  codes (a claim line points to four) and carries no description. reads: reads.php's prompt alone, report
+ *                  (chg_clinical, or "none sent"). The second answer is the one kept. The answer is at most two
+ *                  codes (the coders put one or two on a charge) and carries no description. reads: reads.php's prompt alone, report
  *                  and CPT only, as the first runs were made.
  *   --dry-run      read and count, send nothing
  * Each answer is saved as it arrives, so a run that stops can be finished with --resume (same

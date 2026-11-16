@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 const DX_API_VERSION = '2023-06-01';
 
-/** A claim line points to at most four diagnoses, so the coders' prompt asks for no more. */
-const DX_MAX_CODES = 4;
+/** The coders put one or two diagnoses on a charge, never three or four, so the coders' prompt asks for no more. */
+const DX_MAX_CODES = 2;
 
 /** What the second step's request gives as the facility's indication when it sent none. */
 const DX_NO_INDICATION = 'none sent';
@@ -247,9 +247,10 @@ CODERS' NOTES FOR THE EXAM:
 - A request may give "Coders' notes for this exam". Follow them.
 
 THE ANSWER:
-- Return at most four codes, in the order they belong on the claim: a claim line can point
-  to four diagnoses. When more than four apply, keep the four that matter most for the claim
-  and leave out the lesser incidental findings.
+- Return at most two codes, in the order they belong on the claim: the coders put one or
+  two diagnoses on a charge. One code is enough when it gives the reason for the study. When
+  more than two apply, keep the two that matter most for the claim: leave out incidental
+  findings, and an external cause code when there is no room for it.
 - The answer has no description field. For each code give the code, the confidence, the
   rationale and the specificity check; the description is looked up from the code.
 
