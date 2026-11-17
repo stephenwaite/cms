@@ -221,7 +221,7 @@ Counted: every final report of a screening ultrasound for AAA. There is no 0 ans
 - 4 (performance not met): a positive finding with no recommendation for follow-up (or of no
   follow-up), or with no source cited; or an AAA of 5.5 cm or more with no documented direct
   communication; or a negative screening with no clear statement that no future screening is
-  needed. An ectatic aorta that the report does not call an aneurysm is a negative screening.
+  needed.
 - 5 (exception): the report documents that the patient is under active surveillance by a
   vascular specialist and the AAA is unchanged from the prior study.
 
