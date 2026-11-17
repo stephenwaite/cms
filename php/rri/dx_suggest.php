@@ -557,7 +557,7 @@ function dxReadAccessions(string $path): array
             'accession' => $key, 'lines' => [], 'cpts' => [], 'gifford' => [], 'report' => '',
             'location' => $get($row, 'chg_location'), 'pos' => $get($row, 'chg_pos'),
             'status' => $get($row, 'report_status'), 'payer' => strtoupper($get($row, 'ins1_mnemonic')),
-            'clinical' => '',
+            'clinical' => '', 'dob' => $get($row, 'pat_dob'), 'dos' => $get($row, 'chg_dos'),
         ];
         if ($accessions[$k]['clinical'] === '') {
             $accessions[$k]['clinical'] = $get($row, 'chg_clinical');
