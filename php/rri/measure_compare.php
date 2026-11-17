@@ -7,15 +7,17 @@
  * Runs where the live charge file is (it reads patient data); only the summary it writes is free
  * of identifiers.
  *
- *   php measure_compare.php run FILE [--limit N] [--model M] [--effort E] [--workers 4] [--dry-run]
- *   php measure_compare.php run FILE [--limit N] --resume gifford-measure-run-<time>.json
+ *   php measure_compare.php run FILE [--measure QMM26] [--limit N] [--model M] [--effort E] [--workers 4] [--dry-run]
+ *   php measure_compare.php run FILE [--measure QMM26] [--limit N] --resume gifford-measure-run-<time>.json
  *   php measure_compare.php summary gifford-measure-run-<time>.json
  *
  * run reads the charge file and asks once per accession that carries a measure (by its CPT
  * codes, the patient's age and whether Medicare is primary: measure_suggest.php): the report,
  * the CPT codes, the age, the visit's diagnosis codes and the facility's clinical indication;
  * no names, numbers or dates. Each answer is saved as it arrives, so a run that stops can be
- * finished with --resume (same file and --limit). The first request is sent alone: a refused
+ * finished with --resume (same file, --measure and --limit). --measure M keeps only the
+ * accessions that carry that measure (QMM26, 364, 405 or 406); their other measures are still
+ * asked. The first request is sent alone: a refused
  * key, model or setting stops the run there. It writes, in the current directory:
  *
  *   gifford-measure-run-<time>.json           the accessions asked (PATIENT DATA)
@@ -329,6 +331,12 @@ function measRun(string $file, array $options): void
         }
     }
     [$usable, $noReport] = measAccessions($file);
+    if (isset($options['measure'])) {
+        if (!isset(MEAS_OPTIONS[$options['measure']])) {
+            measFail('--measure is one of ' . implode(', ', array_keys(MEAS_OPTIONS)));
+        }
+        $usable = array_values(array_filter($usable, static fn (array $a): bool => in_array($options['measure'], $a['measures'], true)));
+    }
     if (isset($options['limit'])) {
         $usable = array_slice($usable, 0, (int) $options['limit']);
     }
