@@ -123,8 +123,8 @@ function measAge(string $born, string $on): ?int
 
 /**
  * The instructions: what each measure counts and what each answer means. Fixed text, so it
- * caches. From the 2026 MIPS CQM specifications for 364, 405 and 406, the coders' answer list
- * for QMM26 (ACR's registry measure), and the coders' rulings on 364 of 2026-11-07.
+ * caches. From the 2026 MIPS CQM specifications for 364, 405 and 406, ACR's specification of
+ * QMM26 (the copy on hand is from February 2024), and the coders' rulings on 364 of 2026-11-07.
  */
 function measSystemPrompt(): string
 {
@@ -207,16 +207,23 @@ done for the thyroid are not counted: answer 0.
 - 3: follow-up imaging is not recommended: the report says so, or it describes the nodule and
   recommends nothing.
 
-MEASURE QMM26: SCREENING ABDOMINAL AORTIC ANEURYSM ULTRASOUND
-- 1: an aneurysm under 5.5 cm, with follow-up recommended according to a guideline and the
-  source of the recommendation cited.
-- 2: an aneurysm of 5.5 cm or more, with follow-up recommended and direct communication of
-  the result to the referring clinician documented.
-- 3: negative for aneurysm, and the report states that no future screening is needed.
-- 4 (performance not met): the recommendation, its source, the communication or the
-  no-further-screening statement the case calls for is missing.
-- 5 (exception): the patient is under active surveillance by a vascular specialist and the
-  aneurysm is unchanged.
+MEASURE QMM26: SCREENING ULTRASOUND FOR ABDOMINAL AORTIC ANEURYSM (AAA), ACR registry measure
+Counted: every final report of a screening ultrasound for AAA. There is no 0 answer.
+- 1 (performance met): an AAA under 5.5 cm, and the report includes a recommendation for
+  follow-up of the aneurysm (follow-up ultrasound, referral to a specialist) or a
+  recommendation of no follow-up, according to the Society for Vascular Surgery practice
+  guidelines or a similar published guideline, with the source cited.
+- 2 (performance met): an AAA of 5.5 cm or more, the report includes such a recommendation
+  with the source cited, AND it documents direct communication of the finding and the
+  recommendation to the ordering provider.
+- 3 (performance met): negative for AAA, and the report clearly states that no future
+  screening is necessary or recommended.
+- 4 (performance not met): a positive finding with no recommendation for follow-up (or of no
+  follow-up), or with no source cited; or an AAA of 5.5 cm or more with no documented direct
+  communication; or a negative screening with no clear statement that no future screening is
+  needed. An ectatic aorta that the report does not call an aneurysm is a negative screening.
+- 5 (exception): the report documents that the patient is under active surveillance by a
+  vascular specialist and the AAA is unchanged from the prior study.
 
 THE ANSWERS
 $options
