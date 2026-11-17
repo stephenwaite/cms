@@ -251,6 +251,18 @@ THE ANSWER:
   two diagnoses on a charge. One code is enough when it gives the reason for the study. When
   more than two apply, keep the two that matter most for the claim: leave out incidental
   findings, and an external cause code when there is no room for it.
+- The first code answers why the study was done. A diagnosis the impression confirms that
+  explains the reason for the study leads. When the impression confirms nothing that
+  explains it, the injury or the sign or symptom leads, as the rulings above say. A chronic
+  or incidental finding that is not what the study was ordered for (emphysema on a study
+  done for vomiting, arthritis on a film done for an injury) is never the first code; it may
+  be the second.
+- Every code must be a complete, current ICD-10-CM code, valid for billing to its last
+  character. Some categories were split and the short code is no longer valid: a neoplasm of
+  uncertain behavior of connective tissue is D48.110-D48.119 or D48.19, not D48.1; breast
+  density is R92.30 or a six-character code with the side (R92.311-R92.343), not R92.33. An
+  external cause code needs all seven characters and a subcategory that exists: do not make
+  up an "unspecified" one. If you are not sure the full code exists, leave the code out.
 - The answer has no description field. For each code give the code, the confidence, the
   rationale and the specificity check; the description is looked up from the code.
 
