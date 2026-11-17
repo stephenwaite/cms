@@ -260,31 +260,47 @@ function dxWorkbookChecks(array &$done, array $lists): array
 function dxCoderStep(array &$done, ?array $valid, array $lists): array
 {
     foreach ($done as &$r) {
-        $r['coder_reasons'] = dxCoderReasons($r['suggested'], $r['gifford'], $r['cpts'], $r['payer_class'], $valid, $lists);
+        [$r['dx_source'], $r['coder_reasons']] = dxDecide($r['suggested'], $r['gifford'], $r['cpts'], $r['payer_class'], (string) $r['location'], $valid, $lists);
     }
     unset($r);
-    $posts = array_values(array_filter($done, static fn (array $r): bool => $r['coder_reasons'] === []));
+    $from = static fn (string $source): array => array_values(array_filter($done, static fn (array $r): bool => $r['dx_source'] === $source));
+    $suggestion = $from('suggestion');
+    $gifford = $from('gifford');
     $pct = static fn (int $n): string => count($done) > 0 ? sprintf('%d (%.1f%%)', $n, 100 * $n / count($done)) : (string) $n;
-    $out = ['Who confirms the diagnoses (first code high confidence, valid, passes the checks, among Gifford\'s codes)', ''];
-    $out[] = sprintf('  of %d accessions: posts without a coder %s, coder confirms %s', count($done), $pct(count($posts)), $pct(count($done) - count($posts)));
+    $places = static fn (array $rows): string => dxJoin(dxCount(array_map(static fn (array $r): string => (string) $r['location'], $rows)));
+    $out = ['Who confirms the diagnoses (the suggestion when high confidence; Gifford\'s on surgery films and when it is not; both must pass the checks)', ''];
+    $out[] = sprintf(
+        '  of %d accessions: posts without a coder %s, coder confirms %s',
+        count($done),
+        $pct(count($suggestion) + count($gifford)),
+        $pct(count($done) - count($suggestion) - count($gifford))
+    );
     if ($valid === null) {
         $out[] = '  (no valid-code list given: that check was skipped)';
     }
-    $out[] = '  posting without a coder, by location: ' . dxJoin(dxCount(array_map(static fn (array $r): string => (string) $r['location'], $posts)));
+    $out[] = sprintf('  posts with the suggestion: %s', $pct(count($suggestion)));
+    $out[] = '    by location: ' . $places($suggestion);
+    $out[] = sprintf(
+        "    first code among Gifford's %d, same category %d, neither %d, Gifford sent none %d",
+        count(array_filter($suggestion, static fn (array $r): bool => in_array($r['suggested'][0][0], $r['gifford'], true))),
+        count(array_filter($suggestion, static fn (array $r): bool => !in_array($r['suggested'][0][0], $r['gifford'], true) && in_array(
+            substr($r['suggested'][0][0], 0, 3),
+            array_map(static fn (string $g): string => substr($g, 0, 3), $r['gifford']),
+            true
+        ))),
+        count(array_filter($suggestion, static fn (array $r): bool => $r['gifford'] !== [] && !in_array(
+            substr($r['suggested'][0][0], 0, 3),
+            array_map(static fn (string $g): string => substr($g, 0, 3), $r['gifford']),
+            true
+        ))),
+        count(array_filter($suggestion, static fn (array $r): bool => $r['gifford'] === []))
+    );
+    $out[] = sprintf("  posts with Gifford's codes: %s", $pct(count($gifford)));
+    $out[] = '    by location: ' . $places($gifford);
     $out[] = '  why a coder confirms (an accession can have several reasons):';
     foreach (dxCount(array_merge(...array_column($done, 'coder_reasons'), ...[[]])) as [$reason, $n]) {
         $out[] = sprintf('    %-46s %4d', $reason, $n);
     }
-    $only = array_filter($done, static fn (array $r): bool => $r['coder_reasons'] === ["first code is not among Gifford's"]);
-    $out[] = sprintf("  held only because the first code is not among Gifford's: %d", count($only));
-    $out[] = '    of those, the first code shares a category with one of Gifford\'s: ' . count(array_filter(
-        $only,
-        static fn (array $r): bool => in_array(
-            substr($r['suggested'][0][0], 0, 3),
-            array_map(static fn (string $g): string => substr($g, 0, 3), $r['gifford']),
-            true
-        )
-    ));
 
     return $out;
 }
@@ -557,7 +573,7 @@ function dxWriteOutputs(string $runPath, ?string $validPath, ?string $listsPath,
             $r['status'], implode(' ', $r['gifford']), implode(' ', array_column($r['suggested'], 0)), $r['class'],
             $r['outcome'] . ($r['note'] !== '' ? ' ' . $r['note'] : ''), implode('; ', $r['flags'] ?? []), implode(' | ', $r['details']),
             $r['asked_again'], implode(' ', $r['first_answer']),
-            isset($r['coder_reasons']) ? ($r['coder_reasons'] === [] ? 'posts' : implode('; ', $r['coder_reasons'])) : '',
+            isset($r['coder_reasons']) ? ($r['coder_reasons'] === [] ? 'posts ' . ($r['dx_source'] === 'gifford' ? "Gifford's" : 'suggestion') : implode('; ', $r['coder_reasons'])) : '',
         ], ',', '"', '');
     }
     fclose($detail);

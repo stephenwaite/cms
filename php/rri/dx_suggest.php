@@ -699,36 +699,22 @@ function dxSupports(array $exam, string $code): bool
     return false;
 }
 
+/** Studies at this location are films taken during surgery: Gifford's diagnosis is the surgical one. */
+const DX_OR_LOCATION = 'GMC.OR';
+
 /**
- * Why a coder has to confirm this accession's diagnoses; [] when the suggestion posts as it is.
+ * What is wrong with posting these codes, by the workbook's checks; [] when nothing is.
  *
- * Stephen's rule of 2026-11-16: the suggestion posts without a coder only when its first code is
- * high confidence, every code is valid, it passes the workbook's checks, and its first code is
- * among the codes Gifford sent for the visit.
- *
- * @param list<array{string, string}> $suggested [code, confidence], in claim order
- * @param list<string> $gifford
+ * @param list<string> $codes in claim order, not empty
  * @param list<string> $cpts
  * @param ?array<string, true> $valid codes without the dot; null skips the check
  * @param array<string, mixed> $lists
  * @return list<string>
  */
-function dxCoderReasons(array $suggested, array $gifford, array $cpts, string $payerClass, ?array $valid, array $lists): array
+function dxCodeProblems(array $codes, array $cpts, string $payerClass, ?array $valid, array $lists): array
 {
-    if ($suggested === []) {
-        return ['no suggestion'];
-    }
     $plain = static fn (string $c): string => str_replace('.', '', $c);
-    $codes = array_column($suggested, 0);
     $why = [];
-    if ($gifford === []) {
-        $why[] = 'Gifford sent no diagnosis';
-    } elseif (!in_array($codes[0], $gifford, true)) {
-        $why[] = "first code is not among Gifford's";
-    }
-    if ($suggested[0][1] !== 'high') {
-        $why[] = 'first code is not high confidence';
-    }
     if ($valid !== null && array_filter($codes, static fn (string $c): bool => !isset($valid[$plain($c)])) !== []) {
         $why[] = 'a code is not in the valid-code list';
     }
@@ -747,4 +733,42 @@ function dxCoderReasons(array $suggested, array $gifford, array $cpts, string $p
     }
 
     return $why;
+}
+
+/**
+ * Which diagnoses an accession posts with, and why a coder has to confirm when neither does.
+ *
+ * Stephen's rule of 2026-11-17 (it replaces the one of 11-16, which also wanted the first code
+ * among Gifford's): the suggestion read from the report posts when its first code is high
+ * confidence and the codes pass the checks. Gifford's codes (the visit's first DX_MAX_CODES)
+ * post instead on a film taken during surgery, and when there is no suggestion or its first
+ * code is not high confidence, if Gifford sent any and they pass the checks. A coder confirms
+ * the rest.
+ *
+ * @param list<array{string, string}> $suggested [code, confidence], in claim order
+ * @param list<string> $gifford
+ * @param list<string> $cpts
+ * @param ?array<string, true> $valid codes without the dot; null skips the check
+ * @param array<string, mixed> $lists
+ * @return array{string, list<string>} ['suggestion' or 'gifford', []], or ['', the reasons]
+ */
+function dxDecide(array $suggested, array $gifford, array $cpts, string $payerClass, string $location, ?array $valid, array $lists): array
+{
+    $fallback = match (true) {
+        $location === DX_OR_LOCATION => 'film taken during surgery',
+        $suggested === [] => 'no suggestion',
+        $suggested[0][1] !== 'high' => 'first code is not high confidence',
+        default => null,
+    };
+    if ($fallback === null) {
+        $why = dxCodeProblems(array_column($suggested, 0), $cpts, $payerClass, $valid, $lists);
+
+        return $why === [] ? ['suggestion', []] : ['', $why];
+    }
+    if ($gifford === []) {
+        return ['', [$fallback, 'Gifford sent no diagnosis']];
+    }
+    $why = dxCodeProblems(array_slice($gifford, 0, DX_MAX_CODES), $cpts, $payerClass, $valid, $lists);
+
+    return $why === [] ? ['gifford', []] : ['', [$fallback, ...array_map(static fn (string $w): string => "Gifford's: $w", $why)]];
 }
