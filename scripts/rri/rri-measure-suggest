@@ -1,0 +1,53 @@
+#!/bin/bash
+# rri-measure-suggest: read the quality measure answers from the reports of
+# the charnew charges waiting to be coded, so xxx003c can show the coder a
+# suggestion beside each question. Suggestions only: the coder's answers
+# (CD-QP1..3) are never written.
+#   rrr258               flagged, read, unanswered charges -> measure-extract
+#   measure_charnew.php  measure-extract + the reports -> measure-answers
+#   rrr259               measure-answers -> CD-QS1..3 of charnew, report
+#                        measure-report, changed records backed up whole to
+#                        measure-bak-<timestamp>
+# run after mea003 has flagged the day's charges and the reading radiologists
+# are set. charnew is only touched by rrr259, which leaves alone any charge a
+# coder has answered since rrr258 ran. a charge whose report is not there yet
+# is picked up by the next run.
+#   rri-measure-suggest          runs all three steps
+#   DRY=1 rri-measure-suggest    rrr258 only: prints the counts and stops
+#                                before anything is fetched or sent
+# needs reads.php's environment (the RRI site) and ANTHROPIC_API_KEY.
+cd /home/rri || exit 1
+
+PHP_DIR=/home/stee/src/cms/php/rri
+stamp=$(date +%Y%m%d%H%M%S)
+
+S30=charnew; S35=garfile; S40=measure-extract
+export S30 S35 S40
+$RUNCBL /home/sidw/rrr258.acu || exit 1
+unset S30 S35 S40
+
+if [ ! -s measure-extract ]; then
+    echo "no charge to read, nothing to do"
+    exit 0
+fi
+if [ "${DRY:-}" = 1 ]; then
+    echo "dry run: $(wc -l < measure-extract) charges listed, by flag paycode:"
+    cut -c40-42 measure-extract | sort | uniq -c
+    exit 0
+fi
+
+rm -f measure-answers
+php "$PHP_DIR/measure_charnew.php" measure-extract measure-answers || exit 1
+if [ ! -s measure-answers ]; then
+    echo "no answers, charnew not touched"
+    exit 0
+fi
+
+S30=measure-answers; S35=charnew; S40=measure-report; S45=measure-bak-$stamp
+export S30 S35 S40 S45
+$RUNCBL /home/sidw/rrr259.acu
+rc=$?
+unset S30 S35 S40 S45
+echo "rri-measure-suggest $stamp" >> measure-report.log
+cat measure-report >> measure-report.log
+exit $rc
