@@ -417,8 +417,8 @@ function rriWriteOutputs(string $runPath): void
 
 /**
  * A report cut down to what can leave the server: the exam, the indication or history and the
- * impression, with dates and long numbers masked and the signature left off. The rule is
- * gifford-dx-show.py's --paste.
+ * impression (and a recommendation or aorta section when the report has one), with dates and
+ * long numbers masked and the signature left off. The rule is gifford-dx-show.py's --paste.
  */
 function rriPasteable(string $report): string
 {
@@ -427,7 +427,7 @@ function rriPasteable(string $report): string
     $keeping = false;
     foreach (preg_split('/\r\n|\n|\r/', $report) ?: [] as $line) {
         if (preg_match('/^\s*([A-Z][A-Z \/&]{2,40}):/', $line, $heading) === 1) {
-            $keeping = preg_match('/PROCEDURE|EXAM|INDICATION|HISTORY|REASON|IMPRESSION|CONCLUSION/', $heading[1]) === 1;
+            $keeping = preg_match('/PROCEDURE|EXAM|INDICATION|HISTORY|REASON|IMPRESSION|CONCLUSION|RECOMMENDATION|AORTA/', $heading[1]) === 1;
         }
         if ($keeping && trim($line) !== '' && preg_match('/^\s*(please note|voice recognition)/i', $line) !== 1) {
             $kept[] = rriMask(rtrim($line));
