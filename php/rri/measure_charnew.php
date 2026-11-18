@@ -3,13 +3,13 @@
 /**
  * Read the quality measure answers from the reports of the charnew charges waiting to be
  * coded, for xxx003c to show the coder beside each question (rri-measure-suggest runs it
- * between mea005 and mea006).
+ * between mea006 and mea007).
  *
- *   php measure_charnew.php <mea005 extract> <answers out> [--model M] [--effort E] [--workers 4]
+ *   php measure_charnew.php <mea006 extract> <answers out> [--model M] [--effort E] [--workers 4]
  *
- * in:  mea005 lines - key(11) acct(8) visitno(7) dos(8) cpt(5) paycode(3) dob(8)
+ * in:  mea006 lines - key(11) acct(8) visitno(7) dos(8) cpt(5) paycode(3) dob(8)
  *      clinical(40) admit diag(23)
- * out: one line per charge answered, for mea006 - key(11) qs1(2) qs2(2) qs3(2), a
+ * out: one line per charge answered, for mea007 - key(11) qs1(2) qs2(2) qs3(2), a
  *      suggestion being the answer digit and H, M or L (how sure), in the order of the
  *      coder's CD-QP1..3: 364, then 405, then 406 (QMM26 alone in the first).
  *
@@ -36,7 +36,7 @@ const CHARNEW_MEASURES = [
 
 [$positional, $options] = measArgs(array_slice($argv, 1), []);
 if (count($positional) !== 2) {
-    measFail('usage: php measure_charnew.php <mea005 extract> <answers out> [--model M] [--effort E] [--workers 4]');
+    measFail('usage: php measure_charnew.php <mea006 extract> <answers out> [--model M] [--effort E] [--workers 4]');
 }
 [$extractPath, $answersPath] = $positional;
 $lines = file($extractPath, FILE_IGNORE_NEW_LINES);

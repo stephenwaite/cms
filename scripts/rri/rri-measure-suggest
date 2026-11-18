@@ -3,19 +3,19 @@
 # the charnew charges waiting to be coded, so xxx003c can show the coder a
 # suggestion beside each question. Suggestions only: the coder's answers
 # (CD-QP1..3) are never written.
-#   mea005               flagged, read, unanswered charges -> measure-extract
+#   mea006               flagged, read, unanswered charges -> measure-extract
 #   measure_charnew.php  measure-extract + the reports -> measure-answers
-#   mea006               measure-answers -> CD-QS1..3 of charnew, report
+#   mea007               measure-answers -> CD-QS1..3 of charnew, report
 #                        measure-report, changed records backed up whole to
 #                        measure-bak-<timestamp>
 # a step of the load, run by hand: after mea003 has flagged the day's charges
 # and rri-docp has set the reading radiologists, before the coders start
-# xxx003c. not while they are coding: mea006 rewrites charnew records. it can
+# xxx003c. not while they are coding: mea007 rewrites charnew records. it can
 # be run again on a later day's load: a charge whose report was not there yet
 # is picked up then, and one that already has a suggestion or an answer is
-# skipped. charnew is only touched by mea006.
+# skipped. charnew is only touched by mea007.
 #   rri-measure-suggest          runs all three steps
-#   DRY=1 rri-measure-suggest    mea005 only: prints the counts and stops
+#   DRY=1 rri-measure-suggest    mea006 only: prints the counts and stops
 #                                before anything is fetched or sent
 # needs reads.php's environment (the RRI site) and ANTHROPIC_API_KEY: from the
 # shell, or from /etc/cms/rri-measure.env when that file is there.
@@ -29,7 +29,7 @@ stamp=$(date +%Y%m%d%H%M%S)
 
 S30=charnew; S35=garfile; S40=measure-extract
 export S30 S35 S40
-$RUNCBL /home/sidw/mea005.acu || exit 1
+$RUNCBL /home/sidw/mea006.acu || exit 1
 unset S30 S35 S40
 
 if [ ! -s measure-extract ]; then
@@ -51,7 +51,7 @@ fi
 
 S30=measure-answers; S35=charnew; S40=measure-report; S45=measure-bak-$stamp
 export S30 S35 S40 S45
-$RUNCBL /home/sidw/mea006.acu
+$RUNCBL /home/sidw/mea007.acu
 rc=$?
 unset S30 S35 S40 S45
 echo "rri-measure-suggest $stamp" >> measure-report.log
