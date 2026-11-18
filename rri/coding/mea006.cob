@@ -5,7 +5,7 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE
       *          GNU General Public License 3
       *
-      *  rrr259: write the quality measure answers read from the
+      *  mea006: write the quality measure answers read from the
       *  reports (measure_charnew.php) into CD-QS1..3 of charnew,
       *  where xxx003c shows them to the coder beside the question.
       *  The coder's answers (CD-QP1..3) are never written here.
@@ -19,7 +19,7 @@
       *       answer digit and H, M or L; spaces for none
       *----------------------------------------------------------------
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. rrr259.
+       PROGRAM-ID. mea006.
        AUTHOR. s WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -141,7 +141,7 @@
 
        P4.
            MOVE SPACE TO FILEOUT01
-           STRING "RRR259 READ " REC-CNT " SET " UPD-CNT
+           STRING "MEA006 READ " REC-CNT " SET " UPD-CNT
                " LEFT ALONE " LEFT-CNT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01

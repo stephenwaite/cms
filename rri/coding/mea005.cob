@@ -5,7 +5,7 @@
       * @license https://github.com/openemr/openemr/blob/master/LICENSE
       *          GNU General Public License 3
       *
-      *  rrr258: list the charnew charges whose quality measure
+      *  mea005: list the charnew charges whose quality measure
       *  questions can be read from the report, for
       *  measure_charnew.php (rri-measure-suggest).
       *
@@ -18,7 +18,7 @@
       *       dob(8) clinical(40) admit diag(23)
       *----------------------------------------------------------------
        IDENTIFICATION DIVISION.
-       PROGRAM-ID. rrr258.
+       PROGRAM-ID. mea005.
        AUTHOR. s WAITE.
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
@@ -105,7 +105,7 @@
            GO TO P1.
 
        P4.
-           DISPLAY "RRR258 READ " REC-CNT " FLAGGED " FLAG-CNT
+           DISPLAY "MEA005 READ " REC-CNT " FLAGGED " FLAG-CNT
                " LISTED " OUT-CNT
            DISPLAY "  UNREAD " UNREAD-CNT " ANSWERED OR SUGGESTED "
                DONE-CNT " NO GARFILE " NOGAR-CNT
