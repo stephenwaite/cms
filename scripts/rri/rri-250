@@ -1,0 +1,155 @@
+#!/bin/bash
+
+# creates list of mrns with charges (1 mrn only)
+S30=ordfile; S35=work249; S40=parm250
+export S30 S35 S40
+$RUNCBL /home/sidw/rri249.acu
+unset S30 S35 S40 
+
+# make 062s (medigaps) based on sec ins code
+S30=actfile; S35=work249; S40=file242
+export S30 S35 S40
+$RUNCBL /home/sidw/rri242.acu
+unset S30 S35 S40
+
+# reads ordfile and if necc updates garno on actfile
+S30=actfile; S35=garfile; S40=ordfile; S45=errfile240; S50=charcur
+export S30 S35 S40 S45 S50
+$RUNCBL /home/sidw/rri240.acu
+unset S30 S35 S40 S45 S50
+
+cp errfile240 errfile240-$(date +%m%d%y-%H%M%S)
+
+
+# might want to prompt here since rm charnew
+echo
+echo "nice job loading the file, are you ready to create ciag for rri-2d?"
+echo "type YES when ready"
+read -r response
+
+if [[ $response != "YES" ]]
+then
+  echo "We are not creating ciag, you didn't type YES."
+  echo "Please try again later."
+  exit
+fi  
+
+rm /home/rri/charnew
+vutil -gen -3 /home/sidw/charnewrrigen .
+chmod g+w /home/rri/charnew
+
+# create charnew for coding and also creates new garnos if approp
+S30=actfile; S35=garfile; S40=ordfile; S45=procfile
+S50=charnew; S55=claimfil; S60=del250; S70=newgarno
+S75=work249; S80=parm250; S85=insfile; S90=procfile
+export S30 S35 S40 S45 S50 S55 S60 S70 S75 S80 S85 S90
+$RUNCBL /home/sidw/rrr250.acu
+if [ $? -ne 0 ]; then
+    echo "*** rrr250 ABORTED - CHECK FOR GARNO EXHAUSTION ***"
+    unset S30 S35 S40 S45 S50 S55 S60 S70 S75 S80 S85 S90
+    exit 1
+fi
+unset S30 S35 S40 S45 S50 S55 S60 S70 S75 S80 S85 S90
+
+NEWGARNO=$(wc -c newgarno)
+if [[ $NEWGARNO != '0 newgarno' ]] 
+then
+    echo
+    echo "we created these new garnos"
+    li newgarno
+    echo
+    cp newgarno newgarno-"$(date +%m%d%y-%H%M%S)"
+fi    
+
+
+# special handling of 024 and GG mod
+S30=charnew; S35=file252
+export S30 S35
+$RUNCBL /home/sidw/rri252.acu
+unset S30 S35
+
+# check for accident insurances
+S30=charnew; S35=fileaccins; S40=insfile
+export S30 S35 S40
+$RUNCBL /home/sidw/rri-acc-type.acu
+unset S30 S35
+
+ACCINS=$(wc -c fileaccins)
+if [[ "$ACCINS" != '0 fileaccins' ]] 
+then
+    echo
+    echo "accident ins charges "
+    li fileaccins
+    echo
+    cp fileaccins fileaccins-"$(date +%m%d%y-%H%M%S)"
+fi
+
+# check for 02 mods
+./check-02-mods charnew
+
+# assign special ins codes for medicare quality measures
+mea-003
+
+# move above display down for Monique
+FILE252=$(wc -c file252)
+if [[ $FILE252 != '0 file252' ]] 
+then
+    echo
+    echo "special handling of 024 and GG mod"
+    li file252
+    echo
+    cp file252 file252-"$(date +%m%d%y-%H%M%S)"
+fi    
+
+
+
+# create ciag file
+S30=charnew; S35=workciag; S40=garfile; S45=procfile; S50=refphy
+export S30 S35 S40 S45 S50
+$RUNCBL /home/sidw/sidrcia.acu
+unset S30 S35 S40 S45 S50
+
+# sort on charnew-key
+# added mods so moved sort out 9 chars
+sort -o ciag -t~ -k 1.84,1.94 workciag
+
+# mystery program of the week
+# S30=ciag; S35=printout
+# export S30 S35
+# $RUNCBL /home/sidw/rriciah.b
+
+cp ciag ciag-"$(date +%m%d%y-%H%M%S)"
+#sort -o ciag-91 -t~ -k 1.30,1.32 ciag
+#sort -o diag -t~ -k 1.1,1.8 -k 1.10,1.29 ciag
+#sort -o ciag-g1004 -t~ -k 1.38,1.42 ciag
+
+exec 8< ciag
+x=0
+cntr=0
+
+while (($x < $(cat ciag | wc -l)))
+  do 
+    read -u8 var1
+    var2=$(echo "$var1" | cut -b 38-42)
+#    echo "$var2"
+#    read ans
+    if [[  $var2 == "G1004" ]]; then
+      ((cntr=cntr+1))
+      echo $cntr
+    fi  
+    ((x=x+1))
+  done
+
+total=$(wc -l ciag | awk '{ print $1 }')
+#echo $total
+#echo $cntr
+((totalnog = $total - $cntr))
+#echo "total is $totalnog"
+  
+/home/stee/src/cms/scripts/rri/rri-docp || echo "rri-docp failed"
+
+/home/stee/src/cms/scripts/rri/rri-subcheck || echo "rri-subcheck failed"
+
+
+echo "congrats, you are ready to code $totalnog charges! $cntr G1004s autocoded :)" 
+exit

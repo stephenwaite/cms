@@ -1,0 +1,21 @@
+#!/bin/bash
+
+export S25=/home/sidw/xdiag10to9
+export S30=charnew 
+export S35=ciag 
+export S40=/home/sidw/allowfile
+export S45=/home/sidw/icd10file
+export S50=procfile
+export S55=garfile 
+export S60=/home/sidw/diagbcbs
+export S65=filexxx003c
+export S70="$HOME/W2$tid$USER";
+
+$RUNCBL /home/sidw/xxx003c.acu
+
+unset S25 S30 S35 S40 S45 S50 S55 S60 S65 S70
+
+cp charnew charnew-"$(date +%m%d%y-%H%M)"
+#cp filexxx003c filexxx003c-"$(date +%m%d%y-%H%M)"
+
+exit
