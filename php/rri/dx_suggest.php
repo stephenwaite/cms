@@ -208,7 +208,7 @@ studies: hardware or implant placement, arthroplasty, fixation, stent or line ch
 - This is only for films during or right after surgery. A study done before surgery
   (pre-operative planning or clearance) is coded by the hierarchy above like any other.
 
-THE CODERS' RULINGS (asked 2026-11-16). Where one applies, it decides.
+THE CODERS' RULINGS (asked 2026-11-16 and 2026-11-18). Where one applies, it decides.
 The coders' own short form of the hierarchy: code from the impression; if nothing there, use
 the indication; if nothing there, use pain.
 - Abnormal finding with no definite diagnosis: when the report describes an abnormality but
@@ -216,13 +216,29 @@ the indication; if nothing there, use pain.
   the abnormal-finding code (R90-R93) follows it. Example: postmenopausal bleeding with an
   abnormal pelvic ultrasound is N95.0 then R93.89; toe pain with an abnormal film is the
   pain code then R93.7.
-- A mass or lesion: code the diagnosis the report gives. When the report gives nothing
-  definitive for it, use the neoplasm of uncertain behavior code for the site.
+- A mass, nodule or lesion: code the diagnosis the report gives. When the report gives
+  nothing definitive for it, use the code for the finding, not a neoplasm code: a breast
+  mass or lump is N63.-, a soft tissue mass or swelling is R22.-, enlarged lymph nodes are
+  R59.-, a lung nodule is R91.1. A neoplasm of uncertain behavior code is for a breast mass
+  biopsied on the same date of service (D48.61, D48.62), and for a lesion of a site that
+  has no such finding code (a gallbladder lesion is D37.6). For a breast mass, a soft tissue
+  mass, lymph nodes and a lung nodule this replaces the indeterminate-masses rule above.
 - A new finding in a patient with a known cancer: the new finding (enlarged nodes, a mass)
   is first; the known cancer follows.
 - Injury with a negative study (no fracture, dislocation or other injury seen): code the
   unspecified injury of the body part examined, with the correct side, not Z04.3 and not a
-  pain code.
+  pain code. For the chest, use the contusion of the wall of the thorax (S20.21-, front
+  wall, with the side) in place of the unspecified injury. When the study also shows a
+  chronic condition (arthritis, chondrocalcinosis), the injury code is still first and the
+  chronic condition may follow.
+- An injury that is not this encounter's (it happened months or a year ago) with pain now
+  and a negative study: the pain code for the body part, not an injury code.
+- A fracture that is only questioned (the study was ordered to look for one, or the report
+  calls one possible or suspicious) and is not confirmed: when no injury or accident is
+  described, the pain code; when one is described, the injury ruling above.
+- A diagnosis the report gives with "consistent with", "compatible with", "probable",
+  "suspicious for", "likely" or "cannot be excluded" is not confirmed (ICD-10-CM outpatient
+  guideline IV.H): code the sign, symptom or abnormal finding, not that diagnosis.
 - A vertebral compression fracture when no trauma is mentioned: do not use a traumatic
   fracture code (S12, S22, S32); use the non-traumatic code (collapsed vertebra, or the
   osteoporotic or pathological fracture code when the report says so). "Age indeterminate"
@@ -251,12 +267,14 @@ THE ANSWER:
   two diagnoses on a charge. One code is enough when it gives the reason for the study. When
   more than two apply, keep the two that matter most for the claim: leave out incidental
   findings, and an external cause code when there is no room for it.
-- The first code answers why the study was done. A diagnosis the impression confirms that
-  explains the reason for the study leads. When the impression confirms nothing that
-  explains it, the injury or the sign or symptom leads, as the rulings above say. A chronic
-  or incidental finding that is not what the study was ordered for (emphysema on a study
-  done for vomiting, arthritis on a film done for an injury) is never the first code; it may
-  be the second.
+- Definite findings come before symptoms. A diagnosis the impression states as definite is
+  coded ahead of the sign or symptom the study was ordered for, also when it is not what
+  the study was looking for: on a CT done for vomiting whose impression only suggests
+  enteritis but states a hernia and emphysema, the two codes are those findings, not the
+  symptoms. Two things keep their own order: an injury study with no acute injury leads
+  with the injury code as the rulings above say, and a screening study leads with its
+  screening code. When the impression states nothing definite, the injury or the sign or
+  symptom leads.
 - Every code must be a complete, current ICD-10-CM code, valid for billing to its last
   character. Some categories were split and the short code is no longer valid: a neoplasm of
   uncertain behavior of connective tissue is D48.110-D48.119 or D48.19, not D48.1; breast
