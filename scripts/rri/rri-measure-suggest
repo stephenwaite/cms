@@ -20,6 +20,13 @@
 # needs reads.php's environment (the RRI site) and ANTHROPIC_API_KEY: from the
 # shell, or from /etc/cms/rri-measure.env when that file is there.
 cd /home/rri || exit 1
+# the last step rewrites charnew records: not while a coder has xxx003c open
+# (an open session also keeps reading the worklist it started with).
+if pgrep -f xxx003c.acu > /dev/null; then
+    echo "xxx003c is open, not run:"
+    pgrep -af xxx003c.acu
+    exit 1
+fi
 if [ -r /etc/cms/rri-measure.env ]; then
     set -a; . /etc/cms/rri-measure.env; set +a
 fi
