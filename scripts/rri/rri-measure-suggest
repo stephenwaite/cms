@@ -50,7 +50,10 @@ if [ "${DRY:-}" = 1 ]; then
 fi
 
 rm -f measure-answers
-php "$PHP_DIR/measure_charnew.php" measure-extract measure-answers || exit 1
+# the cobol runtime clears the screen when the next program starts, so what
+# the php step says is kept and shown again at the end
+php "$PHP_DIR/measure_charnew.php" measure-extract measure-answers 2>&1 | tee measure-php.out
+[ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
 if [ ! -s measure-answers ]; then
     echo "no answers, charnew not touched"
     exit 0
@@ -62,5 +65,8 @@ $RUNCBL /home/sidw/mea007.acu
 rc=$?
 unset S30 S35 S40 S45
 echo "rri-measure-suggest $stamp" >> measure-report.log
-cat measure-report >> measure-report.log
+cat measure-php.out measure-report >> measure-report.log
+echo
+cat measure-php.out
+tail -1 measure-report
 exit $rc
