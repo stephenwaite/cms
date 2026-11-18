@@ -83,6 +83,22 @@ final class RriReports
     }
 
     /**
+     * What the site holds for a visit, one entry per Observation: the procedure it names,
+     * its date (yyyymmdd) and the report text. Empty when the patient or the visit is not
+     * found.
+     *
+     * @return list<array{display: string, date: string, text: string}>
+     */
+    public function visit(string $acct, string $visit): array
+    {
+        $this->report($acct, $visit, '', '');
+        $mrn = ltrim($acct, '0');
+        $external = str_starts_with($visit, '0') ? '1' . $visit : $visit;
+
+        return $this->visits[$mrn . '|' . $external] ?? [];
+    }
+
+    /**
      * The report for a charge: the visit's Observation that names the CPT, dated the date of
      * service. '' when there is none.
      *
