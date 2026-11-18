@@ -8,15 +8,21 @@
 #   rrr259               measure-answers -> CD-QS1..3 of charnew, report
 #                        measure-report, changed records backed up whole to
 #                        measure-bak-<timestamp>
-# run after mea003 has flagged the day's charges and the reading radiologists
-# are set. charnew is only touched by rrr259, which leaves alone any charge a
-# coder has answered since rrr258 ran. a charge whose report is not there yet
-# is picked up by the next run.
+# a step of the load, run by hand: after mea003 has flagged the day's charges
+# and rri-docp has set the reading radiologists, before the coders start
+# xxx003c. not while they are coding: rrr259 rewrites charnew records. it can
+# be run again on a later day's load: a charge whose report was not there yet
+# is picked up then, and one that already has a suggestion or an answer is
+# skipped. charnew is only touched by rrr259.
 #   rri-measure-suggest          runs all three steps
 #   DRY=1 rri-measure-suggest    rrr258 only: prints the counts and stops
 #                                before anything is fetched or sent
-# needs reads.php's environment (the RRI site) and ANTHROPIC_API_KEY.
+# needs reads.php's environment (the RRI site) and ANTHROPIC_API_KEY: from the
+# shell, or from /etc/cms/rri-measure.env when that file is there.
 cd /home/rri || exit 1
+if [ -r /etc/cms/rri-measure.env ]; then
+    set -a; . /etc/cms/rri-measure.env; set +a
+fi
 
 PHP_DIR=/home/stee/src/cms/php/rri
 stamp=$(date +%Y%m%d%H%M%S)
