@@ -362,8 +362,10 @@ function measParseResponse(array $body, array $measures): array
  * The answer that stands for a measure and whether it stands without a coder.
  *
  * mea004's rule first: a 364 answer of 1, 2 or 3 on a visit with a cancer or lung-screening
- * diagnosis is the exclusion, 4, whatever the confidence. Otherwise the answer stands without
- * a coder only when its confidence is high.
+ * diagnosis is the exclusion, 4. Then Stephen's rule of 2026-11-18: only a "no finding" (0)
+ * with high confidence stands without a coder; every finding, and every answer less sure
+ * than that, is the coder's to give (so QMM26, which has no 0, always is). The Gifford
+ * module has the same rule (MeasureSuggestion::standsAlone()).
  *
  * @param array{answer: int, confidence: string} $answer
  * @param list<string> $diagnoses the visit's codes, with or without the dot
@@ -375,10 +377,12 @@ function measDecide(string $measure, array $answer, array $diagnoses): array
     if ($measure === '364' && in_array($n, [1, 2, 3], true)) {
         foreach ($diagnoses as $dx) {
             if (preg_match(MEAS_364_EXCLUSION_DX, str_replace('.', '', strtoupper($dx))) === 1) {
-                return [4, true, 'excluded by diagnosis'];
+                return [4, false, 'excluded by diagnosis'];
             }
         }
     }
 
-    return [$n, $answer['confidence'] === 'high', $answer['confidence'] === 'high' ? '' : 'not high confidence'];
+    $sure = $answer['confidence'] === 'high';
+
+    return [$n, $n === 0 && $sure, $n !== 0 ? 'a finding' : ($sure ? '' : 'not high confidence')];
 }
