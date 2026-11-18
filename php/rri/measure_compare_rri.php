@@ -12,6 +12,12 @@
  *           [--workers 4] [--dry-run]
  *   php measure_compare_rri.php run CHARCUR GARFILE (same selection) --resume rri-measure-run-<time>.json
  *   php measure_compare_rri.php summary rri-measure-run-<time>.json
+ *   php measure_compare_rri.php show rri-measure-run-<time>.json [--all]
+ *
+ * show prints, for the questions where coder and model differ (--all: every question), the two
+ * answers, the words quoted and, of the report, only the exam, indication and impression, with
+ * dates and long numbers masked and no charge key, date, age or diagnosis: text that can be
+ * pasted elsewhere once it has been read for names.
  *
  * CHARCUR and GARFILE are the unloads (one fixed-width record per line, the copybooks'
  * layouts). A charge carries a measure by its CPT code, the patient's age on the date of
@@ -410,6 +416,81 @@ function rriWriteOutputs(string $runPath): void
 }
 
 /**
+ * A report cut down to what can leave the server: the exam, the indication or history and the
+ * impression, with dates and long numbers masked and the signature left off. The rule is
+ * gifford-dx-show.py's --paste.
+ */
+function rriPasteable(string $report): string
+{
+    $report = preg_replace('/(Please note:|Electronically Signed by:).*$/si', '', $report) ?? $report;
+    $kept = [];
+    $keeping = false;
+    foreach (preg_split('/\r\n|\n|\r/', $report) ?: [] as $line) {
+        if (preg_match('/^\s*([A-Z][A-Z \/&]{2,40}):/', $line, $heading) === 1) {
+            $keeping = preg_match('/PROCEDURE|EXAM|INDICATION|HISTORY|REASON|IMPRESSION|CONCLUSION/', $heading[1]) === 1;
+        }
+        if ($keeping && trim($line) !== '' && preg_match('/^\s*(please note|voice recognition)/i', $line) !== 1) {
+            $kept[] = rriMask(rtrim($line));
+        }
+    }
+
+    return $kept === [] ? '(no indication or impression heading found: read this one on the server)' : implode("\n", $kept);
+}
+
+function rriMask(string $text): string
+{
+    $text = preg_replace('/\b\d{1,2}[\/-]\d{1,2}[\/-]\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b/', '[date]', $text) ?? $text;
+
+    return preg_replace('/\d{5,}/', '[number]', $text) ?? $text;
+}
+
+/**
+ * Print the questions of a run with what can leave the server: no charge key, date, age or
+ * diagnosis; of the report only rriPasteable(). Without $all, only where coder and model differ.
+ */
+function rriShow(string $runPath, bool $all): void
+{
+    $meta = json_decode((string) file_get_contents($runPath), true);
+    if (!is_array($meta) || !is_array($meta['charges'] ?? null)) {
+        measFail("$runPath is not a run file of this script");
+    }
+    $results = measLoadResults(preg_replace('/\.json$/', '', $runPath) . '.results.jsonl');
+    $n = 0;
+    foreach ($meta['charges'] as $id => $c) {
+        $r = $results[(string) $id] ?? null;
+        if ($r === null || ($r['outcome'] ?? '') !== 'succeeded') {
+            continue;
+        }
+        $lines = [];
+        foreach ($c['measures'] as $measure) {
+            $measure = (string) $measure;
+            $answer = $r['answers'][$measure];
+            $coder = rriFinal($measure, $c['coder'][$measure] ?? null, $c['dx']);
+            $model = measDecide($measure, $answer, $c['dx'])[0];
+            if (!$all && $coder === $model) {
+                continue;
+            }
+            $lines[] = sprintf(
+                "measure %s: coder %s, model %d (%s)%s\n  quoted: %s\n  why: %s",
+                $measure,
+                ($c['coder'][$measure] ?? null) === null ? 'blank' : (string) $coder,
+                $model,
+                $answer['confidence'],
+                $coder === $model ? '' : '  DIFFER',
+                rriMask($answer['evidence']),
+                rriMask($answer['rationale'])
+            );
+        }
+        if ($lines === []) {
+            continue;
+        }
+        $n++;
+        echo "=== $n === CPT {$c['cpt']}\n", implode("\n", $lines), "\n--- report (exam, indication, impression only)\n", rriPasteable((string) $c['report']), "\n\n";
+    }
+    fwrite(STDERR, "$n charges shown. Names can still be inside the text: read it before pasting.\n");
+}
+
+/**
  * @param array<string, string> $options
  */
 function rriRun(string $charcur, string $garfile, array $options): void
@@ -542,6 +623,12 @@ if ($command === 'run') {
         measFail('summary takes the run file; see the top of this script');
     }
     rriWriteOutputs($positional[0]);
+} elseif ($command === 'show') {
+    [$positional, $options] = measArgs(array_slice($argv, 2), ['all']);
+    if (count($positional) !== 1) {
+        measFail('show takes the run file; see the top of this script');
+    }
+    rriShow($positional[0], isset($options['all']));
 } else {
     measFail('usage: php measure_compare_rri.php run CHARCUR GARFILE --from D --to D [options] | summary RUN.json; see the top of this script');
 }
