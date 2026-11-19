@@ -1,7 +1,7 @@
 <?php
 
 /**
- * What upl_004.php and dnl_004.php share: the connection to vtmedicaid.com, the sign-in
+ * What upl_004.php, dnl_004.php and elig_004.php share: the connection to vtmedicaid.com, the sign-in
  * and the dated log file.
  *
  * The portal's forms are plain posts (no script, token or one-time code), so these sign
@@ -28,7 +28,7 @@ const UPLOAD_FORM_MARK = 'name="WebUploadForm"';
 const HTTP_VERSION = '2.0';
 
 /**
- * Add a line to vtmedicaid_<upload|download>_<yyyymmdd>.log in the current directory.
+ * Add a line to vtmedicaid_<upload|download|eligibility>_<yyyymmdd>.log in the current directory.
  * The first call of a run names the log: note('...', 'download').
  */
 function note(string $message, ?string $log = null): void
@@ -85,15 +85,16 @@ function portal_client(): Client
 
 /**
  * Sign in with VT_MEDICAID_USER / VT_MEDICAID_PASS and open the upload page, which only
- * a signed-in session gets. Exits when the page is not there. $nothing says what did not
- * happen, for the message: "Nothing was sent."
+ * a signed-in session gets.
+ *
+ * @return ?string what went wrong; null when signed in
  */
-function sign_in(Client $http, string $nothing): void
+function sign_in_error(Client $http): ?string
 {
     $logon_id = (string) getenv('VT_MEDICAID_USER');
     $password = (string) getenv('VT_MEDICAID_PASS');
     if ($logon_id === '' || $password === '') {
-        fail('Missing login. Set VT_MEDICAID_USER and VT_MEDICAID_PASS.');
+        return 'Missing login. Set VT_MEDICAID_USER and VT_MEDICAID_PASS.';
     }
     try {
         $logon = $http->request('POST', LOGON_PATH, [
@@ -105,15 +106,31 @@ function sign_in(Client $http, string $nothing): void
             ],
         ]);
         if ($logon->getStatusCode() >= 400) {
-            fail('The portal answered the sign-in with HTTP ' . $logon->getStatusCode() . '. ' . $nothing);
+            return 'The portal answered the sign-in with HTTP ' . $logon->getStatusCode() . '.';
         }
         $form = $http->request('GET', UPLOAD_FORM_PATH);
     } catch (GuzzleException $e) {
-        fail('Could not reach the Vermont Medicaid portal (' . reason($e) . '). ' . $nothing);
+        return 'Could not reach the Vermont Medicaid portal (' . reason($e) . ').';
     }
     if (!str_contains((string) $form->getBody(), UPLOAD_FORM_MARK)) {
-        fail('The portal did not show its Upload Files page after signing in (HTTP ' . $form->getStatusCode()
-            . '): the login or password is wrong, or the portal has changed. ' . $nothing);
+        return 'The portal did not show its Upload Files page after signing in (HTTP ' . $form->getStatusCode()
+            . '): the login or password is wrong, or the portal has changed.';
     }
     note('Signed in; the Upload Files page is there.');
+
+    return null;
+}
+
+/**
+ * Sign in or exit. $nothing says what did not happen, for the message: "Nothing was sent."
+ */
+function sign_in(Client $http, string $nothing): void
+{
+    if ((string) getenv('VT_MEDICAID_USER') === '' || (string) getenv('VT_MEDICAID_PASS') === '') {
+        fail('Missing login. Set VT_MEDICAID_USER and VT_MEDICAID_PASS.');
+    }
+    $error = sign_in_error($http);
+    if ($error !== null) {
+        fail($error . ' ' . $nothing);
+    }
 }
