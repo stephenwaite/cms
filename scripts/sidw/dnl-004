@@ -1,0 +1,17 @@
+#!/bin/bash
+
+cd /home/sidw
+echo "download files from 004? (Y|y)"
+read -r response
+
+if [[ $response != [Yy] ]]
+then
+  echo "***not downloading from 04***"
+else 
+  echo
+  echo "here we go"
+  echo
+  php /home/stee/src/cms/vtmedicaid/dnl_004.php
+  # the browser version, should the plain download ever fail:
+  # PLAYWRIGHT_BROWSERS_PATH=/opt/cms-venvs/playwright-browsers /home/stee/src/cms/python/vtmed_dnl_to_server.py
+fi
