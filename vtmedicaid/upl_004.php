@@ -11,94 +11,24 @@
  * is "SUCCESS - Tracking: <number>" and the exit status is 0; anything else exits 1.
  * Each run adds to vtmedicaid_upload_<yyyymmdd>.log in the current directory.
  *
- * The portal's forms are plain posts (no script, token or one-time code), so this signs
- * in as a person does, posts the file and reads the tracking number off the confirmation
- * page. It is the same exchange OpenEMR's CMS module makes (Billing/VtMedicaidPortal),
- * and replaces python/vtmed_upl_from_server.py, which drove a browser to do it.
+ * This posts the file and reads the tracking number off the confirmation page. It
+ * replaces python/vtmed_upl_from_server.py, which drove a browser to do it.
  *
  * "Uploaded successfully" means the portal has the file, not that it accepted the claims:
- * the acknowledgment arrives on the portal's download page later.
+ * the acknowledgment arrives on the portal's download page later (dnl_004.php).
  */
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 
-require_once(dirname(__FILE__) . '/../vendor/autoload.php');
+require_once(dirname(__FILE__) . '/portal.php');
 
-const LOGON_PATH = '/secure/logon.do';
-const UPLOAD_FORM_PATH = '/secure/upload.do';
 const UPLOAD_PATH = '/secure/translator.do';
-
-// The upload page's form; the logon page comes back instead when the sign-in failed.
-const UPLOAD_FORM_MARK = 'name="WebUploadForm"';
 const CONFIRMATION_MARK = 'Uploaded successfully';
-
-// The portal answers HTTP/1.1 and then drops the connection without closing it, which
-// OpenSSL 3 reports as an error ("unexpected eof while reading"); over HTTP/2, as a
-// browser speaks to it, it answers properly.
-const HTTP_VERSION = '2.0';
 
 // The portal's limit for one upload.
 const MAX_BYTES = 16 * 1024 * 1024;
 
 const CHECK_FIRST = 'Look for it on the portal before sending this file again.';
-
-function note(string $message): void
-{
-    file_put_contents(
-        'vtmedicaid_upload_' . date('Ymd') . '.log',
-        date('Y-m-d H:i:s') . ' - ' . $message . "\n",
-        FILE_APPEND
-    );
-}
-
-function fail(string $message): never
-{
-    note('ERROR - ' . $message);
-    fwrite(STDERR, $message . "\n");
-    exit(1);
-}
-
-/**
- * What the HTTP client says went wrong, without the library's documentation link. The
- * login travels in the request body, never the URL, so the message holds no credentials.
- */
-function reason(GuzzleException $e): string
-{
-    $message = preg_replace('/\s*\(see https?:[^)]*\)/', '', $e->getMessage()) ?? $e->getMessage();
-
-    return substr(trim($message), 0, 200);
-}
-
-/**
- * Sign in and open the upload page. Exits when the page is not there.
- */
-function sign_in(Client $http, CookieJar $cookies, string $logon_id, string $password): void
-{
-    try {
-        $logon = $http->request('POST', LOGON_PATH, [
-            'cookies' => $cookies,
-            'form_params' => [
-                'screen_id' => 'logon.jsp',
-                'logon_id' => $logon_id,
-                'password' => $password,
-                'action' => 'Log In',
-            ],
-        ]);
-        if ($logon->getStatusCode() >= 400) {
-            fail('The portal answered the sign-in with HTTP ' . $logon->getStatusCode() . '. Nothing was sent.');
-        }
-        $form = $http->request('GET', UPLOAD_FORM_PATH, ['cookies' => $cookies]);
-    } catch (GuzzleException $e) {
-        fail('Could not reach the Vermont Medicaid portal (' . reason($e) . '). Nothing was sent.');
-    }
-    if (!str_contains((string) $form->getBody(), UPLOAD_FORM_MARK)) {
-        fail('The portal did not show its Upload Files page after signing in (HTTP ' . $form->getStatusCode()
-            . '): the login or password is wrong, or the portal has changed. Nothing was sent.');
-    }
-    note('Signed in; the Upload Files page is there.');
-}
 
 if ($argc !== 2) {
     fwrite(STDERR, "usage: php upl_004.php <file> | --check\n");
@@ -107,9 +37,7 @@ if ($argc !== 2) {
 $check_only = $argv[1] === '--check';
 $file = $argv[1];
 
-$logon_id = (string) getenv('VT_MEDICAID_USER');
-$password = (string) getenv('VT_MEDICAID_PASS');
-if ($logon_id === '' || $password === '') {
+if ((string) getenv('VT_MEDICAID_USER') === '' || (string) getenv('VT_MEDICAID_PASS') === '') {
     fail('Missing login. Set VT_MEDICAID_USER and VT_MEDICAID_PASS.');
 }
 if (!$check_only) {
@@ -126,17 +54,8 @@ if (!$check_only) {
     note('Starting upload of ' . realpath($file) . ' (' . $size . ' bytes)');
 }
 
-// VT_MEDICAID_URL is for testing against a stand-in; leave it unset in production.
-$http = new Client([
-    'base_uri' => getenv('VT_MEDICAID_URL') ?: 'https://www.vtmedicaid.com',
-    'http_errors' => false,
-    'version' => HTTP_VERSION,
-    'connect_timeout' => 30,
-    'timeout' => 120,
-]);
-$cookies = new CookieJar();
-
-sign_in($http, $cookies, $logon_id, $password);
+$http = portal_client();
+sign_in($http, 'Nothing was sent.');
 if ($check_only) {
     echo "Signed in; the Upload Files page is there. Nothing was sent.\n";
     exit(0);
@@ -144,7 +63,6 @@ if ($check_only) {
 
 try {
     $response = $http->request('POST', UPLOAD_PATH, [
-        'cookies' => $cookies,
         'multipart' => [
             ['name' => 'screen_id', 'contents' => 'Upload'],
             ['name' => 'directory', 'contents' => ''],
