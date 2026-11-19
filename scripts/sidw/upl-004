@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo "medicaid file: modified time and size"
+ls -lrt "$1"
+echo "confirm with (Y|y) to send $1 to 04 magically"
+read -r response
+
+if [[ $response != [Yy] ]]
+then
+  echo "***not sending $1 to 04***"
+else 
+  echo
+  echo "uploading $1 to 04"
+  echo
+  php /home/stee/src/cms/vtmedicaid/upl_004.php "$1"
+  # the browser version, should the plain upload ever fail:
+  # PLAYWRIGHT_BROWSERS_PATH=/opt/cms-venvs/playwright-browsers /home/stee/src/cms/python/vtmed_upl_from_server.py "$1"
+fi
