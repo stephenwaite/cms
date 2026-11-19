@@ -1,0 +1,8 @@
+#!/bin/bash
+
+echo "check elig 004"
+echo "example elig-004 memberId 01/06/2026"
+echo
+php /home/stee/src/cms/vtmedicaid/elig_004.php "$1" "$2"
+# the browser version, should the plain check ever fail:
+# PLAYWRIGHT_BROWSERS_PATH=/opt/cms-venvs/playwright-browsers /home/stee/src/cms/python/vtmed_elig.py "$1" "$2"
