@@ -34,13 +34,10 @@ const COUNT = '50';
 
 const BY_HAND = 'Get it from the portal by hand: it may now show as downloaded there.';
 
-function load_page(string $html): DOMXPath
-{
-    $doc = new DOMDocument();
-    @$doc->loadHTML($html);
-
-    return new DOMXPath($doc);
-}
+/*
+ * The page is read with patterns, not PHP's DOM extension: the PHP on whiterocks is built
+ * without it.
+ */
 
 function resolve(string $page_url, string $href): string
 {
@@ -48,38 +45,78 @@ function resolve(string $page_url, string $href): string
 }
 
 /**
+ * A tag's attributes, names in lower case: attributes(' name="x" checked') gives
+ * ['name' => 'x', 'checked' => ''].
+ *
+ * @return array<string, string>
+ */
+function attributes(string $tag): array
+{
+    $found = [];
+    preg_match_all('/([a-zA-Z_:][-\w:.]*)(?:\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'>]+)))?/', $tag, $matches, PREG_SET_ORDER);
+    foreach ($matches as $m) {
+        $found[strtolower($m[1])] = html_entity_decode($m[4] ?? $m[3] ?? $m[2] ?? '', ENT_QUOTES | ENT_HTML5);
+    }
+
+    return $found;
+}
+
+/**
+ * What a person reads in a piece of the page: no tags, entities decoded, &nbsp; as a space.
+ */
+function text(string $html): string
+{
+    return trim(str_replace("\u{a0}", ' ', html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5)));
+}
+
+/**
  * The page again with 50 files listed: fills in the form that holds the count field as
  * a browser would send it and submits it. Null when the page has no such form.
  */
-function list_fifty(Client $http, DOMXPath $page, string $page_url): ?string
+function list_fifty(Client $http, string $page, string $page_url): ?string
 {
-    $form = $page->query('//form[.//select[@name="' . COUNT_FIELD . '"]]')->item(0);
-    if (!$form instanceof DOMElement) {
+    $form = null;
+    preg_match_all('/<form\b([^>]*)>(.*?)<\/form>/is', $page, $forms, PREG_SET_ORDER);
+    foreach ($forms as $candidate) {
+        if (preg_match('/<select\b[^>]*\bname\s*=\s*["\']?' . COUNT_FIELD . '\b/i', $candidate[2]) === 1) {
+            $form = $candidate;
+            break;
+        }
+    }
+    if ($form === null) {
         return null;
     }
     $fields = [];
     $submitted = false;
-    foreach ($page->query('.//input[@name] | .//select[@name] | .//textarea[@name]', $form) as $field) {
-        $name = $field->getAttribute('name');
-        if ($field->hasAttribute('disabled')) {
+    preg_match_all('/<(input|select|textarea)\b([^>]*)>(?:(.*?)<\/\1>)?/is', $form[2], $controls, PREG_SET_ORDER);
+    foreach ($controls as $control) {
+        $kind = strtolower($control[1]);
+        $attr = attributes($control[2]);
+        $name = $attr['name'] ?? '';
+        if ($name === '' || isset($attr['disabled'])) {
             continue;
         }
-        if ($field->nodeName === 'select') {
-            $option = $page->query('.//option[@selected]', $field)->item(0) ?? $page->query('.//option', $field)->item(0);
-            $fields[$name] = $option instanceof DOMElement
-                ? ($option->hasAttribute('value') ? $option->getAttribute('value') : trim($option->textContent))
-                : '';
+        if ($kind === 'select') {
+            preg_match_all('/<option\b([^>]*)>([^<]*)/i', $control[3] ?? '', $options, PREG_SET_ORDER);
+            $chosen = $options[0] ?? null;
+            foreach ($options as $option) {
+                if (isset(attributes($option[1])['selected'])) {
+                    $chosen = $option;
+                    break;
+                }
+            }
+            $fields[$name] = $chosen === null ? '' : (attributes($chosen[1])['value'] ?? text($chosen[2]));
             continue;
         }
-        if ($field->nodeName === 'textarea') {
-            $fields[$name] = $field->textContent;
+        if ($kind === 'textarea') {
+            $fields[$name] = html_entity_decode($control[3] ?? '', ENT_QUOTES | ENT_HTML5);
             continue;
         }
-        $type = strtolower($field->getAttribute('type'));
+        $type = strtolower($attr['type'] ?? 'text');
         if (in_array($type, ['button', 'reset', 'file', 'image'], true)) {
             continue;
         }
-        if (in_array($type, ['checkbox', 'radio'], true) && !$field->hasAttribute('checked')) {
+        if (in_array($type, ['checkbox', 'radio'], true) && !isset($attr['checked'])) {
             continue;
         }
         if ($type === 'submit') {
@@ -89,12 +126,13 @@ function list_fifty(Client $http, DOMXPath $page, string $page_url): ?string
             }
             $submitted = true;
         }
-        $fields[$name] = $field->getAttribute('value');
+        $fields[$name] = $attr['value'] ?? '';
     }
     $fields[COUNT_FIELD] = COUNT;
 
-    $post = strtolower($form->getAttribute('method')) === 'post';
-    $action = $form->getAttribute('action');
+    $attr = attributes($form[1]);
+    $post = strtolower($attr['method'] ?? '') === 'post';
+    $action = $attr['action'] ?? '';
     $response = $http->request(
         $post ? 'POST' : 'GET',
         $action === '' ? $page_url : resolve($page_url, $action),
@@ -105,37 +143,35 @@ function list_fifty(Client $http, DOMXPath $page, string $page_url): ?string
 }
 
 /**
- * The listed files with no download date: rows of file (a link), type, created,
- * downloaded, size.
+ * The table rows that list a file: file (a link), type, created, downloaded, size.
  *
- * @return list<array{name: string, type: string, created: string, size: string, url: string}>
+ * @return list<array{name: string, type: string, created: string, downloaded: string, size: string, url: string}>
  */
-function waiting_files(DOMXPath $page, string $page_url): array
+function listed_files(string $page, string $page_url): array
 {
-    $waiting = [];
-    foreach ($page->query('//table//tr') as $row) {
-        $cells = $page->query('./td', $row);
-        if ($cells->length < 5) {
+    $files = [];
+    // Cut at each row's start, so a table laid out inside another table still reads row by row.
+    foreach (preg_split('/<tr\b/i', $page) ?: [] as $row) {
+        preg_match_all('/<td\b[^>]*>(.*?)<\/td>/is', $row, $cells);
+        $cells = $cells[1];
+        if (count($cells) < 5 || preg_match('/<a\b([^>]*)>(.*?)<\/a>/is', $cells[0], $link) !== 1) {
             continue;
         }
-        $link = $page->query('.//a[@href]', $cells->item(0))->item(0);
-        if (!$link instanceof DOMElement) {
+        $href = attributes($link[1])['href'] ?? '';
+        if ($href === '') {
             continue;
         }
-        $text = static fn(int $i): string => trim(str_replace("\u{a0}", ' ', $cells->item($i)->textContent));
-        if ($text(3) !== '') {
-            continue;
-        }
-        $waiting[] = [
-            'name' => trim($link->textContent),
-            'type' => $text(1),
-            'created' => $text(2),
-            'size' => $text(4),
-            'url' => resolve($page_url, $link->getAttribute('href')),
+        $files[] = [
+            'name' => text($link[2]),
+            'type' => text($cells[1]),
+            'created' => text($cells[2]),
+            'downloaded' => text($cells[3]),
+            'size' => text($cells[4]),
+            'url' => resolve($page_url, $href),
         ];
     }
 
-    return $waiting;
+    return $files;
 }
 
 if ($argc > 2) {
@@ -155,7 +191,7 @@ try {
     if ($response->getStatusCode() >= 400) {
         fail('The portal answered the download page with HTTP ' . $response->getStatusCode() . '. Nothing was downloaded.');
     }
-    $page = load_page((string) $response->getBody());
+    $page = (string) $response->getBody();
     $fifty = list_fifty($http, $page, $page_url);
 } catch (GuzzleException $e) {
     fail('The connection to the portal failed on the download page (' . reason($e) . '). Nothing was downloaded.');
@@ -165,15 +201,17 @@ if ($fifty === null) {
     note('WARNING - could not ask for ' . COUNT . ' files; using the page as it first came.');
     echo 'Could not ask the portal to list ' . COUNT . " files; going by its first page.\n";
 } else {
-    $page = load_page($fifty);
+    $page = $fifty;
 }
-if ($page->query('//table//tr[td]')->length === 0) {
-    fail('The portal\'s download page has no file table: the portal has changed. Nothing was downloaded.');
+$listed = listed_files($page, $page_url);
+if ($listed === []) {
+    // A page with every file downloaded still lists them, so no rows at all means a page this cannot read.
+    fail('The portal\'s download page lists no files: the portal has changed. Nothing was downloaded.');
 }
 
-$waiting = waiting_files($page, $page_url);
-note('Found ' . count($waiting) . ' files not yet downloaded');
-echo "\nFound " . count($waiting) . " files not yet downloaded\n";
+$waiting = array_values(array_filter($listed, static fn(array $file): bool => $file['downloaded'] === ''));
+note('Found ' . count($waiting) . ' files not yet downloaded, of ' . count($listed) . ' listed');
+echo "\nFound " . count($waiting) . ' files not yet downloaded, of ' . count($listed) . " listed\n";
 foreach ($waiting as $file) {
     note('Waiting: ' . $file['name'] . ' (' . $file['type'] . ', created ' . $file['created'] . ', ' . $file['size'] . ' bytes)');
     if ($list_only) {
