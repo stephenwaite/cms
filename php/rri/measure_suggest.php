@@ -149,10 +149,24 @@ known, stable from a prior study or previously characterized, is not incidental.
 
 MEASURE 364: INCIDENTAL PULMONARY NODULE (CT in which any of the chest is seen)
 Counted: a final report with a finding of an incidental pulmonary nodule.
-- Not incidental nodules here, so answer 0: granulomas, hamartomas, lesions with internal fat
-  and other characteristically benign findings; a nodule that is being followed or was already
-  known; a mass the report calls a suspected or known malignancy rather than a nodule. No
-  nodule at all is also 0.
+Decide in this order: the exclusion (4) first, then whether the nodule is incidental, then
+the recommendation.
+- 4 (excluded), checked first: the report describes a pulmonary nodule, new, known, stable or
+  being followed, and the patient has an active diagnosis or history of cancer (lymphoma and
+  leukemia count; basal cell and squamous cell skin cancer do not; a suspected cancer without
+  a diagnosis does not), is a heavy tobacco smoker (30 pack-years and smoking now or quit
+  within 15 years: use it only when the report gives the pack-years), or the study is a lung
+  cancer screening CT. The exclusion is wanted on the record, so with a nodule it is 4 and
+  not 0 even when the nodule is not incidental. Read the cancer from any of: the request's
+  "Clinical indication from the facility" line, the visit's diagnosis codes, and every part
+  of the report (indication, history, comparison, findings, impression), not the impression
+  alone. A study done for staging, restaging, surveillance or treatment response of a cancer
+  ("RESTAGE", "restaging", "staging", "f/u lung ca", "mets", "s/p chemo" and the like) is a
+  patient with cancer. With no pulmonary nodule the answer is 0, cancer or not.
+- Not incidental nodules, so answer 0 when 4 does not apply: granulomas, hamartomas, lesions
+  with internal fat and other characteristically benign findings; a nodule that is being
+  followed or was already known; a mass the report calls a suspected or known malignancy
+  rather than a nodule. No nodule at all is also 0.
 - 1 (performance met): the impression or conclusion gives, for the nodule, a recommended
   interval and modality for follow-up (for example "CT at 12 months"), or says no follow-up is
   needed, AND names the source of the recommendation (Fleischner Society, American College of
@@ -165,13 +179,6 @@ Counted: a final report with a finding of an incidental pulmonary nodule.
 - 3 (performance not met): there is an incidental nodule and the recommendation is missing,
   has no interval or modality, or names no source, with no reason given. A 3 is final: do not
   assume an addendum.
-- 4 (excluded): the patient has an active diagnosis or history of cancer (lymphoma and leukemia
-  count; basal cell and squamous cell skin cancer do not; a suspected cancer without a
-  diagnosis does not), is a heavy tobacco smoker (30 pack-years and smoking now or quit within
-  15 years: use it only when the report gives the pack-years), or the study is a lung cancer
-  screening CT. The request lists the visit's diagnosis codes and the facility's indication:
-  a cancer diagnosis or history there counts. Use 4 only when there is an incidental nodule;
-  with no nodule the answer is 0.
 
 MEASURE 405: INCIDENTAL ABDOMINAL LESION (CT, CTA, MRI or MRA that includes the abdomen)
 Counted: a final report that notes, incidentally, one or more of
