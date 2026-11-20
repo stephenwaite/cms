@@ -1,0 +1,65 @@
+#!/bin/bash
+# rrmc-measure-check - after rrmc-peek MMDDYY, look back at one day's load:
+# what the quality measure answers read from the reports are, beside what
+# the coders keyed on the same charges. nothing in /home/rri is changed
+# (charcur and garfile are only unloaded) and charnew is not touched.
+#   rrmc-measure-check MMDDYY             counts only: nothing fetched or sent
+#   RUN=1 rrmc-measure-check MMDDYY       fetch the reports, ask, print the summary
+#   RUN=1 rrmc-measure-check MMDDYY --answered --blank 20
+#                                         options after the date go to
+#                                         measure_compare_rri.php (--answered,
+#                                         --blank N, --measure M, --limit N)
+# it takes the visit numbers and the dates of service from the day's RRMC
+# file, then the charges of those visits that are in charcur by now and
+# carry a measure (measure_compare_rri.php: the gates, the reports, the
+# scoring). a charge still waiting in charnew is not in charcur yet, so a
+# very recent day shows few or none. the run files stay in the test dir
+# (patient data); the summary is counts only. afterwards, for the questions
+# where coder and model differ, masked and pasteable:
+#   php ~/src/cms/php/rri/measure_compare_rri.php show ~/rrmc-test/MMDDYY/rri-measure-run-<time>.json
+# needs reads.php's environment and ANTHROPIC_API_KEY for RUN=1: from the
+# shell, or from /etc/cms/rri-measure.env when that file is there.
+set -u
+
+ans=${1:-}
+if [[ ! "$ans" =~ ^[0-9]{6}$ ]]; then
+    echo "usage: rrmc-measure-check MMDDYY [options] (run rrmc-peek MMDDYY first)" >&2
+    exit 1
+fi
+shift
+dir=$HOME/rrmc-test/$ans
+cd "$dir" 2>/dev/null && [ -s up ] || {
+    echo "ERROR: no $dir/up, run rrmc-peek $ans first" >&2; exit 1; }
+
+PHP_DIR=${PHP_DIR:-/home/stee/src/cms/php/rri}
+RRI=${RRI:-/home/rri}
+
+# visit number: cols 4-10 of the ## record (rrmc006: R1-PATNUM(2:7)).
+# date of service: R3-DATE mmddyy at cols 13-18 of the $$ record.
+awk '/^##/ { print substr($0, 4, 7) }' up | sort -u > measure-visits
+dates=$(awk '/^\$\$/ { d = substr($0, 13, 6); if (d ~ /^[0-9]+$/) print "20" substr(d, 5, 2) substr(d, 1, 2) substr(d, 3, 2) }' up | sort -u)
+from=$(head -1 <<< "$dates")
+to=$(tail -1 <<< "$dates")
+if [ ! -s measure-visits ] || [ -z "$from" ]; then
+    echo "ERROR: no visit or no date of service found in $dir/up" >&2; exit 1
+fi
+echo "visits in the file: $(wc -l < measure-visits); dates of service $from to $to"
+
+# fresh unloads of the live files, into the test dir. reading only.
+rm -f flat_charcur flat_garfile
+vutil -unl -t "$RRI/charcur" flat_charcur > /dev/null || { echo "ERROR: could not unload charcur" >&2; exit 1; }
+vutil -unl -t "$RRI/garfile" flat_garfile > /dev/null || { echo "ERROR: could not unload garfile" >&2; exit 1; }
+
+if [ -r /etc/cms/rri-measure.env ]; then
+    set -a; . /etc/cms/rri-measure.env; set +a
+fi
+
+if [ "${RUN:-}" = 1 ]; then
+    php "$PHP_DIR/measure_compare_rri.php" run flat_charcur flat_garfile \
+        --from "$from" --to "$to" --visits measure-visits "$@"
+else
+    php "$PHP_DIR/measure_compare_rri.php" run flat_charcur flat_garfile \
+        --from "$from" --to "$to" --visits measure-visits "$@" --dry-run
+    echo "counts only. RUN=1 rrmc-measure-check $ans $* to fetch the reports and ask."
+fi
+echo "files left in $dir (patient data, rm -r when done)"

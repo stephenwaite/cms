@@ -44,7 +44,13 @@
            02 CD-QP1 PIC XX.
            02 CD-QP2 PIC XX.
            02 CD-QP3 PIC XX.
-           02 FILLER PIC X(8).
+      *    what the nightly reading of the report suggests for
+      *    CD-QP1..3 (rri-measure-suggest): the answer digit and
+      *    H, M or L for how sure; spaces when there is none
+           02 CD-QS1 PIC XX.
+           02 CD-QS2 PIC XX.
+           02 CD-QS3 PIC XX.
+           02 FILLER PIC XX.
            02 CD-CLINICAL PIC X(40).
            02 CD-ADMIT-DIAG PIC X(23).
            02 CD-VISITNO PIC X(7).

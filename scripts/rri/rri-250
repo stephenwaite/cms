@@ -21,6 +21,14 @@ unset S30 S35 S40 S45 S50
 cp errfile240 errfile240-$(date +%m%d%y-%H%M%S)
 
 
+# a coding session left open keeps the worklist it started with and looks
+# its charges up in the new charnew: stop before charnew is removed
+if pgrep -f xxx003c.acu > /dev/null; then
+    echo "*** xxx003c is still open, not loading: ***"
+    pgrep -af xxx003c.acu
+    exit 1
+fi
+
 # might want to prompt here since rm charnew
 echo
 echo "nice job loading the file, are you ready to create ciag for rri-2d?"
@@ -149,6 +157,9 @@ total=$(wc -l ciag | awk '{ print $1 }')
 /home/stee/src/cms/scripts/rri/rri-docp || echo "rri-docp failed"
 
 /home/stee/src/cms/scripts/rri/rri-subcheck || echo "rri-subcheck failed"
+
+# what the reports say for the quality measure questions, for xxx003c to show
+/home/stee/src/cms/scripts/rri/rri-measure-suggest || echo "rri-measure-suggest failed"
 
 
 echo "congrats, you are ready to code $totalnog charges! $cntr G1004s autocoded :)" 

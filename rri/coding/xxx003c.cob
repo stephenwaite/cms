@@ -204,6 +204,12 @@
        01  HOLD-DIAG         PIC X(7).
        01  HOLD-DOCP         PIC X(2).
        01  CHARNEW-BACK      PIC X(253).
+      *    a measure's suggestion from the report (CD-QS1..3)
+       01  WS-QS.
+           02 WS-QS-ANS      PIC X.
+           02 WS-QS-CONF     PIC X.
+       01  WS-QS-WORD        PIC X(6).
+       01  WS-QS-LINE        PIC X(60).
        01  CHARNEW-STAT.
            02 CHARNEW-STAT1  PIC X.
            02 CHARNEW-STAT2  PIC X.
@@ -566,6 +572,8 @@
 
       *--- QMM26 / Paycode 009 -----------------------------------------
            IF CD-PAYCODE = "009"
+               MOVE CD-QS1 TO WS-QS
+               PERFORM SHOW-QS THRU SHOW-QS-EXIT
                DISPLAY " QMM26: type ? or 1 or 2 or 3 or 4 or 5 or G"
                ACCEPT CD-QP1
                IF CD-QP1 = "G"
@@ -588,6 +596,8 @@
 
       *--- Measure 364 / Paycode 010 -----------------------------------
            IF CD-PAYCODE = "010"
+               MOVE CD-QS1 TO WS-QS
+               PERFORM SHOW-QS THRU SHOW-QS-EXIT
                DISPLAY " Measure 364: <Enter> no nodule or 1 2 3 4"
                        " or ? for help or G to grab read"
                ACCEPT CD-QP1
@@ -606,6 +616,8 @@
 
       *--- Measure 405 / Paycode 012 -----------------------------------
            IF CD-PAYCODE = "012"
+               MOVE CD-QS1 TO WS-QS
+               PERFORM SHOW-QS THRU SHOW-QS-EXIT
                DISPLAY " Measure 405: type ? or 1 or 2 or 3 or"
                        " <Enter> or G to grab read"
                ACCEPT CD-QP1
@@ -624,6 +636,8 @@
 
       *--- Measure 406 / Paycode 013 -----------------------------------
            IF CD-PAYCODE = "013"
+               MOVE CD-QS1 TO WS-QS
+               PERFORM SHOW-QS THRU SHOW-QS-EXIT
                DISPLAY " Measure 406: <Enter> no lesion or 1 or 2"
                        " or 3 or ? for help or G to grab read"
                ACCEPT CD-QP1
@@ -647,6 +661,8 @@
            END-IF
            GO TO P015-CHECK.
        P014-QP1.
+           MOVE CD-QS1 TO WS-QS
+           PERFORM SHOW-QS THRU SHOW-QS-EXIT
            DISPLAY " Measure 364: <Enter> no nodule or 1 2 3 4"
                    " or ? for help or G to grab read"
            ACCEPT CD-QP1
@@ -662,6 +678,8 @@
                GO TO P014-QP1
            END-IF.
        P014-QP2.
+           MOVE CD-QS2 TO WS-QS
+           PERFORM SHOW-QS THRU SHOW-QS-EXIT
            DISPLAY " Measure 405: type ? or 1 or 2 or 3 or <Enter>"
                    " or G to grab read"
            ACCEPT CD-QP2
@@ -686,6 +704,8 @@
            END-IF
            GO TO P016-CHECK.
        P015-QP1.
+           MOVE CD-QS1 TO WS-QS
+           PERFORM SHOW-QS THRU SHOW-QS-EXIT
            DISPLAY " Measure 364: <Enter> no nodule or 1 2 3 4"
                    " or ? for help or G to grab read"
            ACCEPT CD-QP1
@@ -701,6 +721,8 @@
                GO TO P015-QP1
            END-IF.
        P015-QP2.
+           MOVE CD-QS2 TO WS-QS
+           PERFORM SHOW-QS THRU SHOW-QS-EXIT
            DISPLAY " Measure 406: <Enter> no lesion or 1 or 2"
                    " or 3 or ? for help or G to grab read"
            ACCEPT CD-QP2
@@ -725,6 +747,8 @@
            END-IF
            GO TO P017-CHECK.
        P016-QP1.
+           MOVE CD-QS1 TO WS-QS
+           PERFORM SHOW-QS THRU SHOW-QS-EXIT
            DISPLAY " Measure 405: type ? or 1 or 2 or 3 or <Enter>"
                    " or G to grab read"
            ACCEPT CD-QP1
@@ -740,6 +764,8 @@
                GO TO P016-QP1
            END-IF.
        P016-QP2.
+           MOVE CD-QS2 TO WS-QS
+           PERFORM SHOW-QS THRU SHOW-QS-EXIT
            DISPLAY " Measure 406: <Enter> no lesion or 1 or 2"
                    " or 3 or ? for help or G to grab read"
            ACCEPT CD-QP2
@@ -764,6 +790,8 @@
            END-IF
            GO TO P2-000.
        P017-QP1.
+           MOVE CD-QS1 TO WS-QS
+           PERFORM SHOW-QS THRU SHOW-QS-EXIT
            DISPLAY " Measure 364: <Enter> no nodule or 1 2 3 4"
                    " or ? for help or G to grab read"
            ACCEPT CD-QP1
@@ -779,6 +807,8 @@
                GO TO P017-QP1
            END-IF.
        P017-QP2.
+           MOVE CD-QS2 TO WS-QS
+           PERFORM SHOW-QS THRU SHOW-QS-EXIT
            DISPLAY " Measure 405: type ? or 1 or 2 or 3 or <Enter>"
                    " or G to grab read"
            ACCEPT CD-QP2
@@ -795,6 +825,8 @@
                GO TO P017-QP2
            END-IF.
        P017-QP3.
+           MOVE CD-QS3 TO WS-QS
+           PERFORM SHOW-QS THRU SHOW-QS-EXIT
            DISPLAY " Measure 406: <Enter> no lesion or 1 or 2"
                    " or 3 or ? for help or G to grab read"
            ACCEPT CD-QP3
@@ -1393,6 +1425,43 @@
            OPEN INPUT CHARNEW.
 
        RE-WRITE-CHARNEW-EXIT.
+           EXIT.
+
+      *----------------------------------------------------------------
+      *  SHOW-QS: before a measure's question, show what the nightly
+      *  reading of the report (rri-measure-suggest) left for it in
+      *  CD-QS1..3: the answer and how sure. Nothing is answered
+      *  here: the coder still keys the answer or presses Enter.
+       SHOW-QS.
+           IF NOT (WS-QS-ANS = "0" OR "1" OR "2" OR "3" OR "4"
+               OR "5")
+               GO TO SHOW-QS-EXIT
+           END-IF
+           IF NOT (WS-QS-CONF = "H" OR "M" OR "L")
+               GO TO SHOW-QS-EXIT
+           END-IF
+           MOVE "low   " TO WS-QS-WORD
+           IF WS-QS-CONF = "H"
+               MOVE "high  " TO WS-QS-WORD
+           END-IF
+           IF WS-QS-CONF = "M"
+               MOVE "medium" TO WS-QS-WORD
+           END-IF
+           MOVE SPACE TO WS-QS-LINE
+           IF WS-QS-ANS = "0"
+               STRING " From the report: no finding, <Enter> ("
+                      DELIMITED BY SIZE
+                      WS-QS-WORD DELIMITED BY SPACE
+                      ")" DELIMITED BY SIZE INTO WS-QS-LINE
+           ELSE
+               STRING " From the report: " WS-QS-ANS " ("
+                      DELIMITED BY SIZE
+                      WS-QS-WORD DELIMITED BY SPACE
+                      ")" DELIMITED BY SIZE INTO WS-QS-LINE
+           END-IF
+           DISPLAY WS-QS-LINE.
+
+       SHOW-QS-EXIT.
            EXIT.
 
       *----------------------------------------------------------------
