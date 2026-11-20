@@ -10,6 +10,13 @@
  *
  *   php measure_lookback_rri.php CHARCUR [--saved measure-suggested.jsonl]
  *           [--asked YYYYMMDD] [--from YYYYMMDD --to YYYYMMDD] [--list]
+ *   php measure_lookback_rri.php CHARNEW --charnew [--from YYYYMMDD --to YYYYMMDD] [--list]
+ *
+ * --charnew: the file is a charnew unload, and nothing else is read. While a charge is still in
+ * charnew its record holds both the suggestion (CD-QS1..3) and the coder's answer (CD-QP1..3),
+ * so the day's load can be looked back at from charnew alone. A charge counts as coded once
+ * it has a diagnosis (CD-DIAG not blank or zeros). Once charges have moved on to charcur, use
+ * the first form: charcur keeps the coder's answers but not the suggestions.
  *
  *   --asked D      only suggestions made on that day (the day of the load)
  *   --from, --to   only dates of service in that range, inclusive
@@ -30,7 +37,18 @@ const LOOKBACK_CHARCUR = [
     'qp3' => [151, 2],
 ];
 
-[$positional, $options] = measArgs(array_slice($argv, 1), ['list']);
+/** Columns of the charnew unload (start, length), from copylib/rri/charnew.cpy. */
+const LOOKBACK_CHARNEW = [
+    'key' => [0, 11], 'diag' => [26, 7], 'cpt' => [37, 5], 'paycode' => [61, 3], 'dos' => [107, 8],
+    'qp1' => [169, 2], 'qp2' => [171, 2], 'qp3' => [173, 2], 'qs1' => [175, 2], 'qs2' => [177, 2], 'qs3' => [179, 2],
+];
+/** The measures behind each flag paycode, in the order of CD-QP1..3 (as measure_charnew.php). */
+const LOOKBACK_FLAGS = [
+    '009' => ['QMM26'], '010' => ['364'], '012' => ['405'], '013' => ['406'], '014' => ['364', '405'],
+    '015' => ['364', '406'], '016' => ['405', '406'], '017' => ['364', '405', '406'],
+];
+
+[$positional, $options] = measArgs(array_slice($argv, 1), ['list', 'charnew']);
 if (count($positional) !== 1) {
     measFail('usage: php measure_lookback_rri.php CHARCUR [--saved FILE] [--asked YYYYMMDD] [--from D --to D] [--list]');
 }
@@ -46,7 +64,41 @@ foreach (array_filter([$asked, $options['from'] ?? null, $options['to'] ?? null]
 
 // The last suggestion saved for each charge (a --refresh run saves a newer one).
 $suggested = [];
-foreach (is_file($savedPath) ? (file($savedPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: []) : [] as $line) {
+$coded = [];
+if (isset($options['charnew'])) {
+    // Suggestion and answer from the same record; no saved file, no charcur.
+    $letters = ['H' => 'high', 'M' => 'medium', 'L' => 'low'];
+    $lines = @file($positional[0], FILE_IGNORE_NEW_LINES);
+    if ($lines === false) {
+        measFail('cannot read ' . $positional[0]);
+    }
+    foreach ($lines as $n => $line) {
+        $c = [];
+        foreach (LOOKBACK_CHARNEW as $name => [$start, $length]) {
+            $c[$name] = trim(substr($line, $start, $length));
+        }
+        $measures = LOOKBACK_FLAGS[$c['paycode']] ?? null;
+        if ($measures === null || $c['dos'] < $from || $c['dos'] > $to) {
+            continue;
+        }
+        $answers = [];
+        foreach ($measures as $i => $measure) {
+            $qs = $c['qs' . ($i + 1)];
+            if (preg_match('/^(\d)([HML])$/', $qs, $m) === 1) {
+                $answers[$measure] = ['answer' => (int) $m[1], 'confidence' => $letters[$m[2]]];
+            }
+        }
+        if ($answers === []) {
+            continue;
+        }
+        $id = 'line ' . $n;
+        $suggested[$id] = ['measures' => $measures, 'answers' => $answers];
+        if ($c['diag'] !== '' && trim($c['diag'], '0') !== '') {
+            $coded[$id] = $c;
+        }
+    }
+}
+foreach (isset($options['charnew']) ? [] : (is_file($savedPath) ? (file($savedPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: []) : []) as $line) {
     $r = json_decode($line, true);
     if (!is_array($r) || !isset($r['visit'], $r['dos'], $r['cpt']) || !is_array($r['measures'] ?? null) || !is_array($r['answers'] ?? null)) {
         continue;
@@ -60,15 +112,14 @@ foreach (is_file($savedPath) ? (file($savedPath, FILE_IGNORE_NEW_LINES | FILE_SK
     $suggested[$r['visit'] . '|' . $r['dos'] . '|' . $r['cpt']] = $r;
 }
 if ($suggested === []) {
-    measFail("no saved suggestion in $savedPath for that selection");
+    measFail(isset($options['charnew']) ? 'no charge with a suggestion in that charnew unload' : "no saved suggestion in $savedPath for that selection");
 }
 
-$handle = fopen($positional[0], 'r');
-if ($handle === false) {
+$handle = isset($options['charnew']) ? false : fopen($positional[0], 'r');
+if ($handle === false && !isset($options['charnew'])) {
     measFail('cannot read ' . $positional[0]);
 }
-$coded = [];
-while (($line = fgets($handle)) !== false) {
+while ($handle !== false && ($line = fgets($handle)) !== false) {
     $line = rtrim($line, "\r\n");
     $c = [];
     foreach (LOOKBACK_CHARCUR as $name => [$start, $length]) {
@@ -79,7 +130,9 @@ while (($line = fgets($handle)) !== false) {
         $coded[$id] = $c;
     }
 }
-fclose($handle);
+if ($handle !== false) {
+    fclose($handle);
+}
 
 $table = [];
 $differ = [];
@@ -115,7 +168,8 @@ foreach ($suggested as $id => $s) {
 }
 
 echo sprintf(
-    "Suggestions saved%s: %d charges; coded since %d, not coded yet %d\n",
+    "Suggestions %s%s: %d charges; coded since %d, not coded yet %d\n",
+    isset($options['charnew']) ? 'in charnew' : 'saved',
     $asked === null ? '' : " on $asked",
     count($suggested),
     $charges['coded'],
