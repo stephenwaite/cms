@@ -15,7 +15,7 @@
       *  and no suggestion is on it yet (CD-QS1..3 blank).
       *
       *  out: key(11) acct(8) visitno(7) dos(8) cpt(5) paycode(3)
-      *       dob(8) clinical(40) admit diag(23)
+      *       dob(8) clinical(40) admit diag(23) docr(3)
       *----------------------------------------------------------------
        IDENTIFICATION DIVISION.
        PROGRAM-ID. mea006.
@@ -46,7 +46,7 @@
            COPY garfile.CPY.
 
        FD  FILEOUT.
-       01  FILEOUT01 PIC X(113).
+       01  FILEOUT01 PIC X(116).
 
        WORKING-STORAGE SECTION.
 
@@ -98,7 +98,7 @@
 
            MOVE SPACE TO FILEOUT01
            STRING CHARNEW-KEY G-ACCT CD-VISITNO CD-DATE-T CD-CPT
-               CD-PAYCODE G-DOB CD-CLINICAL CD-ADMIT-DIAG
+               CD-PAYCODE G-DOB CD-CLINICAL CD-ADMIT-DIAG CD-DOCR
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            ADD 1 TO OUT-CNT

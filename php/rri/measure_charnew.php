@@ -63,11 +63,11 @@ foreach ($lines as $line) {
     if (trim($line) === '') {
         continue;
     }
-    $line = str_pad($line, 113);
+    $line = str_pad($line, 116);
     $c = [
         'key' => substr($line, 0, 11), 'acct' => trim(substr($line, 11, 8)), 'visit' => trim(substr($line, 19, 7)),
         'dos' => substr($line, 26, 8), 'cpt' => trim(substr($line, 34, 5)), 'paycode' => substr($line, 39, 3),
-        'dob' => substr($line, 42, 8), 'clinical' => trim(substr($line, 50, 40)), 'admit' => trim(substr($line, 90, 23)),
+        'dob' => substr($line, 42, 8), 'clinical' => trim(substr($line, 50, 40)), 'admit' => trim(substr($line, 90, 23)), 'docr' => trim(substr($line, 113, 3)),
     ];
     if (!isset(CHARNEW_MEASURES[$c['paycode']]) || $c['acct'] === '' || $c['visit'] === '' || preg_match('/^\d{8}$/', $c['dos']) !== 1) {
         $bad++;
@@ -94,6 +94,9 @@ if (!isset($options['refresh'])) {
     }
 }
 
+// The coders' red flag: the ordering physician is a hematology-oncology one (CD-DOCR codes in
+// RRI_HEMONC_DOCR, comma separated). Only the fact goes in the request, never the name.
+$hemOnc = array_values(array_filter(array_map('trim', explode(',', strtoupper((string) getenv('RRI_HEMONC_DOCR'))))));
 $reports = new RriReports();
 $requests = [];
 $measures = [];
@@ -115,6 +118,9 @@ foreach ($charges as $i => $c) {
     $on = \DateTimeImmutable::createFromFormat('!Ymd', $c['dos']);
     $age = $born === false || $on === false || $born > $on ? null : $born->diff($on)->y;
     $indication = trim($c['clinical'] . ($c['admit'] === '' ? '' : '; admitting diagnosis: ' . $c['admit']));
+    if ($c['docr'] !== '' && in_array($c['docr'], $hemOnc, true)) {
+        $indication = trim($indication . '; ' . MEAS_HEMONC_NOTE, '; ');
+    }
     $measures[$id] = CHARNEW_MEASURES[$c['paycode']];
     $requests[$id] = measRequest($model, $effort, $measures[$id], [$c['cpt']], $age, [], $indication, $report);
 }

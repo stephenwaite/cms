@@ -22,6 +22,9 @@ const MEAS_AGE = ['QMM26' => 50, '364' => 35];
 const MEAS_ON_CLAIM = ['405', '406'];
 
 /** mea004's A1-364-DX: with one of these on the charge, a 364 answer of 1, 2 or 3 is the exclusion (4). */
+/** Added to the facility's indication when the ordering physician is a hematology-oncology one. */
+const MEAS_HEMONC_NOTE = 'ordered by a hematology-oncology physician';
+
 const MEAS_364_EXCLUSION_DX = '/^(C|D0|Z08|Z85|Z122)/';
 
 /**
@@ -163,6 +166,12 @@ the recommendation.
   alone. A study done for staging, restaging, surveillance or treatment response of a cancer
   ("RESTAGE", "restaging", "staging", "f/u lung ca", "mets", "s/p chemo" and the like) is a
   patient with cancer. With no pulmonary nodule the answer is 0, cancer or not.
+- "ordered by a hematology-oncology physician" on the indication line is a reason to look
+  harder for a cancer, not a cancer by itself: the patient may have a blood disorder that is
+  not cancer (anemia, a clotting disorder, hemochromatosis). When the indication or the
+  report states the cancer, a nodule is 4. When a nodule is described and no cancer is
+  stated anywhere, answer by the rules below and give medium confidence at most, so a coder
+  checks the history.
 - Not incidental nodules, so answer 0 when 4 does not apply: granulomas, hamartomas, lesions
   with internal fat and other characteristically benign findings; a nodule that is being
   followed or was already known; a mass the report calls a suspected or known malignancy

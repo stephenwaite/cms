@@ -12,7 +12,7 @@
  * 00 and not 02), the coder has not answered (CD-QP1..3 blank) and no suggestion is on it
  * (CD-QS1..3 blank).
  *
- * out: key(11) acct(8) visitno(7) dos(8) cpt(5) paycode(3) dob(8) clinical(40) admit diag(23)
+ * out: key(11) acct(8) visitno(7) dos(8) cpt(5) paycode(3) dob(8) clinical(40) admit diag(23) docr(3)
  */
 
 declare(strict_types=1);
@@ -49,7 +49,7 @@ foreach (file($argv[1], FILE_IGNORE_NEW_LINES) ?: [] as $line) {
         continue;
     }
     $out .= substr($line, 0, 11) . $g[0] . substr($line, 246, 7) . substr($line, 107, 8) . substr($line, 37, 5) . $paycode
-        . $g[1] . substr($line, 183, 40) . substr($line, 223, 23) . "\n";
+        . $g[1] . substr($line, 183, 40) . substr($line, 223, 23) . substr($line, 56, 3) . "\n";
     $n['listed']++;
 }
 file_put_contents($argv[3], $out);
