@@ -287,7 +287,7 @@
       * col 181     
            02 R3-LOCO PIC X(4).
            02 FILLER PIC X(36).
-           02 R3-ACCESSION PIC X(7).
+           02 R3-ACCESSION PIC X(10).
 
        01  NAME-TEST PIC X(25).
        01  NAME-LAST PIC X(24).
