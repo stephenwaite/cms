@@ -6,6 +6,7 @@
  * between mea006 and mea007).
  *
  *   php measure_charnew.php <mea006 extract> <answers out> [--model M] [--effort E] [--workers 4]
+ *           [--saved measure-suggested.jsonl] [--refresh]
  *
  * in:  mea006 lines - key(11) acct(8) visitno(7) dos(8) cpt(5) paycode(3) dob(8)
  *      clinical(40) admit diag(23)
@@ -22,6 +23,13 @@
  * Each answer is also kept, with the words of the report it rests on, in
  * measure-charnew-<time>.results.jsonl in the current directory (PATIENT DATA). Counts go to
  * stdout. Needs ANTHROPIC_API_KEY and reads.php's environment.
+ *
+ * Every answer is also saved, by charge, in measure-suggested.jsonl in the current directory
+ * (--saved names another file; PATIENT DATA): the charnew key, account, visit, date of service,
+ * CPT, the measures and what was suggested for each, with the day it was asked. A charge found
+ * there with the same measures is not fetched or sent again: its saved answer is written out
+ * (--refresh asks again anyway). That file is also the record of what the coder was shown,
+ * which charnew loses when the charge moves on (measure_lookback_rri.php reads it).
  */
 
 declare(strict_types=1);
@@ -34,9 +42,9 @@ const CHARNEW_MEASURES = [
     '015' => ['364', '406'], '016' => ['405', '406'], '017' => ['364', '405', '406'],
 ];
 
-[$positional, $options] = measArgs(array_slice($argv, 1), []);
+[$positional, $options] = measArgs(array_slice($argv, 1), ['refresh']);
 if (count($positional) !== 2) {
-    measFail('usage: php measure_charnew.php <mea006 extract> <answers out> [--model M] [--effort E] [--workers 4]');
+    measFail('usage: php measure_charnew.php <mea006 extract> <answers out> [--model M] [--effort E] [--workers 4] [--saved FILE] [--refresh]');
 }
 [$extractPath, $answersPath] = $positional;
 $lines = file($extractPath, FILE_IGNORE_NEW_LINES);
@@ -73,11 +81,30 @@ if ($charges === []) {
     exit(0);
 }
 
+// What was suggested before, by charge: asked once, not sent again.
+$savedPath = $options['saved'] ?? 'measure-suggested.jsonl';
+$chargeId = static fn (array $c): string => implode('|', [$c['acct'], $c['visit'], $c['dos'], $c['cpt'], implode('+', CHARNEW_MEASURES[$c['paycode']])]);
+$saved = [];
+if (!isset($options['refresh'])) {
+    foreach (is_file($savedPath) ? (file($savedPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: []) : [] as $line) {
+        $r = json_decode($line, true);
+        if (is_array($r) && isset($r['charge']) && is_array($r['answers'] ?? null)) {
+            $saved[(string) $r['charge']] = $r['answers'];
+        }
+    }
+}
+
 $reports = new RriReports();
 $requests = [];
 $measures = [];
+$reused = [];
 $noReport = 0;
 foreach ($charges as $i => $c) {
+    $before = $saved[$chargeId($c)] ?? null;
+    if ($before !== null && array_diff(CHARNEW_MEASURES[$c['paycode']], array_map('strval', array_keys($before))) === []) {
+        $reused[$i] = $before;
+        continue;
+    }
     $report = $reports->report($c['acct'], $c['visit'], $c['dos'], $c['cpt']);
     if ($report === '') {
         $noReport++;
@@ -91,7 +118,12 @@ foreach ($charges as $i => $c) {
     $measures[$id] = CHARNEW_MEASURES[$c['paycode']];
     $requests[$id] = measRequest($model, $effort, $measures[$id], [$c['cpt']], $age, [], $indication, $report);
 }
-echo sprintf("measure_charnew: %d reports found, %d not there yet\n", count($requests), $noReport);
+echo sprintf(
+    "measure_charnew: %d asked before (saved answer used, nothing sent), %d reports found, %d not there yet\n",
+    count($reused),
+    count($requests),
+    $noReport
+);
 
 $resultsPath = 'measure-charnew-' . date('Ymd-His') . '.results.jsonl';
 if ($requests !== []) {
@@ -103,19 +135,30 @@ $out = '';
 $written = 0;
 $failed = 0;
 $tally = [];
+$keep = null;
 foreach ($charges as $i => $c) {
     $id = sprintf('c%05d', $i);
-    if (!isset($requests[$id])) {
+    if (isset($reused[$i])) {
+        $answers = $reused[$i];
+    } elseif (!isset($requests[$id])) {
         continue;
-    }
-    $r = $results[$id] ?? null;
-    if ($r === null || ($r['outcome'] ?? '') !== 'succeeded') {
-        $failed++;
-        continue;
+    } else {
+        $r = $results[$id] ?? null;
+        if ($r === null || ($r['outcome'] ?? '') !== 'succeeded') {
+            $failed++;
+            continue;
+        }
+        $answers = $r['answers'];
+        $keep ??= measOpenPrivate($savedPath, 'a');
+        fwrite($keep, json_encode([
+            'charge' => $chargeId($c), 'asked' => date('Y-m-d H:i:s'), 'key' => $c['key'], 'acct' => $c['acct'],
+            'visit' => $c['visit'], 'dos' => $c['dos'], 'cpt' => $c['cpt'], 'paycode' => $c['paycode'],
+            'measures' => CHARNEW_MEASURES[$c['paycode']], 'answers' => $answers,
+        ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . "\n");
     }
     $fields = '';
-    foreach ($measures[$id] as $measure) {
-        $a = $r['answers'][$measure];
+    foreach (CHARNEW_MEASURES[$c['paycode']] as $measure) {
+        $a = $answers[$measure];
         $sure = ['high' => 'H', 'medium' => 'M', 'low' => 'L'][$a['confidence']] ?? 'L';
         $fields .= $a['answer'] . $sure;
         $kind = $a['answer'] === 0 ? ($sure === 'H' ? 'no finding, sure' : 'no finding, not sure') : 'a finding';
@@ -123,6 +166,9 @@ foreach ($charges as $i => $c) {
     }
     $out .= $c['key'] . str_pad($fields, 6) . "\n";
     $written++;
+}
+if ($keep !== null) {
+    fclose($keep);
 }
 file_put_contents($answersPath, $out);
 echo sprintf("measure_charnew: %d charges answered, %d requests failed (tried again next run)\n", $written, $failed);
