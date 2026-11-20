@@ -27,6 +27,8 @@
  *   --answered     only charges with at least one answer keyed (a blank is the coder's Enter)
  *   --blank N      with --answered: also N charges with every answer blank, at random
  *                  (--seed picks which)
+ *   --visits FILE  only charges whose visit number is in FILE (one per line), for one day's
+ *                  load: rrmc-measure-check makes the list from the RRMC file
  *   --measure M    only charges that carry QMM26, 364, 405 or 406
  *   --limit N      only the first N charges after the selection
  *   --dry-run      select and count, fetch and send nothing
@@ -397,6 +399,15 @@ function rriRun(string $charcur, string $garfile, array $options): void
     fwrite(STDERR, 'charcur: ' . implode(', ', array_map(static fn (string $k, int $n): string => "$k $n", array_keys($left), $left)) . "\n");
 
     $selection = [];
+    if (isset($options['visits'])) {
+        $list = @file($options['visits'], FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if ($list === false) {
+            measFail('cannot read ' . $options['visits']);
+        }
+        $wanted = array_fill_keys(array_map('trim', $list), true);
+        $charges = array_values(array_filter($charges, static fn (array $c): bool => isset($wanted[$c['visit']])));
+        $selection[] = sprintf('visits of %s (%d listed)', basename($options['visits']), count($wanted));
+    }
     if (isset($options['measure'])) {
         if (!isset(MEAS_OPTIONS[$options['measure']])) {
             measFail('--measure is one of ' . implode(', ', array_keys(MEAS_OPTIONS)));
