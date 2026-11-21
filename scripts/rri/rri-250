@@ -161,6 +161,33 @@ total=$(wc -l ciag | awk '{ print $1 }')
 # what the reports say for the quality measure questions, for xxx003c to show
 /home/stee/src/cms/scripts/rri/rri-measure-suggest || echo "rri-measure-suggest failed"
 
+# the lists the coders review: every cobol program that displays clears the
+# screen when it starts, so what was shown above (and in rri-245 before this
+# script) is shown again here, last, and kept together in load-review-<stamp>.
+# file222 and file245 are rri-245's: the time beside each says which load
+# wrote them.
+review=load-review-$(date +%m%d%y-%H%M%S)
+show_review() {
+    [ -s "$1" ] || return 0
+    echo
+    echo "== $2 ($1, $(date -r "$1" '+%m/%d %H:%M'))"
+    cat "$1"
+}
+{
+    show_review file222 "credits and the charges they cancel, dangling credits"
+    show_review file245 "charges that may need a 76 or 77 mod"
+    show_review newgarno "new garnos"
+    show_review fileaccins "accident ins charges"
+    show_review file252 "special handling of 024 (cardio kid) and GG mod"
+} > "$review"
+if [ -s "$review" ]; then
+    echo
+    echo "******** to review, also in $review ********"
+    cat "$review"
+else
+    rm -f "$review"
+fi
 
+echo
 echo "congrats, you are ready to code $totalnog charges! $cntr G1004s autocoded :)" 
 exit
