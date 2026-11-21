@@ -153,8 +153,6 @@ total=$(wc -l ciag | awk '{ print $1 }')
 # the lists the coders review: every cobol program that displays clears the
 # screen when it starts, so what was shown above (and in rri-245 before this
 # script) is shown again here, last, and kept together in load-review-<stamp>.
-# file222 and file245 are rri-245's: the time beside each says which load
-# wrote them.
 review=load-review-$(date +%m%d%y-%H%M%S)
 show_review() {
     [ -s "$1" ] || return 0
@@ -162,9 +160,29 @@ show_review() {
     echo "== $2 ($1, $(date -r "$1" '+%m/%d %H:%M'))"
     cat "$1"
 }
+# file222 and file245 are rri-245's, and rri-245 is run more than once a
+# load: its rri221 deletes the credit pairs from ordfile, so a second run
+# lists only the dangling credits. show every copy rri-245 saved since the
+# last load (the previous ciag-<stamp>, this load's is the newest), oldest
+# first, each line once. rri-245 saves a copy only when the list is not empty.
+prev_load=$(ls -t ciag-* 2>/dev/null | sed -n 2p)
+show_since_load() {
+    local copies
+    if [ -n "$prev_load" ]; then
+        copies=$(find . -maxdepth 1 -name "$1-*" -newer "$prev_load" \
+            -printf '%T@ %f\n' | sort -n | cut -d' ' -f2)
+    else
+        copies=$(ls -t "$1"-* 2>/dev/null | head -1)
+    fi
+    [ -n "$copies" ] || return 0
+    echo
+    echo "== $2 (rri-245 runs since the last load:" $copies")"
+    # shellcheck disable=SC2086
+    awk '!seen[$0]++' $copies
+}
 {
-    show_review file222 "credits and the charges they cancel, dangling credits"
-    show_review file245 "charges that may need a 76 or 77 mod"
+    show_since_load file222 "credits and the charges they cancel, dangling credits"
+    show_since_load file245 "charges that may need a 76 or 77 mod"
     show_review newgarno "new garnos"
     show_review fileaccins "accident ins charges"
     show_review file252 "special handling of 024 (cardio kid) and GG mod"
