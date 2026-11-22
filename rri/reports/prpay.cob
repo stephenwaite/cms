@@ -24,7 +24,8 @@
            SELECT CAREDETL ASSIGN TO "S1" ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS DT-KEY
            FILE STATUS IS WS-FS.
-           SELECT MEDFILE2020 ASSIGN TO "S31" ORGANIZATION IS INDEXED
+           SELECT OPTIONAL MEDFILE2020 ASSIGN TO "S31"
+           ORGANIZATION IS INDEXED
            ACCESS MODE IS DYNAMIC RECORD KEY IS MED-KEY
            FILE STATUS IS WS-FS2.
            SELECT FILEOUT ASSIGN TO "S35" ORGANIZATION
@@ -97,9 +98,14 @@
                DISPLAY "prpay: iedidetl open fs " WS-FS
                STOP RUN
            END-IF
+      * optional: no medfile (fs 05) leaves the fee columns blank
            OPEN INPUT MEDFILE2020
            IF WS-FS2 NOT = "00"
                MOVE "N" TO WS-MED
+               DISPLAY "prpay: no medfile, fs " WS-FS2
+               IF WS-FS2 = "05"
+                   CLOSE MEDFILE2020
+               END-IF
            END-IF
            OPEN OUTPUT FILEOUT
            MOVE SPACE TO FILEOUT01
