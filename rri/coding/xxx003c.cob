@@ -210,6 +210,9 @@
            02 WS-QS-CONF     PIC X.
        01  WS-QS-WORD        PIC X(6).
        01  WS-QS-LINE        PIC X(60).
+      *    Enter on a measure question: which measure, coder's Y/N
+       01  WS-BLANK-MEAS     PIC X(3).
+       01  WS-BLANK-ANS      PIC X.
        01  CHARNEW-STAT.
            02 CHARNEW-STAT1  PIC X.
            02 CHARNEW-STAT2  PIC X.
@@ -612,6 +615,13 @@
                IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR "4 " OR SPACE)
                    GO TO P2-0
                END-IF
+               IF CD-QP1 = SPACE
+                   MOVE "364" TO WS-BLANK-MEAS
+                   PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+                   IF WS-BLANK-ANS NOT = "Y"
+                       GO TO P2-0
+                   END-IF
+               END-IF
            END-IF
 
       *--- Measure 405 / Paycode 012 -----------------------------------
@@ -632,6 +642,13 @@
                IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
                    GO TO P2-0
                END-IF
+               IF CD-QP1 = SPACE
+                   MOVE "405" TO WS-BLANK-MEAS
+                   PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+                   IF WS-BLANK-ANS NOT = "Y"
+                       GO TO P2-0
+                   END-IF
+               END-IF
            END-IF
 
       *--- Measure 406 / Paycode 013 -----------------------------------
@@ -651,6 +668,13 @@
                END-IF
                IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
                    GO TO P2-0
+               END-IF
+               IF CD-QP1 = SPACE
+                   MOVE "406" TO WS-BLANK-MEAS
+                   PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+                   IF WS-BLANK-ANS NOT = "Y"
+                       GO TO P2-0
+                   END-IF
                END-IF
            END-IF
 
@@ -676,6 +700,13 @@
            END-IF
            IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR "4 " OR SPACE)
                GO TO P014-QP1
+           END-IF
+           IF CD-QP1 = SPACE
+               MOVE "364" TO WS-BLANK-MEAS
+               PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+               IF WS-BLANK-ANS NOT = "Y"
+                   GO TO P014-QP1
+               END-IF
            END-IF.
        P014-QP2.
            MOVE CD-QS2 TO WS-QS
@@ -694,6 +725,13 @@
            IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
                DISPLAY "Invalid 405 response, re-enter"
                GO TO P014-QP2
+           END-IF
+           IF CD-QP2 = SPACE
+               MOVE "405" TO WS-BLANK-MEAS
+               PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+               IF WS-BLANK-ANS NOT = "Y"
+                   GO TO P014-QP2
+               END-IF
            END-IF
            GO TO P2-000.
        P015-CHECK.
@@ -719,6 +757,13 @@
            END-IF
            IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR "4 " OR SPACE)
                GO TO P015-QP1
+           END-IF
+           IF CD-QP1 = SPACE
+               MOVE "364" TO WS-BLANK-MEAS
+               PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+               IF WS-BLANK-ANS NOT = "Y"
+                   GO TO P015-QP1
+               END-IF
            END-IF.
        P015-QP2.
            MOVE CD-QS2 TO WS-QS
@@ -737,6 +782,13 @@
            IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
                DISPLAY "Invalid 406 response, re-enter"
                GO TO P015-QP2
+           END-IF
+           IF CD-QP2 = SPACE
+               MOVE "406" TO WS-BLANK-MEAS
+               PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+               IF WS-BLANK-ANS NOT = "Y"
+                   GO TO P015-QP2
+               END-IF
            END-IF
            GO TO P2-000.
        P016-CHECK.
@@ -762,6 +814,13 @@
            END-IF
            IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR SPACE)
                GO TO P016-QP1
+           END-IF
+           IF CD-QP1 = SPACE
+               MOVE "405" TO WS-BLANK-MEAS
+               PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+               IF WS-BLANK-ANS NOT = "Y"
+                   GO TO P016-QP1
+               END-IF
            END-IF.
        P016-QP2.
            MOVE CD-QS2 TO WS-QS
@@ -780,6 +839,13 @@
            IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
                DISPLAY "Invalid 406 response, re-enter"
                GO TO P016-QP2
+           END-IF
+           IF CD-QP2 = SPACE
+               MOVE "406" TO WS-BLANK-MEAS
+               PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+               IF WS-BLANK-ANS NOT = "Y"
+                   GO TO P016-QP2
+               END-IF
            END-IF
            GO TO P2-000.
        P017-CHECK.
@@ -805,6 +871,13 @@
            END-IF
            IF NOT (CD-QP1 = "1 " OR "2 " OR "3 " OR "4 " OR SPACE)
                GO TO P017-QP1
+           END-IF
+           IF CD-QP1 = SPACE
+               MOVE "364" TO WS-BLANK-MEAS
+               PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+               IF WS-BLANK-ANS NOT = "Y"
+                   GO TO P017-QP1
+               END-IF
            END-IF.
        P017-QP2.
            MOVE CD-QS2 TO WS-QS
@@ -823,6 +896,13 @@
            IF NOT (CD-QP2 = "1 " OR "2 " OR "3 " OR SPACE)
                DISPLAY "Invalid 405 response, re-enter"
                GO TO P017-QP2
+           END-IF
+           IF CD-QP2 = SPACE
+               MOVE "405" TO WS-BLANK-MEAS
+               PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+               IF WS-BLANK-ANS NOT = "Y"
+                   GO TO P017-QP2
+               END-IF
            END-IF.
        P017-QP3.
            MOVE CD-QS3 TO WS-QS
@@ -841,6 +921,13 @@
            IF NOT (CD-QP3 = "1 " OR "2 " OR "3 " OR SPACE)
                DISPLAY "Invalid 406 response, re-enter"
                GO TO P017-QP3
+           END-IF
+           IF CD-QP3 = SPACE
+               MOVE "406" TO WS-BLANK-MEAS
+               PERFORM CONFIRM-BLANK THRU CONFIRM-BLANK-EXIT
+               IF WS-BLANK-ANS NOT = "Y"
+                   GO TO P017-QP3
+               END-IF
            END-IF.
       *----------------------------------------------------------------
        P2-000.
@@ -1462,6 +1549,29 @@
            DISPLAY WS-QS-LINE.
 
        SHOW-QS-EXIT.
+           EXIT.
+
+      *----------------------------------------------------------------
+      *  CONFIRM-BLANK: Enter on a measure question means no finding,
+      *  and a wrong Enter quietly writes the "no finding" G-code
+      *  (G9551 for 405, G9557 for 406). Ask once more unless the
+      *  report reading in WS-QS also said no finding (answer 0).
+      *  WS-BLANK-ANS = "Y" keeps the Enter; anything else re-asks.
+       CONFIRM-BLANK.
+           MOVE "Y" TO WS-BLANK-ANS
+           IF WS-QS-ANS = "0"
+               AND (WS-QS-CONF = "H" OR "M" OR "L")
+               GO TO CONFIRM-BLANK-EXIT
+           END-IF
+           DISPLAY " No finding for measure " WS-BLANK-MEAS
+                   "? Y = yes, any other key = answer again"
+           MOVE SPACE TO WS-BLANK-ANS
+           ACCEPT WS-BLANK-ANS
+           IF WS-BLANK-ANS = "y"
+               MOVE "Y" TO WS-BLANK-ANS
+           END-IF.
+
+       CONFIRM-BLANK-EXIT.
            EXIT.
 
       *----------------------------------------------------------------
