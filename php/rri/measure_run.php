@@ -60,16 +60,22 @@ function measArgs(array $argv, array $flags): array
 }
 
 /**
- * A file only its owner can read: the run, results and detail files hold patient data.
+ * A file only its owner and group can read (0660): the run, results, detail and saved
+ * suggestion files hold patient data. Group read/write is the coding group's (rri) default,
+ * so whichever coder runs the load can read and add to measure-suggested.jsonl. The mode is
+ * set only on a file this user creates or owns; chmod on someone else's file would fail.
  *
  * @return resource
  */
 function measOpenPrivate(string $path, string $mode)
 {
-    if (!file_exists($path)) {
+    $created = !file_exists($path);
+    if ($created) {
         touch($path);
     }
-    chmod($path, 0600);
+    if ($created || (function_exists('posix_geteuid') && fileowner($path) === posix_geteuid())) {
+        chmod($path, 0660);
+    }
     $handle = fopen($path, $mode);
     if ($handle === false) {
         measFail("cannot write $path");
