@@ -54,6 +54,8 @@ awk -F'\t' -v OFS='\t' -v RATIO="$RATIO" -v LIST="$LIST" '
       ysel[pr]++; ys[pr] += $18
       p = trim($5) "-" trim($6); pn[p]++; ps[p] += $18
       m = substr($8, 1, 6); mn[m]++; ms[m] += $18
+      if (!(pr in y1) || m < y1[pr]) y1[pr] = m
+      if (m > y2[pr]) y2[pr] = m
       kn[key]++; ks[key] += $18
       if (LIST != "")
           print $2, $1, $8, $5, $6, $9, $4, $10, $11, $17, $18, $21 > LIST
@@ -77,10 +79,10 @@ awk -F'\t' -v OFS='\t' -v RATIO="$RATIO" -v LIST="$LIST" '
       printf "   same account, date and procedure also paid at rate: %d lines, %.2f\n", cn, cs
       printf "   still short: %d lines, %.2f\n", sel - cn, selamt - cs
       print ""
-      print "== " what " by payer:  lines  short  (payer lines, at rate)  payer"
+      print "== " what " by payer:  lines  short  first-last month of service  (payer lines, at rate)  payer"
       fflush(); cmd = "sort -rn"
       for (y in ysel)
-          printf "%5d  %11.2f  (%d, %d)  %s\n", ysel[y], ys[y], yn[y], yok[y], y | cmd
+          printf "%5d  %11.2f  %s-%s  (%d, %d)  %s\n", ysel[y], ys[y], y1[y], y2[y], yn[y], yok[y], y | cmd
       close(cmd)
       print ""
       print "== " what " by month of service:  month  lines  short"
