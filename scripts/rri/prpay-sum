@@ -5,8 +5,9 @@
 #   prpay-sum [-r RATIO] [-o LIST] REPORT ...
 #
 #   -r RATIO  only the short lines allowed at this share of billed
-#             (the A/B column, e.g. -r 0.27) in the by-procedure,
-#             by-month and resolved sections and in the list
+#             (the A/B column, e.g. -r 0.27) in the by-payer,
+#             by-procedure, by-month and resolved sections and in
+#             the list
 #   -o LIST   also write those lines to LIST (tsv with a header):
 #             icn, account, dos, proc, mod, pay date, trace, billed,
 #             allowed, exp, short and the member id when the report
@@ -42,13 +43,15 @@ awk -F'\t' -v OFS='\t' -v RATIO="$RATIO" -v LIST="$LIST" '
       next
   }
   {
-      tag = trim($19); key = $1 $8 $5 $6
-      if (tag == "OK") atrate[key] = 1
+      tag = trim($19); key = $1 $8 $5 $6; pr = trim($3)
+      yn[pr]++
+      if (tag == "OK") { atrate[key] = 1; yok[pr]++ }
       if (tag != "") next
       r = $15 + 0
       rn[r]++; rs[r] += $18
       if (RATIO != "" && r != RATIO + 0) next
       sel++; selamt += $18
+      ysel[pr]++; ys[pr] += $18
       p = trim($5) "-" trim($6); pn[p]++; ps[p] += $18
       m = substr($8, 1, 6); mn[m]++; ms[m] += $18
       kn[key]++; ks[key] += $18
@@ -73,6 +76,12 @@ awk -F'\t' -v OFS='\t' -v RATIO="$RATIO" -v LIST="$LIST" '
           if (k in atrate) { cn += kn[k]; cs += ks[k] }
       printf "   same account, date and procedure also paid at rate: %d lines, %.2f\n", cn, cs
       printf "   still short: %d lines, %.2f\n", sel - cn, selamt - cs
+      print ""
+      print "== " what " by payer:  lines  short  (payer lines, at rate)  payer"
+      fflush(); cmd = "sort -rn"
+      for (y in ysel)
+          printf "%5d  %11.2f  (%d, %d)  %s\n", ysel[y], ys[y], yn[y], yok[y], y | cmd
+      close(cmd)
       print ""
       print "== " what " by month of service:  month  lines  short"
       fflush(); cmd = "sort"

@@ -28,7 +28,8 @@
       * tsv output with header row for calc import.
       * S1 iedidetl  S31 medfile  S35 report (tsv)  S50 mbrxfile
       * use the medfile of the DOSYEAR asked for.
-      * PAYER env: part of the payer name, upper case (required)
+      * PAYER env: part of the payer name, upper case (required),
+      *   or * for every payer
       * RATE env: optional, EXP SHORT and OK/OVER left out without
       * MBR env: "Y" adds a last column MEMBID, the member id the
       *   payer returned (mbrxfile, as erar301 reads it). left out
@@ -216,11 +217,13 @@
            READ CAREDETL NEXT AT END
                GO TO P99
            END-READ
-           MOVE 0 TO WS-HIT
-           INSPECT DT-PRNAME TALLYING WS-HIT
-               FOR ALL WS-PAYER(1:WS-PLEN)
-           IF WS-HIT = 0
-               GO TO P1
+           IF WS-PAYER NOT = "*"
+               MOVE 0 TO WS-HIT
+               INSPECT DT-PRNAME TALLYING WS-HIT
+                   FOR ALL WS-PAYER(1:WS-PLEN)
+               IF WS-HIT = 0
+                   GO TO P1
+               END-IF
            END-IF
            IF WS-YEAR NOT = "all"
              AND DT-DATE(1:4) NOT = WS-YEAR
