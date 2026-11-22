@@ -3,17 +3,28 @@
       * @author  Claude
       * payer pay listing: every iedidetl 835 line whose payer
       * name (dt-prname, n1*pr) contains PAYER, for a look at how
-      * a payer is paying before an expected rate is settled.
-      * nothing is calculated but the two ratios:
+      * a payer is paying, against a rate when one is given.
       *   A/B  allowed / billed
       *   A/M  allowed / medfile fee (blank: proc/mod not on file
       *        or no medfile)
       * PR = PR-group adjustments summed (patient cost-share).
       * ADJ = every adjustment on the line, group-reason amount.
-      * TAG: TB takeback, DENY nothing allowed and nothing paid.
+      * with RATE (the allowed share of billed, .90 or 90):
+      *   EXP    billed x rate, the allowed amount expected
+      *   SHORT  EXP - allowed
+      * the test is on allowed, not paid, so a line paid less for
+      * patient cost-share or another payer is not counted.
+      * TAG:
+      *   (blank) allowed short of EXP, in TOTAL SHORT
+      *           (no RATE: every line that is not TB or DENY)
+      *   OK      allowed within +/- 1.00 of EXP, excluded
+      *   OVER    allowed above EXP, excluded
+      *   TB      takeback, excluded
+      *   DENY    nothing allowed and nothing paid, excluded
       * tsv output with header row for calc import.
       * S1 iedidetl  S31 medfile  S35 report (tsv)
       * PAYER env: part of the payer name, upper case (required)
+      * RATE env: optional, EXP SHORT and OK/OVER left out without
       * DOSYEAR env: "2026" (default) or "all"
        IDENTIFICATION DIVISION.
        PROGRAM-ID. prpay.
@@ -55,6 +66,21 @@
        01 WS-PR        PIC S9(5)V99.
        01 WS-RATIO     PIC S9(3)V99.
        01 WS-ADJ       PIC X(100).
+       01 WS-RATE-X    PIC X(8).
+       01 WS-RATE      PIC 9(3)V9(4) VALUE 0.
+       01 WS-RDIV      PIC 9(5) VALUE 1.
+       01 WS-RDOT      PIC X VALUE "N".
+       01 WS-RDIG      PIC 9.
+       01 WS-EXPECT    PIC S9(5)V99.
+       01 WS-SHORT     PIC S9(5)V99.
+       01 WS-TOT-SHORT PIC S9(8)V99 VALUE 0.
+       01 CT-SHORT     PIC 9(5) VALUE 0.
+       01 CT-OK        PIC 9(5) VALUE 0.
+       01 CT-OVER      PIC 9(5) VALUE 0.
+       01 K            PIC 99.
+       01 D-EXPECT     PIC X(9).
+       01 D-SHORT      PIC X(9).
+       01 D-EXPN       PIC -----9.99.
        01 WS-PTR       PIC 999.
        01 WS-TOT-BILL  PIC S9(8)V99 VALUE 0.
        01 WS-TOT-ALLOW PIC S9(8)V99 VALUE 0.
@@ -88,6 +114,25 @@
                DISPLAY "prpay: set PAYER to part of the payer name"
                STOP RUN
            END-IF
+      * rate: digits and one point; above 1 is a percent
+           MOVE SPACE TO WS-RATE-X
+           ACCEPT WS-RATE-X FROM ENVIRONMENT "RATE"
+           PERFORM VARYING K FROM 1 BY 1 UNTIL K > 8
+               IF WS-RATE-X(K:1) = "."
+                   MOVE "Y" TO WS-RDOT
+               END-IF
+               IF WS-RATE-X(K:1) NUMERIC
+                   MOVE WS-RATE-X(K:1) TO WS-RDIG
+                   COMPUTE WS-RATE = WS-RATE * 10 + WS-RDIG
+                   IF WS-RDOT = "Y"
+                       COMPUTE WS-RDIV = WS-RDIV * 10
+                   END-IF
+               END-IF
+           END-PERFORM
+           COMPUTE WS-RATE = WS-RATE / WS-RDIV
+           IF WS-RATE > 1
+               COMPUTE WS-RATE = WS-RATE / 100
+           END-IF
            MOVE 30 TO WS-PLEN
            PERFORM UNTIL WS-PLEN = 1
                    OR WS-PAYER(WS-PLEN:1) NOT = SPACE
@@ -114,7 +159,8 @@
                "MOD2" WS-TAB "DOS" WS-TAB "PAYDATE" WS-TAB
                "BILLED" WS-TAB "ALLOWED" WS-TAB "PAID" WS-TAB
                "PR" WS-TAB "MEDFEE" WS-TAB "A/B" WS-TAB
-               "A/M" WS-TAB "TAG" WS-TAB "ADJ"
+               "A/M" WS-TAB "EXP" WS-TAB "SHORT" WS-TAB
+               "TAG" WS-TAB "ADJ"
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            MOVE SPACE TO DT-KEY.
@@ -187,6 +233,29 @@
                        END-IF
                END-READ
            END-IF
+           MOVE SPACE TO D-EXPECT D-SHORT
+           IF WS-RATE NOT = 0
+               COMPUTE WS-EXPECT ROUNDED = DT-BILLED * WS-RATE
+               COMPUTE WS-SHORT = WS-EXPECT - DT-ALLOWED
+               MOVE WS-EXPECT TO D-EXPN
+               MOVE D-EXPN TO D-EXPECT
+               MOVE WS-SHORT TO D-EXPN
+               MOVE D-EXPN TO D-SHORT
+               IF WS-TAG = SPACE
+                   IF WS-SHORT < 1.00 AND WS-SHORT > -1.00
+                       MOVE "OK" TO WS-TAG
+                       ADD 1 TO CT-OK
+                   ELSE
+                       IF WS-SHORT < 0
+                           MOVE "OVER" TO WS-TAG
+                           ADD 1 TO CT-OVER
+                       ELSE
+                           ADD WS-SHORT TO WS-TOT-SHORT
+                           ADD 1 TO CT-SHORT
+                       END-IF
+                   END-IF
+               END-IF
+           END-IF
            MOVE DT-BILLED  TO D-BILL
            MOVE DT-ALLOWED TO D-ALLOW
            MOVE DT-PAYED   TO D-PAID
@@ -197,7 +266,8 @@
                DT-MOD2 WS-TAB DT-DATE WS-TAB DT-PAYDATE WS-TAB
                D-BILL WS-TAB D-ALLOW WS-TAB D-PAID WS-TAB
                D-PR WS-TAB D-MED WS-TAB D-RAB WS-TAB
-               D-RAM WS-TAB WS-TAG WS-TAB WS-ADJ
+               D-RAM WS-TAB D-EXPECT WS-TAB D-SHORT WS-TAB
+               WS-TAG WS-TAB WS-ADJ
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
            GO TO P1.
@@ -232,6 +302,24 @@
            STRING "DENIED" WS-TAB D-CT
                DELIMITED BY SIZE INTO FILEOUT01
            WRITE FILEOUT01
+           IF WS-RATE NOT = 0
+               MOVE CT-SHORT TO D-CT
+               MOVE WS-TOT-SHORT TO D-TOT
+               MOVE SPACE TO FILEOUT01
+               STRING "SHORT" WS-TAB D-CT WS-TAB "TOTAL SHORT"
+                   WS-TAB D-TOT DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+               MOVE CT-OK TO D-CT
+               MOVE SPACE TO FILEOUT01
+               STRING "AT-RATE" WS-TAB D-CT
+                   DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+               MOVE CT-OVER TO D-CT
+               MOVE SPACE TO FILEOUT01
+               STRING "OVER" WS-TAB D-CT
+                   DELIMITED BY SIZE INTO FILEOUT01
+               WRITE FILEOUT01
+           END-IF
            CLOSE CAREDETL FILEOUT
            IF WS-MED = "Y"
                CLOSE MEDFILE2020
