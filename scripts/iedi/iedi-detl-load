@@ -9,8 +9,8 @@
 # day files: each is copied to a work file with a segment per line,
 # > changed to : and upper case, as iedi-0 does, then run through
 # iedidetl. only remits paid to rri are kept (parm139), a remit
-# already on file is skipped, so a re-run is safe. run the files
-# oldest first: the latest remit wins in mbrxfile.
+# already on file is skipped, so a re-run is safe, in any order
+# (mbrxfile keeps the member id of the latest pay date).
 # prints kept remits and totals; skips go to the log only.
 
 : "${RUNCBL:?RUNCBL is not set}"
