@@ -172,27 +172,55 @@ show_review() {
     cat "$1"
 }
 # file222 and file245 are rri-245's, and rri-245 is run more than once a
-# load: its rri221 deletes the credit pairs from ordfile, so a second run
-# lists only the dangling credits. show every copy rri-245 saved since the
-# last load (the previous ciag-<stamp>, this load's is the newest), oldest
-# first, each line once. rri-245 saves a copy only when the list is not empty.
+# load. rri-245 saves a copy only when the list is not empty: the copies of
+# this load are the ones newer than the last load (the previous ciag-<stamp>,
+# this load's is the newest), oldest first.
 prev_load=$(ls -t ciag-* 2>/dev/null | sed -n 2p)
+copies_since_load() {
+    if [ -n "$prev_load" ]; then
+        find . -maxdepth 1 -name "$1-*" -newer "$prev_load" \
+            -printf '%T@ %f\n' | sort -n | cut -d' ' -f2
+    else
+        ls -t "$1"-* 2>/dev/null | head -1
+    fi
+}
+# every copy since the last load, each line once
 show_since_load() {
     local copies
-    if [ -n "$prev_load" ]; then
-        copies=$(find . -maxdepth 1 -name "$1-*" -newer "$prev_load" \
-            -printf '%T@ %f\n' | sort -n | cut -d' ' -f2)
-    else
-        copies=$(ls -t "$1"-* 2>/dev/null | head -1)
-    fi
+    copies=$(copies_since_load "$1")
     [ -n "$copies" ] || return 0
     echo
     echo "== $2 (rri-245 runs since the last load:" $copies")"
     # shellcheck disable=SC2086
     awk '!seen[$0]++' $copies
 }
+# file222: the first rri-245 run lists each credit with the charge it cancels
+# and its rri221 deletes both from ordfile, so they net to zero and the next
+# run lists only the dangling credits. those are what the coders review:
+# they are listed from file222 as the last run left it. the pairs are counted
+# from the saved copies and the copy that lists them is named.
+show_credits() {
+    local copies pairs
+    if [ -z "$prev_load" ] || [ file222 -nt "$prev_load" ]; then
+        if grep -q 'DANGLING CREDIT' file222 2>/dev/null; then
+            echo
+            echo "== dangling credits (file222, $(date -r file222 '+%m/%d %H:%M'))"
+            grep 'DANGLING CREDIT' file222
+        fi
+    fi
+    copies=$(copies_since_load file222)
+    [ -n "$copies" ] || return 0
+    # shellcheck disable=SC2086
+    pairs=$(awk 'NF && !/DANGLING CREDIT/ && !seen[$0]++ { n++ }
+        END { print int(n / 2) }' $copies)
+    [ "$pairs" -gt 0 ] || return 0
+    echo
+    # shellcheck disable=SC2086
+    echo "== charge/credit pairs that net to zero, removed by rri-245 and" \
+        "not listed here: $pairs (see" $(grep -lv 'DANGLING CREDIT' $copies)")"
+}
 {
-    show_since_load file222 "credits and the charges they cancel, dangling credits"
+    show_credits
     show_since_load file245 "charges that may need a 76 or 77 mod"
     show_review newgarno "new garnos"
     show_review fileaccins "accident ins charges"
