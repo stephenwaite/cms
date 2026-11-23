@@ -600,6 +600,107 @@ function dxReadAccessions(string $path): array
 }
 
 /**
+ * The accessions earlier runs answered, for --skip-answered (dx_compare.php and
+ * measure_compare.php; their run files have the same shape): what each run file kept of
+ * every accession whose last line in the run's results file is a succeeded answer. When two
+ * runs answered the same accession, the one named later counts.
+ *
+ * @param string $runPaths one run file, or several separated by commas
+ * @return array<string, array<string, mixed>> by 'k' . accession
+ */
+function dxAnsweredBy(string $runPaths): array
+{
+    $paths = array_values(array_filter(array_map('trim', explode(',', $runPaths)), static fn (string $p): bool => $p !== ''));
+    if ($paths === []) {
+        fwrite(STDERR, "--skip-answered names no run file\n");
+        exit(1);
+    }
+    $answered = [];
+    foreach ($paths as $runPath) {
+        $meta = is_file($runPath) ? json_decode((string) file_get_contents($runPath), true) : null;
+        if (!is_array($meta) || !is_array($meta['accessions'] ?? null)) {
+            fwrite(STDERR, "$runPath is not a run file\n");
+            exit(1);
+        }
+        $resultsPath = preg_replace('/\.json$/', '', $runPath) . '.results.jsonl';
+        if (!is_file($resultsPath)) {
+            fwrite(STDERR, "$resultsPath is not there: without the run's answers there is no telling what it answered\n");
+            exit(1);
+        }
+        // A resumed run adds lines: the last one for an accession is its answer.
+        $outcome = [];
+        foreach (file($resultsPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+            $result = json_decode($line, true);
+            if (is_array($result) && isset($result['id'])) {
+                $outcome[(string) $result['id']] = (string) ($result['outcome'] ?? '');
+            }
+        }
+        foreach ($meta['accessions'] as $id => $asked) {
+            if (is_array($asked) && isset($asked['accession']) && ($outcome[(string) $id] ?? '') === 'succeeded') {
+                $answered['k' . $asked['accession']] = $asked;
+            }
+        }
+    }
+
+    return $answered;
+}
+
+/**
+ * Whether an earlier run's answer still stands for an accession as the file has it now: the
+ * fields named are the same (lists compared without regard to order). Codes added to or
+ * changed on the accession, or a report that became an addendum, mean it is asked again.
+ *
+ * @param array<string, mixed> $now the accession as dxReadAccessions() gives it
+ * @param array<string, mixed> $then what the earlier run file kept of it
+ * @param list<string> $fields
+ */
+function dxSameAsAnswered(array $now, array $then, array $fields): bool
+{
+    foreach ($fields as $field) {
+        $a = $now[$field] ?? '';
+        $b = $then[$field] ?? '';
+        if (is_array($a) || is_array($b)) {
+            $a = array_map('strval', (array) $a);
+            $b = array_map('strval', (array) $b);
+            sort($a, SORT_STRING);
+            sort($b, SORT_STRING);
+        }
+        if ($a !== $b) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * Leave out of $accessions the ones an earlier run answered and that are unchanged since
+ * (--skip-answered): what is left is new in this file, or was answered as something else.
+ *
+ * @param list<array<string, mixed>> $accessions
+ * @param list<string> $fields the fields that must be unchanged for the answer to stand
+ * @return array{list<array<string, mixed>>, int, int} what is left, how many were left out, and how many of those left had an earlier answer for other codes or another report status
+ */
+function dxSkipAnswered(array $accessions, string $runPaths, array $fields): array
+{
+    $answered = dxAnsweredBy($runPaths);
+    $left = [];
+    $changed = 0;
+    foreach ($accessions as $a) {
+        $then = $answered['k' . $a['accession']] ?? null;
+        if ($then !== null && dxSameAsAnswered($a, $then, $fields)) {
+            continue;
+        }
+        if ($then !== null) {
+            $changed++;
+        }
+        $left[] = $a;
+    }
+
+    return [$left, count($accessions) - count($left), $changed];
+}
+
+/**
  * How the suggestions (best first) sit against Gifford's codes for the visit.
  *
  * @param list<string> $gifford
