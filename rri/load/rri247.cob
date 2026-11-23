@@ -19,6 +19,9 @@
            LOCK MODE MANUAL.
            SELECT FILEOUT ASSIGN TO "S40" ORGANIZATION LINE
            SEQUENTIAL.
+      *    the lines shown on the screen, for rri-247 to show again
+           SELECT LISTOUT ASSIGN TO "S45" ORGANIZATION LINE
+           SEQUENTIAL.
        DATA DIVISION.
        FILE SECTION.
        FD FILEIN.
@@ -84,17 +87,23 @@
            02 NAME-KEY PIC XXX.
        FD  FILEOUT.
        01 FILEOUT01 PIC X(309).
+       FD  LISTOUT.
+       01 LISTOUT01 PIC X(60).
        WORKING-STORAGE SECTION.
        01  FLAG PIC 9.
        01  ALF-1 PIC X.
        01  CNTR PIC 99 VALUE 0.
+       01  LIST-1 PIC 9.
+       01  LIST-2 PIC 9.
        PROCEDURE DIVISION.
        0005-START.
            OPEN INPUT FILEIN.
            OPEN OUTPUT FILEOUT.
+           OPEN OUTPUT LISTOUT.
            OPEN I-O ACTFILE.
        P1. READ FILEIN AT END GO TO P9.
            MOVE 0 TO FLAG
+           MOVE 0 TO LIST-1 LIST-2
            MOVE FI-1 TO A-ACTNO
            READ ACTFILE WITH LOCK INVALID DISPLAY "BAD" GO TO P1.
            IF A-PRINS = "001" GO TO P1.
@@ -105,6 +114,14 @@
            MOVE "K" TO A-PR-RELATE MOVE 1 TO FLAG GO TO S2.
        S1.
            DISPLAY "PRIMARY " A-PR-RELATE " " A-PRNAME " " A-ACTNO
+           IF LIST-1 = 0
+            MOVE 1 TO LIST-1
+            MOVE SPACE TO LISTOUT01
+            STRING "PRIMARY " A-PR-RELATE " " A-PRNAME " " A-ACTNO
+             DELIMITED BY SIZE INTO LISTOUT01
+            END-STRING
+            WRITE LISTOUT01
+           END-IF
            ADD 1 TO CNTR
            IF CNTR > 20
             ACCEPT ALF-1
@@ -121,6 +138,14 @@
            MOVE "K" TO A-SE-RELATE MOVE 1 TO FLAG GO TO P2.
            IF A-SEINS = "001" GO TO P2.
            DISPLAY "SECOND. " A-SE-RELATE " " A-SENAME " " A-ACTNO
+           IF LIST-2 = 0
+            MOVE 1 TO LIST-2
+            MOVE SPACE TO LISTOUT01
+            STRING "SECOND. " A-SE-RELATE " " A-SENAME " " A-ACTNO
+             DELIMITED BY SIZE INTO LISTOUT01
+            END-STRING
+            WRITE LISTOUT01
+           END-IF
            ADD 1 TO CNTR
            IF CNTR > 20
             ACCEPT ALF-1
@@ -144,6 +169,6 @@
            " " A-SE-MPLR "      " A-SE-RELATE " " A-SENAME.
        P9.
            ACCEPT ALF-1
-           CLOSE ACTFILE FILEIN FILEOUT.
+           CLOSE ACTFILE FILEIN FILEOUT LISTOUT.
            DISPLAY "FIX RELATE CODES OF INSURANCES".
            STOP RUN.
