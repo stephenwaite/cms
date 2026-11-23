@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# creates w7 which has only 1 charge per acct
+# since no need to look at guar more than once
+S30=ordfile; S35=w7; S40=w1 
+export S30 S35 S40
+$RUNCBL /home/sidw/rri249.acu
+unset S30 S35 S40
+
+# rri247 and rri247x also write the lines they show to S45
+rm -f file247 file247x
+
+S30=w7 ; S35=actfile; S40=w2; S45=file247
+export S30 S35 S40 S45
+$RUNCBL /home/sidw/rri247.acu
+unset S30 S35 S40 S45
+
+S30=w7 ; S35=actfile; S40=w2; S45=file247x
+export S30 S35 S40 S45
+$RUNCBL /home/sidw/rri247x.acu
+unset S30 S35 S40 S45
+
+# the acu runtime draws the screen itself: what the two programs showed is
+# cleared when the next one starts and does not stay in the scroll back of
+# every terminal (windows terminal). show their lists again here as plain
+# text, after the last cobol program, and keep them in file247-<stamp>.
+review=file247-$(date +%m%d%y-%H%M%S)
+show_list() {
+    [ -s "$1" ] || return 0
+    echo
+    echo "== $2"
+    sed 's/ *$//' "$1"
+}
+{
+    show_list file247 "rri247: relate code, insured, account"
+    show_list file247x "rri247x: guarantor, relate code, account, then the insured and relate code"
+} > "$review"
+if [ -s "$review" ]; then
+    echo
+    echo "******** relate codes to review, also in $review ********"
+    cat "$review"
+else
+    rm -f "$review"
+fi
+
+exit
