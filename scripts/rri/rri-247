@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# creates w7 which has only 1 charge per acct
+# since no need to look at guar more than once
+S30=ordfile; S35=w7; S40=w1 
+export S30 S35 S40
+$RUNCBL /home/sidw/rri249.acu
+unset S30 S35 S40
+
+S30=w7 ; S35=actfile; S40=w2 
+export S30 S35 S40
+$RUNCBL /home/sidw/rri247.acu
+unset S30 S35 S40
+
+S30=w7 ; S35=actfile; S40=w2 
+export S30 S35 S40
+$RUNCBL /home/sidw/rri247x.acu
+unset S30 S35 S40
+
+
+exit
