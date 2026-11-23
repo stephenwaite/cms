@@ -15,8 +15,25 @@
       *     1 MRN   2 FIN   3 NAME (LNAME;FNAME M)   4 INS   5 DOS
       *     00009999  99999999  LNAME;FNAME M  003  03/30/2026
       *
+      *  a row with no tab in it is read as the fixed layout:
+      *     cols  1-9   MRN, zero filled on the left
+      *     cols 10-11  "00"
+      *     cols 24-31  DOS, CCYYMMDD
+      *     00099999900            20260330
+      *  a fixed row that does not fit (cols 1-11 or the DOS not
+      *  numeric, cols 10-11 not "00") is reported as *BAD INPUT.
+      *
       *  slots
-      *     S30 garfile   S35 charcur   S55 filein   S60 report
+      *     S30 garfile   S35 charcur   S40 carefile   S55 filein
+      *     S60 report    S65 lvam rows, optional
+      *
+      *  lvam rows: when S65 is set, each charge found with a
+      *  medicare icn is also written "|" delimited, to be put in
+      *  the medicare contractor's LVAM request sheet by
+      *  php/rri/lvam_fill.php:
+      *     1 NAME (as garfile holds it)   2 PRIPOL   3 DOS CCYYMMDD
+      *     4 ICN   5 CPT and the mods carefile holds   6 PAID
+      *     7 GARNO   8 G-ACCT
       *
       *  environment
       *     CPTWANT   cpt to hunt, default 70450
@@ -53,6 +70,10 @@
            LINE SEQUENTIAL
            FILE STATUS IS RPT-STAT.
 
+           SELECT LVAM-FILE ASSIGN TO "S65" ORGANIZATION
+           LINE SEQUENTIAL
+           FILE STATUS IS LVM-STAT.
+
        DATA DIVISION.
        FILE SECTION.
 
@@ -71,6 +92,9 @@
        FD  REPORT-FILE.
        01  REPORT-FILE01 PIC X(160).
 
+       FD  LVAM-FILE.
+       01  LVAM-FILE01 PIC X(160).
+
        WORKING-STORAGE SECTION.
 
        01  STATUS-FLAGS.
@@ -79,6 +103,7 @@
            02 CAR-STAT PIC XX VALUE SPACE.
            02 FIN-STAT PIC XX VALUE SPACE.
            02 RPT-STAT PIC XX VALUE SPACE.
+           02 LVM-STAT PIC XX VALUE SPACE.
 
        01  WS-TAB PIC X VALUE X"09".
 
@@ -90,12 +115,14 @@
            02 HIT-FLAG      PIC 9 VALUE 0.
            02 ACCT-HIT      PIC 9 VALUE 0.
            02 DEBUG-FLAG    PIC 9 VALUE 0.
+           02 LVAM-FLAG     PIC 9 VALUE 0.
 
        01  WS-ENV.
            02 ENV-CPT   PIC X(10) VALUE SPACE.
            02 ENV-DEBUG PIC X(10) VALUE SPACE.
            02 ENV-WIDTH PIC X(10) VALUE SPACE.
            02 ENV-W2    PIC XX VALUE SPACE.
+           02 ENV-LVAM  PIC X(80) VALUE SPACE.
 
        01  WS-PARM.
            02 CPT-WANT  PIC X(5) VALUE "70450".
@@ -116,9 +143,17 @@
            02 SAVE-DOB    PIC X(10).
            02 SAVE-POL    PIC X(20).
            02 SAVE-ICN    PIC X(13).
+           02 SAVE-NAME   PIC X(24).
+           02 SAVE-MOD1   PIC XX.
+           02 SAVE-MOD2   PIC XX.
+           02 SAVE-PAID   PIC 9(4)V99 VALUE 0.
+           02 TAB-CNT     PIC 999 VALUE 0.
 
        01  WS-ICN-WORK.
            02 FB-ICN      PIC X(13) VALUE SPACE.
+           02 FB-MOD1     PIC XX VALUE SPACE.
+           02 FB-MOD2     PIC XX VALUE SPACE.
+           02 FB-PAID     PIC 9(4)V99 VALUE 0.
            02 EXACT-FLAG  PIC 9 VALUE 0.
            02 WS-MODX     PIC XX.
            02 WS-MODY     PIC XX.
@@ -157,6 +192,11 @@
            02 C-HIT    PIC 9(7) VALUE 0.
            02 C-GAR    PIC 9(7) VALUE 0.
            02 C-ICN    PIC 9(7) VALUE 0.
+           02 C-LVAM   PIC 9(7) VALUE 0.
+
+       01  WS-LVAM.
+           02 LV-PROC  PIC X(11).
+           02 LV-PAID  PIC ZZZ9.99.
 
        01  WS-TRACE PIC X(132).
 
@@ -282,6 +322,19 @@
                STOP RUN
            END-IF
 
+           ACCEPT ENV-LVAM FROM ENVIRONMENT "S65"
+             ON EXCEPTION
+               CONTINUE
+           END-ACCEPT
+           IF ENV-LVAM NOT = SPACE
+               OPEN OUTPUT LVAM-FILE
+               IF LVM-STAT NOT = "00"
+                   DISPLAY "cptfind: lvam open " LVM-STAT UPON SYSERR
+                   STOP RUN
+               END-IF
+               MOVE 1 TO LVAM-FLAG
+           END-IF
+
            MOVE SPACE TO REPORT-FILE01
            STRING "cptfind - cpt " CPT-WANT DELIMITED BY SIZE
                INTO REPORT-FILE01
@@ -310,18 +363,26 @@
                GO TO P1
            END-IF
 
-           MOVE SPACE TO F-MRN F-FIN F-NAME F-INS F-DOS
-           UNSTRING FILEIN01 DELIMITED BY WS-TAB
-               INTO F-MRN F-FIN F-NAME F-INS F-DOS
-           END-UNSTRING
+           MOVE 0 TO TAB-CNT
+           INSPECT FILEIN01 TALLYING TAB-CNT FOR ALL WS-TAB
 
-           IF F-MRN(1:3) = "MRN"
-               GO TO P1
+           MOVE SPACE TO F-MRN F-FIN F-NAME F-INS F-DOS
+           IF TAB-CNT = 0
+               PERFORM FIXED-ROW
+           ELSE
+               UNSTRING FILEIN01 DELIMITED BY WS-TAB
+                   INTO F-MRN F-FIN F-NAME F-INS F-DOS
+               END-UNSTRING
+               IF F-MRN(1:3) = "MRN"
+                   GO TO P1
+               END-IF
            END-IF
 
            ADD 1 TO C-IN
 
-           PERFORM NORM-DATE
+           IF TAB-CNT NOT = 0
+               PERFORM NORM-DATE
+           END-IF
 
            IF WS-DATE-T = SPACE OR F-MRN = SPACE
                ADD 1 TO C-SKIP
@@ -386,6 +447,7 @@
            MOVE G-DOB TO SAVE-DOB
            MOVE SPACE TO SAVE-POL
            MOVE G-PRIPOL TO SAVE-POL
+           MOVE G-GARNAME TO SAVE-NAME
 
            IF DEBUG-FLAG = 1
                MOVE SPACE TO WS-TRACE
@@ -475,6 +537,10 @@
            MOVE WS-NAMCHK TO DL-NCK
            PERFORM WRITE-LINE
 
+           IF LVAM-FLAG = 1 AND SAVE-ICN NOT = SPACE
+               PERFORM WRITE-LVAM
+           END-IF
+
            GO TO P5.
 
       *  ---- nothing found for this worklist row --------------------
@@ -542,6 +608,13 @@
            MOVE C-ICN TO TL-CNT
            WRITE REPORT-FILE01 FROM TL1
 
+           IF LVAM-FLAG = 1
+               MOVE "LVAM ROWS WRITTEN" TO TL-LIT
+               MOVE C-LVAM TO TL-CNT
+               WRITE REPORT-FILE01 FROM TL1
+               CLOSE LVAM-FILE
+           END-IF
+
            CLOSE GARFILE CHARCUR CAREFILE FILEIN REPORT-FILE
            STOP RUN.
 
@@ -553,9 +626,13 @@
       *  prefix is walked, because the mods carefile holds need not
       *  match what charcur holds (26 vs blank).  an exact mod match
       *  wins; otherwise the first entry carrying an icn is taken.
+      *  the mods and the paid amount of the entry taken are kept
+      *  for the lvam row.
 
        LOOK-ICN.
            MOVE SPACE TO SAVE-ICN FB-ICN
+           MOVE SPACE TO SAVE-MOD1 SAVE-MOD2 FB-MOD1 FB-MOD2
+           MOVE 0 TO SAVE-PAID FB-PAID
            MOVE 0 TO CAR-EOF EXACT-FLAG
 
            IF SAVE-PRINS NOT = "003"
@@ -615,6 +692,11 @@
 
            IF FB-ICN = SPACE
                MOVE CR-ICN TO FB-ICN
+               MOVE CR-MOD1 TO FB-MOD1
+               MOVE CR-MOD2 TO FB-MOD2
+               IF CR-PAID NUMERIC
+                   MOVE CR-PAID TO FB-PAID
+               END-IF
            END-IF
 
            MOVE SPACE TO WS-MODX WS-MODY
@@ -623,6 +705,11 @@
 
            IF CR-MOD1 = WS-MODX AND CR-MOD2 = WS-MODY
                MOVE CR-ICN TO SAVE-ICN
+               MOVE CR-MOD1 TO SAVE-MOD1
+               MOVE CR-MOD2 TO SAVE-MOD2
+               IF CR-PAID NUMERIC
+                   MOVE CR-PAID TO SAVE-PAID
+               END-IF
                MOVE 1 TO EXACT-FLAG
                GO TO LOOK-ICN-DONE
            END-IF
@@ -632,6 +719,9 @@
        LOOK-ICN-DONE.
            IF EXACT-FLAG = 0
                MOVE FB-ICN TO SAVE-ICN
+               MOVE FB-MOD1 TO SAVE-MOD1
+               MOVE FB-MOD2 TO SAVE-MOD2
+               MOVE FB-PAID TO SAVE-PAID
            END-IF
 
            IF SAVE-ICN NOT = SPACE
@@ -640,6 +730,45 @@
 
        LOOK-ICN-EXIT.
            EXIT.
+
+      *  ---- fixed layout row ---------------------------------------
+      *
+      *  cols 1-9 are handed to NORM-MRN like a worklist mrn, so
+      *  000999999 lands on the same g-acct as 999999.  WS-DATE-T
+      *  stays blank on a row that does not fit, which reports it
+      *  as *BAD INPUT.
+
+       FIXED-ROW.
+           MOVE SPACE TO WS-DATE-T
+           MOVE FILEIN01(1:9) TO F-MRN
+           MOVE FILEIN01(24:8) TO F-DOS
+
+           IF FILEIN01(1:11) NUMERIC AND FILEIN01(10:2) = "00"
+               AND FILEIN01(24:8) NUMERIC
+               MOVE FILEIN01(24:8) TO WS-DATE-T
+               MOVE SPACE TO F-DOS
+               STRING FILEIN01(28:2) "/" FILEIN01(30:2) "/"
+                      FILEIN01(24:4) DELIMITED BY SIZE
+                   INTO F-DOS
+           END-IF.
+
+      *  ---- lvam row -----------------------------------------------
+
+       WRITE-LVAM.
+           MOVE SPACE TO LVAM-FILE01 LV-PROC
+           STRING CC-CPT " " SAVE-MOD1 " " SAVE-MOD2
+               DELIMITED BY SIZE INTO LV-PROC
+           MOVE SAVE-PAID TO LV-PAID
+           STRING SAVE-NAME "|" SAVE-POL "|" WS-DATE-T "|"
+                  SAVE-ICN "|" LV-PROC "|" LV-PAID "|"
+                  SAVE-GARNO "|" SAVE-ACCT(1:8)
+               DELIMITED BY SIZE INTO LVAM-FILE01
+           WRITE LVAM-FILE01
+           IF LVM-STAT NOT = "00"
+               DISPLAY "cptfind: lvam write " LVM-STAT UPON SYSERR
+               STOP RUN
+           END-IF
+           ADD 1 TO C-LVAM.
 
       *  ---- mrn to zero filled g-acct -----------------------------
       *
