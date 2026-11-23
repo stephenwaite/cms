@@ -379,7 +379,7 @@
        01  ID-EIN PIC X(9).
        01  DUPFLAG PIC 9.
        01  SCREEN-CPT PIC X(5).
-           88 SCREEN-CODE VALUE "77063" "77067" "77080".
+           88 SCREEN-CODE VALUE "77063" "77067" "77080" "71271".
        01  CAS-CODE-CHECK PIC X(5).
            88 INS-REDUCE-CODE VALUE "A1   " "A2   " "B6   " "B9   "
                "B10  " "B13  " "24   " "42   "
@@ -1035,7 +1035,9 @@
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
+      *        92916 PAYING NOTHING ON THE CLAIM IS A VALID 2NDARY, POST IT
                IF CLP-2CLMSTAT = "2 "
+                   AND NOT (PAYORID = "92916" AND CLAIM-PAID = 0)
                    PERFORM P1-LOST-SVC
                    GO TO P5-SVC-LOOP-EXIT
                END-IF
