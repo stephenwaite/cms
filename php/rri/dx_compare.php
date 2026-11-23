@@ -9,6 +9,7 @@
  *   php dx_compare.php run FILE [--limit 25 | --sample 150 | --from-run RUN.json | --exams]
  *                               [--prompt coders|reads] [--model M] [--effort E] [--workers 4]
  *                               [--valid icd10_valid.txt] [--lists gifford-dx-lists.json] [--dry-run]
+ *                               [--skip-answered RUN.json[,RUN.json ...]]
  *   php dx_compare.php run FILE [same selection] --resume gifford-dx-run-<time>.json
  *   php dx_compare.php summary gifford-dx-run-<time>.json [--valid F] [--lists F [--file FILE]]
  *
@@ -31,9 +32,16 @@
  *                  (chg_clinical, or "none sent"). The second answer is the one kept. The answer is at most two
  *                  codes (the coders put one or two on a charge) and carries no description. reads: reads.php's prompt alone, report
  *                  and CPT only, as the first runs were made.
+ *   --skip-answered R  leave out the accessions an earlier run (or several, separated by
+ *                  commas) answered, when the file still has them with the same codes and
+ *                  report status: for a file sent again with charges added, or a later file
+ *                  that repeats earlier ones. What is asked is what is new, plus the
+ *                  accessions whose codes or report status changed since. Applied before
+ *                  --limit, --sample and --exams; not with --from-run. The run it writes
+ *                  holds only what it asked: load both runs with gifford:dx-import.
  *   --dry-run      read and count, send nothing
  * Each answer is saved as it arrives, so a run that stops can be finished with --resume (same
- * file and selection). The first request is sent alone: a refused key, model or setting stops
+ * file and selection, --skip-answered included). The first request is sent alone: a refused key, model or setting stops
  * the run there. It writes, in the current directory:
  *
  *   gifford-dx-run-<time>.json           the accessions asked (PATIENT DATA)
@@ -729,6 +737,19 @@ function dxRun(string $file, array $options): void
     if (count($selections) > 1) {
         dxFail('use one of --limit, --sample, --from-run and --exams');
     }
+    $answered = null;
+    if (isset($options['skip-answered'])) {
+        if (isset($options['from-run'])) {
+            dxFail('--skip-answered does not go with --from-run, which asks an earlier run\'s accessions again');
+        }
+        // The codes and the report are what the question is made of.
+        [$usable, $answered, $changed] = dxSkipAnswered($usable, $options['skip-answered'], ['cpts', 'status']);
+        fwrite(STDERR, sprintf(
+            "%d accessions left out, answered by an earlier run (--skip-answered); %d of the ones kept had an earlier answer for other codes or another report status\n",
+            $answered,
+            $changed
+        ));
+    }
     // A run made before there was a choice used reads.php's prompt alone.
     $prompt = $meta !== null ? (string) ($meta['prompt'] ?? 'reads') : ($options['prompt'] ?? 'coders');
     if ($meta !== null && $prompt === 'coders') {
@@ -780,6 +801,11 @@ function dxRun(string $file, array $options): void
         $noDx,
         $skipped
     ));
+    if ($usable === [] && $answered !== null) {
+        fwrite(STDERR, "nothing to ask: the earlier run answered every accession of this file; no run file written\n");
+
+        return;
+    }
     $model = $meta['model'] ?? $options['model'] ?? 'claude-opus-5-5';
     $effort = $meta['effort'] ?? $options['effort'] ?? 'high';
     if (!in_array($effort, ['low', 'medium', 'high', 'xhigh', 'max'], true)) {

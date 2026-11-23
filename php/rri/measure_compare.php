@@ -8,6 +8,7 @@
  * of identifiers.
  *
  *   php measure_compare.php run FILE [--measure QMM26] [--limit N] [--model M] [--effort E] [--workers 4] [--dry-run]
+ *                                    [--skip-answered RUN.json[,RUN.json ...]]
  *   php measure_compare.php run FILE [--measure QMM26] [--limit N] --resume gifford-measure-run-<time>.json
  *   php measure_compare.php summary gifford-measure-run-<time>.json
  *
@@ -15,9 +16,13 @@
  * codes, the patient's age and whether Medicare is primary: measure_suggest.php): the report,
  * the CPT codes, the age, the visit's diagnosis codes and the facility's clinical indication;
  * no names, numbers or dates. Each answer is saved as it arrives, so a run that stops can be
- * finished with --resume (same file, --measure and --limit). --measure M keeps only the
+ * finished with --resume (same file, --measure, --limit and --skip-answered). --measure M keeps only the
  * accessions that carry that measure (QMM26, 364, 405 or 406); their other measures are still
- * asked. The first request is sent alone: a refused
+ * asked. --skip-answered R leaves out the accessions an earlier measure run (or several,
+ * separated by commas) answered, when the file still has them with the same codes, measures,
+ * diagnoses and report status: for a file sent again with charges added. What is asked is
+ * what is new or changed since; it is applied before --limit, and the run it writes holds
+ * only what it asked, so load both runs with gifford:measure-import. The first request is sent alone: a refused
  * key, model or setting stops the run there. It writes, in the current directory:
  *
  *   gifford-measure-run-<time>.json           the accessions asked (PATIENT DATA)
@@ -191,6 +196,16 @@ function measRun(string $file, array $options): void
         }
         $usable = array_values(array_filter($usable, static fn (array $a): bool => in_array($options['measure'], $a['measures'], true)));
     }
+    $answered = null;
+    if (isset($options['skip-answered'])) {
+        // Everything the question is made of but the report itself, which the run file does not keep.
+        [$usable, $answered, $changed] = dxSkipAnswered($usable, $options['skip-answered'], ['cpts', 'measures', 'gifford', 'status']);
+        fwrite(STDERR, sprintf(
+            "%d accessions left out, answered by an earlier run (--skip-answered); %d of the ones kept had an earlier answer for other codes, measures, diagnoses or another report status\n",
+            $answered,
+            $changed
+        ));
+    }
     if (isset($options['limit'])) {
         $usable = array_slice($usable, 0, (int) $options['limit']);
     }
@@ -201,6 +216,11 @@ function measRun(string $file, array $options): void
         measCounts(array_merge(...array_column($usable, 'measures'), ...[[]])),
         $noReport
     ));
+    if ($usable === [] && $answered !== null) {
+        fwrite(STDERR, "nothing to ask: the earlier run answered every accession of this file that carries a measure; no run file written\n");
+
+        return;
+    }
     $model = $meta['model'] ?? $options['model'] ?? 'claude-opus-5-5';
     $effort = $meta['effort'] ?? $options['effort'] ?? 'high';
     if (!in_array($effort, ['low', 'medium', 'high', 'xhigh', 'max'], true)) {
