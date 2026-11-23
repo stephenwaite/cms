@@ -1,0 +1,99 @@
+#!/bin/bash
+# prpay-sum: summaries of one or more prpay reports (tsv, run with
+# RATE). prints counts and amounts only, no account or claim nbrs.
+#
+#   prpay-sum [-r RATIO] [-o LIST] REPORT ...
+#
+#   -r RATIO  only the short lines allowed at this share of billed
+#             (the A/B column, e.g. -r 0.27) in the by-payer,
+#             by-procedure, by-month and resolved sections and in
+#             the list
+#   -o LIST   also write those lines to LIST (tsv with a header):
+#             icn, account, dos, proc, mod, pay date, trace, billed,
+#             allowed, exp, short and the member id when the report
+#             has it. this file has account and claim numbers.
+#
+# short = a line with a blank TAG (allowed below the rate, not a
+# takeback, denial, cob or medicare priced line).
+
+RATIO= LIST=
+while getopts r:o: opt; do
+    case $opt in
+        r) RATIO=$OPTARG ;;
+        o) LIST=$OPTARG ;;
+        *) echo "usage: prpay-sum [-r RATIO] [-o LIST] REPORT ..." >&2; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))
+[ $# -gt 0 ] || { echo "usage: prpay-sum [-r RATIO] [-o LIST] REPORT ..." >&2; exit 1; }
+for f in "$@"; do
+    [[ -s $f ]] || { echo "prpay-sum: no report $f" >&2; exit 1; }
+done
+
+awk -F'\t' -v OFS='\t' -v RATIO="$RATIO" -v LIST="$LIST" '
+  function trim(x) { gsub(/^ +| +$/, "", x); return x }
+  FNR == 1 {
+      if (LIST != "" && !hdr++)
+          print $2, $1, $8, $5, $6, $9, $4, $10, $11, $17, $18, $21 > LIST
+      next
+  }
+  NF < 19 {                       # the totals at the end of a report
+      tot[trim($1)] += $2
+      if (trim($3) == "TOTAL SHORT") totshort += $4
+      next
+  }
+  {
+      tag = trim($19); key = $1 $8 $5 $6; pr = trim($3)
+      yn[pr]++
+      if (tag == "OK") { atrate[key] = 1; yok[pr]++ }
+      if (tag != "") next
+      r = $15 + 0
+      rn[r]++; rs[r] += $18
+      if (RATIO != "" && r != RATIO + 0) next
+      sel++; selamt += $18
+      ysel[pr]++; ys[pr] += $18
+      p = trim($5) "-" trim($6); pn[p]++; ps[p] += $18
+      m = substr($8, 1, 6); mn[m]++; ms[m] += $18
+      if (!(pr in y1) || m < y1[pr]) y1[pr] = m
+      if (m > y2[pr]) y2[pr] = m
+      kn[key]++; ks[key] += $18
+      if (LIST != "")
+          print $2, $1, $8, $5, $6, $9, $4, $10, $11, $17, $18, $21 > LIST
+  }
+  END {
+      OFS = "  "
+      print "== totals"
+      n = split("LINES AT-RATE SHORT OVER COB MCARE DENIED TAKEBACK", o, " ")
+      for (i = 1; i <= n; i++) printf "%-9s %6d\n", o[i], tot[o[i]]
+      printf "%-9s %12.2f\n", "TOTSHORT", totshort
+      print ""
+      print "== short lines by allowed / billed:  ratio  lines  short"
+      fflush(); cmd = "sort -n"
+      for (r in rn) printf "%.2f  %5d  %11.2f\n", r, rn[r], rs[r] | cmd
+      close(cmd)
+      what = (RATIO == "") ? "all short lines" : "short lines at " RATIO
+      print ""
+      printf "== %s: %d lines, %.2f short\n", what, sel, selamt
+      for (k in kn)
+          if (k in atrate) { cn += kn[k]; cs += ks[k] }
+      printf "   same account, date and procedure also paid at rate: %d lines, %.2f\n", cn, cs
+      printf "   still short: %d lines, %.2f\n", sel - cn, selamt - cs
+      print ""
+      print "== " what " by payer:  lines  short  first-last month of service  (payer lines, at rate)  payer"
+      fflush(); cmd = "sort -rn"
+      for (y in ysel)
+          printf "%5d  %11.2f  %s-%s  (%d, %d)  %s\n", ysel[y], ys[y], y1[y], y2[y], yn[y], yok[y], y | cmd
+      close(cmd)
+      print ""
+      print "== " what " by month of service:  month  lines  short"
+      fflush(); cmd = "sort"
+      for (m in mn) printf "%s  %5d  %11.2f\n", m, mn[m], ms[m] | cmd
+      close(cmd)
+      print ""
+      print "== " what " by procedure:  lines  short  proc-mod"
+      fflush(); cmd = "sort -rn"
+      for (p in pn) printf "%5d  %11.2f  %s\n", pn[p], ps[p], p | cmd
+      close(cmd)
+      if (LIST != "") { print ""; printf "list of %d lines written to %s\n", sel, LIST }
+  }
+' "$@"

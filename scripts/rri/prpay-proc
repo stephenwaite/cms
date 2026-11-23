@@ -1,0 +1,97 @@
+#!/bin/bash
+# prpay-proc: what each payer allows for one procedure, from one or
+# more prpay reports (tsv, run with RATE). prints counts, amounts
+# and payer names only, no account or claim nbrs.
+#
+#   prpay-proc [-m MOD] [-x RATIO] PROC REPORT ...
+#       e.g. prpay-proc -m 26 71046 /tmp/all26.tsv
+#
+#   -m MOD    only lines with this first modifier (default: any)
+#   -x RATIO  leave out lines allowed at this share of billed
+#             (the A/B column, e.g. -x 0.50)
+#
+# a line counts when something was allowed and its TAG is not TB,
+# DENY, COB or MCARE: takebacks, denials, lines another payer paid
+# first and medicare priced lines are not the payer's own price.
+# they are counted in the last columns, with the -x lines.
+# per payer: lines, average, median, low and high allowed, the most
+# common allowed amount (how many lines, its share of billed), then
+# the lines left out as cob / mcare / -x. most lines first, and a
+# last line for all the payers together.
+
+MOD= RATIO= ANYMOD=1
+while getopts m:x: opt; do
+    case $opt in
+        m) MOD=$OPTARG ANYMOD=0 ;;
+        x) RATIO=$OPTARG ;;
+        *) echo "usage: prpay-proc [-m MOD] [-x RATIO] PROC REPORT ..." >&2; exit 1 ;;
+    esac
+done
+shift $((OPTIND - 1))
+[ $# -gt 1 ] || { echo "usage: prpay-proc [-m MOD] [-x RATIO] PROC REPORT ..." >&2; exit 1; }
+PROC=$1; shift
+for f in "$@"; do
+    [[ -s $f ]] || { echo "prpay-proc: no report $f" >&2; exit 1; }
+done
+
+awk -F'\t' -v PROC="$PROC" -v MOD="$MOD" -v ANYMOD="$ANYMOD" -v RATIO="$RATIO" '
+  function trim(x) { gsub(/^ +| +$/, "", x); return x }
+  # sorts v[1..n], the allowed amounts of one payer
+  function isort(v, n,    i, j, t) {
+      for (i = 2; i <= n; i++) {
+          t = v[i]
+          for (j = i - 1; j >= 1 && v[j] > t; j--) v[j + 1] = v[j]
+          v[j + 1] = t
+      }
+  }
+  function line(name, v, n, cob, mc, xr,    i, sum, med, c, a, best, bestn, k) {
+      if (n == 0) {
+          printf "%5d  %9s  %9s  %9s  %9s  %9s %-12s  %4d %5d %4d  %s\n", \
+              0, "-", "-", "-", "-", "-", "", cob, mc, xr, name
+          return
+      }
+      isort(v, n)
+      sum = 0; bestn = 0; split("", c)
+      for (i = 1; i <= n; i++) {
+          sum += v[i]
+          a = sprintf("%.2f", v[i])
+          if (++c[a] > bestn) { bestn = c[a]; best = a; k = i }
+      }
+      med = (n % 2) ? v[(n + 1) / 2] : (v[n / 2] + v[n / 2 + 1]) / 2
+      printf "%5d  %9.2f  %9.2f  %9.2f  %9.2f  %9s %-12s  %4d %5d %4d  %s\n", \
+          n, sum / n, med, v[1], v[n], best, \
+          sprintf("(%d, %s)", bestn, share[name, best]), cob, mc, xr, name
+  }
+  FNR == 1 || NF < 19 { next }
+  trim($5) != PROC { next }
+  !ANYMOD && trim($6) != MOD { next }
+  {
+      pr = trim($3); tag = trim($19); al = $11 + 0
+      if (!(pr in seen)) { seen[pr] = 1; names[++np] = pr }
+      if (tag == "TB" || tag == "DENY" || al <= 0) next
+      if (tag == "COB")   { cob[pr]++; tcob++; next }
+      if (tag == "MCARE") { mc[pr]++; tmc++; next }
+      if (RATIO != "" && $15 + 0 == RATIO + 0) { xr[pr]++; txr++; next }
+      n[pr]++; val[pr, n[pr]] = al
+      share["all payers", sprintf("%.2f", al)] = share[pr, sprintf("%.2f", al)] = sprintf("%.2f", $15)
+      all[++tn] = al
+  }
+  END {
+      m = (ANYMOD) ? "" : "-" MOD
+      printf "== %s%s allowed by payer\n", PROC, m
+      printf "%5s  %9s  %9s  %9s  %9s  %9s %-12s  %4s %5s %4s  %s\n", \
+          "lines", "average", "median", "low", "high", "common", "(lines, a/b)", "cob", "mcare", "-x", "payer"
+      # most lines first: pick the largest left each time
+      for (i = 1; i <= np; i++) {
+          b = 0
+          for (j = 1; j <= np; j++)
+              if (!(j in done) && (b == 0 || n[names[j]] + 0 > n[names[b]] + 0)) b = j
+          done[b] = 1; pr = names[b]
+          split("", v)
+          for (k = 1; k <= n[pr]; k++) v[k] = val[pr, k]
+          line(pr, v, n[pr] + 0, cob[pr] + 0, mc[pr] + 0, xr[pr] + 0)
+      }
+      if (np == 0) { print "no lines for " PROC m; exit }
+      line("all payers", all, tn + 0, tcob + 0, tmc + 0, txr + 0)
+  }
+' "$@"

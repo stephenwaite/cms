@@ -501,6 +501,16 @@
                     DTM-0 DTM-1 DTM-2
                MOVE DTM-2 TO SVC-DATE(SVC-CNTR)
                GO TO P1-SVC-LOOP.
+      * no dtm*472: some payers send the service period, dtm*150
+      * (start) then dtm*151 (end). the first one seen is kept
+           IF F1 = "DTM" AND (F2 = "*150" OR "*151")
+               IF SVC-DATE(SVC-CNTR) = SPACE
+                   MOVE SPACE TO DTM01
+                   UNSTRING FILEIN01 DELIMITED BY "*" INTO
+                        DTM-0 DTM-1 DTM-2
+                   MOVE DTM-2 TO SVC-DATE(SVC-CNTR)
+               END-IF
+               GO TO P1-SVC-LOOP.
            IF F1 = "REF" AND F2 = "*1C*"
                MOVE SPACE TO REF01
                UNSTRING FILEIN01 DELIMITED BY "*" INTO
@@ -566,6 +576,10 @@
            UNSTRING ALF-14 DELIMITED BY ":" INTO
                                          CR-PROC CR-MOD1 CR-MOD2
            MOVE REF-PL(X) TO CR-POS
+      * still no line date: the claim statement from date, dtm*232
+           IF SVC-DATE(X) = SPACE
+               MOVE WS-CLM-DATE TO SVC-DATE(X)
+           END-IF
            MOVE SVC-DATE(X) TO CR-DATE
            MOVE REF-TAB(X) TO CR-DOCP
            MOVE SVC-2CHRGAMT TO ALF8

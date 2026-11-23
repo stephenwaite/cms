@@ -1,0 +1,41 @@
+#!/bin/bash
+# iedi-detl-load: load saved 835s into the rri 835 detail file
+# (iedidetl / caredetl + mbrxfile) outside the daily iedi-0 run.
+#
+#   iedi-detl-load FILE ...     e.g. iedi-detl-load /home/sidw/oa111626
+#                                    iedi-detl-load /home/sidw/oa????26
+#
+# takes raw 835s (one long line or a segment per line) or the iedi
+# day files: each is copied to a work file with a segment per line,
+# > changed to : and upper case, as iedi-0 does, then run through
+# iedidetl. only remits paid to rri are kept (parm139), a remit
+# already on file is skipped, so a re-run is safe, in any order
+# (mbrxfile keeps the member id of the latest pay date).
+# prints kept remits and totals; skips go to the log only.
+# exit status is 1 if a file was missing or iedidetl failed on one,
+# so a daily script can say so and carry on.
+
+: "${RUNCBL:?RUNCBL is not set}"
+RRI=${RRI:-/home/rri}
+PROG=${PROG:-/home/sidw/iedidetl.acu}
+LOG=${LOG:-/home/sidw/log-iedidetl-load}
+
+[ $# -gt 0 ] || { echo "usage: iedi-detl-load FILE ..." >&2; exit 1; }
+
+TMP=$(mktemp) || exit 1
+OUT=$(mktemp) || exit 1
+trap 'rm -f "$TMP" "$OUT"' EXIT
+RC=0
+
+for f in "$@"; do
+    [[ -s $f ]] || { echo "MISSING 835: $f" >&2; RC=1; continue; }
+    echo "== $f"
+    sed 's/>/:/g' "$f" | tr -d '\r' | tr '~' '\n' | grep -v '^ *$' \
+        | tr 'a-z' 'A-Z' > "$TMP"
+    S30=$TMP S35=$RRI/parm139 S41=$RRI/iedidetl S42=$RRI/mbrxfile \
+        $RUNCBL "$PROG" > "$OUT" 2>&1 \
+        || { echo "*** iedidetl failed on $f - see $LOG ***"; RC=1; }
+    { echo "== $(date) $f"; grep -v 'D-DETL' "$OUT"; } \
+        | tee -a "$LOG" | grep -v -e ' skip ' -e '^== '
+done
+exit $RC

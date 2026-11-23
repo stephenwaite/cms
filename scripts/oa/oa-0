@@ -1,0 +1,47 @@
+#!/bin/bash
+cd /home/sidw || exit 1
+rm -f oax
+
+while read -r eraName; do
+    [[ -s $eraName ]] || { echo "MISSING 835: $eraName" >&2; continue; }
+    echo "$eraName"
+    cat "$eraName" >> oax
+done < /tmp/w33$USER
+
+rm -f w1 w2 w11 oawk
+S30=oax; S35=w1; S40=w2
+export S30 S35 S40
+$RUNCBL /home/sidw/caid835.b
+unset S30 S35 S40
+
+S30=w1; S35=w11
+export S30 S35
+$RUNCBL /home/sidw/up1070.a
+unset S30 S35
+
+[[ -s w11 ]] || { echo "ERA processing failed - no w11 produced"; exit 1; }
+cp w1 remitoa$(date +%m%d%y)
+cp w11 oawk
+
+# this is where you put the date at the top for sid's posting progs
+joe oawk
+# this is where we copy it to today's date in case you need it later
+TODAY=oa$(date +%m%d%y)
+cp oawk $TODAY
+# also copy it with hour, min and secs in case it gets overwritten
+cp oawk oawk-$(date +%m%d%y-%H%M%S)
+
+# load the 835 detail (caredetl + payer member ids) for appeals and
+# reports. it goes through iedi-detl-load, which changes > to : in
+# its own copy (oawk keeps what office ally sent) and skips a remit
+# already on file. a problem here doesn't stop the posting side.
+/home/sidw/iedi-detl-load /home/sidw/$TODAY \
+    || echo "*** 835 detail load failed on $TODAY ***"
+
+if grep -q N860 oawk; then
+    echo "*** QPAs found in oawk - joe oawk and look for N860 ***"
+    grep -n N860 oawk
+else
+    echo "no QPAs in oawk"
+fi
+exit
