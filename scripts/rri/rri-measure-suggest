@@ -31,6 +31,45 @@ if [ -r /etc/cms/rri-measure.env ]; then
     set -a; . /etc/cms/rri-measure.env; set +a
 fi
 
+# show_wait <file> <command...>: run the command and show its lines as they
+# come, each also kept in <file>. on a terminal a turning bar and the seconds
+# so far fill the wait between lines: the reading takes minutes and says
+# little, and a still screen looks hung. the bar is only on the screen, never
+# in <file>, and not shown at all when the output is not a terminal. the
+# status is the command's.
+show_wait() {
+    local out=$1
+    shift
+    : > "$out"
+    "$@" 2>&1 | {
+        local bar='|/-\' n=0 start=$SECONDS line part='' rc tty=0
+        [ -t 1 ] && tty=1
+        while :; do
+            IFS= read -r -t 0.25 line
+            rc=$?
+            if [ $rc -gt 128 ]; then
+                # nothing new in the last quarter second (read keeps the
+                # start of a line that is not finished yet)
+                part+=$line
+                [ $tty = 1 ] && printf '\r%s reading the reports, %ds ' \
+                    "${bar:n++%4:1}" $((SECONDS - start))
+                continue
+            fi
+            line=$part$line
+            part=''
+            # rc 1 is the end of the output: only a last line that had no
+            # newline is left to show
+            if [ $rc -eq 0 ] || [ -n "$line" ]; then
+                [ $tty = 1 ] && printf '\r\033[K'
+                printf '%s\n' "$line" | tee -a "$out"
+            fi
+            [ $rc -eq 0 ] || break
+        done
+        [ $tty = 1 ] && printf '\r\033[K'
+    }
+    return "${PIPESTATUS[0]}"
+}
+
 PHP_DIR=/home/stee/src/cms/php/rri
 stamp=$(date +%Y%m%d%H%M%S)
 
@@ -52,8 +91,7 @@ fi
 rm -f measure-answers
 # the cobol runtime clears the screen when the next program starts, so what
 # the php step says is kept and shown again at the end
-php "$PHP_DIR/measure_charnew.php" measure-extract measure-answers 2>&1 | tee measure-php.out
-[ "${PIPESTATUS[0]}" -eq 0 ] || exit 1
+show_wait measure-php.out php "$PHP_DIR/measure_charnew.php" measure-extract measure-answers || exit 1
 if [ ! -s measure-answers ]; then
     echo "no answers, charnew not touched"
     exit 0
