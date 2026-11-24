@@ -10,12 +10,18 @@
  * lvam rows, "|" delimited:
  *   1 name as garfile holds it (LAST;FIRST M)   2 Medicare id   3 DOS CCYYMMDD
  *   4 ICN   5 CPT and mods   6 paid   7 garno   8 account
+ *   9 allowed   10 deductible (not in rows from an older cptfind)
  *
  * The sheet wants, from row 3 down: A patient's first and last name,
  * B Medicare id, C date of service, D the 13 digit ICN, E procedure code and
  * mods, F the correction needed. The same correction text goes on every row.
  * A claim line (ICN + procedure) listed twice in the rows is written once.
  * The blank sheet is only read; the filled copy is a new file.
+ *
+ * The amounts do not go in the sheet. They are for the totals printed at the
+ * end: what Medicare paid on the lines, and for the lines it paid nothing on,
+ * how many went to the deductible and how many it denied (with their sheet
+ * rows, to look at before the sheet is sent).
  */
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -98,6 +104,11 @@ foreach (file($rowsFile, FILE_IGNORE_NEW_LINES) as $line) {
     if (!is_numeric($paid)) {
         lvamFail("$rowsFile line $lineNo: paid [$paid] is not a number");
     }
+    $allowed = $f[8] ?? null;
+    $deduct = $f[9] ?? null;
+    if ($allowed !== null && (!is_numeric($allowed) || !is_numeric($deduct))) {
+        lvamFail("$rowsFile line $lineNo: allowed [$allowed] or deductible [$deduct] is not a number");
+    }
     $key = "$icn $proc";
     if (isset($claims[$key])) {
         $duplicates++;
@@ -110,6 +121,8 @@ foreach (file($rowsFile, FILE_IGNORE_NEW_LINES) as $line) {
         'icn' => $icn,
         'proc' => $proc,
         'paid' => (float) $paid,
+        'allowed' => $allowed === null ? null : (float) $allowed,
+        'deduct' => $allowed === null ? null : (float) $deduct,
     ];
 }
 if ($claims === []) {
@@ -133,6 +146,10 @@ foreach (array_keys(LVAM_HEADERS) as $col) {
 
 $paidTotal = 0.0;
 $noPayment = 0;
+$toDeductible = 0;
+$allowedNotPaid = 0;
+$deniedRows = [];
+$noAmounts = 0;
 foreach ($claims as $claim) {
     $sheet->setCellValueExplicit("A$row", $claim['name'], DataType::TYPE_STRING);
     $sheet->setCellValueExplicit("B$row", $claim['id'], DataType::TYPE_STRING);
@@ -144,6 +161,15 @@ foreach ($claims as $claim) {
     $paidTotal += $claim['paid'];
     if ($claim['paid'] == 0.0) {
         $noPayment++;
+        if ($claim['allowed'] === null) {
+            $noAmounts++;
+        } elseif ($claim['deduct'] > 0.0) {
+            $toDeductible++;
+        } elseif ($claim['allowed'] > 0.0) {
+            $allowedNotPaid++;
+        } else {
+            $deniedRows[] = $row;
+        }
     }
     $row++;
 }
@@ -154,6 +180,14 @@ $count = count($claims);
 printf("%d claim lines written to %s\n", $count, $outSheet);
 printf("%d duplicate rows left out\n", $duplicates);
 printf("%d of the lines show no Medicare payment\n", $noPayment);
+if ($noPayment > 0 && $noAmounts === 0) {
+    printf("  %d went to the deductible\n", $toDeductible);
+    printf("  %d allowed, nothing paid and no deductible\n", $allowedNotPaid);
+    printf("  %d denied (nothing allowed)\n", count($deniedRows));
+    if ($deniedRows !== []) {
+        printf("  sheet rows of the denied lines: %s\n", implode(' ', $deniedRows));
+    }
+}
 printf("Medicare paid on these lines: %.2f\n", $paidTotal);
 if ($count < LVAM_MIN_CLAIMS) {
     printf("note: the LVAM sheet is for %d or more claims, this one has %d\n", LVAM_MIN_CLAIMS, $count);

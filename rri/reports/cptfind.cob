@@ -56,6 +56,9 @@
       *     3 DOS CCYYMMDD   4 ICN
       *     5 CPT and the mods of the remit entry taken
       *     6 PAID on that entry   7 GARNO   8 G-ACCT
+      *     9 ALLOWED and 10 DEDUCTIBLE on that entry: a line
+      *       paid 0 was denied (allowed 0) or went to the
+      *       deductible
       *
       *  environment
       *     CPTWANT   cpt to hunt, default 70450
@@ -181,6 +184,8 @@
            02 SAVE-MOD1   PIC XX.
            02 SAVE-MOD2   PIC XX.
            02 SAVE-PAID   PIC 9(4)V99 VALUE 0.
+           02 SAVE-ALLOWED PIC 9(4)V99 VALUE 0.
+           02 SAVE-DEDUCT PIC 9(4)V99 VALUE 0.
            02 TAB-CNT     PIC 999 VALUE 0.
            02 SAVE-MBI    PIC X(20).
            02 SAVE-SRC    PIC X(5).
@@ -198,6 +203,8 @@
               03 PK-MOD1    PIC XX.
               03 PK-MOD2    PIC XX.
               03 PK-PAID    PIC S9(4)V99.
+              03 PK-ALLOWED PIC S9(4)V99.
+              03 PK-DEDUCT  PIC S9(4)V99.
               03 PK-TBDATE  PIC X(8).
            02 K             PIC 9 VALUE 0.
            02 WS-RANK       PIC 9 VALUE 0.
@@ -207,6 +214,8 @@
            02 FB-MOD1     PIC XX VALUE SPACE.
            02 FB-MOD2     PIC XX VALUE SPACE.
            02 FB-PAID     PIC 9(4)V99 VALUE 0.
+           02 FB-ALLOWED  PIC 9(4)V99 VALUE 0.
+           02 FB-DEDUCT   PIC 9(4)V99 VALUE 0.
            02 EXACT-FLAG  PIC 9 VALUE 0.
            02 WS-MODX     PIC XX.
            02 WS-MODY     PIC XX.
@@ -254,6 +263,8 @@
        01  WS-LVAM.
            02 LV-PROC  PIC X(11).
            02 LV-PAID  PIC ZZZ9.99.
+           02 LV-ALLOWED PIC ZZZ9.99.
+           02 LV-DEDUCT PIC ZZZ9.99.
 
        01  WS-TRACE PIC X(132).
 
@@ -741,13 +752,14 @@
       *  prefix is walked, because the mods carefile holds need not
       *  match what charcur holds (26 vs blank).  an exact mod match
       *  wins; otherwise the first entry carrying an icn is taken.
-      *  the mods and the paid amount of the entry taken are kept
-      *  for the lvam row.
+      *  the mods and the paid, allowed and deductible amounts of
+      *  the entry taken are kept for the lvam row.
 
        LOOK-ICN.
            MOVE SPACE TO SAVE-ICN FB-ICN
            MOVE SPACE TO SAVE-MOD1 SAVE-MOD2 FB-MOD1 FB-MOD2
            MOVE 0 TO SAVE-PAID FB-PAID
+           MOVE 0 TO SAVE-ALLOWED FB-ALLOWED SAVE-DEDUCT FB-DEDUCT
            MOVE 0 TO CAR-EOF EXACT-FLAG
 
            IF SAVE-PRINS NOT = "003"
@@ -812,6 +824,12 @@
                IF CR-PAID NUMERIC
                    MOVE CR-PAID TO FB-PAID
                END-IF
+               IF CR-ALLOWED NUMERIC
+                   MOVE CR-ALLOWED TO FB-ALLOWED
+               END-IF
+               IF CR-DEDUCT NUMERIC
+                   MOVE CR-DEDUCT TO FB-DEDUCT
+               END-IF
            END-IF
 
            MOVE SPACE TO WS-MODX WS-MODY
@@ -825,6 +843,12 @@
                IF CR-PAID NUMERIC
                    MOVE CR-PAID TO SAVE-PAID
                END-IF
+               IF CR-ALLOWED NUMERIC
+                   MOVE CR-ALLOWED TO SAVE-ALLOWED
+               END-IF
+               IF CR-DEDUCT NUMERIC
+                   MOVE CR-DEDUCT TO SAVE-DEDUCT
+               END-IF
                MOVE 1 TO EXACT-FLAG
                GO TO LOOK-ICN-DONE
            END-IF
@@ -837,6 +861,8 @@
                MOVE FB-MOD1 TO SAVE-MOD1
                MOVE FB-MOD2 TO SAVE-MOD2
                MOVE FB-PAID TO SAVE-PAID
+               MOVE FB-ALLOWED TO SAVE-ALLOWED
+               MOVE FB-DEDUCT TO SAVE-DEDUCT
            END-IF.
 
        LOOK-ICN-EXIT.
@@ -853,6 +879,7 @@
            MOVE 0 TO DTL-EOF
            PERFORM VARYING K FROM 1 BY 1 UNTIL K > 2
                MOVE 0 TO PK-ROWS(K) PK-RANK(K) PK-PAID(K)
+               MOVE 0 TO PK-ALLOWED(K) PK-DEDUCT(K)
                MOVE SPACE TO PK-PAYDATE(K) PK-ICN(K) PK-TBDATE(K)
                MOVE SPACE TO PK-MOD1(K) PK-MOD2(K)
            END-PERFORM
@@ -942,7 +969,9 @@
            MOVE PK-ICN(K) TO SAVE-ICN
            MOVE PK-MOD1(K) TO SAVE-MOD1
            MOVE PK-MOD2(K) TO SAVE-MOD2
-           MOVE PK-PAID(K) TO SAVE-PAID.
+           MOVE PK-PAID(K) TO SAVE-PAID
+           MOVE PK-ALLOWED(K) TO SAVE-ALLOWED
+           MOVE PK-DEDUCT(K) TO SAVE-DEDUCT.
 
        LOOK-DETL-EXIT.
            EXIT.
@@ -975,9 +1004,15 @@
                    MOVE DT-ICN TO PK-ICN(K)
                    MOVE DT-MOD1 TO PK-MOD1(K)
                    MOVE DT-MOD2 TO PK-MOD2(K)
-                   MOVE 0 TO PK-PAID(K)
+                   MOVE 0 TO PK-PAID(K) PK-ALLOWED(K) PK-DEDUCT(K)
                    IF DT-PAYED NUMERIC
                        MOVE DT-PAYED TO PK-PAID(K)
+                   END-IF
+                   IF DT-ALLOWED NUMERIC
+                       MOVE DT-ALLOWED TO PK-ALLOWED(K)
+                   END-IF
+                   IF DT-DEDUCT NUMERIC
+                       MOVE DT-DEDUCT TO PK-DEDUCT(K)
                    END-IF
                END-IF
            END-IF.
@@ -1010,9 +1045,12 @@
            STRING CC-CPT " " SAVE-MOD1 " " SAVE-MOD2
                DELIMITED BY SIZE INTO LV-PROC
            MOVE SAVE-PAID TO LV-PAID
+           MOVE SAVE-ALLOWED TO LV-ALLOWED
+           MOVE SAVE-DEDUCT TO LV-DEDUCT
            STRING SAVE-NAME "|" SAVE-MBI "|" WS-DATE-T "|"
                   SAVE-ICN "|" LV-PROC "|" LV-PAID "|"
-                  SAVE-GARNO "|" SAVE-ACCT(1:8)
+                  SAVE-GARNO "|" SAVE-ACCT(1:8) "|"
+                  LV-ALLOWED "|" LV-DEDUCT
                DELIMITED BY SIZE INTO LVAM-FILE01
            WRITE LVAM-FILE01
            IF LVM-STAT NOT = "00"
