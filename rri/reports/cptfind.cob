@@ -16,12 +16,12 @@
       *     00009999  99999999  LNAME;FNAME M  003  03/30/2026
       *
       *  a row with no tab in it is read as the fixed layout:
-      *     cols  1-9   MRN, zero filled on the left
-      *     cols 10-11  "00"
+      *     cols  1-8   MRN, zero filled on the left (G-ACCT)
+      *     cols  9-11  "000"
       *     cols 24-31  DOS, CCYYMMDD
-      *     00099999900            20260330
-      *  a fixed row that does not fit (cols 1-11 or the DOS not
-      *  numeric, cols 10-11 not "00") is reported as *BAD INPUT.
+      *     00999999000            20260330
+      *  a fixed row that does not fit (cols 1-8 or the DOS not
+      *  numeric, cols 9-11 not "000") is reported as *BAD INPUT.
       *
       *  slots
       *     S30 garfile   S35 charcur   S40 carefile   S55 filein
@@ -984,17 +984,17 @@
 
       *  ---- fixed layout row ---------------------------------------
       *
-      *  cols 1-9 are handed to NORM-MRN like a worklist mrn, so
-      *  000999999 lands on the same g-acct as 999999.  WS-DATE-T
+      *  cols 1-8 are handed to NORM-MRN like a worklist mrn, so
+      *  00999999 lands on the same g-acct as 999999.  WS-DATE-T
       *  stays blank on a row that does not fit, which reports it
       *  as *BAD INPUT.
 
        FIXED-ROW.
            MOVE SPACE TO WS-DATE-T
-           MOVE FILEIN01(1:9) TO F-MRN
+           MOVE FILEIN01(1:8) TO F-MRN
            MOVE FILEIN01(24:8) TO F-DOS
 
-           IF FILEIN01(1:11) NUMERIC AND FILEIN01(10:2) = "00"
+           IF FILEIN01(1:8) NUMERIC AND FILEIN01(9:3) = "000"
                AND FILEIN01(24:8) NUMERIC
                MOVE FILEIN01(24:8) TO WS-DATE-T
                MOVE SPACE TO F-DOS
