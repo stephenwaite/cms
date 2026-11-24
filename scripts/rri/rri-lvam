@@ -17,10 +17,16 @@
 #   CPTWANT=70460 rri-lvam <list> <blank LVAM sheet> "<correction>"
 #   CAREFILE=<file> rri-lvam ...      when carefile has another name
 #   CAREDETL=<file> rri-lvam ...      the same for caredetl
-if [ ! -r "$1" ] || [ ! -r "$2" ] || [ -z "$3" ]; then
+if [ $# -ne 3 ] || [ -z "$3" ]; then
     echo 'usage: [CPTWANT=70450] rri-lvam <list> <blank LVAM sheet> "<correction>"'
     exit 1
 fi
+for f in "$1" "$2"; do
+    if [ ! -r "$f" ]; then
+        echo "rri-lvam: cannot read $f (from $PWD)"
+        exit 1
+    fi
+done
 list=$(readlink -f "$1")
 blank=$(readlink -f "$2")
 cd /home/rri || exit 1
