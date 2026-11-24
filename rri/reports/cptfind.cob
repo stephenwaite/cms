@@ -15,8 +15,50 @@
       *     1 MRN   2 FIN   3 NAME (LNAME;FNAME M)   4 INS   5 DOS
       *     00009999  99999999  LNAME;FNAME M  003  03/30/2026
       *
+      *  a row with no tab in it is read as the fixed layout:
+      *     cols  1-8   MRN, zero filled on the left (G-ACCT)
+      *     cols  9-11  "000"
+      *     cols 24-31  DOS, CCYYMMDD
+      *     00999999000            20260330
+      *  a fixed row that does not fit (cols 1-8 or the DOS not
+      *  numeric, cols 9-11 not "000") is reported as *BAD INPUT.
+      *
       *  slots
-      *     S30 garfile   S35 charcur   S55 filein   S60 report
+      *     S30 garfile   S35 charcur   S40 carefile   S55 filein
+      *     S60 report    S65 lvam rows, optional
+      *     S45 caredetl, optional: the medicare 835 detail file
+      *
+      *  medicare icn: carefile keeps one entry per line and
+      *  carer303 only replaces it when a later remit allows more
+      *  or pays a line the first one did not, and it never sees a
+      *  takeback, so its icn can be the claim medicare has since
+      *  reprocessed or taken back.  when S45 is set the line's
+      *  history in caredetl decides instead, for every account
+      *  (carefile is only asked when the primary is 003): the
+      *  newest remit that is not a takeback, a line with an
+      *  allowed or paid amount before a denial.  SRC on the
+      *  report says where the icn came from:
+      *     DETL   caredetl
+      *     DETL*  caredetl, and not the icn carefile holds
+      *     CARE   nothing in caredetl for the line, carefile's
+      *     TB     taken back after the last payment, or only
+      *            takebacks on file: no lvam row
+      *     NOID   neither primary nor secondary is 003, or the
+      *            policy is blank: no lvam row
+      *
+      *  lvam rows: when S65 is set, each charge found with a
+      *  medicare icn is also written "|" delimited, to be put in
+      *  the medicare contractor's LVAM request sheet by
+      *  php/rri/lvam_fill.php:
+      *     1 NAME (as garfile holds it)
+      *     2 medicare id, the policy of whichever of primary and
+      *       secondary is 003
+      *     3 DOS CCYYMMDD   4 ICN
+      *     5 CPT and the mods of the remit entry taken
+      *     6 PAID on that entry   7 GARNO   8 G-ACCT
+      *     9 ALLOWED and 10 DEDUCTIBLE on that entry: a line
+      *       paid 0 was denied (allowed 0) or went to the
+      *       deductible
       *
       *  environment
       *     CPTWANT   cpt to hunt, default 70450
@@ -53,6 +95,15 @@
            LINE SEQUENTIAL
            FILE STATUS IS RPT-STAT.
 
+           SELECT LVAM-FILE ASSIGN TO "S65" ORGANIZATION
+           LINE SEQUENTIAL
+           FILE STATUS IS LVM-STAT.
+
+           SELECT CAREDETL ASSIGN TO "S45"   ORGANIZATION IS INDEXED
+           ACCESS IS DYNAMIC        RECORD KEY IS DT-KEY
+           FILE STATUS IS DTL-STAT
+           LOCK MODE MANUAL.
+
        DATA DIVISION.
        FILE SECTION.
 
@@ -71,6 +122,12 @@
        FD  REPORT-FILE.
        01  REPORT-FILE01 PIC X(160).
 
+       FD  LVAM-FILE.
+       01  LVAM-FILE01 PIC X(160).
+
+       FD  CAREDETL.
+           COPY caredetl.CPY.
+
        WORKING-STORAGE SECTION.
 
        01  STATUS-FLAGS.
@@ -79,6 +136,8 @@
            02 CAR-STAT PIC XX VALUE SPACE.
            02 FIN-STAT PIC XX VALUE SPACE.
            02 RPT-STAT PIC XX VALUE SPACE.
+           02 LVM-STAT PIC XX VALUE SPACE.
+           02 DTL-STAT PIC XX VALUE SPACE.
 
        01  WS-TAB PIC X VALUE X"09".
 
@@ -90,12 +149,17 @@
            02 HIT-FLAG      PIC 9 VALUE 0.
            02 ACCT-HIT      PIC 9 VALUE 0.
            02 DEBUG-FLAG    PIC 9 VALUE 0.
+           02 LVAM-FLAG     PIC 9 VALUE 0.
+           02 DETL-FLAG     PIC 9 VALUE 0.
+           02 DTL-EOF       PIC 9 VALUE 0.
 
        01  WS-ENV.
            02 ENV-CPT   PIC X(10) VALUE SPACE.
            02 ENV-DEBUG PIC X(10) VALUE SPACE.
            02 ENV-WIDTH PIC X(10) VALUE SPACE.
            02 ENV-W2    PIC XX VALUE SPACE.
+           02 ENV-LVAM  PIC X(80) VALUE SPACE.
+           02 ENV-DETL  PIC X(80) VALUE SPACE.
 
        01  WS-PARM.
            02 CPT-WANT  PIC X(5) VALUE "70450".
@@ -116,9 +180,42 @@
            02 SAVE-DOB    PIC X(10).
            02 SAVE-POL    PIC X(20).
            02 SAVE-ICN    PIC X(13).
+           02 SAVE-NAME   PIC X(24).
+           02 SAVE-MOD1   PIC XX.
+           02 SAVE-MOD2   PIC XX.
+           02 SAVE-PAID   PIC 9(4)V99 VALUE 0.
+           02 SAVE-ALLOWED PIC 9(4)V99 VALUE 0.
+           02 SAVE-DEDUCT PIC 9(4)V99 VALUE 0.
+           02 TAB-CNT     PIC 999 VALUE 0.
+           02 SAVE-MBI    PIC X(20).
+           02 SAVE-SRC    PIC X(5).
+
+      *  caredetl entries for the line: 1 = those with the charge's
+      *  mods, 2 = all of them.  PK-RANK 2 = allowed or paid,
+      *  1 = denied, 0 = no entry that is not a takeback.
+
+       01  WS-PICK.
+           02 PK-SET OCCURS 2 TIMES.
+              03 PK-ROWS    PIC 9(4).
+              03 PK-RANK    PIC 9.
+              03 PK-PAYDATE PIC X(8).
+              03 PK-ICN     PIC X(13).
+              03 PK-MOD1    PIC XX.
+              03 PK-MOD2    PIC XX.
+              03 PK-PAID    PIC S9(4)V99.
+              03 PK-ALLOWED PIC S9(4)V99.
+              03 PK-DEDUCT  PIC S9(4)V99.
+              03 PK-TBDATE  PIC X(8).
+           02 K             PIC 9 VALUE 0.
+           02 WS-RANK       PIC 9 VALUE 0.
 
        01  WS-ICN-WORK.
            02 FB-ICN      PIC X(13) VALUE SPACE.
+           02 FB-MOD1     PIC XX VALUE SPACE.
+           02 FB-MOD2     PIC XX VALUE SPACE.
+           02 FB-PAID     PIC 9(4)V99 VALUE 0.
+           02 FB-ALLOWED  PIC 9(4)V99 VALUE 0.
+           02 FB-DEDUCT   PIC 9(4)V99 VALUE 0.
            02 EXACT-FLAG  PIC 9 VALUE 0.
            02 WS-MODX     PIC XX.
            02 WS-MODY     PIC XX.
@@ -157,6 +254,17 @@
            02 C-HIT    PIC 9(7) VALUE 0.
            02 C-GAR    PIC 9(7) VALUE 0.
            02 C-ICN    PIC 9(7) VALUE 0.
+           02 C-LVAM   PIC 9(7) VALUE 0.
+           02 C-DETL   PIC 9(7) VALUE 0.
+           02 C-DIFF   PIC 9(7) VALUE 0.
+           02 C-TB     PIC 9(7) VALUE 0.
+           02 C-NOID   PIC 9(7) VALUE 0.
+
+       01  WS-LVAM.
+           02 LV-PROC  PIC X(11).
+           02 LV-PAID  PIC ZZZ9.99.
+           02 LV-ALLOWED PIC ZZZ9.99.
+           02 LV-DEDUCT PIC ZZZ9.99.
 
        01  WS-TRACE PIC X(132).
 
@@ -175,6 +283,7 @@
            02 FILLER PIC X(5)  VALUE "PAY".
            02 FILLER PIC X(14) VALUE "MEDICARE ICN".
            02 FILLER PIC X(4)  VALUE "NCK".
+           02 HDR-SRC PIC X(5) VALUE SPACE.
 
        01  HDR-2 PIC X(160) VALUE ALL "-".
 
@@ -206,6 +315,8 @@
            02 DL-ICN PIC X(13).
            02 FILLER PIC X VALUE SPACE.
            02 DL-NCK PIC X.
+           02 FILLER PIC XXX VALUE SPACE.
+           02 DL-SRC PIC X(5).
 
        01  TL1.
            02 FILLER PIC X(22) VALUE SPACE.
@@ -282,6 +393,34 @@
                STOP RUN
            END-IF
 
+           ACCEPT ENV-LVAM FROM ENVIRONMENT "S65"
+             ON EXCEPTION
+               CONTINUE
+           END-ACCEPT
+           IF ENV-LVAM NOT = SPACE
+               OPEN OUTPUT LVAM-FILE
+               IF LVM-STAT NOT = "00"
+                   DISPLAY "cptfind: lvam open " LVM-STAT UPON SYSERR
+                   STOP RUN
+               END-IF
+               MOVE 1 TO LVAM-FLAG
+           END-IF
+
+           ACCEPT ENV-DETL FROM ENVIRONMENT "S45"
+             ON EXCEPTION
+               CONTINUE
+           END-ACCEPT
+           IF ENV-DETL NOT = SPACE
+               OPEN INPUT CAREDETL
+               IF DTL-STAT NOT = "00"
+                   DISPLAY "cptfind: caredetl open " DTL-STAT
+                       UPON SYSERR
+                   STOP RUN
+               END-IF
+               MOVE 1 TO DETL-FLAG
+               MOVE "SRC" TO HDR-SRC
+           END-IF
+
            MOVE SPACE TO REPORT-FILE01
            STRING "cptfind - cpt " CPT-WANT DELIMITED BY SIZE
                INTO REPORT-FILE01
@@ -310,18 +449,26 @@
                GO TO P1
            END-IF
 
-           MOVE SPACE TO F-MRN F-FIN F-NAME F-INS F-DOS
-           UNSTRING FILEIN01 DELIMITED BY WS-TAB
-               INTO F-MRN F-FIN F-NAME F-INS F-DOS
-           END-UNSTRING
+           MOVE 0 TO TAB-CNT
+           INSPECT FILEIN01 TALLYING TAB-CNT FOR ALL WS-TAB
 
-           IF F-MRN(1:3) = "MRN"
-               GO TO P1
+           MOVE SPACE TO F-MRN F-FIN F-NAME F-INS F-DOS
+           IF TAB-CNT = 0
+               PERFORM FIXED-ROW
+           ELSE
+               UNSTRING FILEIN01 DELIMITED BY WS-TAB
+                   INTO F-MRN F-FIN F-NAME F-INS F-DOS
+               END-UNSTRING
+               IF F-MRN(1:3) = "MRN"
+                   GO TO P1
+               END-IF
            END-IF
 
            ADD 1 TO C-IN
 
-           PERFORM NORM-DATE
+           IF TAB-CNT NOT = 0
+               PERFORM NORM-DATE
+           END-IF
 
            IF WS-DATE-T = SPACE OR F-MRN = SPACE
                ADD 1 TO C-SKIP
@@ -386,6 +533,15 @@
            MOVE G-DOB TO SAVE-DOB
            MOVE SPACE TO SAVE-POL
            MOVE G-PRIPOL TO SAVE-POL
+           MOVE G-GARNAME TO SAVE-NAME
+           MOVE SPACE TO SAVE-MBI
+           IF G-PRINS = "003"
+               MOVE G-PRIPOL TO SAVE-MBI
+           ELSE
+               IF G-SEINS = "003"
+                   MOVE G-SECPOL TO SAVE-MBI
+               END-IF
+           END-IF
 
            IF DEBUG-FLAG = 1
                MOVE SPACE TO WS-TRACE
@@ -455,6 +611,17 @@
            END-IF
 
            PERFORM LOOK-ICN THRU LOOK-ICN-EXIT
+           MOVE SPACE TO SAVE-SRC
+           IF DETL-FLAG = 1
+               PERFORM LOOK-DETL THRU LOOK-DETL-EXIT
+           END-IF
+           IF SAVE-ICN NOT = SPACE
+               ADD 1 TO C-ICN
+               IF SAVE-MBI = SPACE AND SAVE-SRC NOT = "TB"
+                   MOVE "NOID" TO SAVE-SRC
+                   ADD 1 TO C-NOID
+               END-IF
+           END-IF
 
            MOVE SPACE TO DL1
            MOVE F-MRN TO DL-MRN
@@ -473,7 +640,13 @@
            MOVE CC-PAYCODE TO DL-PAY
            MOVE SAVE-ICN TO DL-ICN
            MOVE WS-NAMCHK TO DL-NCK
+           MOVE SAVE-SRC TO DL-SRC
            PERFORM WRITE-LINE
+
+           IF LVAM-FLAG = 1 AND SAVE-ICN NOT = SPACE
+               AND SAVE-SRC NOT = "TB" AND SAVE-SRC NOT = "NOID"
+               PERFORM WRITE-LVAM
+           END-IF
 
            GO TO P5.
 
@@ -542,6 +715,32 @@
            MOVE C-ICN TO TL-CNT
            WRITE REPORT-FILE01 FROM TL1
 
+           IF DETL-FLAG = 1
+               MOVE "LINES FOUND IN CAREDETL" TO TL-LIT
+               MOVE C-DETL TO TL-CNT
+               WRITE REPORT-FILE01 FROM TL1
+               MOVE "ICN NOT THE ONE IN CAREFILE" TO TL-LIT
+               MOVE C-DIFF TO TL-CNT
+               WRITE REPORT-FILE01 FROM TL1
+               MOVE "TAKEN BACK, NO LVAM ROW" TO TL-LIT
+               MOVE C-TB TO TL-CNT
+               WRITE REPORT-FILE01 FROM TL1
+               CLOSE CAREDETL
+           END-IF
+
+           IF C-NOID > 0
+               MOVE "NO MEDICARE ID, NO LVAM ROW" TO TL-LIT
+               MOVE C-NOID TO TL-CNT
+               WRITE REPORT-FILE01 FROM TL1
+           END-IF
+
+           IF LVAM-FLAG = 1
+               MOVE "LVAM ROWS WRITTEN" TO TL-LIT
+               MOVE C-LVAM TO TL-CNT
+               WRITE REPORT-FILE01 FROM TL1
+               CLOSE LVAM-FILE
+           END-IF
+
            CLOSE GARFILE CHARCUR CAREFILE FILEIN REPORT-FILE
            STOP RUN.
 
@@ -553,9 +752,14 @@
       *  prefix is walked, because the mods carefile holds need not
       *  match what charcur holds (26 vs blank).  an exact mod match
       *  wins; otherwise the first entry carrying an icn is taken.
+      *  the mods and the paid, allowed and deductible amounts of
+      *  the entry taken are kept for the lvam row.
 
        LOOK-ICN.
            MOVE SPACE TO SAVE-ICN FB-ICN
+           MOVE SPACE TO SAVE-MOD1 SAVE-MOD2 FB-MOD1 FB-MOD2
+           MOVE 0 TO SAVE-PAID FB-PAID
+           MOVE 0 TO SAVE-ALLOWED FB-ALLOWED SAVE-DEDUCT FB-DEDUCT
            MOVE 0 TO CAR-EOF EXACT-FLAG
 
            IF SAVE-PRINS NOT = "003"
@@ -615,6 +819,17 @@
 
            IF FB-ICN = SPACE
                MOVE CR-ICN TO FB-ICN
+               MOVE CR-MOD1 TO FB-MOD1
+               MOVE CR-MOD2 TO FB-MOD2
+               IF CR-PAID NUMERIC
+                   MOVE CR-PAID TO FB-PAID
+               END-IF
+               IF CR-ALLOWED NUMERIC
+                   MOVE CR-ALLOWED TO FB-ALLOWED
+               END-IF
+               IF CR-DEDUCT NUMERIC
+                   MOVE CR-DEDUCT TO FB-DEDUCT
+               END-IF
            END-IF
 
            MOVE SPACE TO WS-MODX WS-MODY
@@ -623,6 +838,17 @@
 
            IF CR-MOD1 = WS-MODX AND CR-MOD2 = WS-MODY
                MOVE CR-ICN TO SAVE-ICN
+               MOVE CR-MOD1 TO SAVE-MOD1
+               MOVE CR-MOD2 TO SAVE-MOD2
+               IF CR-PAID NUMERIC
+                   MOVE CR-PAID TO SAVE-PAID
+               END-IF
+               IF CR-ALLOWED NUMERIC
+                   MOVE CR-ALLOWED TO SAVE-ALLOWED
+               END-IF
+               IF CR-DEDUCT NUMERIC
+                   MOVE CR-DEDUCT TO SAVE-DEDUCT
+               END-IF
                MOVE 1 TO EXACT-FLAG
                GO TO LOOK-ICN-DONE
            END-IF
@@ -632,14 +858,206 @@
        LOOK-ICN-DONE.
            IF EXACT-FLAG = 0
                MOVE FB-ICN TO SAVE-ICN
-           END-IF
-
-           IF SAVE-ICN NOT = SPACE
-               ADD 1 TO C-ICN
+               MOVE FB-MOD1 TO SAVE-MOD1
+               MOVE FB-MOD2 TO SAVE-MOD2
+               MOVE FB-PAID TO SAVE-PAID
+               MOVE FB-ALLOWED TO SAVE-ALLOWED
+               MOVE FB-DEDUCT TO SAVE-DEDUCT
            END-IF.
 
        LOOK-ICN-EXIT.
            EXIT.
+
+      *  ---- medicare icn from caredetl ----------------------------
+      *
+      *  every remit entry for garno + dos + cpt is read.  the
+      *  entries with the charge's mods decide when there are any,
+      *  otherwise all of them do, as the mods on the remit need
+      *  not be the ones charcur holds.
+
+       LOOK-DETL.
+           MOVE 0 TO DTL-EOF
+           PERFORM VARYING K FROM 1 BY 1 UNTIL K > 2
+               MOVE 0 TO PK-ROWS(K) PK-RANK(K) PK-PAID(K)
+               MOVE 0 TO PK-ALLOWED(K) PK-DEDUCT(K)
+               MOVE SPACE TO PK-PAYDATE(K) PK-ICN(K) PK-TBDATE(K)
+               MOVE SPACE TO PK-MOD1(K) PK-MOD2(K)
+           END-PERFORM
+
+           MOVE SPACE TO WS-MODX WS-MODY
+           MOVE CC-MOD TO WS-MODX
+           MOVE CC-MOD2 TO WS-MODY
+
+           MOVE SPACE TO DT-KEY
+           MOVE SAVE-GARNO TO DT-KEY8
+           MOVE WS-DATE-T TO DT-DATE
+           MOVE CPT-WANT TO DT-PROC
+
+           START CAREDETL KEY NOT < DT-KEY
+             INVALID
+               MOVE 1 TO DTL-EOF
+           END-START
+
+           IF DTL-EOF = 1
+               GO TO LOOK-DETL-DONE
+           END-IF.
+
+       LOOK-DETL-1.
+           READ CAREDETL NEXT
+             AT END
+               MOVE 1 TO DTL-EOF
+           END-READ
+
+           IF DTL-EOF = 1
+               GO TO LOOK-DETL-DONE
+           END-IF
+
+           IF DT-KEY8 NOT = SAVE-GARNO OR DT-DATE NOT = WS-DATE-T
+               OR DT-PROC NOT = CPT-WANT
+               GO TO LOOK-DETL-DONE
+           END-IF
+
+           IF DEBUG-FLAG = 1
+               MOVE SPACE TO WS-TRACE
+               STRING "DTL " DT-KEY8 " " DT-DATE " " DT-PROC
+                      " mod=" DT-MOD1 DT-MOD2
+                      " paid=" DT-PAYDATE
+                      " icn=" DT-ICN
+                      " tb=" DT-TB DELIMITED BY SIZE
+                   INTO WS-TRACE
+               DISPLAY WS-TRACE UPON SYSERR
+           END-IF
+
+           MOVE 2 TO K
+           PERFORM TALLY-DETL
+           IF DT-MOD1 = WS-MODX AND DT-MOD2 = WS-MODY
+               MOVE 1 TO K
+               PERFORM TALLY-DETL
+           END-IF
+
+           GO TO LOOK-DETL-1.
+
+       LOOK-DETL-DONE.
+           MOVE 1 TO K
+           IF PK-ROWS(1) = 0
+               MOVE 2 TO K
+           END-IF
+
+           IF PK-ROWS(K) = 0
+               IF SAVE-ICN NOT = SPACE
+                   MOVE "CARE" TO SAVE-SRC
+               END-IF
+               GO TO LOOK-DETL-EXIT
+           END-IF
+
+           ADD 1 TO C-DETL
+
+           IF PK-RANK(K) = 0 OR PK-TBDATE(K) > PK-PAYDATE(K)
+               MOVE "TB" TO SAVE-SRC
+               ADD 1 TO C-TB
+               IF PK-ICN(K) NOT = SPACE
+                   MOVE PK-ICN(K) TO SAVE-ICN
+               END-IF
+               GO TO LOOK-DETL-EXIT
+           END-IF
+
+           MOVE "DETL" TO SAVE-SRC
+           IF SAVE-ICN NOT = SPACE AND SAVE-ICN NOT = PK-ICN(K)
+               MOVE "DETL*" TO SAVE-SRC
+               ADD 1 TO C-DIFF
+           END-IF
+           MOVE PK-ICN(K) TO SAVE-ICN
+           MOVE PK-MOD1(K) TO SAVE-MOD1
+           MOVE PK-MOD2(K) TO SAVE-MOD2
+           MOVE PK-PAID(K) TO SAVE-PAID
+           MOVE PK-ALLOWED(K) TO SAVE-ALLOWED
+           MOVE PK-DEDUCT(K) TO SAVE-DEDUCT.
+
+       LOOK-DETL-EXIT.
+           EXIT.
+
+      *  one caredetl entry into set K.  a takeback only moves the
+      *  set's last takeback date.  of the others the best is kept:
+      *  allowed or paid before denied, then the newest pay date,
+      *  then the higher icn.
+
+       TALLY-DETL.
+           ADD 1 TO PK-ROWS(K)
+           IF DT-TB = "T"
+               IF DT-PAYDATE > PK-TBDATE(K)
+                   MOVE DT-PAYDATE TO PK-TBDATE(K)
+               END-IF
+           ELSE
+               MOVE 1 TO WS-RANK
+               IF (DT-ALLOWED NUMERIC AND DT-ALLOWED > 0)
+                   OR (DT-PAYED NUMERIC AND DT-PAYED > 0)
+                   MOVE 2 TO WS-RANK
+               END-IF
+               IF WS-RANK > PK-RANK(K)
+                   OR (WS-RANK = PK-RANK(K)
+                       AND DT-PAYDATE > PK-PAYDATE(K))
+                   OR (WS-RANK = PK-RANK(K)
+                       AND DT-PAYDATE = PK-PAYDATE(K)
+                       AND DT-ICN > PK-ICN(K))
+                   MOVE WS-RANK TO PK-RANK(K)
+                   MOVE DT-PAYDATE TO PK-PAYDATE(K)
+                   MOVE DT-ICN TO PK-ICN(K)
+                   MOVE DT-MOD1 TO PK-MOD1(K)
+                   MOVE DT-MOD2 TO PK-MOD2(K)
+                   MOVE 0 TO PK-PAID(K) PK-ALLOWED(K) PK-DEDUCT(K)
+                   IF DT-PAYED NUMERIC
+                       MOVE DT-PAYED TO PK-PAID(K)
+                   END-IF
+                   IF DT-ALLOWED NUMERIC
+                       MOVE DT-ALLOWED TO PK-ALLOWED(K)
+                   END-IF
+                   IF DT-DEDUCT NUMERIC
+                       MOVE DT-DEDUCT TO PK-DEDUCT(K)
+                   END-IF
+               END-IF
+           END-IF.
+
+      *  ---- fixed layout row ---------------------------------------
+      *
+      *  cols 1-8 are handed to NORM-MRN like a worklist mrn, so
+      *  00999999 lands on the same g-acct as 999999.  WS-DATE-T
+      *  stays blank on a row that does not fit, which reports it
+      *  as *BAD INPUT.
+
+       FIXED-ROW.
+           MOVE SPACE TO WS-DATE-T
+           MOVE FILEIN01(1:8) TO F-MRN
+           MOVE FILEIN01(24:8) TO F-DOS
+
+           IF FILEIN01(1:8) NUMERIC AND FILEIN01(9:3) = "000"
+               AND FILEIN01(24:8) NUMERIC
+               MOVE FILEIN01(24:8) TO WS-DATE-T
+               MOVE SPACE TO F-DOS
+               STRING FILEIN01(28:2) "/" FILEIN01(30:2) "/"
+                      FILEIN01(24:4) DELIMITED BY SIZE
+                   INTO F-DOS
+           END-IF.
+
+      *  ---- lvam row -----------------------------------------------
+
+       WRITE-LVAM.
+           MOVE SPACE TO LVAM-FILE01 LV-PROC
+           STRING CC-CPT " " SAVE-MOD1 " " SAVE-MOD2
+               DELIMITED BY SIZE INTO LV-PROC
+           MOVE SAVE-PAID TO LV-PAID
+           MOVE SAVE-ALLOWED TO LV-ALLOWED
+           MOVE SAVE-DEDUCT TO LV-DEDUCT
+           STRING SAVE-NAME "|" SAVE-MBI "|" WS-DATE-T "|"
+                  SAVE-ICN "|" LV-PROC "|" LV-PAID "|"
+                  SAVE-GARNO "|" SAVE-ACCT(1:8) "|"
+                  LV-ALLOWED "|" LV-DEDUCT
+               DELIMITED BY SIZE INTO LVAM-FILE01
+           WRITE LVAM-FILE01
+           IF LVM-STAT NOT = "00"
+               DISPLAY "cptfind: lvam write " LVM-STAT UPON SYSERR
+               STOP RUN
+           END-IF
+           ADD 1 TO C-LVAM.
 
       *  ---- mrn to zero filled g-acct -----------------------------
       *

@@ -76,6 +76,13 @@ done
 #        $(echo $t >> w22)
 
 
+# keep the 835 detail (caredetl) up with the day's remits, for the
+# medicare icn lookup. a problem here doesn't stop anything else.
+if [[ -s cat835 ]]; then
+    /home/sidw/care-detl-load /home/sidw/cat835 \
+        || echo "*** care-detl-load failed on cat835 - see /home/sidw/log-caredetl-load ***"
+fi
+
 cd /home/sidw
 mv ngs.zip "/tmp/ngs-$USER.zip"
 

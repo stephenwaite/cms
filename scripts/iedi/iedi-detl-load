@@ -12,12 +12,15 @@
 # already on file is skipped, so a re-run is safe, in any order
 # (mbrxfile keeps the member id of the latest pay date).
 # prints kept remits and totals; skips go to the log only.
+# DETL names another detail file to load (care-detl-load uses it
+# for the medicare one), default /home/rri/iedidetl.
 # exit status is 1 if a file was missing or iedidetl failed on one,
 # so a daily script can say so and carry on.
 
 : "${RUNCBL:?RUNCBL is not set}"
 RRI=${RRI:-/home/rri}
 PROG=${PROG:-/home/sidw/iedidetl.acu}
+DETL=${DETL:-$RRI/iedidetl}
 LOG=${LOG:-/home/sidw/log-iedidetl-load}
 
 [ $# -gt 0 ] || { echo "usage: iedi-detl-load FILE ..." >&2; exit 1; }
@@ -32,7 +35,7 @@ for f in "$@"; do
     echo "== $f"
     sed 's/>/:/g' "$f" | tr -d '\r' | tr '~' '\n' | grep -v '^ *$' \
         | tr 'a-z' 'A-Z' > "$TMP"
-    S30=$TMP S35=$RRI/parm139 S41=$RRI/iedidetl S42=$RRI/mbrxfile \
+    S30=$TMP S35=$RRI/parm139 S41=$DETL S42=$RRI/mbrxfile \
         $RUNCBL "$PROG" > "$OUT" 2>&1 \
         || { echo "*** iedidetl failed on $f - see $LOG ***"; RC=1; }
     { echo "== $(date) $f"; grep -v 'D-DETL' "$OUT"; } \
