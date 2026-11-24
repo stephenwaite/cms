@@ -3,15 +3,20 @@
 # Part B reopening request for 25 or more claims with the same correction.
 #   cptfind       the list -> lvam-report and lvam-rows: garno from the MRN,
 #                 the charge on the DOS in charcur, the Medicare ICN from
-#                 carefile
+#                 caredetl (the newest remit that is not a takeback) or,
+#                 for a line caredetl does not have, from carefile
 #   lvam_fill.php lvam-rows + the blank LVAM sheet -> lvam-<cpt>-<timestamp>.xlsx
-# garfile, charcur and carefile are only read. the list is tab delimited or
-# the fixed layout, see rri/reports/cptfind.cob. only charges with a Medicare
-# ICN go in the sheet; read lvam-report for the rest (no account, no charge
-# on the DOS, no ICN).
+# garfile, charcur, carefile and caredetl are only read. the list is tab
+# delimited or the fixed layout, see rri/reports/cptfind.cob. only charges
+# with a Medicare ICN go in the sheet; read lvam-report for the rest (no
+# account, no charge on the DOS, no ICN, taken back, no Medicare id) and for
+# where each ICN came from (SRC). caredetl is loaded by care-detl-load; with
+# no caredetl in /home/rri the ICNs are carefile's, which can be out of date
+# for a claim Medicare reprocessed or took back.
 #   rri-lvam <list> <blank LVAM sheet> "<correction>"
 #   CPTWANT=70460 rri-lvam <list> <blank LVAM sheet> "<correction>"
 #   CAREFILE=<file> rri-lvam ...      when carefile has another name
+#   CAREDETL=<file> rri-lvam ...      the same for caredetl
 if [ ! -r "$1" ] || [ ! -r "$2" ] || [ -z "$3" ]; then
     echo 'usage: [CPTWANT=70450] rri-lvam <list> <blank LVAM sheet> "<correction>"'
     exit 1
@@ -28,10 +33,17 @@ rm -f lvam-rows
 S30=garfile; S35=charcur; S40=${CAREFILE:-carefile}; S55=$list
 S60=lvam-report; S65=lvam-rows
 export S30 S35 S40 S55 S60 S65
+detl=${CAREDETL:-caredetl}
+if [ -e "$detl" ]; then
+    S45=$detl
+    export S45
+else
+    echo "*** no $detl in /home/rri: the ICNs are carefile's ***"
+fi
 $RUNCBL /home/sidw/cptfind.acu || exit 1
-unset S30 S35 S40 S55 S60 S65
+unset S30 S35 S40 S45 S55 S60 S65
 
-tail -8 lvam-report
+sed -n '/INPUT ROWS/,$p' lvam-report
 if [ ! -s lvam-rows ]; then
     echo "no charge with a Medicare ICN found, no sheet written. see /home/rri/lvam-report"
     exit 1

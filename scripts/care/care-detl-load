@@ -1,0 +1,22 @@
+#!/bin/bash
+# care-detl-load: load medicare 835s into the medicare 835 detail file,
+# /home/rri/caredetl: one entry per service line per remit, with the icn,
+# the pay date and the takebacks. carefile keeps one entry per line and
+# never sees a takeback; this is the history cptfind reads for the icn
+# medicare holds now (S45).
+#
+#   care-detl-load FILE ...     e.g. care-detl-load /home/sidw/cat835
+#
+# it is iedi-detl-load pointed at caredetl, so the same holds: raw 835s
+# or a segment per line, only remits paid to rri are kept (parm139), a
+# remit already on file is skipped and a re-run is safe. the first run
+# creates caredetl. only medicare 835s belong in it: cptfind takes every
+# entry in it as medicare's.
+# the member ids go to /home/rri/mbrxfile with the others, keyed by payer.
+# exit status 1 if a file was missing or iedidetl failed on one.
+
+RRI=${RRI:-/home/rri}
+export RRI
+export DETL=${DETL:-$RRI/caredetl}
+export LOG=${LOG:-/home/sidw/log-caredetl-load}
+exec "${LOADER:-/home/sidw/iedi-detl-load}" "$@"
